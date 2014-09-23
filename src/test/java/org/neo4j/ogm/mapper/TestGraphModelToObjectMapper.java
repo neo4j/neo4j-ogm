@@ -3,6 +3,7 @@ package org.neo4j.ogm.mapper;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertNotNull;
 
 public class TestGraphModelToObjectMapper {
@@ -19,7 +20,7 @@ public class TestGraphModelToObjectMapper {
             }
         };
 
-        mapper.mapToObject(new GraphModel());
+        assertNull(mapper.mapToObject(new GraphModel()));
     }
 
 }

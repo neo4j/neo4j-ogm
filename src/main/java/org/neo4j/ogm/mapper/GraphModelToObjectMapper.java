@@ -7,14 +7,14 @@ import org.graphaware.graphmodel.Graph;
  *
  * @param <T> The type of object onto which the graph data will be mapped
  */
-public interface GraphResultToObjectMapper<T> {
+public interface GraphModelToObjectMapper<T, G extends Graph> {
 
     /**
      * Maps the data representation in the given {@link Graph} onto an object of type <code>T</code>.
      *
-     * @param graphModel The {@link Graph} containing the data to map onto the object
+     * @param graphModel The {@link Graph} model containing the data to map onto the object
      * @return An object of type <code>T</code> containing relevant data extracted from the given graph model
      */
-    T mapToObject(Graph graphModel);
+    T mapToObject(G graphModel);
 
 }

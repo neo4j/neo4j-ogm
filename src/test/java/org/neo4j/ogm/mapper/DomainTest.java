@@ -23,92 +23,20 @@ import static org.junit.Assert.assertEquals;
  */
 public class DomainTest {
 
+    private final Map<Long, Object> objectMap = new HashMap<>();
+    private final Map<Class, List<Object>> typeMap = new HashMap<>();
+    private final List<EdgeModel> vectorRelationships = new ArrayList<>();
+
     @Test
     public void testDefaultBikeMapping() throws Exception {
 
-        /*
-         * example REST response from cypher query: "MATCH p=(b:Bike)-->(component) WHERE id(b) = 15 RETURN p"
-         */
-        final String json =
-                "{\"graph\": { " +
-                    "\"nodes\" :[ " +
-                        "{\"id\" : \"15\",\"labels\" : [ \"Bike\"], \"properties\" : {} }, " +
-                        "{\"id\" : \"16\",\"labels\" : [ \"Wheel\", \"FrontWheel\" ],\"properties\" : {\"spokes\" : 3 } }, " +
-                        "{\"id\" : \"17\",\"labels\" : [ \"Wheel\", \"BackWheel\" ],\"properties\" : {\"spokes\" : 5 } }, " +
-                        "{\"id\" : \"18\",\"labels\" : [ \"Frame\" ],\"properties\" : {\"size\" : 27 } }, " +
-                        "{\"id\" : \"19\",\"labels\" : [ \"Saddle\" ],\"properties\" : {\"price\" : 42.99, \"material\" : \"plastic\" } } " +
-                    "], " +
-                    "\"relationships\": [" +
-                        "{\"id\":\"141\",\"type\":\"HAS_WHEEL\",\"startNode\":\"15\",\"endNode\":\"16\",\"properties\":{ \"purchased\" : 20130917 }}, " +
-                        "{\"id\":\"142\",\"type\":\"HAS_WHEEL\",\"startNode\":\"15\",\"endNode\":\"17\",\"properties\":{ \"purchased\" : 20130917 }}," +
-                        "{\"id\":\"143\",\"type\":\"HAS_FRAME\",\"startNode\":\"15\",\"endNode\":\"18\",\"properties\":{ \"purchased\" : 20130917 }}," +
-                        "{\"id\":\"144\",\"type\":\"HAS_SADDLE\",\"startNode\":\"15\",\"endNode\":\"19\",\"properties\":{\"purchased\" : 20130922 }} " +
-                    "] " +
-                "} }";
+        GraphModel graphModel = GraphBuilder.build(getCypherResponse());
 
-        /*
-         * 1. create the graphmodel
-         */
-        GraphModel graphModel = GraphBuilder.build(json);
+        createDomainObjects(graphModel);
+        createScalarRelationships(graphModel);
+        createVectorRelationships();
 
-        /*
-         * 2. Build our domain objects from the graph
-         */
-        Map<Long, Object> objectMap = new HashMap();
-        Map<Class, List<Object>> typeMap = new HashMap();
-        List<EdgeModel> nonScalar = new ArrayList<EdgeModel>();
-
-        for (NodeModel node : graphModel.getNodes()) {
-            String baseClass = node.getLabels()[0]; // by convention :)
-            Object object = instantiate(baseClass);
-            setId(object, node.getId());
-            objectMap.put(node.getId(), object);
-            List<Object> objectList = typeMap.get(object.getClass());
-            if (objectList == null) {
-                objectList = new ArrayList<Object>();
-                typeMap.put(object.getClass(), objectList);
-            }
-            objectList.add(object);
-            setAttributes(node, object);
-        }
-
-        // 3. scalar types
-        for (EdgeModel edge : graphModel.getRelationships()) {
-            if (!attachChild(objectMap.get(edge.getStartNode()), objectMap.get(edge.getEndNode()), typeMap)) {
-                nonScalar.add(edge);
-            }
-        }
-
-        // 4. vector types
-        for (EdgeModel edge : nonScalar) {
-
-            Object parent = objectMap.get(edge.getStartNode());
-            Object child = objectMap.get(edge.getEndNode());
-
-            if (typeMap.get(child.getClass()) != null) {
-                Method method = findParameterisedSetter(parent, child);
-                if (method == null) {
-                    throw new RuntimeException("can't finder any setter for " + child.getClass().getName() + " in " + parent.getClass().getName());
-                }
-
-                // basic vector types we will handle: List<T>, Set<T>, Vector<T>
-                Class collectionType = method.getParameterTypes()[0];
-                if (collectionType == List.class) {
-                    ArrayList arrayList = new ArrayList();
-                    arrayList.addAll(typeMap.get(child.getClass()));
-                    method.invoke(parent, arrayList);
-                    typeMap.remove(child.getClass()); // we've added them all, no point in doing this for each one.
-                } else {
-                    throw new RuntimeException("Unsupported: " + collectionType.getName());
-                }
-            }
-        }
-        /*
-         * finally, get the root object (how do we automatically figure this out?),
-         * cast to an instance of bike, then test...
-         */
-
-        Bike bike = (Bike) typeMap.get(Class.forName(fqn("Bike"))).get(0);
+        Bike bike = (Bike) getRootObject();
 
         assertNotNull(bike);
         assertEquals(15, (long) bike.getId());
@@ -119,19 +47,104 @@ public class DomainTest {
 
         // check the saddle
         assertEquals(19, (long) bike.getSaddle().getId());
-        assertEquals(42.99, (double) bike.getSaddle().getPrice(), 0.00);
+        assertEquals(42.99, bike.getSaddle().getPrice(), 0.00);
         assertEquals("plastic", bike.getSaddle().getMaterial());
 
         // check the wheels
         assertEquals(2, bike.getWheels().size());
         for (Wheel wheel : bike.getWheels()) {
-            if (wheel.getId().equals(16)) {
+            if (wheel.getId().equals(16L)) {
                 assertEquals(3, (int) wheel.getSpokes());
             }
-            if (wheel.getId().equals(17)) {
+            if (wheel.getId().equals(17L)) {
                 assertEquals(5, (int) wheel.getSpokes());
             }
         }
+    }
+
+    private Object getRootObject() throws Exception {
+        // TODO:
+        // there should be only one object in the typeMap when this is called
+        // otherwise the object mapping has failed.
+        // we could use that fact to drive this method, rather than
+        // relying a known name.
+        return typeMap.get(Class.forName(fqn("Bike"))).get(0);
+    }
+
+    private void createVectorRelationships() throws Exception {
+
+        for (EdgeModel edge : vectorRelationships) {
+
+            Object parent = objectMap.get(edge.getStartNode());
+            Object child = objectMap.get(edge.getEndNode());
+
+            if (typeMap.get(child.getClass()) != null) {
+                Method method = findParameterisedSetter(parent, child);
+                if (method == null) {
+                    throw new RuntimeException("can't finder any setter for " + child.getClass().getName() + " in " + parent.getClass().getName());
+                }
+                // basic vectorRelationships types we will handle: List<T>, Set<T>, Vector<T> Only List for now.
+                Class collectionType = method.getParameterTypes()[0];
+                if (collectionType == List.class) {
+                    List<Object> arrayList = new ArrayList<>();
+                    arrayList.addAll(typeMap.get(child.getClass()));
+                    method.invoke(parent, arrayList);
+                    typeMap.remove(child.getClass()); // we've added them all, no point in doing this for each one.
+                } else {
+                    throw new RuntimeException("Unsupported: " + collectionType.getName());
+                }
+            }
+        }
+    }
+
+    private void createScalarRelationships(GraphModel graphModel) throws Exception {
+        for (EdgeModel edge : graphModel.getRelationships()) {
+            Object parent = objectMap.get(edge.getStartNode());
+            Object child  = objectMap.get(edge.getEndNode());
+            if (attachChild(parent, child)) {
+                typeMap.remove(child.getClass());
+            } else {
+                vectorRelationships.add(edge);
+            }
+        }
+    }
+
+    private void createDomainObjects(GraphModel graphModel) throws Exception {
+        for (NodeModel node : graphModel.getNodes()) {
+            String baseClass = node.getLabels()[0]; // by convention :)
+            Object object = instantiate(baseClass);
+            setId(object, node.getId());
+            objectMap.put(node.getId(), object);
+            List<Object> objectList = typeMap.get(object.getClass());
+            if (objectList == null) {
+                objectList = new ArrayList<>();
+                typeMap.put(object.getClass(), objectList);
+            }
+            objectList.add(object);
+            setAttributes(node, object);
+        }
+    }
+
+    /*
+     * example REST response from cypher query: "MATCH p=(b:Bike)-->(component) WHERE id(b) = 15 RETURN p"
+    */
+    private String getCypherResponse() {
+        return
+                "{\"graph\": { " +
+                        "\"nodes\" :[ " +
+                        "{\"id\" : \"15\",\"labels\" : [ \"Bike\"], \"properties\" : {} }, " +
+                        "{\"id\" : \"16\",\"labels\" : [ \"Wheel\", \"FrontWheel\" ],\"properties\" : {\"spokes\" : 3 } }, " +
+                        "{\"id\" : \"17\",\"labels\" : [ \"Wheel\", \"BackWheel\" ],\"properties\" : {\"spokes\" : 5 } }, " +
+                        "{\"id\" : \"18\",\"labels\" : [ \"Frame\" ],\"properties\" : {\"size\" : 27 } }, " +
+                        "{\"id\" : \"19\",\"labels\" : [ \"Saddle\" ],\"properties\" : {\"price\" : 42.99, \"material\" : \"plastic\" } } " +
+                        "], " +
+                        "\"relationships\": [" +
+                        "{\"id\":\"141\",\"type\":\"HAS_WHEEL\",\"startNode\":\"15\",\"endNode\":\"16\",\"properties\":{ \"purchased\" : 20130917 }}, " +
+                        "{\"id\":\"142\",\"type\":\"HAS_WHEEL\",\"startNode\":\"15\",\"endNode\":\"17\",\"properties\":{ \"purchased\" : 20130917 }}," +
+                        "{\"id\":\"143\",\"type\":\"HAS_FRAME\",\"startNode\":\"15\",\"endNode\":\"18\",\"properties\":{ \"purchased\" : 20130917 }}," +
+                        "{\"id\":\"144\",\"type\":\"HAS_SADDLE\",\"startNode\":\"15\",\"endNode\":\"19\",\"properties\":{\"purchased\" : 20130922 }} " +
+                        "] " +
+                        "} }";
     }
 
     private void setId(Object object, Long id) throws Exception {
@@ -140,20 +153,19 @@ public class DomainTest {
     }
 
     private void setAttributes(NodeModel nodeModel, Object o) throws Exception {
-        for (Property<String, Object> property : nodeModel.getAttributes()) {
+        for (Property property : nodeModel.getAttributes()) {
             Object parameter = property.getValue();
-            String methodName = setter(property.getKey());
-            Method method = o.getClass().getMethod(methodName, new Class[] { parameter.getClass() } );
+            String methodName = setter((String) property.getKey());
+            Method method = o.getClass().getMethod(methodName, parameter.getClass());
             method.invoke(o, parameter);
         }
     }
 
-    private boolean attachChild(Object parent, Object child, Map<Class, List<Object>> typeMap) throws Exception {
+    private boolean attachChild(Object parent, Object child) throws Exception {
         String methodName = setter(child.getClass().getSimpleName());
         try {
-            Method method = parent.getClass().getMethod(methodName, new Class[] { child.getClass() } );
+            Method method = parent.getClass().getMethod(methodName, child.getClass());
             method.invoke(parent, child);
-            typeMap.remove(child.getClass());
             return true;
         } catch (NoSuchMethodException me) {
             return false;
@@ -171,7 +183,7 @@ public class DomainTest {
     private String setter(String property) {
         StringBuilder sb = new StringBuilder();
         sb.append("set");
-        sb.append(property.substring(0,1).toUpperCase());
+        sb.append(property.substring(0, 1).toUpperCase());
         sb.append(property.substring(1));
         return sb.toString();
     }
@@ -193,12 +205,11 @@ public class DomainTest {
     /*
     * The domain (Bike) under test
     */
+    @SuppressWarnings("UnusedDeclaration")
     static class Wheel {
 
         private Long id;
         private Integer spokes;
-
-        public Wheel() {}
 
         public Long getId() {
             return id;
@@ -217,12 +228,11 @@ public class DomainTest {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     static class Frame {
 
         private Long id;
         private Integer size;
-
-        public Frame() {}
 
         public Long getId() {
             return id;
@@ -241,13 +251,12 @@ public class DomainTest {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     static class Saddle {
 
         private Long id;
         private Double price;
         private String material;
-
-        public Saddle() {}
 
         public Long getId() {
             return id;
@@ -274,14 +283,13 @@ public class DomainTest {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     static class Bike {
 
         private Long id;
         private List<Wheel> wheels;
         private Frame frame;
         private Saddle saddle;
-
-        public Bike() {}
 
         public Long getId() {
             return id;
@@ -324,6 +332,7 @@ public class DomainTest {
             return graph;
         }
 
+        @SuppressWarnings("UnusedDeclaration")
         void setGraph(GraphModel graph) {
             this.graph = graph;
         }

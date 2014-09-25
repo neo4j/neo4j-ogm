@@ -10,7 +10,7 @@ import org.graphaware.graphmodel.Graph;
 public interface GraphModelToObjectMapper<T, G extends Graph> {
 
     /**
-     * Maps the data representation in the given {@link Graph} onto an object of type <code>T</code>.
+     * Maps the data representation in the given {@link Graph} onto an instance of <code>T</code>.
      *
      * @param graphModel The {@link Graph} model containing the data to map onto the object
      * @return An object of type <code>T</code> containing relevant data extracted from the given graph model

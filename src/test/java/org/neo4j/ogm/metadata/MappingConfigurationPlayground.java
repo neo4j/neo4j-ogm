@@ -26,7 +26,7 @@ public class MappingConfigurationPlayground {
             @Override
             public MappingMetadata findMappingMetadataForType(Class<?> typeToMap) {
                 // just what we need for reading, let's say we've got a person...
-                return new MappingMetadata(Person.class, Arrays.<PersistentField> asList(
+                return new MappingMetadata(Person.class, Arrays.asList(
                         new RegularPersistentField("id"),
                         new RegularPersistentField("name", "forename"),
                         new RegularPersistentField("age")));

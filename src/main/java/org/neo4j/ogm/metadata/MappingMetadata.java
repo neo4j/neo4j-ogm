@@ -30,6 +30,7 @@ public class MappingMetadata {
         }
     }
 
+    // TODO: I reckon PropertyMapper should be in the .mapper package
     public PropertyMapper getPropertyMapper(Property<?, ? extends Object> property) {
         if (this.propertyToFieldMappings.containsKey(property.getKey())) {
             return determinePropertyMapper(property);
@@ -50,10 +51,10 @@ public class MappingMetadata {
 
     }
 
-    // ALL THIS BELOW WILL GO INTO SOME KIND OF FACTORY/STRATEGY CLASS TO MAKE PropertyMappings AND DECIDE HOW FIELDS ARE SET
+    // ALL THIS BELOW WILL GO INTO SOME KIND OF FACTORY/STRATEGY CLASS TO MAKE PropertyMappers AND DECIDE HOW FIELDS ARE SET
 
     /**
-     * Determines which instance of PropertyMapping to use for the given property
+     * Determines which instance of {@link PropertyMapper} to use for the given property
      */
     private PropertyMapper determinePropertyMapper(Property<?, ? extends Object> property) {
         if (weAreDoingSetterDrivenPropertyMapping()) {

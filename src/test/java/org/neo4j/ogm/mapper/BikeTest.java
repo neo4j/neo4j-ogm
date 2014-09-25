@@ -8,12 +8,8 @@ import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -21,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test a simple mapping strategy, where the domain model matches the graph model.
  */
-public class DomainTest {
+public class BikeTest {
 
     private final Map<Long, Object> objectMap = new HashMap<>();
     private final Map<Class, List<Object>> typeMap = new HashMap<>();
@@ -34,12 +30,13 @@ public class DomainTest {
 
         createDomainObjects(graphModel);
         createScalarRelationships(graphModel);
-        createVectorRelationships();
+        createIterableRelationships();
 
         Bike bike = (Bike) getRootObject();
 
         assertNotNull(bike);
         assertEquals(15, (long) bike.getId());
+        assertEquals(2, bike.getColours().length);
 
         // check the frame
         assertEquals(18, (long) bike.getFrame().getId());
@@ -71,37 +68,71 @@ public class DomainTest {
         return typeMap.get(Class.forName(fqn("Bike"))).get(0);
     }
 
-    private void createVectorRelationships() throws Exception {
+    private void createIterableRelationships() throws Exception {
 
         for (EdgeModel edge : vectorRelationships) {
 
-            Object parent = objectMap.get(edge.getStartNode());
-            Object child = objectMap.get(edge.getEndNode());
+            Object instance = objectMap.get(edge.getStartNode());
+            Object parameter = objectMap.get(edge.getEndNode());
 
-            if (typeMap.get(child.getClass()) != null) {
-                Method method = findParameterisedSetter(parent, child);
-                if (method == null) {
-                    throw new RuntimeException("can't finder any setter for " + child.getClass().getName() + " in " + parent.getClass().getName());
-                }
-                // basic vectorRelationships types we will handle: List<T>, Set<T>, Vector<T> Only List for now.
-                Class collectionType = method.getParameterTypes()[0];
-                if (collectionType == List.class) {
-                    List<Object> arrayList = new ArrayList<>();
-                    arrayList.addAll(typeMap.get(child.getClass()));
-                    method.invoke(parent, arrayList);
-                    typeMap.remove(child.getClass()); // we've added them all, no point in doing this for each one.
-                } else {
-                    throw new RuntimeException("Unsupported: " + collectionType.getName());
-                }
+            if (typeMap.get(parameter.getClass()) != null) {
+                Method method = findParameterisedSetter(instance, parameter, setterName(parameter.getClass().getSimpleName()));
+                setIterableParameter(instance, method, typeMap.get(parameter.getClass()));
+                typeMap.remove(parameter.getClass()); // we've added all instances of parameter, no point in repeating the effort.
             }
         }
+    }
+
+    private void setIterableParameter(Object instance, Method method, Collection<?> collection) throws Exception {
+
+        // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
+        Class parameterType = method.getParameterTypes()[0];
+
+        if (parameterType == List.class) {
+            List<Object> list = new ArrayList<>();
+            list.addAll(collection);
+            method.invoke(instance, list);
+        }
+
+        else if (parameterType == Set.class) {
+            Set<Object> set = new HashSet<>();
+            set.addAll(collection);
+            method.invoke(instance, set);
+        }
+
+        else if (parameterType == Vector.class) {
+            Vector<Object> v = new Vector<>();
+            v.addAll(collection);
+            method.invoke(instance, v);
+        }
+
+        else if (parameterType.isArray()) {
+            Class type = parameterType.getComponentType();
+            Object array = Array.newInstance(type, collection.size());
+            List<Object> objects = new ArrayList<>();
+            objects.addAll(collection);
+            for (int i = 0; i < objects.size(); i++) {
+                Array.set(array, i, objects.get(i));
+            }
+            method.invoke(instance, array );
+        }
+
+        else {
+            throw new RuntimeException("Unsupported: " + parameterType.getName());
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T[] newArray(Class<T> type, int length) {
+        return (T[]) Array.newInstance(type, length);
     }
 
     private void createScalarRelationships(GraphModel graphModel) throws Exception {
         for (EdgeModel edge : graphModel.getRelationships()) {
             Object parent = objectMap.get(edge.getStartNode());
             Object child  = objectMap.get(edge.getEndNode());
-            if (attachChild(parent, child)) {
+            if (setScalarParameter(parent, child)) {
                 typeMap.remove(child.getClass());
             } else {
                 vectorRelationships.add(edge);
@@ -121,7 +152,7 @@ public class DomainTest {
                 typeMap.put(object.getClass(), objectList);
             }
             objectList.add(object);
-            setAttributes(node, object);
+            setJavaLangParameter(node, object);
         }
     }
 
@@ -132,7 +163,7 @@ public class DomainTest {
         return
                 "{\"graph\": { " +
                         "\"nodes\" :[ " +
-                        "{\"id\" : \"15\",\"labels\" : [ \"Bike\"], \"properties\" : {} }, " +
+                        "{\"id\" : \"15\",\"labels\" : [ \"Bike\"], \"properties\" : { \"colours\" :[\"red\", \"black\"] } }, " +
                         "{\"id\" : \"16\",\"labels\" : [ \"Wheel\", \"FrontWheel\" ],\"properties\" : {\"spokes\" : 3 } }, " +
                         "{\"id\" : \"17\",\"labels\" : [ \"Wheel\", \"BackWheel\" ],\"properties\" : {\"spokes\" : 5 } }, " +
                         "{\"id\" : \"18\",\"labels\" : [ \"Frame\" ],\"properties\" : {\"size\" : 27 } }, " +
@@ -148,58 +179,103 @@ public class DomainTest {
     }
 
     private void setId(Object object, Long id) throws Exception {
-        Method method = object.getClass().getMethod("setId", Long.class);
-        method.invoke(object, id);
+        object.getClass().getMethod("setId", Long.class).invoke(object, id);
     }
 
-    private void setAttributes(NodeModel nodeModel, Object o) throws Exception {
+    private void setJavaLangParameter(NodeModel nodeModel, Object instance) throws Exception {
         for (Property property : nodeModel.getAttributes()) {
-            Object parameter = property.getValue();
-            String methodName = setter((String) property.getKey());
-            Method method = o.getClass().getMethod(methodName, parameter.getClass());
-            method.invoke(o, parameter);
+            Method method;
+            try {
+                method = findSetter(instance, property.getValue(), setterName((String) property.getKey()));
+                method.invoke(instance, property.getValue());
+            } catch (NoSuchMethodException nsm) {
+                if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
+                    Object typeInstance = ((Iterable)property.getValue()).iterator().next();
+                    if (typeInstance != null) {
+                        method = findParameterisedSetter(instance, typeInstance, setterName((String) property.getKey()));
+                        setIterableParameter(instance, method, (Collection) property.getValue());
+                    } else {
+                        // what do we do here?
+                        throw nsm;
+                    }
+                } else {
+                    throw nsm;
+                }
+            }
+
         }
     }
 
-    private boolean attachChild(Object parent, Object child) throws Exception {
-        String methodName = setter(child.getClass().getSimpleName());
+    /**
+     * sets a scalar parameter on an object instance.
+     * @param instance
+     * @param parameter
+     * @return
+     * @throws Exception
+     */
+    private boolean setScalarParameter(Object instance, Object parameter) throws Exception {
         try {
-            Method method = parent.getClass().getMethod(methodName, child.getClass());
-            method.invoke(parent, child);
+            findSetter(instance, parameter, setterName(parameter.getClass().getSimpleName())).invoke(instance, parameter);
             return true;
         } catch (NoSuchMethodException me) {
             return false;
         }
     }
 
+    /**
+     * create an instance of a class
+     * @param baseClass the simple name of the class we want to create an instance of
+     * @return an instance of the requested class
+     * @throws Exception
+     */
     private Object instantiate(String baseClass) throws Exception {
         return Class.forName(fqn(baseClass)).newInstance();
     }
 
+    /*
+     * obtain the fully qualified name of the domain class whose simple name is represented by simpleName
+     * this implementation relies on the domain classes being static members of the test class
+     */
     private String fqn(String simpleName) {
-        return "org.neo4j.ogm.mapper.DomainTest$" + simpleName;
+        return this.getClass().getName() + "$" + simpleName;
     }
 
-    private String setter(String property) {
+    private String setterName(String property) {
         StringBuilder sb = new StringBuilder();
         sb.append("set");
-        sb.append(property.substring(0, 1).toUpperCase());
+        sb.append(property.substring(0,1).toUpperCase());
         sb.append(property.substring(1));
         return sb.toString();
     }
 
-    private Method findParameterisedSetter(Object parent, Object child) {
-        for (Method m : parent.getClass().getMethods()) {
-            if (m.getGenericParameterTypes().length == 1) {
+    private Method findSetter(Object instance, Object parameter, String methodName) throws NoSuchMethodException {
+        //System.out.println("looking for setter " + methodName + " taking parameter of type " + parameter.getClass().getName());
+        for (Method method : instance.getClass().getMethods()) {
+            if( Modifier.isPublic(method.getModifiers()) &&
+                    method.getReturnType().equals(void.class) &&
+                    method.getName().startsWith(methodName) &&
+                    method.getParameterTypes().length == 1 &&
+                    method.getParameterTypes()[0] == parameter.getClass())
+                return method;
+        }
+        throw new NoSuchMethodException("Cannot find setter for " + parameter.getClass().getName());
+    }
+
+    private Method findParameterisedSetter(Object instance, Object type, String methodName) throws NoSuchMethodException {
+        //System.out.println("Looking for method " + methodName + "* with type parameter assignable from Iterable<" + type.getClass().getSimpleName() + ">");
+        for (Method m : instance.getClass().getMethods()) {
+            if (Modifier.isPublic(m.getModifiers()) &&
+              m.getReturnType().equals(void.class) &&
+              m.getName().startsWith(methodName) &&
+              m.getParameterTypes().length == 1 &&
+              m.getGenericParameterTypes().length == 1) {
                 Type t = m.getGenericParameterTypes()[0];
-                if (t.toString().contains(child.getClass().getName())) {
-                    if (m.getName().startsWith("set")) {
-                        return m;
-                    }
+                if (t.toString().contains(type.getClass().getName())) {
+                    return m;
                 }
             }
         }
-        return null;
+        throw new NoSuchMethodException("Cannot find method " + methodName + "* with type parameter assignable from Iterable<" + type.getClass().getSimpleName() + ">");
     }
 
     /*
@@ -286,6 +362,7 @@ public class DomainTest {
     @SuppressWarnings("UnusedDeclaration")
     static class Bike {
 
+        private String[] colours;
         private Long id;
         private List<Wheel> wheels;
         private Frame frame;
@@ -297,6 +374,14 @@ public class DomainTest {
 
         public void setId(Long id) {
             this.id = id;
+        }
+
+        public String[] getColours() {
+            return colours;
+        }
+
+        public void setColours(String[] colours) {
+            this.colours = colours;
         }
 
         public List<Wheel> getWheels() {

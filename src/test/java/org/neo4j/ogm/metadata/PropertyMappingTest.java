@@ -13,7 +13,7 @@ public class PropertyMappingTest {
     }
 
     @Test
-    public void shouldWritePropertyValueToAppropriateFieldOfObject() {
+    public void shouldWriteSimplePropertyValuesToAppropriateFieldOfObject() {
         Person peter = new Person();
 
         new PropertyMapping("name", "Peter").writeToObject(peter);

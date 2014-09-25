@@ -10,6 +10,6 @@ public interface ObjectCreator {
 
     <T> T instantiateObjectMappedTo(Vertex vertex);
 
-    <T> T createObjectMappedTo(Edge edge);
+    <T> T instantiateObjectMappedTo(Edge edge);
 
 }

@@ -34,7 +34,7 @@ public class MappingMetadataTest {
         assertEquals(arbitraryNodeProperty.getKey(), propertyMapping.getPropertyName());
     }
 
-    private MappingMetadata personMappingMetadata() {
+    private static MappingMetadata personMappingMetadata() {
         Map<String, PersistentField> persistentFields = new HashMap<>();
         persistentFields.put("name", new RegularPersistentField("name"));
         persistentFields.put("age", new RegularPersistentField("age"));

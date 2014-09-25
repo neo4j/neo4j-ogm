@@ -1,18 +1,33 @@
 package org.neo4j.ogm.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
 import org.graphaware.graphmodel.Property;
+import org.graphaware.graphmodel.Taxon;
 import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Test;
+import org.neo4j.ogm.metadata.ClassDictionary;
+import org.neo4j.ogm.metadata.DefaultConstructorObjectCreator;
+import org.neo4j.ogm.metadata.ObjectCreator;
 
-import java.io.IOException;
-import java.lang.reflect.*;
-import java.util.*;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Test a simple mapping strategy, where the domain model matches the graph model.
@@ -22,6 +37,13 @@ public class BikeTest {
     private final Map<Long, Object> objectMap = new HashMap<>();
     private final Map<Class, List<Object>> typeMap = new HashMap<>();
     private final List<EdgeModel> vectorRelationships = new ArrayList<>();
+
+    private ObjectCreator objectCreator = new DefaultConstructorObjectCreator(new ClassDictionary() {
+            @Override
+            public String determineFqnFromTaxa(List<Taxon> taxa) {
+                return fqn(taxa.get(0).getName().toString());
+            }
+        });
 
     @Test
     public void testDefaultBikeMapping() throws Exception {
@@ -142,8 +164,7 @@ public class BikeTest {
 
     private void createDomainObjects(GraphModel graphModel) throws Exception {
         for (NodeModel node : graphModel.getNodes()) {
-            String baseClass = node.getLabels()[0]; // by convention :)
-            Object object = instantiate(baseClass);
+            Object object = objectCreator.instantiateObjectMappedTo(node);
             setId(object, node.getId());
             objectMap.put(node.getId(), object);
             List<Object> objectList = typeMap.get(object.getClass());
@@ -222,16 +243,6 @@ public class BikeTest {
         }
     }
 
-    /**
-     * create an instance of a class
-     * @param baseClass the simple name of the class we want to create an instance of
-     * @return an instance of the requested class
-     * @throws Exception
-     */
-    private Object instantiate(String baseClass) throws Exception {
-        return Class.forName(fqn(baseClass)).newInstance();
-    }
-
     /*
      * obtain the fully qualified name of the domain class whose simple name is represented by simpleName
      * this implementation relies on the domain classes being static members of the test class
@@ -278,11 +289,8 @@ public class BikeTest {
         throw new NoSuchMethodException("Cannot find method " + methodName + "* with type parameter assignable from Iterable<" + type.getClass().getSimpleName() + ">");
     }
 
-    /*
-    * The domain (Bike) under test
-    */
     @SuppressWarnings("UnusedDeclaration")
-    static class Wheel {
+    public static class Wheel {
 
         private Long id;
         private Integer spokes;
@@ -305,7 +313,7 @@ public class BikeTest {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    static class Frame {
+    public static class Frame {
 
         private Long id;
         private Integer size;
@@ -328,7 +336,7 @@ public class BikeTest {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    static class Saddle {
+    public static class Saddle {
 
         private Long id;
         private Double price;
@@ -360,7 +368,7 @@ public class BikeTest {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    static class Bike {
+    public static class Bike {
 
         private String[] colours;
         private Long id;

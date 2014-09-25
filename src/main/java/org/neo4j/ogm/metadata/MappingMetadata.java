@@ -1,5 +1,6 @@
 package org.neo4j.ogm.metadata;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,32 +12,35 @@ import org.graphaware.graphmodel.Property;
 public class MappingMetadata {
 
     private final Class<?> mappedType;
-    private final Map<String, PersistentField> persistentFields = new HashMap<>();
+
+    // because there's not necessarily an exact match between the a node property name and its corresponding Java bean field name
+    private final Map<String, String> propertyToFieldMappings = new HashMap<>();
 
     /**
      * Constructs a new {@link MappingMetadata} that stores mapping information about the given type.
      *
      * @param mappedType The {@link Class} representing the type about which to store mapping information
-     * @param persistentFields A mapping between node property names and their corresponding persistent fields on the specified
-     *        mapped type
+     * @param persistentFields Some {@link PersistentField}s that provide the link between node property names and their
+     *        corresponding persistent fields on the specified mapped type
      */
-    public MappingMetadata(Class<?> mappedType, Map<String, PersistentField> persistentFields) {
+    public MappingMetadata(Class<?> mappedType, Collection<? extends PersistentField> persistentFields) {
         this.mappedType = mappedType;
-        this.persistentFields.putAll(persistentFields);
-    }
-
-    public PropertyMapping getPropertyMapping(Property<?, ? extends Object> property) {
-        if (this.persistentFields.containsKey(property.getKey())) {
-            // now, what do we need to know about this property, what field it refers to and enough for a setter to set it!
-            return new PropertyMapping(String.valueOf(property.getKey()), property.getValue());
+        for (PersistentField pf : persistentFields) {
+            this.propertyToFieldMappings.put(pf.getGraphElementPropertyName(), pf.getJavaObjectFieldName());
         }
-        return new NoOpPropertyMapping();
     }
 
-    static final class NoOpPropertyMapping extends PropertyMapping {
+    public PropertyMapper getPropertyMapper(Property<?, ? extends Object> property) {
+        if (this.propertyToFieldMappings.containsKey(property.getKey())) {
+            return determinePropertyMapper(property);
+        }
+        return new NoOpPropertyMapper();
+    }
 
-        NoOpPropertyMapping() {
-            super(null, null);
+    static final class NoOpPropertyMapper extends PropertyMapper {
+
+        NoOpPropertyMapper() {
+            super("", null);
         }
 
         @Override
@@ -44,6 +48,27 @@ public class MappingMetadata {
             // do nothing by design
         }
 
+    }
+
+    // ALL THIS BELOW WILL GO INTO SOME KIND OF FACTORY/STRATEGY CLASS TO MAKE PropertyMappings AND DECIDE HOW FIELDS ARE SET
+
+    /**
+     * Determines which instance of PropertyMapping to use for the given property
+     */
+    private PropertyMapper determinePropertyMapper(Property<?, ? extends Object> property) {
+        if (weAreDoingSetterDrivenPropertyMapping()) {
+            return new NoOpPropertyMapper();
+        }
+        if (weAreDoingFieldDrivenPropertyMapping()) {
+            return new FieldBasedPropertyMapper(this.propertyToFieldMappings.get(property.getKey()), property.getValue());
+        }
+        return new NoOpPropertyMapper();
+    }
+    private boolean weAreDoingSetterDrivenPropertyMapping() {
+        return false;
+    }
+    private boolean weAreDoingFieldDrivenPropertyMapping() {
+        return true;
     }
 
 }

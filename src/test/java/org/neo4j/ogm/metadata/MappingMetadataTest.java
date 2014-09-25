@@ -3,8 +3,7 @@ package org.neo4j.ogm.metadata;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 import org.graphaware.graphmodel.Property;
 import org.graphaware.graphmodel.impl.StringProperty;
@@ -18,27 +17,25 @@ public class MappingMetadataTest {
         Property<String, Object> propertyNotOnClass = new StringProperty("favouriteColour", "Orange");
 
         MappingMetadata mappingMetadata = personMappingMetadata();
-        PropertyMapping propertyMapping = mappingMetadata.getPropertyMapping(propertyNotOnClass);
-        assertNotNull(propertyMapping);
-        propertyMapping.writeToObject(new Person());
+        PropertyMapper propertyMapper = mappingMetadata.getPropertyMapper(propertyNotOnClass);
+        assertNotNull(propertyMapper);
+        propertyMapper.writeToObject(new Person());
     }
 
     @Test
-    public void shouldFindPropertyMappingInformationForGraphProperty() {
+    public void shouldFindpropertyMapperInformationForGraphProperty() {
         Property<String, Object> arbitraryNodeProperty = new StringProperty("age", Integer.valueOf(42));
 
         MappingMetadata mappingMetadata = personMappingMetadata();
 
-        PropertyMapping propertyMapping = mappingMetadata.getPropertyMapping(arbitraryNodeProperty);
-        assertNotNull(propertyMapping);
-        assertEquals(arbitraryNodeProperty.getKey(), propertyMapping.getPropertyName());
+        PropertyMapper propertyMapper = mappingMetadata.getPropertyMapper(arbitraryNodeProperty);
+        assertNotNull(propertyMapper);
+        assertEquals(arbitraryNodeProperty.getKey(), propertyMapper.getFieldName());
     }
 
     private static MappingMetadata personMappingMetadata() {
-        Map<String, PersistentField> persistentFields = new HashMap<>();
-        persistentFields.put("name", new RegularPersistentField("name"));
-        persistentFields.put("age", new RegularPersistentField("age"));
-        return new MappingMetadata(Person.class, persistentFields);
+        return new MappingMetadata(Person.class,
+                Arrays.asList(new RegularPersistentField("name"), new RegularPersistentField("age")));
     }
 
 }

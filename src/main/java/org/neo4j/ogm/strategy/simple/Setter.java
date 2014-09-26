@@ -49,7 +49,7 @@ public class Setter implements EntityAccessStrategy {
     }
 
     private static Method findSetter(Object instance, Object parameter, String methodName) throws NoSuchMethodException {
-
+        //System.out.println("Looking for method " + methodName + "(" + parameter.getClass().getSimpleName() + ") in class " + instance.getClass().getName());
         Class clazz = instance.getClass();
         Method m = methodCache.lookup(clazz, methodName);
         if (m == null) {
@@ -68,8 +68,9 @@ public class Setter implements EntityAccessStrategy {
     }
 
     private static Method findParameterisedSetter(Object instance, Object type, String methodName) throws NoSuchMethodException {
+        //System.out.println("Looking for method " + methodName + "?(Iterable<T>) in class " + instance.getClass().getName());
         Class clazz = instance.getClass();
-        Method method = methodCache.lookup(clazz, methodName);
+        Method method = methodCache.lookup(clazz, methodName + "?"); // ? indicates a non-scalar
         if (method == null) {
             for (Method m : instance.getClass().getMethods()) {
                 if (Modifier.isPublic(m.getModifiers()) &&
@@ -79,7 +80,7 @@ public class Setter implements EntityAccessStrategy {
                         m.getGenericParameterTypes().length == 1) {
                     Type t = m.getGenericParameterTypes()[0];
                     if (t.toString().contains(type.getClass().getName())) {
-                        return methodCache.insert(clazz, methodName, m);
+                        return methodCache.insert(clazz, methodName + "?", m);
                     }
                 }
             }

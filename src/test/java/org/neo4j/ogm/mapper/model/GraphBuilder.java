@@ -8,6 +8,7 @@ import java.io.IOException;
 public class GraphBuilder {
 
     private GraphModel graph;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private GraphModel getGraph() {
         return graph;
@@ -19,7 +20,7 @@ public class GraphBuilder {
     }
 
     public static GraphModel build(String json) throws IOException {
-        GraphBuilder instance = new ObjectMapper().readValue(json, GraphBuilder.class);
+        GraphBuilder instance = objectMapper.readValue(json, GraphBuilder.class);
         return instance.getGraph();
     }
 }

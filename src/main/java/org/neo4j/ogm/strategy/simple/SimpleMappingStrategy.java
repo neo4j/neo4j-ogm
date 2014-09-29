@@ -5,8 +5,10 @@ import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
+import org.neo4j.ogm.metadata.ClassDictionary;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple mapping strategy
@@ -14,6 +16,12 @@ import java.util.*;
 public class SimpleMappingStrategy implements GraphModelToObjectMapper<GraphModel> {
 
     private final MappingContext mappingContext;
+
+
+    // has to be a singleton, so it can be shared across multiple strategy instances
+    // probably should be injected, rather then declared like this.
+
+    private static final ClassDictionary classDictionary = new SimpleClassDictionary();
 
     private SimpleMappingStrategy(Class type) {
         this.mappingContext = new MappingContext(type);
@@ -39,7 +47,10 @@ public class SimpleMappingStrategy implements GraphModelToObjectMapper<GraphMode
 
             // Object object = classDictionary.instantiate(node);
 
+            // todo: need to use class dictionary for this
             String baseClass = node.getLabels()[0]; // by convention :)
+
+
             Object object = instantiate(baseClass);
 
             mappingContext.register(object, node.getId());
@@ -93,13 +104,20 @@ public class SimpleMappingStrategy implements GraphModelToObjectMapper<GraphMode
         }
     }
 
-    // TODO: these need moving somewhere :
+    // TODO: this need moving somewhere :
     private Object instantiate(String baseClass) throws Exception {
         return Class.forName(fqn(baseClass)).newInstance();
     }
 
     private String fqn(String simpleName) {
-        return "org.neo4j.ogm.mapper.domain.bike." + simpleName;
+        List<String> fqns = classDictionary.getFQNs(simpleName);
+        if (fqns.isEmpty()) {
+            throw new RuntimeException("No class found for simplename " + simpleName);
+        }
+        if (fqns.size() > 1) {
+            throw new RuntimeException("More than one class found for simplename " + simpleName);
+        }
+        return fqns.get(0);
     }
 
 }

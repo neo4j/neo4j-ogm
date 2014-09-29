@@ -8,14 +8,11 @@ import java.util.Map;
 
 import org.graphaware.graphmodel.Property;
 import org.graphaware.graphmodel.Taxon;
-import org.graphaware.graphmodel.Vertex;
 import org.graphaware.graphmodel.impl.StringProperty;
 import org.graphaware.graphmodel.impl.StringTaxon;
-import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
-import org.neo4j.ogm.testmodel.Person;
+import org.neo4j.ogm.domain.social.Person;
 
 public class MappingConfigurationPlayground {
 

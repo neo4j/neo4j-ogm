@@ -3,7 +3,7 @@ package org.neo4j.ogm.metadata;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.neo4j.ogm.testmodel.Person;
+import org.neo4j.ogm.domain.social.Person;
 
 public class PropertyMapperTest {
 

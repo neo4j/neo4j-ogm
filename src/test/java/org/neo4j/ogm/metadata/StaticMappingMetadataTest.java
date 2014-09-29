@@ -8,8 +8,8 @@ import java.util.Arrays;
 import org.graphaware.graphmodel.Property;
 import org.graphaware.graphmodel.impl.StringProperty;
 import org.junit.Test;
+import org.neo4j.ogm.domain.social.Person;
 import org.neo4j.ogm.mapper.PropertyMapper;
-import org.neo4j.ogm.testmodel.Person;
 
 public class StaticMappingMetadataTest {
 

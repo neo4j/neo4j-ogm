@@ -1,16 +1,31 @@
 package org.neo4j.ogm.mapper;
 
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
+import org.graphaware.graphmodel.Taxon;
 import org.graphaware.graphmodel.neo4j.GraphModel;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
-import org.neo4j.ogm.strategy.simple.SimpleMappingStrategy;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import org.neo4j.ogm.metadata.ClassDictionary;
+import org.neo4j.ogm.metadata.DefaultConstructorObjectCreator;
+import org.neo4j.ogm.strategy.simple.CopiedSimpleMappingStrategy;
 
 public class BikeTest {
+
+    private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
+        return new CopiedSimpleMappingStrategy(Bike.class, new DefaultConstructorObjectCreator(new ClassDictionary() {
+            @Override
+            public String determineFqnFromTaxa(List<Taxon> taxa) {
+                return "org.neo4j.ogm.mapper.domain.bike." + taxa.get(0).getName();
+            }
+        }));
+    }
 
     @Test
     public void testDeserialiseBikeModel() throws Exception {
@@ -18,7 +33,7 @@ public class BikeTest {
         GraphModel graphModel = BikeModel.load();
 
         long now = -System.currentTimeMillis();
-        Bike bike = (Bike) SimpleMappingStrategy.forType(Bike.class).mapToObject(graphModel);
+        Bike bike = (Bike) instantiateMapper().mapToObject(graphModel);
         System.out.println("deserialised in " + (now + System.currentTimeMillis()) + " milliseconds");
 
         assertNotNull(bike);

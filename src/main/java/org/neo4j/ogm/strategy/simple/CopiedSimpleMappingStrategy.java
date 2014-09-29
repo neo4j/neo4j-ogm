@@ -8,9 +8,9 @@ import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
+import org.neo4j.ogm.metadata.MappingMetadata;
 import org.neo4j.ogm.metadata.ObjectCreator;
 import org.neo4j.ogm.metadata.PersistentField;
-import org.neo4j.ogm.metadata.RegularPersistentField;
 import org.neo4j.ogm.strategy.EntityAccessStrategyFactory;
 
 /**
@@ -22,17 +22,21 @@ public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<Gra
     private final MappingContext mappingContext;
     private final ObjectCreator objectCreator;
     private final EntityAccessStrategyFactory entityAccessStrategyFactory;
+    private final MappingMetadata mappingMetadata;
 
     /**
      * @param type The type of the root object
      * @param objectCreationStrategy The {@link ObjectCreator} to use for instantiating types
      * @param entityAccessStrategyFactory To determine how the property values should be mapped to the fields
+     * @param mappingMetadata Contains information about how fields should be mapped to properties and vice versa
      */
+    // there may be a case for encapsulating these params in MappingConfiguration
     public CopiedSimpleMappingStrategy(Class<?> type, ObjectCreator objectCreationStrategy,
-            EntityAccessStrategyFactory entityAccessStrategyFactory) {
+            EntityAccessStrategyFactory entityAccessStrategyFactory, MappingMetadata mappingMetadata) {
         this.mappingContext = new MappingContext(type);
         this.objectCreator = objectCreationStrategy;
         this.entityAccessStrategyFactory = entityAccessStrategyFactory;
+        this.mappingMetadata = mappingMetadata;
     }
 
     @Override
@@ -88,7 +92,7 @@ public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<Gra
     private void setProperties(NodeModel nodeModel, Object instance) throws Exception {
         for (Property property : nodeModel.getAttributes()) {
             // XXX this is still implicitly saying property.name => object.field
-            PersistentField pf = lookUpPersistentFieldForProperty(property);
+            PersistentField pf = mappingMetadata.lookUpPersistentFieldForProperty(property);
             entityAccessStrategyFactory.forPersistentField(pf).set(instance, property.getValue());
         }
     }
@@ -100,11 +104,6 @@ public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<Gra
         } catch (NoSuchMethodException me) {
             return false;
         }
-    }
-
-    private RegularPersistentField lookUpPersistentFieldForProperty(Property property) {
-        // super-simple implementation for now, but this method will reside on a mapping metadata object
-        return new RegularPersistentField(String.valueOf(property.getKey()));
     }
 
 }

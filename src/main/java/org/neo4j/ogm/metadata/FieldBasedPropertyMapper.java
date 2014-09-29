@@ -2,6 +2,8 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Field;
 
+import org.neo4j.ogm.mapper.PropertyMapper;
+
 public class FieldBasedPropertyMapper extends PropertyMapper {
 
     public FieldBasedPropertyMapper(String propertyName, Object value) {
@@ -14,7 +16,6 @@ public class FieldBasedPropertyMapper extends PropertyMapper {
             return;
         }
 
-        // TODO: should add setter support and/or consider pulling this out into a class in its own right
         Class<?> clarse = target.getClass();
         try {
             Field field = clarse.getDeclaredField(this.fieldName);

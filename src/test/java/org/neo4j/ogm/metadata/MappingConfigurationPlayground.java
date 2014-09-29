@@ -24,9 +24,9 @@ public class MappingConfigurationPlayground {
         MappingConfiguration trivialMappingConfig = new MappingConfiguration() {
 
             @Override
-            public MappingMetadata findMappingMetadataForType(Class<?> typeToMap) {
+            public StaticMappingMetadata findMappingMetadataForType(Class<?> typeToMap) {
                 // just what we need for reading, let's say we've got a person...
-                return new MappingMetadata(Person.class, Arrays.asList(
+                return new StaticMappingMetadata(Person.class, Arrays.asList(
                         new RegularPersistentField("id"),
                         new RegularPersistentField("name", "forename"),
                         new RegularPersistentField("age")));
@@ -50,7 +50,7 @@ public class MappingConfigurationPlayground {
         // do some test mapping now...
 
         Person toHydrate = trivialMappingConfig.provideObjectCreator().instantiateObjectMappedTo(testNode);
-        MappingMetadata personMetadata = trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
+        StaticMappingMetadata personMetadata = (StaticMappingMetadata) trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
         for (Property<?, ?> attribute : testNode.getAttributes()) {
             // now, not all of these attributes may be mapped and not all of the fields may be specified as attributes
             // that's why we return noop from getPropertyMapper if we don't find the attribute

@@ -3,40 +3,37 @@ package org.neo4j.ogm.mapper;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.graphaware.graphmodel.Taxon;
 import org.graphaware.graphmodel.neo4j.GraphModel;
-import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
 import org.neo4j.ogm.metadata.ClassDictionary;
 import org.neo4j.ogm.metadata.DefaultConstructorObjectCreator;
-import org.neo4j.ogm.metadata.MappingMetadata;
-import org.neo4j.ogm.metadata.RegularPersistentField;
-import org.neo4j.ogm.strategy.EntityAccessStrategyFactory;
+import org.neo4j.ogm.metadata.MatchingFieldAndPropertyMappingMetadata;
 import org.neo4j.ogm.strategy.SetterEntityAccessStrategyFactory;
 import org.neo4j.ogm.strategy.simple.CopiedSimpleMappingStrategy;
-import org.neo4j.ogm.testmodel.Person;
 
 public class BikeTest {
 
     private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
-        new MappingMetadata(Person.class, Arrays.asList(
-                new RegularPersistentField("id"),
-                new RegularPersistentField("name", "forename"),
-                new RegularPersistentField("age")));
-
         DefaultConstructorObjectCreator objectCreationStrategy = new DefaultConstructorObjectCreator(new ClassDictionary() {
             @Override
-            public String determineFqnFromTaxa(List<Taxon> taxa) {
+            public String determineBaseClass(List<Taxon> taxa) {
                 return "org.neo4j.ogm.mapper.domain.bike." + taxa.get(0).getName();
             }
+
+            @Override
+            public List<String> getFQNs(String simpleName) {
+                return Collections.singletonList("org.neo4j.ogm.mapper.domain.bike." + simpleName);
+            }
         });
-        return new CopiedSimpleMappingStrategy(Bike.class, objectCreationStrategy, new SetterEntityAccessStrategyFactory());
+        return new CopiedSimpleMappingStrategy(Bike.class, objectCreationStrategy,
+                new SetterEntityAccessStrategyFactory(), new MatchingFieldAndPropertyMappingMetadata());
     }
 
     @Test

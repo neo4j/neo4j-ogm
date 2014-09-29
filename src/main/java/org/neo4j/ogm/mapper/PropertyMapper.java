@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.mapper;
 
 /**
  * Used to map values between a property on a graph element and a particular field of a Java object.

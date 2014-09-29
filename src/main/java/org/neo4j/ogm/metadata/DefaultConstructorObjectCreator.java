@@ -32,7 +32,7 @@ public class DefaultConstructorObjectCreator implements ObjectCreator {
             throw new MappingException("Cannot map to a class with no taxa by which to determine the class name.");
         }
 
-        String fqn = this.classDictionary.determineFqnFromTaxa(taxa);
+        String fqn = this.classDictionary.determineBaseClass(taxa);
         try {
             @SuppressWarnings("unchecked")
             Class<T> className = (Class<T>) Class.forName(fqn);

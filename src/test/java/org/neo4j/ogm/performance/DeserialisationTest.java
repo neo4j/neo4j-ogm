@@ -13,8 +13,8 @@ public class DeserialisationTest {
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {
 
-        int count = 1000;          // how many we're fetching
-        int target = 500;          // target rate per second;
+        int count = 1000;          // how many we're deserialising
+        int target =2000;          // maximum permitted time (milliseconds) for that number;
 
         final DummyResponseStream responseStream = new DummyResponseStream(count);
         GraphModel graphModel = null;
@@ -28,8 +28,8 @@ public class DeserialisationTest {
 
         elapsed += System.currentTimeMillis();
 
-        System.out.println("Deserialised Bike 1000 times in " + elapsed + " milliseconds");
-        assertTrue(count > target);
+        System.out.println("Deserialised Bike " + count + " times in " + elapsed + " milliseconds");
+        assertTrue(elapsed < target);
     }
 
     static class DummyResponseStream {

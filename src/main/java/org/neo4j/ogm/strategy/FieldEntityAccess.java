@@ -1,8 +1,8 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.strategy;
 
 import java.lang.reflect.Field;
 
-import org.neo4j.ogm.strategy.EntityAccess;
+import org.neo4j.ogm.metadata.MappingException;
 
 public class FieldEntityAccess implements EntityAccess {
 

@@ -3,7 +3,8 @@ package org.neo4j.ogm.metadata;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.neo4j.ogm.domain.social.Person;
+import org.neo4j.ogm.mapper.domain.social.Person;
+import org.neo4j.ogm.strategy.FieldEntityAccess;
 
 public class FieldEntityAccessTest {
 

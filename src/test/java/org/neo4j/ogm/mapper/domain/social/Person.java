@@ -1,4 +1,4 @@
-package org.neo4j.ogm.domain.social;
+package org.neo4j.ogm.mapper.domain.social;
 
 /**
  * Arbitrary POJO used to test mapping code.

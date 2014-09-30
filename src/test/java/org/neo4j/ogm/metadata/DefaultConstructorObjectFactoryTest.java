@@ -9,7 +9,7 @@ import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.domain.social.Person;
+import org.neo4j.ogm.mapper.domain.social.Person;
 
 public class DefaultConstructorObjectFactoryTest {
 

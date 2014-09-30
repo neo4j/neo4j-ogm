@@ -10,9 +10,10 @@ import org.graphaware.graphmodel.Property;
 import org.graphaware.graphmodel.impl.StringProperty;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Test;
-import org.neo4j.ogm.domain.social.Person;
+import org.neo4j.ogm.mapper.domain.social.Person;
 import org.neo4j.ogm.strategy.EntityAccess;
 import org.neo4j.ogm.strategy.EntityAccessFactory;
+import org.neo4j.ogm.strategy.FieldEntityAccess;
 
 public class MappingConfigurationPlayground {
 

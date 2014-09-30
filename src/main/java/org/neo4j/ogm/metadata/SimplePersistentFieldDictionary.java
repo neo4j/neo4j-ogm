@@ -1,10 +1,10 @@
 package org.neo4j.ogm.metadata;
 
+import org.graphaware.graphmodel.Property;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.graphaware.graphmodel.Property;
 
 /**
  * Simple implementation of {@link PersistentFieldDictionary} based on pre-determined information about the way in which a

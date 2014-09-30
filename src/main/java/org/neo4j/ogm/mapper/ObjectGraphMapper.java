@@ -1,17 +1,17 @@
-package org.neo4j.ogm.strategy.simple;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.neo4j.ogm.mapper;
 
 import org.graphaware.graphmodel.Property;
 import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
-import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
-import org.neo4j.ogm.metadata.PersistentFieldDictionary;
 import org.neo4j.ogm.metadata.ObjectFactory;
 import org.neo4j.ogm.metadata.PersistentField;
+import org.neo4j.ogm.metadata.PersistentFieldDictionary;
 import org.neo4j.ogm.strategy.EntityAccessFactory;
+import org.neo4j.ogm.strategy.simple.MappingContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO: Javadoc
@@ -32,6 +32,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     // there may be a case for encapsulating these params in MappingConfiguration
     public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
             EntityAccessFactory entityAccessorFactory, PersistentFieldDictionary persistentFieldDict) {
+
         this.mappingContext = new MappingContext(type);
         this.objectFactory = objectFactory;
         this.entityAccessFactory = entityAccessorFactory;
@@ -82,7 +83,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object parameter = mappingContext.get(edge.getEndNode());
             Class<?> type = parameter.getClass();
             if (mappingContext.get(type) != null) {
-                entityAccessFactory.forType(type).setIterable(instance, mappingContext.get(type));
+                entityAccessFactory.forProperty(type.getSimpleName()).setIterable(instance, mappingContext.get(type));
                 mappingContext.evict(type); // we've added all instances of type, no point in repeating the effort.
             }
         }
@@ -91,13 +92,15 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     private void setProperties(NodeModel nodeModel, Object instance) throws Exception {
         for (Property property : nodeModel.getAttributes()) {
             PersistentField pf = persistentFieldDictionary.lookUpPersistentFieldForProperty(property);
-            entityAccessFactory.forPersistentField(pf).set(instance, property.getValue());
+            if (pf != null) {
+                entityAccessFactory.forProperty(pf.getJavaObjectFieldName()).set(instance, property.getValue());
+            }
         }
     }
 
     private boolean setValue(Object instance, Object parameter) throws Exception {
         try {
-            this.entityAccessFactory.forType(parameter.getClass()).setValue(instance, parameter);
+            this.entityAccessFactory.forProperty(parameter.getClass().getSimpleName()).setValue(instance, parameter);
             return true;
         } catch (NoSuchMethodException me) {
             return false;

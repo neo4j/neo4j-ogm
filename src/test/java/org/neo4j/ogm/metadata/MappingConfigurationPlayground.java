@@ -1,11 +1,5 @@
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.graphaware.graphmodel.Property;
 import org.graphaware.graphmodel.impl.StringProperty;
 import org.graphaware.graphmodel.neo4j.NodeModel;
@@ -14,6 +8,12 @@ import org.neo4j.ogm.mapper.domain.social.Person;
 import org.neo4j.ogm.strategy.EntityAccess;
 import org.neo4j.ogm.strategy.EntityAccessFactory;
 import org.neo4j.ogm.strategy.FieldEntityAccess;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class MappingConfigurationPlayground {
 
@@ -28,23 +28,20 @@ public class MappingConfigurationPlayground {
 
         EntityAccessFactory entityAccessFactory = new EntityAccessFactory() {
             @Override
-            public EntityAccess forPersistentField(PersistentField pf) {
-                return new FieldEntityAccess(pf.getJavaObjectFieldName());
+            public EntityAccess forProperty(String property) {
+                return new FieldEntityAccess(property);
             }
-            @Override
-            public EntityAccess forType(Class<?> type) {
-                throw new UnsupportedOperationException("atg hasn't written this method");
-            }};
+        };
 
         // do some test mapping now...
 
         Person toHydrate = trivialMappingConfig.provideObjectFactory().instantiateObjectMappedTo(testNode);
-        SimplePersistentFieldDictionary personMetadata = (SimplePersistentFieldDictionary) trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
+        AutomappingPersistentFieldDictionary personMetadata = (AutomappingPersistentFieldDictionary) trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
         for (Property<?, ?> attribute : testNode.getAttributes()) {
             // now, not all of these attributes may be mapped and not all of the fields may be specified as attributes
             PersistentField pf = personMetadata.lookUpPersistentFieldForProperty(attribute);
             try {
-                entityAccessFactory.forPersistentField(pf).setValue(toHydrate, attribute.getValue());
+                entityAccessFactory.forProperty(pf.getJavaObjectFieldName()).setValue(toHydrate, attribute.getValue());
                 // FIXME: this is NPE-ing here, should we keep the no-op behaviour that PropertyMapper used to have?
             } catch (Exception e) {
                 System.err.println("Couldn't map persistent field: " + pf + " to instance of " + toHydrate.getClass());
@@ -61,6 +58,7 @@ public class MappingConfigurationPlayground {
 
             @Override
             public SimplePersistentFieldDictionary findMappingMetadataForType(Class<?> typeToMap) {
+
                 // just what we need for reading, let's say we've got a person...
                 return new SimplePersistentFieldDictionary(Arrays.asList(
                         new RegularPersistentField("id"),

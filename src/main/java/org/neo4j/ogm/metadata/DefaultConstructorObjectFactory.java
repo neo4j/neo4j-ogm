@@ -1,7 +1,5 @@
 package org.neo4j.ogm.metadata;
 
-import java.util.Arrays;
-
 import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 
@@ -37,7 +35,7 @@ public class DefaultConstructorObjectFactory implements ObjectFactory {
             throw new MappingException("Cannot map to a class with no taxa by which to determine the class name.");
         }
 
-        String fqn = this.classDictionary.determineBaseClass(Arrays.asList(taxa));
+        String fqn = this.classDictionary.determineLeafClass(taxa);
         try {
             @SuppressWarnings("unchecked")
             Class<T> className = (Class<T>) Class.forName(fqn);

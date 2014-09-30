@@ -1,7 +1,6 @@
 package org.neo4j.ogm.metadata;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,19 +18,13 @@ public class MapBasedClassDictionary implements ClassDictionary {
     }
 
     @Override
-    public String determineBaseClass(List<String> taxa) {
+    public String determineLeafClass(String... taxa) {
         for (String taxon : taxa) {
             if (this.classMap.containsKey(taxon)) {
                 return this.classMap.get(taxon);
             }
         }
         return null;
-    }
-
-    @Override
-    public List<String> getFQNs(String simpleName) {
-        // todo:
-        throw new UnsupportedOperationException("Not implemented");
     }
 
 }

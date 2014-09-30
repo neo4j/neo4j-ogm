@@ -2,13 +2,9 @@ package org.neo4j.ogm.metadata;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.graphaware.graphmodel.Taxon;
-import org.graphaware.graphmodel.impl.StringTaxon;
 import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Before;
@@ -44,7 +40,7 @@ public class DefaultConstructorObjectFactoryTest {
     @Test
     public void shouldHandleMultipleLabelsSafely() {
         NodeModel personNodeModel = new NodeModel();
-        personNodeModel.setTaxa(Arrays.<Taxon>asList(new StringTaxon("Female"), new StringTaxon("Person"), new StringTaxon("Lass")));
+        personNodeModel.setLabels(new String[] {"Female", "Person", "Lass"});
         Person ourLass = this.objectCreator.instantiateObjectMappedTo(personNodeModel);
         assertNotNull(ourLass);
     }
@@ -53,7 +49,7 @@ public class DefaultConstructorObjectFactoryTest {
     public void shouldFailIfZeroArgConstructorIsNotPresent() {
         EdgeModel edge = new EdgeModel();
         edge.setId(49);
-        edge.setTaxa(Arrays.<Taxon>asList(new StringTaxon("ClassWithoutZeroArgumentConstructor")));
+        edge.setType("ClassWithoutZeroArgumentConstructor");
         this.objectCreator.instantiateObjectMappedTo(edge);
     }
 
@@ -61,7 +57,7 @@ public class DefaultConstructorObjectFactoryTest {
     public void shouldFailIfZeroArgConstructorIsNotVisible() {
         NodeModel vertex = new NodeModel();
         vertex.setId(163);
-        vertex.setTaxa(Arrays.<Taxon>asList(new StringTaxon("ClassWithPrivateConstructor")));
+        vertex.setLabels(new String[] {"ClassWithPrivateConstructor"});
         this.objectCreator.instantiateObjectMappedTo(vertex);
     }
 
@@ -69,7 +65,7 @@ public class DefaultConstructorObjectFactoryTest {
     public void shouldFailForGraphModelComponentWithNoTaxa() {
         NodeModel vertex = new NodeModel();
         vertex.setId(302);
-        vertex.setTaxa(Collections.<Taxon>emptyList());
+        vertex.setLabels(new String[0]);
         this.objectCreator.instantiateObjectMappedTo(vertex);
     }
 

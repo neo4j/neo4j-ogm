@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
-import org.graphaware.graphmodel.Taxon;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
@@ -23,8 +22,8 @@ public class BikeTest {
     private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
         DefaultConstructorObjectFactory objectCreationStrategy = new DefaultConstructorObjectFactory(new ClassDictionary() {
             @Override
-            public String determineBaseClass(List<Taxon> taxa) {
-                return "org.neo4j.ogm.mapper.domain.bike." + taxa.get(0).getName();
+            public String determineBaseClass(List<String> taxa) {
+                return "org.neo4j.ogm.mapper.domain.bike." + taxa.get(0);
             }
 
             @Override

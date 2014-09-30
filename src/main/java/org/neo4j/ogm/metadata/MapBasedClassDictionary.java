@@ -1,7 +1,5 @@
 package org.neo4j.ogm.metadata;
 
-import org.graphaware.graphmodel.Taxon;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +19,10 @@ public class MapBasedClassDictionary implements ClassDictionary {
     }
 
     @Override
-    public String determineBaseClass(List<Taxon> taxa) {
-        for (Taxon taxon : taxa) {
-            if (this.classMap.containsKey(taxon.getName().toString())) {
-                return this.classMap.get(taxon.getName().toString());
+    public String determineBaseClass(List<String> taxa) {
+        for (String taxon : taxa) {
+            if (this.classMap.containsKey(taxon)) {
+                return this.classMap.get(taxon);
             }
         }
         return null;
@@ -33,7 +31,7 @@ public class MapBasedClassDictionary implements ClassDictionary {
     @Override
     public List<String> getFQNs(String simpleName) {
         // todo:
-        throw new RuntimeException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 }

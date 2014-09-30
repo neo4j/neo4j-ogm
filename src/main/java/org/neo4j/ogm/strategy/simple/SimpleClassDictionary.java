@@ -1,6 +1,5 @@
 package org.neo4j.ogm.strategy.simple;
 
-import org.graphaware.graphmodel.Taxon;
 import org.neo4j.ogm.metadata.ClassDictionary;
 
 import java.util.*;
@@ -49,7 +48,7 @@ public class SimpleClassDictionary implements ClassDictionary {
     }
 
     @Override
-    public String determineBaseClass(List<Taxon> taxa) {
+    public String determineBaseClass(List<String> taxa) {
         // TODO!
         return null;
     }

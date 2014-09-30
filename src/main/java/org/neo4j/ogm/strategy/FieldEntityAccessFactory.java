@@ -15,7 +15,10 @@ public class FieldEntityAccessFactory implements EntityAccessFactory {
 
     @Override
     public FieldEntityAccess forType(Class<?> type) {
-        return new FieldEntityAccess(type.getSimpleName());
+        // This is so we can find something like setWheels from class Wheel
+        throw new UnsupportedOperationException("This method should be called on PersistentFieldDictionary.\n"
+                + "My understanding is that this method is for finding, say, setWheels based on class Wheel "
+                + "but that sort of inference shouldn't be done by this object.");
     }
 
 }

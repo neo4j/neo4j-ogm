@@ -17,9 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.social.Person;
 
-public class DefaultConstructorObjectCreatorTest {
+public class DefaultConstructorObjectFactoryTest {
 
-    private DefaultConstructorObjectCreator objectCreator;
+    private DefaultConstructorObjectFactory objectCreator;
 
     @Before
     public void setUp() {
@@ -27,7 +27,7 @@ public class DefaultConstructorObjectCreatorTest {
         mappings.put("ClassWithPrivateConstructor", ClassWithPrivateConstructor.class.getName());
         mappings.put("ClassWithoutZeroArgumentConstructor", ClassWithoutZeroArgumentConstructor.class.getName());
         mappings.put("Person", Person.class.getName());
-        this.objectCreator = new DefaultConstructorObjectCreator(new MapBasedClassDictionary(mappings));
+        this.objectCreator = new DefaultConstructorObjectFactory(new MapBasedClassDictionary(mappings));
     }
 
     @Test

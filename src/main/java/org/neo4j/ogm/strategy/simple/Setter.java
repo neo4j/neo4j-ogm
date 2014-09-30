@@ -1,6 +1,6 @@
 package org.neo4j.ogm.strategy.simple;
 
-import org.neo4j.ogm.strategy.EntityAccessStrategy;
+import org.neo4j.ogm.strategy.EntityAccess;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -8,7 +8,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class Setter implements EntityAccessStrategy {
+public class Setter implements EntityAccess {
 
     private static final MethodCache methodCache = new MethodCache();
 
@@ -26,20 +26,23 @@ public class Setter implements EntityAccessStrategy {
         return new Setter(sb.toString());
     }
 
+    @Override
     public void set(Object instance, Object any) throws Exception {
         if (Iterable.class.isAssignableFrom(any.getClass())) {
-            setIterable(instance, (Iterable) any);
+            setIterable(instance, (Iterable<?>) any);
         } else {
             setValue(instance, any);
         }
     }
 
+    @Override
     public void setValue(Object instance, Object parameter) throws Exception {
         Method method=findSetter(instance, parameter, methodName);
         method.invoke(instance, parameter);
     }
 
-    public void setIterable(Object instance, Iterable collection) throws Exception {
+    @Override
+    public void setIterable(Object instance, Iterable<?> collection) throws Exception {
         Object typeInstance = collection;
         if (Collection.class.isAssignableFrom(collection.getClass())) {
             typeInstance=collection.iterator().next();
@@ -50,7 +53,7 @@ public class Setter implements EntityAccessStrategy {
 
     private static Method findSetter(Object instance, Object parameter, String methodName) throws NoSuchMethodException {
         //System.out.println("Looking for method " + methodName + "(" + parameter.getClass().getSimpleName() + ") in class " + instance.getClass().getName());
-        Class clazz = instance.getClass();
+        Class<?> clazz = instance.getClass();
         Method m = methodCache.lookup(clazz, methodName);
         if (m == null) {
             for (Method method : clazz.getMethods()) {
@@ -69,7 +72,7 @@ public class Setter implements EntityAccessStrategy {
 
     private static Method findParameterisedSetter(Object instance, Object type, String methodName) throws NoSuchMethodException {
         //System.out.println("Looking for method " + methodName + "?(Iterable<T>) in class " + instance.getClass().getName());
-        Class clazz = instance.getClass();
+        Class<?> clazz = instance.getClass();
         Method method = methodCache.lookup(clazz, methodName + "?"); // ? indicates a non-scalar
         if (method == null) {
             for (Method m : instance.getClass().getMethods()) {
@@ -90,7 +93,8 @@ public class Setter implements EntityAccessStrategy {
         throw new NoSuchMethodException("Cannot find method " + methodName + "?(Iterable<T>) in class " + instance.getClass().getName());
     }
 
-    private static Object cast(Method method, Iterable collection) throws Exception {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static Object cast(Method method, Iterable<?> collection) throws Exception {
 
         // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
         Class parameterType = method.getParameterTypes()[0];

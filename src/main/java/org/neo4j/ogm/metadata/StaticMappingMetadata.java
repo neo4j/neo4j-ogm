@@ -10,7 +10,7 @@ import org.neo4j.ogm.mapper.PropertyMapper;
 /**
  * Encapsulates predetermined, static information about the way in which a particular type of object is mapped to a part of a graph.
  */
-public class StaticMappingMetadata implements MappingMetadata {
+public class StaticMappingMetadata implements PersistentFieldDictionary {
 
     private final Class<?> mappedType;
 

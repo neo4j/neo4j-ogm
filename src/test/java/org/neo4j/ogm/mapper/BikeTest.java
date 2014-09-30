@@ -13,15 +13,15 @@ import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
 import org.neo4j.ogm.metadata.ClassDictionary;
-import org.neo4j.ogm.metadata.DefaultConstructorObjectCreator;
-import org.neo4j.ogm.metadata.MatchingFieldAndPropertyMappingMetadata;
-import org.neo4j.ogm.strategy.SetterEntityAccessStrategyFactory;
-import org.neo4j.ogm.strategy.simple.CopiedSimpleMappingStrategy;
+import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
+import org.neo4j.ogm.metadata.MatchingFieldAndPropertyPersitentFieldDictionary;
+import org.neo4j.ogm.strategy.SetterEntityAccessFactory;
+import org.neo4j.ogm.strategy.simple.ObjectGraphMapper;
 
 public class BikeTest {
 
     private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
-        DefaultConstructorObjectCreator objectCreationStrategy = new DefaultConstructorObjectCreator(new ClassDictionary() {
+        DefaultConstructorObjectFactory objectCreationStrategy = new DefaultConstructorObjectFactory(new ClassDictionary() {
             @Override
             public String determineBaseClass(List<Taxon> taxa) {
                 return "org.neo4j.ogm.mapper.domain.bike." + taxa.get(0).getName();
@@ -32,8 +32,8 @@ public class BikeTest {
                 return Collections.singletonList("org.neo4j.ogm.mapper.domain.bike." + simpleName);
             }
         });
-        return new CopiedSimpleMappingStrategy(Bike.class, objectCreationStrategy,
-                new SetterEntityAccessStrategyFactory(), new MatchingFieldAndPropertyMappingMetadata());
+        return new ObjectGraphMapper(Bike.class, objectCreationStrategy,
+                new SetterEntityAccessFactory(), new MatchingFieldAndPropertyPersitentFieldDictionary());
     }
 
     @Test

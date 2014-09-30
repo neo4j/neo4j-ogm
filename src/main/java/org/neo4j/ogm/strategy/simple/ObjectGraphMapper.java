@@ -8,35 +8,34 @@ import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
-import org.neo4j.ogm.metadata.MappingMetadata;
-import org.neo4j.ogm.metadata.ObjectCreator;
+import org.neo4j.ogm.metadata.PersistentFieldDictionary;
+import org.neo4j.ogm.metadata.ObjectFactory;
 import org.neo4j.ogm.metadata.PersistentField;
-import org.neo4j.ogm.strategy.EntityAccessStrategyFactory;
+import org.neo4j.ogm.strategy.EntityAccessFactory;
 
 /**
- * A copy of {@link SimpleMappingStrategy} to show the separation of "the what" from "the how" - this is essentially the thing
- * that contains the algorithm for joining them up.
+ * TODO: Javadoc
  */
-public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<GraphModel> {
+public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     private final MappingContext mappingContext;
-    private final ObjectCreator objectCreator;
-    private final EntityAccessStrategyFactory entityAccessStrategyFactory;
-    private final MappingMetadata mappingMetadata;
+    private final ObjectFactory objectFactory;
+    private final EntityAccessFactory entityAccessFactory;
+    private final PersistentFieldDictionary persistentFieldDictionary;
 
     /**
      * @param type The type of the root object
-     * @param objectCreationStrategy The {@link ObjectCreator} to use for instantiating types
-     * @param entityAccessStrategyFactory To determine how the property values should be mapped to the fields
-     * @param mappingMetadata Contains information about how fields should be mapped to properties and vice versa
+     * @param objectFactory The {@link ObjectFactory} to use for instantiating types
+     * @param entityAccessorFactory To determine how the property values should be mapped to the fields
+     * @param persistentFieldDict Contains information about how fields should be mapped to properties and vice versa
      */
     // there may be a case for encapsulating these params in MappingConfiguration
-    public CopiedSimpleMappingStrategy(Class<?> type, ObjectCreator objectCreationStrategy,
-            EntityAccessStrategyFactory entityAccessStrategyFactory, MappingMetadata mappingMetadata) {
+    public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
+            EntityAccessFactory entityAccessorFactory, PersistentFieldDictionary persistentFieldDict) {
         this.mappingContext = new MappingContext(type);
-        this.objectCreator = objectCreationStrategy;
-        this.entityAccessStrategyFactory = entityAccessStrategyFactory;
-        this.mappingMetadata = mappingMetadata;
+        this.objectFactory = objectFactory;
+        this.entityAccessFactory = entityAccessorFactory;
+        this.persistentFieldDictionary = persistentFieldDict;
     }
 
     @Override
@@ -53,7 +52,7 @@ public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<Gra
     private void mapNodes(GraphModel graphModel) throws Exception {
         for (NodeModel node : graphModel.getNodes()) {
 
-            Object object = this.objectCreator.instantiateObjectMappedTo(node);
+            Object object = this.objectFactory.instantiateObjectMappedTo(node);
 
             mappingContext.register(object, node.getId());
 
@@ -83,7 +82,7 @@ public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<Gra
             Object parameter = mappingContext.get(edge.getEndNode());
             Class<?> type = parameter.getClass();
             if (mappingContext.get(type) != null) {
-                entityAccessStrategyFactory.forType(type).setIterable(instance, mappingContext.get(type));
+                entityAccessFactory.forType(type).setIterable(instance, mappingContext.get(type));
                 mappingContext.evict(type); // we've added all instances of type, no point in repeating the effort.
             }
         }
@@ -91,15 +90,14 @@ public class CopiedSimpleMappingStrategy implements GraphModelToObjectMapper<Gra
 
     private void setProperties(NodeModel nodeModel, Object instance) throws Exception {
         for (Property property : nodeModel.getAttributes()) {
-            // XXX this is still implicitly saying property.name => object.field
-            PersistentField pf = mappingMetadata.lookUpPersistentFieldForProperty(property);
-            entityAccessStrategyFactory.forPersistentField(pf).set(instance, property.getValue());
+            PersistentField pf = persistentFieldDictionary.lookUpPersistentFieldForProperty(property);
+            entityAccessFactory.forPersistentField(pf).set(instance, property.getValue());
         }
     }
 
     private boolean setValue(Object instance, Object parameter) throws Exception {
         try {
-            this.entityAccessStrategyFactory.forType(parameter.getClass()).setValue(instance, parameter);
+            this.entityAccessFactory.forType(parameter.getClass()).setValue(instance, parameter);
             return true;
         } catch (NoSuchMethodException me) {
             return false;

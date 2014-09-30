@@ -3,15 +3,15 @@ package org.neo4j.ogm.strategy;
 import org.neo4j.ogm.metadata.PersistentField;
 import org.neo4j.ogm.strategy.simple.Setter;
 
-public class SetterEntityAccessStrategyFactory implements EntityAccessStrategyFactory {
+public class SetterEntityAccessFactory implements EntityAccessFactory {
 
     @Override
-    public EntityAccessStrategy forPersistentField(PersistentField pf) {
+    public EntityAccess forPersistentField(PersistentField pf) {
         return Setter.forProperty(String.valueOf(pf.getJavaObjectFieldName()));
     }
 
     @Override
-    public EntityAccessStrategy forType(Class<?> type) {
+    public EntityAccess forType(Class<?> type) {
         return Setter.forProperty(type.getSimpleName());
     }
 

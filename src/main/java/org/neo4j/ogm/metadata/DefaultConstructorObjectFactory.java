@@ -7,13 +7,13 @@ import org.graphaware.graphmodel.Taxon;
 import org.graphaware.graphmodel.Vertex;
 
 /**
- * Implementation of {@link ObjectCreator} that exclusively uses a class' default constructor for instantiation.
+ * Implementation of {@link ObjectFactory} that exclusively uses a class' default constructor for instantiation.
  */
-public class DefaultConstructorObjectCreator implements ObjectCreator {
+public class DefaultConstructorObjectFactory implements ObjectFactory {
 
     private final ClassDictionary classDictionary;
 
-    public DefaultConstructorObjectCreator(ClassDictionary classDictionary) {
+    public DefaultConstructorObjectFactory(ClassDictionary classDictionary) {
         this.classDictionary = classDictionary;
     }
 

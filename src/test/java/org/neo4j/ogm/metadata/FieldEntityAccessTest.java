@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.social.Person;
-import org.neo4j.ogm.strategy.FieldEntityAccess;
+import org.neo4j.ogm.entityaccess.FieldEntityAccess;
 
 public class FieldEntityAccessTest {
 

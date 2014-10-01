@@ -1,4 +1,4 @@
-package org.neo4j.ogm.strategy;
+package org.neo4j.ogm.entityaccess;
 
 public interface EntityAccess {
 

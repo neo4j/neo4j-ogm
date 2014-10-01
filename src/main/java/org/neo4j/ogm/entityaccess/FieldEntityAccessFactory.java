@@ -1,4 +1,4 @@
-package org.neo4j.ogm.strategy;
+package org.neo4j.ogm.entityaccess;
 
 /**
  * Implementation of {@link EntityAccessFactory} that provides {@link FieldEntityAccess} instances.

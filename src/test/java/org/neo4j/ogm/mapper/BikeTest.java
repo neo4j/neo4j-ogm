@@ -7,7 +7,7 @@ import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
 import org.neo4j.ogm.metadata.AutomappingPersistentFieldDictionary;
 import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
-import org.neo4j.ogm.strategy.SetterEntityAccessFactory;
+import org.neo4j.ogm.entityaccess.SetterEntityAccessFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import static junit.framework.TestCase.assertNotNull;

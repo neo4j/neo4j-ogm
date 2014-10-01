@@ -1,6 +1,6 @@
-package org.neo4j.ogm.strategy.simple;
+package org.neo4j.ogm.entityaccess;
 
-import org.neo4j.ogm.strategy.EntityAccess;
+import org.neo4j.ogm.strategy.simple.MethodCache;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -8,22 +8,22 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class Setter implements EntityAccess {
+public class SetterEntityAccess implements EntityAccess {
 
     private static final MethodCache methodCache = new MethodCache();
 
     private final String methodName;
 
-    private Setter(String methodName) {
+    private SetterEntityAccess(String methodName) {
         this.methodName = methodName;
     }
 
-    public static Setter forProperty(String name) {
+    public static SetterEntityAccess forProperty(String name) {
         StringBuilder sb = new StringBuilder();
         sb.append("set");
         sb.append(name.substring(0,1).toUpperCase());
         sb.append(name.substring(1));
-        return new Setter(sb.toString());
+        return new SetterEntityAccess(sb.toString());
     }
 
     @Override

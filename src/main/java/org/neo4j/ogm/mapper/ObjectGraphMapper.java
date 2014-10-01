@@ -7,7 +7,7 @@ import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.neo4j.ogm.metadata.ObjectFactory;
 import org.neo4j.ogm.metadata.PersistentField;
 import org.neo4j.ogm.metadata.PersistentFieldDictionary;
-import org.neo4j.ogm.strategy.EntityAccessFactory;
+import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.strategy.simple.MappingContext;
 
 import java.util.ArrayList;

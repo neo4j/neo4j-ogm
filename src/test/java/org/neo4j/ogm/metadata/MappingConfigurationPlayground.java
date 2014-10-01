@@ -5,9 +5,9 @@ import org.graphaware.graphmodel.impl.StringProperty;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.social.Person;
-import org.neo4j.ogm.strategy.EntityAccess;
-import org.neo4j.ogm.strategy.EntityAccessFactory;
-import org.neo4j.ogm.strategy.FieldEntityAccess;
+import org.neo4j.ogm.entityaccess.EntityAccess;
+import org.neo4j.ogm.entityaccess.EntityAccessFactory;
+import org.neo4j.ogm.entityaccess.FieldEntityAccess;
 
 import java.util.Arrays;
 import java.util.HashMap;

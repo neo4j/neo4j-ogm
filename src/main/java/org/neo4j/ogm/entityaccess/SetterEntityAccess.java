@@ -11,7 +11,19 @@ import java.util.*;
 public class SetterEntityAccess implements EntityAccess {
 
     private static final MethodCache methodCache = new MethodCache();
+    private static final Map<Class, Class> primitives = new HashMap();
 
+    static {
+        primitives.put(Character.class, char.class);
+        primitives.put(Byte.class, byte.class);
+        primitives.put(Short.class, short.class);
+        primitives.put(Integer.class, int.class);
+        primitives.put(Long.class, long.class);
+        primitives.put(Float.class, float.class);
+        primitives.put(Double.class, double.class);
+        primitives.put(Boolean.class, boolean.class);
+
+    }
     private final String methodName;
 
     private SetterEntityAccess(String methodName) {
@@ -21,9 +33,13 @@ public class SetterEntityAccess implements EntityAccess {
     public static SetterEntityAccess forProperty(String name) {
         StringBuilder sb = new StringBuilder();
         sb.append("set");
-        sb.append(name.substring(0,1).toUpperCase());
-        sb.append(name.substring(1));
-        return new SetterEntityAccess(sb.toString());
+        if (name != null && name.length() > 0) {
+            sb.append(name.substring(0,1).toUpperCase());
+            sb.append(name.substring(1));
+            return new SetterEntityAccess(sb.toString());
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -61,13 +77,42 @@ public class SetterEntityAccess implements EntityAccess {
                         method.getReturnType().equals(void.class) &&
                         method.getName().startsWith(methodName) &&
                         method.getParameterTypes().length == 1 &&
-                        method.getParameterTypes()[0] == parameter.getClass())
+                        (method.getParameterTypes()[0] == parameter.getClass() || method.getParameterTypes()[0].isAssignableFrom(primitive(parameter.getClass())))) {
                     return methodCache.insert(clazz, methodName, method);
+                }
             }
         } else {
             return m;
         }
         throw new NoSuchMethodException("Cannot find method " + methodName + "(" + parameter.getClass().getSimpleName() + ") in class " + instance.getClass().getName());
+    }
+
+    private static Class primitive(Class clazz) {
+        if (clazz == Integer.class) {
+            return int.class;
+        }
+        if (clazz == Long.class) {
+            return long.class;
+        }
+        if (clazz == Short.class) {
+            return short.class;
+        }
+        if (clazz == Byte.class) {
+            return byte.class;
+        }
+        if (clazz == Float.class) {
+            return float.class;
+        }
+        if (clazz == Double.class) {
+            return double.class;
+        }
+        if (clazz == Character.class) {
+            return char.class;
+        }
+        if (clazz == Boolean.class) {
+            return boolean.class;
+        }
+        return clazz;
     }
 
     private static Method findParameterisedSetter(Object instance, Object type, String methodName) throws NoSuchMethodException {

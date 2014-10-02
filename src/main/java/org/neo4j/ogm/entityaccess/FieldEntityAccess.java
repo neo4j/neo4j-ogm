@@ -4,7 +4,7 @@ import org.neo4j.ogm.metadata.MappingException;
 
 import java.lang.reflect.Field;
 
-public class FieldEntityAccess implements EntityAccess {
+public class FieldEntityAccess extends AbstractEntityAccess {
 
     private String fieldName;
 
@@ -34,16 +34,6 @@ public class FieldEntityAccess implements EntityAccess {
     @Override
     public void setValue(Object instance, Object scalar) throws Exception {
         writeToObject(instance, scalar);
-    }
-
-    @Override
-    public void set(Object instance, Object any) throws Exception {
-        // TODO: refactor, this is the same as the code in Setter.java
-        if (Iterable.class.isAssignableFrom(any.getClass())) {
-            setIterable(instance, (Iterable<?>) any);
-        } else {
-            setValue(instance, any);
-        }
     }
 
     @Override

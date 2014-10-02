@@ -51,13 +51,16 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     }
 
     private void mapNodes(GraphModel graphModel) throws Exception {
+
         for (NodeModel node : graphModel.getNodes()) {
 
-            Object object = this.objectFactory.instantiateObjectMappedTo(node);
-
-            mappingContext.register(object, node.getId());
-
-            setProperties(node, object);
+            Object object = mappingContext.get(node.getId());
+            if (object == null) {
+                object = this.objectFactory.instantiateObjectMappedTo(node);
+                mappingContext.register(object, node.getId());
+                // Note: ASSUMPTION! the object's properties can't change if we've already parsed this previously!
+                setProperties(node, object);
+            }
         }
     }
 

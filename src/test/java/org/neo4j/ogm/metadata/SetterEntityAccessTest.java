@@ -1,7 +1,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
-import org.neo4j.ogm.entityaccess.SetterEntityAccess;
+import org.neo4j.ogm.entityaccess.MethodEntityAccess;
 import org.neo4j.ogm.mapper.domain.social.Person;
 
 import java.util.ArrayList;
@@ -25,19 +25,19 @@ public class SetterEntityAccessTest {
     @Test(expected = NullPointerException.class)
     public void shouldThrowNPEWhenMappingToNullPropertyName() throws Exception {
         Person peter = new Person();
-        SetterEntityAccess.forProperty(null).set(peter, "Peter");
+        MethodEntityAccess.forProperty(null).set(peter, "Peter");
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowNPEWhenMappingToEmptyPropertyName() throws Exception {
         Person peter = new Person();
-        SetterEntityAccess.forProperty("").set(peter, "Peter");
+        MethodEntityAccess.forProperty("").set(peter, "Peter");
     }
 
     @Test(expected = NoSuchMethodException.class)
     public void shouldThrowNSMEWhenMappingToNonExistentPropertyName() throws Exception {
         Person peter = new Person();
-        SetterEntityAccess.forProperty("height").set(peter, 183);
+        MethodEntityAccess.forProperty("height").set(peter, 183);
     }
 
     @Test
@@ -51,10 +51,10 @@ public class SetterEntityAccessTest {
         friends.add(paul);
         friends.add(mary);
 
-        SetterEntityAccess.forProperty("name").set(peter, "Peter");
-        SetterEntityAccess.forProperty("age").set(peter, 34);
-        SetterEntityAccess.forProperty("friends").set(peter, friends);
-        SetterEntityAccess.forProperty("primitiveIntArray").set(peter, new int[] { 0, 1, 2, 3, 4, 5 });
+        MethodEntityAccess.forProperty("name").set(peter, "Peter");
+        MethodEntityAccess.forProperty("age").set(peter, 34);
+        MethodEntityAccess.forProperty("friends").set(peter, friends);
+        MethodEntityAccess.forProperty("primitiveIntArray").set(peter, new int[] { 0, 1, 2, 3, 4, 5 });
 
         assertEquals("Peter", peter.getName());
         assertEquals(34, peter.getAge());

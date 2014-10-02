@@ -24,12 +24,13 @@ public class CollectionTest {
     @Test
     public void testMultiplePathResponse() throws Exception {
 
-        GraphModelToObjectMapper mapper = new SimpleSetterMappingStrategy(Parent.class);
+        SimpleSetterMappingStrategy mapper = new SimpleSetterMappingStrategy(Parent.class);
+        mapper.reset();
 
         GraphModel graphModel;
         Parent parent = new Parent();
 
-        while ((graphModel = request.getResponseStream().next()) != null) {
+        while ((graphModel = request.getResponse().next()) != null) {
             parent = (Parent) mapper.mapToObject(graphModel);
         }
 

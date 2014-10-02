@@ -8,6 +8,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 
+/**
+ * TODO: this is now a big ball of mud. It needs refactoring.
+ */
 public class MethodEntityAccess extends AbstractEntityAccess {
 
     private static final MethodCache methodCache = new MethodCache();
@@ -29,7 +32,7 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         StringBuilder sb = new StringBuilder();
         sb.append("set");
         if (name != null && name.length() > 0) {
-            sb.append(name.substring(0,1).toUpperCase());
+            sb.append(name.substring(0, 1).toUpperCase());
             sb.append(name.substring(1));
             return new MethodEntityAccess(sb.toString());
         } else {
@@ -162,11 +165,14 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         Class parameterType = method.getParameterTypes()[0];
 
         if (parameterType == List.class) {
+
             List<Object> list = new ArrayList<>();
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                list.addAll((Collection) hydrated);
-            }
             list.addAll((Collection)collection);
+
+            if (hydrated != null && hydrated.iterator().hasNext()) {
+                list = union(list, ((List) hydrated));
+            }
+
             return list;
         }
 
@@ -181,21 +187,27 @@ public class MethodEntityAccess extends AbstractEntityAccess {
 
         else if (parameterType == Vector.class) {
             Vector<Object> v = new Vector<>();
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                v.addAll((Collection) hydrated);
-            }
             v.addAll((Collection) collection);
+
+            if (hydrated != null && hydrated.iterator().hasNext()) {
+                v = union(v, (Vector) hydrated);
+            }
+
             return v;
         }
 
         else if (parameterType.isArray()) {
+
             Class type = parameterType.getComponentType();
             Object array = Array.newInstance(type, ((Collection) collection).size());
+
             List<Object> objects = new ArrayList<>();
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                objects.addAll((Collection) hydrated);
-            }
             objects.addAll((Collection) collection);
+
+            if (hydrated != null && hydrated.iterator().hasNext()) {
+                objects = union(objects, Arrays.asList(hydrated));
+            }
+
             for (int i = 0; i < objects.size(); i++) {
                 Array.set(array, i, objects.get(i));
             }
@@ -206,4 +218,23 @@ public class MethodEntityAccess extends AbstractEntityAccess {
             throw new RuntimeException("Unsupported: " + parameterType.getName());
         }
     }
+
+    private static ArrayList union(List list1, List list2) {
+        Set set = new HashSet();
+
+        set.addAll(list1);
+        set.addAll(list2);
+
+        return new ArrayList(set);
+    }
+
+    private static Vector union(Vector list1, Vector list2) {
+        Set set = new HashSet();
+
+        set.addAll(list1);
+        set.addAll(list2);
+
+        return new Vector(set);
+    }
+
 }

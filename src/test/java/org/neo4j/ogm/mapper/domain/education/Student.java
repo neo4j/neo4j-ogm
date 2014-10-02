@@ -1,8 +1,8 @@
-package org.neo4j.ogm.mapper.domain.collection;
+package org.neo4j.ogm.mapper.domain.education;
 
-public class Child extends DomainObject {
+public class Student extends DomainObject {
 
-    private String name;
+    String name;
 
     public String getName() {
         return name;

@@ -12,12 +12,18 @@ public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<Gr
     private final ObjectGraphMapper mapper;
 
     public SimpleSetterMappingStrategy(Class clazz) {
+
         mapper = new ObjectGraphMapper(
                 clazz,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
                 new MethodEntityAccessFactory(),
                 new AutomappingPersistentFieldDictionary());
 
+
+    }
+
+    public void reset() {
+        mapper.reset();
     }
 
     @Override

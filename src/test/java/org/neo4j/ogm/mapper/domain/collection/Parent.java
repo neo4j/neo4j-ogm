@@ -2,19 +2,11 @@ package org.neo4j.ogm.mapper.domain.collection;
 
 import java.util.List;
 
-public class Parent {
+public class Parent extends DomainObject {
 
     private List<Child> children;
+
     private String name;
-    private Long id;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public List<Child> getChildren() {
         return children;

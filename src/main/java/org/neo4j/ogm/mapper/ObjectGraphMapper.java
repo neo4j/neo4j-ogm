@@ -11,17 +11,23 @@ import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.strategy.simple.MappingContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TODO: Javadoc
  */
 public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
-    private final MappingContext mappingContext;
+    private static final MappingContext mappingContext = new MappingContext();
+
     private final ObjectFactory objectFactory;
     private final EntityAccessFactory entityAccessFactory;
     private final PersistentFieldDictionary persistentFieldDictionary;
+    private final Map<Class, List<Object>> typeMap = new HashMap<>();
+
+    private final Class root;
 
     /**
      * @param type The type of the root object
@@ -33,7 +39,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
             EntityAccessFactory entityAccessorFactory, PersistentFieldDictionary persistentFieldDict) {
 
-        this.mappingContext = new MappingContext(type);
+        this.root = type;
         this.objectFactory = objectFactory;
         this.entityAccessFactory = entityAccessorFactory;
         this.persistentFieldDictionary = persistentFieldDict;
@@ -41,13 +47,41 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     @Override
     public Object mapToObject(GraphModel graphModel) {
+        typeMap.clear();
         try {
             mapNodes(graphModel);
             mapRelationships(graphModel);
-            return mappingContext.root();
+            return root();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // required for tests, since the ids of objects are not unique across tests.
+    public void reset() {
+        mappingContext.clear();
+    }
+
+    public Object root() throws Exception {
+        List<Object> roots = typeMap.get(root);
+        return roots.get(roots.size()-1);
+    }
+
+    public void evict(Class type) {
+        typeMap.remove(type);
+    }
+
+    public List<Object> get(Class clazz) {
+        return typeMap.get(clazz);
+    }
+
+    public void register(Object object) {
+        List<Object> objectList = typeMap.get(object.getClass());
+        if (objectList == null) {
+            objectList = new ArrayList<>();
+            typeMap.put(object.getClass(), objectList);
+        }
+        objectList.add(object);
     }
 
     private void mapNodes(GraphModel graphModel) throws Exception {
@@ -55,12 +89,13 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         for (NodeModel node : graphModel.getNodes()) {
 
             Object object = mappingContext.get(node.getId());
-            if (object == null) {
+            if (object == null) { // this is a never before seen object.
                 object = this.objectFactory.instantiateObjectMappedTo(node);
                 mappingContext.register(object, node.getId());
                 // Note: ASSUMPTION! the object's properties can't change if we've already parsed this previously!
                 setProperties(node, object);
             }
+            register(object);
         }
     }
 
@@ -72,7 +107,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object parent = mappingContext.get(edge.getStartNode());
             Object child = mappingContext.get(edge.getEndNode());
             if (setValue(parent, child)) {
-                mappingContext.evict(child.getClass());
+               evict(child.getClass());
             } else {
                 vectorRelationships.add(edge);
             }
@@ -85,9 +120,10 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
             Class<?> type = parameter.getClass();
-            if (mappingContext.get(type) != null) {
-                entityAccessFactory.forProperty(type.getSimpleName()).setIterable(instance, mappingContext.get(type));
-                mappingContext.evict(type); // we've added all instances of type, no point in repeating the effort.
+            if (get(type) != null) {
+                //System.out.println("setting " + type.getSimpleName() + "s on " + instance.getClass().getSimpleName() + " id: " + edge.getStartNode() + ", no elements: " + get(type).size());
+                entityAccessFactory.forProperty(type.getSimpleName()).setIterable(instance, get(type));
+                evict(type); // we've added all instances of type for this object, no point in repeating the effort.
             }
         }
     }

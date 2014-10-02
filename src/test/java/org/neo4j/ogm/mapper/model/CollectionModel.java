@@ -1,10 +1,10 @@
 package org.neo4j.ogm.mapper.model;
 
-import org.graphaware.graphmodel.neo4j.GraphModel;
+public class CollectionModel extends DummyRequest {
 
-public class CollectionModel {
-
-    private DummyResponseStream responseStream = new DummyResponseStream(2);
+    public CollectionModel() {
+        setResponse(jsonModel);
+    }
 
     private static String[] jsonModel = {
 
@@ -31,32 +31,4 @@ public class CollectionModel {
     };
 
 
-    public class DummyResponseStream {
-
-        private int records = 0;
-        private int count = 0;
-
-        public DummyResponseStream(int records) {
-            this.records = records;
-        }
-
-        public GraphModel next() throws Exception {
-            if (hasNext()) {
-                String json = jsonModel[count];
-                //System.out.println("response: " + json);
-                count++;
-                return GraphBuilder.build(json);
-            }
-            return null;
-        }
-
-        private boolean hasNext() {
-            return count < records;
-        }
-
-    }
-
-    public DummyResponseStream getResponseStream() {
-        return responseStream;
-    }
 }

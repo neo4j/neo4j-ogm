@@ -2,14 +2,13 @@ package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.strategy.simple.MethodCache;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collection;
 
 /**
- * TODO: this is now a big ball of mud. It needs refactoring.
+ * TODO: JavaDoc
  */
 public class MethodEntityAccess extends AbstractEntityAccess {
 
@@ -43,6 +42,10 @@ public class MethodEntityAccess extends AbstractEntityAccess {
     @Override
     public void setValue(Object instance, Object parameter) throws Exception {
         Method method=findSetter(instance, parameter, setterName);
+        if (!method.getName().equals(setterName)) {
+            setAccessors(method.getName());
+            methodCache.insert(instance.getClass(), setterName, method);
+        }
         method.invoke(instance, parameter);
     }
 
@@ -52,29 +55,39 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         Object typeInstance = iterable;
 
         if (Collection.class.isAssignableFrom(iterable.getClass())) {
-            // TODO: what should we do if this is an empty collection?
-            typeInstance=iterable.iterator().next();
+            if (iterable.iterator().hasNext()) {
+                typeInstance=iterable.iterator().next();
+            } else {
+                return;
+            }
         }
+
         Method setter = findParameterisedSetter(instance, typeInstance, setterName);
+
         if (!setter.getName().equals(setterName)) {
             setAccessors(setter.getName());
             methodCache.insert(instance.getClass(), setterName + "?", setter);
         }
+
         Method getter = findGetter(instance, typeInstance, getterName);
-        setter.invoke(instance, cast(setter, iterable, (Iterable<?>) getter.invoke(instance)));
+        setter.invoke(instance, merge(setter.getParameterTypes()[0], iterable, (Iterable<?>) getter.invoke(instance)));
     }
 
     private static Method findSetter(Object instance, Object parameter, String methodName) throws NoSuchMethodException {
         //System.out.println("Looking for method " + setterName + "(" + parameter.getClass().getSimpleName() + ") in class " + instance.getClass().getName());
         Class<?> clazz = instance.getClass();
+
         Method m = methodCache.lookup(clazz, methodName);
+
         if (m == null) {
+            Class parameterClass = parameter.getClass();
+            Class primitiveClass = unbox(parameterClass);
             for (Method method : clazz.getMethods()) {
                 if( Modifier.isPublic(method.getModifiers()) &&
                         method.getReturnType().equals(void.class) &&
                         method.getName().startsWith(methodName) &&
                         method.getParameterTypes().length == 1 &&
-                        (method.getParameterTypes()[0] == parameter.getClass() || method.getParameterTypes()[0].isAssignableFrom(primitive(parameter.getClass())))) {
+                        (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
                     return methodCache.insert(clazz, methodName, method);
                 }
             }
@@ -107,38 +120,11 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         throw new NoSuchMethodException("Could not find method " + methodName + " returning type " + parameter.getClass().getSimpleName() + " in class " + instance.getClass().getName());
     }
 
-    private static Class primitive(Class clazz) {
-        if (clazz == Integer.class) {
-            return int.class;
-        }
-        if (clazz == Long.class) {
-            return long.class;
-        }
-        if (clazz == Short.class) {
-            return short.class;
-        }
-        if (clazz == Byte.class) {
-            return byte.class;
-        }
-        if (clazz == Float.class) {
-            return float.class;
-        }
-        if (clazz == Double.class) {
-            return double.class;
-        }
-        if (clazz == Character.class) {
-            return char.class;
-        }
-        if (clazz == Boolean.class) {
-            return boolean.class;
-        }
-        return clazz;
-    }
-
     private static Method findParameterisedSetter(Object instance, Object type, String methodName) throws NoSuchMethodException {
         //System.out.println("Looking for method " + setterName + "?(Iterable<T>) in class " + instance.getClass().getName());
         Class<?> clazz = instance.getClass();
         Method method = methodCache.lookup(clazz, methodName + "?"); // ? indicates a non-scalar
+
         if (method == null) {
             for (Method m : instance.getClass().getMethods()) {
                 if (Modifier.isPublic(m.getModifiers()) &&
@@ -158,83 +144,5 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         throw new NoSuchMethodException("Cannot find method " + methodName + "?(Iterable<T>) in class " + instance.getClass().getName());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static Object cast(Method method, Iterable<?> collection, Iterable<?> hydrated) throws Exception {
-
-        // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
-        Class parameterType = method.getParameterTypes()[0];
-
-        if (parameterType == List.class) {
-
-            List<Object> list = new ArrayList<>();
-            list.addAll((Collection)collection);
-
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                list = union(list, ((List) hydrated));
-            }
-
-            return list;
-        }
-
-        else if (parameterType == Set.class) {
-            Set<Object> set = new HashSet<>();
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                set.addAll((Collection) hydrated);
-            }
-            set.addAll((Collection) collection);
-            return set;
-        }
-
-        else if (parameterType == Vector.class) {
-            Vector<Object> v = new Vector<>();
-            v.addAll((Collection) collection);
-
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                v = union(v, (Vector) hydrated);
-            }
-
-            return v;
-        }
-
-        else if (parameterType.isArray()) {
-
-            Class type = parameterType.getComponentType();
-            Object array = Array.newInstance(type, ((Collection) collection).size());
-
-            List<Object> objects = new ArrayList<>();
-            objects.addAll((Collection) collection);
-
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                objects = union(objects, Arrays.asList(hydrated));
-            }
-
-            for (int i = 0; i < objects.size(); i++) {
-                Array.set(array, i, objects.get(i));
-            }
-            return array;
-        }
-
-        else {
-            throw new RuntimeException("Unsupported: " + parameterType.getName());
-        }
-    }
-
-    private static ArrayList union(List list1, List list2) {
-        Set set = new HashSet();
-
-        set.addAll(list1);
-        set.addAll(list2);
-
-        return new ArrayList(set);
-    }
-
-    private static Vector union(Vector list1, Vector list2) {
-        Set set = new HashSet();
-
-        set.addAll(list1);
-        set.addAll(list2);
-
-        return new Vector(set);
-    }
 
 }

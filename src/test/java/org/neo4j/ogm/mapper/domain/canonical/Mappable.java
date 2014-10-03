@@ -34,6 +34,7 @@ public class Mappable {
     private Boolean objectBoolean;
     private Float objectFloat;
     private Double objectDouble;
+    private String objectString;
 
     private Integer[] objectIntegerArray;
     private Long[] objectLongArray;
@@ -42,8 +43,9 @@ public class Mappable {
     private Boolean[] objectBooleanArray;
     private Float[] objectFloatArray;
     private Double[] objectDoubleArray;
+    private String[] objectStringArray;
 
-    private List<?> listOfAnyThing;
+    private List<?> listOfAnything;
     private Set<?> setOfAnything;
     private Vector<?> vectorOfAnything;
 
@@ -287,12 +289,12 @@ public class Mappable {
         this.objectDoubleArray = objectDoubleArray;
     }
 
-    public List<?> getListOfAnyThing() {
-        return listOfAnyThing;
+    public List<?> getListOfAnything() {
+        return listOfAnything;
     }
 
-    public void setListOfAnyThing(List<?> listOfAnyThing) {
-        this.listOfAnyThing = listOfAnyThing;
+    public void setListOfAnything(List<?> listOfAnything) {
+        this.listOfAnything = listOfAnything;
     }
 
     public Set<?> getSetOfAnything() {
@@ -309,5 +311,21 @@ public class Mappable {
 
     public void setVectorOfAnything(Vector<?> vectorOfAnything) {
         this.vectorOfAnything = vectorOfAnything;
+    }
+
+    public String getObjectString() {
+        return objectString;
+    }
+
+    public void setObjectString(String objectString) {
+        this.objectString = objectString;
+    }
+
+    public String[] getObjectStringArray() {
+        return objectStringArray;
+    }
+
+    public void setObjectStringArray(String[] objectStringArray) {
+        this.objectStringArray = objectStringArray;
     }
 }

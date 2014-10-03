@@ -14,34 +14,6 @@ public abstract class AbstractEntityAccess implements EntityAccess {
         }
     }
 
-    protected static Class unbox(Class clazz) {
-        if (clazz == Integer.class) {
-            return int.class;
-        }
-        if (clazz == Long.class) {
-            return long.class;
-        }
-        if (clazz == Short.class) {
-            return short.class;
-        }
-        if (clazz == Byte.class) {
-            return byte.class;
-        }
-        if (clazz == Float.class) {
-            return float.class;
-        }
-        if (clazz == Double.class) {
-            return double.class;
-        }
-        if (clazz == Character.class) {
-            return char.class;
-        }
-        if (clazz == Boolean.class) {
-            return boolean.class;
-        }
-        return clazz;
-    }
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) throws Exception {
 
@@ -52,7 +24,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
             list.addAll((Collection)collection);
 
             if (hydrated != null && hydrated.iterator().hasNext()) {
-                list = union(list, ((List) hydrated));
+                list = union(list, ((List<Object>) hydrated));
             }
 
             return list;
@@ -72,7 +44,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
             v.addAll((Collection) collection);
 
             if (hydrated != null && hydrated.iterator().hasNext()) {
-                v = union(v, (Vector) hydrated);
+                v = union(v, (Vector<Object>) hydrated);
             }
 
             return v;
@@ -87,7 +59,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
             objects.addAll((Collection) collection);
 
             if (hydrated != null && hydrated.iterator().hasNext()) {
-                objects = union(objects, Arrays.asList(hydrated));
+                objects = union(objects, Arrays.<Object>asList(hydrated));
             }
 
             for (int i = 0; i < objects.size(); i++) {
@@ -101,22 +73,22 @@ public abstract class AbstractEntityAccess implements EntityAccess {
         }
     }
 
-    private static ArrayList union(List list1, List list2) {
-        Set set = new HashSet();
+    private static ArrayList<Object> union(List<Object> list1, List<Object> list2) {
+        Set<Object> set = new HashSet<>();
 
         set.addAll(list1);
         set.addAll(list2);
 
-        return new ArrayList(set);
+        return new ArrayList<Object>(set);
     }
 
-    private static Vector union(Vector list1, Vector list2) {
-        Set set = new HashSet();
+    private static Vector<Object> union(Vector<Object> list1, Vector<Object> list2) {
+        Set<Object> set = new HashSet<>();
 
         set.addAll(list1);
         set.addAll(list2);
 
-        return new Vector(set);
+        return new Vector<Object>(set);
     }
 
 }

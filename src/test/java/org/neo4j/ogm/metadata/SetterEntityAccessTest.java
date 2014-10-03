@@ -2,7 +2,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
 import org.neo4j.ogm.entityaccess.MethodEntityAccess;
-import org.neo4j.ogm.mapper.domain.social.Person;
+import org.neo4j.ogm.mapper.domain.social.Individual;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,29 +24,29 @@ public class SetterEntityAccessTest {
      */
     @Test(expected = NullPointerException.class)
     public void shouldThrowNPEWhenMappingToNullPropertyName() throws Exception {
-        Person peter = new Person();
+        Individual peter = new Individual();
         MethodEntityAccess.forProperty(null).set(peter, "Peter");
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowNPEWhenMappingToEmptyPropertyName() throws Exception {
-        Person peter = new Person();
+        Individual peter = new Individual();
         MethodEntityAccess.forProperty("").set(peter, "Peter");
     }
 
     @Test(expected = NoSuchMethodException.class)
     public void shouldThrowNSMEWhenMappingToNonExistentPropertyName() throws Exception {
-        Person peter = new Person();
+        Individual peter = new Individual();
         MethodEntityAccess.forProperty("height").set(peter, 183);
     }
 
     @Test
     public void shouldWriteAllValidPropertyValues() throws Exception {
 
-        Person peter = new Person();
-        Person paul = new Person();
-        Person mary = new Person();
-        List<Person> friends = new ArrayList<>();
+        Individual peter = new Individual();
+        Individual paul = new Individual();
+        Individual mary = new Individual();
+        List<Individual> friends = new ArrayList<>();
 
         friends.add(paul);
         friends.add(mary);

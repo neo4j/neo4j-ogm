@@ -1,6 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
-import org.neo4j.ogm.strategy.simple.MethodCache;
+import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -12,7 +12,8 @@ import java.util.Collection;
  */
 public class MethodEntityAccess extends AbstractEntityAccess {
 
-    private static final MethodCache methodCache = new MethodCache();
+    // todo: don't hardwire this in. Use injection to inject what you need.
+    private static final SimpleMethodDictionary methodCache = new SimpleMethodDictionary();
 
     private String setterName;
     private String getterName;
@@ -73,6 +74,8 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         setter.invoke(instance, merge(setter.getParameterTypes()[0], iterable, (Iterable<?>) getter.invoke(instance)));
     }
 
+
+    // all this stuff can go into SimpleMethodCache
     private static Method findSetter(Object instance, Object parameter, String methodName) throws NoSuchMethodException {
         //System.out.println("Looking for method " + setterName + "(" + parameter.getClass().getSimpleName() + ") in class " + instance.getClass().getName());
         Class<?> clazz = instance.getClass();

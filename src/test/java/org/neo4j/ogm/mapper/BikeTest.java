@@ -6,7 +6,7 @@ import org.neo4j.ogm.entityaccess.MethodEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
-import org.neo4j.ogm.metadata.AutomappingPersistentFieldDictionary;
+import org.neo4j.ogm.strategy.simple.SimplePersistentFieldDictionary;
 import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
@@ -21,7 +21,7 @@ public class BikeTest {
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
                 new MethodEntityAccessFactory(),
-                new AutomappingPersistentFieldDictionary());
+                new SimplePersistentFieldDictionary());
     }
 
     @Test

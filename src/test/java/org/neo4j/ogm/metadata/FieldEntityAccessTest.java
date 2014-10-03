@@ -1,10 +1,10 @@
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-import org.neo4j.ogm.mapper.domain.social.Person;
 import org.neo4j.ogm.entityaccess.FieldEntityAccess;
+import org.neo4j.ogm.mapper.domain.social.Individual;
+
+import static org.junit.Assert.assertEquals;
 
 public class FieldEntityAccessTest {
 
@@ -15,7 +15,7 @@ public class FieldEntityAccessTest {
 
     @Test
     public void shouldWriteScalarPropertyValuesToAppropriateFieldOfObject() throws Exception {
-        Person peter = new Person();
+        Individual peter = new Individual();
 
         new FieldEntityAccess("name").set(peter, "Peter");
         new FieldEntityAccess("age").set(peter, 34);

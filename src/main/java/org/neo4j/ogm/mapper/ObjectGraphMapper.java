@@ -1,14 +1,13 @@
 package org.neo4j.ogm.mapper;
 
-import org.graphaware.graphmodel.Property;
-import org.graphaware.graphmodel.neo4j.EdgeModel;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
+import org.graphaware.graphmodel.neo4j.Property;
+import org.graphaware.graphmodel.neo4j.RelationshipModel;
+import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.metadata.ObjectFactory;
 import org.neo4j.ogm.metadata.PersistentField;
 import org.neo4j.ogm.metadata.PersistentFieldDictionary;
-import org.neo4j.ogm.entityaccess.EntityAccessFactory;
-import org.neo4j.ogm.strategy.simple.MappingContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,9 +100,9 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     private void mapRelationships(GraphModel graphModel) throws Exception {
 
-        final List<EdgeModel> vectorRelationships = new ArrayList<>();
+        final List<RelationshipModel> vectorRelationships = new ArrayList<>();
 
-        for (EdgeModel edge : graphModel.getRelationships()) {
+        for (RelationshipModel edge : graphModel.getRelationships()) {
             Object parent = mappingContext.get(edge.getStartNode());
             Object child = mappingContext.get(edge.getEndNode());
             if (setValue(parent, child)) {
@@ -115,8 +114,8 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         mapOneToMany(vectorRelationships);
     }
 
-    private void mapOneToMany(List<EdgeModel> vectorRelationships) throws Exception {
-        for (EdgeModel edge : vectorRelationships) {
+    private void mapOneToMany(List<RelationshipModel> vectorRelationships) throws Exception {
+        for (RelationshipModel edge : vectorRelationships) {
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
             Class<?> type = parameter.getClass();
@@ -129,7 +128,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     }
 
     private void setProperties(NodeModel nodeModel, Object instance) throws Exception {
-        for (Property property : nodeModel.getAttributes()) {
+        for (Property property : nodeModel.getPropertyList()) {
             PersistentField pf = persistentFieldDictionary.lookUpPersistentFieldForProperty(property);
             if (pf != null) {
                 entityAccessFactory.forProperty(pf.getJavaObjectFieldName()).set(instance, property.getValue());

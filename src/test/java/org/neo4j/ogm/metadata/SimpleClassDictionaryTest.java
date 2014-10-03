@@ -8,12 +8,14 @@ import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import static junit.framework.Assert.assertEquals;
 
-public class ClassDictionaryTest {
+public class SimpleClassDictionaryTest {
 
     private SimpleClassDictionary scd;
 
     @Before
     public void setUp() {
+        // this probably needs restricting to a base package, to stop cross-domain conflicts
+        // but then again, it is really a very simple class dictionary.
         scd = new SimpleClassDictionary();
         Class ruler = Ruler.class;
         Class bike = Bike.class;

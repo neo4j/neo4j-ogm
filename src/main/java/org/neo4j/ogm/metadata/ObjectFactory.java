@@ -1,6 +1,6 @@
 package org.neo4j.ogm.metadata;
 
-import org.graphaware.graphmodel.neo4j.EdgeModel;
+import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 
 /**
@@ -20,13 +20,13 @@ public interface ObjectFactory {
     <T> T instantiateObjectMappedTo(NodeModel node);
 
     /**
-     * Creates an instance of the class that is mapped to the given {@link EdgeModel} according to the configuration that drives
+     * Creates an instance of the class that is mapped to the given {@link RelationshipModel} according to the configuration that drives
      * this {@link ObjectFactory}.
      *
-     * @param edge The {@link EdgeModel} for which to find the corresponding class and return an instance of it
-     * @return A new instance of an object onto which the properties of the given {@link EdgeModel} can be mapped
+     * @param relationship The {@link RelationshipModel} for which to find the corresponding class and return an instance of it
+     * @return A new instance of an object onto which the properties of the given {@link RelationshipModel} can be mapped
      * @throws MappingException if there is no known class that maps to the given graph component
      */
-    <T> T instantiateObjectMappedTo(EdgeModel edge);
+    <T> T instantiateObjectMappedTo(RelationshipModel relationship);
 
 }

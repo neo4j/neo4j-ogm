@@ -5,13 +5,13 @@ import java.util.List;
 /**
  * Arbitrary POJO used to test mapping code.
  */
-public class Person {
+public class Individual {
 
     private Long id;
     private String name;
     private int age;
 
-    private List<Person> friends;
+    private List<Individual> friends;
     private int[] primitiveIntArray;
 
     public Long getId() {
@@ -38,11 +38,11 @@ public class Person {
         this.age = age;
     }
 
-    public List<Person> getFriends() {
+    public List<Individual> getFriends() {
         return friends;
     }
 
-    public void setFriends(List<Person> friends) {
+    public void setFriends(List<Individual> friends) {
         this.friends = friends;
     }
 

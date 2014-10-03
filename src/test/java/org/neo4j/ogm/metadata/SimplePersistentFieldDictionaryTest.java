@@ -1,20 +1,17 @@
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.graphaware.graphmodel.neo4j.Property;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.graphaware.graphmodel.Property;
-import org.graphaware.graphmodel.impl.StringProperty;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class SimplePersistentFieldDictionaryTest {
 
     @Test
     public void shouldReturnNullForPropertiesThatDoNotExist() {
-        Property<String, Object> propertyNotOnClass = new StringProperty("favouriteColour", "Orange");
+        Property<String, Object> propertyNotOnClass = new Property("favouriteColour", "Orange");
 
         PersistentFieldDictionary dictionary = createPersonPersistentFieldDictionary();
         PersistentField persistentField = dictionary.lookUpPersistentFieldForProperty(propertyNotOnClass);
@@ -25,7 +22,7 @@ public class SimplePersistentFieldDictionaryTest {
 
     @Test
     public void shouldFindPropertyMapperInformationForGraphProperty() {
-        Property<String, Object> arbitraryNodeProperty = new StringProperty("age", Integer.valueOf(42));
+        Property<String, Object> arbitraryNodeProperty = new Property("age", Integer.valueOf(42));
 
         PersistentFieldDictionary dictionary = createPersonPersistentFieldDictionary();
 
@@ -35,7 +32,7 @@ public class SimplePersistentFieldDictionaryTest {
     }
 
     private static PersistentFieldDictionary createPersonPersistentFieldDictionary() {
-        return new SimplePersistentFieldDictionary(Arrays.asList(new RegularPersistentField("name"), new RegularPersistentField("age")));
+        return new DefaultPersistentFieldDictionary(Arrays.asList(new RegularPersistentField("name"), new RegularPersistentField("age")));
     }
 
 }

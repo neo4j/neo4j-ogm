@@ -1,6 +1,6 @@
 package org.neo4j.ogm.metadata;
 
-import org.graphaware.graphmodel.neo4j.EdgeModel;
+import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 
 /**
@@ -26,7 +26,7 @@ public class DefaultConstructorObjectFactory implements ObjectFactory {
     }
 
     @Override
-    public <T> T instantiateObjectMappedTo(EdgeModel edgeModel) {
+    public <T> T instantiateObjectMappedTo(RelationshipModel edgeModel) {
         return instantiateObjectFromTaxa(edgeModel.getType());
     }
 

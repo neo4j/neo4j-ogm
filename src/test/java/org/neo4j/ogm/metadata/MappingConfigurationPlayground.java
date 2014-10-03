@@ -1,13 +1,12 @@
 package org.neo4j.ogm.metadata;
 
-import org.graphaware.graphmodel.Property;
-import org.graphaware.graphmodel.impl.StringProperty;
 import org.graphaware.graphmodel.neo4j.NodeModel;
+import org.graphaware.graphmodel.neo4j.Property;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.domain.social.Person;
 import org.neo4j.ogm.entityaccess.EntityAccess;
 import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.entityaccess.FieldEntityAccess;
+import org.neo4j.ogm.mapper.domain.social.Individual;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +14,12 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
+//
+// TODO:
+// this class is causing a few problems because we had overlapping domain objects under test.
+// e.g. label "person" was mapped to social.person as well as rulers.person. social.person
+// has been renamed to social.individual for now, but we need to get to the root of the problem and
+// fix it.
 public class MappingConfigurationPlayground {
 
     @Test
@@ -22,9 +27,9 @@ public class MappingConfigurationPlayground {
         MappingConfiguration trivialMappingConfig = buildMappingConfiguration();
 
         NodeModel testNode = new NodeModel();
-        testNode.setLabels(new String[] {"Person"});
-        testNode.setAttributes(Arrays.<Property>asList(new StringProperty("forename", "Dougal"),
-                new StringProperty("surname", "McAngus"), new StringProperty("age", 32)));
+        testNode.setLabels(new String[] {"Individual"});
+        testNode.setPropertyList(Arrays.<Property<String, Object>>asList(new Property("forename", "Dougal"),
+                new Property("surname", "McAngus"), new Property("age", 32)));
 
         EntityAccessFactory entityAccessFactory = new EntityAccessFactory() {
             @Override
@@ -35,9 +40,9 @@ public class MappingConfigurationPlayground {
 
         // do some test mapping now...
 
-        Person toHydrate = trivialMappingConfig.provideObjectFactory().instantiateObjectMappedTo(testNode);
-        AutomappingPersistentFieldDictionary personMetadata = (AutomappingPersistentFieldDictionary) trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
-        for (Property<?, ?> attribute : testNode.getAttributes()) {
+        Individual toHydrate = trivialMappingConfig.provideObjectFactory().instantiateObjectMappedTo(testNode);
+        DefaultPersistentFieldDictionary personMetadata = (DefaultPersistentFieldDictionary) trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
+        for (Property<?, ?> attribute : testNode.getPropertyList()) {
             // now, not all of these attributes may be mapped and not all of the fields may be specified as attributes
             PersistentField pf = personMetadata.lookUpPersistentFieldForProperty(attribute);
             try {
@@ -57,10 +62,10 @@ public class MappingConfigurationPlayground {
         return new MappingConfiguration() {
 
             @Override
-            public SimplePersistentFieldDictionary findMappingMetadataForType(Class<?> typeToMap) {
+            public DefaultPersistentFieldDictionary findMappingMetadataForType(Class<?> typeToMap) {
 
                 // just what we need for reading, let's say we've got a person...
-                return new SimplePersistentFieldDictionary(Arrays.asList(
+                return new DefaultPersistentFieldDictionary(Arrays.asList(
                         new RegularPersistentField("id"),
                         new RegularPersistentField("name", "forename"),
                         new RegularPersistentField("age")));
@@ -70,7 +75,7 @@ public class MappingConfigurationPlayground {
             public ObjectFactory provideObjectFactory() {
                 // how to look up the label from a node/relationship
                 Map<String, String> classMap = new HashMap<>();
-                classMap.put("Person", Person.class.getName());
+                classMap.put("Individual", Individual.class.getName());
                 ClassDictionary classDictionary = new MapBasedClassDictionary(classMap);
                 return new DefaultConstructorObjectFactory(classDictionary);
             }

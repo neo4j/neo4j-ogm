@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MethodCache {
+public class SimpleMethodDictionary {
 
     private final Map<Class, Map<String, Method>> methodCache = new HashMap<>();
 

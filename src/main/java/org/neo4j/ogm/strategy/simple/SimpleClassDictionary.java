@@ -156,7 +156,7 @@ public class SimpleClassDictionary implements ClassDictionary {
             return fqn;
         }
         if (subclasses.size() > 1) {
-            //System.out.println("More than one class extends " + fqn + ": " + subclasses);
+            System.out.println("More than one class extends " + fqn + ": " + subclasses);
             return null;
         }
         fqn = subclasses.iterator().next();

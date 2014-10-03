@@ -1,8 +1,13 @@
-package org.neo4j.ogm.strategy.simple;
+package org.neo4j.ogm.mapper;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The MappingContext maintains a map of all the objects created during the hydration
+ * of an object map (domain hierarchy). It is also responsible for
+ * registering all new objects by setting the object identifier on them.
+ */
 public class MappingContext {
 
     private final Map<Long, Object> objectMap = new HashMap<>();
@@ -14,7 +19,6 @@ public class MappingContext {
     public void register(Object object, Long id) throws Exception {
         object.getClass().getMethod("setId", Long.class).invoke(object, id);
         objectMap.put(id, object);
-        //System.out.println("registered: " + object.getClass().getSimpleName() + ", id: " + id);
     }
 
     public void clear() {

@@ -1,5 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.metadata.MethodDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import java.lang.reflect.Method;
@@ -10,7 +11,7 @@ import java.lang.reflect.Method;
 public class MethodEntityAccess extends AbstractEntityAccess {
 
     // todo: don't hardwire this in. Use injection to inject what you need.
-    private static final SimpleMethodDictionary methodCache = new SimpleMethodDictionary();
+    private static final MethodDictionary methodDictionary = new SimpleMethodDictionary();
 
     private String setterName;
     private String getterName;
@@ -39,7 +40,7 @@ public class MethodEntityAccess extends AbstractEntityAccess {
 
     @Override
     public void setValue(Object instance, Object parameter) throws Exception {
-        Method setter=methodCache.findSetter(setterName, parameter, instance);
+        Method setter= methodDictionary.findSetter(setterName, parameter, instance);
         if (!setter.getName().equals(setterName)) {
             setAccessors(setter.getName());
         }
@@ -50,13 +51,13 @@ public class MethodEntityAccess extends AbstractEntityAccess {
     public void setIterable(Object instance, Iterable<?> parameter) throws Exception {
 
         if (parameter.iterator().hasNext()) {
-            Method setter = methodCache.findSetter(setterName, parameter, instance);
+            Method setter = methodDictionary.findSetter(setterName, parameter, instance);
 
             if (!setter.getName().equals(setterName)) {
                 setAccessors(setter.getName());
             }
 
-            Method getter = methodCache.findGetter(instance, parameter, getterName);
+            Method getter = methodDictionary.findGetter(getterName, parameter.getClass(), instance);
             setter.invoke(instance, merge(setter.getParameterTypes()[0], parameter, (Iterable<?>) getter.invoke(instance)));
         }
     }

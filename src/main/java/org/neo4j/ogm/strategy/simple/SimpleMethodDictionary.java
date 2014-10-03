@@ -1,5 +1,7 @@
 package org.neo4j.ogm.strategy.simple;
 
+import org.neo4j.ogm.metadata.MethodDictionary;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -7,7 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleMethodDictionary {
+public class SimpleMethodDictionary implements MethodDictionary {
 
     private final Map<Class, Map<String, Method>> methodCache = new HashMap<>();
 
@@ -68,7 +70,7 @@ public class SimpleMethodDictionary {
         throw new NoSuchMethodException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
     }
 
-    public Method findGetter(Object instance, Object parameter, String methodName) throws NoSuchMethodException {
+    public Method findGetter(String methodName, Class returnType, Object instance) throws NoSuchMethodException {
         Class<?> clazz = instance.getClass();
         Method m = lookup(clazz, methodName);
         if (m == null) {
@@ -82,7 +84,7 @@ public class SimpleMethodDictionary {
         } else {
             return m;
         }
-        throw new NoSuchMethodException("Could not find method " + methodName + " returning type " + parameter.getClass().getSimpleName() + " in class " + instance.getClass().getName());
+        throw new NoSuchMethodException("Could not find method " + methodName + " returning type " + returnType.getClass().getSimpleName() + " in class " + instance.getClass().getName());
     }
 
     private Method findCollectionSetter(Object instance, Object collection, Class elementType, String methodName) throws NoSuchMethodException {

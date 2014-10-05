@@ -15,18 +15,12 @@ public class SimpleMethodDictionary implements MethodDictionary {
 
     public Method findSetter(String setterName, Object parameter, Object instance) throws Exception {
 
-        Method m = null;
         if (parameter instanceof Collection) {
             Class elementType = ((Collection) parameter).iterator().next().getClass();
-            m = findCollectionSetter(instance, parameter, elementType, setterName);
+            return findCollectionSetter(instance, parameter, elementType, setterName);
         } else {
-            m = findScalarSetter(instance, parameter.getClass(), setterName);
+            return findScalarSetter(instance, parameter.getClass(), setterName);
         }
-        // update partial setter names
-        if (!m.getName().equals(setterName)) {
-            insert(instance.getClass(), m.getName() + (parameter instanceof Collection ? "?" : ""), m);
-        }
-        return m;
     }
 
     private Method lookup(Class clazz, String methodName) {
@@ -64,7 +58,7 @@ public class SimpleMethodDictionary implements MethodDictionary {
                     method.getName().startsWith(methodName) &&
                     method.getParameterTypes().length == 1 &&
                     (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
-                return insert(clazz, methodName, method);
+                return insert(clazz, method.getName(), method);
             }
         }
         throw new NoSuchMethodException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
@@ -78,7 +72,7 @@ public class SimpleMethodDictionary implements MethodDictionary {
                 if( Modifier.isPublic(method.getModifiers()) &&
                     // method return type = parameter.class
                     method.getName().equals(methodName)) {
-                    return insert(clazz, methodName, method);
+                    return insert(clazz, method.getName(), method);
                 }
             }
         } else {
@@ -90,34 +84,34 @@ public class SimpleMethodDictionary implements MethodDictionary {
     private Method findCollectionSetter(Object instance, Object collection, Class elementType, String methodName) throws NoSuchMethodException {
 
         Class<?> clazz = instance.getClass();
-        Method method = lookup(clazz, methodName + "?"); // ? indicates a collection setter
+        Method m = lookup(clazz, methodName + "?"); // ? indicates a collection setter
 
-        if (method != null) {
-            return method;
+        if (m != null) {
+            return m;
         }
 
-        for (Method m : instance.getClass().getMethods()) {
-            if (Modifier.isPublic(m.getModifiers()) &&
-                    m.getReturnType().equals(void.class) &&
-                    m.getName().startsWith(methodName) &&
-                    m.getParameterTypes().length == 1 &&
-                    m.getGenericParameterTypes().length == 1) {
+        for (Method method : instance.getClass().getMethods()) {
+            if (Modifier.isPublic(method.getModifiers()) &&
+                    method.getReturnType().equals(void.class) &&
+                    method.getName().startsWith(methodName) &&
+                    method.getParameterTypes().length == 1 &&
+                    method.getGenericParameterTypes().length == 1) {
                 // assign collection to array
-                if (m.getParameterTypes()[0].getName().startsWith("[")) {
-                    String parameterName = m.getParameterTypes()[0].getName();
+                if (method.getParameterTypes()[0].getName().startsWith("[")) {
+                    String parameterName = method.getParameterTypes()[0].getName();
                     if (("[L" + elementType.getName() + ";").equals(parameterName)) {
-                        return insert(clazz, methodName + "?", m);
+                        return insert(clazz, method.getName() + "?", method);
                     }
                     if (primitiveArrayName(elementType).equals(parameterName)) {
-                        return insert(clazz, methodName + "?", m);
+                        return insert(clazz, method.getName() + "?", method);
                     }
-                } else if (m.getParameterTypes()[0].isAssignableFrom(collection.getClass())) {
-                    Type t = m.getGenericParameterTypes()[0];
-                    if (t.toString().contains(elementType.getName())) {//|| t.toString().contains(unbox(elementType).getName())) {
-                        return insert(clazz, methodName + "?", m);
+                } else if (method.getParameterTypes()[0].isAssignableFrom(collection.getClass())) {
+                    Type t = method.getGenericParameterTypes()[0];
+                    if (t.toString().contains(elementType.getName())) {
+                        return insert(clazz, method.getName() + "?", method);
                     }
                     if (t.toString().contains("<?>")) {
-                        return insert(clazz, methodName + "?", m);
+                        return insert(clazz, method.getName() + "?", method);
                     }
                 }
             }
@@ -168,32 +162,32 @@ public class SimpleMethodDictionary implements MethodDictionary {
         if (clazz == Boolean.class) {
             return boolean.class;
         }
-        // arrays
+        // single-dimension arrays
         if (clazz == Void[].class) {
             return void.class; // an array of Voids is a void.
         }
         if (clazz == Integer[].class) {
             return int[].class;
         }
-        if (clazz == Long.class) {
+        if (clazz == Long[].class) {
             return long[].class;
         }
-        if (clazz == Short.class) {
+        if (clazz == Short[].class) {
             return short[].class;
         }
-        if (clazz == Byte.class) {
+        if (clazz == Byte[].class) {
             return byte[].class;
         }
-        if (clazz == Float.class) {
+        if (clazz == Float[].class) {
             return float[].class;
         }
-        if (clazz == Double.class) {
+        if (clazz == Double[].class) {
             return double[].class;
         }
-        if (clazz == Character.class) {
+        if (clazz == Character[].class) {
             return char[].class;
         }
-        if (clazz == Boolean.class) {
+        if (clazz == Boolean[].class) {
             return boolean[].class;
         }
         return clazz; // not a primitive, can't be unboxed.

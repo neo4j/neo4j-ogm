@@ -1,6 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
-import org.neo4j.ogm.metadata.MethodDictionary;
+import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import java.lang.reflect.Method;
@@ -16,8 +16,18 @@ public class MethodEntityAccess extends AbstractEntityAccess {
     private String setterName;
     private String getterName;
 
-    private MethodEntityAccess(String methodName) {
-        setAccessors(methodName);
+
+    /**
+     * Creates a methodEntityAccess instance for the named property in the graphModel
+     * The discovery of which class method maps to the named property is deferred
+     * until setValue or setIterable is called. Once discovered, the mappings from
+     * the property to the relevant getter/setter are stored in the methodDictionary
+     * for fast retrieval on subsequent calls to setValue or setIterable.
+     *
+     * @param graphProperty the graphProperty we want to map to via getter/setter methods.
+     */
+    private MethodEntityAccess(String graphProperty) {
+        setAccessors(graphProperty);
     }
 
     private void setAccessors(String methodName) {
@@ -59,8 +69,6 @@ public class MethodEntityAccess extends AbstractEntityAccess {
 
             Method getter = methodDictionary.findGetter(getterName, parameter.getClass(), instance);
             setter.invoke(instance, merge(setter.getParameterTypes()[0], parameter, (Iterable<?>) getter.invoke(instance)));
-            //setter.invoke(instance, merge(setter.getParameterTypes()[0], parameter, null));
-
         }
     }
 

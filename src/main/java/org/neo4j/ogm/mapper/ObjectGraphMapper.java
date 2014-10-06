@@ -5,9 +5,9 @@ import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.Property;
 import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.neo4j.ogm.entityaccess.EntityAccessFactory;
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.ObjectFactory;
-import org.neo4j.ogm.metadata.PersistentField;
-import org.neo4j.ogm.metadata.PersistentFieldDictionary;
+import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     private final ObjectFactory objectFactory;
     private final EntityAccessFactory entityAccessFactory;
-    private final PersistentFieldDictionary persistentFieldDictionary;
+    //private final PersistentFieldDictionary persistentFieldDictionary;
     private final Map<Class, List<Object>> typeMap = new HashMap<>();
 
     private final Class root;
@@ -41,7 +41,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         this.root = type;
         this.objectFactory = objectFactory;
         this.entityAccessFactory = entityAccessorFactory;
-        this.persistentFieldDictionary = persistentFieldDict;
+        //this.persistentFieldDictionary = persistentFieldDict;
     }
 
     @Override
@@ -120,7 +120,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object parameter = mappingContext.get(edge.getEndNode());
             Class<?> type = parameter.getClass();
             if (get(type) != null) {
-                //System.out.println("setting " + type.getSimpleName() + "s on " + instance.getClass().getSimpleName() + " id: " + edge.getStartNode() + ", no elements: " + get(type).size());
                 entityAccessFactory.forProperty(type.getSimpleName()).setIterable(instance, get(type));
                 evict(type); // we've added all instances of type for this object, no point in repeating the effort.
             }
@@ -129,18 +128,15 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     private void setProperties(NodeModel nodeModel, Object instance) throws Exception {
         for (Property property : nodeModel.getPropertyList()) {
-            PersistentField pf = persistentFieldDictionary.lookUpPersistentFieldForProperty(property);
-            if (pf != null) {
-                entityAccessFactory.forProperty(pf.getJavaObjectFieldName()).set(instance, property.getValue());
-            }
+            entityAccessFactory.forProperty((String) property.getKey()).set(instance, property.getValue());
         }
     }
 
     private boolean setValue(Object instance, Object parameter) throws Exception {
         try {
-            this.entityAccessFactory.forProperty(parameter.getClass().getSimpleName()).setValue(instance, parameter);
+            entityAccessFactory.forProperty(parameter.getClass().getSimpleName()).setValue(instance, parameter);
             return true;
-        } catch (NoSuchMethodException me) {
+        } catch (MappingException me) {
             return false;
         }
     }

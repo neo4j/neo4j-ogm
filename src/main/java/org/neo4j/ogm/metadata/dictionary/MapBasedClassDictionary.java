@@ -1,10 +1,10 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Super-simple implementation of {@link ClassDictionary} backed my a map.  This will probably become obsolete very soon.
+ * Super-simple implementation of {@link org.neo4j.ogm.metadata.dictionary.ClassDictionary} backed my a map.  This will probably become obsolete very soon.
  */
 public class MapBasedClassDictionary implements ClassDictionary {
 

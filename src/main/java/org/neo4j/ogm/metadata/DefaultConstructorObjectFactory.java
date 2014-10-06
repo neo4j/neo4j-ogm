@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata;
 
 import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
+import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 
 /**
  * Implementation of {@link ObjectFactory} that exclusively uses a class' default constructor for instantiation.

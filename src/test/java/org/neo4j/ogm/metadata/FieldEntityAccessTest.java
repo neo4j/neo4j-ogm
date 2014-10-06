@@ -8,17 +8,17 @@ import static org.junit.Assert.assertEquals;
 
 public class FieldEntityAccessTest {
 
-    @Test
-    public void shouldDoNothingIfAskedToWriteValueToNull() throws Exception {
-        new FieldEntityAccess("testProperty").set(null, "Arbitrary Value");
+    @Test(expected = NullPointerException.class)
+    public void shouldThrowExceptionIfAskedToWriteValueToNullProperty() throws Exception {
+        FieldEntityAccess.forProperty("testProperty").set(null, "Arbitrary Value");
     }
 
     @Test
     public void shouldWriteScalarPropertyValuesToAppropriateFieldOfObject() throws Exception {
         Individual peter = new Individual();
 
-        new FieldEntityAccess("name").set(peter, "Peter");
-        new FieldEntityAccess("age").set(peter, 34);
+        FieldEntityAccess.forProperty("name").set(peter, "Peter");
+        FieldEntityAccess.forProperty("age").set(peter, 34);
 
         assertEquals("Peter", peter.getName());
         assertEquals(34, peter.getAge());

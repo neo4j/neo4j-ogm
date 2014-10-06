@@ -7,6 +7,9 @@ import org.neo4j.ogm.entityaccess.EntityAccess;
 import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.entityaccess.FieldEntityAccess;
 import org.neo4j.ogm.mapper.domain.social.Individual;
+import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
+import org.neo4j.ogm.metadata.dictionary.DefaultPersistentFieldDictionary;
+import org.neo4j.ogm.metadata.dictionary.MapBasedClassDictionary;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,7 +37,7 @@ public class MappingConfigurationPlayground {
         EntityAccessFactory entityAccessFactory = new EntityAccessFactory() {
             @Override
             public EntityAccess forProperty(String property) {
-                return new FieldEntityAccess(property);
+                return FieldEntityAccess.forProperty(property);
             }
         };
 
@@ -44,7 +47,7 @@ public class MappingConfigurationPlayground {
         DefaultPersistentFieldDictionary personMetadata = (DefaultPersistentFieldDictionary) trivialMappingConfig.findMappingMetadataForType(toHydrate.getClass());
         for (Property<?, ?> attribute : testNode.getPropertyList()) {
             // now, not all of these attributes may be mapped and not all of the fields may be specified as attributes
-            PersistentField pf = personMetadata.lookUpPersistentFieldForProperty(attribute);
+            PersistentField pf = personMetadata.lookUpPersistentFieldForProperty((String)attribute.getKey());
             try {
                 entityAccessFactory.forProperty(pf.getJavaObjectFieldName()).setValue(toHydrate, attribute.getValue());
                 // FIXME: this is NPE-ing here, should we keep the no-op behaviour that PropertyMapper used to have?

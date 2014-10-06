@@ -1,6 +1,8 @@
 package org.neo4j.ogm.strategy.simple;
 
-import org.neo4j.ogm.metadata.MethodDictionary;
+import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -9,11 +11,33 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The SimpleMethodDictionary maintains mappings between labels in the graphModel, (Status, Item, Invoice, etc)
+ * and the actual setter/getter methods on the class for that type.
+ *
+ * Where the Type relationship is scalar (i.e. where the object has a relationship to one instance
+ * of the the Type only), the SimpleMethodDictionary assumes that a method name will exactly match
+ * the Type name. For example:
+ *
+ * Type: Status must map to setStatus(...) - and no other method.
+ *
+ * Where the Type is a non-scalar (i.e. it exists as a collection of Type instances on the object),
+ * the SimpleMethodDictionary relaxes the exact matching constraint and allows partial method matching, e.g.
+ *
+ * Type: Item -> to setItems(...) | setItemList(...), etc.
+ *
+ * In the general case, for Collection-based properties, the permitted mapping for any collection of Type T is
+ *
+ * Type: T -> setT*(Collection<T>)
+ *
+ * @author Vince Bickers
+ *
+ */
 public class SimpleMethodDictionary implements MethodDictionary {
 
     private final Map<Class, Map<String, Method>> methodCache = new HashMap<>();
 
-    public Method findSetter(String setterName, Object parameter, Object instance) throws Exception {
+    public Method findSetter(String setterName, Object parameter, Object instance) throws MappingException {
 
         if (parameter instanceof Collection) {
             Class elementType = ((Collection) parameter).iterator().next().getClass();
@@ -41,7 +65,7 @@ public class SimpleMethodDictionary implements MethodDictionary {
         return method;
     }
 
-    private Method findScalarSetter(Object instance, Class parameterClass, String methodName) throws NoSuchMethodException {
+    private Method findScalarSetter(Object instance, Class parameterClass, String methodName) throws MappingException {
 
         Class<?> clazz = instance.getClass();
 
@@ -50,18 +74,18 @@ public class SimpleMethodDictionary implements MethodDictionary {
             return m;
         }
 
-        Class primitiveClass = unbox(parameterClass);
+        Class primitiveClass = ClassUtils.unbox(parameterClass);
 
         for (Method method : clazz.getMethods()) {
             if( Modifier.isPublic(method.getModifiers()) &&
                     method.getReturnType().equals(void.class) &&
-                    method.getName().startsWith(methodName) &&
+                    method.getName().equals(methodName) &&
                     method.getParameterTypes().length == 1 &&
                     (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
                 return insert(clazz, method.getName(), method);
             }
         }
-        throw new NoSuchMethodException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
+        throw new MappingException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
     }
 
     public Method findGetter(String methodName, Class returnType, Object instance) throws NoSuchMethodException {
@@ -81,7 +105,7 @@ public class SimpleMethodDictionary implements MethodDictionary {
         throw new NoSuchMethodException("Could not find method " + methodName + " returning type " + returnType.getClass().getSimpleName() + " in class " + instance.getClass().getName());
     }
 
-    private Method findCollectionSetter(Object instance, Object collection, Class elementType, String methodName) throws NoSuchMethodException {
+    private Method findCollectionSetter(Object instance, Object collection, Class elementType, String methodName) throws MappingException {
 
         Class<?> clazz = instance.getClass();
         Method m = lookup(clazz, methodName + "?"); // ? indicates a collection setter
@@ -97,12 +121,13 @@ public class SimpleMethodDictionary implements MethodDictionary {
                     method.getParameterTypes().length == 1 &&
                     method.getGenericParameterTypes().length == 1) {
                 // assign collection to array
-                if (method.getParameterTypes()[0].getName().startsWith("[")) {
+                if (method.getParameterTypes()[0].isArray()) {
+                    //    method.getParameterTypes()[0].getName().startsWith("[")) {
                     String parameterName = method.getParameterTypes()[0].getName();
                     if (("[L" + elementType.getName() + ";").equals(parameterName)) {
                         return insert(clazz, method.getName() + "?", method);
                     }
-                    if (primitiveArrayName(elementType).equals(parameterName)) {
+                    if (ClassUtils.primitiveArrayName(elementType).equals(parameterName)) {
                         return insert(clazz, method.getName() + "?", method);
                     }
                 } else if (method.getParameterTypes()[0].isAssignableFrom(collection.getClass())) {
@@ -117,80 +142,7 @@ public class SimpleMethodDictionary implements MethodDictionary {
             }
         }
 
-        throw new NoSuchMethodException("Cannot find method " + methodName + "?(" + collection.getClass().getSimpleName() + "<" + elementType.getSimpleName() + ">) in class " + instance.getClass().getName());
-    }
-
-    private String primitiveArrayName(Class clazz) {
-
-        if (clazz == Integer.class) return "[I";
-        if (clazz == Long.class) return "[J";
-        if (clazz == Short.class) return "[S";
-        if (clazz == Byte.class) return "[B";
-        if (clazz == Character.class) return "[C";
-        if (clazz == Float.class) return "[F";
-        if (clazz == Double.class) return "[D";
-        if (clazz == Boolean.class) return "[Z";
-
-        return "";
-    }
-
-    private Class unbox(Class clazz) {
-        if (clazz == Void.class) {
-            return void.class;
-        }
-        if (clazz == Integer.class) {
-            return int.class;
-        }
-        if (clazz == Long.class) {
-            return long.class;
-        }
-        if (clazz == Short.class) {
-            return short.class;
-        }
-        if (clazz == Byte.class) {
-            return byte.class;
-        }
-        if (clazz == Float.class) {
-            return float.class;
-        }
-        if (clazz == Double.class) {
-            return double.class;
-        }
-        if (clazz == Character.class) {
-            return char.class;
-        }
-        if (clazz == Boolean.class) {
-            return boolean.class;
-        }
-        // single-dimension arrays
-        if (clazz == Void[].class) {
-            return void.class; // an array of Voids is a void.
-        }
-        if (clazz == Integer[].class) {
-            return int[].class;
-        }
-        if (clazz == Long[].class) {
-            return long[].class;
-        }
-        if (clazz == Short[].class) {
-            return short[].class;
-        }
-        if (clazz == Byte[].class) {
-            return byte[].class;
-        }
-        if (clazz == Float[].class) {
-            return float[].class;
-        }
-        if (clazz == Double[].class) {
-            return double[].class;
-        }
-        if (clazz == Character[].class) {
-            return char[].class;
-        }
-        if (clazz == Boolean[].class) {
-            return boolean[].class;
-        }
-        return clazz; // not a primitive, can't be unboxed.
+        throw new MappingException("Cannot find method " + methodName + "?(" + collection.getClass().getSimpleName() + "<" + elementType.getSimpleName() + ">) in class " + instance.getClass().getName());
     }
 
 }

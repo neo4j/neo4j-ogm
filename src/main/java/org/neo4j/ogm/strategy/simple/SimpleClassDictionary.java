@@ -1,6 +1,6 @@
 package org.neo4j.ogm.strategy.simple;
 
-import org.neo4j.ogm.metadata.ClassDictionary;
+import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 
 import java.lang.reflect.Modifier;
 import java.util.*;

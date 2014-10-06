@@ -34,7 +34,7 @@ public class SetterEntityAccessTest {
         MethodEntityAccess.forProperty("").set(peter, "Peter");
     }
 
-    @Test(expected = NoSuchMethodException.class)
+    @Test(expected = MappingException.class)
     public void shouldThrowNSMEWhenMappingToNonExistentPropertyName() throws Exception {
         Individual peter = new Individual();
         MethodEntityAccess.forProperty("height").set(peter, 183);

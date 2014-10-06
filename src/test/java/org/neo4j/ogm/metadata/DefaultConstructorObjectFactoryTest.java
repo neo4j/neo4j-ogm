@@ -5,6 +5,7 @@ import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.social.Individual;
+import org.neo4j.ogm.metadata.dictionary.MapBasedClassDictionary;
 
 import java.util.HashMap;
 import java.util.Map;

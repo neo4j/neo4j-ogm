@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.dictionary;
 
 /**
  * Provides a mechanism by which to look up a class name from a label and vice versa.

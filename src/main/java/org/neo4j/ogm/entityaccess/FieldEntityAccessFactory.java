@@ -7,7 +7,7 @@ public class FieldEntityAccessFactory implements EntityAccessFactory {
 
     @Override
     public FieldEntityAccess forProperty(String property) {
-        return new FieldEntityAccess(property);
+        return FieldEntityAccess.forProperty(property);
     }
 
 }

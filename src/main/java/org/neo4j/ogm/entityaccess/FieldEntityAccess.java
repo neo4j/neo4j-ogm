@@ -1,54 +1,63 @@
 package org.neo4j.ogm.entityaccess;
 
-import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import java.lang.reflect.Field;
 
 public class FieldEntityAccess extends AbstractEntityAccess {
 
+    // todo: don't hardwire this in. Use injection to inject what you need.
+    private static final FieldDictionary fieldDictionary = new SimpleFieldDictionary();
+
     private String fieldName;
 
-    public FieldEntityAccess(String javaBeanFieldName) {
-        this.fieldName = javaBeanFieldName;
+    private FieldEntityAccess(String graphProperty) {
+        this.fieldName = graphProperty;
     }
 
-    public String getFieldName() {
-        return this.fieldName;
-    }
-
-    private void writeToObject(Object target, Object value) {
-        if (target == null) {
-            return;
+    public static FieldEntityAccess forProperty(String name) {
+        StringBuilder sb = new StringBuilder();
+        if (name != null && name.length() > 0) {
+            sb.append(name.substring(0, 1).toLowerCase());
+            sb.append(name.substring(1));
+            return new FieldEntityAccess(sb.toString());
+        } else {
+            return null;
         }
+    }
 
-        Class<?> clarse = target.getClass();
-        try {
-            Field field = clarse.getDeclaredField(this.fieldName);
+    private void writeToObject(Field field, Object target, Object value) throws Exception {
+        if (target != null && field != null) {
             field.setAccessible(true);
             field.set(target, value);
-        } catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-            throw new MappingException("Unable to set " + this.fieldName + " to " + value + " on " + target, e);
         }
     }
 
-    private Object readFromField(Field field, Object instance) {
-        try {
-            field.setAccessible(true);
-            return field.get(instance);
-        } catch (IllegalAccessException e) {
-            throw new MappingException("Unable to get " + this.fieldName + " for " + instance, e);
+    private Object readFromField(Field field, Object instance) throws Exception {
+        field.setAccessible(true);
+        return field.get(instance);
+    }
+
+    @Override
+    public void setValue(Object instance, Object parameter) throws Exception {
+        Field field = fieldDictionary.findField(fieldName, parameter, instance);
+        writeToObject(field, instance, parameter);
+    }
+
+    @Override
+    public void setIterable(Object instance, Iterable<?> parameter) throws Exception {
+
+        if (parameter.iterator().hasNext()) {
+            Field field = fieldDictionary.findField(fieldName, parameter, instance);
+
+            if (!field.getName().equals(fieldName)) {
+                fieldName = field.getName();
+            }
+
+            Iterable<?> hydrated = (Iterable<?>) readFromField(field, instance);
+            writeToObject(field, instance, merge(field.getType(), parameter, hydrated));
         }
-    }
 
-    @Override
-    public void setValue(Object instance, Object scalar) throws Exception {
-        writeToObject(instance, scalar);
-    }
-
-    @Override
-    public void setIterable(Object instance, Iterable<?> iterable) throws Exception {
-        Field field = instance.getClass().getDeclaredField(this.fieldName);
-        Iterable<?> hydrated = (Iterable<?>) readFromField(field, instance);
-        writeToObject(instance, merge(field.getType(), iterable, hydrated));
     }
 }

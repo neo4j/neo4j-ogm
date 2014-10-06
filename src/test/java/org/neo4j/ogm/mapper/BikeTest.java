@@ -2,13 +2,13 @@ package org.neo4j.ogm.mapper;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
-import org.neo4j.ogm.entityaccess.MethodEntityAccessFactory;
+import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
-import org.neo4j.ogm.strategy.simple.SimplePersistentFieldDictionary;
 import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
+import org.neo4j.ogm.strategy.simple.SimplePersistentFieldDictionary;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +20,8 @@ public class BikeTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
-                new MethodEntityAccessFactory(),
+                new FieldEntityAccessFactory(),
+                //new MethodEntityAccessFactory(),
                 new SimplePersistentFieldDictionary());
     }
 

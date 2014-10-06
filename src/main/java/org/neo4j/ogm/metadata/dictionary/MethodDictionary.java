@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.dictionary;
 
 import java.lang.reflect.Method;
 

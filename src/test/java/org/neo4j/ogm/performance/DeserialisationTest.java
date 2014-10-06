@@ -20,8 +20,7 @@ public class DeserialisationTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
-                new MethodEntityAccessFactory(),
-                new SimplePersistentFieldDictionary());
+                new MethodEntityAccessFactory());
     }
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {

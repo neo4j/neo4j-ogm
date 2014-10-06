@@ -8,7 +8,6 @@ import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
 import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
-import org.neo4j.ogm.strategy.simple.SimplePersistentFieldDictionary;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -20,9 +19,7 @@ public class BikeTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
-                new FieldEntityAccessFactory(),
-                //new MethodEntityAccessFactory(),
-                new SimplePersistentFieldDictionary());
+                new FieldEntityAccessFactory());
     }
 
     @Test

@@ -7,7 +7,6 @@ import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.ObjectFactory;
-import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +22,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     private final ObjectFactory objectFactory;
     private final EntityAccessFactory entityAccessFactory;
-    //private final PersistentFieldDictionary persistentFieldDictionary;
     private final Map<Class, List<Object>> typeMap = new HashMap<>();
 
     private final Class root;
@@ -32,16 +30,14 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
      * @param type The type of the root object
      * @param objectFactory The {@link ObjectFactory} to use for instantiating types
      * @param entityAccessorFactory To determine how the property values should be mapped to the fields
-     * @param persistentFieldDict Contains information about how fields should be mapped to properties and vice versa
      */
     // there may be a case for encapsulating these params in MappingConfiguration
     public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
-            EntityAccessFactory entityAccessorFactory, PersistentFieldDictionary persistentFieldDict) {
+            EntityAccessFactory entityAccessorFactory) {
 
         this.root = type;
         this.objectFactory = objectFactory;
         this.entityAccessFactory = entityAccessorFactory;
-        //this.persistentFieldDictionary = persistentFieldDict;
     }
 
     @Override

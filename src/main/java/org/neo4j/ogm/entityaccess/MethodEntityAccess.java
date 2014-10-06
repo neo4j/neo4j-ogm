@@ -59,6 +59,8 @@ public class MethodEntityAccess extends AbstractEntityAccess {
 
             Method getter = methodDictionary.findGetter(getterName, parameter.getClass(), instance);
             setter.invoke(instance, merge(setter.getParameterTypes()[0], parameter, (Iterable<?>) getter.invoke(instance)));
+            //setter.invoke(instance, merge(setter.getParameterTypes()[0], parameter, null));
+
         }
     }
 

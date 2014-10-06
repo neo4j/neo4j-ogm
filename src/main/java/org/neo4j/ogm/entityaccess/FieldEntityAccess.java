@@ -31,6 +31,15 @@ public class FieldEntityAccess extends AbstractEntityAccess {
         }
     }
 
+    private Object readFromField(Field field, Object instance) {
+        try {
+            field.setAccessible(true);
+            return field.get(instance);
+        } catch (IllegalAccessException e) {
+            throw new MappingException("Unable to get " + this.fieldName + " for " + instance, e);
+        }
+    }
+
     @Override
     public void setValue(Object instance, Object scalar) throws Exception {
         writeToObject(instance, scalar);
@@ -39,11 +48,7 @@ public class FieldEntityAccess extends AbstractEntityAccess {
     @Override
     public void setIterable(Object instance, Iterable<?> iterable) throws Exception {
         Field field = instance.getClass().getDeclaredField(this.fieldName);
-        writeToObject(instance, doTypeConversion(field.getType(), iterable));
+        Iterable<?> hydrated = (Iterable<?>) readFromField(field, instance);
+        writeToObject(instance, merge(field.getType(), iterable, hydrated));
     }
-
-    private Object doTypeConversion(Class<?> type, Iterable<?> iterable) {
-        return iterable; // TODO: this will also be the same as for Setter
-    }
-
 }

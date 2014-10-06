@@ -9,10 +9,7 @@ import org.neo4j.ogm.mapper.domain.education.Teacher;
 import org.neo4j.ogm.mapper.model.DummyRequest;
 import org.neo4j.ogm.strategy.simple.SimpleSetterMappingStrategy;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -34,13 +31,9 @@ public class EducationTest {
     }
 
     @Test
-    public void testFetchCoursesTaughtByTeacher() throws Exception {
+    public void testFetchCoursesTaughtByAllTeachers() throws Exception {
 
         Map<String, Teacher> teachers = loadTeachers();
-
-        for (Teacher teacher : teachers.values()) {
-            loadCourses(teacher);
-        }
 
         Teacher mrThomas = teachers.get("Mr Thomas");
         Teacher mrsRoberts = teachers.get("Mrs Roberts");
@@ -50,16 +43,26 @@ public class EducationTest {
         checkCourseNames(mrsRoberts, "English", "History", "PE");
         checkCourseNames(missYoung, "History", "Geography", "Philosophy and Ethics");
 
+        // this response is for an imagined request: "match p = (c:COURSE)--(o) where id(c) in [....] RETURN p"
+        // i.e. we have a set of partially loaded courses attached to our teachers which we now want to
+        // hydrate by getting all their relationships
+        hydrateCourses();
+
+
+        Set<Course> courses = new HashSet();
         for (Teacher teacher : teachers.values()) {
             for (Course course : teacher.getCourses()) {
-                List<Student> students = course.getStudents();
-                if (course.getName().equals("Maths")) checkMaths(students);
-                else if (course.getName().equals("Physics")) checkPhysics(students);
-                else if (course.getName().equals("Philosophy and Ethics")) checkPhilosophyAndEthics(students);
-                else if (course.getName().equals("PE")) checkPE(students);
-                else if (course.getName().equals("History")) checkHistory(students);
-                else if (course.getName().equals("Geography")) checkGeography(students);
-                else checkEnglish(students);
+                if (!courses.contains(course)) {
+                    List<Student> students = course.getStudents();
+                    if (course.getName().equals("Maths")) checkMaths(students);
+                    else if (course.getName().equals("Physics")) checkPhysics(students);
+                    else if (course.getName().equals("Philosophy and Ethics")) checkPhilosophyAndEthics(students);
+                    else if (course.getName().equals("PE")) checkPE(students);
+                    else if (course.getName().equals("History")) checkHistory(students);
+                    else if (course.getName().equals("Geography")) checkGeography(students);
+                    else checkEnglish(students);
+                    courses.add(course);
+                }
 
             }
         }
@@ -157,21 +160,15 @@ public class EducationTest {
 
     // when we hydrate a set of things that are previously loaded we don't need to create them afresh
     // - the object map of the existing objects is simply extended with new data.
-    private void loadCourses(Teacher teacher) throws Exception {
+    private void hydrateCourses() throws Exception {
 
         GraphModel graphModel;
-        DummyRequest request = selectRequest(teacher);
+        DummyRequest request = new CourseRequest();
 
         GraphModelToObjectMapper mapper = new SimpleSetterMappingStrategy(Course.class);
         while ((graphModel = request.getResponse().next()) != null) {
             mapper.mapToObject(graphModel);
         }
-    }
-
-    private DummyRequest selectRequest(Teacher teacher) {
-        if (teacher.getName().equals("Mr Thomas")) return new CourseRequestMrThomas();
-        if (teacher.getName().equals("Mrs Roberts")) return new CourseRequestMrsRoberts();
-        return new CourseRequestMissYoung();
     }
 
     private void checkCourseNames(Teacher teacher, String... courseNames) {

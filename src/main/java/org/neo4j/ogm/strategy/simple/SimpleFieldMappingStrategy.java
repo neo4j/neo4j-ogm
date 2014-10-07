@@ -8,12 +8,11 @@ import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
 
 public class SimpleFieldMappingStrategy implements GraphModelToObjectMapper<GraphModel> {
 
-        private final ObjectGraphMapper mapper;
+    private final ObjectGraphMapper mapper;
 
-        public SimpleFieldMappingStrategy(Class clazz) {
-
+    public SimpleFieldMappingStrategy(Class<?> rootObjectType) {
         mapper = new ObjectGraphMapper(
-                clazz,
+                rootObjectType,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
                 new FieldEntityAccessFactory());
     }

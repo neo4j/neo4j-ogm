@@ -1,6 +1,7 @@
 package org.neo4j.ogm.strategy.simple;
 
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
+import org.neo4j.ogm.metadata.dictionary.DuplicateClassLookupException;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -16,13 +17,14 @@ public class SimpleClassDictionary implements ClassDictionary {
     private Map<String, String> fqns = new HashMap<>();
     private Map<String, String> taxaLeafClass = new HashMap<>();
 
-    private Map<String, Set<String>> subClasses = new HashMap();
+    private Map<String, Set<String>> subClasses = new HashMap<>();
 
     /**
-     * Returns the fully qualified class name represented by simpleName, if it exists
-     * Throws a RuntimeException if more than one qualified class name matches.
+     * Returns the fully qualified class name represented by simpleName, if it exists.
+     *
+     * @throws RuntimeException if more than one qualified class name matches.
      * @param simpleName The simple name of the class whose fully qualified name we wish to find.
-     * @return
+     * @return The fully-qualified class name
      */
     private String getFQN(String simpleName) {
 
@@ -36,11 +38,10 @@ public class SimpleClassDictionary implements ClassDictionary {
             List<String> qualifiedNames = scanPackages(simpleName);
             if (!qualifiedNames.isEmpty()) {
                 if (qualifiedNames.size() > 1) {
-                    throw new RuntimeException("More than one class in classpath found for simple name " + simpleName + ": " + qualifiedNames);
-                } else {
-                    qualifiedName = qualifiedNames.get(0);
-                    this.fqns.put(simpleName, qualifiedName);
+                    throw new DuplicateClassLookupException(simpleName, qualifiedNames);
                 }
+                qualifiedName = qualifiedNames.get(0);
+                this.fqns.put(simpleName, qualifiedName);
             }
         }
         return qualifiedName;
@@ -57,11 +58,8 @@ public class SimpleClassDictionary implements ClassDictionary {
         for (String packageName : packages) {
             try {
                 String fqn = packageName + "." + simpleName;
-                Class clazz=Class.forName(fqn);
-                if (Modifier.isAbstract(clazz.getModifiers())) {
-                    continue;
-                }
-                if (Modifier.isInterface(clazz.getModifiers())) {
+                Class<?> clazz = Class.forName(fqn);
+                if (Modifier.isAbstract(clazz.getModifiers()) || Modifier.isInterface(clazz.getModifiers())) {
                     continue;
                 }
                 if (clazz.getSuperclass() != null) {

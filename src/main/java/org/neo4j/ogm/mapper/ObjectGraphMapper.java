@@ -102,7 +102,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object parent = mappingContext.get(edge.getStartNode());
             Object child = mappingContext.get(edge.getEndNode());
             if (setValue(parent, child)) {
-               evict(child.getClass());
+                evict(child.getClass());
             } else {
                 vectorRelationships.add(edge);
             }

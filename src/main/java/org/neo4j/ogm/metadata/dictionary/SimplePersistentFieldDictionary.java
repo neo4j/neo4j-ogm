@@ -1,8 +1,7 @@
-package org.neo4j.ogm.strategy.simple;
+package org.neo4j.ogm.metadata.dictionary;
 
 import org.neo4j.ogm.metadata.PersistentField;
 import org.neo4j.ogm.metadata.RegularPersistentField;
-import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 
 /**
  * Super-simple implementation of {@link org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary} that blindly assumes the instance variable name will always

@@ -63,7 +63,7 @@ public class SimpleClassDictionary implements ClassDictionary {
                     continue;
                 }
                 if (clazz.getSuperclass() != null) {
-                    if (!clazz.getSuperclass().getName().startsWith("java.lang")) {
+                    if (!clazz.getSuperclass().getName().startsWith("java")) {
                         addSubClass(clazz.getSuperclass().getName(), fqn);
                     }
                 }

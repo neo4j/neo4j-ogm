@@ -11,4 +11,8 @@ public interface PersistentField {
 
     String getGraphElementPropertyName();
 
+    boolean isIdField();
+
+    boolean isScalarValue();
+
 }

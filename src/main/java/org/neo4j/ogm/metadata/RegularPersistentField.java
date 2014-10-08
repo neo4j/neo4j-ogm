@@ -27,4 +27,14 @@ public class RegularPersistentField implements PersistentField {
         return this.propertyName;
     }
 
+    @Override
+    public boolean isIdField() {
+        return this.fieldName.equals("id"); // yes, it's a hack
+    }
+
+    @Override
+    public boolean isScalarValue() {
+        return true;
+    }
+
 }

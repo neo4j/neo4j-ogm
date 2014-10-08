@@ -36,4 +36,15 @@ public class DefaultPersistentFieldDictionary implements PersistentFieldDictiona
         return this.propertyToFieldMappings.get(propertyName);
     }
 
+    @Override
+    public boolean isNodeEntity(Class<?> typeOfObjectToPersist) {
+        // arguably nothing to do with persistent fields...
+        return true; // just for now
+    }
+
+    @Override
+    public Collection<PersistentField> lookUpPersistentFieldsOfType(Class<?> typeOfObjectToPersist) {
+        return this.propertyToFieldMappings.values();
+    }
+
 }

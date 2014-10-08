@@ -1,5 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
@@ -58,6 +59,18 @@ public class FieldEntityAccess extends AbstractEntityAccess {
             Iterable<?> hydrated = (Iterable<?>) readFromField(field, instance);
             writeToObject(field, instance, merge(field.getType(), parameter, hydrated));
         }
-
     }
+
+    @Override
+    public Object readValue(Object instance) throws MappingException {
+        try {
+            // XXX: can't use fieldDictionary at the moment because we don't know the field type
+            Field field = instance.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(instance);
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            throw new MappingException("Failed to read value of field: " + fieldName, e);
+        }
+    }
+
 }

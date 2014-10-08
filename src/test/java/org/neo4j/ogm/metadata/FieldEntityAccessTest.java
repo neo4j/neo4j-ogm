@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class FieldEntityAccessTest {
 
     @Test(expected = NullPointerException.class)
-    public void shouldThrowExceptionIfAskedToWriteValueToNullProperty() throws Exception {
+    public void shouldThrowExceptionIfAskedToWriteValueToNullInstance() throws Exception {
         FieldEntityAccess.forProperty("testProperty").set(null, "Arbitrary Value");
     }
 
@@ -22,6 +22,22 @@ public class FieldEntityAccessTest {
 
         assertEquals("Peter", peter.getName());
         assertEquals(34, peter.getAge());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldThrowExceptionOnAttemptToRetrieveScalarValueFromFieldOfNullObject() {
+        FieldEntityAccess.forProperty("doesn't matter").readValue(null);
+    }
+
+    @Test
+    public void shouldRetrieveScalarValueFromField() {
+        Individual toRead = new Individual();
+        toRead.setId(9L);
+        toRead.setName("Navdeep");
+        toRead.setAge(25);
+
+        Object readValue = FieldEntityAccess.forProperty("name").readValue(toRead);
+        assertEquals(toRead.getName(), readValue);
     }
 
 }

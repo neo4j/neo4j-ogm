@@ -1,5 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
@@ -70,6 +71,11 @@ public class MethodEntityAccess extends AbstractEntityAccess {
             Method getter = methodDictionary.getter(getterName, parameter.getClass(), instance);
             setter.invoke(instance, merge(setter.getParameterTypes()[0], parameter, (Iterable<?>) getter.invoke(instance)));
         }
+    }
+
+    @Override
+    public Object readValue(Object instance) throws MappingException {
+        throw new UnsupportedOperationException("atg hasn't written this method yet");
     }
 
 }

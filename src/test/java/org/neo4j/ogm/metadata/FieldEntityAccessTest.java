@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
 import org.neo4j.ogm.entityaccess.FieldEntityAccess;
+import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.social.Individual;
 
 import static org.junit.Assert.assertEquals;
@@ -38,6 +39,16 @@ public class FieldEntityAccessTest {
 
         Object readValue = FieldEntityAccess.forProperty("name").readValue(toRead);
         assertEquals(toRead.getName(), readValue);
+    }
+
+    @Test
+    public void shouldRetrieveValuesOfFieldsFromSuperclasses() {
+        Student student = new Student();
+        student.setId(81L);
+        student.setName("Colin");
+
+        Object readValue = FieldEntityAccess.forProperty("id").readValue(student);
+        assertEquals(student.getId(), readValue);
     }
 
 }

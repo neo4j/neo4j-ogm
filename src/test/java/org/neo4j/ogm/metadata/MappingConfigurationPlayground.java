@@ -9,9 +9,7 @@ import java.util.Map;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.Property;
 import org.junit.Test;
-import org.neo4j.ogm.entityaccess.EntityAccess;
 import org.neo4j.ogm.entityaccess.EntityAccessFactory;
-import org.neo4j.ogm.entityaccess.FieldEntityAccess;
 import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.social.Individual;
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
@@ -82,6 +80,7 @@ public class MappingConfigurationPlayground {
 
         // We DEFINITELY need a DSL for this, it's very messy with invocation order being critical as with a StringBuilder
         // is jCypher appropriate or should we use a lightweight CypherQueryContext or something?
+        // look at: http://docs.spring.io/spring-data/data-neo4j/docs/3.1.2.RELEASE/reference/html/programming-model.html#d0e2915
         StringBuilder cypherBuilder = new StringBuilder();
         StringBuilder relationshipBuilder = new StringBuilder();
         StringBuilder propertiesBuilder = new StringBuilder().append("{ ");

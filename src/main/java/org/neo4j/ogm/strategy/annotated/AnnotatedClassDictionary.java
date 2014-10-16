@@ -1,11 +1,8 @@
 package org.neo4j.ogm.strategy.annotated;
 
-//import org.neo4j.ogm.annotation.NodeEntity;
-
+import org.neo4j.ogm.annotation.Label;
 import org.neo4j.ogm.metadata.dictionary.ClassInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
-
-import java.awt.*;
 
 public class AnnotatedClassDictionary extends SimpleClassDictionary {
 
@@ -21,12 +18,12 @@ public class AnnotatedClassDictionary extends SimpleClassDictionary {
             try {
                 Class clazz=Class.forName(classInfo.toString());
                 Label labelClass = (Label) clazz.getAnnotation(Label.class);
-                if (labelClass.getName() == null) {
+                if (labelClass.name() == null) {
                     if (clazz.getSimpleName().equals(label)) {
                         return clazz;
                     }
                 } else {
-                    if (labelClass.getName().equals(label)) {
+                    if (labelClass.name().equals(label)) {
                         return clazz;
                     }
                 }

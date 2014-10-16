@@ -1,7 +1,7 @@
 package org.neo4j.ogm.metadata;
 
-import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
+import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 
 /**
@@ -12,10 +12,10 @@ public class DefaultConstructorObjectFactory implements ObjectFactory {
     private final ClassDictionary classDictionary;
 
     /**
-     * Constructs a new {@link DefaultConstructorObjectFactory} that uses the given {@link ClassDictionary} to figure out which
+     * Constructs a new {@link DefaultConstructorObjectFactory} that uses the given {@link org.neo4j.ogm.metadata.dictionary.ClassDictionary} to figure out which
      * types to instantiate.
      *
-     * @param classDictionary The {@link ClassDictionary} that configures this {@link ObjectFactory}
+     * @param classDictionary The {@link org.neo4j.ogm.metadata.dictionary.ClassDictionary} that configures this {@link ObjectFactory}
      */
     public DefaultConstructorObjectFactory(ClassDictionary classDictionary) {
         this.classDictionary = classDictionary;

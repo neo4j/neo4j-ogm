@@ -139,7 +139,7 @@ public class EducationTest {
 
     private Map<String, Teacher> loadTeachers() throws Exception {
 
-        SimpleSetterMappingStrategy mapper = new SimpleSetterMappingStrategy(Teacher.class);
+        SimpleSetterMappingStrategy mapper = new SimpleSetterMappingStrategy(Teacher.class, "org.neo4j.ogm.mapper.domain.education");
         // indicates we're starting a brand new domain parse. Throw everything away that's in the object cache
         // Note: normally wouldn't be required, but the test classes create objects with non-unique ids,
         // so the tests interfere with each other :).
@@ -165,7 +165,7 @@ public class EducationTest {
         GraphModel graphModel;
         DummyRequest request = new CourseRequest();
 
-        GraphModelToObjectMapper mapper = new SimpleSetterMappingStrategy(Course.class);
+        GraphModelToObjectMapper mapper = new SimpleSetterMappingStrategy(Course.class, "org.neo4j.ogm.mapper.domain.education");
         while ((graphModel = request.getResponse().next()) != null) {
             mapper.mapToObject(graphModel);
         }

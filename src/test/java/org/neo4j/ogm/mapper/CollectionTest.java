@@ -24,7 +24,7 @@ public class CollectionTest {
     @Test
     public void testMultiplePathResponse() throws Exception {
 
-        SimpleSetterMappingStrategy mapper = new SimpleSetterMappingStrategy(Parent.class);
+        SimpleSetterMappingStrategy mapper = new SimpleSetterMappingStrategy(Parent.class, "org.neo4j.ogm.mapper.domain.collection");
         mapper.reset();
 
         GraphModel graphModel;

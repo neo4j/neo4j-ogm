@@ -10,11 +10,11 @@ public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<Gr
 
     private final ObjectGraphMapper mapper;
 
-    public SimpleSetterMappingStrategy(Class<?> rootObjectType) {
+    public SimpleSetterMappingStrategy(Class<?> rootObjectType, String... packages) {
 
         mapper = new ObjectGraphMapper(
                 rootObjectType,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
+                new DefaultConstructorObjectFactory(new SimpleClassDictionary(packages)),
                 new MethodEntityAccessFactory());
     }
 

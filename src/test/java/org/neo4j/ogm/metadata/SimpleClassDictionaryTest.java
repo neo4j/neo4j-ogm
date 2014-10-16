@@ -2,8 +2,6 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.domain.bike.Bike;
-import org.neo4j.ogm.mapper.domain.rulers.Ruler;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import static junit.framework.Assert.assertEquals;
@@ -14,11 +12,7 @@ public class SimpleClassDictionaryTest {
 
     @Before
     public void setUp() {
-        // this probably needs restricting to a base package, to stop cross-domain conflicts
-        // but then again, it is really a very simple class dictionary.
-        scd = new SimpleClassDictionary();
-        Class ruler = Ruler.class;
-        Class bike = Bike.class;
+        scd = new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.bike", "org.neo4j.ogm.mapper.domain.rulers");
     }
 
     @Test
@@ -68,10 +62,10 @@ public class SimpleClassDictionaryTest {
 
     @Test
     /**
-     * A subclass will not be instantiated if it is not explicitly named in the taxa.
+     * A subclass will be resolved from a superclass if it is a unique leaf class in the type hierarchy
      */
     public void testLiskovSubstitutionPrinciple() {
-        assertEquals("org.neo4j.ogm.mapper.domain.rulers.Daughter", scd.determineLeafClass("Daughter"));
+        assertEquals("org.neo4j.ogm.mapper.domain.rulers.Princess", scd.determineLeafClass("Daughter"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.Princess", scd.determineLeafClass("Daughter", "Princess"));
     }
 

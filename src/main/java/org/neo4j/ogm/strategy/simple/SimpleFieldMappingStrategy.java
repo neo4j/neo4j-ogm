@@ -10,10 +10,10 @@ public class SimpleFieldMappingStrategy implements GraphModelToObjectMapper<Grap
 
     private final ObjectGraphMapper mapper;
 
-    public SimpleFieldMappingStrategy(Class<?> rootObjectType) {
+    public SimpleFieldMappingStrategy(Class<?> rootObjectType, String... packages) {
         mapper = new ObjectGraphMapper(
                 rootObjectType,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
+                new DefaultConstructorObjectFactory(new SimpleClassDictionary(packages)),
                 new FieldEntityAccessFactory());
     }
 

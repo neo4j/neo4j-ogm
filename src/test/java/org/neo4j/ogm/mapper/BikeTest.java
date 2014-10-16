@@ -18,7 +18,7 @@ public class BikeTest {
 
         return new ObjectGraphMapper(
                 Bike.class,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary()),
+                new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.bike")),
                 new FieldEntityAccessFactory());
     }
 

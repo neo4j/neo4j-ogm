@@ -1,11 +1,13 @@
 package org.neo4j.ogm.metadata;
 
-import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
+import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.mapper.domain.canonical.ClassWithPrivateConstructor;
+import org.neo4j.ogm.mapper.domain.canonical.ClassWithoutZeroArgumentConstructor;
 import org.neo4j.ogm.mapper.domain.social.Individual;
-import org.neo4j.ogm.metadata.dictionary.MapBasedClassDictionary;
+import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,18 +24,18 @@ public class DefaultConstructorObjectFactoryTest {
         mappings.put("ClassWithPrivateConstructor", ClassWithPrivateConstructor.class.getName());
         mappings.put("ClassWithoutZeroArgumentConstructor", ClassWithoutZeroArgumentConstructor.class.getName());
         mappings.put("Person", Individual.class.getName());
-        this.objectCreator = new DefaultConstructorObjectFactory(new MapBasedClassDictionary(mappings));
+        this.objectCreator = new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.social", "org.neo4j.ogm.mapper.domain.canonical"));
     }
 
     @Test
     public void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
         RelationshipModel personRelationshipModel = new RelationshipModel();
-        personRelationshipModel.setType("Person");
+        personRelationshipModel.setType("Individual");
         Individual gary = this.objectCreator.instantiateObjectMappedTo(personRelationshipModel);
         assertNotNull(gary);
 
         NodeModel personNodeModel = new NodeModel();
-        personNodeModel.setLabels(new String[] {"Person"});
+        personNodeModel.setLabels(new String[] {"Individual"});
         Individual sheila = this.objectCreator.instantiateObjectMappedTo(personNodeModel);
         assertNotNull(sheila);
     }
@@ -41,7 +43,7 @@ public class DefaultConstructorObjectFactoryTest {
     @Test
     public void shouldHandleMultipleLabelsSafely() {
         NodeModel personNodeModel = new NodeModel();
-        personNodeModel.setLabels(new String[] {"Female", "Person", "Lass"});
+        personNodeModel.setLabels(new String[] {"Female", "Individual", "Lass"});
         Individual ourLass = this.objectCreator.instantiateObjectMappedTo(personNodeModel);
         assertNotNull(ourLass);
     }
@@ -68,26 +70,6 @@ public class DefaultConstructorObjectFactoryTest {
         vertex.setId(302L);
         vertex.setLabels(new String[0]);
         this.objectCreator.instantiateObjectMappedTo(vertex);
-    }
-
-    static class ClassWithPrivateConstructor {
-
-        private ClassWithPrivateConstructor() {
-            // can't instantiate me!
-        }
-
-    }
-
-    static class ClassWithoutZeroArgumentConstructor {
-
-        public ClassWithoutZeroArgumentConstructor(String parameter) {
-            // do nothing
-        }
-
-        public ClassWithoutZeroArgumentConstructor(int parameter) {
-            // do nothing
-        }
-
     }
 
 }

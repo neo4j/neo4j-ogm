@@ -14,18 +14,11 @@ import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.entityaccess.FieldEntityAccess;
 import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.social.Individual;
-import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 import org.neo4j.ogm.metadata.dictionary.DefaultPersistentFieldDictionary;
-import org.neo4j.ogm.metadata.dictionary.MapBasedClassDictionary;
-import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 
-//
-// TODO:
-// this class is causing a few problems because we had overlapping domain objects under test.
-// e.g. label "person" was mapped to social.person as well as rulers.person. social.person
-// has been renamed to social.individual for now, but we need to get to the root of the problem and
-// fix it.
-// - I think we said this was an exceptional circumstance unless @Label is used to disambiguate
+import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
+import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
+
 public class MappingConfigurationPlayground {
 
     @Test
@@ -147,11 +140,7 @@ public class MappingConfigurationPlayground {
 
             @Override
             public ObjectFactory provideObjectFactory() {
-                // how to look up the label from a node/relationship
-                Map<String, String> classMap = new HashMap<>();
-                classMap.put("Individual", Individual.class.getName());
-                ClassDictionary classDictionary = new MapBasedClassDictionary(classMap);
-                return new DefaultConstructorObjectFactory(classDictionary);
+                return new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.social"));
             }
         };
     }

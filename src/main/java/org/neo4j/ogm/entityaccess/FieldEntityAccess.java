@@ -69,7 +69,7 @@ public class FieldEntityAccess extends AbstractEntityAccess {
             field.setAccessible(true);
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-            throw new MappingException("Failed to read value of field: " + fieldName, e);
+            throw new MappingException("Failed to read value of field: " + fieldName + " on " + instance.getClass(), e);
         }
     }
 

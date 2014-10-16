@@ -36,7 +36,7 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         this.getterName = methodName.replace("set", "get");
     }
 
-
+    // FIXME: The resolution of the method name from t'property name should be in the method dictionary, not here
     public static MethodEntityAccess forProperty(String name) {
         StringBuilder sb = new StringBuilder();
         sb.append("set");

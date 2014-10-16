@@ -65,11 +65,23 @@ public class FieldEntityAccess extends AbstractEntityAccess {
     public Object readValue(Object instance) throws MappingException {
         try {
             // XXX: can't use fieldDictionary at the moment because we don't know the field type
-            Field field = instance.getClass().getDeclaredField(fieldName);
+            Field field = findField(fieldName, instance.getClass());
             field.setAccessible(true);
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
             throw new MappingException("Failed to read value of field: " + fieldName, e);
+        }
+    }
+
+    // sorry if this is duplicate code from fieldDictionary, I'm awaiting Vince's changes before I refactor it
+    private Field findField(String fieldName, Class<?> clarse) throws NoSuchFieldException {
+        try {
+            return clarse.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException nsfe) {
+            if (clarse.getSuperclass() == null) {
+                throw nsfe;
+            }
+            return findField(fieldName, clarse.getSuperclass());
         }
     }
 

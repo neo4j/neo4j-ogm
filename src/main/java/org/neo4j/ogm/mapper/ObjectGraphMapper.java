@@ -1,12 +1,9 @@
 package org.neo4j.ogm.mapper;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
@@ -18,6 +15,7 @@ import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 import org.neo4j.ogm.mapper.cypher.TemporaryDummyCypherBuilder;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.ObjectFactory;
+import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 
 /**
  * TODO: Javadoc
@@ -26,6 +24,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
 
     private static final MappingContext mappingContext = new MappingContext();
 
+    private AttributeDictionary attributeDictionary;
     private final ObjectFactory objectFactory;
     private final EntityAccessFactory entityAccessFactory;
     private final Map<Class<?>, List<Object>> typeMap = new HashMap<>();
@@ -53,7 +52,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
             mapRelationships(graphModel);
             return root();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new MappingException("Error mapping GraphModel to Object", e);
         }
     }
 
@@ -63,93 +62,62 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
             throw new NullPointerException("Cannot map null root object");
         }
 
-        /*
-         * We don't want to add logic like "am I an ID field?" to EntityAccess, because it's just an entity access mechanism,
-         * so we therefore need some kind of dictionary from which to look up the interesting fields.
-         *
-         * This leaves us with a problem, though, in that this code needs to make a distinction between interesting fields
-         * and plain old property fields.  I'd like to see something like a PersistentField because it's much more OO than
-         * asking questions of various dictionaries, but it's probably more in keeping with the current ethos if we just
-         * use a String for everything.  I'd still prefer to do what's in the playground, FWIW.
-         */
-
         CypherBuilder cypherBuilder = new TemporaryDummyCypherBuilder();
         deepMap(cypherBuilder, toPersist);
         return cypherBuilder.getStatements();
     }
 
+    /**
+     * @param cypherBuilder
+     * @param toPersist
+     * @return The "root" node of the object graph that matches
+     */
     private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist) {
-        NodeBuilder nodeBuilder = beginNodeClause(cypherBuilder, toPersist);
-
-        // map fields
-        Set<String> propertyFieldsToMap = lookUpPropertyFieldsToMapFromType(toPersist.getClass());
-        for (String fieldName : propertyFieldsToMap) {
-            String propertyName = lookUpPropertyNameFromFieldName(fieldName);
-            Object value = entityAccessFactory.forProperty(propertyName).readValue(toPersist);
-            nodeBuilder.addProperty(propertyName, value);
-        }
-
-        // map nested composite entities
-        Set<String> objectsToRecurseInto = lookUpFieldsRepresentingCompositeEntity(toPersist.getClass());
-        for (String fieldName : objectsToRecurseInto) {
-            String relationshipType = lookUpRelationshipNameForField(fieldName);
-            Object nestedEntity = entityAccessFactory.forProperty(lookUpPropertyNameFromFieldName(fieldName)).readValue(toPersist);
-            if (nestedEntity instanceof java.lang.Iterable) {
-                // create a relationship for each of these nested entities
-                for (Object object : (Iterable<?>) nestedEntity) {
-                    NodeBuilder newNode = deepMap(cypherBuilder, object);
-                    cypherBuilder.relate(nodeBuilder, relationshipType, newNode);
-                }
-            }
-            else {
-                // TODO: another assumption is that it's outbound, for now
-                NodeBuilder newNode = deepMap(cypherBuilder, nestedEntity);
-                cypherBuilder.relate(nodeBuilder, relationshipType, newNode);
-            }
-        }
+        /*
+         * My feeling is still that I prefer the use of a rich field/property representation (like PersistentField) to
+         * provide information about property mappings, rather than making String-based lookups in a dictionary.  However,
+         * the use of Strings is in keeping with the current ethos so I've gone with this approach, with a view/hope that
+         * a more object-oriented implementation will appear in the future.
+         */
+        NodeBuilder nodeBuilder = buildNode(cypherBuilder, toPersist);
+        mapObjectFieldsToProperties(toPersist, nodeBuilder);
+        mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder);
         return nodeBuilder;
     }
 
-    private NodeBuilder beginNodeClause(CypherBuilder cypherBuilder, Object toPersist) {
-        // XXX: this is the "simple" way, needs a strategy class
-        Object id = entityAccessFactory.forProperty("id").readValue(toPersist);
+    private NodeBuilder buildNode(CypherBuilder cypherBuilder, Object toPersist) {
+        Object id = entityAccessFactory.forIdAttributeOfType(toPersist.getClass()).readValue(toPersist);
         if (id == null) {
-            // TODO: look up labels for new node based on toPersist.getClass()
+            // TODO: need to look up labels for new node based on toPersist.getClass()
             return cypherBuilder.newNode();
         }
         return cypherBuilder.existingNode(Long.valueOf(id.toString()));
     }
 
-    private String lookUpRelationshipNameForField(String fieldName) {
-        return fieldName.toUpperCase();
+    private void mapObjectFieldsToProperties(Object toPersist, NodeBuilder nodeBuilder) {
+        for (String attributeName : attributeDictionary.lookUpValueAttributesFromType(toPersist.getClass())) {
+            String propertyName = attributeDictionary.lookUpPropertyNameForAttribute(attributeName);
+            Object value = entityAccessFactory.forProperty(propertyName).readValue(toPersist);
+            nodeBuilder.addProperty(propertyName, value);
+        }
     }
 
-    private Set<String> lookUpFieldsRepresentingCompositeEntity(Class<?> typeToPersist) {
-        Set<String> propertyFields = lookUpPropertyFieldsToMapFromType(typeToPersist);
-        Set<String> nonPropertyFields = new HashSet<>();
-        for (Field field : typeToPersist.getDeclaredFields()) {
-            if (!propertyFields.contains(field.getName())) {
-                nonPropertyFields.add(field.getName());
+    private void mapNestedEntitiesToGraphObjects(CypherBuilder cypherBuilder, Object toPersist, NodeBuilder nodeBuilder) {
+        for (String attributeName : attributeDictionary.lookUpCompositeEntityAttributesFromType(toPersist.getClass())) {
+            String relationshipType = attributeDictionary.lookUpRelationshipTypeForAtrribute(attributeName);
+            Object nestedEntity = entityAccessFactory.forAttributeOfType(attributeName, toPersist.getClass()).readValue(toPersist);
+            if (nestedEntity instanceof Iterable) {
+                // create a relationship for each of these nested entities
+                for (Object object : (Iterable<?>) nestedEntity) {
+                    NodeBuilder newNode = deepMap(cypherBuilder, object);
+                    cypherBuilder.relate(nodeBuilder, relationshipType, newNode);
+                }
+            } else {
+                // TODO: another assumption is that it's outbound, for now
+                NodeBuilder newNode = deepMap(cypherBuilder, nestedEntity);
+                cypherBuilder.relate(nodeBuilder, relationshipType, newNode);
             }
         }
-        return nonPropertyFields;
-    }
-
-    private String lookUpPropertyNameFromFieldName(String fieldName) {
-        return fieldName;
-    }
-
-    private Set<String> lookUpPropertyFieldsToMapFromType(Class<?> typeToPersist) {
-        Set<String> fieldNames = new HashSet<>();
-        for (Field declaredField : typeToPersist.getDeclaredFields()) {
-            // XXX: hacked for now
-            if (declaredField.getType().isPrimitive() || declaredField.getType().isArray()
-                    || Number.class.isAssignableFrom(declaredField.getType())
-                    || declaredField.getType().equals(String.class)) {
-                fieldNames.add(declaredField.getName());
-            }
-        }
-        return fieldNames;
     }
 
     // required for tests, since the ids of objects are not unique across tests.
@@ -185,7 +153,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
 
             Object object = mappingContext.get(node.getId());
             if (object == null) { // this is a never before seen object.
-                object = this.objectFactory.instantiateObjectMappedTo(node);
+                object = objectFactory.instantiateObjectMappedTo(node);
                 mappingContext.register(object, node.getId());
                 // Note: ASSUMPTION! the object's properties can't change if we've already parsed this previously!
                 setProperties(node, object);

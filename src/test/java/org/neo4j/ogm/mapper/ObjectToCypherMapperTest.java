@@ -65,7 +65,7 @@ public class ObjectToCypherMapperTest {
         List<String> cypher = this.mapper.mapToCypher(existingCourse);
         assertNotNull("The resultant cypher shouldn't be null", cypher);
         assertFalse("The resultant list of cypher statements shouldn't be empty", cypher.isEmpty());
-        System.err.println(cypher);
+        System.out.println(cypher);
     }
 
 }

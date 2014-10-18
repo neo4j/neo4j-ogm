@@ -11,13 +11,15 @@ public class FieldEntityAccessFactory implements EntityAccessFactory {
     }
 
     @Override
-    public EntityAccess forAttributeOfType(String attributeName, Class<?> type) {
-        throw new UnsupportedOperationException("atg hasn't written this method yet");
+    public FieldEntityAccess forAttributeOfType(String attributeName, Class<?> type) {
+        return forProperty(attributeName);
     }
 
     @Override
-    public EntityAccess forIdAttributeOfType(Class<?> type) {
-        throw new UnsupportedOperationException("atg hasn't written this method yet");
+    public FieldEntityAccess forIdAttributeOfType(Class<?> type) {
+        // FIXME: this is a total hack, since we can't use FieldDictionary without an instance of this type
+        // furthermore, we're still assuming "simple" strategy with the hard-coded dictionary in FieldEntityAccess
+        return forAttributeOfType("id", type);
     }
 
 }

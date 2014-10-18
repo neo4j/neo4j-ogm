@@ -15,7 +15,8 @@ public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<Gr
         mapper = new ObjectGraphMapper(
                 rootObjectType,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary(packages)),
-                new MethodEntityAccessFactory());
+                new MethodEntityAccessFactory(),
+                new SimpleAttributeDictionary());
     }
 
     public void reset() {

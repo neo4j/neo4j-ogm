@@ -19,17 +19,18 @@ public class DeserialisationTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.bike")),
-                new MethodEntityAccessFactory());
+                new MethodEntityAccessFactory(),
+                null); // attribute dictionary is not required for this test
     }
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {
 
         int count = 1000;          // how many we're deserialising
-        int target =2000;          // maximum permitted time (milliseconds) for that number;
+        int target =3000;          // maximum permitted time (milliseconds) for that number;
 
         final DummyResponseStream responseStream = new DummyResponseStream(count);
         GraphModel graphModel = null;
-        GraphModelToObjectMapper mapper = instantiateMapper();
+        GraphModelToObjectMapper<GraphModel> mapper = instantiateMapper();
         long elapsed = -System.currentTimeMillis();
 
         while ((graphModel = responseStream.next()) != null) {

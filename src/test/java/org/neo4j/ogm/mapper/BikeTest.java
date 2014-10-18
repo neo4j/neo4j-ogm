@@ -19,7 +19,8 @@ public class BikeTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.bike")),
-                new FieldEntityAccessFactory());
+                new FieldEntityAccessFactory(),
+                null); // attribute dictionary is not required for this test
     }
 
     @Test

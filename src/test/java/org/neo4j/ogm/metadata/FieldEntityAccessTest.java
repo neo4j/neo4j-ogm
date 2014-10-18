@@ -1,11 +1,14 @@
 package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
+import org.neo4j.ogm.entityaccess.EntityAccess;
 import org.neo4j.ogm.entityaccess.FieldEntityAccess;
+import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.social.Individual;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class FieldEntityAccessTest {
 
@@ -49,6 +52,18 @@ public class FieldEntityAccessTest {
 
         Object readValue = FieldEntityAccess.forProperty("id").readValue(student);
         assertEquals(student.getId(), readValue);
+    }
+
+    @Test
+    public void shouldManufactureEntityAccessForSpecifiedFieldOfType() {
+        FieldEntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory();
+
+        Individual person = new Individual();
+        person.setName("Gary");
+
+        EntityAccess entityAccess = entityAccessFactory.forAttributeOfType("name", Individual.class);
+        assertNotNull("The resultant EntityAccess shouldn't be null", entityAccess);
+        assertEquals("The field value wasn't retrieved as expected", person.getName(), entityAccess.readValue(person));
     }
 
 }

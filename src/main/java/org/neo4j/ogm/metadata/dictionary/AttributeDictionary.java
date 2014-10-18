@@ -7,6 +7,9 @@ import java.util.Set;
  * node or relationship property can be retrieved.
  */
 public interface AttributeDictionary {
+/*
+ * XXX I'm really not sure whether we should have lots of methods returning strings or have a rich PersistentAttribute object.
+ */
 
     Set<String> lookUpCompositeEntityAttributesFromType(Class<?> typeToPersist);
 

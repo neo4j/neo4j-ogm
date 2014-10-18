@@ -14,7 +14,8 @@ public class SimpleFieldMappingStrategy implements GraphModelToObjectMapper<Grap
         mapper = new ObjectGraphMapper(
                 rootObjectType,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary(packages)),
-                new FieldEntityAccessFactory());
+                new FieldEntityAccessFactory(),
+                new SimpleAttributeDictionary());
     }
 
     public void reset() {

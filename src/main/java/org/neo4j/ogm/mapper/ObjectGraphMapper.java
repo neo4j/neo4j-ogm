@@ -24,7 +24,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
 
     private static final MappingContext mappingContext = new MappingContext();
 
-    private AttributeDictionary attributeDictionary;
+    private final AttributeDictionary attributeDictionary;
     private final ObjectFactory objectFactory;
     private final EntityAccessFactory entityAccessFactory;
     private final Map<Class<?>, List<Object>> typeMap = new HashMap<>();
@@ -35,13 +35,15 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
      * @param type The type of the root object
      * @param objectFactory The {@link ObjectFactory} to use for instantiating types
      * @param entityAccessorFactory To determine how the property values should be mapped to the fields
+     * @param atttibuteDictionary The {@link AttributeDictionary} to look up fields and corresponding graph properties
      */
     public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
-            EntityAccessFactory entityAccessorFactory) {
+            EntityAccessFactory entityAccessorFactory, AttributeDictionary attributeDictionary) {
 
         this.root = type;
         this.objectFactory = objectFactory;
         this.entityAccessFactory = entityAccessorFactory;
+        this.attributeDictionary = attributeDictionary;
     }
 
     @Override
@@ -68,17 +70,13 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
     }
 
     /**
-     * @param cypherBuilder
-     * @param toPersist
+     * Builds Cypher to save the specified object and all its composite objects into the graph database.
+     *
+     * @param cypherBuilder The builder used to construct the query
+     * @param toPersist The object to persist into the graph database
      * @return The "root" node of the object graph that matches
      */
     private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist) {
-        /*
-         * My feeling is still that I prefer the use of a rich field/property representation (like PersistentField) to
-         * provide information about property mappings, rather than making String-based lookups in a dictionary.  However,
-         * the use of Strings is in keeping with the current ethos so I've gone with this approach, with a view/hope that
-         * a more object-oriented implementation will appear in the future.
-         */
         NodeBuilder nodeBuilder = buildNode(cypherBuilder, toPersist);
         mapObjectFieldsToProperties(toPersist, nodeBuilder);
         mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder);
@@ -95,9 +93,15 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
     }
 
     private void mapObjectFieldsToProperties(Object toPersist, NodeBuilder nodeBuilder) {
+        /*
+         * My feeling is still that I prefer the use of a rich field/property representation (like PersistentField) to
+         * provide information about property mappings, rather than making String-based lookups in a dictionary.  However,
+         * the use of Strings is in keeping with the current ethos so I've gone with this approach, with a view/hope that
+         * a more object-oriented implementation will appear in the future.
+         */
         for (String attributeName : attributeDictionary.lookUpValueAttributesFromType(toPersist.getClass())) {
             String propertyName = attributeDictionary.lookUpPropertyNameForAttribute(attributeName);
-            Object value = entityAccessFactory.forProperty(propertyName).readValue(toPersist);
+            Object value = entityAccessFactory.forAttributeOfType(attributeName, toPersist.getClass()).readValue(toPersist);
             nodeBuilder.addProperty(propertyName, value);
         }
     }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public abstract class MethodDictionary {
 
-    private final Map<Class, Map<String, Method>> methodCache = new HashMap<>();
+    private final Map<Class<?>, Map<String, Method>> methodCache = new HashMap<>();
 
     public Method setter(String setterName, Object parameter, Object instance) throws MappingException {
 
@@ -18,7 +18,7 @@ public abstract class MethodDictionary {
         if (m != null) return m;
 
         if (parameter instanceof Collection) {
-            Class elementType = ((Collection) parameter).iterator().next().getClass();
+            Class<?> elementType = ((Collection<?>) parameter).iterator().next().getClass();
             m= findCollectionSetter(instance, parameter, elementType, setterName);
         } else {
             m= findScalarSetter(instance, parameter.getClass(), setterName);
@@ -26,14 +26,14 @@ public abstract class MethodDictionary {
         return insert(instance.getClass(), m.getName(), m);
     }
 
-    public Method getter(String methodName, Class returnType, Object instance) throws NoSuchMethodException {
+    public Method getter(String methodName, Class<?> returnType, Object instance) throws NoSuchMethodException {
         Class<?> clazz = instance.getClass();
         Method m = lookup(clazz, methodName);
         if (m != null) return m;
         return findGetter(methodName, returnType, instance);
     }
 
-    private Method lookup(Class clazz, String methodName) {
+    private Method lookup(Class<?> clazz, String methodName) {
         Map<String, Method> methods = methodCache.get(clazz);
         if (methods != null) {
             return methods.get(methodName);
@@ -41,7 +41,7 @@ public abstract class MethodDictionary {
         return null;
     }
 
-    private Method insert(Class clazz, String methodName, Method method) {
+    private Method insert(Class<?> clazz, String methodName, Method method) {
         Map<String, Method> methods = methodCache.get(clazz);
         if (methods == null) {
             methods = new HashMap<>();
@@ -51,8 +51,8 @@ public abstract class MethodDictionary {
         return method;
     }
 
-    protected abstract Method findGetter(String methodName, Class returnType, Object instance);
-    protected abstract Method findCollectionSetter(Object instance, Object parameter, Class elementType, String setterName);
-    protected abstract Method findScalarSetter(Object instance, Class parameterClass, String setterName);
+    protected abstract Method findGetter(String methodName, Class<?> returnType, Object instance);
+    protected abstract Method findCollectionSetter(Object instance, Object parameter, Class<?> elementType, String setterName);
+    protected abstract Method findScalarSetter(Object instance, Class<?> parameterClass, String setterName);
 
 }

@@ -102,7 +102,7 @@ public abstract class ClassDictionary {
             }
             if (baseClasses.size() > 1) {
                 // todo logger.warn
-                System.out.println("multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
+                System.out.println("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
                 return null;
             }
             if (baseClasses.iterator().hasNext()) {
@@ -118,7 +118,7 @@ public abstract class ClassDictionary {
         }
         if (classInfoList.size() > 1) {
             // todo logger.warn
-            System.out.println("more than one class subclasses " + fqn);
+            System.out.println("More than one class subclasses " + fqn);
             return null; // turn back oh Man - forget thy foolish ways
         }
         ClassInfo classInfo = classInfoList.iterator().next();

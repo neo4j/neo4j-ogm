@@ -4,7 +4,7 @@ import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.neo4j.ogm.entityaccess.MethodEntityAccessFactory;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
-import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
+import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 
 public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<GraphModel> {
 

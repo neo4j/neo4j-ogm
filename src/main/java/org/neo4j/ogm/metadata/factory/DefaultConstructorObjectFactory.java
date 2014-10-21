@@ -1,11 +1,12 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.factory;
 
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.RelationshipModel;
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 
 /**
- * Implementation of {@link ObjectFactory} that exclusively uses a class' default constructor for instantiation.
+ * Implementation of {@link org.neo4j.ogm.metadata.factory.ObjectFactory} that exclusively uses a class' default constructor for instantiation.
  */
 public class DefaultConstructorObjectFactory implements ObjectFactory {
 

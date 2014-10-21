@@ -1,8 +1,8 @@
 package org.neo4j.ogm.strategy.simple;
 
-import java.util.Set;
-
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+
+import java.util.Set;
 
 /**
  * Implementation of {@link AttributeDictionary} that follows simple naming and structural conventions.
@@ -31,7 +31,9 @@ public class SimpleAttributeDictionary implements AttributeDictionary {
          */
 
         throw new UnsupportedOperationException(
+
                 "Haven't get decided how to discern whether an instance variable should get mapped to a property or not!");
+
     }
 
     @Override
@@ -40,7 +42,7 @@ public class SimpleAttributeDictionary implements AttributeDictionary {
     }
 
     @Override
-    public String lookUpRelationshipTypeForAtrribute(String attributeName) {
+    public String lookUpRelationshipTypeForAttribute(String attributeName) {
         throw new UnsupportedOperationException("atg hasn't written this method yet");
     }
 

@@ -3,8 +3,8 @@ package org.neo4j.ogm.metadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Label;
-import org.neo4j.ogm.metadata.dictionary.ClassInfo;
-import org.neo4j.ogm.metadata.dictionary.Classify;
+import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -12,11 +12,11 @@ import static junit.framework.TestCase.assertNotNull;
 
 public class ClassifyTest {
 
-    private Classify classify;
+    private DomainInfo classify;
 
     @Before
     public void setUp() {
-        this.classify = new Classify();
+        this.classify = new DomainInfo();
     }
 
     @Test

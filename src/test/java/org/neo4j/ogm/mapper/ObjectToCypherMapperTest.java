@@ -1,14 +1,5 @@
 package org.neo4j.ogm.mapper;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -19,6 +10,13 @@ import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {
 
@@ -117,7 +115,7 @@ public class ObjectToCypherMapperTest {
                 will(returnValue(Collections.emptySet()));
                 oneOf(attributeDictionary).lookUpCompositeEntityAttributesFromType(Course.class);
                 will(returnValue(Collections.singleton("students")));
-                oneOf(attributeDictionary).lookUpRelationshipTypeForAtrribute("students");
+                oneOf(attributeDictionary).lookUpRelationshipTypeForAttribute("students");
                 will(returnValue("HAS_STUDENT"));
             }
         });

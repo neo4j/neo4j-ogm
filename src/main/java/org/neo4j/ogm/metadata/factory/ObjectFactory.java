@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.factory;
 
 import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
@@ -15,7 +15,7 @@ public interface ObjectFactory {
      *
      * @param node The {@link NodeModel} for which to find the corresponding class and return an instance of it
      * @return A new instance of an object onto which the properties of the given {@link NodeModel} can be mapped
-     * @throws MappingException if there is no known class that maps to the given graph component
+     * @throws org.neo4j.ogm.metadata.MappingException if there is no known class that maps to the given graph component
      */
     <T> T instantiateObjectMappedTo(NodeModel node);
 
@@ -25,7 +25,7 @@ public interface ObjectFactory {
      *
      * @param relationship The {@link RelationshipModel} for which to find the corresponding class and return an instance of it
      * @return A new instance of an object onto which the properties of the given {@link RelationshipModel} can be mapped
-     * @throws MappingException if there is no known class that maps to the given graph component
+     * @throws org.neo4j.ogm.metadata.MappingException if there is no known class that maps to the given graph component
      */
     <T> T instantiateObjectMappedTo(RelationshipModel relationship);
 

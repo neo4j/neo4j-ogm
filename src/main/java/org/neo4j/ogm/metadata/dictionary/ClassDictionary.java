@@ -1,10 +1,13 @@
 package org.neo4j.ogm.metadata.dictionary;
 
+import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+
 import java.util.*;
 
 public abstract class ClassDictionary {
 
-    private final Classify classify = new Classify();
+    private final DomainInfo classify = new DomainInfo();
     private final Map<String, String> fqns = new HashMap<>();
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
@@ -43,7 +46,7 @@ public abstract class ClassDictionary {
         return qualifiedName;
     }
 
-    protected Classify classify() {
+    protected DomainInfo domainInfo() {
         return classify;
     }
 
@@ -95,7 +98,7 @@ public abstract class ClassDictionary {
         if (!fqns.isEmpty()) {
             Set<String> baseClasses = new HashSet<>();
             for (String fqn : fqns) {
-                String baseClass = resolveBaseClass(fqn, classify().getClass(fqn).directSubclasses);
+                String baseClass = resolveBaseClass(fqn, domainInfo().getClass(fqn).directSubclasses());
                 if (baseClass != null) {
                     baseClasses.add(baseClass);
                 }
@@ -122,7 +125,7 @@ public abstract class ClassDictionary {
             return null; // turn back oh Man - forget thy foolish ways
         }
         ClassInfo classInfo = classInfoList.iterator().next();
-        return resolveBaseClass(classInfo.toString(), classInfo.directSubclasses);
+        return resolveBaseClass(classInfo.toString(), classInfo.directSubclasses());
     }
 
     protected abstract Class match(String label);

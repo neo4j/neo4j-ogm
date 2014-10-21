@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata.dictionary;
+package org.neo4j.ogm.metadata.info;
 
 import java.util.ArrayList;
 import java.util.HashSet;

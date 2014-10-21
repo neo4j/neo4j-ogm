@@ -1,10 +1,12 @@
 package org.neo4j.ogm.mapper.domain.forum;
 
 import org.neo4j.ogm.annotation.Label;
+import org.neo4j.ogm.annotation.Property;
 
 @Label
 public abstract class Membership implements IMembership {
 
+    @Property(name="annualFees")
     private Integer fees;
     private Long id;
 

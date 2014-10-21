@@ -15,7 +15,7 @@ public interface AttributeDictionary {
 
     Set<String> lookUpValueAttributesFromType(Class<?> typeToPersist);
 
-    String lookUpRelationshipTypeForAtrribute(String attributeName);
+    String lookUpRelationshipTypeForAttribute(String attributeName);
 
     String lookUpPropertyNameForAttribute(String attributeName);
 

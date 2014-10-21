@@ -3,8 +3,6 @@ package org.neo4j.ogm.metadata;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.Property;
@@ -15,6 +13,8 @@ import org.neo4j.ogm.mapper.domain.social.Individual;
 import org.neo4j.ogm.metadata.dictionary.DefaultPersistentFieldDictionary;
 
 import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
+import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
+import org.neo4j.ogm.metadata.factory.ObjectFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 public class MappingConfigurationPlayground {

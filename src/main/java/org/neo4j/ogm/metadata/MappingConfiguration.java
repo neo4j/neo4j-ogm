@@ -1,6 +1,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
+import org.neo4j.ogm.metadata.factory.ObjectFactory;
 
 /**
  * Provides the configuration for the object-graph mapping, including how instances of particular objects should be written

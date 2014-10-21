@@ -6,7 +6,7 @@ import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
-import org.neo4j.ogm.metadata.DefaultConstructorObjectFactory;
+import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import static junit.framework.TestCase.assertNotNull;

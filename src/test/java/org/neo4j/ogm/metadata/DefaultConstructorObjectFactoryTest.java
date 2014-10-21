@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.canonical.ClassWithPrivateConstructor;
 import org.neo4j.ogm.mapper.domain.canonical.ClassWithoutZeroArgumentConstructor;
 import org.neo4j.ogm.mapper.domain.social.Individual;
+import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import java.util.HashMap;

@@ -1,10 +1,5 @@
 package org.neo4j.ogm.mapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.Property;
@@ -14,8 +9,13 @@ import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 import org.neo4j.ogm.mapper.cypher.TemporaryDummyCypherBuilder;
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.ObjectFactory;
+import org.neo4j.ogm.metadata.factory.ObjectFactory;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TODO: Javadoc
@@ -35,7 +35,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
      * @param type The type of the root object
      * @param objectFactory The {@link ObjectFactory} to use for instantiating types
      * @param entityAccessorFactory To determine how the property values should be mapped to the fields
-     * @param atttibuteDictionary The {@link AttributeDictionary} to look up fields and corresponding graph properties
+     * @param attributeDictionary The {@link AttributeDictionary} to look up fields and corresponding graph properties
      */
     public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
             EntityAccessFactory entityAccessorFactory, AttributeDictionary attributeDictionary) {
@@ -108,7 +108,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
 
     private void mapNestedEntitiesToGraphObjects(CypherBuilder cypherBuilder, Object toPersist, NodeBuilder nodeBuilder) {
         for (String attributeName : attributeDictionary.lookUpCompositeEntityAttributesFromType(toPersist.getClass())) {
-            String relationshipType = attributeDictionary.lookUpRelationshipTypeForAtrribute(attributeName);
+            String relationshipType = attributeDictionary.lookUpRelationshipTypeForAttribute(attributeName);
             Object nestedEntity = entityAccessFactory.forAttributeOfType(attributeName, toPersist.getClass()).readValue(toPersist);
             if (nestedEntity instanceof Iterable) {
                 // create a relationship for each of these nested entities

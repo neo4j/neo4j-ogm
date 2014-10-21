@@ -22,7 +22,7 @@ public class ClassifyTest {
     @Test
     public void testAllClassesFound() {
 
-        classify.scan("org.neo4j.ogm.mapper.domain.rulers");
+        classify.load("org.neo4j.ogm.mapper.domain.rulers");
 
         assertNotNull(classify.getClass("org.neo4j.ogm.mapper.domain.rulers.Baron"));
         assertNotNull(classify.getClass("org.neo4j.ogm.mapper.domain.rulers.Daughter"));
@@ -41,25 +41,25 @@ public class ClassifyTest {
 
     @Test
     public void testResolveSimpleClassName() {
-        classify.scan("org.neo4j.ogm.mapper.domain.rulers");
+        classify.load("org.neo4j.ogm.mapper.domain.rulers");
         assertNotNull(classify.getClassSimpleName("Baron"));
     }
 
     @Test(expected = MappingException.class)
     public void testCannotResolveSimpleClassNameIfNonUnique() {
-        classify.scan("org.neo4j.ogm.mapper.domain.collection", "org.neo4j.ogm.mapper.domain.education");
+        classify.load("org.neo4j.ogm.mapper.domain.collection", "org.neo4j.ogm.mapper.domain.education");
         classify.getClassSimpleName("DomainObject");
     }
 
     @Test
     public void testResolveAnnotation() {
-        classify.scan("org.neo4j.ogm.mapper.domain.annotated");
+        classify.load("org.neo4j.ogm.mapper.domain.annotated");
         assertNotNull(classify.getNamedClassWithAnnotation("org.neo4j.ogm.annotation.Label", "org.neo4j.ogm.mapper.domain.annotated.UserActivity"));
     }
 
     @Test
     public void testUserSuppliedAnnotationValue() throws Exception {
-        classify.scan("org.neo4j.ogm.mapper.domain.annotated");
+        classify.load("org.neo4j.ogm.mapper.domain.annotated");
         ClassInfo classInfo = classify.getNamedClassWithAnnotation("org.neo4j.ogm.annotation.Label", "org.neo4j.ogm.mapper.domain.annotated.UserActivity");
         Class clazz=Class.forName(classInfo.toString());
         assertTrue(clazz.isAnnotationPresent(Label.class));
@@ -69,7 +69,7 @@ public class ClassifyTest {
 
     @Test
     public void testDefaultAnnotationValue() throws Exception {
-        classify.scan("org.neo4j.ogm.mapper.domain.annotated");
+        classify.load("org.neo4j.ogm.mapper.domain.annotated");
         ClassInfo classInfo = classify.getNamedClassWithAnnotation("org.neo4j.ogm.annotation.Label", "org.neo4j.ogm.mapper.domain.annotated.User");
         Class clazz=Class.forName(classInfo.toString());
         assertTrue(clazz.isAnnotationPresent(Label.class));

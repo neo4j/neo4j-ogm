@@ -15,7 +15,7 @@ public abstract class ClassDictionary {
         if (packages == null || packages.length == 0) {
             throw new RuntimeException("no packages defined");
         }
-        classify.scan(packages);
+        classify.load(packages);
     }
 
     /**

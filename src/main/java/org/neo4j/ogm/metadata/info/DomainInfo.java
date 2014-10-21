@@ -1,19 +1,17 @@
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.ClassPathScanner;
 import org.neo4j.ogm.metadata.MappingException;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * A Type Hierarchy (including Interfaces) is actually a DAG. Maybe we should be using Neo? !!
  *
  * This class needs a lot of tidying up
  */
-public class DomainInfo {
+public class DomainInfo implements ClassInfoProcessor {
 
     private List<String> classPaths = new ArrayList<>();
 
@@ -24,7 +22,26 @@ public class DomainInfo {
 
     private ConstantPool constantPool;
 
-    // todo - should be part of interface info functionality
+    private void buildAnnotationNameToClassInfoMap() {
+        // A <-[:has_annotation]- T
+        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+            for (AnnotationInfo annotation : classInfo.annotations()) {
+                ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
+                if (classInfoList == null) {
+                    annotationNameToClassInfo.put(annotation.getName(), classInfoList = new ArrayList<>());
+                }
+                classInfoList.add(classInfo);
+            }
+        }
+    }
+
+    private void buildInterfaceHierarchy() {
+        // I - [:extends] -> J
+        for (InterfaceInfo interfaceInfo : interfaceNameToInterfaceInfo.values()) {
+            constructInterfaceHierarcy(interfaceInfo);
+        }
+    }
+
     private void constructInterfaceHierarcy(InterfaceInfo interfaceInfo) {
         if (interfaceInfo.allSuperInterfaces().isEmpty() && !interfaceInfo.superInterfaces().isEmpty()) {
             interfaceInfo.allSuperInterfaces().addAll(interfaceInfo.superInterfaces());
@@ -37,52 +54,7 @@ public class DomainInfo {
         }
     }
 
-
-    // maybe put in some sort of builder object
-
-
-    private void constructClassHierarchy() {
-
-        if (classNameToClassInfo.isEmpty() && interfaceNameToInterfaceInfo.isEmpty()) {
-            return;
-        }
-
-        /*
-         * get the root classes in the type hierarchy.
-         */
-        ArrayList<ClassInfo> roots = new ArrayList<>();
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            if (classInfo.directSuperclass() == null) {
-                roots.add(classInfo);
-            }
-        }
-
-        // R<-[:extends]-T*
-        LinkedList<ClassInfo> nodes = new LinkedList<>();
-        nodes.addAll(roots);
-        while (!nodes.isEmpty()) {
-            ClassInfo head = nodes.removeFirst();
-            for (ClassInfo subclass : head.directSubclasses()) {
-                nodes.add(subclass);
-            }
-        }
-
-        // A <-[:has_annotation]- T
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            for (AnnotationInfo annotation : classInfo.annotations()) {
-                ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
-                if (classInfoList == null) {
-                    annotationNameToClassInfo.put(annotation.getName(), classInfoList = new ArrayList<>());
-                }
-                classInfoList.add(classInfo);
-            }
-        }
-
-        // I - [:extends] -> J
-        for (InterfaceInfo interfaceInfo : interfaceNameToInterfaceInfo.values()) {
-            constructInterfaceHierarcy(interfaceInfo);
-        }
-
+    private void buildInterfaceNameToClassInfoMap() {
         // T -[:implements]-> I
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             HashSet<InterfaceInfo> interfaceAndSuperinterfaces = new HashSet<>();
@@ -100,7 +72,9 @@ public class DomainInfo {
                 classInfoList.add(classInfo);
             }
         }
+    }
 
+    public void buildTransitiveInterfaceImplementations() {
         // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
         for (String interfaceName : interfaceNameToClassInfo.keySet()) {
             ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
@@ -114,6 +88,38 @@ public class DomainInfo {
             }
             interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
         }
+    }
+
+    public void finish() {
+
+        if (classNameToClassInfo.isEmpty() && interfaceNameToInterfaceInfo.isEmpty()) {
+            return;
+        }
+
+//        /*
+//         * get the root classes in the type hierarchy.
+//         */
+//        ArrayList<ClassInfo> roots = new ArrayList<>();
+//        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+//            if (classInfo.directSuperclass() == null) {
+//                roots.add(classInfo);
+//            }
+//        }
+//
+//        // R<-[:extends]-T*
+//        LinkedList<ClassInfo> nodes = new LinkedList<>();
+//        nodes.addAll(roots);
+//        while (!nodes.isEmpty()) {
+//            ClassInfo head = nodes.removeFirst();
+//            for (ClassInfo subclass : head.directSubclasses()) {
+//                nodes.add(subclass);
+//            }
+//        }
+
+        buildAnnotationNameToClassInfoMap();
+        buildInterfaceHierarchy();
+        buildInterfaceNameToClassInfoMap();
+        buildTransitiveInterfaceImplementations();
 
         // TODO: transitive annotations
         // if a superclass type, method or field is annotated, inject the annotation to subclasses
@@ -122,10 +128,7 @@ public class DomainInfo {
 
     }
 
-    /**
-     * parses class file binary header.
-     */
-    private void readClassInfo(final InputStream inputStream) throws IOException {
+    public void process(final InputStream inputStream) throws IOException {
 
         DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(inputStream, 1024));
 
@@ -146,15 +149,6 @@ public class DomainInfo {
         String className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
         String superclassName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
 
-//        // get the interface names implemented by this class
-//        Set<InterfaceInfo> interfaces = new HashSet<>();
-//
-//        int interfaceCount = dataInputStream.readUnsignedShort();
-//        for (int i = 0; i < interfaceCount; i++) {
-//            String interfaceName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-//            interfaces.add(new InterfaceInfo(interfaceName));
-//        }
-//
         // get the information for this class
         InterfacesInfo interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
         FieldsInfo fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
@@ -195,71 +189,8 @@ public class DomainInfo {
 
     }
 
-    private void scanFile(File file, String relativePath) throws IOException {
-        if (relativePath.endsWith(".class")) {
-            try (InputStream inputStream = new FileInputStream(file)) {
-                readClassInfo(inputStream);
-            }
-        }
-    }
-
-    private void scanFolder(File folder, int prefixSize) throws IOException {
-
-        String absolutePath = folder.getPath();
-        String relativePath = prefixSize > absolutePath.length() ? "" : absolutePath.substring(prefixSize);
-
-        boolean scanFolders = false, scanFiles = false;
-
-        // TODO: use filter pattern
-        for (String pathToScan : classPaths) {
-            if (relativePath.startsWith(pathToScan) || (relativePath.length() == pathToScan.length() - 1 && pathToScan.startsWith(relativePath))) {
-                scanFolders = scanFiles = true;
-                break;
-            }
-            if (pathToScan.startsWith(relativePath)) {
-                scanFolders = true;
-            }
-        }
-
-        if (scanFolders || scanFiles) {
-            File[] subFiles = folder.listFiles();
-            for (final File subFile : subFiles) {
-                if (subFile.isDirectory()) {
-                    scanFolder(subFile, prefixSize);
-                } else if (scanFiles && subFile.isFile()) {
-                    String leafSuffix = "/" + subFile.getName();
-                    scanFile(subFile, relativePath + leafSuffix);
-                }
-            }
-        }
-    }
-
-    /**
-     * Scan a zipfile for matching file path patterns. (Does not recurse into zipfiles within zipfiles.)
-     */
-    private void scanZipFile(final ZipFile zipFile) throws IOException {
-
-        for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
-            final ZipEntry entry = entries.nextElement();
-            if (!entry.isDirectory()) {
-                String path = entry.getName();
-                boolean scanFile = false;
-                for (String pathToScan : classPaths) {
-                    if (path.startsWith(pathToScan)) {
-                        scanFile = true;
-                        break;
-                    }
-                }
-                if (scanFile && path.endsWith(".class")) {
-                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                        readClassInfo(inputStream);
-                    }
-                }
-            }
-        }
-    }
-
-    public void scan(String... packages) {
+    // the public API. All the rest of the stuff above is just gumph and needs to be refactored away...
+    public void load(String... packages) {
 
         classPaths.clear();
         classNameToClassInfo.clear();
@@ -272,29 +203,8 @@ public class DomainInfo {
             classPaths.add(path);
         }
 
-        try {
-            for (File pathElt : ClassUtils.getUniqueClasspathElements()) {
-                String path = pathElt.getPath();
-                if (pathElt.isDirectory()) {
-                    scanFolder(pathElt, path.length() + 1);
-                } else if (pathElt.isFile()) {
-                    String pathLower = path.toLowerCase();
-                    if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip")) {
-                        scanZipFile(new ZipFile(pathElt));
-                    } else {
-                        scanFile(pathElt, pathElt.getName());
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        constructClassHierarchy();
-
+        new ClassPathScanner().scan(classPaths, this);
     }
-
-    // the public API. All the rest of the stuff above is just gumph and needs to be refactored away...
 
     public ClassInfo getClass(String fqn) {
         return classNameToClassInfo.get(fqn);

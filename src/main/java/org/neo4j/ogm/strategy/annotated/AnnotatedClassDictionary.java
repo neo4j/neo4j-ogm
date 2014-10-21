@@ -15,10 +15,9 @@ public class AnnotatedClassDictionary extends SimpleClassDictionary {
     @Override
     public Class match(String label) {
         String annotation = Label.class.getName();
-        List<String> fqns = domainInfo().getFQNsWithAnnotation(annotation);
-        if (fqns != null) {
-            for (String fqn : domainInfo().getFQNsWithAnnotation(annotation)) {
-                ClassInfo classInfo = domainInfo().getNamedClassWithAnnotation(annotation, fqn);
+        List<ClassInfo> classInfos = domainInfo().getClassInfosWithAnnotation(annotation);
+        if (classInfos != null) {
+            for (ClassInfo classInfo : classInfos) {
                 try {
                     Class clazz=Class.forName(classInfo.toString());
                     Label labelClass = (Label) clazz.getAnnotation(Label.class);

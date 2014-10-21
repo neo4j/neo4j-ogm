@@ -19,8 +19,8 @@ public class DomainInfo {
     private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
 
-    private final HashMap<String, ArrayList<String>> annotationToClasses = new HashMap<>();
-    private final HashMap<String, ArrayList<String>> interfaceToClasses = new HashMap<>();
+    private final HashMap<String, ArrayList<ClassInfo>> annotationToClasses = new HashMap<>();
+    private final HashMap<String, ArrayList<ClassInfo>> interfaceToClasses = new HashMap<>();
 
     private static void buildTree(ClassInfo classInfo) {
         for (ClassInfo subclass : classInfo.directSubclasses()) {
@@ -72,12 +72,12 @@ public class DomainInfo {
 
         // A <-[:has_annotation]- T
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            for (String annotation : classInfo.annotations()) {
-                ArrayList<String> classList = annotationToClasses.get(annotation);
+            for (AnnotationInfo annotation : classInfo.annotations()) {
+                ArrayList<ClassInfo> classList = annotationToClasses.get(annotation.getName());
                 if (classList == null) {
-                    annotationToClasses.put(annotation, classList = new ArrayList<>());
+                    annotationToClasses.put(annotation.getName(), classList = new ArrayList<>());
                 }
-                classList.add(classInfo.name());
+                classList.add(classInfo);
             }
         }
 
@@ -97,23 +97,22 @@ public class DomainInfo {
                 }
             }
             for (String interfaceName : interfaceAndSuperinterfaces) {
-                ArrayList<String> classList = interfaceToClasses.get(interfaceName);
+                ArrayList<ClassInfo> classList = interfaceToClasses.get(interfaceName);
                 if (classList == null) {
                     interfaceToClasses.put(interfaceName, classList = new ArrayList<>());
                 }
-                classList.add(classInfo.name());
+                classList.add(classInfo);
             }
         }
 
         // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
         for (String interfaceName : interfaceToClasses.keySet()) {
-            ArrayList<String> classes = interfaceToClasses.get(interfaceName);
-            HashSet<String> subClasses = new HashSet<>(classes);
-            for (String klass : classes) {
-                ClassInfo classInfo = classNameToClassInfo.get(klass);
+            ArrayList<ClassInfo> classes = interfaceToClasses.get(interfaceName);
+            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
+            for (ClassInfo classInfo : classes) {
                 if (classInfo != null) {
                     for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
-                        subClasses.add(subClassInfo.name());
+                        subClasses.add(subClassInfo);
                     }
                 }
             }
@@ -282,7 +281,10 @@ public class DomainInfo {
 
         //System.out.println("class: " + className);
 
+        // TODO : should be a field info?
         Map<String, ObjectAnnotations> fieldInfoMap = new HashMap<>();
+
+        // TODO : should be a method info?
         Map<String, ObjectAnnotations> methodInfoMap = new HashMap<>();
 
         // Interfaces
@@ -347,21 +349,18 @@ public class DomainInfo {
             }
         }
 
-        // Class Annotations
-        HashSet<String> annotations = new HashSet<>();
+        // class annotations
+        Set<AnnotationInfo> classAnnotations = new HashSet<AnnotationInfo>();
+
         int attributesCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
-            ObjectAnnotations classAnnotations = new ObjectAnnotations();
             String attributeName = lookup(dataInputStream, constantPool);
             int attributeLength = dataInputStream.readInt();
             if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                 int annotationCount = dataInputStream.readUnsignedShort();
                 for (int m = 0; m < annotationCount; m++) {
                     AnnotationInfo info = readAnnotation(dataInputStream, constantPool);
-                    // class annotation
-                    // System.out.println("class annotation: " + info);
-                    annotations.add(info.getName());
-                    classAnnotations.put(info.getName(), info);
+                    classAnnotations.add(info);
                 }
             }
             else {
@@ -384,13 +383,12 @@ public class DomainInfo {
             // its a class ref
             ClassInfo thisClassInfo = classNameToClassInfo.get(className);
             if (thisClassInfo == null) {
-                thisClassInfo = new ClassInfo(className, interfaces, annotations, fieldInfoMap, methodInfoMap);
-                //thisClassInfo
+                thisClassInfo = new ClassInfo(className, interfaces, classAnnotations, fieldInfoMap, methodInfoMap);
                 classNameToClassInfo.put(className, thisClassInfo);
             } else if (thisClassInfo.visited()) {
                 return;
             } else {
-                thisClassInfo.visit(interfaces, annotations);
+                thisClassInfo.visit(interfaces, classAnnotations);
             }
 
             ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);
@@ -541,15 +539,15 @@ public class DomainInfo {
     }
 
     public ClassInfo getNamedClassWithAnnotation(String annotation, String className) {
-        for (String fqn : annotationToClasses.get(annotation)) {
-            if (fqn.equals(className)) {
-                return getClass(fqn);
+        for (ClassInfo classInfo : annotationToClasses.get(annotation)) {
+            if (classInfo.name().equals(className)) {
+                return classInfo;
             }
         }
         return null;
     }
 
-    public List<String> getFQNsWithAnnotation(String annotation) {
+    public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
         return annotationToClasses.get(annotation);
     }
 }

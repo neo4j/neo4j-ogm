@@ -33,16 +33,17 @@ public class ClassInfo {
     private ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
     private HashSet<String> interfaces = new HashSet<>();
 
-    @Deprecated
-    private HashSet<String> annotations = new HashSet<>();
+    private Map<String,ObjectAnnotations> fieldInfo = new HashMap<>();
+    private Map<String, ObjectAnnotations> methodInfo = new HashMap<>();
 
-    private Map<String,ObjectAnnotations> fieldInfoMap = new HashMap<>();
-    private Map<String, ObjectAnnotations> methodInfoMap = new HashMap<>();
 
-    public ClassInfo(String name, ArrayList<String> interfaces, HashSet<String> annotations, Map<String, ObjectAnnotations> fieldInfoMap, Map<String, ObjectAnnotations> methodInfoMap) {
+    private Set<AnnotationInfo> classAnnotations = new HashSet<>();
+
+    public ClassInfo(String name, ArrayList<String> interfaces, Set<AnnotationInfo> annotations, Map<String, ObjectAnnotations> fieldAnnotations, Map<String, ObjectAnnotations> methodAnnotations) {
         this.name = name;
-        this.fieldInfoMap = fieldInfoMap;
-        this.methodInfoMap = methodInfoMap;
+        this.fieldInfo = fieldAnnotations;
+        this.methodInfo = methodAnnotations;
+
         this.visit(interfaces, annotations);
     }
 
@@ -50,10 +51,10 @@ public class ClassInfo {
      * If this method is called by another class, then it was previously cited as a superclass, and now has been
      * itself visited on the classpath.
      */
-    public void visit(ArrayList<String> interfaces, HashSet<String> annotations) {
+    public void visit(ArrayList<String> interfaces, Set<AnnotationInfo> annotations) {
         this.visited = true;
         this.interfaces.addAll(interfaces);
-        this.annotations.addAll(annotations);
+        this.classAnnotations.addAll(annotations);
     }
 
     /** This class was referenced as a superclass of the given subclass. */
@@ -84,7 +85,6 @@ public class ClassInfo {
         return directSuperclass;
     }
 
-
     public List<ClassInfo> directSubclasses() {
         return directSubclasses;
     }
@@ -93,16 +93,14 @@ public class ClassInfo {
         return interfaces;
     }
 
-    @Deprecated
-    public Set<String> annotations() {
-        return annotations;
+    public Set<AnnotationInfo> annotations() {
+        return classAnnotations;
     }
 
     @Override
     public String toString() {
         return name();
     }
-
 
 }
 

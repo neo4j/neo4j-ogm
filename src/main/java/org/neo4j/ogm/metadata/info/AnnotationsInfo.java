@@ -18,7 +18,7 @@ public class AnnotationsInfo {
             if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                 int annotationCount = dataInputStream.readUnsignedShort();
                 for (int m = 0; m < annotationCount; m++) {
-                    AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
+                    AnnotationInfo info = new AnnotationInfo(dataInputStream, constantPool);
                     // todo: maybe register just the annotations we're interested in.
                     classAnnotations.add(info);
                 }

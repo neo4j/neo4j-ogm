@@ -10,6 +10,8 @@ public class AnnotationInfo {
     private String annotationName;
     private Map<String, String> elements = new HashMap<>();
 
+    AnnotationInfo() {}
+
     public String getName() {
         return annotationName;
     }
@@ -39,8 +41,7 @@ public class AnnotationInfo {
         return sb.toString();
     }
 
-    public static AnnotationInfo readAnnotation(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
-        AnnotationInfo info = new AnnotationInfo();
+    public AnnotationInfo(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         String annotationFieldDescriptor = constantPool.lookup(dataInputStream.readUnsignedShort());
         String annotationClassName;
         if (annotationFieldDescriptor.charAt(0) == 'L'
@@ -52,19 +53,18 @@ public class AnnotationInfo {
             // Should not happen
             annotationClassName = annotationFieldDescriptor;
         }
-        info.setName(annotationClassName);
+        setName(annotationClassName);
 
         int numElementValuePairs = dataInputStream.readUnsignedShort();
 
         for (int i = 0; i < numElementValuePairs; i++) {
             String elementName = constantPool.lookup(dataInputStream.readUnsignedShort());
             Object value = readAnnotationElementValue(dataInputStream, constantPool);
-            info.put(elementName, value.toString());
+            put(elementName, value.toString());
         }
-        return info;
     }
 
-    private static Object readAnnotationElementValue(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
+    private Object readAnnotationElementValue(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         int tag = dataInputStream.readUnsignedByte();
         switch (tag) {
             case 'B':
@@ -101,8 +101,5 @@ public class AnnotationInfo {
                 throw new ClassFormatError("Invalid annotation element type tag: 0x" + Integer.toHexString(tag));
         }
     }
-
-
-
 
 }

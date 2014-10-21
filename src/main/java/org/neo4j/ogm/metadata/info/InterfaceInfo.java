@@ -30,4 +30,8 @@ public class InterfaceInfo {
         return interfaceName;
     }
 
+    public String toString() {
+        return name();
+    }
+
 }

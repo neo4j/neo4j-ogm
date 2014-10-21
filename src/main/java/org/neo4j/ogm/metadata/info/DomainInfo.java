@@ -18,9 +18,11 @@ public class DomainInfo {
 
     private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
+    private final HashMap<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
+    private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
-    private final HashMap<String, ArrayList<ClassInfo>> annotationToClasses = new HashMap<>();
-    private final HashMap<InterfaceInfo, ArrayList<ClassInfo>> interfaceToClasses = new HashMap<>();
+    private ConstantPool constantPool;
+
 
     private static void buildTree(ClassInfo classInfo) {
         for (ClassInfo subclass : classInfo.directSubclasses()) {
@@ -73,11 +75,11 @@ public class DomainInfo {
         // A <-[:has_annotation]- T
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             for (AnnotationInfo annotation : classInfo.annotations()) {
-                ArrayList<ClassInfo> classList = annotationToClasses.get(annotation.getName());
-                if (classList == null) {
-                    annotationToClasses.put(annotation.getName(), classList = new ArrayList<>());
+                ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
+                if (classInfoList == null) {
+                    annotationNameToClassInfo.put(annotation.getName(), classInfoList = new ArrayList<>());
                 }
-                classList.add(classInfo);
+                classInfoList.add(classInfo);
             }
         }
 
@@ -96,17 +98,17 @@ public class DomainInfo {
                 }
             }
             for (InterfaceInfo interfaceInfo : interfaceAndSuperinterfaces) {
-                ArrayList<ClassInfo> classList = interfaceToClasses.get(interfaceInfo);
-                if (classList == null) {
-                    interfaceToClasses.put(interfaceInfo, classList = new ArrayList<>());
+                ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(interfaceInfo.name());
+                if (classInfoList == null) {
+                    interfaceNameToClassInfo.put(interfaceInfo.name(), classInfoList = new ArrayList<>());
                 }
-                classList.add(classInfo);
+                classInfoList.add(classInfo);
             }
         }
 
         // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
-        for (InterfaceInfo interfaceInfo : interfaceToClasses.keySet()) {
-            ArrayList<ClassInfo> classes = interfaceToClasses.get(interfaceInfo);
+        for (String interfaceName : interfaceNameToClassInfo.keySet()) {
+            ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
             HashSet<ClassInfo> subClasses = new HashSet<>(classes);
             for (ClassInfo classInfo : classes) {
                 if (classInfo != null) {
@@ -115,103 +117,18 @@ public class DomainInfo {
                     }
                 }
             }
-            interfaceToClasses.put(interfaceInfo, new ArrayList<>(subClasses));
+            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
         }
 
         // TODO: transitive annotations
         // if a superclass type, method or field is annotated, inject the annotation to subclasses
         // explicitly. Saves having to walk through type hierarchies to find an annotation.
-        // must also include annotated interfaces.
+        // must also include annotated interfaces.  WHICH WE DONT DO YET.
 
-    }
-
-    private AnnotationInfo readAnnotation(final DataInputStream dataInputStream, Object[] constantPool) throws IOException {
-        AnnotationInfo info = new AnnotationInfo();
-        String annotationFieldDescriptor = lookup(dataInputStream, constantPool);
-        String annotationClassName;
-        if (annotationFieldDescriptor.charAt(0) == 'L'
-                && annotationFieldDescriptor.charAt(annotationFieldDescriptor.length() - 1) == ';') {
-            // Lcom/xyz/Annotation; -> com.xyz.Annotation
-            annotationClassName = annotationFieldDescriptor.substring(1,
-                    annotationFieldDescriptor.length() - 1).replace('/', '.');
-        } else {
-            // Should not happen
-            annotationClassName = annotationFieldDescriptor;
-        }
-        info.setName(annotationClassName);
-
-        int numElementValuePairs = dataInputStream.readUnsignedShort();
-
-        for (int i = 0; i < numElementValuePairs; i++) {
-            String elementName = lookup(dataInputStream, constantPool);
-            //dataInputStream.skipBytes(2); // element_name_index
-            //System.out.println("\t\t" + elementName);
-            Object value = readAnnotationElementValue(dataInputStream, constantPool);
-            info.put(elementName, value.toString());
-        }
-        return info;//annotationClassName;
-    }
-
-    private Object readAnnotationElementValue(final DataInputStream dataInputStream, Object[] constantPool) throws IOException {
-        int tag = dataInputStream.readUnsignedByte();
-        switch (tag) {
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'F':
-            case 'I':
-            case 'J':
-            case 'S':
-            case 'Z':
-            case 's':
-                // const_value_index
-                //dataInputStream.skipBytes(2);
-                //break;
-                return lookup(dataInputStream, constantPool);
-            case 'e':
-                // enum_const_value
-                dataInputStream.skipBytes(4);
-                //break;
-                return null;
-            case 'c':
-                // class_info_index
-                //dataInputStream.skipBytes(2);
-                //break;
-                return lookup(dataInputStream, constantPool);
-            case '@':
-                // Complex (nested) annotation
-                return readAnnotation(dataInputStream, constantPool);
-                //break;
-                //return null;
-            case '[':
-                // array_value
-                final int count = dataInputStream.readUnsignedShort();
-                // create an object[] here...
-                for (int l = 0; l < count; ++l) {
-                    // Nested annotation element value
-                    readAnnotationElementValue(dataInputStream, constantPool);
-                }
-                //break;
-                return null;
-            default:
-                throw new ClassFormatError("Invalid annotation element type tag: 0x" + Integer.toHexString(tag));
-        }
     }
 
     /**
-     * reads the next entry on the data input stream as an index into the constant pool.
-     * then looks up the object from the constant pool using the index.
-     */
-    private static String lookup(DataInputStream dataInputStream, Object[] constantPool) throws IOException {
-        int constantPoolIdx = dataInputStream.readUnsignedShort();
-        Object constantPoolObj = constantPool[constantPoolIdx];
-        return (constantPoolObj instanceof Integer
-                ? (String) constantPool[(Integer) constantPoolObj]
-                : (String) constantPoolObj);
-    }
-
-    /**
-     * Directly examine contents of class file binary header.
+     * parses class file binary header.
      */
     private void readClassInfo(final InputStream inputStream) throws IOException {
 
@@ -229,12 +146,14 @@ public class DomainInfo {
         int cpCount = dataInputStream.readUnsignedShort();
 
         // Constant pool
-        Object[] constantPool = new Object[cpCount];
+        Object[] constantPoolBackingArray = new Object[cpCount];
+        //constantPool = new ConstantPool(new Object[cpCount]);
+
         for (int i = 1; i < cpCount; ++i) {
             final int tag = dataInputStream.readUnsignedByte();
             switch (tag) {
                 case 1: // Modified UTF8
-                    constantPool[i] = dataInputStream.readUTF();
+                    constantPoolBackingArray[i] = dataInputStream.readUTF();
                     break;
                 case 3: // int
                 case 4: // float
@@ -248,14 +167,14 @@ public class DomainInfo {
                 case 7: // Class
                 case 8: // String
                     // Forward or backward reference a Modified UTF8 entry
-                    constantPool[i] = dataInputStream.readUnsignedShort();
+                    constantPoolBackingArray[i] = dataInputStream.readUnsignedShort();
                     break;
                 case 9: // field ref
                 case 10: // method ref
                 case 11: // interface ref
                 case 12: // name and type
-                    dataInputStream.skipBytes(2); // two shorts
-                    constantPool[i]=dataInputStream.readUnsignedShort();
+                    dataInputStream.skipBytes(2); // reference to owning class
+                    constantPoolBackingArray[i]=dataInputStream.readUnsignedShort();
                     break;
                 case 15: // method handle
                     dataInputStream.skipBytes(3);
@@ -271,12 +190,14 @@ public class DomainInfo {
             }
         }
 
+        constantPool = new ConstantPool(constantPoolBackingArray);
+
         // Access flags
         int flags = dataInputStream.readUnsignedShort();
         boolean isInterface = (flags & 0x0200) != 0;
 
-        String className = lookup(dataInputStream, constantPool).replace('/', '.');
-        String superclassName = lookup(dataInputStream, constantPool).replace('/', '.');
+        String className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
+        String superclassName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
 
         // TODO : should be a field info?
         Map<String, ObjectAnnotations> fieldInfoMap = new HashMap<>();
@@ -289,7 +210,7 @@ public class DomainInfo {
 
         int interfaceCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < interfaceCount; i++) {
-            String interfaceName = lookup(dataInputStream, constantPool).replace('/', '.');
+            String interfaceName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
             interfaces.add(new InterfaceInfo(interfaceName));
         }
 
@@ -297,18 +218,19 @@ public class DomainInfo {
         int fieldCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < fieldCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
-            String fieldName = lookup(dataInputStream, constantPool); // name_index
+            String fieldName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
             dataInputStream.skipBytes(2); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
 
             for (int j = 0; j < attributesCount; j++) {
                 ObjectAnnotations fieldAnnotations = new ObjectAnnotations();
-                String attributeName = lookup(dataInputStream, constantPool);
+                String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
                 if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                     int annotationCount = dataInputStream.readUnsignedShort();
                     for (int m = 0; m < annotationCount; m++) {
-                        AnnotationInfo info = readAnnotation(dataInputStream, constantPool);
+                        AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
+                        // todo: maybe register just the annotations we're interested in.
                         fieldAnnotations.put(info.getName(), info);
                     }
                 }
@@ -323,19 +245,20 @@ public class DomainInfo {
         int methodCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < methodCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
-            String methodName = lookup(dataInputStream, constantPool); // name_index
+            String methodName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
             dataInputStream.skipBytes(2); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
 
             for (int j = 0; j < attributesCount; j++) {
                 ObjectAnnotations methodAnnotations = new ObjectAnnotations();
-                String attributeName = lookup(dataInputStream, constantPool);
+
+                String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
                 if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                     int annotationCount = dataInputStream.readUnsignedShort();
                     for (int m = 0; m < annotationCount; m++) {
-                        AnnotationInfo info = readAnnotation(dataInputStream, constantPool);
-                        //System.out.println("method annotation: " + info);
+                        AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
+                        // todo: maybe register just the annotations we're interested in.
                         methodAnnotations.put(info.getName(), info);
                     }
                 }
@@ -351,12 +274,13 @@ public class DomainInfo {
 
         int attributesCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
-            String attributeName = lookup(dataInputStream, constantPool);
+            String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
             int attributeLength = dataInputStream.readInt();
             if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                 int annotationCount = dataInputStream.readUnsignedShort();
                 for (int m = 0; m < annotationCount; m++) {
-                    AnnotationInfo info = readAnnotation(dataInputStream, constantPool);
+                    AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
+                    // todo: maybe register just the annotations we're interested in.
                     classAnnotations.add(info);
                 }
             }
@@ -486,8 +410,8 @@ public class DomainInfo {
         classPaths.clear();
         classNameToClassInfo.clear();
         interfaceNameToInterfaceInfo.clear();
-        annotationToClasses.clear();
-        interfaceToClasses.clear();
+        annotationNameToClassInfo.clear();
+        interfaceNameToClassInfo.clear();
 
         for (String packageName : packages) {
             String path = packageName.replaceAll("\\.", File.separator);
@@ -536,7 +460,7 @@ public class DomainInfo {
     }
 
     public ClassInfo getNamedClassWithAnnotation(String annotation, String className) {
-        for (ClassInfo classInfo : annotationToClasses.get(annotation)) {
+        for (ClassInfo classInfo : annotationNameToClassInfo.get(annotation)) {
             if (classInfo.name().equals(className)) {
                 return classInfo;
             }
@@ -545,6 +469,6 @@ public class DomainInfo {
     }
 
     public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
-        return annotationToClasses.get(annotation);
+        return annotationNameToClassInfo.get(annotation);
     }
 }

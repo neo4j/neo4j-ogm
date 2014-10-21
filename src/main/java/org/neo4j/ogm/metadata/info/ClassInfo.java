@@ -34,18 +34,17 @@ public class ClassInfo {
     private ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
     private HashSet<InterfaceInfo> interfaces = new HashSet<>();
 
-    // TODO: reify
-    private Map<String,ObjectAnnotations> fieldInfos = new HashMap<>();
-    private Map<String, ObjectAnnotations> methodInfos = new HashMap<>();
+    private FieldsInfo fieldsInfo = new FieldsInfo();
+    private MethodsInfo methodsInfo= new MethodsInfo();
 
     private Set<AnnotationInfo> classAnnotations = new HashSet<>();
 
-    public ClassInfo(String name, Set<InterfaceInfo> interfaces, Set<AnnotationInfo> annotations, Map<String, ObjectAnnotations> fieldAnnotations, Map<String, ObjectAnnotations> methodAnnotations) {
+    public ClassInfo(String name, Set<InterfaceInfo> interfaces, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
         this.name = name;
-        this.fieldInfos = fieldAnnotations;
-        this.methodInfos = methodAnnotations;
+        this.fieldsInfo = fieldsInfo;
+        this.methodsInfo = methodsInfo;
 
-        this.visit(interfaces, annotations);
+        this.visit(interfaces, annotationsInfo.getAnnotationsInfo());
     }
 
     /**

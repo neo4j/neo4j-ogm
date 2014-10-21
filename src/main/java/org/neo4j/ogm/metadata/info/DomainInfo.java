@@ -142,55 +142,7 @@ public class DomainInfo {
         dataInputStream.readUnsignedShort();    //minor version
         dataInputStream.readUnsignedShort();    // major version
 
-        // Constant pool count (1-indexed, zeroth entry not used)
-        int cpCount = dataInputStream.readUnsignedShort();
-
-        // Constant pool
-        Object[] constantPoolBackingArray = new Object[cpCount];
-        //constantPool = new ConstantPool(new Object[cpCount]);
-
-        for (int i = 1; i < cpCount; ++i) {
-            final int tag = dataInputStream.readUnsignedByte();
-            switch (tag) {
-                case 1: // Modified UTF8
-                    constantPoolBackingArray[i] = dataInputStream.readUTF();
-                    break;
-                case 3: // int
-                case 4: // float
-                    dataInputStream.skipBytes(4);
-                    break;
-                case 5: // long
-                case 6: // double
-                    dataInputStream.skipBytes(8);
-                    i++; // double slot
-                    break;
-                case 7: // Class
-                case 8: // String
-                    // Forward or backward reference a Modified UTF8 entry
-                    constantPoolBackingArray[i] = dataInputStream.readUnsignedShort();
-                    break;
-                case 9: // field ref
-                case 10: // method ref
-                case 11: // interface ref
-                case 12: // name and type
-                    dataInputStream.skipBytes(2); // reference to owning class
-                    constantPoolBackingArray[i]=dataInputStream.readUnsignedShort();
-                    break;
-                case 15: // method handle
-                    dataInputStream.skipBytes(3);
-                    break;
-                case 16: // method type
-                    dataInputStream.skipBytes(2);
-                    break;
-                case 18: // invoke dynamic
-                    dataInputStream.skipBytes(4);
-                    break;
-                default:
-                    throw new ClassFormatError("Unknown tag value for constant pool entry: " + tag);
-            }
-        }
-
-        constantPool = new ConstantPool(constantPoolBackingArray);
+        constantPool = new ConstantPool(dataInputStream);
 
         // Access flags
         int flags = dataInputStream.readUnsignedShort();
@@ -198,12 +150,6 @@ public class DomainInfo {
 
         String className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
         String superclassName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-
-        // TODO : should be a field info?
-        Map<String, ObjectAnnotations> fieldInfoMap = new HashMap<>();
-
-        // TODO : should be a method info?
-        Map<String, ObjectAnnotations> methodInfoMap = new HashMap<>();
 
         // get the interface names implemented by this class
         Set<InterfaceInfo> interfaces = new HashSet<>();
@@ -215,79 +161,9 @@ public class DomainInfo {
         }
 
         // get the field information for this class
-        int fieldCount = dataInputStream.readUnsignedShort();
-        for (int i = 0; i < fieldCount; i++) {
-            dataInputStream.skipBytes(2); // access_flags
-            String fieldName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
-            dataInputStream.skipBytes(2); // descriptor_index
-            int attributesCount = dataInputStream.readUnsignedShort();
-
-            for (int j = 0; j < attributesCount; j++) {
-                ObjectAnnotations fieldAnnotations = new ObjectAnnotations();
-                String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
-                int attributeLength = dataInputStream.readInt();
-                if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-                    int annotationCount = dataInputStream.readUnsignedShort();
-                    for (int m = 0; m < annotationCount; m++) {
-                        AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
-                        // todo: maybe register just the annotations we're interested in.
-                        fieldAnnotations.put(info.getName(), info);
-                    }
-                }
-                else {
-                    dataInputStream.skipBytes(attributeLength);
-                }
-                fieldInfoMap.put(fieldName, fieldAnnotations);
-            }
-        }
-
-        // get method information for this class
-        int methodCount = dataInputStream.readUnsignedShort();
-        for (int i = 0; i < methodCount; i++) {
-            dataInputStream.skipBytes(2); // access_flags
-            String methodName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
-            dataInputStream.skipBytes(2); // descriptor_index
-            int attributesCount = dataInputStream.readUnsignedShort();
-
-            for (int j = 0; j < attributesCount; j++) {
-                ObjectAnnotations methodAnnotations = new ObjectAnnotations();
-
-                String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
-                int attributeLength = dataInputStream.readInt();
-                if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-                    int annotationCount = dataInputStream.readUnsignedShort();
-                    for (int m = 0; m < annotationCount; m++) {
-                        AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
-                        // todo: maybe register just the annotations we're interested in.
-                        methodAnnotations.put(info.getName(), info);
-                    }
-                }
-                else {
-                    dataInputStream.skipBytes(attributeLength);
-                }
-                methodInfoMap.put(methodName, methodAnnotations);
-            }
-        }
-
-        // class annotations
-        Set<AnnotationInfo> classAnnotations = new HashSet<>();
-
-        int attributesCount = dataInputStream.readUnsignedShort();
-        for (int i = 0; i < attributesCount; i++) {
-            String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
-            int attributeLength = dataInputStream.readInt();
-            if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-                int annotationCount = dataInputStream.readUnsignedShort();
-                for (int m = 0; m < annotationCount; m++) {
-                    AnnotationInfo info = AnnotationInfo.readAnnotation(dataInputStream, constantPool);
-                    // todo: maybe register just the annotations we're interested in.
-                    classAnnotations.add(info);
-                }
-            }
-            else {
-                dataInputStream.skipBytes(attributeLength);
-            }
-        }
+        FieldsInfo fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
+        MethodsInfo methodsInfo = new MethodsInfo(dataInputStream, constantPool);
+        AnnotationsInfo classAnnotations = new AnnotationsInfo(dataInputStream, constantPool);
 
         // split reader here, and return the interfaces and annotations ?
         // this class IS AN INTERFACE
@@ -304,12 +180,13 @@ public class DomainInfo {
             // its a class ref
             ClassInfo thisClassInfo = classNameToClassInfo.get(className);
             if (thisClassInfo == null) {
-                thisClassInfo = new ClassInfo(className, interfaces, classAnnotations, fieldInfoMap, methodInfoMap);
+                thisClassInfo = new ClassInfo(className, interfaces, classAnnotations, fieldsInfo, methodsInfo);
                 classNameToClassInfo.put(className, thisClassInfo);
             } else if (thisClassInfo.visited()) {
                 return;
             } else {
-                thisClassInfo.visit(interfaces, classAnnotations);
+                // todo: class info should have annotationsInfo, which should be a map.
+                thisClassInfo.visit(interfaces, classAnnotations.getAnnotationsInfo());
             }
 
             ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);

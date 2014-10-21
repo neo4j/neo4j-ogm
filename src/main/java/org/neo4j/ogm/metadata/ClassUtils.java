@@ -16,7 +16,15 @@ public abstract class ClassUtils {
         return "";
     }
 
-    public static  Class unbox(Class clazz) {
+    /**
+     * Attempts to resolve and return the "unboxed" primitive equivalent of the given type.  If the given class is an array then
+     * the result is the class of the corresponding primitive array.
+     *
+     * @param clazz The {@link Class} to unbox
+     * @return A {@link Class} representation of the "unboxed" primitive equivalent of the given class or the class itself if it
+     *         cannot be unboxed, never <code>null</code>
+     */
+    public static Class<?> unbox(Class<?> clazz) {
         if (clazz == Void.class) {
             return void.class;
         }

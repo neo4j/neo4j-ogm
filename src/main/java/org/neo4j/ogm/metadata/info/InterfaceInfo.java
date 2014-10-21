@@ -34,4 +34,20 @@ public class InterfaceInfo {
         return name();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InterfaceInfo that = (InterfaceInfo) o;
+
+        if (!interfaceName.equals(that.interfaceName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return interfaceName.hashCode();
+    }
 }

@@ -26,8 +26,6 @@ import java.util.*;
  * The inverse mapping, LabelInfo, maintains mappings from Neo4j labels to specific
  * Java Types.
  *
- * ClassInfo objects are intended to be retrieved from the Classify object, which is
- * the core class of the OGM metadata.
  */
 public class ClassInfo {
 
@@ -85,14 +83,14 @@ public class ClassInfo {
 
         this.hydrated = true;
         this.interfaces.addAll(interfaces);
-        this.annotationsInfo.list().addAll(annotationsInfo.list());
+        this.annotationsInfo = annotationsInfo;
     }
 
     /** A class that was previously only seen as a superclass of another class can now be fully hydrated. */
     public void hydrate(ClassInfo classInfo) {
         this.hydrated = true;
         this.interfaces.addAll(classInfo.interfaces());
-        this.annotationsInfo.list().addAll(classInfo.annotations());
+        this.annotationsInfo.addAll(classInfo.annotations());
     }
 
     /** This class was referenced as a superclass of the given subclass. */
@@ -139,7 +137,9 @@ public class ClassInfo {
         return isInterface;
     }
 
-
+    public AnnotationsInfo annotationsInfo() {
+        return annotationsInfo;
+    }
     public String superclassName() {
         return directSuperclassName;
     }

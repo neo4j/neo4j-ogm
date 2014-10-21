@@ -6,11 +6,6 @@ import org.neo4j.ogm.metadata.MappingException;
 import java.io.*;
 import java.util.*;
 
-/**
- * A Type Hierarchy (including Interfaces) is actually a DAG. Maybe we should be using Neo? !!
- *
- * This class needs a lot of tidying up
- */
 public class DomainInfo implements ClassInfoProcessor {
 
     private List<String> classPaths = new ArrayList<>();
@@ -93,26 +88,6 @@ public class DomainInfo implements ClassInfoProcessor {
         if (classNameToClassInfo.isEmpty() && interfaceNameToInterfaceInfo.isEmpty()) {
             return;
         }
-
-//        /*
-//         * get the root classes in the type hierarchy.
-//         */
-//        ArrayList<ClassInfo> roots = new ArrayList<>();
-//        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-//            if (classInfo.directSuperclass() == null) {
-//                roots.add(classInfo);
-//            }
-//        }
-//
-//        // R<-[:extends]-T*
-//        LinkedList<ClassInfo> nodes = new LinkedList<>();
-//        nodes.addAll(roots);
-//        while (!nodes.isEmpty()) {
-//            ClassInfo head = nodes.removeFirst();
-//            for (ClassInfo subclass : head.directSubclasses()) {
-//                nodes.add(subclass);
-//            }
-//        }
 
         buildAnnotationNameToClassInfoMap();
         buildInterfaceHierarchy();

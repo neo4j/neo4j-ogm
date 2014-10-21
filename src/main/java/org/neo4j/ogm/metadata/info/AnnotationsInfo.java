@@ -3,12 +3,12 @@ package org.neo4j.ogm.metadata.info;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AnnotationsInfo {
 
-    private Set<AnnotationInfo> classAnnotations = new HashSet<>();
+    private Map<String, AnnotationInfo> classAnnotations = new HashMap<>();
 
     AnnotationsInfo() {}
 
@@ -22,7 +22,7 @@ public class AnnotationsInfo {
                 for (int m = 0; m < annotationCount; m++) {
                     AnnotationInfo info = new AnnotationInfo(dataInputStream, constantPool);
                     // todo: maybe register just the annotations we're interested in.
-                    classAnnotations.add(info);
+                    classAnnotations.put(info.getName(), info);
                 }
             }
             else {
@@ -32,7 +32,20 @@ public class AnnotationsInfo {
     }
 
     public Collection<AnnotationInfo> list() {
-        return classAnnotations;
+        return classAnnotations.values();
     }
 
+    public AnnotationInfo get(String annotationName) {
+        return classAnnotations.get(annotationName);
+    }
+
+    public void add(AnnotationInfo annotationInfo) {
+        classAnnotations.put(annotationInfo.getName(), annotationInfo);
+    }
+
+    public void addAll(Collection<AnnotationInfo> annotationInfos) {
+        for (AnnotationInfo info : annotationInfos) {
+            add(info);
+        }
+    }
 }

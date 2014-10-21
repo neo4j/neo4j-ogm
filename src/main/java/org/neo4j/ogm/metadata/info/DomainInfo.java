@@ -20,7 +20,7 @@ public class DomainInfo {
     private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
 
     private final HashMap<String, ArrayList<ClassInfo>> annotationToClasses = new HashMap<>();
-    private final HashMap<String, ArrayList<ClassInfo>> interfaceToClasses = new HashMap<>();
+    private final HashMap<InterfaceInfo, ArrayList<ClassInfo>> interfaceToClasses = new HashMap<>();
 
     private static void buildTree(ClassInfo classInfo) {
         for (ClassInfo subclass : classInfo.directSubclasses()) {
@@ -28,14 +28,14 @@ public class DomainInfo {
         }
     }
 
+    // todo - should be part of interface info functionality
     private void constructInterfaceHierarcy(InterfaceInfo interfaceInfo) {
-        if (interfaceInfo.allSuperInterfaces.isEmpty() && !interfaceInfo.superInterfaces.isEmpty()) {
-            interfaceInfo.allSuperInterfaces.addAll(interfaceInfo.superInterfaces);
-            for (String interfaceName : interfaceInfo.superInterfaces) {
-                InterfaceInfo superinterfaceInfo = interfaceNameToInterfaceInfo.get(interfaceName);
+        if (interfaceInfo.allSuperInterfaces().isEmpty() && !interfaceInfo.superInterfaces().isEmpty()) {
+            interfaceInfo.allSuperInterfaces().addAll(interfaceInfo.superInterfaces());
+            for (InterfaceInfo superinterfaceInfo : interfaceInfo.superInterfaces()) {
                 if (superinterfaceInfo != null) {
                     constructInterfaceHierarcy(superinterfaceInfo);
-                    interfaceInfo.allSuperInterfaces.addAll(superinterfaceInfo.allSuperInterfaces);
+                    interfaceInfo.allSuperInterfaces().addAll(superinterfaceInfo.allSuperInterfaces());
                 }
             }
         }
@@ -88,26 +88,25 @@ public class DomainInfo {
 
         // T -[:implements]-> I
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            HashSet<String> interfaceAndSuperinterfaces = new HashSet<>();
-            for (String interfaceName : classInfo.interfaces()) {
-                interfaceAndSuperinterfaces.add(interfaceName);
-                InterfaceInfo interfaceInfo = interfaceNameToInterfaceInfo.get(interfaceName);
+            HashSet<InterfaceInfo> interfaceAndSuperinterfaces = new HashSet<>();
+            for (InterfaceInfo interfaceInfo : classInfo.interfaces()) {
+                interfaceAndSuperinterfaces.add(interfaceInfo);
                 if (interfaceInfo != null) {
-                    interfaceAndSuperinterfaces.addAll(interfaceInfo.allSuperInterfaces);
+                    interfaceAndSuperinterfaces.addAll(interfaceInfo.allSuperInterfaces());
                 }
             }
-            for (String interfaceName : interfaceAndSuperinterfaces) {
-                ArrayList<ClassInfo> classList = interfaceToClasses.get(interfaceName);
+            for (InterfaceInfo interfaceInfo : interfaceAndSuperinterfaces) {
+                ArrayList<ClassInfo> classList = interfaceToClasses.get(interfaceInfo);
                 if (classList == null) {
-                    interfaceToClasses.put(interfaceName, classList = new ArrayList<>());
+                    interfaceToClasses.put(interfaceInfo, classList = new ArrayList<>());
                 }
                 classList.add(classInfo);
             }
         }
 
         // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
-        for (String interfaceName : interfaceToClasses.keySet()) {
-            ArrayList<ClassInfo> classes = interfaceToClasses.get(interfaceName);
+        for (InterfaceInfo interfaceInfo : interfaceToClasses.keySet()) {
+            ArrayList<ClassInfo> classes = interfaceToClasses.get(interfaceInfo);
             HashSet<ClassInfo> subClasses = new HashSet<>(classes);
             for (ClassInfo classInfo : classes) {
                 if (classInfo != null) {
@@ -116,7 +115,7 @@ public class DomainInfo {
                     }
                 }
             }
-            interfaceToClasses.put(interfaceName, new ArrayList<>(subClasses));
+            interfaceToClasses.put(interfaceInfo, new ArrayList<>(subClasses));
         }
 
         // TODO: transitive annotations
@@ -279,23 +278,22 @@ public class DomainInfo {
         String className = lookup(dataInputStream, constantPool).replace('/', '.');
         String superclassName = lookup(dataInputStream, constantPool).replace('/', '.');
 
-        //System.out.println("class: " + className);
-
         // TODO : should be a field info?
         Map<String, ObjectAnnotations> fieldInfoMap = new HashMap<>();
 
         // TODO : should be a method info?
         Map<String, ObjectAnnotations> methodInfoMap = new HashMap<>();
 
-        // Interfaces
-        int interfaceCount = dataInputStream.readUnsignedShort();
+        // get the interface names implemented by this class
+        Set<InterfaceInfo> interfaces = new HashSet<>();
 
-        ArrayList<String> interfaces = new ArrayList<>();
+        int interfaceCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < interfaceCount; i++) {
-            interfaces.add(lookup(dataInputStream, constantPool).replace('/', '.'));
+            String interfaceName = lookup(dataInputStream, constantPool).replace('/', '.');
+            interfaces.add(new InterfaceInfo(interfaceName));
         }
 
-        // Fields
+        // get the field information for this class
         int fieldCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < fieldCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
@@ -321,12 +319,11 @@ public class DomainInfo {
             }
         }
 
-        // Methods
+        // get method information for this class
         int methodCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < methodCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
             String methodName = lookup(dataInputStream, constantPool); // name_index
-            //System.out.println("\tmethod: " + methodName);
             dataInputStream.skipBytes(2); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
 
@@ -350,7 +347,7 @@ public class DomainInfo {
         }
 
         // class annotations
-        Set<AnnotationInfo> classAnnotations = new HashSet<AnnotationInfo>();
+        Set<AnnotationInfo> classAnnotations = new HashSet<>();
 
         int attributesCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
@@ -369,12 +366,12 @@ public class DomainInfo {
         }
 
         // split reader here, and return the interfaces and annotations ?
-
+        // this class IS AN INTERFACE
         if (isInterface) {
             // its an interface ref
             InterfaceInfo thisInterfaceInfo = interfaceNameToInterfaceInfo.get(className);
             if (thisInterfaceInfo == null) {
-                interfaceNameToInterfaceInfo.put(className, new InterfaceInfo(interfaces));
+                interfaceNameToInterfaceInfo.put(className, new InterfaceInfo(className));
             } else {
                 return;
             }

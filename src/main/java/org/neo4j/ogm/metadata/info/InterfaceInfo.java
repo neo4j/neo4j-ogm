@@ -1,18 +1,33 @@
 package org.neo4j.ogm.metadata.info;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Direct and ancestral interfaces of a given interface.
  */
 public class InterfaceInfo {
-    ArrayList<String> superInterfaces = new ArrayList<>();
 
-    HashSet<String> allSuperInterfaces = new HashSet<>();
+    private String interfaceName;
+    private Set<InterfaceInfo> superInterfaces = new HashSet<>();
 
-    public InterfaceInfo(ArrayList<String> superInterfaces) {
-        this.superInterfaces.addAll(superInterfaces);
+    // what's this for?
+    private Set<InterfaceInfo> allSuperInterfaces = new HashSet<>();
+
+    public InterfaceInfo(String name) {
+        this.interfaceName = name;
+    }
+
+    public Set<InterfaceInfo> superInterfaces() {
+        return superInterfaces;
+    }
+
+    public Set<InterfaceInfo> allSuperInterfaces() {
+        return allSuperInterfaces;
+    }
+
+    public String name() {
+        return interfaceName;
     }
 
 }

@@ -29,20 +29,21 @@ public class ClassInfo {
 
     private String name;
     private boolean visited;
+
     private ClassInfo directSuperclass;
     private ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
-    private HashSet<String> interfaces = new HashSet<>();
+    private HashSet<InterfaceInfo> interfaces = new HashSet<>();
 
-    private Map<String,ObjectAnnotations> fieldInfo = new HashMap<>();
-    private Map<String, ObjectAnnotations> methodInfo = new HashMap<>();
-
+    // TODO: reify
+    private Map<String,ObjectAnnotations> fieldInfos = new HashMap<>();
+    private Map<String, ObjectAnnotations> methodInfos = new HashMap<>();
 
     private Set<AnnotationInfo> classAnnotations = new HashSet<>();
 
-    public ClassInfo(String name, ArrayList<String> interfaces, Set<AnnotationInfo> annotations, Map<String, ObjectAnnotations> fieldAnnotations, Map<String, ObjectAnnotations> methodAnnotations) {
+    public ClassInfo(String name, Set<InterfaceInfo> interfaces, Set<AnnotationInfo> annotations, Map<String, ObjectAnnotations> fieldAnnotations, Map<String, ObjectAnnotations> methodAnnotations) {
         this.name = name;
-        this.fieldInfo = fieldAnnotations;
-        this.methodInfo = methodAnnotations;
+        this.fieldInfos = fieldAnnotations;
+        this.methodInfos = methodAnnotations;
 
         this.visit(interfaces, annotations);
     }
@@ -51,7 +52,7 @@ public class ClassInfo {
      * If this method is called by another class, then it was previously cited as a superclass, and now has been
      * itself visited on the classpath.
      */
-    public void visit(ArrayList<String> interfaces, Set<AnnotationInfo> annotations) {
+    public void visit(Set<InterfaceInfo> interfaces, Set<AnnotationInfo> annotations) {
         this.visited = true;
         this.interfaces.addAll(interfaces);
         this.classAnnotations.addAll(annotations);
@@ -89,7 +90,7 @@ public class ClassInfo {
         return directSubclasses;
     }
 
-    public Set<String> interfaces() {
+    public Set<InterfaceInfo> interfaces() {
         return interfaces;
     }
 

@@ -10,6 +10,8 @@ public class InterfacesInfo {
 
     private Map<String, InterfaceInfo> interfaceMap = new HashMap<>();
 
+    InterfacesInfo() {}
+
     public InterfacesInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         int interfaceCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < interfaceCount; i++) {

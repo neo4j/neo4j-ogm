@@ -61,7 +61,7 @@ public class ClassifyTest {
     public void testUserSuppliedAnnotationValue() throws Exception {
         classify.load("org.neo4j.ogm.mapper.domain.annotated");
         ClassInfo classInfo = classify.getNamedClassWithAnnotation("org.neo4j.ogm.annotation.Label", "org.neo4j.ogm.mapper.domain.annotated.UserActivity");
-        Class clazz=Class.forName(classInfo.toString());
+        Class clazz=Class.forName(classInfo.name());
         assertTrue(clazz.isAnnotationPresent(Label.class));
         Label label = (Label) clazz.getAnnotation(Label.class);
         assertEquals("Activity", label.name());
@@ -71,7 +71,7 @@ public class ClassifyTest {
     public void testDefaultAnnotationValue() throws Exception {
         classify.load("org.neo4j.ogm.mapper.domain.annotated");
         ClassInfo classInfo = classify.getNamedClassWithAnnotation("org.neo4j.ogm.annotation.Label", "org.neo4j.ogm.mapper.domain.annotated.User");
-        Class clazz=Class.forName(classInfo.toString());
+        Class clazz=Class.forName(classInfo.name());
         assertTrue(clazz.isAnnotationPresent(Label.class));
         Label label = (Label) clazz.getAnnotation(Label.class);
         assertEquals("", label.name());   // note: the default value ("") will be co-erced by the ogm to the class name.

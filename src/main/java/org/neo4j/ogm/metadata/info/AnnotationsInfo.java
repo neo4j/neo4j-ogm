@@ -10,6 +10,8 @@ public class AnnotationsInfo {
 
     private Set<AnnotationInfo> classAnnotations = new HashSet<>();
 
+    AnnotationsInfo() {}
+
     public AnnotationsInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         int attributesCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {

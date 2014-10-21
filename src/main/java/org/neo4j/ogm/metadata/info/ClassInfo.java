@@ -39,19 +39,19 @@ public class ClassInfo {
 
     private Set<AnnotationInfo> classAnnotations = new HashSet<>();
 
-    public ClassInfo(String name, Set<InterfaceInfo> interfaces, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
+    public ClassInfo(String name, Collection<InterfaceInfo> interfaces, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
         this.name = name;
         this.fieldsInfo = fieldsInfo;
         this.methodsInfo = methodsInfo;
 
-        this.visit(interfaces, annotationsInfo.getAnnotationsInfo());
+        this.visit(interfaces, annotationsInfo.list());
     }
 
     /**
      * If this method is called by another class, then it was previously cited as a superclass, and now has been
      * itself visited on the classpath.
      */
-    public void visit(Set<InterfaceInfo> interfaces, Set<AnnotationInfo> annotations) {
+    public void visit(Collection<InterfaceInfo> interfaces, Collection<AnnotationInfo> annotations) {
         this.visited = true;
         this.interfaces.addAll(interfaces);
         this.classAnnotations.addAll(annotations);
@@ -102,5 +102,10 @@ public class ClassInfo {
         return name();
     }
 
+//    public void buildTree() {
+//        for (ClassInfo subclass : this.directSubclasses()) {
+//            buildTree(subclass);
+//        }
+//    }
 }
 

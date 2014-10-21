@@ -1,5 +1,9 @@
 package org.neo4j.ogm.metadata;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public abstract class ClassUtils {
 
     public static String primitiveArrayName(Class clazz) {
@@ -73,6 +77,25 @@ public abstract class ClassUtils {
             return boolean[].class;
         }
         return clazz; // not a primitive, can't be unboxed.
+    }
+
+    /**
+     * Get a list of unique elements on the classpath as File objects, preserving order.
+     * Classpath elements that do not exist are not returned.
+     */
+    public static ArrayList<File> getUniqueClasspathElements() {
+        String[] pathElements = System.getProperty("java.class.path").split(File.pathSeparator);
+        HashSet<String> pathElementsSet = new HashSet<>();
+        ArrayList<File> pathFiles = new ArrayList<>();
+        for (String pathElement : pathElements) {
+            if (pathElementsSet.add(pathElement)) {
+                File file = new File(pathElement);
+                if (file.exists()) {
+                    pathFiles.add(file);
+                }
+            }
+        }
+        return pathFiles;
     }
 
 

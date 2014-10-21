@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata.info;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class AnnotationsInfo {
         }
     }
 
-    public Set<AnnotationInfo> getAnnotationsInfo() {
+    public Collection<AnnotationInfo> list() {
         return classAnnotations;
     }
 

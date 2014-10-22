@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.canonical.Mappable;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
@@ -60,6 +61,15 @@ public class SimpleFieldDictionaryTest extends AttributeDictionaryTests {
 
         Field f = fieldDictionary.findField("objectStringArray", stringList, new Mappable());
         assertEquals("objectStringArray", f.getName());
+    }
+
+    @Test
+    public void shouldResolveTypeAttribuesAsGraphPropertiesOrRelationshipTypes() {
+        String resolvedFrame = fieldDictionary.resolveTypeAttribute("frame", Bike.class);
+        assertEquals("The relationship type wasn't resolved as expected", "HAS_FRAME", resolvedFrame);
+
+        String resolvedPrimitive = fieldDictionary.resolveTypeAttribute("id", Bike.class);
+        assertEquals("The property name wasn't resolved as expected", "id", resolvedPrimitive);
     }
 
 }

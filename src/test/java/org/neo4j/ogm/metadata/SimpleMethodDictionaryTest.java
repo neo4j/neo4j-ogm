@@ -2,6 +2,8 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.mapper.domain.bike.Bike;
+import org.neo4j.ogm.mapper.domain.bike.Frame;
 import org.neo4j.ogm.mapper.domain.canonical.Mappable;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
@@ -151,6 +153,15 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setPrimitiveIntArray(int[])", m.toGenericString());
 
+    }
+
+    @Test
+    public void shouldResolveTypeAttribuesAsGraphPropertiesOrRelationshipTypes() {
+        String resolvedFrame = smd.resolveTypeAttribute("frame", Bike.class);
+        assertEquals("The relationship type wasn't resolved as expected", "HAS_FRAME", resolvedFrame);
+
+        String resolvedPrimitive = smd.resolveTypeAttribute("size", Frame.class);
+        assertEquals("The property name wasn't resolved as expected", "size", resolvedPrimitive);
     }
 
     private void testInvokable(Method m, Object... params) {

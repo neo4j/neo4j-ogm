@@ -108,8 +108,8 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
 
     private void mapNestedEntitiesToGraphObjects(CypherBuilder cypherBuilder, Object toPersist, NodeBuilder nodeBuilder) {
         for (String attributeName : attributeDictionary.lookUpCompositeEntityAttributesFromType(toPersist.getClass())) {
-            String relationshipType = attributeDictionary.lookUpRelationshipTypeForAttribute(attributeName);
             Object nestedEntity = entityAccessFactory.forAttributeOfType(attributeName, toPersist.getClass()).readValue(toPersist);
+            String relationshipType = attributeDictionary.lookUpRelationshipTypeForAttribute(attributeName);
             if (nestedEntity instanceof Iterable) {
                 // create a relationship for each of these nested entities
                 for (Object object : (Iterable<?>) nestedEntity) {

@@ -22,4 +22,9 @@ public class AnnotatedFieldDictionary extends FieldDictionary {
         return null;
     }
 
+    @Override
+    public String resolveTypeAttribute(String typeAttributeName, Class<?> owningType) {
+        throw new UnsupportedOperationException("atg hasn't written this method yet");
+    }
+
 }

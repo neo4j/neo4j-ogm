@@ -13,12 +13,11 @@ import java.util.Set;
 
 public class SimpleFieldDictionary extends FieldDictionary implements AttributeDictionary {
 
-
-    @Override
     /*
      * The caller is expected to have already provided the parameter "property" in the expectation
      * that a matching field name will be found.
      */
+    @Override
     protected Field findScalarField(Object instance, Object parameter, String property) throws MappingException {
 
         for (Field field: declaredFieldsOn(instance.getClass())) {
@@ -140,6 +139,7 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
     // "CHANGED_PLACES_WITH"    => "changedPlacesWith"
     //
     // the FieldInfo class should help here at some point, but its not accessible currently
+    @Override
     public String resolveGraphAttribute(String name) {
         StringBuilder sb = new StringBuilder();
         if (name != null && name.length() > 0) {
@@ -168,4 +168,30 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
             return null;
         }
     }
+
+    @Override
+    public String resolveTypeAttribute(String attributeName, Class<?> owningType) {
+        /*
+         * we ABSOLUTELY need the owning type here because:
+         *  - we can't use the value to set instead because it might be null, so can't resolve the class
+         *  - the same attribute name could resolve to different types on different instances
+         *
+         * Also, the caller needs to know whether it's expecting a property name or relationship type or it
+         * doesn't know how to use the resultant String.  Returning something like an Attribute object or a
+         * PersistentProperty would help but this'd be inconsistent with resolveGraphAttribute(String)! :-S
+         */
+        if (attributeName == null || owningType == null) {
+            return null;
+        }
+
+        for (Field field : declaredFieldsOn(owningType)) {
+            if (field.getName().equals(attributeName)) {
+                return ClassUtils.mapsToGraphProperty(field.getType())
+                        ? lookUpPropertyNameForAttribute(attributeName)
+                        : lookUpRelationshipTypeForAttribute(attributeName);
+            }
+        }
+        throw new MappingException("Unable to find field matching attribute: " + attributeName + " on " + owningType);
+    }
+
 }

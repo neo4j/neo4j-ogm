@@ -1,5 +1,6 @@
 package org.neo4j.ogm.strategy.simple;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -173,6 +174,7 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
     // "CHANGED_PLACES_WITH"    => "[get,set]ChangedPlacesWith"
     //
     // the MethodInfo class should help here at some point, but its not accessible currently
+    @Override
     public String resolveGraphAttribute(String name) {
         StringBuilder sb = new StringBuilder();
         if (name != null && name.length() > 0) {
@@ -195,6 +197,26 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String resolveTypeAttribute(String typeAttributeName, Class<?> owningType) {
+        if (typeAttributeName == null || owningType == null) {
+            return null;
+        }
+
+        try {
+            Method getterMethod = owningType.getMethod(
+                    "get" + typeAttributeName.substring(0, 1).toUpperCase() + typeAttributeName.substring(1));
+            if (isGetter(getterMethod)) {
+                return ClassUtils.mapsToGraphProperty(getterMethod.getReturnType())
+                        ? lookUpPropertyNameForAttribute(typeAttributeName)
+                        : lookUpRelationshipTypeForAttribute(typeAttributeName);
+            }
+        } catch (NoSuchMethodException | SecurityException e) {
+            // fall through to mapping exception
+        }
+        throw new MappingException("Unable to find getter method matching attribute: " + typeAttributeName + " on " + owningType);
     }
 
 }

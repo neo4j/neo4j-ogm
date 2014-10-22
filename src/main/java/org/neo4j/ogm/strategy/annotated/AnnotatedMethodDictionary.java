@@ -40,4 +40,10 @@ public class AnnotatedMethodDictionary extends MethodDictionary {
     public String resolveGraphAttribute(String attributeName) {
         return null;
     }
+
+    @Override
+    public String resolveTypeAttribute(String typeAttributeName, Class<?> owningType) {
+        throw new UnsupportedOperationException("atg hasn't written this method yet");
+    }
+
 }

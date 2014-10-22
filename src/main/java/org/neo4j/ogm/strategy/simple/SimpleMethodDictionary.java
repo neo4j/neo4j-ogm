@@ -113,11 +113,11 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
 
         // assumes all getters that don't return values mappable to properties are entities
         for (Method method : typeToPersist.getMethods()) {
-            if (method.getName().startsWith("get") && !Void.class.equals(method.getReturnType()) && method.getParameterTypes().length == 0) {
+            if (isGetter(method)) {
                 if (method.getName().equals("getClass")) {
                     continue;
                 }
-                String attributeName = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
+                String attributeName = resolveAttributeName(method);
                 if (!valueAttributes.contains(attributeName)) {
                     compositeEntityAttributes.add(attributeName);
                 }
@@ -130,15 +130,8 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
     public Set<String> lookUpValueAttributesFromType(Class<?> typeToPersist) {
         Set<String> valueAttributes = new HashSet<>();
         for (Method method : typeToPersist.getMethods()) {
-            // first of all, we only want getter methods
-            if (method.getName().startsWith("get") && !Void.class.equals(method.getReturnType())
-                    && method.getParameterTypes().length == 0) {
-
-                Class<?> returnType = method.getReturnType();
-                if (returnType.isArray() || ClassUtils.unbox(returnType).isPrimitive() || String.class.equals(returnType)) {
-                    String attributeName = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
-                    valueAttributes.add(attributeName);
-                }
+            if (isGetter(method) && ClassUtils.mapsToGraphProperty(method.getReturnType())) {
+                valueAttributes.add(resolveAttributeName(method));
             }
         }
         return valueAttributes;
@@ -156,6 +149,14 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
     public String lookUpPropertyNameForAttribute(String attributeName) {
         // for simple implementations, the attribute name is the same as the graph entity property name
         return attributeName;
+    }
+
+    private static boolean isGetter(Method method) {
+        return method.getName().startsWith("get") && !Void.class.equals(method.getReturnType()) && method.getParameterTypes().length == 0;
+    }
+
+    private static String resolveAttributeName(Method method) {
+        return method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
     }
 
 }

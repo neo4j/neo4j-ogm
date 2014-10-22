@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 public abstract class ClassUtils {
 
-    public static String primitiveArrayName(Class clazz) {
+    public static String primitiveArrayName(Class<?> clazz) {
 
         if (clazz == Integer.class) return "[I";
         if (clazz == Long.class) return "[J";
@@ -106,5 +106,16 @@ public abstract class ClassUtils {
         return pathFiles;
     }
 
+    /**
+     * Determines whether instances of the specified type should be mapped to properties on nodes or relationships in the graph
+     * model or whether these instances represent nodes or relationships in their own right.
+     *
+     * @param fieldType The {@link Class} to check
+     * @return <code>true</code> if instances of the given class should be written to node/relationship properties,
+     *         <code>false</code> if they should themselves be mapped to nodes or relationships
+     */
+    public static boolean mapsToGraphProperty(Class<?> fieldType) {
+        return fieldType.isArray() || String.class.equals(fieldType) || unbox(fieldType).isPrimitive();
+    }
 
 }

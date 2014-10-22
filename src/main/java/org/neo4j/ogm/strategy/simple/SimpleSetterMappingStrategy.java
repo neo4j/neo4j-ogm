@@ -11,12 +11,11 @@ public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<Gr
     private final ObjectGraphMapper mapper;
 
     public SimpleSetterMappingStrategy(Class<?> rootObjectType, String... packages) {
-
         mapper = new ObjectGraphMapper(
                 rootObjectType,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary(packages)),
                 new MethodEntityAccessFactory(),
-                new SimpleAttributeDictionary());
+                new SimpleMethodDictionary());
     }
 
     public void reset() {

@@ -80,9 +80,7 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
     public Set<String> lookUpValueAttributesFromType(Class<?> typeToPersist) {
         Set<String> valueAttributes = new HashSet<>();
         for (Field field : declaredFieldsOn(typeToPersist)) {
-            Class<?> fieldType = field.getType();
-            // XXX: should this actually be a method on ClassInfo?
-            if (fieldType.isArray() || ClassUtils.unbox(fieldType).isPrimitive() || String.class.equals(fieldType)) {
+            if (ClassUtils.mapsToGraphProperty(field.getType())) {
                 valueAttributes.add(field.getName());
             }
         }

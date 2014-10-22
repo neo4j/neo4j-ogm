@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class MethodDictionary {
+public abstract class MethodDictionary implements MappingResolver {
 
     /** owning type => setter or getter method name => java.lang.reflect.Method */
     private final Map<Class<?>, Map<String, Method>> methodCache = new HashMap<>();

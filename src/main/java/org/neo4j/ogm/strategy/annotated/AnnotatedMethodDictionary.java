@@ -35,4 +35,9 @@ public class AnnotatedMethodDictionary extends MethodDictionary {
 //        }
         throw new MappingException("Cannot find method " + setterName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
     }
+
+    @Override
+    public String resolveGraphAttribute(String attributeName) {
+        return null;
+    }
 }

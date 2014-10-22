@@ -159,4 +159,42 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
         return method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
     }
 
+    // guesses the name of a type accessor method, based on the supplied graph attribute
+    // the graph attribute can be a node property, e.g. "Name", or a relationship type e.g. "LIKES"
+    //
+    // A simple attribute e.g. "PrimarySchool" will be mapped to a value "[get,set]PrimarySchool"
+    //
+    // An attribute with elements separated by underscores will have each element processed and then
+    // the parts will be elided to a camelCase name. Elements that imply structure, ("HAS", "IS", "A")
+    // will be excluded from the mapping, i.e:
+    //
+    // "HAS_WHEELS"             => "[get,set]Wheels"
+    // "IS_A_BRONZE_MEDALLIST"  => "[get,set]BronzeMedallist"
+    // "CHANGED_PLACES_WITH"    => "[get,set]ChangedPlacesWith"
+    //
+    // the MethodInfo class should help here at some point, but its not accessible currently
+    public String resolveGraphAttribute(String name) {
+        StringBuilder sb = new StringBuilder();
+        if (name != null && name.length() > 0) {
+            sb.append("set");
+            if (!name.contains("_")) {
+                sb.append(name.substring(0, 1).toUpperCase());
+                sb.append(name.substring(1));
+            } else {
+                String[] parts = name.split("_");
+                for (String part : parts) {
+                    String test = part.toLowerCase();
+                    if ("has|is|a".contains(test)) continue;
+                    String resolved = resolveGraphAttribute(test);
+                    if (resolved != null) {
+                        sb.append(resolved);
+                    }
+                }
+            }
+            return sb.toString();
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -13,7 +13,12 @@ import java.util.Set;
 
 public class SimpleFieldDictionary extends FieldDictionary implements AttributeDictionary {
 
+
     @Override
+    /*
+     * The caller is expected to have already provided the parameter "property" in the expectation
+     * that a matching field name will be found.
+     */
     protected Field findScalarField(Object instance, Object parameter, String property) throws MappingException {
 
         for (Field field: declaredFieldsOn(instance.getClass())) {
@@ -121,4 +126,46 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
         return fields;
     }
 
+    // guesses the name of a type value, based on the supplied graph attribute
+    // the graph attribute can be a node property, e.g. "Name", or a relationship type e.g. "LIKES"
+    //
+    // A simple attribute e.g. "PrimarySchool" will be mapped to a value "primarySchool"
+    //
+    // An attribute with elements separated by underscores will have each element processed and then
+    // the parts will be elided to a camelCase name. Elements that imply structure, ("HAS", "IS", "A")
+    // will be excluded from the mapping, i.e:
+    //
+    // "HAS_WHEELS"             => "wheels"
+    // "IS_A_BRONZE_MEDALLIST"  => "bronzeMedallist"
+    // "CHANGED_PLACES_WITH"    => "changedPlacesWith"
+    //
+    // the FieldInfo class should help here at some point, but its not accessible currently
+    public String resolveGraphAttribute(String name) {
+        StringBuilder sb = new StringBuilder();
+        if (name != null && name.length() > 0) {
+            if (!name.contains("_")) {
+                sb.append(name.substring(0, 1).toLowerCase());
+                sb.append(name.substring(1));
+            } else {
+                String[] parts = name.split("_");
+                for (String part : parts) {
+                    String test = part.toLowerCase();
+                    if ("has|is|a".contains(test)) continue;
+                    String resolved = resolveGraphAttribute(test);
+                    if (resolved != null) {
+                        if (sb.length() > 0) {
+                            sb.append(resolved.substring(0, 1).toUpperCase());
+                            sb.append(resolved.substring(1));
+                        }
+                        else {
+                            sb.append(resolved);
+                        }
+                    }
+                }
+            }
+            return sb.toString();
+        } else {
+            return null;
+        }
+    }
 }

@@ -17,15 +17,26 @@ public class FieldEntityAccess extends AbstractEntityAccess {
         this.fieldName = graphProperty;
     }
 
+
+    /*
+      * Returns a field-entity access based on constructing a field name from a graph property
+      * e.g. a property "Name" would map to a field "name". A property like "PrimarySchool" would
+      * be mapped to an attribute "primarySchool" (but see note below)
+      *
+      * We do the same for relationship names as well, but we have to a agree on a
+      * convention. For example a relationship "john-[:likes]->pizza".
+      * We assume that the node john has a label "Person" while pizza has a label "Food".
+      *
+      * SimpleFieldMapping then expects an object of type Person to have a field "likes" that
+      * is scalar or vector of the type Food. All the below would map correctly:
+      *
+      *    Food likes;
+      *    Food[] likes;
+      *    Collection<Food> likes; (and any subclasses/subinterfaces of Collection)
+      *
+     */
     public static FieldEntityAccess forProperty(String name) {
-        StringBuilder sb = new StringBuilder();
-        if (name != null && name.length() > 0) {
-            sb.append(name.substring(0, 1).toLowerCase());
-            sb.append(name.substring(1));
-            return new FieldEntityAccess(sb.toString());
-        } else {
-            return null;
-        }
+        return new FieldEntityAccess(fieldDictionary.resolveGraphAttribute(name));
     }
 
     private void writeToObject(Field field, Object target, Object value) throws Exception {

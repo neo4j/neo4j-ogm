@@ -15,4 +15,11 @@ public class AnnotatedFieldDictionary extends FieldDictionary {
     protected Field findCollectionField(Object instance, Object iterable, Class elementType, String property) {
         return null;
     }
+
+    // the FieldInfo class should help here at some point, but its not accessible currently
+    @Override
+    public String resolveGraphAttribute(String name) {
+        return null;
+    }
+
 }

@@ -7,7 +7,8 @@ import java.util.*;
 
 public abstract class ClassDictionary {
 
-    private final DomainInfo classify = new DomainInfo();
+    private final DomainInfo domainInfo = new DomainInfo();
+
     private final Map<String, String> fqns = new HashMap<>();
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
@@ -15,7 +16,7 @@ public abstract class ClassDictionary {
         if (packages == null || packages.length == 0) {
             throw new RuntimeException("no packages defined");
         }
-        classify.load(packages);
+        domainInfo.load(packages);
     }
 
     /**
@@ -47,7 +48,7 @@ public abstract class ClassDictionary {
     }
 
     protected DomainInfo domainInfo() {
-        return classify;
+        return domainInfo;
     }
 
     /**
@@ -93,7 +94,7 @@ public abstract class ClassDictionary {
      * @param taxa the taxa corresponding to the FQNs (not really needed, should do this better)
      * @return The base class of the FQNs
      */
-    // TODO: needs to use classify object
+    // TODO: needs to use domainInfo object
     private String commonBaseClass(Set<String> fqns, String... taxa) {
         if (!fqns.isEmpty()) {
             Set<String> baseClasses = new HashSet<>();

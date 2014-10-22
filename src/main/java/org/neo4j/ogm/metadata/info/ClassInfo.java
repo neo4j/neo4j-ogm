@@ -1,5 +1,9 @@
 package org.neo4j.ogm.metadata.info;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -22,63 +26,95 @@ import java.util.*;
  * The inverse mapping, LabelInfo, maintains mappings from Neo4j labels to specific
  * Java Types.
  *
- * ClassInfo objects are intended to be retrieved from the Classify object, which is
- * the core class of the OGM metadata.
  */
 public class ClassInfo {
 
-    private String name;
-    private boolean visited;
-
-    private ClassInfo directSuperclass;
-    private ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
-    private HashSet<InterfaceInfo> interfaces = new HashSet<>();
+    private String className;
+    private int majorVersion;
+    private int minorVersion;
+    private String directSuperclassName;
+    private boolean isInterface;
 
     private FieldsInfo fieldsInfo = new FieldsInfo();
     private MethodsInfo methodsInfo= new MethodsInfo();
+    private AnnotationsInfo annotationsInfo = new AnnotationsInfo();
+    private InterfacesInfo interfacesInfo = new InterfacesInfo();
 
-    private Set<AnnotationInfo> classAnnotations = new HashSet<>();
+    private boolean hydrated;
+
+    // set later - if we need them...
+    private ClassInfo directSuperclass;
+    private ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
+
+    private HashSet<InterfaceInfo> interfaces = new HashSet<>();
+
+    public ClassInfo(InputStream inputStream) throws IOException {
+
+        DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(inputStream, 1024));
+
+        // Magic
+        if (dataInputStream.readInt() != 0xCAFEBABE) {
+            return;
+        }
+
+        minorVersion = dataInputStream.readUnsignedShort();    //minor version
+        majorVersion = dataInputStream.readUnsignedShort();    // major version
+
+        ConstantPool constantPool = new ConstantPool(dataInputStream);
+
+        // Access flags
+        int flags = dataInputStream.readUnsignedShort();
+        isInterface = (flags & 0x0200) != 0;
+
+        className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
+        directSuperclassName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
+
+        interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
+        fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
+        methodsInfo = new MethodsInfo(dataInputStream, constantPool);
+        annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
+
+    }
 
     public ClassInfo(String name, Collection<InterfaceInfo> interfaces, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
-        this.name = name;
+        this.className = name;
         this.fieldsInfo = fieldsInfo;
         this.methodsInfo = methodsInfo;
 
-        this.visit(interfaces, annotationsInfo.list());
+        this.hydrated = true;
+        this.interfaces.addAll(interfaces);
+        this.annotationsInfo = annotationsInfo;
     }
 
-    /**
-     * If this method is called by another class, then it was previously cited as a superclass, and now has been
-     * itself visited on the classpath.
-     */
-    public void visit(Collection<InterfaceInfo> interfaces, Collection<AnnotationInfo> annotations) {
-        this.visited = true;
-        this.interfaces.addAll(interfaces);
-        this.classAnnotations.addAll(annotations);
+    /** A class that was previously only seen as a superclass of another class can now be fully hydrated. */
+    public void hydrate(ClassInfo classInfo) {
+        this.hydrated = true;
+        this.interfaces.addAll(classInfo.interfaces());
+        this.annotationsInfo.addAll(classInfo.annotations());
     }
 
     /** This class was referenced as a superclass of the given subclass. */
     public ClassInfo(String name, ClassInfo subclass) {
-        this.name = name;
-        this.visited = false;
+        this.className = name;
+        this.hydrated = false;
         addSubclass(subclass);
     }
 
     /** Connect this class to a subclass. */
     public void addSubclass(ClassInfo subclass) {
         if (subclass.directSuperclass != null && subclass.directSuperclass != this) {
-            throw new RuntimeException(subclass.name + " has two superclasses: " + subclass.directSuperclass.name + ", " + this.name);
+            throw new RuntimeException(subclass.className + " has two superclasses: " + subclass.directSuperclass.className + ", " + this.className);
         }
         subclass.directSuperclass = this;
         this.directSubclasses.add(subclass);
     }
 
-    public boolean visited() {
-        return visited;
+    public boolean hydrated() {
+        return hydrated;
     }
 
     public String name() {
-        return name;
+        return className;
     }
 
     public ClassInfo directSuperclass() {
@@ -93,8 +129,19 @@ public class ClassInfo {
         return interfaces;
     }
 
-    public Set<AnnotationInfo> annotations() {
-        return classAnnotations;
+    public Collection<AnnotationInfo> annotations() {
+        return annotationsInfo.list();
+    }
+
+    public boolean isInterface() {
+        return isInterface;
+    }
+
+    public AnnotationsInfo annotationsInfo() {
+        return annotationsInfo;
+    }
+    public String superclassName() {
+        return directSuperclassName;
     }
 
     @Override
@@ -102,10 +149,5 @@ public class ClassInfo {
         return name();
     }
 
-//    public void buildTree() {
-//        for (ClassInfo subclass : this.directSubclasses()) {
-//            buildTree(subclass);
-//        }
-//    }
 }
 

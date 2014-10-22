@@ -6,11 +6,6 @@ import org.neo4j.ogm.metadata.MappingException;
 import java.io.*;
 import java.util.*;
 
-/**
- * A Type Hierarchy (including Interfaces) is actually a DAG. Maybe we should be using Neo? !!
- *
- * This class needs a lot of tidying up
- */
 public class DomainInfo implements ClassInfoProcessor {
 
     private List<String> classPaths = new ArrayList<>();
@@ -19,8 +14,6 @@ public class DomainInfo implements ClassInfoProcessor {
     private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
     private final HashMap<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
-
-    private ConstantPool constantPool;
 
     private void buildAnnotationNameToClassInfoMap() {
         // A <-[:has_annotation]- T
@@ -96,26 +89,6 @@ public class DomainInfo implements ClassInfoProcessor {
             return;
         }
 
-//        /*
-//         * get the root classes in the type hierarchy.
-//         */
-//        ArrayList<ClassInfo> roots = new ArrayList<>();
-//        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-//            if (classInfo.directSuperclass() == null) {
-//                roots.add(classInfo);
-//            }
-//        }
-//
-//        // R<-[:extends]-T*
-//        LinkedList<ClassInfo> nodes = new LinkedList<>();
-//        nodes.addAll(roots);
-//        while (!nodes.isEmpty()) {
-//            ClassInfo head = nodes.removeFirst();
-//            for (ClassInfo subclass : head.directSubclasses()) {
-//                nodes.add(subclass);
-//            }
-//        }
-
         buildAnnotationNameToClassInfoMap();
         buildInterfaceHierarchy();
         buildInterfaceNameToClassInfoMap();
@@ -130,60 +103,31 @@ public class DomainInfo implements ClassInfoProcessor {
 
     public void process(final InputStream inputStream) throws IOException {
 
-        DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(inputStream, 1024));
+        ClassInfo classInfo = new ClassInfo(inputStream);
+        String className = classInfo.name();
+        String superclassName = classInfo.superclassName();
 
-        // Magic
-        if (dataInputStream.readInt() != 0xCAFEBABE) {
-            return;
-        }
-
-        dataInputStream.readUnsignedShort();    //minor version
-        dataInputStream.readUnsignedShort();    // major version
-
-        constantPool = new ConstantPool(dataInputStream);
-
-        // Access flags
-        int flags = dataInputStream.readUnsignedShort();
-        boolean isInterface = (flags & 0x0200) != 0;
-
-        String className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-        String superclassName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-
-        // get the information for this class
-        InterfacesInfo interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
-        FieldsInfo fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
-        MethodsInfo methodsInfo = new MethodsInfo(dataInputStream, constantPool);
-        AnnotationsInfo classAnnotations = new AnnotationsInfo(dataInputStream, constantPool);
-
-        // split reader here, and return the interfaces and annotations ?
-        // this class IS AN INTERFACE
-        if (isInterface) {
-            // its an interface ref
-            InterfaceInfo thisInterfaceInfo = interfaceNameToInterfaceInfo.get(className);
-            if (thisInterfaceInfo == null) {
-                interfaceNameToInterfaceInfo.put(className, new InterfaceInfo(className));
+        if (className != null) {
+            if (classInfo.isInterface()) {
+                InterfaceInfo thisInterfaceInfo = interfaceNameToInterfaceInfo.get(className);
+                if (thisInterfaceInfo == null) {
+                    interfaceNameToInterfaceInfo.put(className, new InterfaceInfo(className));
+                }
             } else {
-                return;
-            }
-
-        } else {
-            // its a class ref
-            ClassInfo thisClassInfo = classNameToClassInfo.get(className);
-            if (thisClassInfo == null) {
-                thisClassInfo = new ClassInfo(className, interfacesInfo.list(), classAnnotations, fieldsInfo, methodsInfo);
-                classNameToClassInfo.put(className, thisClassInfo);
-            } else if (thisClassInfo.visited()) {
-                return;
-            } else {
-                // todo: class info should have annotationsInfo, which should be a map.
-                thisClassInfo.visit(interfacesInfo.list(), classAnnotations.list());
-            }
-
-            ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);
-            if (superclassInfo == null) {
-                classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-            } else {
-                superclassInfo.addSubclass(thisClassInfo);
+                ClassInfo thisClassInfo = classNameToClassInfo.get(className);
+                if (thisClassInfo == null) {
+                    thisClassInfo = classInfo;
+                    classNameToClassInfo.put(className, thisClassInfo);
+                }
+                if (!thisClassInfo.hydrated()) {
+                    thisClassInfo.hydrate(classInfo);
+                    ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);
+                    if (superclassInfo == null) {
+                        classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
+                    } else {
+                        superclassInfo.addSubclass(thisClassInfo);
+                    }
+                }
             }
         }
 

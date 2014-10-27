@@ -10,6 +10,7 @@ import org.neo4j.ogm.mapper.model.GraphBuilder;
 import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
+import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -17,10 +18,12 @@ public class DeserialisationTest {
 
     private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
 
+        DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.mapper.domain.bike");
+
         return new ObjectGraphMapper(
                 Bike.class,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.bike"))),
-                new MethodEntityAccessFactory(),
+                new DefaultConstructorObjectFactory(new SimpleClassDictionary(domainInfo)),
+                new MethodEntityAccessFactory(new SimpleMethodDictionary(domainInfo)),
                 null); // attribute dictionary is not required for this test
     }
     @Test

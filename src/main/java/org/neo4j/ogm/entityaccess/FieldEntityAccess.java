@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 public class FieldEntityAccess extends AbstractEntityAccess {
 
     private String fieldName;
-    private FieldDictionary fieldDictionary;
+    private final FieldDictionary fieldDictionary;
 
     private FieldEntityAccess(FieldDictionary fieldDictionary, String graphProperty) {
         this.fieldDictionary = fieldDictionary;

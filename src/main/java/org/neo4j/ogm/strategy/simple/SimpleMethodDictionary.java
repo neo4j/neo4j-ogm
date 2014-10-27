@@ -4,11 +4,14 @@ import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.metadata.info.MethodsInfo;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,19 +46,108 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
     @Override
     protected Method findScalarSetter(Object instance, Class<?> parameterClass, String methodName) throws MappingException {
 
+        ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
+        MethodsInfo methodsInfo = classInfo.methodsInfo();
+        if (methodsInfo.methods().contains(methodName)) {
+            return getScalarSetter(methodName, parameterClass, instance);
+        }
+        throw new MappingException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
+    }
+
+    private Method getScalarSetter(String methodName, Class parameterClass, Object instance) {
+
+        Method method;
         Class<?> clazz = instance.getClass();
         Class<?> primitiveClass = ClassUtils.unbox(parameterClass);
 
-        for (Method method : clazz.getMethods()) {
-            if( Modifier.isPublic(method.getModifiers()) &&
+        // todo: the MethodInfo object should tell us exactly what to look for:
+        // - scalar, collection, array, as well as primitive parameter or not.
+        try {
+            method = clazz.getDeclaredMethod(methodName, parameterClass) ;
+        }
+        catch (Exception e) {
+            try {
+                method = clazz.getDeclaredMethod(methodName, primitiveClass);
+            } catch (Exception ee) {
+                // methodInfo says this method exists, but we can't find it !
+                throw new RuntimeException(ee);
+            }
+        }
+
+        if( Modifier.isPublic(method.getModifiers()) &&
+                method.getReturnType().equals(void.class) &&
+                method.getParameterTypes().length == 1 &&
+                (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
+            return method;
+        }
+        return null;
+    }
+
+    private Method getCollectionSetter(Object instance, Object collection, Class<?> elementType, String methodName) {
+        try {
+
+            Class<?> clazz = instance.getClass();
+            Method method = clazz.getDeclaredMethod(methodName, Collection.class);
+
+            if (Modifier.isPublic(method.getModifiers()) &&
                     method.getReturnType().equals(void.class) &&
                     method.getName().equals(methodName) &&
                     method.getParameterTypes().length == 1 &&
-                    (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
-                return method;
+                    method.getGenericParameterTypes().length == 1) {
+
+                if (method.getParameterTypes()[0].isArray()) {
+                    String parameterName = method.getParameterTypes()[0].getName();
+                    if (("[L" + elementType.getName() + ";").equals(parameterName)) {
+                        return method;
+                    }
+                    if (ClassUtils.primitiveArrayName(elementType).equals(parameterName)) {
+                        return method;
+                    }
+                }
+
+                else if (method.getParameterTypes()[0].isAssignableFrom(collection.getClass())) {
+                    Type t = method.getGenericParameterTypes()[0];
+                    if (t.toString().contains(elementType.getName())) {
+                        return method;
+                    }
+                    if (t.toString().contains("<?>")) {
+                        return method;
+                    }
+                }
+
             }
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
-        throw new MappingException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
+        return null;
+    }
+
+    private Method getArraySetter(Object instance, Class<?> elementType, String methodName) {
+        try {
+
+            Class<?> clazz = instance.getClass();
+            Method method = clazz.getDeclaredMethod(methodName, Object.class);
+
+            if (Modifier.isPublic(method.getModifiers()) &&
+                    method.getReturnType().equals(void.class) &&
+                    method.getName().startsWith(methodName) &&
+                    method.getParameterTypes().length == 1 &&
+                    method.getGenericParameterTypes().length == 1) {
+
+                String parameterName = method.getParameterTypes()[0].getName();
+                if (("[L" + elementType.getName() + ";").equals(parameterName)) {
+                    return method;
+                }
+                if (ClassUtils.primitiveArrayName(elementType).equals(parameterName)) {
+                    return method;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+            return null;
+        }
+        return null;
     }
 
     @Override
@@ -77,8 +169,29 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
 
     @Override
     protected Method findCollectionSetter(Object instance, Object collection, Class<?> elementType, String methodName) throws MappingException {
-        Class<?> clazz = instance.getClass();
-        for (Method method : clazz.getMethods()) {
+
+//        ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
+//        MethodsInfo methodsInfo = classInfo.methodsInfo();
+//        Method method = null;
+//
+//        // todo: MethodInfo should be able to tell us exactly what we're looking for.
+//        for (String m : methodsInfo.methods()) {
+//            if (m.startsWith(methodName)) {
+//                System.out.println(m);
+//                method = getCollectionSetter(instance, collection, elementType, m);
+//                if (method != null) {
+//                    return method;
+//                }
+//            }
+//        }
+
+        // TODO:
+        // we don't have enough information on the methodInfo object right now to be able to get
+        // the method directly loading from the class. To do this, we must be able to
+        // identify the type of the parameter the setter takes.
+        // If we can't do this, we have to scan the class methods (as below) and check
+        // to see if any of them take a parameter of the type we're interested in.
+        for (Method method : instance.getClass().getMethods()) {
 
             if (Modifier.isPublic(method.getModifiers()) &&
                     method.getReturnType().equals(void.class) &&
@@ -108,7 +221,7 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
             }
         }
 
-        throw new MappingException("Cannot find method " + methodName + "?(" + collection.getClass().getSimpleName() + "<" + elementType.getSimpleName() + ">) in class " + instance.getClass().getName());
+        throw new MappingException("Cannot find method " + methodName + "(" + collection.getClass().getSimpleName() + "<" + elementType.getSimpleName() + ">) in class " + instance.getClass().getName());
     }
 
     @Override

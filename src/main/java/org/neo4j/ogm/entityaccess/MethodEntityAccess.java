@@ -2,7 +2,6 @@ package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
-import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import java.lang.reflect.Method;
 
@@ -14,7 +13,7 @@ public class MethodEntityAccess extends AbstractEntityAccess {
     // todo: don't hardwire this in. Use injection to inject what you need.
     // TODO: this design MUST now be wrong, because the dictionary needs domain info, and its
     // not the job of this class to provide one.
-    private static final MethodDictionary methodDictionary = new SimpleMethodDictionary(null);
+    private final MethodDictionary methodDictionary;
 
     private String setterName;
     private String getterName;
@@ -29,8 +28,9 @@ public class MethodEntityAccess extends AbstractEntityAccess {
      *
      * @param graphProperty the graphProperty we want to map to via getter/setter methods.
      */
-    private MethodEntityAccess(String graphProperty) {
-        setAccessors(graphProperty);
+    private MethodEntityAccess(MethodDictionary dictionary, String graphProperty) {
+        methodDictionary = dictionary;
+        setAccessors(methodDictionary.resolveGraphAttribute(graphProperty));
     }
 
     private void setAccessors(String methodName) {
@@ -38,8 +38,8 @@ public class MethodEntityAccess extends AbstractEntityAccess {
         this.getterName = methodName.replace("set", "get");
     }
 
-    public static MethodEntityAccess forProperty(String name) {
-        return new MethodEntityAccess(methodDictionary.resolveGraphAttribute(name));
+    public static MethodEntityAccess forProperty(MethodDictionary dictionary, String name) {
+        return new MethodEntityAccess(dictionary, name);
     }
 
     @Override

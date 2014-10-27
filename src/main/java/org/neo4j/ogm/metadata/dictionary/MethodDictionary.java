@@ -11,7 +11,7 @@ import java.util.Map;
 // todo metadata implements mapping resolver, not this class
 public abstract class MethodDictionary implements MappingResolver {
 
-    private final DomainInfo domainInfo;
+    protected final DomainInfo domainInfo;
 
     public MethodDictionary(DomainInfo domainInfo) {
         this.domainInfo = domainInfo;

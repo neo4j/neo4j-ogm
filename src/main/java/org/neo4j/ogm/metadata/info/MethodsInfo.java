@@ -3,10 +3,13 @@ package org.neo4j.ogm.metadata.info;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class MethodsInfo {
 
+    private Set<String> methodNames = new HashSet<>();
     private Map<String, ObjectAnnotations> methodsInfoMap = new HashMap<>();
 
     MethodsInfo() {}
@@ -36,10 +39,16 @@ public class MethodsInfo {
                 }
                 methodsInfoMap.put(methodName, objectAnnotations);
             }
+            methodNames.add(methodName); // todo: replace with a methodInfo object?
         }
     }
 
     public ObjectAnnotations getAnnotations(String fieldName) {
         return methodsInfoMap.get(fieldName);
     }
+
+    public Set<String> methods() {
+        return methodNames;
+    }
+
 }

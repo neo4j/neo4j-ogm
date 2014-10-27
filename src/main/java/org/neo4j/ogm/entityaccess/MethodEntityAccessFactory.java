@@ -1,10 +1,18 @@
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
+
 public class MethodEntityAccessFactory implements EntityAccessFactory {
+
+    private final MethodDictionary methodDictionary;
+
+    public MethodEntityAccessFactory(MethodDictionary dictionary) {
+        methodDictionary = dictionary;
+    }
 
     @Override
     public EntityAccess forProperty(String propertyName) {
-        return MethodEntityAccess.forProperty(propertyName);
+        return MethodEntityAccess.forProperty(methodDictionary, propertyName);
     }
 
     @Override

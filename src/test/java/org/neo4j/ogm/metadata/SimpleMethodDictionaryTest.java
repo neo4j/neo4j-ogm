@@ -1,11 +1,11 @@
 package org.neo4j.ogm.metadata;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Frame;
 import org.neo4j.ogm.mapper.domain.canonical.Mappable;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import java.lang.reflect.Method;
@@ -18,23 +18,17 @@ import static org.junit.Assert.fail;
 
 public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
-    private SimpleMethodDictionary smd;
-
     @Override
     protected AttributeDictionary provideAttributeDictionaryToTest() {
-        return smd;
+        return new SimpleMethodDictionary(null);
     }
 
-    @Before
-    public void setUp() {
-        smd = new SimpleMethodDictionary(null);
-    }
 
     @Test
     public void testPrimitiveScalar() throws Exception {
 
         Object param = 0;
-
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
         Method m = smd.setter("setPrimitiveInt", param, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setPrimitiveInt(int)", m.toGenericString());
@@ -47,6 +41,7 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
         Object param = new int[] { 0, 1, 2, 3, 4 };
 
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
         Method m = smd.setter("setPrimitiveIntArray", param, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setPrimitiveIntArray(int[])", m.toGenericString());
@@ -58,6 +53,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
     public void testObjectScalar() throws Exception {
 
         Object param = new Integer(3);
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
+
         Method m = smd.setter("setObjectInteger", param, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setObjectInteger(java.lang.Integer)", m.toGenericString());
@@ -69,6 +66,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
     public void testObjectArray() throws Exception {
 
         Object param = new Integer[] { 3, 1, 4, 5, 9 };
+
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
 
         Method m = smd.setter("setObjectIntegerArray", param, new Mappable());
 
@@ -86,6 +85,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
         stringList.add("Hello");
         stringList.add("World");
 
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
+
         Method m = smd.setter("setListOfAnything", stringList, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setListOfAnything(java.util.List<?>)", m.toGenericString());
@@ -101,6 +102,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
         listOfStringLists.add(Arrays.asList(new String[] { "hello" }));
         listOfStringLists.add(Arrays.asList(new String[] { "world" }));
 
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
+
         Method m = smd.setter("setListOfAnything", listOfStringLists, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setListOfAnything(java.util.List<?>)", m.toGenericString());
@@ -115,6 +118,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
         stringList.add("Hello");
         stringList.add("World");
+
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
 
         Method m = smd.setter("setObjectStringArray", stringList, new Mappable());
 
@@ -133,6 +138,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
         stringList.add(1);
         stringList.add(2);
 
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
+
         Method m = smd.setter("setObjectIntegerArray", stringList, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setObjectIntegerArray(java.lang.Integer[])",
@@ -150,6 +157,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
         integerList.add(1);
         integerList.add(2);
 
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.canonical"));
+
         Method m = smd.setter("setPrimitiveIntArray", integerList, new Mappable());
 
         assertEquals("public void org.neo4j.ogm.mapper.domain.canonical.Mappable.setPrimitiveIntArray(int[])", m.toGenericString());
@@ -158,6 +167,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
     @Test
     public void shouldResolveTypeAttribuesAsGraphPropertiesOrRelationshipTypes() {
+        SimpleMethodDictionary smd = new SimpleMethodDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.bike"));
+
         String resolvedFrame = smd.resolveTypeAttribute("frame", Bike.class);
         assertEquals("The relationship type wasn't resolved as expected", "HAS_FRAME", resolvedFrame);
 

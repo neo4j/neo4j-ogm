@@ -148,6 +148,10 @@ public class ClassInfo {
         return fieldsInfo;
     }
 
+    public MethodsInfo methodsInfo() {
+        return methodsInfo;
+    }
+
     @Override
     public String toString() {
         return name();

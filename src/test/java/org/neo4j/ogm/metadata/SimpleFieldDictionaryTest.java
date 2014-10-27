@@ -1,20 +1,21 @@
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.canonical.Mappable;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 public class SimpleFieldDictionaryTest extends AttributeDictionaryTests {
 
-    private final SimpleFieldDictionary fieldDictionary = new SimpleFieldDictionary();
+    // TODO: FIXME
+    private final SimpleFieldDictionary fieldDictionary = new SimpleFieldDictionary(null);
 
     @Override
     protected AttributeDictionary provideAttributeDictionaryToTest() {

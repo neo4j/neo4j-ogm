@@ -1,13 +1,21 @@
 package org.neo4j.ogm.metadata.dictionary;
 
 import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+// todo metadata implements mapping resolver, not this class
 public abstract class MethodDictionary implements MappingResolver {
+
+    private final DomainInfo domainInfo;
+
+    public MethodDictionary(DomainInfo domainInfo) {
+        this.domainInfo = domainInfo;
+    }
 
     /** owning type => setter or getter method name => java.lang.reflect.Method */
     private final Map<Class<?>, Map<String, Method>> methodCache = new HashMap<>();

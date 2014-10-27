@@ -1,16 +1,16 @@
 package org.neo4j.ogm.strategy.simple;
 
-import java.lang.reflect.Field;
+import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.neo4j.ogm.metadata.ClassUtils;
-import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
-import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
 
 /**
  * The {@link SimpleMethodDictionary} maintains mappings between labels in the graphModel, (Status, Item, Invoice, etc)
@@ -35,6 +35,10 @@ import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
  *
  */
 public class SimpleMethodDictionary extends MethodDictionary implements AttributeDictionary {
+
+    public SimpleMethodDictionary(DomainInfo domainInfo) {
+        super(domainInfo);
+    }
 
     @Override
     protected Method findScalarSetter(Object instance, Class<?> parameterClass, String methodName) throws MappingException {

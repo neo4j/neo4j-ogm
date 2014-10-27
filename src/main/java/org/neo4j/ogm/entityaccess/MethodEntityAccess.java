@@ -12,7 +12,9 @@ import java.lang.reflect.Method;
 public class MethodEntityAccess extends AbstractEntityAccess {
 
     // todo: don't hardwire this in. Use injection to inject what you need.
-    private static final MethodDictionary methodDictionary = new SimpleMethodDictionary();
+    // TODO: this design MUST now be wrong, because the dictionary needs domain info, and its
+    // not the job of this class to provide one.
+    private static final MethodDictionary methodDictionary = new SimpleMethodDictionary(null);
 
     private String setterName;
     private String getterName;

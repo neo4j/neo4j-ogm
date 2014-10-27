@@ -9,7 +9,8 @@ import java.lang.reflect.Field;
 public class FieldEntityAccess extends AbstractEntityAccess {
 
     // todo: don't hardwire this in. Use injection to inject what you need.
-    private static final FieldDictionary fieldDictionary = new SimpleFieldDictionary();
+    // todo FIXME.
+    private static final FieldDictionary fieldDictionary = new SimpleFieldDictionary(null);
 
     private String fieldName;
 

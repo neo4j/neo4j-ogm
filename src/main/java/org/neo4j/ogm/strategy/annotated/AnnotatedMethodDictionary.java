@@ -1,11 +1,16 @@
 package org.neo4j.ogm.strategy.annotated;
 
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
 import java.lang.reflect.Method;
 
-public class AnnotatedMethodDictionary extends MethodDictionary {
+public class AnnotatedMethodDictionary extends SimpleMethodDictionary {
+
+    public AnnotatedMethodDictionary(DomainInfo domainInfo) {
+        super(domainInfo);
+    }
 
     @Override
     protected Method findGetter(String methodName, Class returnType, Object instance) {

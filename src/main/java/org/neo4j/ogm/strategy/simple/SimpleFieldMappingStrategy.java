@@ -12,11 +12,12 @@ public class SimpleFieldMappingStrategy implements GraphModelToObjectMapper<Grap
     private final ObjectGraphMapper mapper;
 
     public SimpleFieldMappingStrategy(Class<?> rootObjectType, String... packages) {
+        DomainInfo domainInfo = new DomainInfo(packages);
         mapper = new ObjectGraphMapper(
                 rootObjectType,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary(new DomainInfo(packages))),
+                new DefaultConstructorObjectFactory(new SimpleClassDictionary(domainInfo)),
                 new FieldEntityAccessFactory(),
-                new SimpleFieldDictionary());
+                new SimpleFieldDictionary(domainInfo));
     }
 
     public void reset() {

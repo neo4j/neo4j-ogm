@@ -26,7 +26,8 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
     @Before
     public void setUp() {
-        smd = new SimpleMethodDictionary();
+        // TODO FIXME:
+        smd = new SimpleMethodDictionary(null);
     }
 
     @Test

@@ -1,10 +1,15 @@
 package org.neo4j.ogm.strategy.annotated;
 
-import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import java.lang.reflect.Field;
 
-public class AnnotatedFieldDictionary extends FieldDictionary {
+public class AnnotatedFieldDictionary extends SimpleFieldDictionary {
+
+    public AnnotatedFieldDictionary(DomainInfo domainInfo) {
+        super(domainInfo);
+    }
 
     @Override
     protected Field findScalarField(Object instance, Object value, String property) {

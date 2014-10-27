@@ -4,6 +4,7 @@ import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -13,6 +14,10 @@ import java.util.Set;
 
 public class SimpleFieldDictionary extends FieldDictionary implements AttributeDictionary {
 
+
+    public SimpleFieldDictionary(DomainInfo domainInfo) {
+        super(domainInfo);
+    }
     /*
      * The caller is expected to have already provided the parameter "property" in the expectation
      * that a matching field name will be found.

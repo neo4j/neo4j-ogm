@@ -1,6 +1,7 @@
 package org.neo4j.ogm.metadata.dictionary;
 
 import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -9,7 +10,11 @@ import java.util.Map;
 
 public abstract class FieldDictionary implements MappingResolver {
 
+    private final DomainInfo domainInfo;
 
+    public FieldDictionary(DomainInfo domainInfo) {
+        this.domainInfo = domainInfo;
+    }
 
     /** owning type => field name => java.lang.reflect.Field */
     private final Map<Class, Map<String, Field>> fieldCache = new HashMap<>();

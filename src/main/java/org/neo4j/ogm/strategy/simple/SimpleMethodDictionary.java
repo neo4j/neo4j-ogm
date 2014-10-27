@@ -49,6 +49,16 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
         ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
         MethodsInfo methodsInfo = classInfo.methodsInfo();
         if (methodsInfo.methods().contains(methodName)) {
+            String descriptor = methodsInfo.descriptor(methodName);
+//            System.out.println(methodName);
+//            System.out.println(parameterClass.getCanonicalName());
+//            System.out.println(descriptor);
+//            System.out.println("------------------------");
+            if (descriptor.endsWith(")V")) {
+                if (!descriptor.startsWith("(L") && !descriptor.startsWith("([L")) {
+                    parameterClass = ClassUtils.unbox(parameterClass);
+                }
+            }
             return getScalarSetter(methodName, parameterClass, instance);
         }
         throw new MappingException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
@@ -58,7 +68,7 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
 
         Method method;
         Class<?> clazz = instance.getClass();
-        Class<?> primitiveClass = ClassUtils.unbox(parameterClass);
+//        Class<?> primitiveClass = ClassUtils.unbox(parameterClass);
 
         // todo: the MethodInfo object should tell us exactly what to look for:
         // - scalar, collection, array, as well as primitive parameter or not.
@@ -66,18 +76,18 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
             method = clazz.getDeclaredMethod(methodName, parameterClass) ;
         }
         catch (Exception e) {
-            try {
-                method = clazz.getDeclaredMethod(methodName, primitiveClass);
-            } catch (Exception ee) {
-                // methodInfo says this method exists, but we can't find it !
-                throw new RuntimeException(ee);
-            }
+//            try {
+//                method = clazz.getDeclaredMethod(methodName, primitiveClass);
+//            } catch (Exception ee) {
+//                // methodInfo says this method exists, but we can't find it !
+                throw new RuntimeException(e);
+//            }
         }
 
         if( Modifier.isPublic(method.getModifiers()) &&
                 method.getReturnType().equals(void.class) &&
-                method.getParameterTypes().length == 1 &&
-                (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
+                method.getParameterTypes().length == 1) { //&&
+//                (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
             return method;
         }
         return null;

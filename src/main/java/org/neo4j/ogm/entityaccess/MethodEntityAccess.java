@@ -10,14 +10,10 @@ import java.lang.reflect.Method;
  */
 public class MethodEntityAccess extends AbstractEntityAccess {
 
-    // todo: don't hardwire this in. Use injection to inject what you need.
-    // TODO: this design MUST now be wrong, because the dictionary needs domain info, and its
-    // not the job of this class to provide one.
     private final MethodDictionary methodDictionary;
 
     private String setterName;
     private String getterName;
-
 
     /**
      * Creates a methodEntityAccess instance for the named property in the graphModel

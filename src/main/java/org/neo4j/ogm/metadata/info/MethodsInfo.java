@@ -45,12 +45,15 @@ public class MethodsInfo {
         }
     }
 
-    public ObjectAnnotations annotations(String fieldName) {
-        return annotations.get(fieldName);
+    public ObjectAnnotations annotations(String methodName) {
+        return annotations.get(methodName);
     }
 
     public Set<String> methods() {
         return methods;
     }
 
+    public String descriptor(String methodName) {
+        return descriptors.get(methodName);
+    }
 }

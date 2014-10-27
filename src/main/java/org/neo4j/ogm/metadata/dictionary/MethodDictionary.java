@@ -23,7 +23,7 @@ public abstract class MethodDictionary implements MappingResolver {
     public Method setter(String setterName, Object parameter, Object instance) throws MappingException {
 
         Class<?> clazz = instance.getClass();
-        Method m = lookup(clazz, setterName + "?"); // ? indicates a collection setter
+        Method m = lookup(clazz, setterName + "?"); // ? indicates a collection setter  todo: this looks broken now.
         if (m != null) return m;
 
         if (parameter instanceof Collection) {

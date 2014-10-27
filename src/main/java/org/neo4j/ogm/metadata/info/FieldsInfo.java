@@ -20,8 +20,8 @@ public class FieldsInfo {
             String fieldName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
             String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
+            ObjectAnnotations objectAnnotations = new ObjectAnnotations();
             for (int j = 0; j < attributesCount; j++) {
-                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
                 String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
                 if ("RuntimeVisibleAnnotations".equals(attributeName)) {
@@ -35,10 +35,10 @@ public class FieldsInfo {
                 else {
                     dataInputStream.skipBytes(attributeLength);
                 }
-                annotations.put(fieldName, objectAnnotations);
             }
             fields.add(fieldName);
             descriptors.put(fieldName, descriptor);
+            annotations.put(fieldName, objectAnnotations);
         }
     }
 

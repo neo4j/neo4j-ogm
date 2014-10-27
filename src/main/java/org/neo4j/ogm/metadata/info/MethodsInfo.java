@@ -22,11 +22,9 @@ public class MethodsInfo {
             dataInputStream.skipBytes(2); // access_flags
             String methodName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
             String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor
-            //dataInputStream.skipBytes(2); // descriptor_index
-            //System.out.println(methodName + ":" + descriptor);
+            ObjectAnnotations objectAnnotations = new ObjectAnnotations();
             int attributesCount = dataInputStream.readUnsignedShort();
             for (int j = 0; j < attributesCount; j++) {
-                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
                 String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
                 if ("RuntimeVisibleAnnotations".equals(attributeName)) {
@@ -40,10 +38,10 @@ public class MethodsInfo {
                 else {
                     dataInputStream.skipBytes(attributeLength);
                 }
-                annotations.put(methodName, objectAnnotations);
             }
             methods.add(methodName); // todo: replace with a methodInfo object?
             descriptors.put(methodName, descriptor);
+            annotations.put(methodName, objectAnnotations);
         }
     }
 

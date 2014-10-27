@@ -9,6 +9,8 @@ import java.util.Map;
 
 public abstract class FieldDictionary implements MappingResolver {
 
+
+
     /** owning type => field name => java.lang.reflect.Field */
     private final Map<Class, Map<String, Field>> fieldCache = new HashMap<>();
 

@@ -5,6 +5,7 @@ import org.neo4j.ogm.entityaccess.MethodEntityAccessFactory;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
 import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 
 public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<GraphModel> {
 
@@ -13,7 +14,7 @@ public class SimpleSetterMappingStrategy  implements GraphModelToObjectMapper<Gr
     public SimpleSetterMappingStrategy(Class<?> rootObjectType, String... packages) {
         mapper = new ObjectGraphMapper(
                 rootObjectType,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary(packages)),
+                new DefaultConstructorObjectFactory(new SimpleClassDictionary(new DomainInfo(packages))),
                 new MethodEntityAccessFactory(),
                 new SimpleMethodDictionary());
     }

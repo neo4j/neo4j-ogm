@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.annotated.AnnotatedClassDictionary;
 
 import static junit.framework.Assert.assertEquals;
@@ -15,7 +16,7 @@ public class AnnotatedClassDictionaryTest {
      */
     @Test
     public void testFQNamespaceOfAnnotatedDomain() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.annotated");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.annotated"));
         assertEquals("org.neo4j.ogm.mapper.domain.annotated.UserActivity", dictionary.determineLeafClass("Activity"));
         assertEquals("org.neo4j.ogm.mapper.domain.annotated.GoldUser", dictionary.determineLeafClass("Gold", "Login"));
         assertEquals("org.neo4j.ogm.mapper.domain.annotated.SilverUser", dictionary.determineLeafClass("Silver", "Login"));
@@ -27,7 +28,7 @@ public class AnnotatedClassDictionaryTest {
      */
     @Test
     public void testFQNamespaceOfBikeDomain() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.bike");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.bike"));
         assertEquals("org.neo4j.ogm.mapper.domain.bike.Bike", dictionary.determineLeafClass("Bike"));
         assertEquals("org.neo4j.ogm.mapper.domain.bike.Wheel", dictionary.determineLeafClass("Wheel"));
         assertEquals("org.neo4j.ogm.mapper.domain.bike.Frame", dictionary.determineLeafClass("Frame"));
@@ -39,7 +40,7 @@ public class AnnotatedClassDictionaryTest {
      * Taxa corresponding to interfaces can't be resolved
      */
     public void testInterfaceTaxa() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals(null, dictionary.determineLeafClass("Ruler"));
     }
 
@@ -48,7 +49,7 @@ public class AnnotatedClassDictionaryTest {
      * Taxa corresponding to abstract classes can't be resolved
      */
     public void testAbstractClassTaxa() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals(null, dictionary.determineLeafClass("Person", "Monarch"));
     }
 
@@ -57,7 +58,7 @@ public class AnnotatedClassDictionaryTest {
      * Taxa not forming a class hierarchy cannot be resolved.
      */
     public void testNoCommonLeafInTaxa() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals(null, dictionary.determineLeafClass("Daughter", "Son"));
     }
 
@@ -66,7 +67,7 @@ public class AnnotatedClassDictionaryTest {
      * The ordering of taxa is unimportant.
      */
     public void testMaleHeirIsLeafClassInAnyOrderingOfPrinceSonMaleHeirTaxa() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.MaleHeir", dictionary.determineLeafClass("Son", "Prince", "MaleHeir"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.MaleHeir", dictionary.determineLeafClass("Son", "MaleHeir", "Prince"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.MaleHeir", dictionary.determineLeafClass("Prince", "Son", "MaleHeir"));
@@ -80,7 +81,7 @@ public class AnnotatedClassDictionaryTest {
      * A subclass will be resolved from a superclass if it is a unique leaf class in the type hierarchy
      */
     public void testLiskovSubstitutionPrinciple() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.Princess", dictionary.determineLeafClass("Daughter"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.Princess", dictionary.determineLeafClass("Daughter", "Princess"));
     }
@@ -90,7 +91,7 @@ public class AnnotatedClassDictionaryTest {
      * Taxa not in the domain will be ignored.
      */
     public void testAllNonMemberTaxa() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals(null, dictionary.determineLeafClass("Knight", "Baronet"));
     }
 
@@ -99,7 +100,7 @@ public class AnnotatedClassDictionaryTest {
      * Mixing domain and non-domain taxa is permitted.
      */
     public void testNonMemberAndMemberTaxa() {
-        dictionary = new AnnotatedClassDictionary("org.neo4j.ogm.mapper.domain.rulers");
+        dictionary = new AnnotatedClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.rulers"));
         assertEquals("org.neo4j.ogm.mapper.domain.rulers.Duke", dictionary.determineLeafClass("Knight", "Baronet", "Duke"));
     }
 

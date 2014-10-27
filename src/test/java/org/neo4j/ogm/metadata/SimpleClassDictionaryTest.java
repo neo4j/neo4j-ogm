@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import static junit.framework.Assert.assertEquals;
@@ -12,7 +13,7 @@ public class SimpleClassDictionaryTest {
 
     @Before
     public void setUp() {
-        scd = new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.bike", "org.neo4j.ogm.mapper.domain.rulers");
+        scd = new SimpleClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.bike", "org.neo4j.ogm.mapper.domain.rulers"));
     }
 
     @Test

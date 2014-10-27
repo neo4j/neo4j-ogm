@@ -2,11 +2,12 @@ package org.neo4j.ogm.strategy.simple;
 
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 
 public class SimpleClassDictionary extends ClassDictionary {
 
-    public SimpleClassDictionary(String... packages) {
-        super(packages);
+    public SimpleClassDictionary(DomainInfo domainInfo) {
+        super(domainInfo);
     }
 
     public Class match(String simpleName) {

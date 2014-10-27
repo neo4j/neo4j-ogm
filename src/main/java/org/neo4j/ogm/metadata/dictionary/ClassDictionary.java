@@ -7,16 +7,13 @@ import java.util.*;
 
 public abstract class ClassDictionary {
 
-    private final DomainInfo domainInfo = new DomainInfo();
+    private final DomainInfo domainInfo;
 
     private final Map<String, String> fqns = new HashMap<>();
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
-    public ClassDictionary(String... packages) {
-        if (packages == null || packages.length == 0) {
-            throw new RuntimeException("no packages defined");
-        }
-        domainInfo.load(packages);
+    public ClassDictionary(DomainInfo domainInfo) {
+        this.domainInfo = domainInfo;
     }
 
     /**

@@ -15,6 +15,10 @@ public class DomainInfo implements ClassInfoProcessor {
     private final HashMap<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
+    public DomainInfo(String... packages) {
+        load(packages);
+    }
+
     private void buildAnnotationNameToClassInfoMap() {
         // A <-[:has_annotation]- T
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
@@ -133,8 +137,7 @@ public class DomainInfo implements ClassInfoProcessor {
 
     }
 
-    // the public API. All the rest of the stuff above is just gumph and needs to be refactored away...
-    public void load(String... packages) {
+    private void load(String... packages) {
 
         classPaths.clear();
         classNameToClassInfo.clear();
@@ -148,6 +151,7 @@ public class DomainInfo implements ClassInfoProcessor {
         }
 
         new ClassPathScanner().scan(classPaths, this);
+
     }
 
     public ClassInfo getClass(String fqn) {

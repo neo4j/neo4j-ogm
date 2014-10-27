@@ -3,14 +3,15 @@ package org.neo4j.ogm.strategy.annotated;
 import org.neo4j.ogm.annotation.Label;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import java.util.List;
 
 public class AnnotatedClassDictionary extends SimpleClassDictionary {
 
-    public AnnotatedClassDictionary(String... packages) {
-        super(packages);
+    public AnnotatedClassDictionary(DomainInfo domainInfo) {
+        super(domainInfo);
     }
 
     @Override

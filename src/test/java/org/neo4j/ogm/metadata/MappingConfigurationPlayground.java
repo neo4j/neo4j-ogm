@@ -1,9 +1,5 @@
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.Property;
 import org.junit.Test;
@@ -11,11 +7,15 @@ import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.social.Individual;
 import org.neo4j.ogm.metadata.dictionary.DefaultPersistentFieldDictionary;
-
 import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.metadata.factory.ObjectFactory;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 public class MappingConfigurationPlayground {
 
@@ -139,7 +139,7 @@ public class MappingConfigurationPlayground {
 
             @Override
             public ObjectFactory provideObjectFactory() {
-                return new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.social"));
+                return new DefaultConstructorObjectFactory(new SimpleClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.social")));
             }
         };
     }

@@ -7,49 +7,48 @@ public class ConstantPool {
 
     private final Object[] pool;
 
-    public ConstantPool(DataInputStream dataInputStream) throws IOException {
+    public ConstantPool(DataInputStream stream) throws IOException {
 
-        int cpCount = dataInputStream.readUnsignedShort();
-        pool = new Object[cpCount];
+        int size = stream.readUnsignedShort();
+        pool = new Object[size];
 
-        for (int i = 1; i < cpCount; ++i) {
-            final int tag = dataInputStream.readUnsignedByte();
-            switch (tag) {
-                case 1: // Modified UTF8
-                    pool[i] = dataInputStream.readUTF();
+        for (int i = 1; i < size; i++) {
+            final int flag = stream.readUnsignedByte();
+            switch (flag) {
+                case ConstantPoolTags.UTF_8:
+                    pool[i] = stream.readUTF();
                     break;
-                case 3: // int
-                case 4: // float
-                    dataInputStream.skipBytes(4);
+                case ConstantPoolTags.INTEGER:
+                case ConstantPoolTags.FLOAT:
+                    stream.skipBytes(4);
                     break;
-                case 5: // long
-                case 6: // double
-                    dataInputStream.skipBytes(8);
+                case ConstantPoolTags.LONG:
+                case ConstantPoolTags.DOUBLE:
+                    stream.skipBytes(8);
                     i++; // double slot
                     break;
-                case 7: // Class
-                case 8: // String
-                    // Forward or backward reference a Modified UTF8 entry
-                    pool[i] = dataInputStream.readUnsignedShort();
+                case ConstantPoolTags.CLASS:
+                case ConstantPoolTags.STRING:
+                    pool[i] = stream.readUnsignedShort();
                     break;
-                case 9: // field ref
-                case 10: // method ref
-                case 11: // interface ref
-                case 12: // name and type
-                    dataInputStream.skipBytes(2); // reference to owning class
-                    pool[i]=dataInputStream.readUnsignedShort();
+                case ConstantPoolTags.FIELD_REF:
+                case ConstantPoolTags.METHOD_REF:
+                case ConstantPoolTags.INTERFACE_REF:
+                case ConstantPoolTags.NAME_AND_TYPE:
+                    stream.skipBytes(2); // reference to owning class
+                    pool[i]=stream.readUnsignedShort();
                     break;
-                case 15: // method handle
-                    dataInputStream.skipBytes(3);
+                case ConstantPoolTags.METHOD_HANDLE:
+                    stream.skipBytes(3);
                     break;
-                case 16: // method type
-                    dataInputStream.skipBytes(2);
+                case ConstantPoolTags.METHOD_TYPE:
+                    stream.skipBytes(2);
                     break;
-                case 18: // invoke dynamic
-                    dataInputStream.skipBytes(4);
+                case ConstantPoolTags.INVOKE_DYNAMIC:
+                    stream.skipBytes(4);
                     break;
                 default:
-                    throw new ClassFormatError("Unknown tag value for constant pool entry: " + tag);
+                    throw new ClassFormatError("Unknown tag value for constant pool entry: " + flag);
             }
         }
     }

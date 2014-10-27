@@ -8,6 +8,7 @@ import org.neo4j.ogm.mapper.domain.canonical.ClassWithPrivateConstructor;
 import org.neo4j.ogm.mapper.domain.canonical.ClassWithoutZeroArgumentConstructor;
 import org.neo4j.ogm.mapper.domain.social.Individual;
 import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
+import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class DefaultConstructorObjectFactoryTest {
         mappings.put("ClassWithPrivateConstructor", ClassWithPrivateConstructor.class.getName());
         mappings.put("ClassWithoutZeroArgumentConstructor", ClassWithoutZeroArgumentConstructor.class.getName());
         mappings.put("Person", Individual.class.getName());
-        this.objectCreator = new DefaultConstructorObjectFactory(new SimpleClassDictionary("org.neo4j.ogm.mapper.domain.social", "org.neo4j.ogm.mapper.domain.canonical"));
+        this.objectCreator = new DefaultConstructorObjectFactory(new SimpleClassDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.social", "org.neo4j.ogm.mapper.domain.canonical")));
     }
 
     @Test

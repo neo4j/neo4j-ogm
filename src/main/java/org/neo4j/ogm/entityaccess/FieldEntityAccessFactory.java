@@ -1,13 +1,21 @@
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+
 /**
  * Implementation of {@link EntityAccessFactory} that provides {@link FieldEntityAccess} instances.
  */
 public class FieldEntityAccessFactory implements EntityAccessFactory {
 
+    public final FieldDictionary fieldDictionary;
+
+    public FieldEntityAccessFactory(FieldDictionary fieldDictionary) {
+        this.fieldDictionary = fieldDictionary;
+    }
+
     @Override
     public FieldEntityAccess forProperty(String property) {
-        return FieldEntityAccess.forProperty(property);
+        return FieldEntityAccess.forProperty(fieldDictionary, property);
     }
 
     @Override

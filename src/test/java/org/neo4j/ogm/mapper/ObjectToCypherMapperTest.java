@@ -10,6 +10,9 @@ import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,9 +31,13 @@ public class ObjectToCypherMapperTest {
     @Mock
     private AttributeDictionary attributeDictionary;
 
+
+    // todo: mock this.
+    private FieldDictionary fieldDictionary = new SimpleFieldDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.education"));
+
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectGraphMapper(Object.class, null, new FieldEntityAccessFactory(), this.attributeDictionary);
+        this.mapper = new ObjectGraphMapper(Object.class, null, new FieldEntityAccessFactory(fieldDictionary), this.attributeDictionary);
     }
 
     @Test(expected = NullPointerException.class)

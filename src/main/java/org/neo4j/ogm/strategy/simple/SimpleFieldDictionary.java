@@ -4,7 +4,9 @@ import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.metadata.info.FieldsInfo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -13,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SimpleFieldDictionary extends FieldDictionary implements AttributeDictionary {
-
 
     public SimpleFieldDictionary(DomainInfo domainInfo) {
         super(domainInfo);
@@ -25,8 +26,12 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
     @Override
     protected Field findScalarField(Object instance, Object parameter, String property) throws MappingException {
 
-        for (Field field: declaredFieldsOn(instance.getClass())) {
-            if (field.getName().equals(property)) {
+        ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
+        FieldsInfo fieldsInfo = classInfo.fieldsInfo();
+
+        for (String fieldName : fieldsInfo.fields()) {
+            if (fieldName.equals(property)) {
+                Field field = getField(fieldName, instance);
                 Type type = field.getGenericType();
                 Class clazz = parameter.getClass();
                 if (type.equals(clazz) || type.equals(ClassUtils.unbox(clazz))) {
@@ -37,13 +42,22 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
         throw new MappingException("Could not find field: " + property);
     }
 
+    private Field getField(String fieldName, Object instance) throws MappingException {
+        try {
+            return instance.getClass().getDeclaredField(fieldName);
+        } catch (Exception e) {
+            throw new MappingException(e.getLocalizedMessage());
+        }
+    }
     @Override
     protected Field findCollectionField(Object instance, Object parameter, Class elementType, String property) throws MappingException {
 
-        Class<?> clazz = instance.getClass();
-        for (Field field : declaredFieldsOn(clazz)) {
-            if (field.getName().startsWith(property)) {
+        ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
+        FieldsInfo fieldsInfo = classInfo.fieldsInfo();
 
+        for (String fieldName : fieldsInfo.fields()) {
+            if (fieldName.startsWith(property)) {
+                Field field = getField(fieldName, instance);
                 if (field.getType().isArray()) {
                     Object arrayType = ((Iterable<?>)parameter).iterator().next();
                     if ((arrayType.getClass().getSimpleName() + "[]").equals(field.getType().getSimpleName())) {

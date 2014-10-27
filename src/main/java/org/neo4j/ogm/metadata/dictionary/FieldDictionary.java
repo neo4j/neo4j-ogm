@@ -10,7 +10,7 @@ import java.util.Map;
 
 public abstract class FieldDictionary implements MappingResolver {
 
-    private final DomainInfo domainInfo;
+    protected final DomainInfo domainInfo;
 
     public FieldDictionary(DomainInfo domainInfo) {
         this.domainInfo = domainInfo;

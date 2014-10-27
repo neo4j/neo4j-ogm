@@ -2,11 +2,11 @@ package org.neo4j.ogm.metadata.info;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class FieldsInfo {
 
+    private Set<String> fieldNames = new HashSet<>();
     private Map<String, ObjectAnnotations> fieldInfoMap = new HashMap<>();
 
     FieldsInfo() {}
@@ -36,10 +36,15 @@ public class FieldsInfo {
                 }
                 fieldInfoMap.put(fieldName, objectAnnotations);
             }
+            fieldNames.add(fieldName);
         }
     }
 
     public ObjectAnnotations getAnnotations(String fieldName) {
         return fieldInfoMap.get(fieldName);
+    }
+
+    public Set<String> fields() {
+        return fieldNames;
     }
 }

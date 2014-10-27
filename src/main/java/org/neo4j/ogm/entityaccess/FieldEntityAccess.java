@@ -2,20 +2,17 @@ package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
-import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import java.lang.reflect.Field;
 
 public class FieldEntityAccess extends AbstractEntityAccess {
 
-    // todo: don't hardwire this in. Use injection to inject what you need.
-    // todo FIXME.
-    private static final FieldDictionary fieldDictionary = new SimpleFieldDictionary(null);
-
     private String fieldName;
+    private FieldDictionary fieldDictionary;
 
-    private FieldEntityAccess(String graphProperty) {
-        this.fieldName = graphProperty;
+    private FieldEntityAccess(FieldDictionary fieldDictionary, String graphProperty) {
+        this.fieldDictionary = fieldDictionary;
+        this.fieldName = fieldDictionary.resolveGraphAttribute(graphProperty);
     }
 
 
@@ -35,9 +32,10 @@ public class FieldEntityAccess extends AbstractEntityAccess {
       *    Food[] likes;
       *    Collection<Food> likes; (and any subclasses/subinterfaces of Collection)
       *
+      * TODO: looks redundant now. just create a new one when we need it.
      */
-    public static FieldEntityAccess forProperty(String name) {
-        return new FieldEntityAccess(fieldDictionary.resolveGraphAttribute(name));
+    public static FieldEntityAccess forProperty(FieldDictionary fieldDictionary, String name) {
+        return new FieldEntityAccess(fieldDictionary, name);
     }
 
     private void writeToObject(Field field, Object target, Object value) throws Exception {

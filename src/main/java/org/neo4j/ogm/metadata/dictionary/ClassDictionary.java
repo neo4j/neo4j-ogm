@@ -35,7 +35,7 @@ public abstract class ClassDictionary {
     private String getFQN(String simpleName) {
         String qualifiedName = fqns.get(simpleName);
         if (qualifiedName == null) {
-            Class clazz = match(simpleName);
+            Class clazz = match(simpleName);   // handled by concrete implementation
             if (clazz != null) {
                 qualifiedName = clazz.getName();
                 this.fqns.put(simpleName, qualifiedName);
@@ -44,6 +44,7 @@ public abstract class ClassDictionary {
         return qualifiedName;
     }
 
+    // FIXME: why is this class spilling its guts?
     protected DomainInfo domainInfo() {
         return domainInfo;
     }

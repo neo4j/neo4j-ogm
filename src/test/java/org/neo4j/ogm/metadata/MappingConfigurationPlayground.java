@@ -7,17 +7,21 @@ import org.neo4j.ogm.entityaccess.EntityAccessFactory;
 import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.social.Individual;
 import org.neo4j.ogm.metadata.dictionary.DefaultPersistentFieldDictionary;
+import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
 import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 import org.neo4j.ogm.metadata.factory.ObjectFactory;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
+import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
 public class MappingConfigurationPlayground {
+
+    private FieldDictionary socialDictionary = new SimpleFieldDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.social"));
 
     @Test
     public void buildSomeMappingConfigurationAndMetadataAndTryToUseIt() {
@@ -30,7 +34,7 @@ public class MappingConfigurationPlayground {
                 new Property<String, Object>("surname", "McAngus"),
                 new Property<String, Object>("age", 32)));
 
-        EntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory();
+        EntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory(socialDictionary);
 
         // do some test mapping now...
 
@@ -69,7 +73,7 @@ public class MappingConfigurationPlayground {
         // CREATE (:Individual {age:30,name:'Gary'})-[:FRIEND_OF]->(:Individual {age:42,name:'Jeff'});
 
         MappingConfiguration mappingConfig = buildMappingConfiguration();
-        EntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory();
+        EntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory(socialDictionary);
 
         // We DEFINITELY need a DSL for this, it's very messy with invocation order being critical as with a StringBuilder
         // is jCypher appropriate or should we use a lightweight CypherQueryContext or something?

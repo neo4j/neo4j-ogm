@@ -6,23 +6,31 @@ import org.neo4j.ogm.entityaccess.FieldEntityAccess;
 import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.social.Individual;
+import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class FieldEntityAccessTest {
 
+    private FieldDictionary socialDictionary = new SimpleFieldDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.social"));
+    private FieldDictionary educationDictionary = new SimpleFieldDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.education"));
+
+
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionIfAskedToWriteValueToNullInstance() throws Exception {
-        FieldEntityAccess.forProperty("testProperty").set(null, "Arbitrary Value");
+        FieldEntityAccess.forProperty(socialDictionary, "testProperty").set(null, "Arbitrary Value");
     }
 
     @Test
     public void shouldWriteScalarPropertyValuesToAppropriateFieldOfObject() throws Exception {
         Individual peter = new Individual();
 
-        FieldEntityAccess.forProperty("name").set(peter, "Peter");
-        FieldEntityAccess.forProperty("age").set(peter, 34);
+
+        FieldEntityAccess.forProperty(socialDictionary, "name").set(peter, "Peter");
+        FieldEntityAccess.forProperty(socialDictionary, "age").set(peter, 34);
 
         assertEquals("Peter", peter.getName());
         assertEquals(34, peter.getAge());
@@ -30,7 +38,7 @@ public class FieldEntityAccessTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToRetrieveScalarValueFromFieldOfNullObject() {
-        FieldEntityAccess.forProperty("doesn't matter").readValue(null);
+        FieldEntityAccess.forProperty(socialDictionary, "doesn't matter").readValue(null);
     }
 
     @Test
@@ -40,7 +48,7 @@ public class FieldEntityAccessTest {
         toRead.setName("Navdeep");
         toRead.setAge(25);
 
-        Object readValue = FieldEntityAccess.forProperty("name").readValue(toRead);
+        Object readValue = FieldEntityAccess.forProperty(socialDictionary, "name").readValue(toRead);
         assertEquals(toRead.getName(), readValue);
     }
 
@@ -50,13 +58,13 @@ public class FieldEntityAccessTest {
         student.setId(81L);
         student.setName("Colin");
 
-        Object readValue = FieldEntityAccess.forProperty("id").readValue(student);
+        Object readValue = FieldEntityAccess.forProperty(educationDictionary, "id").readValue(student);
         assertEquals(student.getId(), readValue);
     }
 
     @Test
     public void shouldManufactureEntityAccessForSpecifiedFieldOfType() {
-        FieldEntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory();
+        FieldEntityAccessFactory entityAccessFactory = new FieldEntityAccessFactory(socialDictionary);
 
         Individual person = new Individual();
         person.setName("Gary");

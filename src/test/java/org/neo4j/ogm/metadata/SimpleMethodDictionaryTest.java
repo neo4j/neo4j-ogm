@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
@@ -26,7 +27,6 @@ public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
 
     @Before
     public void setUp() {
-        // TODO FIXME:
         smd = new SimpleMethodDictionary(null);
     }
 

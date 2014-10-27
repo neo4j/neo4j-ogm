@@ -144,6 +144,10 @@ public class ClassInfo {
         return directSuperclassName;
     }
 
+    public FieldsInfo fieldsInfo() {
+        return fieldsInfo;
+    }
+
     @Override
     public String toString() {
         return name();

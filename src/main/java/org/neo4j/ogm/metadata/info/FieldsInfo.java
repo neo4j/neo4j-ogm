@@ -6,8 +6,9 @@ import java.util.*;
 
 public class FieldsInfo {
 
-    private Set<String> fieldNames = new HashSet<>();
-    private Map<String, ObjectAnnotations> fieldInfoMap = new HashMap<>();
+    private Set<String> fields = new HashSet<>();
+    private Map<String, ObjectAnnotations> annotations = new HashMap<>();
+    private Map<String, String> descriptors = new HashMap<>();
 
     FieldsInfo() {}
 
@@ -17,7 +18,7 @@ public class FieldsInfo {
         for (int i = 0; i < fieldCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
             String fieldName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
-            dataInputStream.skipBytes(2); // descriptor_index
+            String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
             for (int j = 0; j < attributesCount; j++) {
                 ObjectAnnotations objectAnnotations = new ObjectAnnotations();
@@ -34,17 +35,18 @@ public class FieldsInfo {
                 else {
                     dataInputStream.skipBytes(attributeLength);
                 }
-                fieldInfoMap.put(fieldName, objectAnnotations);
+                annotations.put(fieldName, objectAnnotations);
             }
-            fieldNames.add(fieldName);
+            fields.add(fieldName);
+            descriptors.put(fieldName, descriptor);
         }
     }
 
-    public ObjectAnnotations getAnnotations(String fieldName) {
-        return fieldInfoMap.get(fieldName);
+    public ObjectAnnotations annotations(String fieldName) {
+        return annotations.get(fieldName);
     }
 
     public Set<String> fields() {
-        return fieldNames;
+        return fields;
     }
 }

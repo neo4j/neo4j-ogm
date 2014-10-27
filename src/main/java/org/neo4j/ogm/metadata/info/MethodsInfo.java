@@ -9,8 +9,9 @@ import java.util.Set;
 
 public class MethodsInfo {
 
-    private Set<String> methodNames = new HashSet<>();
-    private Map<String, ObjectAnnotations> methodsInfoMap = new HashMap<>();
+    private Set<String> methods = new HashSet<>();
+    private Map<String, ObjectAnnotations> annotations = new HashMap<>();
+    private Map<String, String> descriptors = new HashMap<>();
 
     MethodsInfo() {}
 
@@ -20,7 +21,9 @@ public class MethodsInfo {
         for (int i = 0; i < methodCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
             String methodName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
-            dataInputStream.skipBytes(2); // descriptor_index
+            String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor
+            //dataInputStream.skipBytes(2); // descriptor_index
+            //System.out.println(methodName + ":" + descriptor);
             int attributesCount = dataInputStream.readUnsignedShort();
             for (int j = 0; j < attributesCount; j++) {
                 ObjectAnnotations objectAnnotations = new ObjectAnnotations();
@@ -37,18 +40,19 @@ public class MethodsInfo {
                 else {
                     dataInputStream.skipBytes(attributeLength);
                 }
-                methodsInfoMap.put(methodName, objectAnnotations);
+                annotations.put(methodName, objectAnnotations);
             }
-            methodNames.add(methodName); // todo: replace with a methodInfo object?
+            methods.add(methodName); // todo: replace with a methodInfo object?
+            descriptors.put(methodName, descriptor);
         }
     }
 
-    public ObjectAnnotations getAnnotations(String fieldName) {
-        return methodsInfoMap.get(fieldName);
+    public ObjectAnnotations annotations(String fieldName) {
+        return annotations.get(fieldName);
     }
 
     public Set<String> methods() {
-        return methodNames;
+        return methods;
     }
 
 }

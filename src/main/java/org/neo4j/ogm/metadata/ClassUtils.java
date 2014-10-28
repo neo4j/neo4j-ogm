@@ -20,6 +20,28 @@ public abstract class ClassUtils {
         return "";
     }
 
+    public static Class getType(String descriptor) {
+
+        int p = descriptor.indexOf("(");
+        int q = descriptor.indexOf(")");
+
+        if (!descriptor.contains("[")) {
+            if (descriptor.endsWith(";)V")) {
+                q--;
+            }
+            if (descriptor.startsWith("(L")) {
+                p++;
+            }
+        }
+        String typeName = descriptor.substring(p + 1, q).replace("/", ".");
+        //System.out.println(typeName);
+        try {
+            return Class.forName(typeName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Attempts to resolve and return the "unboxed" primitive equivalent of the given type.  If the given class is an array then
      * the result is the class of the corresponding primitive array.

@@ -13,24 +13,26 @@ public abstract class MethodDictionary implements MappingResolver {
 
     protected final DomainInfo domainInfo;
 
+    /** owning type => setter or getter method name => java.lang.reflect.Method */
+    private final Map<Class<?>, Map<String, Method>> methodCache = new HashMap<>();
+
     public MethodDictionary(DomainInfo domainInfo) {
         this.domainInfo = domainInfo;
     }
 
-    /** owning type => setter or getter method name => java.lang.reflect.Method */
-    private final Map<Class<?>, Map<String, Method>> methodCache = new HashMap<>();
-
     public Method setter(String setterName, Object parameter, Object instance) throws MappingException {
 
         Class<?> clazz = instance.getClass();
-        Method m = lookup(clazz, setterName + "?"); // ? indicates a collection setter  todo: this looks broken now.
-        if (m != null) return m;
+        Method m = lookup(clazz, setterName);
+        if (m != null) {
+            return m;
+        }
 
         if (parameter instanceof Collection) {
             Class<?> elementType = ((Collection<?>) parameter).iterator().next().getClass();
             m= findCollectionSetter(instance, parameter, elementType, setterName);
         } else {
-            m= findScalarSetter(instance, parameter.getClass(), setterName);
+            m= findSetter(instance, parameter.getClass(), setterName);
         }
         return insert(instance.getClass(), m.getName(), m);
     }
@@ -62,6 +64,6 @@ public abstract class MethodDictionary implements MappingResolver {
 
     protected abstract Method findGetter(String methodName, Class<?> returnType, Object instance);
     protected abstract Method findCollectionSetter(Object instance, Object parameter, Class<?> elementType, String setterName);
-    protected abstract Method findScalarSetter(Object instance, Class<?> parameterClass, String setterName);
+    protected abstract Method findSetter(Object instance, Class<?> parameterClass, String setterName);
 
 }

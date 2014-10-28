@@ -23,7 +23,7 @@ public class AnnotatedMethodDictionary extends SimpleMethodDictionary {
     }
 
     @Override
-    protected Method findScalarSetter(Object instance, Class parameterClass, String setterName) {
+    protected Method findSetter(Object instance, Class parameterClass, String setterName) {
 //        Class<?> clazz = instance.getClass();
 //        Class primitiveClass = ClassUtils.unbox(parameterClass);
 //

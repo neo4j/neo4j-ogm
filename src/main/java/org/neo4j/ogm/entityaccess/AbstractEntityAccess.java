@@ -79,7 +79,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
         set.addAll(list1);
         set.addAll(list2);
 
-        return new ArrayList<Object>(set);
+        return new ArrayList<>(set);
     }
 
     private static Vector<Object> union(Vector<Object> list1, Vector<Object> list2) {
@@ -88,7 +88,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
         set.addAll(list1);
         set.addAll(list2);
 
-        return new Vector<Object>(set);
+        return new Vector<>(set);
     }
 
 }

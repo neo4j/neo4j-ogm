@@ -1,6 +1,7 @@
 package org.neo4j.ogm.mapper.domain.forum;
 
 import org.neo4j.ogm.annotation.Label;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.mapper.domain.forum.activity.Activity;
 
 import java.util.Date;
@@ -14,6 +15,8 @@ public class Member extends Login  {
     private List<Activity> activityList;
     private List<Member> followers;
     private List<Member> followees;
+    private Long membershipNumber;
+    private int[] nicknames;
 
     public IMembership getMemberShip() {
         return memberShip;
@@ -31,10 +34,12 @@ public class Member extends Login  {
         this.renewalDate = renewalDate;
     }
 
+    @Relationship(name="HAS_ACTIVITY")
     public List<Activity> getActivityList() {
         return activityList;
     }
 
+    @Relationship(name="HAS_ACTIVITY")
     public void setActivityList(List<Activity> activityList) {
         this.activityList = activityList;
     }
@@ -53,5 +58,21 @@ public class Member extends Login  {
 
     public void setFollowees(List<Member> followees) {
         this.followees = followees;
+    }
+
+    public long getMembershipNumber() {
+        return membershipNumber;
+    }
+
+    public void setMembershipNumber(long membershipNumber) {
+        this.membershipNumber = membershipNumber;
+    }
+
+    public int[] getNicknames() {
+        return nicknames;
+    }
+
+    public void setNicknames(int[] nicknames) {
+        this.nicknames = nicknames;
     }
 }

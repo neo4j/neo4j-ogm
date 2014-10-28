@@ -9,6 +9,8 @@ import java.util.Map;
 public class MethodsInfo {
 
     private Map<String, MethodInfo> methods = new HashMap<>();
+    private Map<String, MethodInfo> getters = new HashMap<>();
+    private Map<String, MethodInfo> setters = new HashMap<>();
 
     MethodsInfo() {}
 
@@ -36,7 +38,9 @@ public class MethodsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            methods.put(methodName, new MethodInfo(methodName, descriptor, objectAnnotations));
+            if (!methodName.equals("<init>")) {
+                addMethod(new MethodInfo(methodName, descriptor, objectAnnotations));
+            }
         }
     }
 
@@ -44,8 +48,12 @@ public class MethodsInfo {
         return methods.values();
     }
 
-    public String descriptor(String methodName) {
-        return methods.get(methodName).getDescriptor();
+    public Collection<MethodInfo> getters() {
+        return getters.values();
+    }
+
+    public Collection<MethodInfo> setters() {
+        return setters.values();
     }
 
     public MethodInfo get(String methodName) {
@@ -55,8 +63,20 @@ public class MethodsInfo {
     public void append(MethodsInfo methodsInfo) {
         for (MethodInfo methodInfo : methodsInfo.methods()) {
             if (!methods.containsKey(methodInfo.getName())) {
-                methods.put(methodInfo.getName(), methodInfo);
+                addMethod(methodInfo);
             }
+        }
+    }
+
+    private void addMethod(MethodInfo methodInfo) {
+        String methodName = methodInfo.getName();
+        String descriptor = methodInfo.getDescriptor();
+        methods.put(methodName, methodInfo);
+        if (methodName.startsWith("get") && descriptor.startsWith("()")) {
+            getters.put(methodName, methodInfo);
+        }
+        else if (methodName.startsWith("set") && descriptor.endsWith(")V")) {
+            setters.put(methodName, methodInfo);
         }
     }
 

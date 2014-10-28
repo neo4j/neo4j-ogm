@@ -74,6 +74,8 @@ public class ClassInfo {
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
 
+        //System.out.println("creating    " + className);
+
     }
 
     /** A class that was previously only seen as a superclass of another class can now be fully hydrated. */
@@ -159,6 +161,7 @@ public class ClassInfo {
     public String toString() {
         return name();
     }
+
 
 }
 

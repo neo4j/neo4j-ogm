@@ -1,9 +1,9 @@
 package org.neo4j.ogm.mapper.domain.forum;
 
-import org.neo4j.ogm.annotation.Label;
 import org.neo4j.ogm.annotation.Property;
 
-@Label
+// todo: default label and another in the class hierarchy...
+//@Label
 public abstract class Membership implements IMembership {
 
     @Property(name="annualFees")

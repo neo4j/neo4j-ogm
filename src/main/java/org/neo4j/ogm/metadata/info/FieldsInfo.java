@@ -6,9 +6,7 @@ import java.util.*;
 
 public class FieldsInfo {
 
-    private Set<String> fields = new HashSet<>();
-    private Map<String, ObjectAnnotations> annotations = new HashMap<>();
-    private Map<String, String> descriptors = new HashMap<>();
+    private Map<String, FieldInfo> fields = new HashMap<>();
 
     FieldsInfo() {}
 
@@ -36,17 +34,23 @@ public class FieldsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            fields.add(fieldName);
-            descriptors.put(fieldName, descriptor);
-            annotations.put(fieldName, objectAnnotations);
+            fields.put(fieldName, new FieldInfo(fieldName, descriptor, objectAnnotations));
         }
     }
 
-    public ObjectAnnotations annotations(String fieldName) {
-        return annotations.get(fieldName);
+    public Collection<FieldInfo> fields() {
+        return fields.values();
     }
 
-    public Set<String> fields() {
-        return fields;
+    public FieldInfo get(String name) {
+        return fields.get(name);
+    }
+
+    public void append(FieldsInfo fieldsInfo) {
+        for (FieldInfo fieldInfo : fieldsInfo.fields()) {
+            if (!fields.containsKey(fieldInfo.getName())) {
+                fields.put(fieldInfo.getName(), fieldInfo);
+            }
+        }
     }
 }

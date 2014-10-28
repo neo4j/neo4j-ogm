@@ -15,6 +15,7 @@ public class AnnotatedClassDictionary extends SimpleClassDictionary {
     }
 
     @Override
+    // TODO: use metadata now. it does all this automagically.
     public Class match(String label) {
         String annotation = Label.class.getName();
         List<ClassInfo> classInfos = domainInfo().getClassInfosWithAnnotation(annotation);
@@ -22,8 +23,8 @@ public class AnnotatedClassDictionary extends SimpleClassDictionary {
             for (ClassInfo classInfo : classInfos) {
                 try {
                     AnnotationInfo annotationInfo = classInfo.annotationsInfo().get(annotation);
-                    String name = annotationInfo.get("name");
-                    if (name != null && name.equals(label)) {
+                    String name = annotationInfo.get("name", classInfo.name());
+                    if (name.equals(label)) {
                         return Class.forName(classInfo.name());
                     }
                 } catch (Exception e) {

@@ -76,22 +76,25 @@ public class ClassInfo {
 
     }
 
-    public ClassInfo(String name, Collection<InterfaceInfo> interfaces, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
-        this.className = name;
-        this.fieldsInfo = fieldsInfo;
-        this.methodsInfo = methodsInfo;
-
-        this.hydrated = true;
-        this.interfaces.addAll(interfaces);
-        this.annotationsInfo = annotationsInfo;
-    }
-
     /** A class that was previously only seen as a superclass of another class can now be fully hydrated. */
     public void hydrate(ClassInfo classInfo) {
-        this.hydrated = true;
-        this.interfaces.addAll(classInfo.interfaces());
-        this.annotationsInfo.addAll(classInfo.annotations());
+       if (!this.hydrated) {
+            this.hydrated = true;
+            this.interfaces.addAll(classInfo.interfaces());
+            this.annotationsInfo.append(classInfo.annotationsInfo());
+            this.fieldsInfo.append(classInfo.fieldsInfo());
+            this.methodsInfo.append(classInfo.methodsInfo());
+       }
     }
+
+    void extend(ClassInfo classInfo) {
+        //System.out.println("extending  " + name() + " from " + classInfo.name());
+        this.interfaces.addAll(classInfo.interfaces());
+        //this.annotationsInfo.append(classInfo.annotationsInfo());
+        this.fieldsInfo.append(classInfo.fieldsInfo());
+        this.methodsInfo.append(classInfo.methodsInfo());
+    }
+
 
     /** This class was referenced as a superclass of the given subclass. */
     public ClassInfo(String name, ClassInfo subclass) {

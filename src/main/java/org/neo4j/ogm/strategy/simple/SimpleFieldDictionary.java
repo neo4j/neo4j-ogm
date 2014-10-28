@@ -6,6 +6,7 @@ import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.FieldsInfo;
 
 import java.lang.reflect.Field;
@@ -29,9 +30,9 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
         ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
         FieldsInfo fieldsInfo = classInfo.fieldsInfo();
 
-        for (String fieldName : fieldsInfo.fields()) {
-            if (fieldName.equals(property)) {
-                Field field = getField(fieldName, instance);
+        for (FieldInfo fieldInfo : fieldsInfo.fields()) {
+            if (fieldInfo.getName().equals(property)) {
+                Field field = getField(fieldInfo.getName(), instance);
                 Type type = field.getGenericType();
                 Class clazz = parameter.getClass();
                 if (type.equals(clazz) || type.equals(ClassUtils.unbox(clazz))) {
@@ -55,9 +56,10 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
         ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
         FieldsInfo fieldsInfo = classInfo.fieldsInfo();
 
-        for (String fieldName : fieldsInfo.fields()) {
-            if (fieldName.startsWith(property)) {
-                Field field = getField(fieldName, instance);
+        for (FieldInfo fieldInfo : fieldsInfo.fields()) {
+            if (fieldInfo.getName().startsWith(property)) {
+                Field field = getField(fieldInfo.getName(), instance);
+
                 if (field.getType().isArray()) {
                     Object arrayType = ((Iterable<?>)parameter).iterator().next();
                     if ((arrayType.getClass().getSimpleName() + "[]").equals(field.getType().getSimpleName())) {

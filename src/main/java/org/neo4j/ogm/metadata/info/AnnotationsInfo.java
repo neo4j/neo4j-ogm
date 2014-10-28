@@ -43,9 +43,9 @@ public class AnnotationsInfo {
         classAnnotations.put(annotationInfo.getName(), annotationInfo);
     }
 
-    public void addAll(Collection<AnnotationInfo> annotationInfos) {
-        for (AnnotationInfo info : annotationInfos) {
-            add(info);
+    public void append(AnnotationsInfo annotationsInfo) {
+        for (AnnotationInfo annotationInfo : annotationsInfo.list()) {
+            add(annotationInfo);
         }
     }
 }

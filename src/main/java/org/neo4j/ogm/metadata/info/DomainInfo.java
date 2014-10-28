@@ -31,78 +31,109 @@ public class DomainInfo implements ClassInfoProcessor {
             }
         }
     }
-
-    private void buildInterfaceHierarchy() {
-        // I - [:extends] -> J
-        for (InterfaceInfo interfaceInfo : interfaceNameToInterfaceInfo.values()) {
-            constructInterfaceHierarcy(interfaceInfo);
-        }
-    }
-
-    private void constructInterfaceHierarcy(InterfaceInfo interfaceInfo) {
-        if (interfaceInfo.allSuperInterfaces().isEmpty() && !interfaceInfo.superInterfaces().isEmpty()) {
-            interfaceInfo.allSuperInterfaces().addAll(interfaceInfo.superInterfaces());
-            for (InterfaceInfo superinterfaceInfo : interfaceInfo.superInterfaces()) {
-                if (superinterfaceInfo != null) {
-                    constructInterfaceHierarcy(superinterfaceInfo);
-                    interfaceInfo.allSuperInterfaces().addAll(superinterfaceInfo.allSuperInterfaces());
-                }
-            }
-        }
-    }
-
-    private void buildInterfaceNameToClassInfoMap() {
-        // T -[:implements]-> I
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            HashSet<InterfaceInfo> interfaceAndSuperinterfaces = new HashSet<>();
-            for (InterfaceInfo interfaceInfo : classInfo.interfaces()) {
-                interfaceAndSuperinterfaces.add(interfaceInfo);
-                if (interfaceInfo != null) {
-                    interfaceAndSuperinterfaces.addAll(interfaceInfo.allSuperInterfaces());
-                }
-            }
-            for (InterfaceInfo interfaceInfo : interfaceAndSuperinterfaces) {
-                ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(interfaceInfo.name());
-                if (classInfoList == null) {
-                    interfaceNameToClassInfo.put(interfaceInfo.name(), classInfoList = new ArrayList<>());
-                }
-                classInfoList.add(classInfo);
-            }
-        }
-    }
-
-    public void buildTransitiveInterfaceImplementations() {
-        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
-        for (String interfaceName : interfaceNameToClassInfo.keySet()) {
-            ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
-            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
-            for (ClassInfo classInfo : classes) {
-                if (classInfo != null) {
-                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
-                        subClasses.add(subClassInfo);
-                    }
-                }
-            }
-            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
-        }
-    }
+//
+//    private void buildInterfaceHierarchy() {
+//        // I - [:extends] -> J
+//        for (InterfaceInfo interfaceInfo : interfaceNameToInterfaceInfo.values()) {
+//            constructInterfaceHierarcy(interfaceInfo);
+//        }
+//    }
+//
+//    private void constructInterfaceHierarcy(InterfaceInfo interfaceInfo) {
+//        if (interfaceInfo.allSuperInterfaces().isEmpty() && !interfaceInfo.superInterfaces().isEmpty()) {
+//            interfaceInfo.allSuperInterfaces().addAll(interfaceInfo.superInterfaces());
+//            for (InterfaceInfo superinterfaceInfo : interfaceInfo.superInterfaces()) {
+//                if (superinterfaceInfo != null) {
+//                    constructInterfaceHierarcy(superinterfaceInfo);
+//                    interfaceInfo.allSuperInterfaces().addAll(superinterfaceInfo.allSuperInterfaces());
+//                }
+//            }
+//        }
+//    }
+//
+//    private void buildInterfaceNameToClassInfoMap() {
+//        // T -[:implements]-> I
+//        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+//            HashSet<InterfaceInfo> interfaceAndSuperinterfaces = new HashSet<>();
+//            for (InterfaceInfo interfaceInfo : classInfo.interfaces()) {
+//                interfaceAndSuperinterfaces.add(interfaceInfo);
+//                if (interfaceInfo != null) {
+//                    interfaceAndSuperinterfaces.addAll(interfaceInfo.allSuperInterfaces());
+//                }
+//            }
+//            for (InterfaceInfo interfaceInfo : interfaceAndSuperinterfaces) {
+//                ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(interfaceInfo.name());
+//                if (classInfoList == null) {
+//                    interfaceNameToClassInfo.put(interfaceInfo.name(), classInfoList = new ArrayList<>());
+//                }
+//                classInfoList.add(classInfo);
+//            }
+//        }
+//    }
+//
+//    private void buildTransitiveInterfaceImplementations() {
+//        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
+//        for (String interfaceName : interfaceNameToClassInfo.keySet()) {
+//            ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
+//            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
+//            for (ClassInfo classInfo : classes) {
+//                if (classInfo != null) {
+//                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
+//                        subClasses.add(subClassInfo);
+//                    }
+//                }
+//            }
+//            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
+//        }
+//    }
+//
+////    private void buildTransitiveFieldInfos() {
+////        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
+////        for (String className : classNameToClassInfo.keySet()) {
+////            ArrayList<ClassInfo> classes = classNameToClassInfo.get(className);
+////            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
+////            for (ClassInfo classInfo : classes) {
+////                if (classInfo != null) {
+////                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
+////                        subClasses.add(subClassInfo);
+////                    }
+////                }
+////            }
+////            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
+////        }
+////    }
+////
+////    private void buildTransitiveMethodInfos() {
+////        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
+////        for (String interfaceName : interfaceNameToClassInfo.keySet()) {
+////            ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
+////            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
+////            for (ClassInfo classInfo : classes) {
+////                if (classInfo != null) {
+////                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
+////                        subClasses.add(subClassInfo);
+////                    }
+////                }
+////            }
+////            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
+////        }
+////    }
 
     public void finish() {
-
-        if (classNameToClassInfo.isEmpty() && interfaceNameToInterfaceInfo.isEmpty()) {
-            return;
-        }
-
         buildAnnotationNameToClassInfoMap();
-        buildInterfaceHierarchy();
-        buildInterfaceNameToClassInfoMap();
-        buildTransitiveInterfaceImplementations();
+        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+            if (classInfo.name().equals("java.lang.Object")) continue;
+            if (classInfo.superclassName() == null || classInfo.superclassName().equals("java.lang.Object")) {
+                extend(classInfo, classInfo.directSubclasses());
+            }
+        }
+    }
 
-        // TODO: transitive annotations
-        // if a superclass type, method or field is annotated, inject the annotation to subclasses
-        // explicitly. Saves having to walk through type hierarchies to find an annotation.
-        // must also include annotated interfaces.  WHICH WE DONT DO YET.
-
+    private void extend(ClassInfo superclass, List<ClassInfo> subclasses) {
+        for (ClassInfo subclass : subclasses) {
+            subclass.extend(superclass);
+            extend(subclass, subclass.directSubclasses());
+        }
     }
 
     public void process(final InputStream inputStream) throws IOException {

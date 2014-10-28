@@ -4,6 +4,7 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +62,20 @@ public abstract class MethodDictionary implements MappingResolver {
         methods.put(methodName, method);
         return method;
     }
+
+    protected Method getSetter(String methodName, Class parameterClass, Object instance) {
+        try {
+            Method method = instance.getClass().getDeclaredMethod(methodName, parameterClass) ;
+            if( Modifier.isPublic(method.getModifiers()))  {
+                return method;
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
 
     protected abstract Method findGetter(String methodName, Class<?> returnType, Object instance);
     protected abstract Method findCollectionSetter(Object instance, Object parameter, Class<?> elementType, String setterName);

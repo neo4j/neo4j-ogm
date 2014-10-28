@@ -24,7 +24,10 @@ public class AnnotationInfo {
         elements.put(key, value);
     }
 
-    public String get(String key) {
+    public String get(String key, String defaultValue) {
+        if (elements.get(key) == null) {
+            put(key, defaultValue);
+        }
         return elements.get(key);
     }
 
@@ -34,7 +37,7 @@ public class AnnotationInfo {
         for (String key : elements.keySet()) {
             sb.append(key);
             sb.append(":'");
-            sb.append(get(key));
+            sb.append(get(key, null));
             sb.append("'");
             sb.append(" ");
         }

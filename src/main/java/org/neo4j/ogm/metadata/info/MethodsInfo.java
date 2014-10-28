@@ -2,16 +2,13 @@ package org.neo4j.ogm.metadata.info;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class MethodsInfo {
 
-    private Set<String> methods = new HashSet<>();
-    private Map<String, ObjectAnnotations> annotations = new HashMap<>();
-    private Map<String, String> descriptors = new HashMap<>();
+    private Map<String, MethodInfo> methods = new HashMap<>();
 
     MethodsInfo() {}
 
@@ -39,21 +36,28 @@ public class MethodsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            methods.add(methodName); // todo: replace with a methodInfo object?
-            descriptors.put(methodName, descriptor);
-            annotations.put(methodName, objectAnnotations);
+            methods.put(methodName, new MethodInfo(methodName, descriptor, objectAnnotations));
         }
     }
 
-    public ObjectAnnotations annotations(String methodName) {
-        return annotations.get(methodName);
-    }
-
-    public Set<String> methods() {
-        return methods;
+    public Collection<MethodInfo> methods() {
+        return methods.values();
     }
 
     public String descriptor(String methodName) {
-        return descriptors.get(methodName);
+        return methods.get(methodName).getDescriptor();
     }
+
+    public MethodInfo get(String methodName) {
+        return methods.get(methodName);
+    }
+
+    public void append(MethodsInfo methodsInfo) {
+        for (MethodInfo methodInfo : methodsInfo.methods()) {
+            if (!methods.containsKey(methodInfo.getName())) {
+                methods.put(methodInfo.getName(), methodInfo);
+            }
+        }
+    }
+
 }

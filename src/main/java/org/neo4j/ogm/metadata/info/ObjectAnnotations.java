@@ -23,4 +23,8 @@ public class ObjectAnnotations {
     public AnnotationInfo get(String key) {
         return annotations.get(key);
     }
+
+    public boolean isEmpty() {
+        return annotations.isEmpty();
+    }
 }

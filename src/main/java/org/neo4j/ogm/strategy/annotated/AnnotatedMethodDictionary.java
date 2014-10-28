@@ -23,22 +23,19 @@ public class AnnotatedMethodDictionary extends SimpleMethodDictionary {
     }
 
     @Override
-    protected Method findSetter(Object instance, Class parameterClass, String setterName) {
-//        Class<?> clazz = instance.getClass();
-//        Class primitiveClass = ClassUtils.unbox(parameterClass);
-//
-//        for (Method method : clazz.getMethods()) {
-//            if( Modifier.isPublic(method.getModifiers()) &&
-//                    method.getReturnType().equals(void.class) &&
-//                    method.isAnnotationPresent(null)) {
-//
-//                    method.getName().equals(setterName) &&
-//                    method.getParameterTypes().length == 1 &&
-//                    (method.getParameterTypes()[0] == parameterClass || method.getParameterTypes()[0].isAssignableFrom(primitiveClass))) {
-//                return insert(clazz, method.getName(), method);
+    protected Method findSetter(Object instance, Class parameterClass, String methodName) {
+//        ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
+//        //for (String method: classInfo.methodsInfo().)
+//        if (methodsInfo.methods().contains(methodName)) {
+//            String descriptor = methodsInfo.descriptor(methodName);
+//            if (descriptor.endsWith(")V")) {
+//                if (!descriptor.startsWith("(L") && !descriptor.startsWith("([L")) {
+//                    parameterClass = ClassUtils.unbox(parameterClass);
+//                }
+//                return getSetter(methodName, parameterClass, instance);
 //            }
 //        }
-        throw new MappingException("Cannot find method " + setterName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
+        throw new MappingException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
     }
 
     @Override

@@ -6,10 +6,10 @@ import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.metadata.info.MethodInfo;
 import org.neo4j.ogm.metadata.info.MethodsInfo;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,30 +45,17 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
     protected Method findSetter(Object instance, Class<?> parameterClass, String methodName) throws MappingException {
 
         ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
-        MethodsInfo methodsInfo = classInfo.methodsInfo();
-        if (methodsInfo.methods().contains(methodName)) {
-            String descriptor = methodsInfo.descriptor(methodName);
+        MethodInfo methodInfo = classInfo.methodsInfo().get(methodName);
+        if (methodInfo != null) {
+            String descriptor = methodInfo.getDescriptor();
             if (descriptor.endsWith(")V")) {
                 if (!descriptor.startsWith("(L") && !descriptor.startsWith("([L")) {
                     parameterClass = ClassUtils.unbox(parameterClass);
                 }
-                return getInvokable(methodName, parameterClass, instance);
+                return getSetter(methodName, parameterClass, instance);
             }
         }
         throw new MappingException("Cannot find method " + methodName + "(" + parameterClass.getSimpleName() + ") in class " + instance.getClass().getName());
-    }
-
-    private Method getInvokable(String methodName, Class parameterClass, Object instance) {
-        try {
-            Method method = instance.getClass().getDeclaredMethod(methodName, parameterClass) ;
-            if( Modifier.isPublic(method.getModifiers()))  {
-                return method;
-            }
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return null;
     }
 
     @Override
@@ -94,12 +81,12 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
         ClassInfo classInfo = domainInfo.getClass(instance.getClass().getName());
         MethodsInfo methodsInfo = classInfo.methodsInfo();
 
-        for (String m : methodsInfo.methods()) {
-            if (m.startsWith(methodName)) {
-                String descriptor = methodsInfo.descriptor(m);
+        for (MethodInfo m : methodsInfo.methods()) {
+            if (m.getName().startsWith(methodName)) {
+                String descriptor = m.getDescriptor();
                 if (descriptor.endsWith(")V")) {
                     Class parameterType = ClassUtils.getType(descriptor);
-                    Method method = getInvokable(m, parameterType, instance);
+                    Method method = getSetter(m.getName(), parameterType, instance);
                     if (method != null) {
                         return method;
                     }

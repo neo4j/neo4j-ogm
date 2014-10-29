@@ -1,18 +1,16 @@
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Saddle;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * Encapsulates tests that should be satisfied for all {@link AttributeDictionary} implementations.
@@ -24,6 +22,7 @@ public abstract class AttributeDictionaryTests {
     @Test
     public void shouldRetriveAttributesOfParticularClassThatRepresentOtherCompositeEntities() {
         Set<String> saddleAttributeNames = provideAttributeDictionaryToTest().lookUpCompositeEntityAttributesFromType(Saddle.class);
+
         assertNotNull(saddleAttributeNames);
         assertTrue(saddleAttributeNames.isEmpty());
 

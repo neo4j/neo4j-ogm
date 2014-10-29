@@ -17,6 +17,7 @@ public class MappingContext {
     }
 
     public void register(Object object, Long id) throws Exception {
+        // @Deprecated this should be done elsewhere
         object.getClass().getMethod("setId", Long.class).invoke(object, id);
         objectMap.put(id, object);
     }

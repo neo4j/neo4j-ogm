@@ -251,4 +251,22 @@ public class MetaDataTest {
         assertEquals("setActivityList", methodInfo.getName());
     }
 
+    @Test
+    public void testCanResolveClassHierarchies() {
+        ClassInfo classInfo = metaData.resolve("Login", "User");
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.Member", classInfo.name());
+    }
+
+    @Test
+    public void testCannotResolveInconsistentClassHierarchies() {
+        ClassInfo classInfo = metaData.resolve("Login", "Topic");
+        assertNull(classInfo);
+    }
+
+    @Test
+    public void testClassInfoIsFoundForFQN() {
+        String fqn = "org.neo4j.ogm.mapper.domain.forum.Topic";
+        ClassInfo classInfo = metaData.classInfo(fqn);
+        assertEquals(fqn, classInfo.name());
+    }
 }

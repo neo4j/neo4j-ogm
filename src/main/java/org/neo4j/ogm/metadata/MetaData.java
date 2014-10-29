@@ -6,10 +6,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.info.*;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MetaData {
 
@@ -373,6 +370,48 @@ public class MetaData {
             }
         }
         return null;
+    }
+
+    /**
+     * Given an set of fully qualified names that are possibly within a type hierarchy
+     * This function returns the base class from among them.
+     * @param
+     * @param taxa the taxa (simple class names or labels)
+     * @return The ClassInfo representing the base class among the taxa
+     */
+    public ClassInfo resolve(String... taxa) {
+        if (taxa.length > 0) {
+            Set<ClassInfo> baseClasses = new HashSet<>();
+            for (String taxon : taxa) {
+                ClassInfo baseClassInfo = resolveBaseClass(classInfo(taxon), classInfo(taxon).directSubclasses());
+                if (baseClassInfo != null) {
+                    baseClasses.add(baseClassInfo);
+                }
+            }
+            if (baseClasses.size() > 1) {
+                // todo logger.warn
+                System.out.println("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
+                return null;
+            }
+            if (baseClasses.iterator().hasNext()) {
+                return baseClasses.iterator().next();
+            }
+        }
+        return null;
+    }
+
+    private ClassInfo resolveBaseClass(ClassInfo fqn, List<ClassInfo> classInfoList) {
+        if (classInfoList.isEmpty()) {
+            return fqn;
+        }
+        if (classInfoList.size() > 1) {
+            // todo logger.warn
+            System.out.println("More than one class subclasses " + fqn);
+            return null; // turn back oh Man - forget thy foolish ways
+        }
+        ClassInfo classInfo = classInfoList.iterator().next();
+        return resolveBaseClass(classInfo, classInfo.directSubclasses());
+
     }
 
 }

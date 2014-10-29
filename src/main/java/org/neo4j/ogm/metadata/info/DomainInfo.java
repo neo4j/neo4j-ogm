@@ -31,93 +31,6 @@ public class DomainInfo implements ClassInfoProcessor {
             }
         }
     }
-//
-//    private void buildInterfaceHierarchy() {
-//        // I - [:extends] -> J
-//        for (InterfaceInfo interfaceInfo : interfaceNameToInterfaceInfo.values()) {
-//            constructInterfaceHierarcy(interfaceInfo);
-//        }
-//    }
-//
-//    private void constructInterfaceHierarcy(InterfaceInfo interfaceInfo) {
-//        if (interfaceInfo.allSuperInterfaces().isEmpty() && !interfaceInfo.superInterfaces().isEmpty()) {
-//            interfaceInfo.allSuperInterfaces().addAll(interfaceInfo.superInterfaces());
-//            for (InterfaceInfo superinterfaceInfo : interfaceInfo.superInterfaces()) {
-//                if (superinterfaceInfo != null) {
-//                    constructInterfaceHierarcy(superinterfaceInfo);
-//                    interfaceInfo.allSuperInterfaces().addAll(superinterfaceInfo.allSuperInterfaces());
-//                }
-//            }
-//        }
-//    }
-//
-//    private void buildInterfaceNameToClassInfoMap() {
-//        // T -[:implements]-> I
-//        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-//            HashSet<InterfaceInfo> interfaceAndSuperinterfaces = new HashSet<>();
-//            for (InterfaceInfo interfaceInfo : classInfo.interfaces()) {
-//                interfaceAndSuperinterfaces.add(interfaceInfo);
-//                if (interfaceInfo != null) {
-//                    interfaceAndSuperinterfaces.addAll(interfaceInfo.allSuperInterfaces());
-//                }
-//            }
-//            for (InterfaceInfo interfaceInfo : interfaceAndSuperinterfaces) {
-//                ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(interfaceInfo.name());
-//                if (classInfoList == null) {
-//                    interfaceNameToClassInfo.put(interfaceInfo.name(), classInfoList = new ArrayList<>());
-//                }
-//                classInfoList.add(classInfo);
-//            }
-//        }
-//    }
-//
-//    private void buildTransitiveInterfaceImplementations() {
-//        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
-//        for (String interfaceName : interfaceNameToClassInfo.keySet()) {
-//            ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
-//            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
-//            for (ClassInfo classInfo : classes) {
-//                if (classInfo != null) {
-//                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
-//                        subClasses.add(subClassInfo);
-//                    }
-//                }
-//            }
-//            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
-//        }
-//    }
-//
-////    private void buildTransitiveFieldInfos() {
-////        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
-////        for (String className : classNameToClassInfo.keySet()) {
-////            ArrayList<ClassInfo> classes = classNameToClassInfo.get(className);
-////            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
-////            for (ClassInfo classInfo : classes) {
-////                if (classInfo != null) {
-////                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
-////                        subClasses.add(subClassInfo);
-////                    }
-////                }
-////            }
-////            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
-////        }
-////    }
-////
-////    private void buildTransitiveMethodInfos() {
-////        // transitive interface implementations: S-[:extends]->T-[:implements]->I  => S-[:implements]->I
-////        for (String interfaceName : interfaceNameToClassInfo.keySet()) {
-////            ArrayList<ClassInfo> classes = interfaceNameToClassInfo.get(interfaceName);
-////            HashSet<ClassInfo> subClasses = new HashSet<>(classes);
-////            for (ClassInfo classInfo : classes) {
-////                if (classInfo != null) {
-////                    for (ClassInfo subClassInfo : classInfo.directSubclasses()) {
-////                        subClasses.add(subClassInfo);
-////                    }
-////                }
-////            }
-////            interfaceNameToClassInfo.put(interfaceName, new ArrayList<>(subClasses));
-////        }
-////    }
 
     public void finish() {
         buildAnnotationNameToClassInfoMap();
@@ -189,15 +102,15 @@ public class DomainInfo implements ClassInfoProcessor {
         return classNameToClassInfo.get(fqn);
     }
 
-    public ClassInfo getClassSimpleName(String simpleClassName) {
+    public ClassInfo getClassSimpleName(String fullOrPartialClassName) {
 
         ClassInfo match = null;
         for (String fqn : classNameToClassInfo.keySet()) {
-            if (fqn.endsWith("." + simpleClassName)) {
+            if (fqn.endsWith("." + fullOrPartialClassName) || fqn.equals(fullOrPartialClassName)) {
                 if (match == null) {
                     match = classNameToClassInfo.get(fqn);
                 } else {
-                    throw new MappingException("More than one class has simple name: " + simpleClassName);
+                    throw new MappingException("More than one class has simple name: " + fullOrPartialClassName);
                 }
             }
         }

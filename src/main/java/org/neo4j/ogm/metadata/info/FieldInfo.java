@@ -5,8 +5,8 @@ import org.neo4j.ogm.annotation.Relationship;
 
 public class FieldInfo {
 
-    private static final String primitives =
-        "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
+    private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
+    private static final String scalars = "I,J,S,B,C,F,D,Z";
 
     private String name;
     private String descriptor;
@@ -55,4 +55,5 @@ public class FieldInfo {
     public boolean isSimple() {
         return primitives.contains(descriptor) || descriptor.contains("java/lang/");
     }
+
 }

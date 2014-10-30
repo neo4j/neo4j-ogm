@@ -6,6 +6,9 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.info.*;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 public class MetaData {
@@ -25,11 +28,13 @@ public class MetaData {
     public ClassInfo classInfo(String name) {
         String annotation = Label.class.getName();
         List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(annotation);
-        for (ClassInfo labelledClass : labelledClasses) {
-            AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(annotation);
-            String value = annotationInfo.get("name", labelledClass.name());
-            if (value.equals(name)) {
-                return labelledClass;
+        if (labelledClasses != null) {
+            for (ClassInfo labelledClass : labelledClasses) {
+                AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(annotation);
+                String value = annotationInfo.get("name", labelledClass.name());
+                if (value.equals(name)) {
+                    return labelledClass;
+                }
             }
         }
         return domainInfo.getClassSimpleName(name);
@@ -126,7 +131,7 @@ public class MetaData {
      */
     public FieldInfo relationshipField(ClassInfo classInfo, String relationshipName) {
         for (FieldInfo fieldInfo : relationshipFields(classInfo)) {
-            if (fieldInfo.relationship().equals(relationshipName)) {
+            if (fieldInfo.relationship().equalsIgnoreCase(relationshipName)) {
                 return fieldInfo;
             }
         }
@@ -142,7 +147,7 @@ public class MetaData {
      */
     public FieldInfo propertyField(ClassInfo classInfo, String propertyName) {
         for (FieldInfo fieldInfo : propertyFields(classInfo)) {
-            if (fieldInfo.property().equals(propertyName)) {
+            if (fieldInfo.property().equalsIgnoreCase(propertyName)) {
                 return fieldInfo;
             }
         }
@@ -317,7 +322,7 @@ public class MetaData {
      */
     public MethodInfo relationshipGetter(ClassInfo classInfo, String relationshipName) {
         for (MethodInfo methodInfo : relationshipGetters(classInfo)) {
-            if (methodInfo.relationship().equals(relationshipName)) {
+            if (methodInfo.relationship().equalsIgnoreCase(relationshipName)) {
                 return methodInfo;
             }
         }
@@ -333,7 +338,7 @@ public class MetaData {
      */
     public MethodInfo relationshipSetter(ClassInfo classInfo, String relationshipName) {
         for (MethodInfo methodInfo : relationshipSetters(classInfo)) {
-            if (methodInfo.relationship().equals(relationshipName)) {
+            if (methodInfo.relationship().equalsIgnoreCase(relationshipName)) {
                 return methodInfo;
             }
         }
@@ -349,7 +354,7 @@ public class MetaData {
      */
     public MethodInfo propertySetter(ClassInfo classInfo, String propertyName) {
         for (MethodInfo methodInfo : propertySetters(classInfo)) {
-            if (methodInfo.property().equals(propertyName)) {
+            if (methodInfo.property().equalsIgnoreCase(propertyName)) {
                 return methodInfo;
             }
         }
@@ -365,7 +370,7 @@ public class MetaData {
      */
     public MethodInfo propertyGetter(ClassInfo classInfo, String propertyName) {
         for (MethodInfo methodInfo : propertyGetters(classInfo)) {
-            if (methodInfo.property().equals(propertyName)) {
+            if (methodInfo.property().equalsIgnoreCase(propertyName)) {
                 return methodInfo;
             }
         }
@@ -383,9 +388,12 @@ public class MetaData {
         if (taxa.length > 0) {
             Set<ClassInfo> baseClasses = new HashSet<>();
             for (String taxon : taxa) {
-                ClassInfo baseClassInfo = resolveBaseClass(classInfo(taxon), classInfo(taxon).directSubclasses());
-                if (baseClassInfo != null) {
-                    baseClasses.add(baseClassInfo);
+                ClassInfo taxonClassInfo = classInfo(taxon);
+                if (taxonClassInfo != null) {
+                    ClassInfo baseClassInfo = resolveBaseClass(taxonClassInfo, taxonClassInfo.directSubclasses());
+                    if (baseClassInfo != null) {
+                        baseClasses.add(baseClassInfo);
+                    }
                 }
             }
             if (baseClasses.size() > 1) {
@@ -412,6 +420,144 @@ public class MetaData {
         ClassInfo classInfo = classInfoList.iterator().next();
         return resolveBaseClass(classInfo, classInfo.directSubclasses());
 
+    }
+
+    /**
+     *
+     * @param classInfo
+     * @param fieldInfo
+     * @return
+     */
+    public boolean isScalar(ClassInfo classInfo, FieldInfo fieldInfo) {
+        Field field = getField(classInfo, fieldInfo);
+        return(!Collection.class.isAssignableFrom(field.getType()) && !fieldInfo.getDescriptor().contains("["));
+    }
+
+    /**
+     *
+     * @param classInfo
+     * @param fieldInfo
+     * @return
+     */
+    public Field getField(ClassInfo classInfo, FieldInfo fieldInfo) {
+        try {
+            return Class.forName(classInfo.name()).getDeclaredField(fieldInfo.getName());
+        } catch (NoSuchFieldException e) {
+            if (classInfo.directSuperclass() != null) {
+                return getField(classInfo.directSuperclass(), fieldInfo);
+            } else {
+                throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + classInfo.name() + " or any of its superclasses");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     *
+     * @param classInfo
+     * @param methodInfo
+     * @param parameter
+     * @return
+     */
+    public Method getMethod(ClassInfo classInfo, MethodInfo methodInfo, Class... parameter) {
+        try {
+            return Class.forName(classInfo.name()).getDeclaredMethod(methodInfo.getName(), parameter);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Find all setter MethodInfos for the specified ClassInfo whose parameter type matches the supplied class
+     *
+     * @param classInfo The ClassInfo instance whose MethodInfos will be examined
+     * @param parameterType  the setter parameter type to look for.
+     * @return
+     */
+    public List<MethodInfo> findSetters(ClassInfo classInfo, Class parameterType) {
+        String setterSignature = "(L" + parameterType.getName().replace(".", "/") + ";)V";
+        List<MethodInfo> methodInfos = new ArrayList<>();
+        for (MethodInfo methodInfo : classInfo.methodsInfo().methods()) {
+            if (methodInfo.getDescriptor().equals(setterSignature)) {
+                methodInfos.add(methodInfo);
+            }
+        }
+        return methodInfos;
+    }
+
+    /**
+     * Find all FieldInfos for the specified ClassInfo whose type matches the supplied fieldType
+     *
+     * @param classInfo The ClassInfo instance whose FieldInfos will be examined
+     * @param fieldType The fieldType to look for
+     * @return
+     */
+    public List<FieldInfo> findFields(ClassInfo classInfo, Class fieldType) {
+        String fieldSignature = "L" + fieldType.getName().replace(".", "/") + ";";
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields() ) {
+            if (fieldInfo.getDescriptor().equals(fieldSignature)) {
+                fieldInfos.add(fieldInfo);
+            }
+        }
+        return fieldInfos;
+    }
+
+    /**
+     *
+     * @param classInfo
+     */
+    public List<FieldInfo> findIterableFields(ClassInfo classInfo) {
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        try {
+            for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields() ) {
+                Class type = getField(classInfo, fieldInfo).getType();
+                if (type.isArray() || Collection.class.isAssignableFrom(type)) {
+                    fieldInfos.add(fieldInfo);
+                }
+            }
+            return fieldInfos;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     *
+     * @param classInfo
+     */
+    public List<MethodInfo> findIterableMethods(ClassInfo classInfo, Class parameterType) {
+        List<MethodInfo> methodInfos = new ArrayList<>();
+        try {
+            Class clazz = Class.forName(classInfo.name());
+            for (Method method : clazz.getDeclaredMethods()) {
+                MethodInfo methodInfo = classInfo.methodsInfo().get(method.getName());
+                if (methodInfo != null) {
+                    if (methodInfo.getDescriptor().endsWith(")V")) {
+                        if (method.getParameterTypes().length == 1) {
+                            Class methodParameterType = method.getParameterTypes()[0];
+                            if (methodParameterType.isArray() && methodParameterType.getComponentType() == parameterType) {
+                                methodInfos.add(methodInfo);
+                            }
+                            else if (Collection.class.isAssignableFrom(methodParameterType)) {
+                                ParameterizedType parameterizedType = (ParameterizedType) method.getGenericParameterTypes()[0];
+                                Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                                if (parameterizedTypeClass == parameterType) {
+                                    methodInfos.add(methodInfo);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return methodInfos;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

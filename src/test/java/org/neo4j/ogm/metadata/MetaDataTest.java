@@ -1,14 +1,18 @@
 package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
+import org.neo4j.ogm.mapper.domain.forum.Member;
+import org.neo4j.ogm.mapper.domain.forum.activity.Activity;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.*;
+
 
 public class MetaDataTest {
 
@@ -269,4 +273,104 @@ public class MetaDataTest {
         ClassInfo classInfo = metaData.classInfo(fqn);
         assertEquals(fqn, classInfo.name());
     }
+
+    @Test
+    public void testCollectionFieldInfo() {
+
+        ClassInfo classInfo = metaData.classInfo("Member");
+        FieldInfo fieldInfo = metaData.relationshipField(classInfo, "followers");
+
+        assertFalse(metaData.isScalar(classInfo, fieldInfo));
+
+    }
+
+    @Test
+    public void testArrayFieldInfo() {
+
+        ClassInfo classInfo = metaData.classInfo("Member");
+        FieldInfo fieldInfo = classInfo.fieldsInfo().get("nicknames");
+
+        assertFalse(metaData.isScalar(classInfo, fieldInfo));
+
+    }
+
+    @Test
+    public void testScalarFieldInfo() {
+
+        ClassInfo classInfo = metaData.classInfo("Member");
+        FieldInfo fieldInfo = classInfo.fieldsInfo().get("userName");
+
+        assertTrue(metaData.isScalar(classInfo, fieldInfo));
+
+    }
+
+    @Test
+    public void testFindDateSetter() {
+        ClassInfo classInfo = metaData.classInfo("Member");
+        List<MethodInfo> methodInfos = metaData.findSetters(classInfo, Date.class);
+        assertEquals("setRenewalDate", methodInfos.iterator().next().getName());
+    }
+
+    @Test
+    public void testFindDateField() {
+        ClassInfo classInfo = metaData.classInfo("Member");
+        List<FieldInfo> fieldInfos = metaData.findFields(classInfo, Date.class);
+        assertEquals("renewalDate", fieldInfos.iterator().next().getName());
+    }
+
+    @Test
+    public void testFindListFields() {
+        ClassInfo classInfo = metaData.classInfo("User");
+        List<FieldInfo> fieldInfos = metaData.findFields(classInfo, List.class);
+        int count = 3;
+        assertEquals(count, fieldInfos.size());
+        for (FieldInfo fieldInfo : fieldInfos) {
+            if (fieldInfo.getName().equals("followees")) count--;
+            if (fieldInfo.getName().equals("followers")) count--;
+            if (fieldInfo.getName().equals("activityList")) count--;
+        }
+        assertEquals(0, count);
+    }
+
+    @Test
+    public void testFindIterableFields() {
+        ClassInfo classInfo = metaData.classInfo("User");
+        List<FieldInfo> fieldInfos = metaData.findIterableFields(classInfo);
+        int count = 4;
+        assertEquals(count, fieldInfos.size());
+        for (FieldInfo fieldInfo : fieldInfos) {
+            System.out.println(fieldInfo.getName() +":"+ fieldInfo.getDescriptor());
+            if (fieldInfo.getName().equals("followees")) count--;
+            if (fieldInfo.getName().equals("followers")) count--;
+            if (fieldInfo.getName().equals("activityList")) count--;
+            if (fieldInfo.getName().equals("nicknames")) count--;
+        }
+        assertEquals(0, count);
+    }
+
+    @Test
+    public void testFindMultipleIterableMethodsWithSameParameterisedType() {
+        ClassInfo classInfo = metaData.classInfo("User");
+        List<MethodInfo> methodInfos = metaData.findIterableMethods(classInfo, Member.class);
+        int count = 2;
+        assertEquals(count, methodInfos.size());
+        for (MethodInfo methodInfo : methodInfos) {
+            if (methodInfo.getName().equals("setFollowees")) count--;
+            if (methodInfo.getName().equals("setFollowers")) count--;
+        }
+        assertEquals(count, 0);
+    }
+
+    @Test
+    public void testFindIterableMethodWithUniqueParameterisedType() {
+        ClassInfo classInfo = metaData.classInfo("User");
+        List<MethodInfo> methodInfos = metaData.findIterableMethods(classInfo, Activity.class);
+        int count = 1;
+        assertEquals(count, methodInfos.size());
+        for (MethodInfo methodInfo : methodInfos) {
+            if (methodInfo.getName().equals("setActivityList")) count--;
+        }
+        assertEquals(count, 0);
+    }
+
 }

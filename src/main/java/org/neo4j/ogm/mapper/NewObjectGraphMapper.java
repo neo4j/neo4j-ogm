@@ -24,6 +24,8 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
     private final ObjectFactory objectFactory;
     private final MetaData metadata;
 
+    private final GraphModelMapper graphModelMapper;
+
     //private final ClassDictionary classDictionary;
     //private final MethodDictionary methodDictionary;
     //private final FieldDictionary fieldDictionary;
@@ -31,6 +33,7 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
     public NewObjectGraphMapper(String... packages) {
         metadata = new MetaData(packages);
         objectFactory = new MetaDataConstructorObjectFactory(metadata);
+        graphModelMapper = new GraphModelMapper();
         //classDictionary = new AnnotatedClassDictionary(metadata);
         //methodDictionary = new AnnotatedMethodDictionary(metadata);
     }
@@ -38,6 +41,8 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
     @Override
     public <T> T load(Class<T> type, GraphModel graphModel)  {
         mappingContext.setRoot(type);
+        //graphModelMapper.map(graphModel);
+
         try {
             mapNodes(graphModel);
             mapRelationships(graphModel);
@@ -48,9 +53,7 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
     }
 
     private void mapNodes(GraphModel graphModel) throws Exception {
-
         for (NodeModel node : graphModel.getNodes()) {
-
             Object object = mappingContext.get(node.getId());
             if (object == null) { // object does not yet exist in our domain
                 object = objectFactory.instantiateObjectMappedTo(node);
@@ -77,19 +80,19 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
         // this is messy. we need a dictionary to help
 
         // a cache would help here.
-        MethodInfo methodInfo = metadata.propertySetter(classInfo, "set" + property.getKey().toString());
+        MethodInfo methodInfo = classInfo.propertySetter("set" + property.getKey().toString());
         if (methodInfo == null) {
             // also, a cache. metadata does not cache
-            FieldInfo fieldInfo = metadata.propertyField(classInfo, property.getKey().toString());
+            FieldInfo fieldInfo = classInfo.propertyField(property.getKey().toString());
             if (fieldInfo == null) {
                 // log a warning, we don't recognise this property
             } else {
                 System.out.println("writing property field: " + fieldInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
-                FieldAccess.write(metadata.getField(classInfo, fieldInfo), instance, property.getValue());
+                FieldAccess.write(classInfo.getField(fieldInfo), instance, property.getValue());
             }
         } else {
             System.out.println("invoking setter: " + methodInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
-            MethodAccess.write(metadata.getMethod(classInfo, methodInfo,ClassUtils.getType(methodInfo.getDescriptor())), instance, property.getValue());
+            MethodAccess.write(classInfo.getMethod(methodInfo,ClassUtils.getType(methodInfo.getDescriptor())), instance, property.getValue());
         }
     }
 
@@ -110,16 +113,16 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
         MethodInfo methodInfo;
 
         // 1st, try to find a method annotated with the relationship type.
-        methodInfo = metadata.relationshipSetter(classInfo, relationshipType);
+        methodInfo = classInfo.relationshipSetter(relationshipType);
         if (methodInfo != null) return methodInfo;
 
         // 2nd, try to find a "setXXX" method where XXX is derived from the relationship type
         String setterName = setterNameFromRelationshipType(relationshipType);
-        methodInfo = metadata.relationshipSetter(classInfo, setterName);
+        methodInfo = classInfo.relationshipSetter(setterName);
         if (methodInfo != null) return methodInfo;
 
         // 3rd, try to find a single setter that takes the parameter
-        List<MethodInfo> methodInfos = metadata.findSetters(classInfo, parameter.getClass());
+        List<MethodInfo> methodInfos = classInfo.findSetters(parameter.getClass());
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }
@@ -131,16 +134,16 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
         FieldInfo fieldInfo;
 
         // 1st, try to find a field annotated with with relationship type
-        fieldInfo = metadata.relationshipField(classInfo, relationshipType);
+        fieldInfo = classInfo.relationshipField(relationshipType);
         if (fieldInfo != null) return fieldInfo;
 
         // 2nd, try to find a "XXX" field name where XXX is derived from the relationship type
         String fieldName = setterNameFromRelationshipType(relationshipType).substring(4);
-        fieldInfo = metadata.relationshipField(classInfo, fieldName);
+        fieldInfo = classInfo.relationshipField(fieldName);
         if (fieldInfo != null) return fieldInfo;
 
         // 3rd, try to find a single setter that takes the parameter
-        List<FieldInfo> fieldInfos = metadata.findFields(classInfo, parameter.getClass());
+        List<FieldInfo> fieldInfos = classInfo.findFields(parameter.getClass());
         if (fieldInfos.size() == 1) {
             return fieldInfos.iterator().next();
         }
@@ -164,7 +167,7 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
             MethodInfo methodInfo = getMethodInfo(parentInfo, relationshipType, child);
             if (methodInfo != null) {
                 System.out.println("writing relationship: " + relationshipType + " using setter");
-                MethodAccess.write(metadata.getMethod(parentInfo, methodInfo, child.getClass()), parent, child);
+                MethodAccess.write(parentInfo.getMethod(methodInfo, child.getClass()), parent, child);
                 mappingContext.evict(child.getClass());
                 continue;
             }
@@ -172,7 +175,7 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
             FieldInfo fieldInfo = getFieldInfo(parentInfo, relationshipType, child);
             if (fieldInfo != null) {
                 System.out.println("writing relationship: " + relationshipType + " using field");
-                FieldAccess.write(metadata.getField(parentInfo, fieldInfo), parent, child);
+                FieldAccess.write(parentInfo.getField(fieldInfo), parent, child);
                 mappingContext.evict(child.getClass());
                 continue;
 
@@ -206,7 +209,7 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
                 if (methodInfo != null) {
                     System.out.println("writing relationship: " + edge.getType() + " using " + methodInfo.getName());
                     // FIX ME: hack here uses List.class, but we should get this back!
-                    MethodAccess.write(metadata.getMethod(classInfo, methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, get(type));
+                    MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, get(type));
                     mappingContext.evict(type); // we've added all instances of type for this object, no point in repeating the effort.
 
                 }
@@ -216,7 +219,7 @@ public class NewObjectGraphMapper implements NewGraphModelToObjectMapper<GraphMo
     }
 
     private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
-        List<MethodInfo> methodInfos = metadata.findIterableMethods(classInfo, parameterType);
+        List<MethodInfo> methodInfos = classInfo.findIterableMethods(parameterType);
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }

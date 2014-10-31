@@ -1,5 +1,6 @@
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.Label;
 import org.neo4j.ogm.annotation.NodeId;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -29,10 +30,6 @@ import java.util.*;
  * hierarchy, the labels associated with that type will include the labels for
  * all its superclass and interface types as well. This is to avoid the need to iterate
  * through the ClassInfo hierarchy to recover label information.
- *
- * The inverse mapping, LabelInfo, maintains mappings from Neo4j labels to specific
- * Java Types.
- *
  */
 public class ClassInfo {
 
@@ -100,7 +97,6 @@ public class ClassInfo {
         this.methodsInfo.append(classInfo.methodsInfo());
     }
 
-
     /** This class was referenced as a superclass of the given subclass. */
     public ClassInfo(String name, ClassInfo subclass) {
         this.className = name;
@@ -125,8 +121,32 @@ public class ClassInfo {
         return className;
     }
 
+    public String simpleName() {
+        return className.substring(className.lastIndexOf('.') + 1);
+    }
+
     public ClassInfo directSuperclass() {
         return directSuperclass;
+    }
+
+    /**
+     * Retrieves the labels that are applied to nodes in the database that store information about instances of the class. If
+     * the class' instances are persisted by a relationship instead of a node then this method returns an empty collection.
+     *
+     * @return A {@link Collection} of all the labels that apply to the node or an empty list if there aren't any, never
+     *         <code>null</code>
+     */
+    public Collection<String> labels() {
+        return collectLabels(new ArrayList<String>());
+    }
+
+    private Collection<String> collectLabels(Collection<String> labelNames) {
+        AnnotationInfo annotationInfo = annotationsInfo.get(Label.class.getName());
+        labelNames.add((annotationInfo != null) ? annotationInfo.get("name", simpleName()) : simpleName());
+        if (directSuperclass != null && !"java.lang.Object".equals(directSuperclassName)) {
+            directSuperclass.collectLabels(labelNames);
+        }
+        return labelNames;
     }
 
     public List<ClassInfo> directSubclasses() {

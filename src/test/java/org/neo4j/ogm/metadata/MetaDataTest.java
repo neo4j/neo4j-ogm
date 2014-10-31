@@ -1,5 +1,10 @@
 package org.neo4j.ogm.metadata;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.forum.Member;
 import org.neo4j.ogm.mapper.domain.forum.activity.Activity;
@@ -7,12 +12,7 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
-import static junit.framework.Assert.*;
-
+import static org.junit.Assert.*;
 
 public class MetaDataTest {
 
@@ -371,6 +371,15 @@ public class MetaDataTest {
             if (methodInfo.getName().equals("setActivityList")) count--;
         }
         assertEquals(count, 0);
+    }
+
+    @Test
+    public void testLabelsForClassInfo() {
+        ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
+        assertEquals(Arrays.asList("User", "Login"), annotatedClassInfo.labels());
+
+        ClassInfo simpleClassInfo = metaData.classInfo("Topic");
+        assertEquals(Arrays.asList("Topic"), simpleClassInfo.labels());
     }
 
 }

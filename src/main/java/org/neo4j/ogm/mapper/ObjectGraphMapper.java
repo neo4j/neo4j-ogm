@@ -10,7 +10,6 @@ import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 import org.neo4j.ogm.mapper.cypher.TemporaryDummyCypherBuilder;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.factory.ObjectFactory;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +23,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
 
     private static final MappingContext mappingContext = new MappingContext();
 
-    private final AttributeDictionary attributeDictionary;
     private final ObjectFactory objectFactory;
     private final EntityAccessFactory entityAccessFactory;
     private final Map<Class<?>, List<Object>> typeMap = new HashMap<>();
@@ -35,15 +33,11 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
      * @param type The type of the root object
      * @param objectFactory The {@link ObjectFactory} to use for instantiating types
      * @param entityAccessorFactory To determine how the property values should be mapped to the fields
-     * @param attributeDictionary The {@link AttributeDictionary} to look up fields and corresponding graph properties
      */
-    public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory,
-            EntityAccessFactory entityAccessorFactory, AttributeDictionary attributeDictionary) {
-
+    public ObjectGraphMapper(Class<?> type, ObjectFactory objectFactory, EntityAccessFactory entityAccessorFactory) {
         this.root = type;
         this.objectFactory = objectFactory;
         this.entityAccessFactory = entityAccessorFactory;
-        this.attributeDictionary = attributeDictionary;
     }
 
     @Override
@@ -78,8 +72,8 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
      */
     private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist) {
         NodeBuilder nodeBuilder = buildNode(cypherBuilder, toPersist);
-        mapObjectFieldsToProperties(toPersist, nodeBuilder);
-        mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder);
+        // actual implementation is in the process of being moved out of here
+        // see the test: ObjectToCypherMappingTest
         return nodeBuilder;
     }
 
@@ -90,38 +84,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel>, 
             return cypherBuilder.newNode();
         }
         return cypherBuilder.existingNode(Long.valueOf(id.toString()));
-    }
-
-    private void mapObjectFieldsToProperties(Object toPersist, NodeBuilder nodeBuilder) {
-        /*
-         * My feeling is still that I prefer the use of a rich field/property representation (like PersistentField) to
-         * provide information about property mappings, rather than making String-based lookups in a dictionary.  However,
-         * the use of Strings is in keeping with the current ethos so I've gone with this approach, with a view/hope that
-         * a more object-oriented implementation will appear in the future.
-         */
-        for (String attributeName : attributeDictionary.lookUpValueAttributesFromType(toPersist.getClass())) {
-            String propertyName = attributeDictionary.lookUpPropertyNameForAttribute(attributeName);
-            Object value = entityAccessFactory.forAttributeOfType(attributeName, toPersist.getClass()).readValue(toPersist);
-            nodeBuilder.addProperty(propertyName, value);
-        }
-    }
-
-    private void mapNestedEntitiesToGraphObjects(CypherBuilder cypherBuilder, Object toPersist, NodeBuilder nodeBuilder) {
-        for (String attributeName : attributeDictionary.lookUpCompositeEntityAttributesFromType(toPersist.getClass())) {
-            Object nestedEntity = entityAccessFactory.forAttributeOfType(attributeName, toPersist.getClass()).readValue(toPersist);
-            String relationshipType = attributeDictionary.lookUpRelationshipTypeForAttribute(attributeName);
-            if (nestedEntity instanceof Iterable) {
-                // create a relationship for each of these nested entities
-                for (Object object : (Iterable<?>) nestedEntity) {
-                    NodeBuilder newNode = deepMap(cypherBuilder, object);
-                    cypherBuilder.relate(nodeBuilder, relationshipType, newNode);
-                }
-            } else {
-                // TODO: another assumption is that it's outbound, for now
-                NodeBuilder newNode = deepMap(cypherBuilder, nestedEntity);
-                cypherBuilder.relate(nodeBuilder, relationshipType, newNode);
-            }
-        }
     }
 
     // required for tests, since the ids of objects are not unique across tests.

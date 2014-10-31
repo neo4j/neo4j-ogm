@@ -27,8 +27,7 @@ public class BikeTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(classDictionary),
-                new FieldEntityAccessFactory(fieldDictionary),
-                null);
+                new FieldEntityAccessFactory(fieldDictionary));
     }
 
     @Test

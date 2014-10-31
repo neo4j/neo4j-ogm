@@ -23,9 +23,9 @@ public class DeserialisationTest {
         return new ObjectGraphMapper(
                 Bike.class,
                 new DefaultConstructorObjectFactory(new SimpleClassDictionary(domainInfo)),
-                new MethodEntityAccessFactory(new SimpleMethodDictionary(domainInfo)),
-                null); // attribute dictionary is not required for this test
+                new MethodEntityAccessFactory(new SimpleMethodDictionary(domainInfo)));
     }
+
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {
 

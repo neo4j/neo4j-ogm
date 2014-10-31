@@ -3,7 +3,6 @@ package org.neo4j.ogm.metadata;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.canonical.Mappable;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
@@ -13,15 +12,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SimpleFieldDictionaryTest extends AttributeDictionaryTests {
+public class SimpleFieldDictionaryTest {
 
     private final DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.mapper.domain.canonical");
     private final SimpleFieldDictionary fieldDictionary = new SimpleFieldDictionary(domainInfo);
-
-    @Override
-    protected AttributeDictionary provideAttributeDictionaryToTest() {
-        return fieldDictionary;
-    }
 
     @Test
     public void testPrimitive() throws Exception {

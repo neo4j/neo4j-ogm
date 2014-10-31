@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Frame;
 import org.neo4j.ogm.mapper.domain.canonical.Mappable;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
@@ -16,13 +15,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class SimpleMethodDictionaryTest extends AttributeDictionaryTests {
-
-    @Override
-    protected AttributeDictionary provideAttributeDictionaryToTest() {
-        return new SimpleMethodDictionary(null);
-    }
-
+public class SimpleMethodDictionaryTest {
 
     @Test
     public void testPrimitiveScalar() throws Exception {

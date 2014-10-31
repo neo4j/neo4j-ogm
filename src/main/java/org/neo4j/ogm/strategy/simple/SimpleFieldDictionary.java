@@ -1,21 +1,20 @@
 package org.neo4j.ogm.strategy.simple;
 
-import org.neo4j.ogm.metadata.ClassUtils;
-import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
-import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.metadata.info.DomainInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.metadata.info.FieldsInfo;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SimpleFieldDictionary extends FieldDictionary implements AttributeDictionary {
+import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
+import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.neo4j.ogm.metadata.info.FieldsInfo;
+
+public class SimpleFieldDictionary extends FieldDictionary {
 
     public SimpleFieldDictionary(DomainInfo domainInfo) {
         super(domainInfo);
@@ -87,41 +86,14 @@ public class SimpleFieldDictionary extends FieldDictionary implements AttributeD
         throw new MappingException("Could not find collection or array field: " + property);
     }
 
-    @Override
-    public Set<String> lookUpCompositeEntityAttributesFromType(Class<?> typeToPersist) {
-        Set<String> compositeEntityAttributes = new HashSet<>();
-        Set<String> valueAttributes = lookUpValueAttributesFromType(typeToPersist);
-
-        // assumes all fields that aren't mappable to properties are entities
-        for (Field field : declaredFieldsOn(typeToPersist)) {
-            if (!valueAttributes.contains(field.getName())) {
-                compositeEntityAttributes.add(field.getName());
-            }
-        }
-        return compositeEntityAttributes;
-    }
-
-    @Override
-    public Set<String> lookUpValueAttributesFromType(Class<?> typeToPersist) {
-        Set<String> valueAttributes = new HashSet<>();
-        for (Field field : declaredFieldsOn(typeToPersist)) {
-            if (ClassUtils.mapsToGraphProperty(field.getType())) {
-                valueAttributes.add(field.getName());
-            }
-        }
-        return valueAttributes;
-    }
-
-    @Override
-    public String lookUpRelationshipTypeForAttribute(String attributeName) {
+    private String lookUpRelationshipTypeForAttribute(String attributeName) {
         if (attributeName == null) {
             return null;
         }
         return "HAS_" + attributeName.toUpperCase();
     }
 
-    @Override
-    public String lookUpPropertyNameForAttribute(String attributeName) {
+    private String lookUpPropertyNameForAttribute(String attributeName) {
         // simple strategy assumes that the node/relationship property name will match the object attribute name
         return attributeName;
     }

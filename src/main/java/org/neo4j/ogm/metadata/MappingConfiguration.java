@@ -1,6 +1,5 @@
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.metadata.dictionary.PersistentFieldDictionary;
 import org.neo4j.ogm.metadata.factory.ObjectFactory;
 
 /**
@@ -21,8 +20,7 @@ public interface MappingConfiguration {
      * we'd build one of these.
      */
 
-    // I fancy this metadata will also be referenced by all the "do stuff" objects that get returned from this class
-    PersistentFieldDictionary findMappingMetadataForType(Class<?> typeToMap);
+    MetaData retrieveMappingMetadata();
 
     // typically reflective with default constructor or some other ad-hoc pattern
     // could also create objects from relationship as well

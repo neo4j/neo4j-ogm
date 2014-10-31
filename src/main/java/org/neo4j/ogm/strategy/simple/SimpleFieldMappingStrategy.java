@@ -4,7 +4,6 @@ import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
 import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
 import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
@@ -24,8 +23,7 @@ public class SimpleFieldMappingStrategy implements GraphModelToObjectMapper<Grap
         mapper = new ObjectGraphMapper(
                 rootObjectType,
                 new DefaultConstructorObjectFactory(classDictionary),
-                new FieldEntityAccessFactory(fieldDictionary),
-                (AttributeDictionary) fieldDictionary);  // todo: seems like we have this information twice now.
+                new FieldEntityAccessFactory(fieldDictionary));  // todo: seems like we have this information twice now.
     }
 
     public void reset() {

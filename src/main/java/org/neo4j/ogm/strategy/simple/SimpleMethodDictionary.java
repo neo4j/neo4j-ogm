@@ -2,7 +2,6 @@ package org.neo4j.ogm.strategy.simple;
 
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.dictionary.AttributeDictionary;
 import org.neo4j.ogm.metadata.dictionary.MethodDictionary;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
@@ -35,7 +34,7 @@ import java.util.Set;
  * @author Vince Bickers
  *
  */
-public class SimpleMethodDictionary extends MethodDictionary implements AttributeDictionary {
+public class SimpleMethodDictionary extends MethodDictionary {
 
     public SimpleMethodDictionary(DomainInfo domainInfo) {
         super(domainInfo);
@@ -96,47 +95,14 @@ public class SimpleMethodDictionary extends MethodDictionary implements Attribut
         throw new MappingException("Cannot find method " + methodName + "(" + collection.getClass().getSimpleName() + "<" + elementType.getSimpleName() + ">) in class " + instance.getClass().getName());
     }
 
-    @Override
-    public Set<String> lookUpCompositeEntityAttributesFromType(Class<?> typeToPersist) {
-        Set<String> compositeEntityAttributes = new HashSet<>();
-        Set<String> valueAttributes = lookUpValueAttributesFromType(typeToPersist);
-
-        // assumes all getters that don't return values mappable to properties are entities
-        for (Method method : typeToPersist.getMethods()) {
-            if (isGetter(method)) {
-                if (method.getName().equals("getClass")) {
-                    continue;
-                }
-                String attributeName = resolveAttributeName(method);
-                if (!valueAttributes.contains(attributeName)) {
-                    compositeEntityAttributes.add(attributeName);
-                }
-            }
-        }
-        return compositeEntityAttributes;
-    }
-
-    @Override
-    public Set<String> lookUpValueAttributesFromType(Class<?> typeToPersist) {
-        Set<String> valueAttributes = new HashSet<>();
-        for (Method method : typeToPersist.getMethods()) {
-            if (isGetter(method) && ClassUtils.mapsToGraphProperty(method.getReturnType())) {
-                valueAttributes.add(resolveAttributeName(method));
-            }
-        }
-        return valueAttributes;
-    }
-
-    @Override
-    public String lookUpRelationshipTypeForAttribute(String attributeName) {
+    private String lookUpRelationshipTypeForAttribute(String attributeName) {
         if (attributeName == null) {
             return null;
         }
         return "HAS_" + attributeName.toUpperCase();
     }
 
-    @Override
-    public String lookUpPropertyNameForAttribute(String attributeName) {
+    private String lookUpPropertyNameForAttribute(String attributeName) {
         // for simple implementations, the attribute name is the same as the graph entity property name
         return attributeName;
     }

@@ -18,7 +18,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
     protected static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) throws Exception {
 
         // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
-        if (parameterType == List.class) {
+        if (List.class.isAssignableFrom(parameterType)) {
 
             List<Object> list = new ArrayList<>();
             list.addAll((Collection)collection);
@@ -30,7 +30,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
             return list;
         }
 
-        else if (parameterType == Set.class) {
+        else if (Set.class.isAssignableFrom(parameterType)) {
             Set<Object> set = new HashSet<>();
             if (hydrated != null && hydrated.iterator().hasNext()) {
                 set.addAll((Collection) hydrated);
@@ -39,7 +39,7 @@ public abstract class AbstractEntityAccess implements EntityAccess {
             return set;
         }
 
-        else if (parameterType == Vector.class) {
+        else if (Vector.class.isAssignableFrom(parameterType)) {
             Vector<Object> v = new Vector<>();
             v.addAll((Collection) collection);
 

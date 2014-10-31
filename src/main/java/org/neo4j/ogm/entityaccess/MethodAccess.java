@@ -1,32 +1,32 @@
 package org.neo4j.ogm.entityaccess;
 
-import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.info.MethodInfo;
-
 import java.lang.reflect.Method;
 
 public class MethodAccess extends ObjectAccess {
 
-    public static void write(MethodInfo methodInfo, Object instance, Object value) {
-        Class clazz = instance.getClass();
+    public static void write(Method method, Object instance, Object value) {
         try {
-            if (Iterable.class.isAssignableFrom(value.getClass())) {
-                value = merge(value.getClass(), (Iterable<?>) read(methodInfo, instance), (Iterable<?>) value);
+            Class parameterType = method.getParameterTypes()[0];
+            System.out.println("method parameter type: " + method.getParameterTypes()[0]);
+            System.out.println("value type: " + value.getClass());
+
+            // TODO: this needs to move elsewhere because read won't work with this method, and there may be no getter!
+            if (Iterable.class.isAssignableFrom(parameterType) || parameterType.isArray()) {
+                value = merge(method.getParameterTypes()[0], (Iterable<?>) value, (Iterable<?>) read(method, instance));
             }
-            Method method = clazz.getDeclaredMethod(methodInfo.getName(), value.getClass());
+
             method.invoke(instance, value);
         } catch (Exception e) {
-            throw new MappingException(e.getLocalizedMessage());
+            throw new RuntimeException(e);
         }
     }
 
-    public static Object read(MethodInfo methodInfo, Object instance) {
-        Class clazz = instance.getClass();
-        try {
-            Method method = clazz.getDeclaredMethod(methodInfo.getName());
-            return method.invoke(instance);
-        } catch (Exception e) {
-            throw new MappingException(e.getLocalizedMessage());
-        }
+    public static Object read(Method method, Object instance) {
+//        try {
+//            return method.invoke(instance);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+        return null;
     }
 }

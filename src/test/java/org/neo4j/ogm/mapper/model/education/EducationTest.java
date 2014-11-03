@@ -3,6 +3,7 @@ package org.neo4j.ogm.mapper.model.education;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
+
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.education.Teacher;
@@ -15,6 +16,7 @@ import static junit.framework.Assert.assertEquals;
 public class EducationTest {
 
     private static final ObjectGraphMapper mapper = new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.education");
+
     @Test
     public void testTeachers() throws Exception {
 

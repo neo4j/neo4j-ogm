@@ -47,9 +47,7 @@ public abstract class ObjectAccess {
             }
 
             Object array = Array.newInstance(type, ((Collection) objects).size());
-
             for (int i = 0; i < objects.size(); i++) {
-                Object object = objects.get(i);
                 Array.set(array, i, objects.get(i));
             }
             return array;

@@ -152,7 +152,9 @@ public class MetaDataTest {
         }
     }
 
-
+    /**
+     * Relationship fields are not mappable to node properties
+     */
     @Test
     public void testRelationshipFieldIsNotAPropertyField() {
 
@@ -164,6 +166,10 @@ public class MetaDataTest {
 
     }
 
+
+    /**
+     * A property field can be found using its annotated name (node property value)
+     */
     @Test
     public void testNamedPropertyField() {
         ClassInfo classInfo = metaData.classInfo("Gold");
@@ -171,6 +177,9 @@ public class MetaDataTest {
         assertEquals("fees", fieldInfo.getName());
     }
 
+    /**
+     * A relationship field can be found using its annotated name (relationship type value)
+     */
     @Test
     public void testNamedRelationshipField() {
         ClassInfo classInfo = metaData.classInfo("Topic");
@@ -178,6 +187,10 @@ public class MetaDataTest {
         assertEquals("posts", fieldInfo.getName());
     }
 
+
+    /**
+     * The default identity getter can be found if it exists.
+     */
     @Test
     public void testIdentityGetter() {
         ClassInfo classInfo = metaData.classInfo("Member"); // can also use 'User' here
@@ -188,6 +201,9 @@ public class MetaDataTest {
         //assertEquals(null, methodInfo.relationship());
     }
 
+    /**
+     * The default identity setter can be found if it exists.
+     */
     @Test
     public void testIdentitySetter() {
         ClassInfo classInfo = metaData.classInfo("Member"); // can also use 'User' here
@@ -198,6 +214,9 @@ public class MetaDataTest {
         //assertEquals(null, methodInfo.relationship());
     }
 
+    /**
+     * A non-default identity getter can be found if it is annotated.
+     */
     @Test
     public void testAnnotatedIdentityGetter() {
         ClassInfo classInfo = metaData.classInfo("Activity");
@@ -205,6 +224,9 @@ public class MetaDataTest {
         assertEquals("getActivityId", methodInfo.getName());
     }
 
+    /**
+     * A non-default identity setter can be found if it is annotated.
+     */
     @Test
     public void testAnnotatedIdentitySetter() {
         ClassInfo classInfo = metaData.classInfo("Activity");
@@ -228,6 +250,9 @@ public class MetaDataTest {
         assertEquals(0, count);
     }
 
+    /**
+     * Can find methods for setting objects which are nodes in the graph as opposed to node properties.
+     */
     @Test
     public void testRelationshipSetters() {
         ClassInfo classInfo = metaData.classInfo("User");
@@ -243,6 +268,9 @@ public class MetaDataTest {
         }
     }
 
+    /**
+     * Can find methods for getting objects which are nodes in the graph
+     */
     @Test
     public void testPropertyGetters() {
         ClassInfo classInfo = metaData.classInfo("User");
@@ -258,6 +286,9 @@ public class MetaDataTest {
         assertEquals(0, count);
     }
 
+    /**
+     * Can find methods for setting objects which are node properties in the graph.
+     */
     @Test
     public void testPropertySetters() {
         ClassInfo classInfo = metaData.classInfo("User");
@@ -492,4 +523,5 @@ public class MetaDataTest {
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.mapper.domain.education").classInfo(Student.class.getSimpleName());
         assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
     }
+
 }

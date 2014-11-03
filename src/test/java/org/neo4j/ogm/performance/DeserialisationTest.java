@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 public class DeserialisationTest {
 
     private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
-
         return new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.bike");
     }
     @Test

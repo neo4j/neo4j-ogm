@@ -10,7 +10,6 @@ public abstract class ObjectAccess {
 
         // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
         if (List.class.isAssignableFrom(parameterType)) {
-            System.out.println("assignable from list");
             List<Object> list = new ArrayList<>();
             list.addAll((Collection)collection);
             if (hydrated != null && hydrated.iterator().hasNext()) {
@@ -20,7 +19,6 @@ public abstract class ObjectAccess {
         }
 
         else if (Set.class.isAssignableFrom(parameterType)) {
-            System.out.println("assignable from set");
             Set<Object> set = new HashSet<>();
             if (hydrated != null && hydrated.iterator().hasNext()) {
                 set.addAll((Collection) hydrated);
@@ -30,7 +28,6 @@ public abstract class ObjectAccess {
         }
 
         else if (Vector.class.isAssignableFrom(parameterType)) {
-            System.out.println("assignable from vector");
             Vector<Object> v = new Vector<>();
             v.addAll((Collection) collection);
             if (hydrated != null && hydrated.iterator().hasNext()) {
@@ -40,14 +37,10 @@ public abstract class ObjectAccess {
         }
 
         else if (parameterType.isArray()) {
-            System.out.println("assignable from array");
             Class type = parameterType.getComponentType();
-            System.out.println(type.getName());
             List<Object> objects = new ArrayList<>();
 
-            //if (collection != null) {
-                objects.addAll((Collection) collection);
-            //}
+            objects.addAll((Collection) collection);
 
             if (hydrated != null && hydrated.iterator().hasNext()) {
                 objects = union(objects, Arrays.<Object>asList(hydrated));
@@ -55,12 +48,8 @@ public abstract class ObjectAccess {
 
             Object array = Array.newInstance(type, ((Collection) objects).size());
 
-            System.out.println(array.getClass());
-            System.out.println(objects.size());
-
             for (int i = 0; i < objects.size(); i++) {
                 Object object = objects.get(i);
-                System.out.println(object.getClass());
                 Array.set(array, i, objects.get(i));
             }
             return array;

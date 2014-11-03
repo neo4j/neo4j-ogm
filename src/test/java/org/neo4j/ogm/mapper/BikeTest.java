@@ -2,33 +2,16 @@ package org.neo4j.ogm.mapper;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
-import org.neo4j.ogm.entityaccess.FieldEntityAccessFactory;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
-import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
-import org.neo4j.ogm.metadata.dictionary.FieldDictionary;
-import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
-import org.neo4j.ogm.metadata.info.DomainInfo;
-import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
-import org.neo4j.ogm.strategy.simple.SimpleFieldDictionary;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 public class BikeTest {
 
-    private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
-
-        DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.mapper.domain.bike");
-        ClassDictionary classDictionary = new SimpleClassDictionary(domainInfo);
-        FieldDictionary fieldDictionary = new SimpleFieldDictionary(domainInfo);
-
-        return new ObjectGraphMapper(
-                Bike.class,
-                new DefaultConstructorObjectFactory(classDictionary),
-                new FieldEntityAccessFactory(fieldDictionary));
-    }
+    private static GraphModelToObjectMapper<GraphModel> ogm = new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.bike");
 
     @Test
     public void testDeserialiseBikeModel() throws Exception {
@@ -36,7 +19,10 @@ public class BikeTest {
         GraphModel graphModel = BikeModel.load();
 
         long now = -System.currentTimeMillis();
-        Bike bike = (Bike) instantiateMapper().mapToObject(graphModel);
+
+        Bike bike = ogm.load(Bike.class, graphModel);
+
+
         System.out.println("deserialised in " + (now + System.currentTimeMillis()) + " milliseconds");
 
         assertNotNull(bike);

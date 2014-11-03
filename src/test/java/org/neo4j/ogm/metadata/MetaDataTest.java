@@ -1,18 +1,17 @@
 package org.neo4j.ogm.metadata;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.forum.Member;
 import org.neo4j.ogm.mapper.domain.forum.activity.Activity;
-import org.neo4j.ogm.mapper.domain.forum.activity.Post;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -20,17 +19,26 @@ public class MetaDataTest {
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.mapper.domain.forum");
 
+    /**
+     * A class can be found if its simple name is unique in the domain
+     */
     @Test
     public void testClassInfo() {
         assertEquals("org.neo4j.ogm.mapper.domain.forum.Topic", metaData.classInfo("Topic").name());
     }
 
+    /**
+     * A class can be found via its annotated label
+     */
     @Test
     public void testAnnotatedClassInfo() {
         assertEquals("org.neo4j.ogm.mapper.domain.forum.Member", metaData.classInfo("User").name());
         assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.classInfo("Bronze").name());
     }
 
+    /**
+     * The default identity field is a Long type called "id"
+     */
     @Test
     public void testIdentity() {
         ClassInfo classInfo = metaData.classInfo("Login");
@@ -39,12 +47,19 @@ public class MetaDataTest {
         assertEquals("id", classInfo.identityField().getName());
     }
 
+    /**
+     * The annotated identity field is a Long type but called whatever you want
+     */
     @Test
     public void testAnnotatedIdentity() {
         ClassInfo classInfo = metaData.classInfo("Topic");
         assertEquals("topicId", classInfo.identityField().getName());
     }
 
+
+    /**
+     * Fields mappable to node properties
+     */
     @Test
     public void testPropertyFieldInfo() {
 
@@ -59,6 +74,9 @@ public class MetaDataTest {
         assertEquals(0, count);
     }
 
+    /**
+     * Node property names available via .property() (annotation)
+     */
     @Test
     public void testAnnotatedPropertyFieldInfo() {
 
@@ -66,10 +84,14 @@ public class MetaDataTest {
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
 
         FieldInfo fieldInfo = fieldInfos.iterator().next();
-        assertEquals("annualFees", fieldInfo.property());
+        assertEquals("annualFees", fieldInfo.property()); // the node property name
+        assertEquals("fees", fieldInfo.getName()); // the field name
 
     }
 
+    /**
+     * A property field cannot be used as a relationship (node entry)
+     */
     @Test
     public void testPropertyFieldIsNotARelationshipField() {
 
@@ -81,6 +103,10 @@ public class MetaDataTest {
 
     }
 
+
+    /**
+     * Find all fields that will be mapped as objects at the end of a relationship
+     */
     @Test
     public void testRelationshipFieldInfo() {
         ClassInfo classInfo = metaData.classInfo("Member");
@@ -89,7 +115,7 @@ public class MetaDataTest {
         int count = 5;
         assertEquals(count, fieldInfos.size());
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("renewalDate")) count--;
+            if (fieldInfo.getName().equals("renewalDate")) count--; // todo: this will go when we have transformers
             if (fieldInfo.getName().equals("activityList")) count--;
             if (fieldInfo.getName().equals("followees")) count--;
             if (fieldInfo.getName().equals("memberShip")) count--;
@@ -99,6 +125,9 @@ public class MetaDataTest {
 
     }
 
+    /**
+     * Relationship fields provide relationship name via .relationship()
+     */
     @Test
     public void testAnnotatedRelationshipFieldInfo() {
         ClassInfo classInfo = metaData.classInfo("Topic");
@@ -108,6 +137,21 @@ public class MetaDataTest {
             if (fieldInfo.getName().equals("posts")) assertEquals("HAS_POSTS", fieldInfo.relationship());
         }
     }
+
+
+    /**
+     * Relationship fields provide relationship name via .relationship()
+     */
+    @Test
+    public void testNonAnnotatedRelationshipFieldInfo() {
+        ClassInfo classInfo = metaData.classInfo("Topic");
+        Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
+
+        for (FieldInfo fieldInfo : fieldInfos) {
+            if (fieldInfo.getName().equals("posts")) assertEquals("HAS_POSTS", fieldInfo.relationship());
+        }
+    }
+
 
     @Test
     public void testRelationshipFieldIsNotAPropertyField() {
@@ -130,7 +174,7 @@ public class MetaDataTest {
     @Test
     public void testNamedRelationshipField() {
         ClassInfo classInfo = metaData.classInfo("Topic");
-        FieldInfo fieldInfo = classInfo.relationshipField( "HAS_POSTS");
+        FieldInfo fieldInfo = classInfo.relationshipField("HAS_POSTS");
         assertEquals("posts", fieldInfo.getName());
     }
 
@@ -232,28 +276,28 @@ public class MetaDataTest {
     @Test
     public void testNamedPropertyGetter() {
         ClassInfo classInfo = metaData.classInfo("Comment");
-        MethodInfo methodInfo = classInfo.propertyGetter( "remark");
+        MethodInfo methodInfo = classInfo.propertyGetter("remark");
         assertEquals("getComment", methodInfo.getName());
     }
 
     @Test
     public void testNamedPropertySetter() {
         ClassInfo classInfo = metaData.classInfo("Comment");
-        MethodInfo methodInfo = classInfo.propertySetter( "remark");
+        MethodInfo methodInfo = classInfo.propertySetter("remark");
         assertEquals("setComment", methodInfo.getName());
     }
 
     @Test
     public void testNamedRelationshipGetter() {
         ClassInfo classInfo = metaData.classInfo("Member");
-        MethodInfo methodInfo = classInfo.relationshipGetter( "HAS_ACTIVITY");
+        MethodInfo methodInfo = classInfo.relationshipGetter("HAS_ACTIVITY");
         assertEquals("getActivityList", methodInfo.getName());
     }
 
     @Test
     public void testNamedRelationshipSetter() {
         ClassInfo classInfo = metaData.classInfo("Member");
-        MethodInfo methodInfo = classInfo.relationshipSetter( "HAS_ACTIVITY");
+        MethodInfo methodInfo = classInfo.relationshipSetter("HAS_ACTIVITY");
         assertEquals("setActivityList", methodInfo.getName());
     }
 
@@ -280,7 +324,7 @@ public class MetaDataTest {
     public void testCollectionFieldInfo() {
 
         ClassInfo classInfo = metaData.classInfo("Member");
-        FieldInfo fieldInfo = classInfo.relationshipField( "followers");
+        FieldInfo fieldInfo = classInfo.relationshipField("followers");
 
         assertFalse(classInfo.isScalar( fieldInfo));
 
@@ -292,7 +336,7 @@ public class MetaDataTest {
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.fieldsInfo().get("nicknames");
 
-        assertFalse(classInfo.isScalar( fieldInfo));
+        assertFalse(classInfo.isScalar(fieldInfo));
 
     }
 
@@ -302,14 +346,14 @@ public class MetaDataTest {
         ClassInfo classInfo = metaData.classInfo("Member");
         FieldInfo fieldInfo = classInfo.fieldsInfo().get("userName");
 
-        assertTrue(classInfo.isScalar( fieldInfo));
+        assertTrue(classInfo.isScalar(fieldInfo));
 
     }
 
     @Test
     public void testFindDateSetter() {
         ClassInfo classInfo = metaData.classInfo("Member");
-        List<MethodInfo> methodInfos = classInfo.findSetters( Date.class);
+        List<MethodInfo> methodInfos = classInfo.findSetters(Date.class);
         assertEquals("setRenewalDate", methodInfos.iterator().next().getName());
     }
 
@@ -323,7 +367,7 @@ public class MetaDataTest {
     @Test
     public void testFindListFields() {
         ClassInfo classInfo = metaData.classInfo("User");
-        List<FieldInfo> fieldInfos = classInfo.findFields( List.class);
+        List<FieldInfo> fieldInfos = classInfo.findFields(List.class);
         int count = 3;
         assertEquals(count, fieldInfos.size());
         for (FieldInfo fieldInfo : fieldInfos) {
@@ -341,7 +385,6 @@ public class MetaDataTest {
         int count = 4;
         assertEquals(count, fieldInfos.size());
         for (FieldInfo fieldInfo : fieldInfos) {
-            System.out.println(fieldInfo.getName() +":"+ fieldInfo.getDescriptor());
             if (fieldInfo.getName().equals("followees")) count--;
             if (fieldInfo.getName().equals("followers")) count--;
             if (fieldInfo.getName().equals("activityList")) count--;
@@ -376,6 +419,68 @@ public class MetaDataTest {
     }
 
     @Test
+    /**
+     * Taxa corresponding to interfaces can't be resolved
+     */
+    public void testInterfaceTaxa() {
+        assertEquals(null, metaData.resolve("IMembership"));
+    }
+
+    @Test
+    /**
+     * Taxa corresponding to abstract classes can be resolved
+     */
+    public void testAbstractClassTaxa() {
+        assertEquals(null, metaData.resolve("Membership"));
+    }
+
+    @Test
+    /**
+     * Taxa not forming a class hierarchy cannot be resolved.
+     */
+    public void testNoCommonLeafInTaxa() {
+        assertEquals(null, metaData.resolve("Topic", "Member"));
+    }
+
+    @Test
+    /**
+     * The ordering of taxa is unimportant.
+     */
+    public void testOrderingOfTaxaIsUnimportant() {
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.resolve("Bronze", "Membership", "IMembership").name());
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.resolve("Bronze", "IMembership", "Membership").name());
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.resolve("Membership", "IMembership", "Bronze").name());
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.resolve("Membership", "Bronze", "IMembership").name());
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.resolve("IMembership", "Bronze", "Membership").name());
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.BronzeMembership", metaData.resolve("IMembership", "Membership", "Bronze").name());
+    }
+
+    @Test
+    /**
+     * A subclass will be resolved from a superclass if it is a unique leaf class in the type hierarchy
+     */
+    public void testLiskovSubstitutionPrinciple() {
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.Member", metaData.resolve("Login").name());
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.Member", metaData.resolve("Login", "Member").name());
+    }
+
+    @Test
+    /**
+     * Taxa not in the domain will be ignored.
+     */
+    public void testAllNonMemberTaxa() {
+        assertEquals(null, metaData.resolve("Knight", "Baronet"));
+    }
+
+    @Test
+    /**
+     * Mixing domain and non-domain taxa is permitted.
+     */
+    public void testNonMemberAndMemberTaxa() {
+        assertEquals("org.neo4j.ogm.mapper.domain.forum.SilverMembership", metaData.resolve("Silver", "Pewter", "Tin").name());
+    }
+
+    @Test
     public void testLabelsForClassInfo() {
         ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
         assertEquals(Arrays.asList("User", "Login"), annotatedClassInfo.labels());
@@ -387,5 +492,4 @@ public class MetaDataTest {
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.mapper.domain.education").classInfo(Student.class.getSimpleName());
         assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
     }
-
 }

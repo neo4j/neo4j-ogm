@@ -2,30 +2,19 @@ package org.neo4j.ogm.performance;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
-import org.neo4j.ogm.entityaccess.MethodEntityAccessFactory;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.model.GraphBuilder;
-import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
-import org.neo4j.ogm.metadata.info.DomainInfo;
-import org.neo4j.ogm.strategy.simple.SimpleClassDictionary;
-import org.neo4j.ogm.strategy.simple.SimpleMethodDictionary;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 public class DeserialisationTest {
 
     private static GraphModelToObjectMapper<GraphModel> instantiateMapper() {
 
-        DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.mapper.domain.bike");
-
-        return new ObjectGraphMapper(
-                Bike.class,
-                new DefaultConstructorObjectFactory(new SimpleClassDictionary(domainInfo)),
-                new MethodEntityAccessFactory(new SimpleMethodDictionary(domainInfo)));
+        return new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.bike");
     }
-
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {
 
@@ -38,7 +27,7 @@ public class DeserialisationTest {
         long elapsed = -System.currentTimeMillis();
 
         while ((graphModel = responseStream.next()) != null) {
-            mapper.mapToObject(graphModel);
+            mapper.load(Bike.class,graphModel);
         }
 
         elapsed += System.currentTimeMillis();

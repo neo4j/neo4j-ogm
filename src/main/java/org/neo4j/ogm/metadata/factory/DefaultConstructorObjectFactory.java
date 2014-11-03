@@ -3,23 +3,19 @@ package org.neo4j.ogm.metadata.factory;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.RelationshipModel;
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.dictionary.ClassDictionary;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 
-/**
- * Implementation of {@link org.neo4j.ogm.metadata.factory.ObjectFactory} that exclusively uses a class' default constructor for instantiation.
- */
+import java.util.*;
+
 public class DefaultConstructorObjectFactory implements ObjectFactory {
 
-    private final ClassDictionary classDictionary;
+    private final Map<String, String> taxaLeafClass = new HashMap<>();
 
-    /**
-     * Constructs a new {@link DefaultConstructorObjectFactory} that uses the given {@link org.neo4j.ogm.metadata.dictionary.ClassDictionary} to figure out which
-     * types to instantiate.
-     *
-     * @param classDictionary The {@link org.neo4j.ogm.metadata.dictionary.ClassDictionary} that configures this {@link ObjectFactory}
-     */
-    public DefaultConstructorObjectFactory(ClassDictionary classDictionary) {
-        this.classDictionary = classDictionary;
+    private final MetaData metadata;
+
+    public DefaultConstructorObjectFactory(MetaData metadata) {
+        this.metadata = metadata;
     }
 
     @Override
@@ -33,11 +29,13 @@ public class DefaultConstructorObjectFactory implements ObjectFactory {
     }
 
     private <T> T instantiateObjectFromTaxa(String... taxa) {
+
         if (taxa.length == 0) {
             throw new MappingException("Cannot map to a class with no taxa by which to determine the class name.");
         }
 
-        String fqn = this.classDictionary.determineLeafClass(taxa);
+        String fqn = resolve(taxa);
+
         try {
             @SuppressWarnings("unchecked")
             Class<T> className = (Class<T>) Class.forName(fqn);
@@ -45,6 +43,21 @@ public class DefaultConstructorObjectFactory implements ObjectFactory {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new MappingException("Unable to instantiate class: " + fqn, e);
         }
+    }
+
+    private String resolve(String... taxa) {
+
+        String fqn = taxaLeafClass.get(Arrays.toString(taxa));
+
+        if (fqn == null) {
+            ClassInfo classInfo = metadata.resolve(taxa);
+            if (classInfo != null) {
+                taxaLeafClass.put(Arrays.toString(taxa), fqn=classInfo.name());
+            } else {
+                throw new MappingException("Could not resolve a single base class from " + taxa);
+            }
+        }
+        return fqn;
     }
 
 }

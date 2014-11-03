@@ -1,8 +1,6 @@
-package org.neo4j.ogm.metadata.dictionary;
+package org.neo4j.ogm.metadata;
 
 import java.util.Collection;
-
-import org.neo4j.ogm.metadata.MappingException;
 
 /**
  * Thrown if the result of a lookup operation from a class dictionary yields more than a single unexpected result.

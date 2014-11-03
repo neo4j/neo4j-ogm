@@ -2,12 +2,11 @@ package org.neo4j.ogm.mapper.model.education;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
+import org.neo4j.ogm.mapper.ObjectGraphMapper;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.education.Teacher;
 import org.neo4j.ogm.mapper.model.DummyRequest;
-import org.neo4j.ogm.strategy.simple.SimpleSetterMappingStrategy;
 
 import java.util.*;
 
@@ -15,6 +14,7 @@ import static junit.framework.Assert.assertEquals;
 
 public class EducationTest {
 
+    private static final ObjectGraphMapper mapper = new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.education");
     @Test
     public void testTeachers() throws Exception {
 
@@ -139,19 +139,13 @@ public class EducationTest {
 
     private Map<String, Teacher> loadTeachers() throws Exception {
 
-        SimpleSetterMappingStrategy mapper = new SimpleSetterMappingStrategy(Teacher.class, "org.neo4j.ogm.mapper.domain.education");
-        // indicates we're starting a brand new domain parse. Throw everything away that's in the object cache
-        // Note: normally wouldn't be required, but the test classes create objects with non-unique ids,
-        // so the tests interfere with each other :).
-        mapper.reset();
-
         GraphModel graphModel;
 
         Map<String, Teacher> teachers = new HashMap<>();
         DummyRequest request = new TeacherRequest();
 
         while ((graphModel = request.getResponse().next()) != null) {
-            Teacher teacher = (Teacher) mapper.mapToObject(graphModel);
+            Teacher teacher = mapper.load(Teacher.class, graphModel);
             teachers.put(teacher.getName(), teacher);
         }
 
@@ -160,14 +154,14 @@ public class EducationTest {
 
     // when we hydrate a set of things that are previously loaded we don't need to create them afresh
     // - the object map of the existing objects is simply extended with new data.
+    // TODO: there is NO TEST asserting this.
     private void hydrateCourses() throws Exception {
 
         GraphModel graphModel;
         DummyRequest request = new CourseRequest();
 
-        GraphModelToObjectMapper mapper = new SimpleSetterMappingStrategy(Course.class, "org.neo4j.ogm.mapper.domain.education");
         while ((graphModel = request.getResponse().next()) != null) {
-            mapper.mapToObject(graphModel);
+            mapper.load(Course.class, graphModel);
         }
     }
 
@@ -176,11 +170,14 @@ public class EducationTest {
         int n = courseNames.length;
         List<String> test = Arrays.asList(courseNames);
 
+        System.out.println(teacher.getName() + " courses: ");
         for (Course course : teacher.getCourses()) {
+            System.out.println(course.getName());
             if (test.contains(course.getName())) {
                 n--;
             }
         }
+        System.out.println("---------------------");
         assertEquals(0, n);
     }
 }

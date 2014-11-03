@@ -5,8 +5,12 @@ package org.neo4j.ogm.mapper.cypher;
  */
 public interface NodeBuilder {
 
-    void addLabel(String labelName);
+    NodeBuilder withId(Long nodeId);
 
-    void addProperty(String propertyName, Object value);
+    NodeBuilder addLabel(String labelName);
+
+    NodeBuilder addLabels(Iterable<String> labelName);
+
+    NodeBuilder addProperty(String propertyName, Object value);
 
 }

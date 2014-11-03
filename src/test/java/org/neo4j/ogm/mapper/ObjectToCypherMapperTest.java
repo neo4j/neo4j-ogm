@@ -1,122 +1,119 @@
 package org.neo4j.ogm.mapper;
 
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.mapper.domain.education.Course;
+import org.neo4j.ogm.mapper.domain.education.Student;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.test.TestGraphDatabaseFactory;
+
 public class ObjectToCypherMapperTest {
 
-//    private ObjectToCypherMapper mapper;
-//
-//    @Before
-//    public void setUpMapper() {
-//        FieldDictionary fieldDictionary = new SimpleFieldDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.education"));
-//        this.mapper = new ObjectGraphMapper(Object.class, null, new FieldEntityAccessFactory(fieldDictionary));
-//    @Rule
-//    public final JUnitRuleMockery mockery = new JUnitRuleMockery();
-//
-//    @Mock
-//    private AttributeDictionary attributeDictionary;
-//
-//
-//    // todo: mock this.
-//    private FieldDictionary fieldDictionary = new SimpleFieldDictionary(new DomainInfo("org.neo4j.ogm.mapper.domain.education"));
-//
-//    @Before
-//    public void setUpMapper() {
-//        this.mapper = new ObjectGraphMapper(Object.class, null, new FieldEntityAccessFactory(fieldDictionary), this.attributeDictionary);
-//    }
-//
-//    @Test(expected = NullPointerException.class)
-//    public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-//        this.mapper.mapToCypher(null);
-//    }
-//
-//    @Test
-//    public void shouldProduceCypherForCreatingNewSimpleObject() {
-//        Student newStudent = new Student();
-//        newStudent.setName("Gary");
-//
-//        assertNull(newStudent.getId());
-//
-//        this.mockery.checking(new Expectations() {
-//            {
-//                oneOf(attributeDictionary).lookUpValueAttributesFromType(Student.class);
-//                will(returnValue(new HashSet<>(Arrays.asList("id", "name"))));
-//                oneOf(attributeDictionary).lookUpPropertyNameForAttribute("id");
-//                will(returnValue("id"));
-//                oneOf(attributeDictionary).lookUpPropertyNameForAttribute("name");
-//                will(returnValue("forename"));
-//                oneOf(attributeDictionary).lookUpCompositeEntityAttributesFromType(Student.class);
-//                will(returnValue(Collections.emptySet()));
-//            }
-//        });
-//
-//        List<String> cypher = this.mapper.mapToCypher(newStudent);
-//        assertNotNull("The resultant cypher shouldn't be null", cypher);
-//        assertFalse("The resultant list of cypher statements shouldn't be empty", cypher.isEmpty());
-//        System.out.println(cypher);
-//    }
-//
-//    @Test
-//    public void shouldProduceCypherForUpdatingExistingSimpleObject() {
-//        Student newStudent = new Student();
-//        newStudent.setId(339L);
-//        newStudent.setName("Sheila");
-//
-//        this.mockery.checking(new Expectations() {
-//            {
-//                oneOf(attributeDictionary).lookUpValueAttributesFromType(Student.class);
-//                will(returnValue(new HashSet<>(Arrays.asList("id", "name"))));
-//                oneOf(attributeDictionary).lookUpPropertyNameForAttribute("id");
-//                will(returnValue("id"));
-//                oneOf(attributeDictionary).lookUpPropertyNameForAttribute("name");
-//                will(returnValue("forename"));
-//                oneOf(attributeDictionary).lookUpCompositeEntityAttributesFromType(Student.class);
-//                will(returnValue(Collections.emptySet()));
-//            }
-//        });
-//
+    private ObjectToCypherMapper mapper;
 
-//        List<String> cypher = this.mapper.mapToCypher(newStudent);
-//        assertNotNull("The resultant cypher shouldn't be null", cypher);
-//        assertFalse("The resultant list of cypher statements shouldn't be empty", cypher.isEmpty());
-//        System.out.println(cypher);
-//    }
-//
-//    @Test
-//    public void shouldProduceCypherForSmallGraphOfPersistentAndTransientObjects() {
-//        Student transientStudent = new Student();
-//        transientStudent.setName("Lakshmipathy");
-//        Student persistentStudent = new Student();
-//        persistentStudent.setId(103L);
-//        persistentStudent.setName("Giuseppe");
-//        Course existingCourse = new Course();
-//        existingCourse.setId(49L);
-//        existingCourse.setName("BSc Computer Science");
-//        existingCourse.setStudents(Arrays.asList(transientStudent, persistentStudent));
-//
+    private static GraphDatabaseService graphDatabase;
+    private static ExecutionEngine executionEngine;
 
-//        this.mockery.checking(new Expectations() {
-//            {
-//                exactly(2).of(attributeDictionary).lookUpValueAttributesFromType(Student.class);
-//                will(returnValue(new HashSet<>(Arrays.asList("id", "name"))));
-//                oneOf(attributeDictionary).lookUpValueAttributesFromType(Course.class);
-//                will(returnValue(new HashSet<>(Arrays.asList("id", "name"))));
-//                allowing(attributeDictionary).lookUpPropertyNameForAttribute("id");
-//                will(returnValue("id"));
-//                allowing(attributeDictionary).lookUpPropertyNameForAttribute("name");
-//                will(returnValue("name"));
-//                exactly(2).of(attributeDictionary).lookUpCompositeEntityAttributesFromType(Student.class);
-//                will(returnValue(Collections.emptySet()));
-//                oneOf(attributeDictionary).lookUpCompositeEntityAttributesFromType(Course.class);
-//                will(returnValue(Collections.singleton("students")));
-//                oneOf(attributeDictionary).lookUpRelationshipTypeForAttribute("students");
-//                will(returnValue("HAS_STUDENT"));
-//            }
-//        });
-//
+    @BeforeClass
+    public static void setUpTestDatabase() {
+        graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        executionEngine = new ExecutionEngine(graphDatabase);
+    }
 
-//        List<String> cypher = this.mapper.mapToCypher(existingCourse);
-//        assertNotNull("The resultant cypher shouldn't be null", cypher);
-//        assertFalse("The resultant list of cypher statements shouldn't be empty", cypher.isEmpty());
-//        System.out.println(cypher);
-//    }
+    @AfterClass
+    public static void shutDownDatabase() {
+        graphDatabase.shutdown();
+    }
+
+    @Before
+    public void setUpMapper() {
+        this.mapper = new MetaDataDrivenObjectToCypherMapper(new MetaData("org.neo4j.ogm.mapper.domain.education"));
+    }
+
+    @After
+    public void cleanGraph() {
+        executionEngine.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
+        this.mapper.mapToCypher(null);
+    }
+
+    @Test
+    public void shouldProduceCypherForCreatingNewSimpleObject() {
+        Student newStudent = new Student();
+        newStudent.setName("Gary");
+
+        assertNull(newStudent.getId());
+
+        List<String> cypher = this.mapper.mapToCypher(newStudent);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:\"Gary\"})");
+    }
+
+    @Test
+    public void shouldProduceCypherForUpdatingExistingSimpleObject() {
+        ExecutionResult executionResult = executionEngine.execute("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id");
+        Long existingNodeId = Long.valueOf(executionResult.iterator().next().get("id").toString());
+
+        Student newStudent = new Student();
+        newStudent.setId(existingNodeId);
+        newStudent.setName("Sheila Smythe-Jones");
+
+        List<String> cypher = this.mapper.mapToCypher(newStudent);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Sheila Smythe-Jones'})");
+    }
+
+    @Test
+    public void shouldProduceCypherToAddNewNodeIntoSmallExistingGraph() {
+        // set up one student on a course to begin with and add a new student to it
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (c:Course {name:'BSc Computer Science'})-[:STUDENTS]->(s:Student:DomainObject {name:'Gianfranco'}) " +
+                "RETURN id(s) AS student_id, id(c) AS course_id");
+        Map<String, Object> resultSetRow = executionResult.iterator().next();
+        Long studentId = Long.valueOf(resultSetRow.get("student_id").toString());
+        Long courseId = Long.valueOf(resultSetRow.get("course_id").toString());
+
+        Student persistentStudent = new Student();
+        persistentStudent.setId(studentId);
+        persistentStudent.setName("Gianfranco");
+        Student transientStudent = new Student();
+        transientStudent.setName("Lakshmipathy");
+        Course existingCourse = new Course();
+        existingCourse.setId(courseId);
+        existingCourse.setName("BSc Computer Science");
+        existingCourse.setStudents(Arrays.asList(transientStudent, persistentStudent));
+
+        // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write inconsistency
+        List<String> cypher = this.mapper.mapToCypher(existingCourse);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
+                "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
+                "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
+    }
+
+    private void executeStatementsAndAssertSameGraph(List<String> cypher, String sameGraphCypher) {
+        assertNotNull("The resultant cypher shouldn't be null", cypher);
+        assertFalse("The resultant cypher statements shouldn't be empty", cypher.isEmpty());
+
+        for (String query : cypher) {
+            executionEngine.execute(query);
+        }
+        assertSameGraph(graphDatabase, sameGraphCypher);
+    }
 
 }

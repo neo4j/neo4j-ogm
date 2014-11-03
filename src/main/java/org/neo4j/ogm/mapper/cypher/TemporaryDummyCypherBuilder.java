@@ -54,18 +54,33 @@ class TemporaryDummyNodeBuilder implements NodeBuilder {
     Map<String, Object> props = new HashMap<>();
 
     @Override
-    public void addLabel(String labelName) {
+    public NodeBuilder addLabel(String labelName) {
         // do nothing
+        return this;
     }
 
     @Override
-    public void addProperty(String propertyName, Object value) {
+    public NodeBuilder addProperty(String propertyName, Object value) {
         props.put(propertyName, value);
+        return this;
     }
 
     @Override
     public String toString() {
         return "(" + props + ')';
+    }
+
+    @Override
+    public NodeBuilder addLabels(Iterable<String> labelName) {
+        for (String label : labelName) {
+            addLabel(label);
+        }
+        return this;
+    }
+
+    @Override
+    public NodeBuilder withId(Long nodeId) {
+        throw new UnsupportedOperationException("atg hasn't written this method yet");
     }
 
 }

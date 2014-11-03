@@ -1,5 +1,8 @@
 package org.neo4j.ogm.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.graphaware.graphmodel.neo4j.NodeModel;
 import org.graphaware.graphmodel.neo4j.Property;
@@ -14,9 +17,6 @@ import org.neo4j.ogm.metadata.factory.ObjectFactory;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 

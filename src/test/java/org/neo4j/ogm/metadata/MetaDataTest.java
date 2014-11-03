@@ -6,8 +6,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
+import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.forum.Member;
 import org.neo4j.ogm.mapper.domain.forum.activity.Activity;
+import org.neo4j.ogm.mapper.domain.forum.activity.Post;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -380,6 +382,10 @@ public class MetaDataTest {
 
         ClassInfo simpleClassInfo = metaData.classInfo("Topic");
         assertEquals(Arrays.asList("Topic"), simpleClassInfo.labels());
+
+        // test with class hierarchy that's completely void of annotations
+        ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.mapper.domain.education").classInfo(Student.class.getSimpleName());
+        assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
     }
 
 }

@@ -143,7 +143,7 @@ public class ClassInfo {
     private Collection<String> collectLabels(Collection<String> labelNames) {
         AnnotationInfo annotationInfo = annotationsInfo.get(Label.class.getName());
         labelNames.add((annotationInfo != null) ? annotationInfo.get("name", simpleName()) : simpleName());
-        if (directSuperclass != null && !"java.lang.Object".equals(directSuperclassName)) {
+        if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
             directSuperclass.collectLabels(labelNames);
         }
         return labelNames;

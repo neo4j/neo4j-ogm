@@ -33,13 +33,10 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     @Override
     public <T> T load(Class<T> type, GraphModel graphModel)  {
 
-        // todo: not threadsafe
-        mappingContext.setRoot(type);
-
         try {
             mapNodes(graphModel);
             mapRelationships(graphModel);
-            return type.cast(mappingContext.getRoot());
+            return type.cast(mappingContext.getRoot(type));
         } catch (Exception e) {
             throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }
@@ -48,10 +45,9 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     private void mapNodes(GraphModel graphModel) throws Exception {
         for (NodeModel node : graphModel.getNodes()) {
             Object object = mappingContext.get(node.getId());
-            if (object == null) { // object does not yet exist in our domain
-                object = objectFactory.instantiateObjectMappedTo(node);
+            if (object == null) {
+                object = mappingContext.register(objectFactory.newObject(node), node.getId());
                 setIdentity(object, node.getId());
-                mappingContext.register(object, node.getId());
                 setProperties(node, object);
             }
             register(object);

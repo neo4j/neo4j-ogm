@@ -31,12 +31,12 @@ public class DefaultConstructorObjectFactoryTest {
     public void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
         RelationshipModel personRelationshipModel = new RelationshipModel();
         personRelationshipModel.setType("Individual");
-        Individual gary = this.objectCreator.instantiateObjectMappedTo(personRelationshipModel);
+        Individual gary = this.objectCreator.newObject(personRelationshipModel);
         assertNotNull(gary);
 
         NodeModel personNodeModel = new NodeModel();
         personNodeModel.setLabels(new String[] {"Individual"});
-        Individual sheila = this.objectCreator.instantiateObjectMappedTo(personNodeModel);
+        Individual sheila = this.objectCreator.newObject(personNodeModel);
         assertNotNull(sheila);
     }
 
@@ -44,7 +44,7 @@ public class DefaultConstructorObjectFactoryTest {
     public void shouldHandleMultipleLabelsSafely() {
         NodeModel personNodeModel = new NodeModel();
         personNodeModel.setLabels(new String[] {"Female", "Individual", "Lass"});
-        Individual ourLass = this.objectCreator.instantiateObjectMappedTo(personNodeModel);
+        Individual ourLass = this.objectCreator.newObject(personNodeModel);
         assertNotNull(ourLass);
     }
 
@@ -53,7 +53,7 @@ public class DefaultConstructorObjectFactoryTest {
         RelationshipModel edge = new RelationshipModel();
         edge.setId(49L);
         edge.setType("ClassWithoutZeroArgumentConstructor");
-        this.objectCreator.instantiateObjectMappedTo(edge);
+        this.objectCreator.newObject(edge);
     }
 
     @Test(expected = MappingException.class)
@@ -61,7 +61,7 @@ public class DefaultConstructorObjectFactoryTest {
         NodeModel vertex = new NodeModel();
         vertex.setId(163L);
         vertex.setLabels(new String[] {"ClassWithPrivateConstructor"});
-        this.objectCreator.instantiateObjectMappedTo(vertex);
+        this.objectCreator.newObject(vertex);
     }
 
     @Test(expected = MappingException.class)
@@ -69,7 +69,7 @@ public class DefaultConstructorObjectFactoryTest {
         NodeModel vertex = new NodeModel();
         vertex.setId(302L);
         vertex.setLabels(new String[0]);
-        this.objectCreator.instantiateObjectMappedTo(vertex);
+        this.objectCreator.newObject(vertex);
     }
 
 }

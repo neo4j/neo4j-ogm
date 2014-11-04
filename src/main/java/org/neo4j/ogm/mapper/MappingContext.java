@@ -1,38 +1,31 @@
 package org.neo4j.ogm.mapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
  * of an object map (domain hierarchy).
- *
- * TODO ensure this is threadsafe
  */
 public class MappingContext {
 
-    private final Map<Long, Object> objectMap = new ConcurrentHashMap<>();
-    private final Map<Class<?>, List<Object>> typeMap = new ConcurrentHashMap<>();
-
-    private Class<?> root;
+    private final ConcurrentMap<Long, Object>           objectMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, List<Object>> typeMap = new ConcurrentHashMap<>();
 
     public Object get(Long id) {
         return  objectMap.get(id);
     }
 
-    public void register(Object object, Long id) throws Exception {
-        objectMap.put(id, object);
+    public Object register(Object object, Long id) {
+        objectMap.putIfAbsent(id, object);
+        return objectMap.get(id);
     }
 
-    public void setRoot(Class<?> root) {
-        this.root = root;
-        typeMap.clear();
-    }
-
-    public Object getRoot() throws Exception {
-        List<Object> roots = typeMap.get(root);
+    public Object getRoot(Class<?> type ) throws Exception {
+        List<Object> roots = typeMap.get(type);
         return roots.get(roots.size()-1);
     }
 
@@ -43,7 +36,8 @@ public class MappingContext {
     public List<Object> getObjects(Class<?> type) {
         List<Object> objectList = typeMap.get(type);
         if (objectList == null) {
-            typeMap.put(type, objectList = new ArrayList<>());
+            typeMap.putIfAbsent(type, Collections.synchronizedList(new ArrayList<>()));
+            objectList = typeMap.get(type);
         }
         return objectList;
     }

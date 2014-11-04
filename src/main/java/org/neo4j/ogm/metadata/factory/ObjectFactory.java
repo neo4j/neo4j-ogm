@@ -17,7 +17,7 @@ public interface ObjectFactory {
      * @return A new instance of an object onto which the properties of the given {@link NodeModel} can be mapped
      * @throws org.neo4j.ogm.metadata.MappingException if there is no known class that maps to the given graph component
      */
-    <T> T instantiateObjectMappedTo(NodeModel node);
+    <T> T newObject(NodeModel node);
 
     /**
      * Creates an instance of the class that is mapped to the given {@link RelationshipModel} according to the configuration that drives
@@ -27,6 +27,6 @@ public interface ObjectFactory {
      * @return A new instance of an object onto which the properties of the given {@link RelationshipModel} can be mapped
      * @throws org.neo4j.ogm.metadata.MappingException if there is no known class that maps to the given graph component
      */
-    <T> T instantiateObjectMappedTo(RelationshipModel relationship);
+    <T> T newObject(RelationshipModel relationship);
 
 }

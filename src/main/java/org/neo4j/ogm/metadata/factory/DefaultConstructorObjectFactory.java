@@ -19,12 +19,12 @@ public class DefaultConstructorObjectFactory implements ObjectFactory {
     }
 
     @Override
-    public <T> T instantiateObjectMappedTo(NodeModel nodeModel) {
+    public <T> T newObject(NodeModel nodeModel) {
         return instantiateObjectFromTaxa(nodeModel.getLabels());
     }
 
     @Override
-    public <T> T instantiateObjectMappedTo(RelationshipModel edgeModel) {
+    public <T> T newObject(RelationshipModel edgeModel) {
         return instantiateObjectFromTaxa(edgeModel.getType());
     }
 

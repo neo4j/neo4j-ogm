@@ -1,6 +1,6 @@
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotation.Label;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
@@ -25,12 +25,12 @@ public class MetaData {
      * @return A ClassInfo matching the supplied name, or null if it doesn't exist
      */
     public ClassInfo classInfo(String name) {
-        String annotation = Label.class.getName();
+        String annotation = NodeEntity.class.getName();
         List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(annotation);
         if (labelledClasses != null) {
             for (ClassInfo labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(annotation);
-                String value = annotationInfo.get("name", labelledClass.name());
+                String value = annotationInfo.get("label", labelledClass.name());
                 if (value.equals(name)) {
                     return labelledClass;
                 }

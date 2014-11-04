@@ -1,8 +1,8 @@
 package org.neo4j.ogm.mapper.domain.forum;
 
-import org.neo4j.ogm.annotation.Label;
+import org.neo4j.ogm.annotation.NodeEntity;
 
-@Label(name="Bronze")
+@NodeEntity(label ="Bronze")
 public class BronzeMembership extends Membership {
 
     @Override

@@ -1,13 +1,13 @@
 package org.neo4j.ogm.mapper.domain.forum;
 
-import org.neo4j.ogm.annotation.Label;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.mapper.domain.forum.activity.Activity;
 
 import java.util.Date;
 import java.util.List;
 
-@Label(name="User")
+@NodeEntity(label ="User")
 public class Member extends Login  {
 
     private IMembership memberShip;
@@ -34,12 +34,12 @@ public class Member extends Login  {
         this.renewalDate = renewalDate;
     }
 
-    @Relationship(name="HAS_ACTIVITY")
+    @Relationship(type ="HAS_ACTIVITY")
     public List<Activity> getActivityList() {
         return activityList;
     }
 
-    @Relationship(name="HAS_ACTIVITY")
+    @Relationship(type ="HAS_ACTIVITY")
     public void setActivityList(List<Activity> activityList) {
         this.activityList = activityList;
     }

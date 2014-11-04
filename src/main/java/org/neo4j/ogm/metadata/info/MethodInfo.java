@@ -25,7 +25,7 @@ public class MethodInfo {
     public String property() {
        if (isSimpleSetter() || isSimpleGetter()) {
             try {
-                return getAnnotations().get(Property.class.getName()).get("name", getName());
+                return getAnnotations().get(Property.CLASS).get(Property.NAME, getName());
             } catch (NullPointerException npe) {
                 return getName();
             }
@@ -36,7 +36,7 @@ public class MethodInfo {
     public String relationship() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
             try {
-                return getAnnotations().get(Relationship.class.getName()).get("name", getName());
+                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
             } catch (NullPointerException npe) {
                 return getName();
             }

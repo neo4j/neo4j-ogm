@@ -1,0 +1,10 @@
+package org.neo4j.ogm.mapper.domain.cineasts;
+
+import java.util.Set;
+
+public class Movie {
+    String id;
+    String title;
+    int year;
+    Set<Role> cast;
+}

@@ -1,7 +1,7 @@
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.annotation.Label;
-import org.neo4j.ogm.annotation.NodeId;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -141,8 +141,8 @@ public class ClassInfo {
     }
 
     private Collection<String> collectLabels(Collection<String> labelNames) {
-        AnnotationInfo annotationInfo = annotationsInfo.get(Label.class.getName());
-        labelNames.add((annotationInfo != null) ? annotationInfo.get("name", simpleName()) : simpleName());
+        AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
+        labelNames.add((annotationInfo != null) ? annotationInfo.get(NodeEntity.LABEL, simpleName()) : simpleName());
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
             directSuperclass.collectLabels(labelNames);
         }
@@ -193,7 +193,7 @@ public class ClassInfo {
      */
     public FieldInfo identityField() {
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(NodeId.class.getName());
+            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
                 if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
                     return fieldInfo;
@@ -226,7 +226,7 @@ public class ClassInfo {
                         fieldInfos.add(fieldInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class.getName());
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
                     if (annotationInfo != null) {
                         fieldInfos.add(fieldInfo);
                     }
@@ -268,7 +268,7 @@ public class ClassInfo {
                         fieldInfos.add(fieldInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.class.getName());
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.CLASS);
                     if (annotationInfo != null) {
                         fieldInfos.add(fieldInfo);
                     }
@@ -302,7 +302,7 @@ public class ClassInfo {
     public MethodInfo identityGetter() {
         for (MethodInfo methodInfo : methodsInfo().getters()) {
             //System.out.println(methodInfo.getName() + ": " + methodInfo.getDescriptor());
-            AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(NodeId.class.getName());
+            AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
                 if (methodInfo.getDescriptor().equals("()Ljava/lang/Long;")) {
                     return methodInfo;
@@ -326,7 +326,7 @@ public class ClassInfo {
      */
     public MethodInfo identitySetter() {
         for (MethodInfo methodInfo : methodsInfo().setters()) {
-            AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(NodeId.class.getName());
+            AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
                 if (methodInfo.getDescriptor().equals("(Ljava/lang/Long;)V")) {
                     return methodInfo;
@@ -358,7 +358,7 @@ public class ClassInfo {
                         propertyGetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.class.getName());
+                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
                     if (annotationInfo != null) {
                         propertyGetters.add(methodInfo);
                     }
@@ -384,7 +384,7 @@ public class ClassInfo {
                         propertySetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.class.getName());
+                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
                     if (annotationInfo != null) {
                         propertySetters.add(methodInfo);
                     }
@@ -410,7 +410,7 @@ public class ClassInfo {
                         relationshipGetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.class.getName());
+                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
                     if (annotationInfo != null) {
                         relationshipGetters.add(methodInfo);
                     }
@@ -436,7 +436,7 @@ public class ClassInfo {
                         relationshipSetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.class.getName());
+                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
                     if (annotationInfo != null) {
                         relationshipSetters.add(methodInfo);
                     }

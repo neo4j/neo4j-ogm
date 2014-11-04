@@ -25,7 +25,7 @@ public class FieldInfo {
     public String property() {
         if (isSimple()) {
             try {
-                return getAnnotations().get(Property.class.getName()).get("name", getName());
+                return getAnnotations().get(Property.CLASS).get(Property.NAME, getName());
             } catch (NullPointerException npe) {
                 return getName();
             }
@@ -36,7 +36,7 @@ public class FieldInfo {
     public String relationship() {
         if (!isSimple()) {
             try {
-                return getAnnotations().get(Relationship.class.getName()).get("name", getName());
+                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
             } catch (NullPointerException npe) {
                 // TODO: this is the "simple" strategy, but here the logic is different from the reading code
                 // in that a field called changedPlacesWith won't end up as "CHANGED_PLACES_WITH"

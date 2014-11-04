@@ -6,5 +6,14 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Inherited
 public @interface Relationship {
-    String name() default "";
+
+    static final String CLASS = "org.neo4j.ogm.annotation.Relationship";
+    static final String TYPE = "type";
+    static final String DIRECTION = "direction";
+
+    static final String INCOMING = "INCOMING";
+    static final String OUTGOING = "OUTGOING";
+
+    String type() default "";
+    String direction() default OUTGOING; // todo use neo4j direction enum
 }

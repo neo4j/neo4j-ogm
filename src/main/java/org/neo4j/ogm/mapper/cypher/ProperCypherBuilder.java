@@ -1,6 +1,7 @@
 package org.neo4j.ogm.mapper.cypher;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,122 +13,77 @@ import java.util.Map;
  */
 public class ProperCypherBuilder implements CypherBuilder {
 
-    StringBuilder stuffThatHappened = new StringBuilder();
-    List<NodeBuilder> newNodes = new ArrayList<>();
-    List<NodeBuilder> existingNodes = new ArrayList<>();
+    List<NodeBuilder> nodes = new ArrayList<>();
     List<String> relationships = new ArrayList<>();
 
     @Override
     public void relate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode) {
         // records: (startNode)-[relationshipType]->(endNode)
-        stuffThatHappened.append(startNode).append("-[").append(relationshipType).append("]->").append(endNode).append("\n");
         relationships.add("MERGE (" + ((ProperNodeBuilder) startNode).variableName + ")-[:" + relationshipType + "]->("
                 + ((ProperNodeBuilder) endNode).variableName + ')');
     }
 
     @Override
     public NodeBuilder newNode() {
-        NodeBuilder newNode = new ProperNodeBuilder();
-        newNodes.add(newNode);
+        NodeBuilder newNode = new NewNodeBuilder();
+        this.nodes.add(newNode);
         return newNode;
     }
 
     @Override
     public NodeBuilder existingNode(Long existingNodeId) {
-        NodeBuilder node = new ProperNodeBuilder().withId(existingNodeId);
-        existingNodes.add(node);
+        NodeBuilder node = new ExistingNodeBuilder().withId(existingNodeId);
+        this.nodes.add(node);
         return node;
     }
 
     @Override
     public List<String> getStatements() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder queryBuilder = new StringBuilder();
+        List<String> varStack = new ArrayList<>(this.nodes.size());
 
-        String carriedVariableNames = "";
-        for (Iterator<NodeBuilder> it = this.newNodes.iterator() ; it.hasNext() ; ) {
+        for (Iterator<NodeBuilder> it = this.nodes.iterator() ; it.hasNext() ; ) {
             ProperNodeBuilder pnb = (ProperNodeBuilder) it.next();
-            // MERGE is arguably safer than CREATE here in a multi-threaded environment, but is also slower
-            sb.append("CREATE ");
-            sb.append('(');
-            sb.append(pnb.variableName);
-            for (String label : pnb.labels) {
-                sb.append(':').append(label);
-            }
-            sb.append('{');
-            for (Map.Entry<String, Object> string : pnb.props.entrySet()) {
-                sb.append(string.getKey()).append(':');
-                sb.append("\"").append(string.getValue()).append("\",");
-            }
-            sb.setLength(sb.length() - 1); // delete trailing comma
-            sb.append('}').append(')');
+            pnb.renderTo(queryBuilder, varStack);
             if (it.hasNext()) {
-                carriedVariableNames += pnb.variableName;
-                sb.append(" WITH ").append(carriedVariableNames);
-                carriedVariableNames += ", ";
-            } else {
-                carriedVariableNames += pnb.variableName;
-            }
-        }
-        if (!this.existingNodes.isEmpty() && sb.length() > 0) {
-            sb.append(" WITH ").append(carriedVariableNames).append(' ');
-            carriedVariableNames += ", ";
-        }
-        for (Iterator<NodeBuilder> it = this.existingNodes.iterator() ; it.hasNext() ; ) {
-            ProperNodeBuilder pnb = (ProperNodeBuilder) it.next();
-            sb.append(" MATCH (").append(pnb.variableName).append(")");
-            // now then, we should really have parameters returned along with the statements, shouldn't we?
-            sb.append(" WHERE id(").append(pnb.variableName).append(")=").append(pnb.nodeId);
-            sb.append(" SET ");
-            if (!pnb.labels.isEmpty()) {
-                sb.append(pnb.variableName);
-                for (String label : pnb.labels) {
-                    sb.append(':').append(label);
-                }
-                sb.append(", ");
-            }
-            for (Map.Entry<String, Object> string : pnb.props.entrySet()) {
-                //TODO: use a DSL for value escaping if nothing else
-                sb.append(pnb.variableName).append('.').append(string.getKey()).append('=');
-                sb.append("\"").append(string.getValue()).append("\",");
-            }
-            sb.setLength(sb.length() - 1); // delete trailing comma
-            sb.append(' ');
-            if (it.hasNext()) {
-                carriedVariableNames += pnb.variableName;
-                sb.append(" WITH ").append(carriedVariableNames);
-                carriedVariableNames += ", ";
-            } else {
-                carriedVariableNames += pnb.variableName;
+                queryBuilder.append(" WITH ").append(toCsv(varStack));
             }
         }
         if (!this.relationships.isEmpty()) {
-            sb.append(" WITH ").append(carriedVariableNames).append(' ');
+            queryBuilder.append(" WITH ").append(toCsv(varStack));
         }
         for (String rel : this.relationships) {
-            sb.append(rel).append(' ');
+            queryBuilder.append(' ').append(rel);
         }
 
-        List<String> cypherStatements = new ArrayList<>();
-        cypherStatements.add(sb.toString());
-        return cypherStatements;
+        return Collections.singletonList(queryBuilder.toString());
+    }
+
+    protected static String toCsv(Iterable<String> elements) {
+        StringBuilder sb = new StringBuilder();
+        for (String element : elements) {
+            sb.append(element).append(',');
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
     }
 
 }
 
-class ProperNodeBuilder implements NodeBuilder {
+abstract class ProperNodeBuilder implements NodeBuilder {
 
     private static String nextVar = "a";
 
-    final String variableName;
+    protected final String variableName;
+    protected final Map<String, Object> props = new HashMap<>();
+    protected final List<String> labels = new ArrayList<>();
+    protected Long nodeId;
 
     ProperNodeBuilder() {
         this.variableName = nextVar;
+        // just temporary, will come up with a proper variable generation strategy soon
         nextVar = Character.toString((char) (nextVar.charAt(0) + 1));
     }
-
-    Long nodeId;
-    Map<String, Object> props = new HashMap<>();
-    List<String> labels = new ArrayList<>();
 
     @Override
     public NodeBuilder addLabel(String labelName) {
@@ -158,6 +114,58 @@ class ProperNodeBuilder implements NodeBuilder {
     public NodeBuilder withId(Long nodeId) {
         this.nodeId = nodeId;
         return this;
+    }
+
+    protected abstract void renderTo(StringBuilder queryBuilder, List<String> varStack);
+
+}
+
+class ExistingNodeBuilder extends ProperNodeBuilder {
+
+    @Override
+    protected void renderTo(StringBuilder queryBuilder, List<String> varStack) {
+        queryBuilder.append(" MATCH (").append(this.variableName).append(")");
+        // now then, we should really have parameters returned along with the statements, shouldn't we?
+        queryBuilder.append(" WHERE id(").append(this.variableName).append(")=").append(this.nodeId);
+        queryBuilder.append(" SET ");
+        if (!this.labels.isEmpty()) {
+            queryBuilder.append(this.variableName);
+            for (String label : this.labels) {
+                queryBuilder.append(':').append(label);
+            }
+            queryBuilder.append(", ");
+        }
+        for (Map.Entry<String, Object> string : this.props.entrySet()) {
+            //TODO: use a DSL for value escaping if nothing else
+            queryBuilder.append(this.variableName).append('.').append(string.getKey()).append('=');
+            queryBuilder.append("\"").append(string.getValue()).append("\",");
+        }
+        queryBuilder.setLength(queryBuilder.length() - 1); // delete trailing comma
+        queryBuilder.append(' ');
+        varStack.add(this.variableName);
+    }
+
+}
+
+class NewNodeBuilder extends ProperNodeBuilder {
+
+    @Override
+    protected void renderTo(StringBuilder queryBuilder, List<String> varStack) {
+        // MERGE is arguably safer than CREATE here in a multi-threaded environment, but is also slower
+        queryBuilder.append(" CREATE ");
+        queryBuilder.append('(');
+        queryBuilder.append(this.variableName);
+        for (String label : this.labels) {
+            queryBuilder.append(':').append(label);
+        }
+        queryBuilder.append('{');
+        for (Map.Entry<String, Object> string : this.props.entrySet()) {
+            queryBuilder.append(string.getKey()).append(':');
+            queryBuilder.append("\"").append(string.getValue()).append("\",");
+        }
+        queryBuilder.setLength(queryBuilder.length() - 1); // delete trailing comma
+        queryBuilder.append('}').append(')');
+        varStack.add(this.variableName);
     }
 
 }

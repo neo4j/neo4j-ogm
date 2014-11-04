@@ -41,7 +41,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             mapRelationships(graphModel);
             return type.cast(mappingContext.getRoot());
         } catch (Exception e) {
-            throw new MappingException("Error mapping GraphModel to Object", e);
+            throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }
     }
 
@@ -50,11 +50,18 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object object = mappingContext.get(node.getId());
             if (object == null) { // object does not yet exist in our domain
                 object = objectFactory.instantiateObjectMappedTo(node);
+                setIdentity(object, node.getId());
                 mappingContext.register(object, node.getId());
                 setProperties(node, object);
             }
             register(object);
         }
+    }
+
+    private void setIdentity(Object instance, Long id) throws Exception {
+        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        FieldInfo fieldInfo = classInfo.identityField();
+        FieldAccess.write(classInfo.getField(fieldInfo), instance, id);
     }
 
     /*

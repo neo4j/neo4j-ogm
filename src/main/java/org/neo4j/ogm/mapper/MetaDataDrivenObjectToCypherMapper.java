@@ -1,7 +1,5 @@
 package org.neo4j.ogm.mapper;
 
-import java.util.List;
-
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
@@ -9,6 +7,8 @@ import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+
+import java.util.List;
 
 /**
  * Implementation of {@link ObjectToCypherMapper} that is driven by an instance of {@link MetaData}.
@@ -93,6 +93,11 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
     private static String resolveRelationshipType(FieldInfo relField) {
         // should be doing the opposite of ObjectGraphMapper#setterNameFromRelationshipType, but I don't know at this point
         // whether or not the relationship is read from an annotation and therefore don't know if I shouldn't do any work!
+
+        // @Adam: the relationship() method will return the relationshipType name if its annotated on the relationShipInfo. If not,
+        // it currently returns the field type name, e.g. "Wheel", which is not what we ultimately want.
+
+        // todo: fix this for non-annotated fields (and getters)
         return relField.relationship().toUpperCase();
     }
 

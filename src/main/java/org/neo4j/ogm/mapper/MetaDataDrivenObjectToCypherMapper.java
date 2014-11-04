@@ -5,7 +5,7 @@ import java.util.List;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
-import org.neo4j.ogm.mapper.cypher.ProperCypherBuilder;
+import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -32,7 +32,7 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
             throw new NullPointerException("Cannot map null root object");
         }
 
-        CypherBuilder cypherBuilder = new ProperCypherBuilder();
+        CypherBuilder cypherBuilder = new SingleQueryCypherBuilder();
         deepMap(cypherBuilder, toPersist);
         return cypherBuilder.getStatements();
     }

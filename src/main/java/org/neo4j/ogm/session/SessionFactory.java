@@ -1,17 +1,21 @@
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.metadata.MetaData;
 
 public class SessionFactory {
 
     private final MetaData metaData;
+    private final CypherQuery query;
 
-    public SessionFactory(String... packages) {
-        metaData = new MetaData(packages);
+    // todo: bind the query implementation via @inject.
+    public SessionFactory(CypherQuery query, String... packages) {
+        this.metaData = new MetaData(packages);
+        this.query = query;
     }
 
     public Session openSession() {
-        return new Session(metaData);
+        return new Session(metaData, query);
     }
 
     public void closeSession() {

@@ -16,29 +16,27 @@ import java.util.Collection;
 
 public class Session {
 
-    private MetaData metaData;
-    private MappingContext mappingContext;
+    private final MetaData metaData;
+    private final MappingContext mappingContext;
+    private final CypherQuery query;
 
-    private CypherQuery cypherQuery;
-
-    Session(MetaData metaData) {
+    Session(MetaData metaData, CypherQuery query) {
         this.metaData = metaData;
+        this.query = query;
         this.mappingContext = new MappingContext();
     }
 
-    public <T> T load(Class<T> type, Long id) {
-        ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
-        ResponseStream<GraphModel> stream = cypherQuery.queryById(id);
+    public CypherQuery query() {
+        return query;
+    }
 
-        return loadOne(type, stream);
+    public <T> T load(Class<T> type, Long id) {
+        return loadOne(type, query.queryById(id));
     }
 
     public <T> Collection<T> loadByProperty(Class<T> type, Property property) {
-
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        ResponseStream<GraphModel> stream = cypherQuery.queryByProperty(classInfo.labels(), property);
-
-        return loadAll(type, stream);
+        return loadAll(type, query.queryByProperty(classInfo.labels(), property));
     }
 
     public <T> T save(T object) {
@@ -49,7 +47,7 @@ public class Session {
 
     public <T> Collection<T> load(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        ResponseStream<GraphModel> stream = cypherQuery.queryByLabel(classInfo.labels());
+        ResponseStream<GraphModel> stream = query.queryByLabel(classInfo.labels());
         return loadAll(type, stream);
     }
 
@@ -66,9 +64,9 @@ public class Session {
     private <T> Collection<T> loadAll(Class<T> type, ResponseStream<GraphModel> stream) {
         Collection<T> objects = new ArrayList();
         if (stream.hasNext()) {
-            ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
             GraphModel graphModel;
             while ((graphModel = stream.next()) != null) {
+                ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
                 objects.add(ogm.load(type, graphModel));
             }
         }

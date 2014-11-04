@@ -8,7 +8,7 @@ public abstract class BikeModel {
         return GraphBuilder.build(jsonModel());
     }
 
-    private static String jsonModel() {
+    public static String jsonModel() {
         return
             "{\"graph\": { " +
                 "\"nodes\" :[ " +

@@ -8,6 +8,8 @@ import java.util.Map;
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
  * of an object map (domain hierarchy).
+ *
+ * TODO this is not threadsafe
  */
 public class MappingContext {
 

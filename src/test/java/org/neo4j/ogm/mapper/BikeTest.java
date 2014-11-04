@@ -1,29 +1,36 @@
 package org.neo4j.ogm.mapper;
 
-import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
+import org.neo4j.ogm.TestCypherQuery;
+import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
 import org.neo4j.ogm.mapper.model.BikeModel;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import java.util.Collection;
+
+import static org.junit.Assert.*;
 
 public class BikeTest {
 
-    private static GraphModelToObjectMapper<GraphModel> ogm = new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.bike");
+    private static final CypherQuery query = new TestCypherQuery(BikeModel.jsonModel(), 1);
+    private static SessionFactory sessionFactory = new SessionFactory(query, "org.neo4j.ogm.mapper.domain.bike");
 
     @Test
     public void testDeserialiseBikeModel() throws Exception {
 
-        GraphModel graphModel = BikeModel.load();
+        Session session = sessionFactory.openSession();
 
         long now = -System.currentTimeMillis();
 
-        Bike bike = ogm.load(Bike.class, graphModel);
-
+        Collection<Bike> bikes = session.load(Bike.class);
 
         System.out.println("deserialised in " + (now + System.currentTimeMillis()) + " milliseconds");
+
+        assertFalse(bikes.isEmpty());
+        Bike bike = bikes.iterator().next();
 
         assertNotNull(bike);
         assertEquals(15, (long) bike.getId());

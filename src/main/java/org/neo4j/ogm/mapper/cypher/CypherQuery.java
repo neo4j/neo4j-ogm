@@ -7,6 +7,8 @@ import java.util.Collection;
 
 public interface CypherQuery {
 
+    public void setRequest(Request<GraphModel> request);
+
     /**
      * fetch one or more objects with the specified ids and their immediate neighbours
      * @param ids

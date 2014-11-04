@@ -1,13 +1,13 @@
 package org.neo4j.ogm.mapper.model.education;
 
-import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.ObjectGraphMapper;
-
+import org.neo4j.ogm.CypherQueryProxy;
+import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.education.Teacher;
-import org.neo4j.ogm.mapper.model.DummyRequest;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 
 import java.util.*;
 
@@ -15,7 +15,9 @@ import static junit.framework.Assert.assertEquals;
 
 public class EducationTest {
 
-    private static final ObjectGraphMapper mapper = new ObjectGraphMapper("org.neo4j.ogm.mapper.domain.education");
+    private static final CypherQuery queryProxy = new CypherQueryProxy();
+    private static final SessionFactory sessionFactory = new SessionFactory(queryProxy, "org.neo4j.ogm.mapper.domain.education");
+    private static final Session session = sessionFactory.openSession();
 
     @Test
     public void testTeachers() throws Exception {
@@ -141,13 +143,12 @@ public class EducationTest {
 
     private Map<String, Teacher> loadTeachers() throws Exception {
 
-        GraphModel graphModel;
-
         Map<String, Teacher> teachers = new HashMap<>();
-        DummyRequest request = new TeacherRequest();
 
-        while ((graphModel = request.getResponse().next()) != null) {
-            Teacher teacher = mapper.load(Teacher.class, graphModel);
+        queryProxy.setRequest(new TeacherRequest());
+        Collection<Teacher> teacherList = session.load(Teacher.class);
+
+        for (Teacher teacher : teacherList ) {
             teachers.put(teacher.getName(), teacher);
         }
 
@@ -159,12 +160,8 @@ public class EducationTest {
     // TODO: there is NO TEST asserting this.
     private void hydrateCourses() throws Exception {
 
-        GraphModel graphModel;
-        DummyRequest request = new CourseRequest();
-
-        while ((graphModel = request.getResponse().next()) != null) {
-            mapper.load(Course.class, graphModel);
-        }
+        queryProxy.setRequest(new CourseRequest());
+        session.load(Course.class);
     }
 
     private void checkCourseNames(Teacher teacher, String... courseNames) {

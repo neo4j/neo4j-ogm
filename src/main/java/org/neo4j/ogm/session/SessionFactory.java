@@ -15,10 +15,7 @@ public class SessionFactory {
     }
 
     public Session openSession() {
-        return new Session(metaData, query);
+        return new DefaultSessionImpl(metaData, query);
     }
 
-    public void closeSession() {
-        // what to do here? what does this mean in terms of the objects that have been created on the session?
-    }
 }

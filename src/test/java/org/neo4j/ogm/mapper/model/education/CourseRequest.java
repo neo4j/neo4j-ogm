@@ -1,12 +1,12 @@
 package org.neo4j.ogm.mapper.model.education;
 
 
-import org.neo4j.ogm.mapper.model.DummyRequest;
+import org.neo4j.ogm.RequestProxy;
 
 /**
  * MATCH p=(c:CLASS)--(s) {WHERE id(c) in (n, m, ...z)} RETURN p
  */
-public class CourseRequest extends DummyRequest {
+public class CourseRequest extends RequestProxy {
 
     public CourseRequest() {
         setResponse(jsonModel);

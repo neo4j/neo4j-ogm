@@ -1,11 +1,11 @@
 package org.neo4j.ogm.mapper;
 
 import org.junit.Test;
-import org.neo4j.ogm.TestCypherQuery;
+import org.neo4j.ogm.CypherQueryProxy;
 import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
-import org.neo4j.ogm.mapper.model.BikeModel;
+import org.neo4j.ogm.mapper.model.BikeRequest;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -15,18 +15,17 @@ import static org.junit.Assert.*;
 
 public class BikeTest {
 
-    private static final CypherQuery query = new TestCypherQuery(BikeModel.jsonModel(), 1);
-    private static SessionFactory sessionFactory = new SessionFactory(query, "org.neo4j.ogm.mapper.domain.bike");
-
     @Test
     public void testDeserialiseBikeModel() throws Exception {
 
+        CypherQuery queryProxy = new CypherQueryProxy();
+        queryProxy.setRequest(new BikeRequest());
+
+        SessionFactory sessionFactory = new SessionFactory(queryProxy, "org.neo4j.ogm.mapper.domain.bike");
         Session session = sessionFactory.openSession();
 
         long now = -System.currentTimeMillis();
-
         Collection<Bike> bikes = session.load(Bike.class);
-
         System.out.println("deserialised in " + (now + System.currentTimeMillis()) + " milliseconds");
 
         assertFalse(bikes.isEmpty());

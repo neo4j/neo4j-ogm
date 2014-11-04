@@ -1,15 +1,14 @@
 package org.neo4j.ogm.mapper.model;
 
-import org.graphaware.graphmodel.neo4j.GraphModel;
+import org.neo4j.ogm.RequestProxy;
 
-public abstract class BikeModel {
+public class BikeRequest extends RequestProxy {
 
-    public static GraphModel load() throws Exception {
-        return GraphBuilder.build(jsonModel());
+    public BikeRequest() {
+        setResponse(jsonModel);
     }
 
-    public static String jsonModel() {
-        return
+    private static String[] jsonModel = {
             "{\"graph\": { " +
                 "\"nodes\" :[ " +
                     "{\"id\" : \"15\",\"labels\" : [ \"Bike\"], \"properties\" : { \"colours\" :[\"red\", \"black\"] } }, " +
@@ -24,6 +23,6 @@ public abstract class BikeModel {
                     "{\"id\":\"143\",\"type\":\"HAS_FRAME\",\"startNode\":\"15\",\"endNode\":\"18\",\"properties\":{ \"purchased\" : 20130917 }}," +
                     "{\"id\":\"144\",\"type\":\"HAS_SADDLE\",\"startNode\":\"15\",\"endNode\":\"19\",\"properties\":{\"purchased\" : 20130922 }} " +
                     "] " +
-            "} }";
-    }
+            "} }"
+    };
 }

@@ -1,16 +1,16 @@
-package org.neo4j.ogm.performance;
+package org.neo4j.ogm.mapper.model.bike.performance;
 
 import org.junit.Test;
 import org.neo4j.ogm.CypherQueryProxy;
 import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
-import org.neo4j.ogm.mapper.model.BikeRequest;
+import org.neo4j.ogm.mapper.model.bike.BikeRequest;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
 import static org.junit.Assert.assertTrue;
 
-public class DeserialisationTest {
+public class PerformanceTest {
 
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {

@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.model;
+package org.neo4j.ogm.mapper.model.bike;
 
 import org.neo4j.ogm.RequestProxy;
 

@@ -20,30 +20,20 @@ import java.util.List;
 
 public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
-    private final MappingContext mappingContext;// = new MappingContext();
+    private final MappingContext mappingContext;
     private final ObjectFactory objectFactory;
     private final MetaData metadata;
-
-    private final GraphModelMapper graphModelMapper;
 
     public ObjectGraphMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
         this.objectFactory = new DefaultConstructorObjectFactory(metadata);
         this.mappingContext = mappingContext;
-        this.graphModelMapper = new GraphModelMapper();
-    }
-
-    @Deprecated
-    public ObjectGraphMapper(String... packages) {
-        metadata = new MetaData(packages);
-        objectFactory = new DefaultConstructorObjectFactory(metadata);
-        graphModelMapper = new GraphModelMapper();
-        mappingContext = new MappingContext();
     }
 
     @Override
     public <T> T load(Class<T> type, GraphModel graphModel)  {
 
+        // todo: not threadsafe
         mappingContext.setRoot(type);
 
         try {

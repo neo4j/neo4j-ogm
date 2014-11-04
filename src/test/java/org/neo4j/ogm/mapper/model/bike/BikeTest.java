@@ -1,11 +1,10 @@
-package org.neo4j.ogm.mapper;
+package org.neo4j.ogm.mapper.model.bike;
 
 import org.junit.Test;
 import org.neo4j.ogm.CypherQueryProxy;
 import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.domain.bike.Wheel;
-import org.neo4j.ogm.mapper.model.BikeRequest;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 

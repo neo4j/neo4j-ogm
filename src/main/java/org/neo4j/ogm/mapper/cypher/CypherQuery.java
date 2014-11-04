@@ -1,6 +1,9 @@
 package org.neo4j.ogm.mapper.cypher;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
+import org.graphaware.graphmodel.neo4j.Property;
+
+import java.util.Collection;
 
 public interface CypherQuery {
 
@@ -9,14 +12,14 @@ public interface CypherQuery {
      * @param ids
      * @return MATCH p=(n)-[:r]->(m) where { id(n) in [....] | id(n) = ...}
      */
-    GraphModel fetchById(Long... ids);
+    ResponseStream<GraphModel> queryById(Long... ids);
 
     /**
      * fetch all objects with the specified label and their immediate neighbours
      * @param label
      * @return MATCH p=(n:{LABEL})-[:r]->(m)
      */
-    GraphModel fetchByLabel(String label);
+    ResponseStream<GraphModel> queryByLabel(Collection<String> label);
 
     /**
      * Fetch all objects with the specified ids also having the specified label
@@ -25,6 +28,22 @@ public interface CypherQuery {
      * @param ids
      * @return MATCH p=(n:{LABEL})-[:r]->(m) where { id(n) in [....] | id(n) = ...}
      */
-    GraphModel fetchByLabelAndId(String label, Long... ids);
+    ResponseStream<GraphModel> queryByLabelAndId(Collection<String> label, Long... ids);
+
+    /**
+     * Fetch all objects with the specified labels also having the specified property
+     *
+     * @param labels
+     * @param property
+     */
+    ResponseStream<GraphModel> queryByProperty(Collection<String> labels, Property property);
+
+    /**
+     * Fetch all objects with the specified labels also having the specified properties
+     *
+     * @param labels
+     * @param properties
+     */
+    ResponseStream<GraphModel> queryByProperties(Collection<String> labels, Collection<Property> properties);
 
 }

@@ -4,6 +4,7 @@ import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.GraphModelToObjectMapper;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
+import org.neo4j.ogm.mapper.cypher.ResponseStream;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.model.GraphBuilder;
 
@@ -35,7 +36,7 @@ public class DeserialisationTest {
         assertTrue(elapsed < target);
     }
 
-    static class DummyResponseStream {
+    static class DummyResponseStream implements ResponseStream<GraphModel> {
 
         private int count = 0;
 
@@ -43,16 +44,20 @@ public class DeserialisationTest {
             this.count = records;
         }
 
-        public GraphModel next() throws Exception {
+        public GraphModel next() {
             if (hasNext()) {
                 count--;
                 String json = nextResponse();
-                return GraphBuilder.build(json);
+                try {
+                    return GraphBuilder.build(json);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             return null;
         }
 
-        private boolean hasNext() {
+        public boolean hasNext() {
             return count > 0;
         }
 

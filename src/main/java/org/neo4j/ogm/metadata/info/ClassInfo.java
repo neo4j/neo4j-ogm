@@ -140,9 +140,14 @@ public class ClassInfo {
         return collectLabels(new ArrayList<String>());
     }
 
-    private Collection<String> collectLabels(Collection<String> labelNames) {
+    // todo: we currently only set one label per class. is this a problem?
+    public String label() {
         AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
-        labelNames.add((annotationInfo != null) ? annotationInfo.get(NodeEntity.LABEL, simpleName()) : simpleName());
+        return((annotationInfo != null) ? annotationInfo.get(NodeEntity.LABEL, simpleName()) : simpleName());
+    }
+
+    private Collection<String> collectLabels(Collection<String> labelNames) {
+        labelNames.add(label());
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
             directSuperclass.collectLabels(labelNames);
         }

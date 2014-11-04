@@ -1,19 +1,6 @@
 package org.neo4j.ogm.mapper;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -21,6 +8,13 @@ import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {
 
@@ -101,6 +95,7 @@ public class ObjectToCypherMapperTest {
 
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write inconsistency
         List<String> cypher = this.mapper.mapToCypher(existingCourse);
+
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");

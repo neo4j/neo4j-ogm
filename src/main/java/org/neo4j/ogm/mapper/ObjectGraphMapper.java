@@ -47,10 +47,14 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object object = mappingContext.get(node.getId());
             if (object == null) {
                 object = mappingContext.register(objectFactory.newObject(node), node.getId());
-                setIdentity(object, node.getId());
-                setProperties(node, object);
+                if (getIdentity(object) == null) {
+                    synchronized (object) {
+                        setIdentity(object, node.getId());
+                        setProperties(node, object);
+                    }
+                }
             }
-            register(object);
+            mappingContext.registerTypeMember(object);
         }
     }
 
@@ -60,6 +64,11 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         FieldAccess.write(classInfo.getField(fieldInfo), instance, id);
     }
 
+    private Long getIdentity(Object instance) throws Exception {
+        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        FieldInfo fieldInfo = classInfo.identityField();
+        return (Long) FieldAccess.read(classInfo.getField(fieldInfo), instance);
+    }
     /*
      * by preference we use a setter. if one doesn't exist, fall back to field access
      */
@@ -90,18 +99,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             //System.out.println("invoking setter: " + methodInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
             MethodAccess.write(classInfo.getMethod(methodInfo,ClassUtils.getType(methodInfo.getDescriptor())), instance, property.getValue());
         }
-    }
-
-    /**
-     * Registers the object as an instance of its type in the typeMap register.
-     *
-     * At the end of the parse, there should be only one object left in the typeMap: the one
-     * that we're returning to the caller.
-     *
-     * @param object the object to register.
-     */
-    public void register(Object object) {
-        mappingContext.getObjects(object.getClass()).add(object);
     }
 
     private MethodInfo getMethodInfo(ClassInfo classInfo, String relationshipType, Object parameter) {
@@ -204,6 +201,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
                 MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
                 if (methodInfo != null) {
                     //System.out.println("writing relationship: " + edge.getType() + " using " + methodInfo.getName());
+                    // aha! here is the problem. we are returning a list of objects in the type map.
                     MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, get(type));
                     mappingContext.evict(type); // we've added all instances of type for this object, no point in repeating the effort.
 

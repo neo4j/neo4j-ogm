@@ -67,9 +67,9 @@ public class EducationTest {
                     else checkEnglish(students);
                     courses.add(course);
                 }
-
             }
         }
+        assertEquals(7, courses.size());
     }
 
     private void test(long hash, List<Student> students) {
@@ -171,7 +171,7 @@ public class EducationTest {
 
         System.out.println(teacher.getName() + " courses: ");
         for (Course course : teacher.getCourses()) {
-            System.out.println(course.getName());
+            System.out.println(course.getName() + ": " + course.hashCode());
             if (test.contains(course.getName())) {
                 n--;
             }

@@ -42,4 +42,14 @@ public class MappingContext {
         return objectList;
     }
 
+    public void registerTypeMember(Object object) {
+        List<Object> objects = getObjects(object.getClass());
+        synchronized (objects) {
+            if (objects.contains(object)) {
+                objects.remove(object);
+            }
+            objects.add(object);
+        }
+    }
+
 }

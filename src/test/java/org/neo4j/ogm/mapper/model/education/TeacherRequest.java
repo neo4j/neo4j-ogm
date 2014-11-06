@@ -7,8 +7,8 @@ import org.neo4j.ogm.RequestProxy;
  */
 public class TeacherRequest extends RequestProxy {
 
-    public TeacherRequest() {
-        setResponse(jsonModel);
+    public String[] getResponse() {
+        return jsonModel;
     }
 
     private static String[] jsonModel = {

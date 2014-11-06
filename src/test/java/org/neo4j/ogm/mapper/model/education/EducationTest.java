@@ -1,8 +1,6 @@
 package org.neo4j.ogm.mapper.model.education;
 
 import org.junit.Test;
-import org.neo4j.ogm.CypherQueryProxy;
-import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.education.Teacher;
@@ -15,8 +13,7 @@ import static junit.framework.Assert.assertEquals;
 
 public class EducationTest {
 
-    private static final CypherQuery queryProxy = new CypherQueryProxy();
-    private static final SessionFactory sessionFactory = new SessionFactory(queryProxy, "org.neo4j.ogm.mapper.domain.education");
+    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.education");
     private static final Session session = sessionFactory.openSession();
 
     @Test
@@ -37,7 +34,7 @@ public class EducationTest {
     @Test
     public void testFetchCoursesTaughtByAllTeachers() throws Exception {
 
-        Map<String, Teacher> teachers = loadTeachers();
+        Map<String, Teacher> teachers = loadTeachers();  // note: idempotent!
 
         Teacher mrThomas = teachers.get("Mr Thomas");
         Teacher mrsRoberts = teachers.get("Mrs Roberts");
@@ -50,7 +47,7 @@ public class EducationTest {
         // this response is for an imagined request: "match p = (c:COURSE)--(o) where id(c) in [....] RETURN p"
         // i.e. we have a set of partially loaded courses attached to our teachers which we now want to
         // hydrate by getting all their relationships
-        hydrateCourses();
+        hydrateCourses(teachers.values());
 
 
         Set<Course> courses = new HashSet();
@@ -145,8 +142,8 @@ public class EducationTest {
 
         Map<String, Teacher> teachers = new HashMap<>();
 
-        queryProxy.setRequest(new TeacherRequest());
-        Collection<Teacher> teacherList = session.load(Teacher.class);
+        session.setRequestHandler(new TeacherRequest());
+        Collection<Teacher> teacherList = session.loadAll(Teacher.class);
 
         for (Teacher teacher : teacherList ) {
             teachers.put(teacher.getName(), teacher);
@@ -158,10 +155,19 @@ public class EducationTest {
     // when we hydrate a set of things that are previously loaded we don't need to create them afresh
     // - the object map of the existing objects is simply extended with new data.
     // TODO: there is NO TEST asserting this.
-    private void hydrateCourses() throws Exception {
+    private void hydrateCourses(Collection<Teacher> teachers) throws Exception {
 
-        queryProxy.setRequest(new CourseRequest());
-        session.load(Course.class);
+        // normally we'd use the default request handler, but for
+        session.setRequestHandler(new CourseRequest());
+
+        Set<Long> courses= new HashSet<>();
+        for (Teacher teacher : teachers) {
+            for (Course course: teacher.getCourses()) {
+                courses.add(course.getId());
+            }
+        }
+
+        session.loadAll(Course.class, courses);
     }
 
     private void checkCourseNames(Teacher teacher, String... courseNames) {

@@ -3,13 +3,10 @@ package org.neo4j.ogm.mapper.model.education;
 
 import org.neo4j.ogm.RequestProxy;
 
-/**
- * MATCH p=(c:CLASS)--(s) {WHERE id(c) in (n, m, ...z)} RETURN p
- */
 public class CourseRequest extends RequestProxy {
 
-    public CourseRequest() {
-        setResponse(jsonModel);
+    public String[] getResponse() {
+        return jsonModel;
     }
 
     private static String[] jsonModel = {

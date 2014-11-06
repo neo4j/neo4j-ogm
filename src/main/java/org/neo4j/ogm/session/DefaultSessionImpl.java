@@ -1,11 +1,8 @@
 package org.neo4j.ogm.session;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
-import org.graphaware.graphmodel.neo4j.Property;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
-import org.neo4j.ogm.mapper.cypher.CypherQuery;
-import org.neo4j.ogm.mapper.cypher.ResponseStream;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
@@ -16,26 +13,30 @@ public class DefaultSessionImpl implements Session {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
-    private final CypherQuery query;
 
-    DefaultSessionImpl(MetaData metaData, CypherQuery query) {
+    private RequestHandler<GraphModel> requestHandler;
+
+    public DefaultSessionImpl(MetaData metaData) {
         this.metaData = metaData;
-        this.query = query;
         this.mappingContext = new MappingContext();
+        this.requestHandler = new GraphModelRequestHandler();
+    }
+
+    public void setRequestHandler(RequestHandler request) {
+        this.requestHandler = request;
     }
 
     public <T> T load(Class<T> type, Long id) {
-        return loadOne(type, query.queryById(id));
+        return loadOne(type, requestHandler.execute(new CypherQuery().findOne(id)));
     }
 
-    public <T> Collection<T> loadByProperties(Class<T> type, Collection<Property> properties) {
-        ClassInfo classInfo = metaData.classInfo(type.getName());
-        return loadAll(type, query.queryByProperties(classInfo.labels(), properties));
+    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
+        return loadAll(type, requestHandler.execute(new CypherQuery().findAll(ids)));
     }
 
-    public <T> Collection<T> load(Class<T> type) {
+    public <T> Collection<T> loadAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        ResponseStream<GraphModel> stream = query.queryByLabel(classInfo.labels());
+        ResponseStream<GraphModel> stream = requestHandler.execute(new CypherQuery().findByLabel(classInfo.labels()));
         return loadAll(type, stream);
     }
 

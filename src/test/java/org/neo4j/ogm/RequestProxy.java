@@ -1,20 +1,16 @@
 package org.neo4j.ogm;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
-import org.neo4j.ogm.mapper.cypher.Request;
-import org.neo4j.ogm.mapper.cypher.ResponseStream;
 import org.neo4j.ogm.mapper.model.GraphBuilder;
+import org.neo4j.ogm.session.RequestHandler;
+import org.neo4j.ogm.session.ResponseStream;
 
-public abstract class RequestProxy implements Request<GraphModel> {
+public abstract class RequestProxy implements RequestHandler<GraphModel> {
 
-    protected String[] response;
+    protected abstract String[] getResponse();
 
-    protected void setResponse(String[] response) {
-        this.response = response;
-    }
-
-    public ResponseStream<GraphModel> execute() {
-        return new Response(response);
+    public ResponseStream<GraphModel> execute(String string) {
+        return new Response(getResponse());
     }
 
     public class Response implements ResponseStream<GraphModel> {

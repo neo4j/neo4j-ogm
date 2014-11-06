@@ -1,15 +1,15 @@
 package org.neo4j.ogm.session;
 
-import org.graphaware.graphmodel.neo4j.Property;
-
 import java.util.Collection;
 
 public interface Session {
 
+    void setRequestHandler(RequestHandler request);
+
     <T> T load(Class<T> type, Long id);
 
-    <T> Collection<T> loadByProperties(Class<T> type, Collection<Property> properties);
+    <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids);
 
-    <T> Collection<T> load(Class<T> type);
+    <T> Collection<T> loadAll(Class<T> type);
 
 }

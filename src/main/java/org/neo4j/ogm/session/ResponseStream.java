@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.cypher;
+package org.neo4j.ogm.session;
 
 public interface ResponseStream<T> {
 

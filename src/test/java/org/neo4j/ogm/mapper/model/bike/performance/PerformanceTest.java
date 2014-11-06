@@ -1,8 +1,6 @@
 package org.neo4j.ogm.mapper.model.bike.performance;
 
 import org.junit.Test;
-import org.neo4j.ogm.CypherQueryProxy;
-import org.neo4j.ogm.mapper.cypher.CypherQuery;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.model.bike.BikeRequest;
 import org.neo4j.ogm.session.Session;
@@ -18,15 +16,13 @@ public class PerformanceTest {
         int count = 1000;
         int target =3000;          // maximum permitted time (milliseconds) to load <count> entities;
 
-        CypherQuery queryProxy = new CypherQueryProxy();
-
-        SessionFactory sessionFactory = new SessionFactory(queryProxy, "org.neo4j.ogm.mapper.domain.bike");
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.bike");
         Session session = sessionFactory.openSession();
+        session.setRequestHandler(new BikeRequest());
 
         long elapsed = -System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
-            queryProxy.setRequest(new BikeRequest());
-            session.load(Bike.class);
+            session.loadAll(Bike.class);
         }
         elapsed += System.currentTimeMillis();
 

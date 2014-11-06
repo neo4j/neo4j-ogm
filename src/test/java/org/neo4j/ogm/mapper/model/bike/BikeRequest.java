@@ -4,8 +4,8 @@ import org.neo4j.ogm.RequestProxy;
 
 public class BikeRequest extends RequestProxy {
 
-    public BikeRequest() {
-        setResponse(jsonModel);
+    public String[] getResponse() {
+        return jsonModel;
     }
 
     private static String[] jsonModel = {

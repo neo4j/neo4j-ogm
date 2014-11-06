@@ -1,19 +1,19 @@
 package org.neo4j.ogm;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
-import org.neo4j.ogm.mapper.model.GraphBuilder;
-import org.neo4j.ogm.session.RequestHandler;
-import org.neo4j.ogm.session.ResponseStream;
+import org.neo4j.ogm.session.GraphModelBuilder;
+import org.neo4j.ogm.session.Neo4jRequestHandler;
+import org.neo4j.ogm.session.Neo4jResponseHandler;
 
-public abstract class RequestProxy implements RequestHandler<GraphModel> {
+public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
 
     protected abstract String[] getResponse();
 
-    public ResponseStream<GraphModel> execute(String string) {
+    public Neo4jResponseHandler<GraphModel> execute(String url, String request) {
         return new Response(getResponse());
     }
 
-    public class Response implements ResponseStream<GraphModel> {
+    static class Response implements Neo4jResponseHandler<GraphModel> {
 
         private final String[] jsonModel;
         private int count = 0;
@@ -23,20 +23,16 @@ public abstract class RequestProxy implements RequestHandler<GraphModel> {
         }
 
         public GraphModel next()  {
-            if (hasNext()) {
+            if (count < jsonModel.length) {
                 String json = jsonModel[count];
                 count++;
                 try {
-                    return GraphBuilder.build(json);
+                    return GraphModelBuilder.build(json);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
             return null;
-        }
-
-        public boolean hasNext() {
-            return count < jsonModel.length;
         }
 
     }

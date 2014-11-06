@@ -19,7 +19,7 @@ public class BikeTest {
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.bike");
 
-        Session session = sessionFactory.openSession();
+        Session session = sessionFactory.openSession(null);
         session.setRequestHandler(bikeRequest);
 
         long now = -System.currentTimeMillis();

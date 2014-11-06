@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface Session {
 
-    void setRequestHandler(RequestHandler request);
+    void setRequestHandler(Neo4jRequestHandler request);
 
     <T> T load(Class<T> type, Long id);
 

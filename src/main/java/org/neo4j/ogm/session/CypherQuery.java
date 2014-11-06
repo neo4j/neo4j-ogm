@@ -16,7 +16,7 @@ public class CypherQuery implements Query {
 
     @Override
     public String findByLabel(Collection<String> labels) {
-        return String.format("MATCH p=(n:%s)-->(m) RETURN p;", labelExpression(labels));
+        return String.format("MATCH p=(n%s)-->(m) RETURN p;", labelExpression(labels));
 
     }
 

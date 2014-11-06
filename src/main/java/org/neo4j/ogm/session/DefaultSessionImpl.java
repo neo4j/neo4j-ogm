@@ -1,5 +1,6 @@
 package org.neo4j.ogm.session;
 
+import org.apache.http.client.HttpClient;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
@@ -13,53 +14,51 @@ public class DefaultSessionImpl implements Session {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
+    private final String url;
 
-    private RequestHandler<GraphModel> requestHandler;
+    private Neo4jRequestHandler<GraphModel> requestHandler;
 
-    public DefaultSessionImpl(MetaData metaData) {
+    public DefaultSessionImpl(MetaData metaData, String url, HttpClient client) {
         this.metaData = metaData;
         this.mappingContext = new MappingContext();
-        this.requestHandler = new GraphModelRequestHandler();
+        this.requestHandler = new GraphModelRequestHandler(client);
+        this.url = url;
     }
 
-    public void setRequestHandler(RequestHandler request) {
+    public void setRequestHandler(Neo4jRequestHandler request) {
         this.requestHandler = request;
     }
 
     public <T> T load(Class<T> type, Long id) {
-        return loadOne(type, requestHandler.execute(new CypherQuery().findOne(id)));
+        return loadOne(type, requestHandler.execute(url, new CypherQuery().findOne(id)));
     }
 
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
-        return loadAll(type, requestHandler.execute(new CypherQuery().findAll(ids)));
+        return loadAll(type, requestHandler.execute(url, new CypherQuery().findAll(ids)));
     }
 
     public <T> Collection<T> loadAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        ResponseStream<GraphModel> stream = requestHandler.execute(new CypherQuery().findByLabel(classInfo.labels()));
+        Neo4jResponseHandler<GraphModel> stream = requestHandler.execute(url, new CypherQuery().findByLabel(classInfo.labels()));
         return loadAll(type, stream);
     }
 
-    private <T> T loadOne(Class<T> type, ResponseStream<GraphModel> stream) {
-        // todo: what happens if the stream returns more than one object? can we prevent this earlier?
-        if (stream.hasNext()) {
+    private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
+        GraphModel graphModel = stream.next();
+        if (graphModel != null) {
             ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
-            return ogm.load(type, stream.next());
+            return ogm.load(type, graphModel);
         }
-        // todo: who closes the stream
         return null;
     }
 
-    private <T> Collection<T> loadAll(Class<T> type, ResponseStream<GraphModel> stream) {
+    private <T> Collection<T> loadAll(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
         Collection<T> objects = new ArrayList();
-        if (stream.hasNext()) {
-            GraphModel graphModel;
-            while ((graphModel = stream.next()) != null) {
-                ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
-                objects.add(ogm.load(type, graphModel));
-            }
+        ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
+        GraphModel graphModel;
+        while ((graphModel = stream.next()) != null) {
+            objects.add(ogm.load(type, graphModel));
         }
-        // todo: who closes the stream?
         return objects;
     }
 }

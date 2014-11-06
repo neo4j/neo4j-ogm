@@ -23,6 +23,6 @@ public class CypherQueryTest {
     @Test
     public void testFindByLabel() throws Exception {
         List<String> labels = Arrays.asList(new String[] { "NODE", "VERTEX" });
-        assertEquals("MATCH p=(n::NODE:VERTEX)-->(m) RETURN p;", new CypherQuery().findByLabel(labels));
+        assertEquals("MATCH p=(n:NODE:VERTEX)-->(m) RETURN p;", new CypherQuery().findByLabel(labels));
     }
 }

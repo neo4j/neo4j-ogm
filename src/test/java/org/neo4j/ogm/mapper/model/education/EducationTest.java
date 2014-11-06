@@ -14,7 +14,7 @@ import static junit.framework.Assert.assertEquals;
 public class EducationTest {
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.education");
-    private static final Session session = sessionFactory.openSession();
+    private static final Session session = sessionFactory.openSession(null);
 
     @Test
     public void testTeachers() throws Exception {

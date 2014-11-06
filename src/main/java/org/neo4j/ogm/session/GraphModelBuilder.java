@@ -1,11 +1,11 @@
-package org.neo4j.ogm.mapper.model;
+package org.neo4j.ogm.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 
 import java.io.IOException;
 
-public class GraphBuilder {
+public class GraphModelBuilder {
 
     private GraphModel graph;
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -20,7 +20,7 @@ public class GraphBuilder {
     }
 
     public static GraphModel build(String json) throws IOException {
-        GraphBuilder instance = objectMapper.readValue(json, GraphBuilder.class);
+        GraphModelBuilder instance = objectMapper.readValue(json, GraphModelBuilder.class);
         return instance.getGraph();
     }
 }

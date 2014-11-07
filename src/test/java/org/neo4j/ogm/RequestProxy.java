@@ -1,7 +1,8 @@
 package org.neo4j.ogm;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graphaware.graphmodel.neo4j.GraphModel;
-import org.neo4j.ogm.session.GraphModelBuilder;
+import org.neo4j.ogm.session.GraphModelResult;
 import org.neo4j.ogm.session.Neo4jRequestHandler;
 import org.neo4j.ogm.session.Neo4jResponseHandler;
 
@@ -15,6 +16,8 @@ public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
 
     static class Response implements Neo4jResponseHandler<GraphModel> {
 
+        private static final ObjectMapper objectMapper = new ObjectMapper();
+
         private final String[] jsonModel;
         private int count = 0;
 
@@ -27,7 +30,7 @@ public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
                 String json = jsonModel[count];
                 count++;
                 try {
-                    return GraphModelBuilder.build(json);
+                    return build(json);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -35,5 +38,14 @@ public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
             return null;
         }
 
+        private GraphModel build(String json) {
+            try {
+                GraphModelResult instance = objectMapper.readValue(json, GraphModelResult.class);
+                return instance.getGraph();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
+
 }

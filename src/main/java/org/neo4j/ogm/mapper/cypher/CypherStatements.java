@@ -21,8 +21,10 @@ public class CypherStatements {
             for (String statement : statements) {
                 sb.append(", { \"statement\": \"");
                 sb.append(statement);
-                sb.append("\" }");
+                sb.append("\", \"resultDataContents\" : [ \"graph\" ]");
+                sb.append(" }");
             }
+
             return sb.toString().substring(1);
         } else return "";
     }

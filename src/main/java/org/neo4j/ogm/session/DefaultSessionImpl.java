@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
@@ -18,7 +18,7 @@ public class DefaultSessionImpl implements Session {
 
     private Neo4jRequestHandler<GraphModel> requestHandler;
 
-    public DefaultSessionImpl(MetaData metaData, String url, HttpClient client) {
+    public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client) {
         this.metaData = metaData;
         this.mappingContext = new MappingContext();
         this.requestHandler = new GraphModelRequestHandler(client);

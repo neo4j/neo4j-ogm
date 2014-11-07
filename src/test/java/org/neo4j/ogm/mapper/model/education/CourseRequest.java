@@ -229,7 +229,7 @@ public class CourseRequest extends RequestProxy {
                     "{\"id\":\"5119\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"119\",\"properties\":{}}," +
                     "{\"id\":\"5120\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"120\",\"properties\":{}}," +
                     "{\"id\":\"5121\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"121\",\"properties\":{}}," +
-                    "{\"id\":\"5122\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"121\",\"properties\":{}}," +
+                    "{\"id\":\"5122\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"122\",\"properties\":{}}," +
                     "{\"id\":\"5123\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"123\",\"properties\":{}}," +
                     "{\"id\":\"5124\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"124\",\"properties\":{}}," +
                     "{\"id\":\"5125\",\"type\":\"ENROLLED\",\"startNode\":\"5\",\"endNode\":\"125\",\"properties\":{}}," +
@@ -323,7 +323,6 @@ public class CourseRequest extends RequestProxy {
                     "{\"id\":\"8103\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"103\",\"properties\":{}}," +
                     "{\"id\":\"8105\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"105\",\"properties\":{}}," +
                     "{\"id\":\"8107\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"107\",\"properties\":{}}," +
-                    "{\"id\":\"8109\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"109\",\"properties\":{}}," +
                     "{\"id\":\"8111\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"111\",\"properties\":{}}," +
                     "{\"id\":\"8113\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"113\",\"properties\":{}}," +
                     "{\"id\":\"8117\",\"type\":\"ENROLLED\",\"startNode\":\"8\",\"endNode\":\"117\",\"properties\":{}}," +

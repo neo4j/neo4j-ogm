@@ -1,6 +1,7 @@
 package org.neo4j.ogm.mapper.model.satellite;
 
 import org.junit.Test;
+import org.neo4j.ogm.mapper.domain.satellites.Program;
 import org.neo4j.ogm.mapper.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -20,6 +21,30 @@ public class SatelliteIntegrationTest {
     private final Session session = sessionFactory.openSession("http://localhost:7474/db/data/transaction/commit");
 
     @Test
+    public void loadPrograms() {
+        Collection<Program> programs = session.loadAll(Program.class);
+
+        if (!programs.isEmpty()) {
+            assertEquals(4, programs.size());
+            for (Program program : programs) {
+
+                System.out.println("program:" + program.getName());
+
+                // hydrate the satellites' relationships
+                session.loadAll(program.getSatellites());
+
+                for (Satellite satellite : program.getSatellites()) {
+                    System.out.println("\tsatellite:" + satellite.getName());
+                    System.out.println("\t\tlocation:" + satellite.getLocation().getName());
+                    System.out.println("\t\torbit:" + satellite.getOrbit().getName());
+                    System.out.println("\t\tprogram: " + satellite.getProgram());
+
+                }
+            }
+        }
+    }
+
+    @Test
     public void loadSatellites() {
 
 
@@ -36,7 +61,7 @@ public class SatelliteIntegrationTest {
 
                 System.out.println("\tlocation:" + satellite.getLocation().getRef());
                 System.out.println("\torbit:" + satellite.getOrbit().getName());
-
+                System.out.println("\tprogram: " + satellite.getProgram());
                 assertEquals(satellite.getRef(), satellite.getName());
 
             }

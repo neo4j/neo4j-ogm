@@ -8,20 +8,6 @@ import org.neo4j.ogm.annotation.Property;
 public class Orbit extends DomainObject {
 
     private String name;
-//    private Long id;
-//    private String ref;
-//
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public String getRef() {
-//        return ref;
-//    }
-//
-//    public void setRef(String ref) {
-//        this.ref = ref;
-//    }
 
     @Property(name="orbit")
     public String getName() {

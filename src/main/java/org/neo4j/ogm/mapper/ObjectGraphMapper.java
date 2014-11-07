@@ -15,8 +15,7 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
@@ -47,17 +46,21 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object object = mappingContext.get(node.getId());
             if (object == null) {
                 object = mappingContext.register(objectFactory.newObject(node), node.getId());
+
                 if (getIdentity(object) == null) {
                     synchronized (object) {
+
                         //System.out.println("creating new " + object.getClass().getSimpleName() + ", id: " + node.getId());
+
                         setIdentity(object, node.getId());
                         setProperties(node, object);
                     }
                 }
             }
+            mappingContext.registerTypeMember(object);
             // during hydration of previous objects, this object may have been removed from the type-map.
             // this ensures it is always there.
-            mappingContext.registerTypeMember(object);
+
         }
     }
 
@@ -161,11 +164,12 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             String relationshipType = edge.getType();
             ClassInfo parentInfo = metadata.classInfo(parent.getClass().getName());
 
+            //System.out.println("found relationship: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
             MethodInfo methodInfo = getMethodInfo(parentInfo, relationshipType, child);
             if (methodInfo != null) {
                 //System.out.println("writing relationship: " + relationshipType + " using setter");
                 MethodAccess.write(parentInfo.getMethod(methodInfo, child.getClass()), parent, child);
-                mappingContext.evict(child.getClass());
+                //mappingContext.evict(child.getClass());
                 continue;
             }
 
@@ -173,11 +177,11 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             if (fieldInfo != null) {
                 //System.out.println("writing relationship: " + relationshipType + " using field");
                 FieldAccess.write(parentInfo.getField(fieldInfo), parent, child);
-                mappingContext.evict(child.getClass());
+                //mappingContext.evict(child.getClass());
                 continue;
 
             }
-            //System.out.println(" ** deferring " + child.getClass().getName() + " relationship: " + relationshipType);
+            //System.out.println("part of collection: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
             vectorRelationships.add(edge);
         }
         mapOneToMany(vectorRelationships);
@@ -188,31 +192,75 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     }
 
     private void mapOneToMany(List<RelationshipModel> vectorRelationships) throws Exception {
+
+        //System.out.println(" *** calling one to many ***");
+
+        Map< Object, Map<Class, Set<Object>>> typeRelationships = new HashMap<>();
+
+        // build the full set of related objects of each type for each source object in the relationship
         for (RelationshipModel edge : vectorRelationships) {
+
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
+
+            Map<Class, Set<Object>> handled = typeRelationships.get(instance);
+            if (handled == null) {
+                typeRelationships.put(instance, handled=new HashMap<>());
+            }
             Class<?> type = parameter.getClass();
+            Set<Object> objects = handled.get(type);
+            if (objects == null) {
+                handled.put(type, objects=new HashSet<>());
+            }
+            //System.out.println("adding " + type.getSimpleName() + ":" + edge.getEndNode() + " to " + instance.getClass().getSimpleName() + ":" + edge.getStartNode());
 
-            if (!get(type).isEmpty()) {
-                ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
-                // todo: we can be a bit cleverer than this. for example, we could try to find
-                // an setter taking an array or iterable that is annotated with the relationship type.
+            // todo: set the inverse relationship automatically.
+            objects.add(parameter);
+            //System.out.println("object size: " + objects.size());
+        }
 
-                // and if that fails, we can do the same looking for the same kind of setter whose
-                // name can be derived from the relationship type
-
-                // finally, we can do this:
+        for (Object instance : typeRelationships.keySet()) {
+            ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+            //System.out.println("setting collections for class: " + classInfo.name());
+            Map<Class, Set<Object>> handled = typeRelationships.get(instance);
+            for (Class type : handled.keySet()) {
+                //System.out.println("has a collection of " + type.getSimpleName());
                 MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
                 if (methodInfo != null) {
-                    //System.out.println("writing relationship: " + edge.getType() + " using " + methodInfo.getName());
-                    // aha! here is the problem. we are returning a list of objects in the type map.
-                    MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, get(type));
-                    mappingContext.evict(type); // we've added all instances of type for this object, no point in repeating the effort.
-
+                    Collection objects = handled.get(type);
+                    //System.out.println(instance.getClass().getSimpleName() + ":" + " setting " + objects.size() + " " + type.getSimpleName());
+                    MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, objects);
+                } else {
+                    //System.out.println("collection setter not found!");
                 }
-                // and if we have no methods, we can revert back to field access
             }
         }
+//
+
+//
+//            if (!handled.contains(type)) {
+//
+//                ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+//                // todo: we can be a bit cleverer than this. for example, we could try to find
+//                // an setter taking an array or iterable that is annotated with the relationship type.
+//
+//                // and if that fails, we can do the same looking for the same kind of setter whose
+//                // name can be derived from the relationship type
+//
+//                // finally, we can do this:
+//                MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
+//                if (methodInfo != null) {
+//                    Collection objects = get(type);
+//                    System.out.println(instance.getClass().getSimpleName() + ":" + edge.getStartNode() + " setting " + objects.size() + " " + type.getSimpleName() + ": " + edge.getEndNode());
+//                    //System.out.println("writing relationship: " + edge.getType() + " using " + methodInfo.getName());
+//                    MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, get(type));
+//                    //System.out.println("evicting all instances of :" + type.getSimpleName());
+//                    //mappingContext.evict(type); // we've added all instances of type for this object, no point in repeating the effort.
+//                    handled.add(type);
+//                }
+//                // and if we have no methods, we can revert back to field access
+//            }
+//        }
     }
 
     private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {

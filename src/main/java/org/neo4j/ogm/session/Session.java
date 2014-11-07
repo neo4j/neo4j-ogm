@@ -12,4 +12,6 @@ public interface Session {
 
     <T> Collection<T> loadAll(Class<T> type);
 
+    <T> Collection<T> loadAll(Collection<T> objects);
+
 }

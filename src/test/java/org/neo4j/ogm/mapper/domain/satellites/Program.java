@@ -3,25 +3,13 @@ package org.neo4j.ogm.mapper.domain.satellites;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
+import java.util.List;
+
 @NodeEntity(label="Space_Program")
 public class Program extends DomainObject {
 
     private String name;
-
-//    private Long id;
-//    private String ref;
-//
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public String getRef() {
-//        return ref;
-//    }
-//
-//    public void setRef(String ref) {
-//        this.ref = ref;
-//    }
+    private List<Satellite> satellites;
 
     @Property(name="program")
     public String getName() {
@@ -33,4 +21,11 @@ public class Program extends DomainObject {
         this.name = name;
     }
 
+    public List<Satellite> getSatellites() {
+        return satellites;
+    }
+
+    public void setSatellites(List<Satellite> satellites) {
+        this.satellites = satellites;
+    }
 }

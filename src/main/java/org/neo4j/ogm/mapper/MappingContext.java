@@ -1,5 +1,7 @@
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.metadata.MappingException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +28,10 @@ public class MappingContext {
 
     public Object getRoot(Class<?> type ) throws Exception {
         List<Object> roots = typeMap.get(type);
+
+        if (roots == null || roots.isEmpty()) {
+            throw new MappingException("FATAL: Could not return class of type " + type.getSimpleName());
+        }
         return roots.get(roots.size()-1);
     }
 

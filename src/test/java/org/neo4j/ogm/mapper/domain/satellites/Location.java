@@ -7,20 +7,6 @@ import org.neo4j.ogm.annotation.Property;
  */
 public class Location extends DomainObject {
 
-//    private Long id;
-//    private String ref;
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public String getRef() {
-//        return ref;
-//    }
-//
-//    public void setRef(String ref) {
-//        this.ref = ref;
-//    }
-
     @Property(name="location")
     private String name;
 

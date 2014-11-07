@@ -21,10 +21,11 @@ import java.io.IOException;
 public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel> {
 
     private final CloseableHttpClient httpClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public GraphModelRequestHandler(CloseableHttpClient httpClient) {
+    public GraphModelRequestHandler(CloseableHttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
+        this.objectMapper = objectMapper;
     }
 
     @Override

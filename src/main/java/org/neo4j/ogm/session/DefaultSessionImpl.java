@@ -1,5 +1,6 @@
 package org.neo4j.ogm.session;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.neo4j.ogm.mapper.MappingContext;
@@ -18,10 +19,10 @@ public class DefaultSessionImpl implements Session {
 
     private Neo4jRequestHandler<GraphModel> requestHandler;
 
-    public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client) {
+    public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
         this.metaData = metaData;
         this.mappingContext = new MappingContext();
-        this.requestHandler = new GraphModelRequestHandler(client);
+        this.requestHandler = new GraphModelRequestHandler(client, mapper);
         this.url = url;
     }
 

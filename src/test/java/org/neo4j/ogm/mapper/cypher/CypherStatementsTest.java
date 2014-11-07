@@ -15,17 +15,9 @@ public class CypherStatementsTest {
     }
 
     @Test
-    public void testOneStatement() throws Exception {
+    public void testStatement() throws Exception {
         cypherStatements.add(new CypherQuery().findOne(123L));
-        assertEquals("{\"statements\" : [ { \"statement\": \"MATCH p=(n)-->(m) WHERE id(n) = 123 RETURN p;\", \"resultDataContents\" : [ \"graph\" ] } ] }", cypherStatements.toString());
-
-    }
-
-    @Test
-    public void testMultipleStatements() throws Exception {
-        cypherStatements.add(new CypherQuery().findOne(123L))
-                        .add(new CypherQuery().findOne(345L));
-        assertEquals("{\"statements\" : [ { \"statement\": \"MATCH p=(n)-->(m) WHERE id(n) = 123 RETURN p;\", \"resultDataContents\" : [ \"graph\" ] }, { \"statement\": \"MATCH p=(n)-->(m) WHERE id(n) = 345 RETURN p;\", \"resultDataContents\" : [ \"graph\" ] } ] }", cypherStatements.toString());
+        assertEquals("{\"statements\" : [ { \"statement\": \"MATCH p=(n)-->(m) WHERE id(n) = 123 RETURN p\", \"resultDataContents\" : [ \"graph\" ] } ] }", cypherStatements.toString());
 
     }
 

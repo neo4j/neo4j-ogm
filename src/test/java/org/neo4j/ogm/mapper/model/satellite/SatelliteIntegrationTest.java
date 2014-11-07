@@ -27,20 +27,19 @@ public class SatelliteIntegrationTest {
         if (!programs.isEmpty()) {
             assertEquals(4, programs.size());
             for (Program program : programs) {
-
                 System.out.println("program:" + program.getName());
-
-                // hydrate the satellites' relationships
-                session.loadAll(program.getSatellites());
-
                 for (Satellite satellite : program.getSatellites()) {
+                    // 1-side of many->1 is auto-hydrated
+                    assertEquals(satellite.getProgram(), program);
+
                     System.out.println("\tsatellite:" + satellite.getName());
-                    System.out.println("\t\tlocation:" + satellite.getLocation().getName());
-                    System.out.println("\t\torbit:" + satellite.getOrbit().getName());
-                    System.out.println("\t\tprogram: " + satellite.getProgram());
+                    System.out.println("\t\tprogram:" + satellite.getProgram().getName());
+                    System.out.println("\t\t\tnum-satellites:" + satellite.getProgram().getSatellites().size());
 
                 }
             }
+        } else {
+            System.out.println("Satellite Integration Tests not run: Is there a database?");
         }
     }
 
@@ -66,7 +65,7 @@ public class SatelliteIntegrationTest {
 
             }
         } else {
-            System.out.println("Satellite Integration Test not run: Is there a database?");
+            System.out.println("Satellite Integration Tests not run: Is there a database?");
         }
     }
 

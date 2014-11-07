@@ -152,6 +152,32 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     }
 
 
+    private boolean mapSingle(Object parent, Object child, String relationshipType) {
+
+        ClassInfo parentInfo = metadata.classInfo(parent.getClass().getName());
+
+        //System.out.println("found relationship: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
+        MethodInfo methodInfo = getMethodInfo(parentInfo, relationshipType, child);
+        if (methodInfo != null) {
+            //System.out.println("writing relationship: " + relationshipType + " using setter");
+            MethodAccess.write(parentInfo.getMethod(methodInfo, child.getClass()), parent, child);
+            //mappingContext.evict(child.getClass());
+            return true;
+        }
+
+        FieldInfo fieldInfo = getFieldInfo(parentInfo, relationshipType, child);
+        if (fieldInfo != null) {
+            //System.out.println("writing relationship: " + relationshipType + " using field");
+            FieldAccess.write(parentInfo.getField(fieldInfo), parent, child);
+            //mappingContext.evict(child.getClass());
+            return true;
+
+        }
+        //System.out.println("part of collection: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
+        ///vectorRelationships.add(edge);
+        return false;
+    }
+
     private void mapRelationships(GraphModel graphModel) throws Exception {
 
         final List<RelationshipModel> vectorRelationships = new ArrayList<>();
@@ -161,28 +187,11 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object parent   = mappingContext.get(edge.getStartNode());
             Object child    = mappingContext.get(edge.getEndNode());
 
-            String relationshipType = edge.getType();
-            ClassInfo parentInfo = metadata.classInfo(parent.getClass().getName());
-
-            //System.out.println("found relationship: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
-            MethodInfo methodInfo = getMethodInfo(parentInfo, relationshipType, child);
-            if (methodInfo != null) {
-                //System.out.println("writing relationship: " + relationshipType + " using setter");
-                MethodAccess.write(parentInfo.getMethod(methodInfo, child.getClass()), parent, child);
-                //mappingContext.evict(child.getClass());
-                continue;
+            if (!mapSingle(parent, child, edge.getType())) {
+                vectorRelationships.add(edge);
+                mapSingle(child, parent, edge.getType());  // try the inverse mapping
             }
 
-            FieldInfo fieldInfo = getFieldInfo(parentInfo, relationshipType, child);
-            if (fieldInfo != null) {
-                //System.out.println("writing relationship: " + relationshipType + " using field");
-                FieldAccess.write(parentInfo.getField(fieldInfo), parent, child);
-                //mappingContext.evict(child.getClass());
-                continue;
-
-            }
-            //System.out.println("part of collection: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
-            vectorRelationships.add(edge);
         }
         mapOneToMany(vectorRelationships);
     }

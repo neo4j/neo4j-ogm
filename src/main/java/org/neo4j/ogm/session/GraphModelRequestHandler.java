@@ -32,7 +32,7 @@ public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel>
     public Neo4jResponseHandler<GraphModel> execute(String url, String statement) {
 
         String cypherQuery = new CypherStatements().add(statement).toString();
-
+        //System.out.println("request:" + statement);
         try {
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypherQuery);
@@ -66,6 +66,7 @@ public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel>
             }
 
             String responseString = EntityUtils.toString(entity);
+
             CypherGraphModelResponse graphModelResponse = objectMapper.readValue(responseString, CypherGraphModelResponse.class);
 
             // TODO: check for errors in the response

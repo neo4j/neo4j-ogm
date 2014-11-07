@@ -22,8 +22,7 @@ public class CypherQueryTest {
 
     @Test
     public void testFindByLabel() throws Exception {
-        List<String> labels = Arrays.asList(new String[] { "NODE", "VERTEX" });
-        assertEquals("MATCH p=(n:NODE:VERTEX)-->(m) RETURN p", new CypherQuery().findByLabel(labels));
+        assertEquals("MATCH p=(n:NODE)-->(m) RETURN p", new CypherQuery().findByLabel("NODE"));
     }
 
     @Test
@@ -44,8 +43,7 @@ public class CypherQueryTest {
 
     @Test
     public void deleteAllByLabel() throws Exception {
-        List<String> labels = Arrays.asList(new String[] { "NODE", "VERTEX" });
-        assertEquals("MATCH (n:NODE:VERTEX) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().deleteByLabel(labels));
+        assertEquals("MATCH (n:NODE) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().deleteByLabel("NODE"));
     }
 
     @Test

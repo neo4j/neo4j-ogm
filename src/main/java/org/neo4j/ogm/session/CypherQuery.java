@@ -20,8 +20,8 @@ public class CypherQuery implements Query {
     }
 
     @Override
-    public String findByLabel(Collection<String> labels) {
-        return String.format("MATCH p=(n%s)-->(m) RETURN p", labelExpression(labels));
+    public String findByLabel(String label) {
+        return String.format("MATCH p=(n:%s)-->(m) RETURN p", label);
     }
 
     @Override
@@ -40,18 +40,18 @@ public class CypherQuery implements Query {
     }
 
     @Override
-    public String deleteByLabel(Collection<String> labels) {
-        return String.format("MATCH (n%s) OPTIONAL MATCH (n)-[r]-() DELETE r, n", labelExpression(labels));
+    public String deleteByLabel(String label) {
+        return String.format("MATCH (n:%s) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label);
     }
 
-    private String labelExpression(Collection<String> labels) {
-        StringBuilder builder = new StringBuilder();
-        for (String label : labels) {
-            builder.append(":");
-            builder.append(label);
-        }
-        return builder.toString();
-    }
+//    private String labelExpression(Collection<String> labels) {
+//        StringBuilder builder = new StringBuilder();
+//        for (String label : labels) {
+//            builder.append(":");
+//            builder.append(label);
+//        }
+//        return builder.toString();
+//    }
 
     private String idList(Collection<Long> ids) {
         StringBuilder builder = new StringBuilder();

@@ -489,7 +489,8 @@ public class ClassInfo {
      */
     public MethodInfo propertySetter(String propertyName) {
         for (MethodInfo methodInfo : propertySetters()) {
-            if (methodInfo.property().equalsIgnoreCase(propertyName)) {
+            String match = methodInfo.property();
+            if (match.equalsIgnoreCase(propertyName) || match.equalsIgnoreCase("set" + propertyName)) {
                 return methodInfo;
             }
         }
@@ -504,7 +505,8 @@ public class ClassInfo {
      */
     public MethodInfo propertyGetter(String propertyName) {
         for (MethodInfo methodInfo : propertyGetters()) {
-            if (methodInfo.property().equalsIgnoreCase(propertyName)) {
+            String match = methodInfo.property();
+            if (match.equalsIgnoreCase(propertyName) || match.equalsIgnoreCase("get" + propertyName)) {
                 return methodInfo;
             }
         }
@@ -549,7 +551,7 @@ public class ClassInfo {
      */
     public Method getMethod(MethodInfo methodInfo, Class... parameter) {
         try {
-            return Class.forName(name()).getDeclaredMethod(methodInfo.getName(), parameter);
+            return Class.forName(name()).getMethod(methodInfo.getName(), parameter);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

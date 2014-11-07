@@ -49,11 +49,14 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
                 object = mappingContext.register(objectFactory.newObject(node), node.getId());
                 if (getIdentity(object) == null) {
                     synchronized (object) {
+                        //System.out.println("creating new " + object.getClass().getSimpleName() + ", id: " + node.getId());
                         setIdentity(object, node.getId());
                         setProperties(node, object);
                     }
                 }
             }
+            // during hydration of previous objects, this object may have been removed from the type-map.
+            // this ensures it is always there.
             mappingContext.registerTypeMember(object);
         }
     }
@@ -85,7 +88,8 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         // this is messy. we need a dictionary to help
 
         // a cache would help here.
-        MethodInfo methodInfo = classInfo.propertySetter("set" + property.getKey().toString());
+        MethodInfo methodInfo = classInfo.propertySetter(property.getKey().toString());
+
         if (methodInfo == null) {
             // also, a cache. metadata does not cache
             FieldInfo fieldInfo = classInfo.propertyField(property.getKey().toString());

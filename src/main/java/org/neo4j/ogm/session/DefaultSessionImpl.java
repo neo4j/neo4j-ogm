@@ -8,8 +8,9 @@ import org.neo4j.ogm.mapper.ObjectGraphMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DefaultSessionImpl implements Session {
 
@@ -40,7 +41,7 @@ public class DefaultSessionImpl implements Session {
 
     public <T> Collection<T> loadAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        Neo4jResponseHandler<GraphModel> stream = requestHandler.execute(url, new CypherQuery().findByLabel(classInfo.labels()));
+        Neo4jResponseHandler<GraphModel> stream = requestHandler.execute(url, new CypherQuery().findByLabel(classInfo.label()));
         return loadAll(type, stream);
     }
 
@@ -54,7 +55,7 @@ public class DefaultSessionImpl implements Session {
     }
 
     private <T> Collection<T> loadAll(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
-        Collection<T> objects = new ArrayList();
+        Set<T> objects = new HashSet<>();
         ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = stream.next()) != null) {

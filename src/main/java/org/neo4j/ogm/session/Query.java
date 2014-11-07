@@ -25,11 +25,11 @@ public interface Query {
     String findAll();
 
     /**
-     * fetch all objects with the specified labels
-     * @param labels the labels attached to the objects
+     * fetch all objects with the specified label
+     * @param label the labels attached to the objects
      * @return a Cypher expression
      */
-    String findByLabel(Collection<String> labels);
+    String findByLabel(String label);
 
     /**
      * delete an object
@@ -53,9 +53,9 @@ public interface Query {
 
     /**
      * delete all objects having the supplied labels
-     * @param labels the labels for the objects to be deleted
+     * @param label the label for the objects to be deleted
      * @return a Cypher expression
      */
-    String deleteByLabel(Collection<String> labels);
+    String deleteByLabel(String label);
 
 }

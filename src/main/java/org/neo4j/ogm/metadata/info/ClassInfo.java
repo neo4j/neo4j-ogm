@@ -611,9 +611,38 @@ public class ClassInfo {
     }
 
     /**
-     *
+     * Finds all fields whose type is equivalent to Array<X> or assignable from Collection<X>
+     * where X is the generic parameter type of the Array or Collection
      */
-    public List<MethodInfo> findIterableMethods(Class parameterType) {
+    public List<FieldInfo> findIterableFields(Class iteratedType) {
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        try {
+            for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
+                Field field = getField(fieldInfo);
+                Class type = field.getType();
+                if (type.isArray() && type.getComponentType().equals(iteratedType)) {
+                    fieldInfos.add(fieldInfo);
+                }
+                else if (Collection.class.isAssignableFrom(type)) {
+                    ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+                    Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                    if (parameterizedTypeClass == iteratedType) {
+                        fieldInfos.add(fieldInfo);
+                    }
+                }
+            }
+            return fieldInfos;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+     /**
+     * Finds all setter methods whose parameter signature is equivalent to Array<X> or assignable from Collection<X>
+     * where X is the generic parameter type of the Array or Collection
+     */
+    public List<MethodInfo> findIterableSetters(Class iteratedType) {
         List<MethodInfo> methodInfos = new ArrayList<>();
         try {
             Class clazz = Class.forName(name());
@@ -623,13 +652,13 @@ public class ClassInfo {
                     if (methodInfo.getDescriptor().endsWith(")V")) {
                         if (method.getParameterTypes().length == 1) {
                             Class methodParameterType = method.getParameterTypes()[0];
-                            if (methodParameterType.isArray() && methodParameterType.getComponentType() == parameterType) {
+                            if (methodParameterType.isArray() && methodParameterType.getComponentType() == iteratedType) {
                                 methodInfos.add(methodInfo);
                             }
                             else if (Collection.class.isAssignableFrom(methodParameterType)) {
                                 ParameterizedType parameterizedType = (ParameterizedType) method.getGenericParameterTypes()[0];
                                 Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                                if (parameterizedTypeClass == parameterType) {
+                                if (parameterizedTypeClass == iteratedType) {
                                     methodInfos.add(methodInfo);
                                 }
                             }
@@ -643,7 +672,6 @@ public class ClassInfo {
             throw new RuntimeException(e);
         }
     }
-
 
 }
 

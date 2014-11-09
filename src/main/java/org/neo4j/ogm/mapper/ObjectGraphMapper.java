@@ -49,9 +49,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
                 if (getIdentity(object) == null) {
                     synchronized (object) {
-
-                        //System.out.println("creating new " + object.getClass().getSimpleName() + ", id: " + node.getId());
-
                         setIdentity(object, node.getId());
                         setProperties(node, object);
                     }
@@ -108,7 +105,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         }
     }
 
-    private MethodInfo getMethodInfo(ClassInfo classInfo, String relationshipType, Object parameter) {
+    private MethodInfo getOneToOneRelationshipMethodInfo(ClassInfo classInfo, String relationshipType, Object parameter) {
 
         MethodInfo methodInfo;
 
@@ -130,7 +127,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
     }
 
 
-    private FieldInfo getFieldInfo(ClassInfo classInfo, String relationshipType, Object parameter) {
+    private FieldInfo getOneToOneRelationshipFieldInfo(ClassInfo classInfo, String relationshipType, Object parameter) {
         FieldInfo fieldInfo;
 
         // 1st, try to find a field annotated with with relationship type
@@ -151,64 +148,49 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         return null;
     }
 
+    private boolean mapOneToOne(Object source, Object target, String relationshipType) {
 
-    private boolean mapSingle(Object parent, Object child, String relationshipType) {
+        ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
 
-        ClassInfo parentInfo = metadata.classInfo(parent.getClass().getName());
-
-        //System.out.println("found relationship: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
-        MethodInfo methodInfo = getMethodInfo(parentInfo, relationshipType, child);
+        MethodInfo methodInfo = getOneToOneRelationshipMethodInfo(sourceInfo, relationshipType, target);
         if (methodInfo != null) {
-            //System.out.println("writing relationship: " + relationshipType + " using setter");
-            MethodAccess.write(parentInfo.getMethod(methodInfo, child.getClass()), parent, child);
-            //mappingContext.evict(child.getClass());
+            MethodAccess.write(sourceInfo.getMethod(methodInfo, target.getClass()), source, target);
             return true;
         }
 
-        FieldInfo fieldInfo = getFieldInfo(parentInfo, relationshipType, child);
+        FieldInfo fieldInfo = getOneToOneRelationshipFieldInfo(sourceInfo, relationshipType, target);
         if (fieldInfo != null) {
-            //System.out.println("writing relationship: " + relationshipType + " using field");
-            FieldAccess.write(parentInfo.getField(fieldInfo), parent, child);
-            //mappingContext.evict(child.getClass());
+            FieldAccess.write(sourceInfo.getField(fieldInfo), source, target);
             return true;
-
         }
-        //System.out.println("part of collection: " + parent.getClass().getSimpleName() + ":" + edge.getStartNode() + " -> " + child.getClass().getSimpleName() + ":" + edge.getEndNode());
-        ///vectorRelationships.add(edge);
         return false;
     }
 
     private void mapRelationships(GraphModel graphModel) throws Exception {
 
-        final List<RelationshipModel> vectorRelationships = new ArrayList<>();
+        final List<RelationshipModel> oneToMany = new ArrayList<>();
 
         for (RelationshipModel edge : graphModel.getRelationships()) {
-
-            Object parent   = mappingContext.get(edge.getStartNode());
-            Object child    = mappingContext.get(edge.getEndNode());
-
-            if (!mapSingle(parent, child, edge.getType())) {
-                vectorRelationships.add(edge);
-                mapSingle(child, parent, edge.getType());  // try the inverse mapping
+            Object source   = mappingContext.get(edge.getStartNode());
+            Object target    = mappingContext.get(edge.getEndNode());
+            if (!mapOneToOne(source, target, edge.getType())) {
+                oneToMany.add(edge);
             }
-
+            mapOneToOne(target, source, edge.getType());  // try the inverse mapping
         }
-        mapOneToMany(vectorRelationships);
+        mapOneToMany(oneToMany);
     }
 
     public List<Object> get(Class<?> clazz) {
         return mappingContext.getObjects(clazz);
     }
 
-    private void mapOneToMany(List<RelationshipModel> vectorRelationships) throws Exception {
-
-        //System.out.println(" *** calling one to many ***");
+    private void mapOneToMany(List<RelationshipModel> oneToManyRelationships) throws Exception {
 
         Map< Object, Map<Class, Set<Object>>> typeRelationships = new HashMap<>();
 
-        // build the full set of related objects of each type for each source object in the relationship
-        for (RelationshipModel edge : vectorRelationships) {
-
+        // first, build the full set of related objects of each type for each source object in the relationship
+        for (RelationshipModel edge : oneToManyRelationships) {
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
 
@@ -221,63 +203,53 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             if (objects == null) {
                 handled.put(type, objects=new HashSet<>());
             }
-            //System.out.println("adding " + type.getSimpleName() + ":" + edge.getEndNode() + " to " + instance.getClass().getSimpleName() + ":" + edge.getStartNode());
-
-            // todo: set the inverse relationship automatically.
             objects.add(parameter);
-            //System.out.println("object size: " + objects.size());
         }
 
+        // then set the entire collection at the same time.
         for (Object instance : typeRelationships.keySet()) {
-            ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
-            //System.out.println("setting collections for class: " + classInfo.name());
             Map<Class, Set<Object>> handled = typeRelationships.get(instance);
             for (Class type : handled.keySet()) {
-                //System.out.println("has a collection of " + type.getSimpleName());
-                MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
-                if (methodInfo != null) {
-                    Collection objects = handled.get(type);
-                    //System.out.println(instance.getClass().getSimpleName() + ":" + " setting " + objects.size() + " " + type.getSimpleName());
-                    MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, objects);
-                } else {
-                    //System.out.println("collection setter not found!");
-                }
+                Collection objects = handled.get(type);
+                mapOneToMany(instance, type, objects);
             }
         }
-//
+    }
 
-//
-//            if (!handled.contains(type)) {
-//
-//                ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
-//                // todo: we can be a bit cleverer than this. for example, we could try to find
-//                // an setter taking an array or iterable that is annotated with the relationship type.
-//
-//                // and if that fails, we can do the same looking for the same kind of setter whose
-//                // name can be derived from the relationship type
-//
-//                // finally, we can do this:
-//                MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
-//                if (methodInfo != null) {
-//                    Collection objects = get(type);
-//                    System.out.println(instance.getClass().getSimpleName() + ":" + edge.getStartNode() + " setting " + objects.size() + " " + type.getSimpleName() + ": " + edge.getEndNode());
-//                    //System.out.println("writing relationship: " + edge.getType() + " using " + methodInfo.getName());
-//                    MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, get(type));
-//                    //System.out.println("evicting all instances of :" + type.getSimpleName());
-//                    //mappingContext.evict(type); // we've added all instances of type for this object, no point in repeating the effort.
-//                    handled.add(type);
-//                }
-//                // and if we have no methods, we can revert back to field access
-//            }
-//        }
+    private boolean mapOneToMany(Object instance, Class type, Collection objects) {
+
+        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+
+        MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
+        if (methodInfo != null) {
+            MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, objects);
+            return true;
+        }
+
+        FieldInfo fieldInfo = getIterableFieldInfo(classInfo, type);
+        if (fieldInfo != null) {
+            FieldAccess.write(classInfo.getField(fieldInfo), instance, objects);
+            return true;
+        }
+
+        return false;
     }
 
     private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
-        List<MethodInfo> methodInfos = classInfo.findIterableMethods(parameterType);
+        List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType);
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }
         // log a warning. multiple methods match this setter signature. We cannot map the value
+        return null;
+    }
+
+    private FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType) {
+        List<FieldInfo> fieldInfos = classInfo.findIterableFields(parameterType);
+        if (fieldInfos.size() == 1) {
+            return fieldInfos.iterator().next();
+        }
+        // log a warning. multiple fields match this signature. We cannot map the value
         return null;
     }
 

@@ -17,7 +17,7 @@ public class CypherStatementsTest {
     @Test
     public void testStatement() throws Exception {
         cypherStatements.add(new CypherQuery().findOne(123L));
-        assertEquals("{\"statements\" : [ { \"statement\": \"MATCH p=(n)-->(m) WHERE id(n) = 123 RETURN p\", \"resultDataContents\" : [ \"graph\" ] } ] }", cypherStatements.toString());
+        assertEquals("{\"statements\" : [ { \"statement\": \"MATCH p=(n)--(m) WHERE id(n) = 123 RETURN p\", \"resultDataContents\" : [ \"graph\" ] } ] }", cypherStatements.toString());
 
     }
 

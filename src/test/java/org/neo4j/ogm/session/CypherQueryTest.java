@@ -11,18 +11,18 @@ public class CypherQueryTest {
 
     @Test
     public void testFindOne() throws Exception {
-        assertEquals("MATCH p=(n)-->(m) WHERE id(n) = 123 RETURN p", new CypherQuery().findOne(123L));
+        assertEquals("MATCH p=(n)--(m) WHERE id(n) = 123 RETURN p", new CypherQuery().findOne(123L));
     }
 
     @Test
     public void testFindAll() throws Exception {
         List<Long> ids = Arrays.asList(new Long[] { 123L, 234L, 345L });
-        assertEquals("MATCH p=(n)-->(m) WHERE id(n) in [123,234,345] RETURN p", new CypherQuery().findAll(ids));
+        assertEquals("MATCH p=(n)--(m) WHERE id(n) in [123,234,345] RETURN p", new CypherQuery().findAll(ids));
     }
 
     @Test
     public void testFindByLabel() throws Exception {
-        assertEquals("MATCH p=(n:NODE)-->(m) RETURN p", new CypherQuery().findByLabel("NODE"));
+        assertEquals("MATCH p=(n:NODE)--(m) RETURN p", new CypherQuery().findByLabel("NODE"));
     }
 
     @Test

@@ -6,12 +6,12 @@ public class CypherQuery implements Query {
 
     @Override
     public String findOne(Long id) {
-        return String.format("MATCH p=(n)-->(m) WHERE id(n) = %d RETURN p", id);
+        return String.format("MATCH p=(n)--(m) WHERE id(n) = %d RETURN p", id);
     }
 
     @Override
     public String findAll(Collection<Long> ids) {
-        return String.format("MATCH p=(n)-->(m) WHERE id(n) in [%s] RETURN p", idList(ids));
+        return String.format("MATCH p=(n)--(m) WHERE id(n) in [%s] RETURN p", idList(ids));
     }
 
     @Override
@@ -21,7 +21,7 @@ public class CypherQuery implements Query {
 
     @Override
     public String findByLabel(String label) {
-        return String.format("MATCH p=(n:%s)-->(m) RETURN p", label);
+        return String.format("MATCH p=(n:%s)--(m) RETURN p", label);
     }
 
     @Override
@@ -43,15 +43,6 @@ public class CypherQuery implements Query {
     public String deleteByLabel(String label) {
         return String.format("MATCH (n:%s) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label);
     }
-
-//    private String labelExpression(Collection<String> labels) {
-//        StringBuilder builder = new StringBuilder();
-//        for (String label : labels) {
-//            builder.append(":");
-//            builder.append(label);
-//        }
-//        return builder.toString();
-//    }
 
     private String idList(Collection<Long> ids) {
         StringBuilder builder = new StringBuilder();

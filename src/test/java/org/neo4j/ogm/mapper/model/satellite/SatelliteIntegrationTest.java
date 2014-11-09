@@ -60,7 +60,7 @@ public class SatelliteIntegrationTest {
 
                 System.out.println("\tlocation:" + satellite.getLocation().getRef());
                 System.out.println("\torbit:" + satellite.getOrbit().getName());
-                System.out.println("\tprogram: " + satellite.getProgram());
+                System.out.println("\tprogram: " + satellite.getProgram().getName());
                 assertEquals(satellite.getRef(), satellite.getName());
 
             }

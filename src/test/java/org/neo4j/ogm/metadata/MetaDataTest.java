@@ -427,7 +427,7 @@ public class MetaDataTest {
     @Test
     public void testFindMultipleIterableMethodsWithSameParameterisedType() {
         ClassInfo classInfo = metaData.classInfo("User");
-        List<MethodInfo> methodInfos = classInfo.findIterableMethods( Member.class);
+        List<MethodInfo> methodInfos = classInfo.findIterableSetters(Member.class);
         int count = 2;
         assertEquals(count, methodInfos.size());
         for (MethodInfo methodInfo : methodInfos) {
@@ -440,7 +440,7 @@ public class MetaDataTest {
     @Test
     public void testFindIterableMethodWithUniqueParameterisedType() {
         ClassInfo classInfo = metaData.classInfo("User");
-        List<MethodInfo> methodInfos = classInfo.findIterableMethods( Activity.class);
+        List<MethodInfo> methodInfos = classInfo.findIterableSetters(Activity.class);
         int count = 1;
         assertEquals(count, methodInfos.size());
         for (MethodInfo methodInfo : methodInfos) {

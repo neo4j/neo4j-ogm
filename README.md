@@ -1,6 +1,8 @@
 Object-Graph Mapping for Neo4j
 ==============================
 
+[![Build Status](https://travis-ci.org/graphaware/neo4j-ogm.png)](https://travis-ci.org/graphaware/neo4j-ogm)
+
 ## Introduction
 
 This repository contains a brand new object-graph mapping (OGM) framework for Neo4j and is part of an effort codenamed "SDN.Future". This means that the next version of Spring Data Neo4j, which is also developed by GraphAware, will be using this OGM library to do parts of its job. That said, this OGM is usable without any dependencies on Spring.

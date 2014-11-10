@@ -39,7 +39,7 @@ public class EndToEndTest {
     public void canSaveModelToEmptyDatabase() {
         Bike bike = new Bike();
 
-
+        //save bike,...
     }
 
     private static int getAvailablePort() {

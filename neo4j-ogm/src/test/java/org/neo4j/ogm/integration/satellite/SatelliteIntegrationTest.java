@@ -1,10 +1,10 @@
-package org.neo4j.ogm.mapper.model.satellite;
+package org.neo4j.ogm.integration.satellite;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.integration.IntegrationTest;
 import org.neo4j.ogm.mapper.domain.satellites.Program;
 import org.neo4j.ogm.mapper.domain.satellites.Satellite;
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.BufferedReader;
@@ -18,15 +18,13 @@ import static org.junit.Assert.assertEquals;
  * This is a full integration test that requires a running neo4j
  * database on localhost.
  */
-public class SatelliteIntegrationTest {
+public class SatelliteIntegrationTest extends IntegrationTest {
 
-    // initialise the repository
-    private final SessionFactory sessionFactory=new SessionFactory("org.neo4j.ogm.mapper.domain.satellites");
-    private final Session session = sessionFactory.openSession("http://localhost:7474");
-
-    @Before
-    public void setUp() {
-        importSatellites();
+   @Before
+    public void importData() throws IOException {
+       super.setUp();
+       session = new SessionFactory("org.neo4j.ogm.mapper.domain.satellites").openSession("http://localhost:" + neoPort);
+       importSatellites();
     }
 
     @Test

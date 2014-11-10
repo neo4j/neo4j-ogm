@@ -18,7 +18,7 @@ public class SatelliteIntegrationTest {
 
     // initialise the repository
     private final SessionFactory sessionFactory=new SessionFactory("org.neo4j.ogm.mapper.domain.satellites");
-    private final Session session = sessionFactory.openSession("http://localhost:7474/db/data/transaction/commit");
+    private final Session session = sessionFactory.openSession("http://localhost:7474");
 
     @Test
     public void loadPrograms() {

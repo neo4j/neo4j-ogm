@@ -26,7 +26,7 @@ public class DefaultSessionImpl implements Session {
         this.metaData = metaData;
         this.mappingContext = new MappingContext();
         this.requestHandler = new GraphModelRequestHandler(client, mapper);
-        this.url = url;
+        this.url = transformUrl(url);
     }
 
     @Override
@@ -83,5 +83,17 @@ public class DefaultSessionImpl implements Session {
             objects.add(ogm.load(type, graphModel));
         }
         return objects;
+    }
+
+    private String transformUrl(String url) {
+        if (url == null) {
+            return url;
+        }
+
+        if (!url.endsWith("/")) {
+            url = url + "/";
+        }
+
+        return url + "db/data/transaction/commit";
     }
 }

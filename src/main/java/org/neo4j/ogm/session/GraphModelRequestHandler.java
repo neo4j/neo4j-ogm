@@ -29,10 +29,13 @@ public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel>
     }
 
     @Override
-    public Neo4jResponseHandler<GraphModel> execute(String url, String statement) {
+    public Neo4jResponseHandler<GraphModel> execute(String url, String... statements) {
 
-        String cypherQuery = new CypherStatements().add(statement).toString();
-        //System.out.println("request:" + statement);
+        CypherStatements cypherStatements = new CypherStatements();
+        for (String statement : statements) {
+            cypherStatements.add(statement);
+        }
+        String cypherQuery = cypherStatements.toString();
         try {
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypherQuery);
@@ -66,11 +69,24 @@ public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel>
             }
 
             String responseString = EntityUtils.toString(entity);
-
             CypherGraphModelResponse graphModelResponse = objectMapper.readValue(responseString, CypherGraphModelResponse.class);
 
             // TODO: check for errors in the response
-            return graphModelResponse.getResults()[0].getData();
+
+            if (graphModelResponse.getErrors().length > 0) {
+                for (String error : graphModelResponse.getErrors()) {
+                    System.out.println(error);
+                }
+                throw new RuntimeException("Error executing statements");
+            }
+
+
+            if (graphModelResponse.getResults().length > 0) {
+                return graphModelResponse.getResults()[0].getData();
+            } else {
+                return null;
+            }
+
         }
     };
 

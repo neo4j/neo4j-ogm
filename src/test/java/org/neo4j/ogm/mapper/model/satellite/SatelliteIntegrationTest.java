@@ -1,24 +1,33 @@
 package org.neo4j.ogm.mapper.model.satellite;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.satellites.Program;
 import org.neo4j.ogm.mapper.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * This is a full integration test that requires a running neo4j
- * database on localhost, populated with satellite data.
+ * database on localhost.
  */
 public class SatelliteIntegrationTest {
 
     // initialise the repository
     private final SessionFactory sessionFactory=new SessionFactory("org.neo4j.ogm.mapper.domain.satellites");
     private final Session session = sessionFactory.openSession("http://localhost:7474");
+
+    @Before
+    public void setUp() {
+        importSatellites();
+    }
 
     @Test
     public void loadPrograms() {
@@ -69,5 +78,25 @@ public class SatelliteIntegrationTest {
         }
     }
 
+    private void importSatellites() {
+        session.purge();
+        session.execute(load("org/neo4j/ogm/cql/satellites.cql"));
+    }
+
+    private String[] load(String cqlFile) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFile)));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                //statements.add(line);
+                sb.append(line);
+                sb.append(" ");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new String[] { sb.toString() };
+    }
 
 }

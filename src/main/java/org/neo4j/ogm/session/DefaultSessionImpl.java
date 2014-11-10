@@ -66,6 +66,23 @@ public class DefaultSessionImpl implements Session {
         return loadAll(type, ids);
     }
 
+    @Override
+    public <T> void deleteAll(Class<T> type) {
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        requestHandler.execute(url, new CypherQuery().deleteByLabel(classInfo.label()));
+
+    }
+
+    @Override
+    public void execute(String... statements) {
+        requestHandler.execute(url, statements);
+    }
+
+    @Override
+    public void purge() {
+        requestHandler.execute(url, new CypherQuery().purge());
+    }
+
     private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
         GraphModel graphModel = stream.next();
         if (graphModel != null) {

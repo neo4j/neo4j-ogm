@@ -21,8 +21,15 @@ public class CypherStatements {
             for (String statement : statements) {
                 sb.append(", { \"statement\": \"");
                 sb.append(statement);
-                sb.append("\", \"resultDataContents\" : [ \"graph\" ]");
-                sb.append(" }");
+
+                // hack for now
+                if (statement.startsWith("MATCH")) {
+                    sb.append("\", \"resultDataContents\" : [ \"graph\" ] }");
+                }
+                else {
+                    sb.append("\" }");
+                }
+
             }
 
             return sb.toString().substring(1);

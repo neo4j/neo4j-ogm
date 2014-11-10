@@ -10,7 +10,7 @@ public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
 
     protected abstract String[] getResponse();
 
-    public Neo4jResponseHandler<GraphModel> execute(String url, String request) {
+    public Neo4jResponseHandler<GraphModel> execute(String url, String... request) {
         return new Response(getResponse());
     }
 

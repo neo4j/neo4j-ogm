@@ -14,4 +14,9 @@ public interface Session {
 
     <T> Collection<T> loadAll(Collection<T> objects);
 
+    <T> void deleteAll(Class<T> type);
+
+    void execute(String... commands);
+
+    void purge();
 }

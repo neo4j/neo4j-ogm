@@ -15,5 +15,5 @@ public @interface Relationship {
     static final String OUTGOING = "OUTGOING";
 
     String type() default "";
-    String direction() default OUTGOING; // todo use neo4j direction enum
+    String direction() default OUTGOING; // todo use neo4j direction enum (MB: really? I wouldn't introduce that dependency just for directions)
 }

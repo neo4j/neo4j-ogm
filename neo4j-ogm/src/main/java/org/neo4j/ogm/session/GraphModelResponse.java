@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session;
 
-public class CypherGraphModelResponse {
+public class GraphModelResponse {
 
     private Result[] results;
     private String[] errors;

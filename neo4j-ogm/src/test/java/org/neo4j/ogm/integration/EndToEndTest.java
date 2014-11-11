@@ -7,22 +7,31 @@ import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  *  Temporary playground for the full cycle.
  */
 public class EndToEndTest extends IntegrationTest {
 
     @Before
-    public void importData() throws IOException {
+    public void init() throws IOException {
         super.setUp();
         session = new SessionFactory("org.neo4j.ogm.mapper.domain.bike").openSession("http://localhost:" + neoPort);
     }
 
     @Test
-    public void canSaveModelToEmptyDatabase() {
+    public void canSaveNewObjectToDatabase() {
+
         Bike bike = new Bike();
 
-        //session.save(bike);
-        //save bike,...
+        assertEquals(null, bike.getId());
+
+        session.purge();
+        session.save(bike);
+
+        // 1st object always has id 0
+        assertEquals(new Long(0), bike.getId());
+
     }
 }

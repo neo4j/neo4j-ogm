@@ -69,4 +69,15 @@ public interface Query {
      * @return
      */
     String updateProperties(Long identity, Collection<Property<String, Object>> properties);
+
+    /**
+     * Construct an update statement to update the properties of
+     * the node with the given identity
+     *
+     * @param properties
+     * @param labels
+     * @return
+     */
+    String createNode(Collection<Property<String,Object>> properties, Collection<String> labels);
+
 }

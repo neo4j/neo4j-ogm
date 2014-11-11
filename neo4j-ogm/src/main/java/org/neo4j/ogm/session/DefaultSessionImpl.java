@@ -21,11 +21,14 @@ public class DefaultSessionImpl implements Session {
     private final String url;
 
     private Neo4jRequestHandler<GraphModel> requestHandler;
+    private Neo4jRequestHandler<RowModel> commandHandler;
 
     public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
         this.metaData = metaData;
         this.mappingContext = new MappingContext();
         this.requestHandler = new GraphModelRequestHandler(client, mapper);
+        this.commandHandler = new RowModelRequestHandler(client, mapper);
+
         this.url = transformUrl(url);
     }
 
@@ -87,9 +90,13 @@ public class DefaultSessionImpl implements Session {
     public <T> void save(T object) {
 
         ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+
+        // get the object identity (will be null for new objects)
+        Field identityField = classInfo.getField(classInfo.identityField());
+        Long identity = (Long) FieldAccess.read(identityField, object);
+
+        // collect the node properties
         Collection<FieldInfo> properties = classInfo.propertyFields();
-        FieldInfo identityField= classInfo.identityField();
-        Long identity = (Long) FieldAccess.read(classInfo.getField(identityField), object);
         List<Property<String, Object>> propertyList = new ArrayList<>();
         for (FieldInfo fieldInfo : properties) {
             Field field = classInfo.getField(fieldInfo);
@@ -97,9 +104,23 @@ public class DefaultSessionImpl implements Session {
             Object value = FieldAccess.read(field, object);
             propertyList.add(new Property(key, value));
         }
-        String command = new CypherQuery().updateProperties(identity, propertyList);
-        System.out.println(command);
-        requestHandler.execute(url, command);
+
+        String command;
+        if (identity != null) {
+            command = new CypherQuery().updateProperties(identity, propertyList);
+            System.out.println(command);
+            commandHandler.execute(url, command);
+        } else {
+            Collection<String> labels = classInfo.labels();
+            command = new CypherQuery().createNode(propertyList, labels);
+            setIdentity(identityField, object, commandHandler.execute(url, command));
+        }
+    }
+
+    private <T> void setIdentity(Field identityField, T object, Neo4jResponseHandler<RowModel> response) {
+        Long identity = Long.parseLong(response.next().getValues()[0].toString());
+        FieldAccess.write(identityField, object, identity);
+
     }
 
     private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {

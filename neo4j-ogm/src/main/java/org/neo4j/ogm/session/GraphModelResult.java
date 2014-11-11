@@ -4,8 +4,6 @@ import org.graphaware.graphmodel.neo4j.GraphModel;
 
 public class GraphModelResult {
 
-
-
     private GraphModel graph;
 
     public GraphModel getGraph() {

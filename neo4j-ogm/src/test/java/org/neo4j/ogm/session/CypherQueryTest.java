@@ -61,4 +61,19 @@ public class CypherQueryTest {
         properties.add(new Property<String, Object>("sProp", "Pie and the meaning of life"));
         assertEquals("MATCH (n) WHERE id(n) = 123 SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\"", new CypherQuery().updateProperties(123L, properties));
     }
+
+
+    @Test
+    public void testCreateNode() throws Exception {
+        List<Property<String, Object>> properties = new ArrayList<>();
+        properties.add(new Property<String, Object>("iProp", 42));
+        properties.add(new Property<String, Object>("fProp", 3.1415928));
+        properties.add(new Property<String, Object>("sProp", "Pie and the meaning of life"));
+
+        List<String> labels = new ArrayList<>();
+        labels.add("NODE");
+        labels.add("VERTEX");
+
+        assertEquals("CREATE (n:NODE:VERTEX) SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\" return id(n)", new CypherQuery().createNode(properties, labels));
+    }
 }

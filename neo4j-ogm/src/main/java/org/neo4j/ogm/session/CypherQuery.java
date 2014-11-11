@@ -52,6 +52,20 @@ public class CypherQuery implements Query {
 
     }
 
+    @Override
+    public String createNode(Collection<Property<String, Object>> properties, Collection<String> labels) {
+        return String.format("CREATE (n%s) %s return id(n)", setLabels(labels), setProperties(properties));
+    }
+
+    private String setLabels(Collection<String> labels) {
+        StringBuilder sb = new StringBuilder();
+        for (String label : labels) {
+            sb.append(":");
+            sb.append(label);
+        }
+        return sb.toString();
+    }
+
     private String idList(Collection<Long> ids) {
         StringBuilder builder = new StringBuilder();
         for (Long id : ids) {

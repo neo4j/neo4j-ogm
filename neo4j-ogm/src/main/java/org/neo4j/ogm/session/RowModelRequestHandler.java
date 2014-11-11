@@ -13,24 +13,22 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.graphaware.graphmodel.neo4j.GraphModel;
 import org.neo4j.ogm.mapper.cypher.CypherStatements;
 
 import java.io.IOException;
 
-public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel> {
+public class RowModelRequestHandler implements Neo4jRequestHandler<RowModel> {
 
     private final CloseableHttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    public GraphModelRequestHandler(CloseableHttpClient httpClient, ObjectMapper objectMapper) {
-        this.httpClient = httpClient;
-        this.objectMapper = objectMapper;
+    public RowModelRequestHandler(CloseableHttpClient client, ObjectMapper mapper) {
+        this.httpClient = client;
+        this.objectMapper = mapper;
     }
 
     @Override
-    public Neo4jResponseHandler<GraphModel> execute(String url, String... statements) {
-
+    public Neo4jResponseHandler<RowModel> execute(String url, String... statements) {
         CypherStatements cypherStatements = new CypherStatements();
         for (String statement : statements) {
             cypherStatements.add(statement);
@@ -44,17 +42,18 @@ public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel>
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
             request.setEntity(entity);
 
-            return new GraphModelResponseHandler((GraphModelResult[]) httpClient.execute(request, rh));
+            return new RowModelResponseHandler((RowModelResult[]) httpClient.execute(request, rh));
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
     }
 
     ResponseHandler rh = new ResponseHandler() {
 
         @Override
-        public GraphModelResult[] handleResponse(final HttpResponse response) throws IOException {
+        public RowModelResult[] handleResponse(final HttpResponse response) throws IOException {
 
             StatusLine statusLine = response.getStatusLine();
             HttpEntity entity = response.getEntity();
@@ -69,20 +68,22 @@ public class GraphModelRequestHandler implements Neo4jRequestHandler<GraphModel>
             }
 
             String responseString = EntityUtils.toString(entity);
-            GraphModelResponse graphModelResponse = objectMapper.readValue(responseString, GraphModelResponse.class);
 
-            if (graphModelResponse.getErrors().length > 0) {
-                for (Object error : graphModelResponse.getErrors()) {
+            RowModelResponse rowModelResponse = objectMapper.readValue(responseString, RowModelResponse.class);
+            if (rowModelResponse.getErrors().length > 0) {
+                for (Object error : rowModelResponse.getErrors()) {
                     System.out.println(error);
                 }
                 throw new RuntimeException("Error executing statements");
             }
 
-            if (graphModelResponse.getResults().length > 0) {
-                return graphModelResponse.getResults()[0].getData();
+
+            if (rowModelResponse.getResults().length > 0) {
+                return rowModelResponse.getResults()[0].getData();
             } else {
                 return null;
             }
+
         }
     };
 

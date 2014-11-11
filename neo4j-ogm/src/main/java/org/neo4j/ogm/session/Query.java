@@ -1,5 +1,7 @@
 package org.neo4j.ogm.session;
 
+import org.graphaware.graphmodel.neo4j.Property;
+
 import java.util.Collection;
 
 public interface Query {
@@ -58,4 +60,13 @@ public interface Query {
      */
     String deleteByLabel(String label);
 
+    /**
+     * Construct an update statement to update the properties of
+     * the node with the given identity
+     *
+     * @param identity
+     * @param properties
+     * @return
+     */
+    String updateProperties(Long identity, Collection<Property<String, Object>> properties);
 }

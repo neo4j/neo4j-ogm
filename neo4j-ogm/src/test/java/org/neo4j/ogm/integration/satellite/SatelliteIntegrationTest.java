@@ -76,6 +76,28 @@ public class SatelliteIntegrationTest extends IntegrationTest {
         }
     }
 
+    @Test
+    public void updateSatellite() {
+
+        Collection<Satellite> satellites = session.loadAll(Satellite.class);
+
+        if (!satellites.isEmpty()) {
+
+            Satellite satellite = satellites.iterator().next();
+            Long id = satellite.getId();
+            satellite.setName("Updated satellite");
+
+            session.save(satellite);
+
+            Satellite updatedSatellite = session.load(Satellite.class, id);
+            assertEquals("Updated satellite", updatedSatellite.getName());
+
+
+        } else {
+            System.out.println("Satellite Integration Tests not run: Is there a database?");
+        }
+    }
+
     private void importSatellites() {
         session.purge();
         session.execute(load("org/neo4j/ogm/cql/satellites.cql"));

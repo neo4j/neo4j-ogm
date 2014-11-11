@@ -19,4 +19,6 @@ public interface Session {
     void execute(String... commands);
 
     void purge();
+
+    <T> void save(T object);
 }

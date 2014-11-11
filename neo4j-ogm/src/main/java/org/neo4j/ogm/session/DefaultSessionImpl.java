@@ -3,16 +3,16 @@ package org.neo4j.ogm.session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.graphaware.graphmodel.neo4j.GraphModel;
+import org.graphaware.graphmodel.neo4j.Property;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.FieldInfo;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultSessionImpl implements Session {
 
@@ -81,6 +81,25 @@ public class DefaultSessionImpl implements Session {
     @Override
     public void purge() {
         requestHandler.execute(url, new CypherQuery().purge());
+    }
+
+    @Override
+    public <T> void save(T object) {
+
+        ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+        Collection<FieldInfo> properties = classInfo.propertyFields();
+        FieldInfo identityField= classInfo.identityField();
+        Long identity = (Long) FieldAccess.read(classInfo.getField(identityField), object);
+        List<Property<String, Object>> propertyList = new ArrayList<>();
+        for (FieldInfo fieldInfo : properties) {
+            Field field = classInfo.getField(fieldInfo);
+            String key = fieldInfo.property();
+            Object value = FieldAccess.read(field, object);
+            propertyList.add(new Property(key, value));
+        }
+        String command = new CypherQuery().updateProperties(identity, propertyList);
+        System.out.println(command);
+        requestHandler.execute(url, command);
     }
 
     private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {

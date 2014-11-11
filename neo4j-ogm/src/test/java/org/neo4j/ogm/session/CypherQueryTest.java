@@ -1,7 +1,9 @@
 package org.neo4j.ogm.session;
 
+import org.graphaware.graphmodel.neo4j.Property;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,5 +51,14 @@ public class CypherQueryTest {
     @Test
     public void purge() throws Exception {
         assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().purge());
+    }
+
+    @Test
+    public void testUpdateProperties() throws Exception {
+        List<Property<String, Object>> properties = new ArrayList<>();
+        properties.add(new Property<String, Object>("iProp", 42));
+        properties.add(new Property<String, Object>("fProp", 3.1415928));
+        properties.add(new Property<String, Object>("sProp", "Pie and the meaning of life"));
+        assertEquals("MATCH (n) WHERE id(n) = 123 SET n.iProp=42,n.fProp=3.1415928,n.sProp=\"Pie and the meaning of life\"", new CypherQuery().updateProperties(123L, properties));
     }
 }

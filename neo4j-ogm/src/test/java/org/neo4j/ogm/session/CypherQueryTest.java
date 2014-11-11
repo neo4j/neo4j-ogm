@@ -59,6 +59,6 @@ public class CypherQueryTest {
         properties.add(new Property<String, Object>("iProp", 42));
         properties.add(new Property<String, Object>("fProp", 3.1415928));
         properties.add(new Property<String, Object>("sProp", "Pie and the meaning of life"));
-        assertEquals("MATCH (n) WHERE id(n) = 123 SET n.iProp=42,n.fProp=3.1415928,n.sProp=\"Pie and the meaning of life\"", new CypherQuery().updateProperties(123L, properties));
+        assertEquals("MATCH (n) WHERE id(n) = 123 SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\"", new CypherQuery().updateProperties(123L, properties));
     }
 }

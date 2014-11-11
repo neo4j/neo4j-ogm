@@ -22,7 +22,7 @@ public class EndToEndTest extends IntegrationTest {
     public void canSaveModelToEmptyDatabase() {
         Bike bike = new Bike();
 
-        session.save(bike);
+        //session.save(bike);
         //save bike,...
     }
 }

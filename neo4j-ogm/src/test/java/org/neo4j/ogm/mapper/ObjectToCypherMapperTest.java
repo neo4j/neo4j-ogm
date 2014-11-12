@@ -22,11 +22,13 @@ public class ObjectToCypherMapperTest {
 
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
+    private static MetaData mappingMetadata;
 
     @BeforeClass
     public static void setUpTestDatabase() {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
         executionEngine = new ExecutionEngine(graphDatabase);
+        mappingMetadata = new MetaData("org.neo4j.ogm.mapper.domain.education");
     }
 
     @AfterClass
@@ -36,7 +38,7 @@ public class ObjectToCypherMapperTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new MetaDataDrivenObjectToCypherMapper(new MetaData("org.neo4j.ogm.mapper.domain.education"));
+        this.mapper = new MetaDataDrivenObjectToCypherMapper(mappingMetadata);
     }
 
     @After

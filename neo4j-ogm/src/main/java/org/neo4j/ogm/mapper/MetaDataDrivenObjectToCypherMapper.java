@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper {
 
-    private MetaData metaData;
+    private final MetaData metaData;
 
     /**
      * Constructs a new {@link MetaDataDrivenObjectToCypherMapper} that uses the given {@link MetaData}.

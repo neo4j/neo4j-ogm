@@ -12,12 +12,12 @@ public class SessionFactory {
     // it around to anybody who needs one.
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final MetaData metaData;
 
     // this is a threadsafe httpclient that can handle multiple connections simultaneously
     // it takes several seconds to initialise, and we must not have more than one of
     // them.
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
+    private final MetaData metaData;
 
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);

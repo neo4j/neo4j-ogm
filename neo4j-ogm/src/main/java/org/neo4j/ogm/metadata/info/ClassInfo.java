@@ -306,7 +306,7 @@ public class ClassInfo {
      */
     public MethodInfo identityGetter() {
         for (MethodInfo methodInfo : methodsInfo().getters()) {
-            //System.out.println(methodInfo.getName() + ": " + methodInfo.getDescriptor());
+            //LOGGER.info(methodInfo.getName() + ": " + methodInfo.getDescriptor());
             AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
                 if (methodInfo.getDescriptor().equals("()Ljava/lang/Long;")) {

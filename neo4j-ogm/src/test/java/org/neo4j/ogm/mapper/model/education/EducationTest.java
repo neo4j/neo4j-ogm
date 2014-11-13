@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.mapper.domain.education.Teacher;
-import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.DefaultSessionImpl;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import static junit.framework.Assert.assertEquals;
 public class EducationTest {
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.education");
-    private static final Session session = sessionFactory.openSession(null);
+    private static final DefaultSessionImpl session = (DefaultSessionImpl) sessionFactory.openSession(null);
 
     @Test
     public void testTeachers() throws Exception {

@@ -10,6 +10,13 @@ import org.neo4j.ogm.mapper.ObjectGraphMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;
+import org.neo4j.ogm.session.request.DefaultRequestHandler;
+import org.neo4j.ogm.session.request.Neo4jRequestHandler;
+import org.neo4j.ogm.session.response.GraphModelResponseHandler;
+import org.neo4j.ogm.session.response.Neo4jResponseHandler;
+import org.neo4j.ogm.session.response.RowModelResponseHandler;
+import org.neo4j.ogm.session.result.RowModel;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -18,40 +25,46 @@ public class DefaultSessionImpl implements Session {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
+    private final ObjectMapper mapper;
+
     private final String url;
 
-    private Neo4jRequestHandler<GraphModel> requestHandler;
-    private Neo4jRequestHandler<RowModel> commandHandler;
+    private Neo4jRequestHandler<String> requestHandler;
 
     public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
+
         this.metaData = metaData;
         this.mappingContext = new MappingContext();
-        this.requestHandler = new GraphModelRequestHandler(client, mapper);
-        this.commandHandler = new RowModelRequestHandler(client, mapper);
+        this.mapper = mapper;
+        this.requestHandler = new DefaultRequestHandler(client);
 
         this.url = transformUrl(url);
     }
 
-    @Override
-    public void setRequestHandler(Neo4jRequestHandler request) {
-        this.requestHandler = request;
+    public void setRequestHandler(Neo4jRequestHandler<String> requestHandler) {
+        this.requestHandler = requestHandler;
     }
 
     @Override
     public <T> T load(Class<T> type, Long id) {
-        return loadOne(type, requestHandler.execute(url, new CypherQuery().findOne(id)));
+        Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, new DepthOneStrategy().findOne(id));
+        Neo4jResponseHandler<GraphModel> graphModelResponseHandler = new GraphModelResponseHandler(responseHandler, mapper);
+        return loadOne(type, graphModelResponseHandler);
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
-        return loadAll(type, requestHandler.execute(url, new CypherQuery().findAll(ids)));
+        Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, new DepthOneStrategy().findAll(ids));
+        Neo4jResponseHandler<GraphModel> graphModelResponseHandler = new GraphModelResponseHandler(responseHandler, mapper);
+        return loadAll(type, graphModelResponseHandler);
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        Neo4jResponseHandler<GraphModel> stream = requestHandler.execute(url, new CypherQuery().findByLabel(classInfo.label()));
-        return loadAll(type, stream);
+        Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, new DepthOneStrategy().findByLabel(classInfo.label()));
+        Neo4jResponseHandler<GraphModel> graphModelResponseHandler = new GraphModelResponseHandler(responseHandler, mapper);
+        return loadAll(type, graphModelResponseHandler);
     }
 
     @Override
@@ -72,18 +85,18 @@ public class DefaultSessionImpl implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        requestHandler.execute(url, new CypherQuery().deleteByLabel(classInfo.label()));
+        requestHandler.execute(url, new DepthOneStrategy().deleteByLabel(classInfo.label())).close();
 
     }
 
     @Override
     public void execute(String... statements) {
-        requestHandler.execute(url, statements);
+        requestHandler.execute(url, statements).close();
     }
 
     @Override
     public void purge() {
-        requestHandler.execute(url, new CypherQuery().purge());
+        requestHandler.execute(url, new DepthOneStrategy().purge()).close();
     }
 
     @Override
@@ -107,18 +120,18 @@ public class DefaultSessionImpl implements Session {
 
         String command;
         if (identity != null) {
-            command = new CypherQuery().updateProperties(identity, propertyList);
-            System.out.println(command);
-            commandHandler.execute(url, command);
+            command = new DepthOneStrategy().updateProperties(identity, propertyList);
+            requestHandler.execute(url, command).close();
         } else {
             Collection<String> labels = classInfo.labels();
-            command = new CypherQuery().createNode(propertyList, labels);
-            setIdentity(identityField, object, commandHandler.execute(url, command));
+            command = new DepthOneStrategy().createNode(propertyList, labels);
+            setIdentity(identityField, object, new RowModelResponseHandler(requestHandler.execute(url, command), mapper));
         }
     }
 
     private <T> void setIdentity(Field identityField, T object, Neo4jResponseHandler<RowModel> response) {
         Long identity = Long.parseLong(response.next().getValues()[0].toString());
+        response.close();
         FieldAccess.write(identityField, object, identity);
 
     }
@@ -127,6 +140,7 @@ public class DefaultSessionImpl implements Session {
         GraphModel graphModel = stream.next();
         if (graphModel != null) {
             ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
+            stream.close();
             return ogm.load(type, graphModel);
         }
         return null;
@@ -139,6 +153,7 @@ public class DefaultSessionImpl implements Session {
         while ((graphModel = stream.next()) != null) {
             objects.add(ogm.load(type, graphModel));
         }
+        stream.close();
         return objects;
     }
 

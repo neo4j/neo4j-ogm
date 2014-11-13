@@ -1,4 +1,4 @@
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.session.result;
 
 public class RowModelResult {
 

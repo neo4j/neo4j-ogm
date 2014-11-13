@@ -1,10 +1,10 @@
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.session.querystrategy;
 
 import org.graphaware.graphmodel.neo4j.Property;
 
 import java.util.Collection;
 
-public class CypherQuery implements Query {
+public class DepthOneStrategy implements QueryStrategy {
 
     @Override
     public String findOne(Long id) {

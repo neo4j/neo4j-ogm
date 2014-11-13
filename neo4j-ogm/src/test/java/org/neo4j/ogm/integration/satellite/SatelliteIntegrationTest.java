@@ -109,7 +109,6 @@ public class SatelliteIntegrationTest extends IntegrationTest {
         String line;
         try {
             while ((line = reader.readLine()) != null) {
-                //statements.add(line);
                 sb.append(line);
                 sb.append(" ");
             }

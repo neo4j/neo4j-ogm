@@ -1,14 +1,14 @@
-package org.neo4j.ogm.mapper.model.bike.performance;
+package org.neo4j.ogm.performance;
 
 import org.junit.Test;
 import org.neo4j.ogm.mapper.domain.bike.Bike;
 import org.neo4j.ogm.mapper.model.bike.BikeRequest;
-import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.DefaultSessionImpl;
 import org.neo4j.ogm.session.SessionFactory;
 
 import static org.junit.Assert.assertTrue;
 
-public class PerformanceTest {
+public class DeserialisationPerformanceTest {
 
     @Test
     public void testAverageDeserialisationSpeed() throws Exception {
@@ -17,8 +17,9 @@ public class PerformanceTest {
         int target =3000;          // maximum permitted time (milliseconds) to load <count> entities;
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.bike");
-        Session session = sessionFactory.openSession(null);
+        DefaultSessionImpl session = ((DefaultSessionImpl) sessionFactory.openSession(null));
         session.setRequestHandler(new BikeRequest());
+
 
         long elapsed = -System.currentTimeMillis();
         for (int i = 0; i < count; i++) {

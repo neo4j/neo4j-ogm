@@ -96,11 +96,11 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             if (fieldInfo == null) {
                 // log a warning, we don't recognise this property
             } else {
-                //System.out.println("writing property field: " + fieldInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
+                //LOGGER.info("writing property field: " + fieldInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
                 FieldAccess.write(classInfo.getField(fieldInfo), instance, property.getValue());
             }
         } else {
-            //System.out.println("invoking setter: " + methodInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
+            //LOGGER.info("invoking setter: " + methodInfo.getName() + ", value= " + property.getValue() + ", class=" + property.getValue().getClass());
             MethodAccess.write(classInfo.getMethod(methodInfo,ClassUtils.getType(methodInfo.getDescriptor())), instance, property.getValue());
         }
     }

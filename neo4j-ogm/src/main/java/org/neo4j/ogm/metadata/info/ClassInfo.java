@@ -4,6 +4,7 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.metadata.MappingException;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -194,7 +195,8 @@ public class ClassInfo {
      * The identity field is a field annotated with @NodeId, or if none exists, a field
      * of type Long called 'id'
      *
-     * @return A FieldInfo object representing the identity field or null if it doesn't exist
+     * @return A {@link FieldInfo} object representing the identity field never <code>null</code>
+     * @throws MappingException if no identity field can be found
      */
     public FieldInfo identityField() {
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
@@ -211,7 +213,7 @@ public class ClassInfo {
                 return fieldInfo;
             }
         }
-        return null;
+        throw new MappingException("No identity field found for class: " + this.className);
     }
 
     /**

@@ -1,4 +1,4 @@
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.session.result;
 
 import org.graphaware.graphmodel.neo4j.GraphModel;
 

@@ -4,6 +4,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 public class MetaData {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetaData.class);
 
     private final DomainInfo domainInfo;
 
@@ -61,7 +65,7 @@ public class MetaData {
             }
             if (baseClasses.size() > 1) {
                 // todo logger.warn
-                System.out.println("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
+                LOGGER.info("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
                 return null;
             }
             if (baseClasses.iterator().hasNext()) {
@@ -77,7 +81,7 @@ public class MetaData {
         }
         if (classInfoList.size() > 1) {
             // todo logger.warn
-            System.out.println("More than one class subclasses " + fqn);
+            LOGGER.info("More than one class subclasses " + fqn);
             return null;
         }
         ClassInfo classInfo = classInfoList.iterator().next();

@@ -1,22 +1,17 @@
 package org.neo4j.ogm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.graphaware.graphmodel.neo4j.GraphModel;
-import org.neo4j.ogm.session.GraphModelResult;
-import org.neo4j.ogm.session.Neo4jRequestHandler;
-import org.neo4j.ogm.session.Neo4jResponseHandler;
+import org.neo4j.ogm.session.request.Neo4jRequestHandler;
+import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 
-public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
+public abstract class RequestProxy implements Neo4jRequestHandler<String> {
 
     protected abstract String[] getResponse();
 
-    public Neo4jResponseHandler<GraphModel> execute(String url, String... request) {
+    public Neo4jResponseHandler<String> execute(String url, String... request) {
         return new Response(getResponse());
     }
 
-    static class Response implements Neo4jResponseHandler<GraphModel> {
-
-        private static final ObjectMapper objectMapper = new ObjectMapper();
+    static class Response implements Neo4jResponseHandler<String> {
 
         private final String[] jsonModel;
         private int count = 0;
@@ -25,26 +20,23 @@ public abstract class RequestProxy implements Neo4jRequestHandler<GraphModel> {
             this.jsonModel = jsonModel;
         }
 
-        public GraphModel next()  {
+        public String next()  {
             if (count < jsonModel.length) {
                 String json = jsonModel[count];
                 count++;
-                try {
-                    return build(json);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                return json;
             }
             return null;
         }
 
-        private GraphModel build(String json) {
-            try {
-                GraphModelResult instance = objectMapper.readValue(json, GraphModelResult.class);
-                return instance.getGraph();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        @Override
+        public void close() {
+            // nothing to do.
+        }
+
+        @Override
+        public void setScanToken(String token) {
+            // nothing to do
         }
     }
 

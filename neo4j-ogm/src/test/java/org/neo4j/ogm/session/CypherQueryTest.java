@@ -2,6 +2,7 @@ package org.neo4j.ogm.session;
 
 import org.graphaware.graphmodel.neo4j.Property;
 import org.junit.Test;
+import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,44 +14,44 @@ public class CypherQueryTest {
 
     @Test
     public void testFindOne() throws Exception {
-        assertEquals("MATCH p=(n)--(m) WHERE id(n) = 123 RETURN p", new CypherQuery().findOne(123L));
+        assertEquals("MATCH p=(n)--(m) WHERE id(n) = 123 RETURN p", new DepthOneStrategy().findOne(123L));
     }
 
     @Test
     public void testFindAll() throws Exception {
         List<Long> ids = Arrays.asList(new Long[] { 123L, 234L, 345L });
-        assertEquals("MATCH p=(n)--(m) WHERE id(n) in [123,234,345] RETURN p", new CypherQuery().findAll(ids));
+        assertEquals("MATCH p=(n)--(m) WHERE id(n) in [123,234,345] RETURN p", new DepthOneStrategy().findAll(ids));
     }
 
     @Test
     public void testFindByLabel() throws Exception {
-        assertEquals("MATCH p=(n:NODE)--(m) RETURN p", new CypherQuery().findByLabel("NODE"));
+        assertEquals("MATCH p=(n:NODE)--(m) RETURN p", new DepthOneStrategy().findByLabel("NODE"));
     }
 
     @Test
     public void findAll() throws Exception {
-        assertEquals("MATCH p=()-->() RETURN p", new CypherQuery().findAll());
+        assertEquals("MATCH p=()-->() RETURN p", new DepthOneStrategy().findAll());
     }
 
     @Test
     public void delete() throws Exception {
-        assertEquals("MATCH (n) WHERE id(n) = 123 OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().delete(123L));
+        assertEquals("MATCH (n) WHERE id(n) = 123 OPTIONAL MATCH (n)-[r]-() DELETE r, n", new DepthOneStrategy().delete(123L));
     }
 
     @Test
     public void deleteAll() throws Exception {
         List<Long> ids = Arrays.asList(new Long[] { 123L, 234L, 345L });
-        assertEquals("MATCH (n) WHERE id(n) in [123,234,345] OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().deleteAll(ids));
+        assertEquals("MATCH (n) WHERE id(n) in [123,234,345] OPTIONAL MATCH (n)-[r]-() DELETE r, n", new DepthOneStrategy().deleteAll(ids));
     }
 
     @Test
     public void deleteAllByLabel() throws Exception {
-        assertEquals("MATCH (n:NODE) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().deleteByLabel("NODE"));
+        assertEquals("MATCH (n:NODE) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new DepthOneStrategy().deleteByLabel("NODE"));
     }
 
     @Test
     public void purge() throws Exception {
-        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new CypherQuery().purge());
+        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", new DepthOneStrategy().purge());
     }
 
     @Test
@@ -59,7 +60,7 @@ public class CypherQueryTest {
         properties.add(new Property<String, Object>("iProp", 42));
         properties.add(new Property<String, Object>("fProp", 3.1415928));
         properties.add(new Property<String, Object>("sProp", "Pie and the meaning of life"));
-        assertEquals("MATCH (n) WHERE id(n) = 123 SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\"", new CypherQuery().updateProperties(123L, properties));
+        assertEquals("MATCH (n) WHERE id(n) = 123 SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\"", new DepthOneStrategy().updateProperties(123L, properties));
     }
 
 
@@ -74,6 +75,6 @@ public class CypherQueryTest {
         labels.add("NODE");
         labels.add("VERTEX");
 
-        assertEquals("CREATE (n:NODE:VERTEX) SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\" return id(n)", new CypherQuery().createNode(properties, labels));
+        assertEquals("CREATE (n:NODE:VERTEX) SET n.iProp=42,n.fProp=3.1415928,n.sProp=\\\"Pie and the meaning of life\\\" return id(n)", new DepthOneStrategy().createNode(properties, labels));
     }
 }

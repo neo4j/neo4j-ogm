@@ -1,10 +1,10 @@
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.session.querystrategy;
 
 import org.graphaware.graphmodel.neo4j.Property;
 
 import java.util.Collection;
 
-public interface Query {
+public interface QueryStrategy {
 
     /**
      * construct a query to fetch a single object with the specified id

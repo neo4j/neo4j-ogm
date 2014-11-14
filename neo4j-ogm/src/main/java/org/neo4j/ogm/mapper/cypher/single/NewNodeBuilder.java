@@ -15,7 +15,7 @@ class NewNodeBuilder extends SingleQueryNodeBuilder {
         queryBuilder.append('(');
         queryBuilder.append(this.variableName);
         for (String label : this.labels) {
-            queryBuilder.append(':').append(label);
+            queryBuilder.append(":`").append(label).append('`');
         }
         queryBuilder.append('{');
         for (Map.Entry<String, Object> string : this.props.entrySet()) {

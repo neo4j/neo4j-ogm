@@ -9,7 +9,7 @@ import java.util.Map;
 class NewNodeBuilder extends SingleQueryNodeBuilder {
 
     @Override
-    protected void renderTo(StringBuilder queryBuilder, List<String> varStack) {
+    protected void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack) {
         // MERGE is arguably safer than CREATE here in a multi-threaded environment, but is also slower
         queryBuilder.append(" CREATE ");
         queryBuilder.append('(');
@@ -17,14 +17,8 @@ class NewNodeBuilder extends SingleQueryNodeBuilder {
         for (String label : this.labels) {
             queryBuilder.append(":`").append(label).append('`');
         }
-        queryBuilder.append('{');
-        for (Map.Entry<String, Object> string : this.props.entrySet()) {
-            queryBuilder.append(string.getKey()).append(':');
-            queryBuilder.append("\"").append(string.getValue()).append("\",");
-        }
-        queryBuilder.setLength(queryBuilder.length() - 1); // delete trailing comma
-        queryBuilder.append('}').append(')');
-
+        queryBuilder.append('{').append(this.variableName).append("_props})");
+        parameters.put(this.variableName + "_props", this.props);
         varStack.add(this.variableName);
     }
 

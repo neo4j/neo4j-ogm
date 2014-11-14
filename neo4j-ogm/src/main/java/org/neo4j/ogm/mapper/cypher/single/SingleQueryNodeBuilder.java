@@ -64,9 +64,10 @@ abstract class SingleQueryNodeBuilder implements NodeBuilder {
      * </p>
      *
      * @param queryBuilder The {@code StringBuilder} to which the Cypher representation of this node should be appended
+     * @param parameters A {@link Map} to which Cypher query parameter values should be added as the query is built up
      * @param varStack The variable stack carried through the query, to which this node's variable name should be added
      */
-    protected abstract void renderTo(StringBuilder queryBuilder, List<String> varStack);
+    protected abstract void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack);
 
     @Override
     public String toString() {

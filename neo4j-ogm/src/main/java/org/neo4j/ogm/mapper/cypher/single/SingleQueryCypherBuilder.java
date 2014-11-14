@@ -2,11 +2,14 @@ package org.neo4j.ogm.mapper.cypher.single;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
+import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 
 /**
  * Implementation of {@link CypherBuilder} that builds a single query for the object graph.
@@ -38,13 +41,14 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
     }
 
     @Override
-    public List<String> getStatements() {
+    public List<ParameterisedQuery> getStatements() {
         StringBuilder queryBuilder = new StringBuilder();
         List<String> varStack = new ArrayList<>(this.nodes.size());
+        Map<String, Object> parameters = new HashMap<>();
 
         for (Iterator<NodeBuilder> it = this.nodes.iterator() ; it.hasNext() ; ) {
             SingleQueryNodeBuilder pnb = (SingleQueryNodeBuilder) it.next();
-            pnb.renderTo(queryBuilder, varStack);
+            pnb.renderTo(queryBuilder, parameters, varStack);
             if (it.hasNext()) {
                 queryBuilder.append(" WITH ").append(toCsv(varStack));
             }
@@ -56,7 +60,7 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
             queryBuilder.append(' ').append(rel);
         }
 
-        return Collections.singletonList(queryBuilder.toString());
+        return Collections.singletonList(new ParameterisedQuery(queryBuilder.toString(), parameters));
     }
 
     private static String toCsv(Iterable<String> elements) {

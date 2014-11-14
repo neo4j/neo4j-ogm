@@ -13,8 +13,8 @@ public interface CypherBuilder {
     NodeBuilder existingNode(Long existingNodeId);
 
     /**
-     * @return A {@link List} of Cypher statements to be executed
+     * @return A {@link List} of Cypher queries to be executed
      */
-    List<String> getStatements();
+    List<ParameterisedQuery> getStatements();
 
 }

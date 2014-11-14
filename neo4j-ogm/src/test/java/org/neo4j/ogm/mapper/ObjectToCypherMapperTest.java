@@ -4,6 +4,7 @@ import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 import org.neo4j.ogm.mapper.domain.education.Course;
 import org.neo4j.ogm.mapper.domain.education.Student;
 import org.neo4j.ogm.metadata.MetaData;
@@ -58,7 +59,7 @@ public class ObjectToCypherMapperTest {
 
         assertNull(newStudent.getId());
 
-        List<String> cypher = this.mapper.mapToCypher(newStudent);
+        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(newStudent);
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:\"Gary\"})");
     }
 
@@ -71,7 +72,7 @@ public class ObjectToCypherMapperTest {
         newStudent.setId(existingNodeId);
         newStudent.setName("Sheila Smythe-Jones");
 
-        List<String> cypher = this.mapper.mapToCypher(newStudent);
+        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(newStudent);
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Sheila Smythe-Jones'})");
     }
 
@@ -96,19 +97,19 @@ public class ObjectToCypherMapperTest {
         existingCourse.setStudents(Arrays.asList(transientStudent, persistentStudent));
 
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write inconsistency
-        List<String> cypher = this.mapper.mapToCypher(existingCourse);
+        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(existingCourse);
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
     }
 
-    private void executeStatementsAndAssertSameGraph(List<String> cypher, String sameGraphCypher) {
+    private void executeStatementsAndAssertSameGraph(List<ParameterisedQuery> cypher, String sameGraphCypher) {
         assertNotNull("The resultant cypher shouldn't be null", cypher);
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.isEmpty());
 
-        for (String query : cypher) {
-            executionEngine.execute(query);
+        for (ParameterisedQuery query : cypher) {
+            executionEngine.execute(query.getCypher(), query.getParameterMap());
         }
         assertSameGraph(graphDatabase, sameGraphCypher);
     }

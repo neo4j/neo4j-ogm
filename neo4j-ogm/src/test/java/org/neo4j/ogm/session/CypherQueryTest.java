@@ -34,6 +34,31 @@ public class CypherQueryTest {
     }
 
     @Test
+    public void findByPropertyStringValue() throws Exception {
+        assertEquals("MATCH p=(n:Asteroid)--(m) WHERE n.ref = '45 Eugenia' return p", new DepthOneStrategy().findByProperty("Asteroid", new Property<String, Object>("ref", "45 Eugenia")));
+    }
+
+    @Test
+    public void findByPropertyIntegralValue() throws Exception {
+        assertEquals("MATCH p=(n:Asteroid)--(m) WHERE n.index = 77 return p", new DepthOneStrategy().findByProperty("Asteroid", new Property<String, Object>("index", 77)));
+    }
+
+    @Test
+    public void findByPropertyStandardForm() throws Exception {
+        assertEquals("MATCH p=(n:Asteroid)--(m) WHERE n.diameter = 60.2 return p", new DepthOneStrategy().findByProperty("Asteroid", new Property<String, Object>("diameter", 6.02E1)));
+    }
+
+    @Test
+    public void findByPropertyDecimal() throws Exception {
+        assertEquals("MATCH p=(n:Asteroid)--(m) WHERE n.diameter = 60.2 return p", new DepthOneStrategy().findByProperty("Asteroid", new Property<String, Object>("diameter", 60.2)));
+    }
+
+    @Test
+    public void findByPropertyEmbeddedDelimiter() throws Exception {
+        assertEquals("MATCH p=(n:Cookbooks)--(m) WHERE n.title = 'Mrs Beeton\\'s Household Recipes' return p", new DepthOneStrategy().findByProperty("Cookbooks", new Property<String, Object>("title", "Mrs Beeton's Household Recipes")));
+    }
+
+    @Test
     public void delete() throws Exception {
         assertEquals("MATCH (n) WHERE id(n) = 123 OPTIONAL MATCH (n)-[r]-() DELETE r, n", new DepthOneStrategy().delete(123L));
     }

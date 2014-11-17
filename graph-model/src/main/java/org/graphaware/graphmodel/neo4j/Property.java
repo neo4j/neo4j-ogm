@@ -38,4 +38,20 @@ public class Property<K, V> {
     public void setValue(V value) {
         this.value = value;
     }
+
+    public String toString() {
+        return String.format("\"%s\" : %s", this.key, asParameter());
+    }
+
+    public Object asParameter() {
+        try {
+            return Long.parseLong(value.toString());
+        } catch (Exception e1) {
+            try {
+                return Double.parseDouble(value.toString());
+            } catch (Exception e2) {
+                return "'" + value.toString().replaceAll("'", "\\\\'") + "'";
+            }
+        }
+    }
 }

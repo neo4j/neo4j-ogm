@@ -26,6 +26,11 @@ public class DepthZeroStrategy implements QueryStrategy {
     }
 
     @Override
+    public String findByProperty(String label, Property<String, Object> property) {
+        return String.format("MATCH p=(n:%s) WHERE n.%s = %s return p", label, property.getKey(), property.asParameter());
+    }
+
+    @Override
     public String delete(Long id) {
         return null;
     }

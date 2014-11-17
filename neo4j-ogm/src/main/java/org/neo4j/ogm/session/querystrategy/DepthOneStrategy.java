@@ -27,6 +27,11 @@ public class DepthOneStrategy implements QueryStrategy {
     }
 
     @Override
+    public String findByProperty(String label, Property<String, Object> property) {
+        return String.format("MATCH p=(n:%s)--(m) WHERE n.%s = %s return p", label, property.getKey(), property.asParameter());
+    }
+
+    @Override
     public String delete(Long id) {
         return String.format("MATCH (n) WHERE id(n) = %d OPTIONAL MATCH (n)-[r]-() DELETE r, n", id);
     }
@@ -96,7 +101,7 @@ public class DepthOneStrategy implements QueryStrategy {
             }
             sb.append(",");
         }
-        sb.setLength(sb.length()-1);
+        sb.setLength(sb.length() - 1);
         return sb.toString();
     }
 

@@ -2,16 +2,15 @@ package org.neo4j.ogm.mapper.domain.education;
 
 import java.util.List;
 
-public class Teacher  {
+public class Teacher {
 
-    // injected at compile time
-    //DummyRequest request;
+    private String name;
 
-    String name;
+    private List<Course> courses;
 
-    List<Course> courses;
+    private Long id;
 
-    Long id;
+    private School school;
 
     public Long getId() {
         return id;
@@ -31,27 +30,6 @@ public class Teacher  {
 
     // @Lazy
     public List<Course> getCourses() {
-
-        /**
-         * what we might do with an annotation processor : this HAS to be thread safe.
-         */
-//        if (courses == null) { // or some other means of detecting if we're hydrated.
-//
-//            // DummyRequest = mapper.query("MATCH (c:COURSE)--(o) return o
-//
-//
-//            try {
-//                GraphModelToObjectMapper mapper = new SimpleSetterMappingStrategy(Course.class);
-//                GraphModel graphModel;
-//                while ((graphModel = request.getResponse().next()) != null) {
-//                    mapper.mapToObject(graphModel);
-//                }
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-        // end of injected code
-
         return courses;
     }
 
@@ -60,5 +38,15 @@ public class Teacher  {
         this.courses = courses;
     }
 
+    public School getSchool() {
+        return school;
+    }
+
+    public void setSchool(School school) {
+        if (!school.getTeachers().contains(this)) {
+            school.getTeachers().add(this);
+        }
+        this.school = school;
+    }
 
 }

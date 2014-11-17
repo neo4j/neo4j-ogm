@@ -2,7 +2,7 @@ package org.neo4j.ogm.mapper;
 
 import java.util.List;
 
-import org.neo4j.ogm.unit.mapper.cypher.ParameterisedQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 
 /**
  * Specification for an object-graph mapper, which can arbitrary Java objects onto Cypher data manipulation queries.

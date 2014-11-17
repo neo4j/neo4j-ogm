@@ -1,4 +1,4 @@
-package org.neo4j.ogm.unit.mapper.cypher.single;
+package org.neo4j.ogm.mapper.cypher.single;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.unit.mapper.cypher.CypherBuilder;
-import org.neo4j.ogm.unit.mapper.cypher.NodeBuilder;
-import org.neo4j.ogm.unit.mapper.cypher.ParameterisedQuery;
+import org.neo4j.ogm.mapper.cypher.CypherBuilder;
+import org.neo4j.ogm.mapper.cypher.NodeBuilder;
+import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 
 /**
  * Implementation of {@link CypherBuilder} that builds a single query for the object graph.

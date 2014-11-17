@@ -11,7 +11,7 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MetaDataDrivenObjectToCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.unit.mapper.cypher.ParameterisedQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.Arrays;

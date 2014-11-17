@@ -1,4 +1,4 @@
-package org.neo4j.ogm.unit.mapper.cypher.single;
+package org.neo4j.ogm.mapper.cypher.single;
 
 import java.util.List;
 import java.util.Map;

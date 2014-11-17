@@ -10,7 +10,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.neo4j.ogm.unit.mapper.cypher.CypherStatements;
+import org.neo4j.ogm.mapper.cypher.CypherStatements;
 import org.neo4j.ogm.session.response.JsonResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 import org.neo4j.ogm.session.result.SessionException;

@@ -1,11 +1,11 @@
-package org.neo4j.ogm.unit.mapper.cypher.single;
+package org.neo4j.ogm.mapper.cypher.single;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.unit.mapper.cypher.NodeBuilder;
+import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 
 /**
  * Abstract implementation of {@link NodeBuilder} that's designed to work within a single Cypher query that affects

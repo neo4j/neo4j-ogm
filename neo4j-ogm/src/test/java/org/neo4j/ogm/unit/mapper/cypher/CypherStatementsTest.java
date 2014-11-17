@@ -2,6 +2,7 @@ package org.neo4j.ogm.unit.mapper.cypher;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.mapper.cypher.CypherStatements;
 import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;
 
 import static org.junit.Assert.assertEquals;

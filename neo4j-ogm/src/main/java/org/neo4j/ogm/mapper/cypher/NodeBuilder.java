@@ -1,4 +1,4 @@
-package org.neo4j.ogm.unit.mapper.cypher;
+package org.neo4j.ogm.mapper.cypher;
 
 /**
  * I don't really want another representation of Node but this'll do for now, just while we explore the API.

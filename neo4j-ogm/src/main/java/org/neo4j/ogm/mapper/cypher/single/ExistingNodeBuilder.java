@@ -11,7 +11,6 @@ class ExistingNodeBuilder extends SingleQueryNodeBuilder {
     @Override
     protected void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack) {
         queryBuilder.append(" MATCH (").append(this.variableName).append(")");
-        // now then, we should really have parameters returned along with the statements, shouldn't we?
         queryBuilder.append(" WHERE id(").append(this.variableName).append(")=").append(this.nodeId);
         queryBuilder.append(" SET ");
         if (!this.labels.isEmpty()) {
@@ -21,7 +20,7 @@ class ExistingNodeBuilder extends SingleQueryNodeBuilder {
             }
             queryBuilder.append(", ");
         }
-        queryBuilder.append(this.variableName).append("={").append(this.variableName).append("_props} ");
+        queryBuilder.append(this.variableName).append("+={").append(this.variableName).append("_props} ");
         parameters.put(this.variableName + "_props", this.props);
 
         varStack.add(this.variableName);

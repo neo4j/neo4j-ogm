@@ -1,10 +1,7 @@
 package org.neo4j.ogm.mapper;
 
 import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -155,6 +152,20 @@ public class ObjectToCypherMapperTest {
                 + "(w:Student:DomainObject {name:'Winston Charles'}), "
                 + "(t)-[:COURSES]->(p)-[:STUDENTS]->(s), (t)-[:COURSES]->(m)-[:STUDENTS]->(s), "
                 + "(p)-[:STUDENTS]->(g), (m)-[:STUDENTS]->(w)");
+    }
+
+    @Test
+    public void shouldNotOverwriteExistingObjectPropertiesAndLabelsThatHaveNotBeenLoadedOnUpdate() {
+        ExecutionResult result = executionEngine.execute("CREATE (n:Student:DomainObject:Person {student_id:'mr714'}) RETURN id(n) AS id");
+        Long id = Long.valueOf(result.iterator().next().get("id").toString());
+
+        Student student = new Student();
+        student.setId(id);
+        student.setName("Melanie");
+
+        List<ParameterisedQuery> cypherStatements = this.mapper.mapToCypher(student);
+        executeStatementsAndAssertSameGraph(cypherStatements,
+                "CREATE (:Student:DomainObject:Person {student_id:'mr714',name:'Melanie'})");
     }
 
     private void executeStatementsAndAssertSameGraph(List<ParameterisedQuery> cypher, String sameGraphCypher) {

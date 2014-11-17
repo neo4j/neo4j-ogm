@@ -27,17 +27,35 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
     }
 
     @Override
-    public NodeBuilder newNode() {
-        NodeBuilder newNode = new NewNodeBuilder();
+    public NodeBuilder newNode(Object correspondingObject) {
+        NodeBuilder newNode = scopedNode(correspondingObject);
+        if (newNode != null) {
+            return newNode;
+        }
+        newNode = new NewNodeBuilder(correspondingObject);
         this.nodes.add(newNode);
         return newNode;
     }
 
     @Override
-    public NodeBuilder existingNode(Long existingNodeId) {
-        NodeBuilder node = new ExistingNodeBuilder().withId(existingNodeId);
+    public NodeBuilder existingNode(Long existingNodeId, Object correspondingObject) {
+        NodeBuilder node = scopedNode(correspondingObject);
+        if (node != null) {
+            return node;
+        }
+        node = new ExistingNodeBuilder(correspondingObject).withId(existingNodeId);
         this.nodes.add(node);
         return node;
+    }
+
+    private NodeBuilder scopedNode(Object toPersist) {
+        for (NodeBuilder nodeBuilder : nodes) {
+            SingleQueryNodeBuilder sqnb = (SingleQueryNodeBuilder) nodeBuilder;
+            if (sqnb.correspondingObject == toPersist) {
+                return sqnb;
+            }
+        }
+        return null;
     }
 
     @Override

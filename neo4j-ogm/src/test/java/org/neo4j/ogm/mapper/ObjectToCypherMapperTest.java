@@ -1,21 +1,30 @@
 package org.neo4j.ogm.mapper;
 
-import org.junit.*;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
-import org.neo4j.ogm.mapper.domain.education.Course;
-import org.neo4j.ogm.mapper.domain.education.Student;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.test.TestGraphDatabaseFactory;
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
+import org.neo4j.ogm.mapper.domain.education.Course;
+import org.neo4j.ogm.mapper.domain.education.School;
+import org.neo4j.ogm.mapper.domain.education.Student;
+import org.neo4j.ogm.mapper.domain.education.Teacher;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 public class ObjectToCypherMapperTest {
 
@@ -102,6 +111,50 @@ public class ObjectToCypherMapperTest {
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
+    }
+
+    @Test
+    public void shouldNotGetIntoAnInfiniteLoopWhenSavingObjectsThatReferenceEachOther() {
+        Teacher missJones = new Teacher();
+        missJones.setName("Miss Jones");
+        Teacher mrWhite = new Teacher();
+        mrWhite.setName("Mr White");
+        School school = new School();
+        school.setTeachers(Arrays.asList(missJones, mrWhite));
+
+        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(school);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (j:Teacher {name:'Miss Jones'}), (w:Teacher {name:'Mr White'})," +
+                " (s:School:DomainObject), (s)-[:TEACHERS]->(j), (s)-[:TEACHERS]->(w)");
+    }
+
+    @Test
+    public void shouldCorrectlyPersistObjectGraphsSeveralLevelsDeep() {
+        Student sheila = new Student();
+        sheila.setName("Sheila Smythe");
+        Student gary = new Student();
+        gary.setName("Gary Jones");
+        Student winston = new Student();
+        winston.setName("Winston Charles");
+
+        Course physics = new Course();
+        physics.setName("GCSE Physics");
+        physics.setStudents(Arrays.asList(gary, sheila));
+        Course maths = new Course();
+        maths.setName("A-Level Mathematics");
+        maths.setStudents(Arrays.asList(sheila, winston));
+
+        Teacher teacher = new Teacher();
+        teacher.setName("Mrs Kapoor");
+        teacher.setCourses(Arrays.asList(physics, maths));
+
+        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(teacher);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Mrs Kapoor'}), "
+                + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
+                + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
+                + "(g:Student:DomainObject {name:'Gary Jones'}), "
+                + "(w:Student:DomainObject {name:'Winston Charles'}), "
+                + "(t)-[:COURSES]->(p)-[:STUDENTS]->(s), (t)-[:COURSES]->(m)-[:STUDENTS]->(s), "
+                + "(p)-[:STUDENTS]->(g), (m)-[:STUDENTS]->(w)");
     }
 
     private void executeStatementsAndAssertSameGraph(List<ParameterisedQuery> cypher, String sameGraphCypher) {

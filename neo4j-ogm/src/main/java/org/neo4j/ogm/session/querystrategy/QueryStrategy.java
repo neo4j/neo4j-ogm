@@ -34,6 +34,15 @@ public interface QueryStrategy {
     String findByLabel(String label);
 
     /**
+     * construct a query to fetch all objects with the specified label and property
+     * @param label the label value to filter on
+     * @param property a property<K,V> value to filter on
+     * @return a Cypher expression
+     */
+    String findByProperty(String label, Property<String, Object> property);
+
+
+    /**
      * construct a query to delete an object
      * @param id the id of the object to delete
      * @return a Cypher expression

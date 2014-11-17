@@ -13,20 +13,19 @@ import org.neo4j.ogm.mapper.cypher.NodeBuilder;
  */
 abstract class SingleQueryNodeBuilder implements NodeBuilder {
 
-    private static String nextVar = "a";
-
     protected final String variableName;
     protected final Map<String, Object> props = new HashMap<>();
     protected final List<String> labels = new ArrayList<>();
     protected Long nodeId;
 
     /**
-     * Constructs a new {@link SingleQueryNodeBuilder} and automatically assigns itself a variable name.
+     * Constructs a new {@link SingleQueryNodeBuilder} identified by the named variable in the context of its enclosing Cypher
+     * query.
+     *
+     * @param variableName The name of the variable to use
      */
-    SingleQueryNodeBuilder() {
-        this.variableName = nextVar;
-        // just temporary, will come up with a proper variable generation strategy soon
-        nextVar = Character.toString((char) (nextVar.charAt(0) + 1));
+    SingleQueryNodeBuilder(String variableName) {
+        this.variableName = variableName;
     }
 
     @Override

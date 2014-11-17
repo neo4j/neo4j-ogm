@@ -16,6 +16,7 @@ import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
  */
 public class SingleQueryCypherBuilder implements CypherBuilder {
 
+    private final IdentifierManager identifiers = new IdentifierManager();
     private final List<NodeBuilder> nodes = new ArrayList<>();
     private final List<String> relationships = new ArrayList<>();
 
@@ -28,14 +29,14 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
 
     @Override
     public NodeBuilder newNode() {
-        NodeBuilder newNode = new NewNodeBuilder();
+        NodeBuilder newNode = new NewNodeBuilder(this.identifiers.nextIdentifier());
         this.nodes.add(newNode);
         return newNode;
     }
 
     @Override
     public NodeBuilder existingNode(Long existingNodeId) {
-        NodeBuilder node = new ExistingNodeBuilder().withId(existingNodeId);
+        NodeBuilder node = new ExistingNodeBuilder(this.identifiers.nextIdentifier()).withId(existingNodeId);
         this.nodes.add(node);
         return node;
     }

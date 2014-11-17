@@ -8,6 +8,10 @@ import java.util.Map;
  */
 class ExistingNodeBuilder extends SingleQueryNodeBuilder {
 
+    ExistingNodeBuilder(String variableName) {
+        super(variableName);
+    }
+
     @Override
     protected void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack) {
         queryBuilder.append(" MATCH (").append(this.variableName).append(")");

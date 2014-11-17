@@ -1,8 +1,8 @@
 package org.neo4j.ogm.performance;
 
 import org.junit.Test;
-import org.neo4j.ogm.mapper.domain.bike.Bike;
-import org.neo4j.ogm.mapper.model.bike.BikeRequest;
+import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.unit.mapper.model.bike.BikeRequest;
 import org.neo4j.ogm.session.DefaultSessionImpl;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -16,7 +16,7 @@ public class DeserialisationPerformanceTest {
         int count = 1000;
         int target =3000;          // maximum permitted time (milliseconds) to load <count> entities;
 
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.domain.bike");
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
         DefaultSessionImpl session = ((DefaultSessionImpl) sessionFactory.openSession(null));
         session.setRequestHandler(new BikeRequest());
 

@@ -2,7 +2,7 @@ package org.neo4j.ogm.integration;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.domain.bike.Bike;
+import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class EndToEndTest extends IntegrationTest {
     @Before
     public void init() throws IOException {
         super.setUp();
-        session = new SessionFactory("org.neo4j.ogm.mapper.domain.bike").openSession("http://localhost:" + neoPort);
+        session = new SessionFactory("org.neo4j.ogm.domain.bike").openSession("http://localhost:" + neoPort);
     }
 
     @Test

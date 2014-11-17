@@ -3,8 +3,8 @@ package org.neo4j.ogm.integration.satellite;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.integration.IntegrationTest;
-import org.neo4j.ogm.mapper.domain.satellites.Program;
-import org.neo4j.ogm.mapper.domain.satellites.Satellite;
+import org.neo4j.ogm.domain.satellites.Program;
+import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.BufferedReader;
@@ -23,7 +23,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
    @Before
     public void importData() throws IOException {
        super.setUp();
-       session = new SessionFactory("org.neo4j.ogm.mapper.domain.satellites").openSession("http://localhost:" + neoPort);
+       session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession("http://localhost:" + neoPort);
        importSatellites();
     }
 

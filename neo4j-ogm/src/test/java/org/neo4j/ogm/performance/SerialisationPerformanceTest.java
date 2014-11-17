@@ -1,5 +1,6 @@
 package org.neo4j.ogm.performance;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -8,18 +9,16 @@ import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MetaDataDrivenObjectToCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
-import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 import org.neo4j.ogm.metadata.MetaData;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
 public class SerialisationPerformanceTest {
 
     private ObjectToCypherMapper mapper;
+    private static final ObjectMapper objectMapper= new ObjectMapper();
     private static MetaData mappingMetadata;
 
     @BeforeClass
@@ -33,7 +32,7 @@ public class SerialisationPerformanceTest {
     }
 
     @Test
-    public void testAverageSerialisationSpeed() {
+    public void testAverageSerialisationSpeed() throws Exception {
 
         int count = 1000;
         int target =1000;          // maximum permitted time (milliseconds) to create the entities;
@@ -59,19 +58,13 @@ public class SerialisationPerformanceTest {
         teacher.setName("Mrs Kapoor");
         teacher.setCourses(Arrays.asList(physics, maths));
 
-        List<ParameterisedQuery> cypher = null;
+        String statement = null;
         long elapsed = -System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
-             cypher = this.mapper.mapToCypher(teacher);
+             statement = objectMapper.writeValueAsString(this.mapper.mapToCypher(teacher)); // create the json representation for Cypher
         }
         elapsed += System.currentTimeMillis();
-
-        for (ParameterisedQuery query : cypher) {
-            System.out.println(query.getCypher());
-            for (Map.Entry<String, Object> entry : query.getParameterMap().entrySet()) {
-                System.out.println("property " + entry.getKey() + ":" + entry.getValue());
-            }
-        }
+        System.out.println(statement);
 
         System.out.println("Serialised Mrs Kapoor, 2 courses and 3 students " + count + " times in " + elapsed + " milliseconds");
 

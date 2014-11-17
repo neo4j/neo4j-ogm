@@ -168,6 +168,31 @@ public class ObjectToCypherMapperTest {
                 "CREATE (:Student:DomainObject:Person {student_id:'mr714',name:'Melanie'})");
     }
 
+    @Test
+    public void shouldCorrectlyAddItemToExistingCollection() {
+        ExecutionResult result = executionEngine.execute(
+                "CREATE (t:Teacher {name:'Mr Gilbert'})-[:COURSES]->(c:Course {name:'A-Level German'}) " +
+                "RETURN id(t) AS teacher_id, id(c) AS course_id");
+        Map<String, ?> resultRow = result.iterator().next();
+        Long teacherId = (Long) resultRow.get("teacher_id");
+        Long courseId = (Long) resultRow.get("course_id");
+
+        Teacher teacher = new Teacher();
+        teacher.setId(teacherId);
+        teacher.setName("Mr Gilbert");
+        Course german = new Course();
+        german.setId(courseId);
+        german.setName("A-Level German");
+        Course spanish = new Course();
+        spanish.setName("A-Level Spanish");
+        teacher.setCourses(Arrays.asList(german, spanish));
+
+        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(teacher);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Mr Gilbert'}), "
+                + "(g:Course {name:'A-Level German'}), (s:Course {name:'A-Level Spanish'}),"
+                + "(t)-[:COURSES]->(g), (t)-[:COURSES]->(s)");
+    }
+
     private void executeStatementsAndAssertSameGraph(List<ParameterisedQuery> cypher, String sameGraphCypher) {
         assertNotNull("The resultant cypher shouldn't be null", cypher);
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.isEmpty());

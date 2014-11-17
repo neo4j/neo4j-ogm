@@ -1,11 +1,10 @@
 package org.neo4j.ogm.mapper;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
+import org.neo4j.ogm.mapper.cypher.CypherBuildingContext;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
@@ -35,9 +34,8 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
             throw new NullPointerException("Cannot map null root object");
         }
 
-        Set<Object> visitedObjects = new HashSet<>();
         CypherBuilder cypherBuilder = new SingleQueryCypherBuilder();
-        deepMap(cypherBuilder, toPersist, visitedObjects);
+        deepMap(cypherBuilder, toPersist, new CypherBuildingContext());
         return cypherBuilder.getStatements();
     }
 
@@ -46,16 +44,17 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
      *
      * @param cypherBuilder The builder used to construct the query
      * @param toPersist The object to persist into the graph database
-     * @param visitedObjects A collection of objects that have already been visited during the mapping process
+     * @param context A {@link CypherBuildingContext} that manages the objects visited during the mapping process
      * @return The "root" node of the object graph that matches
      */
-    private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist, Set<Object> visitedObjects) {
-        NodeBuilder nodeBuilder = buildNode(cypherBuilder, toPersist);
-        if (!visitedObjects.add(toPersist)) {
-            return nodeBuilder;
+    private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist, CypherBuildingContext context) {
+        if (context.containsObject(toPersist)) {
+            return context.retrieveNodeBuilderForObject(toPersist);
         }
+        NodeBuilder nodeBuilder = buildNode(cypherBuilder, toPersist);
+        context.add(toPersist, nodeBuilder);
         mapPropertyFieldsToNodeProperties(toPersist, nodeBuilder);
-        mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder, visitedObjects);
+        mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder, context);
         return nodeBuilder;
     }
 
@@ -63,9 +62,9 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         Object id = FieldAccess.read(classInfo.getField(classInfo.identityField()), toPersist);
         if (id == null) {
-            return cypherBuilder.newNode(toPersist).addLabels(classInfo.labels());
+            return cypherBuilder.newNode().addLabels(classInfo.labels());
         }
-        return cypherBuilder.existingNode(Long.valueOf(id.toString()), toPersist).addLabels(classInfo.labels());
+        return cypherBuilder.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
     }
 
     private void mapPropertyFieldsToNodeProperties(Object toPersist, NodeBuilder nodeBuilder) {
@@ -80,7 +79,7 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
     }
 
     private void mapNestedEntitiesToGraphObjects(CypherBuilder cypherBuilder, Object toPersist, NodeBuilder nodeBuilder,
-            Set<Object> visitedObjects) {
+            CypherBuildingContext context) {
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         // XXX again, this is field-specific
         for (FieldInfo relField : classInfo.relationshipFields()) {
@@ -88,13 +87,13 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
             if (nestedEntity instanceof Iterable) {
                 // create a relationship for each of these nested entities
                 for (Object object : (Iterable<?>) nestedEntity) {
-                    NodeBuilder newNode = deepMap(cypherBuilder, object, visitedObjects);
+                    NodeBuilder newNode = deepMap(cypherBuilder, object, context);
                     cypherBuilder.relate(nodeBuilder, resolveRelationshipType(relField), newNode);
                 }
             } else {
-                if (nestedEntity != null && !visitedObjects.contains(toPersist)) {
+                if (nestedEntity != null && !context.containsObject(toPersist)) {
                     // TODO: assuming outbound relationship, need to consider what the annotation says
-                    NodeBuilder newNode = deepMap(cypherBuilder, nestedEntity, visitedObjects);
+                    NodeBuilder newNode = deepMap(cypherBuilder, nestedEntity, context);
                     cypherBuilder.relate(nodeBuilder, resolveRelationshipType(relField), newNode);
                 }
             }

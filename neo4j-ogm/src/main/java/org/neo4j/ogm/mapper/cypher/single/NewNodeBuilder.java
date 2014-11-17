@@ -8,10 +8,6 @@ import java.util.Map;
  */
 class NewNodeBuilder extends SingleQueryNodeBuilder {
 
-    NewNodeBuilder(Object correspondingObject) {
-        super(correspondingObject);
-    }
-
     @Override
     protected void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack) {
         // MERGE is arguably safer than CREATE here in a multi-threaded environment, but is also slower

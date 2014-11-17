@@ -15,7 +15,6 @@ abstract class SingleQueryNodeBuilder implements NodeBuilder {
 
     private static String nextVar = "a";
 
-    protected final Object correspondingObject;
     protected final String variableName;
     protected final Map<String, Object> props = new HashMap<>();
     protected final List<String> labels = new ArrayList<>();
@@ -23,11 +22,8 @@ abstract class SingleQueryNodeBuilder implements NodeBuilder {
 
     /**
      * Constructs a new {@link SingleQueryNodeBuilder} and automatically assigns itself a variable name.
-     *
-     * @param correspondingObject The {@code Object} to be mapped to the built node
      */
-    SingleQueryNodeBuilder(Object correspondingObject) {
-        this.correspondingObject = correspondingObject;
+    SingleQueryNodeBuilder() {
         this.variableName = nextVar;
         // just temporary, will come up with a proper variable generation strategy soon
         nextVar = Character.toString((char) (nextVar.charAt(0) + 1));

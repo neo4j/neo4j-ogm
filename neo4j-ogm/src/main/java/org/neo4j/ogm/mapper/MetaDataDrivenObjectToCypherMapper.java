@@ -3,11 +3,18 @@ package org.neo4j.ogm.mapper;
 import java.util.List;
 
 import org.neo4j.ogm.entityaccess.FieldAccess;
+<<<<<<< HEAD
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.CypherBuildingContext;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
+=======
+import org.neo4j.ogm.unit.mapper.cypher.CypherBuilder;
+import org.neo4j.ogm.unit.mapper.cypher.NodeBuilder;
+import org.neo4j.ogm.unit.mapper.cypher.ParameterisedQuery;
+import org.neo4j.ogm.unit.mapper.cypher.single.SingleQueryCypherBuilder;
+>>>>>>> unit, integration and performance tests now separated and associated with different maven phases
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;

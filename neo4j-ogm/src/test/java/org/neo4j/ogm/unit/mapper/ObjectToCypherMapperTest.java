@@ -10,8 +10,8 @@ import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MetaDataDrivenObjectToCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public class ObjectToCypherMapperTest {
 
         assertNull(newStudent.getId());
 
-        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(newStudent);
+        List<ParameterisedStatement> cypher = this.mapper.mapToCypher(newStudent).getStatements();
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:\"Gary\"})");
     }
 
@@ -76,7 +76,7 @@ public class ObjectToCypherMapperTest {
         newStudent.setId(existingNodeId);
         newStudent.setName("Sheila Smythe-Jones");
 
-        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(newStudent);
+        List<ParameterisedStatement> cypher = this.mapper.mapToCypher(newStudent).getStatements();
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Sheila Smythe-Jones'})");
     }
 
@@ -85,7 +85,7 @@ public class ObjectToCypherMapperTest {
         // set up one student on a course to begin with and add a new student to it
         ExecutionResult executionResult = executionEngine.execute(
                 "CREATE (c:Course {name:'BSc Computer Science'})-[:STUDENTS]->(s:Student:DomainObject {name:'Gianfranco'}) " +
-                "RETURN id(s) AS student_id, id(c) AS course_id");
+                        "RETURN id(s) AS student_id, id(c) AS course_id");
         Map<String, Object> resultSetRow = executionResult.iterator().next();
         Long studentId = Long.valueOf(resultSetRow.get("student_id").toString());
         Long courseId = Long.valueOf(resultSetRow.get("course_id").toString());
@@ -101,7 +101,7 @@ public class ObjectToCypherMapperTest {
         existingCourse.setStudents(Arrays.asList(transientStudent, persistentStudent));
 
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write inconsistency
-        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(existingCourse);
+        List<ParameterisedStatement> cypher = this.mapper.mapToCypher(existingCourse).getStatements();
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
@@ -117,7 +117,7 @@ public class ObjectToCypherMapperTest {
         School school = new School();
         school.setTeachers(Arrays.asList(missJones, mrWhite));
 
-        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(school);
+        List<ParameterisedStatement> cypher = this.mapper.mapToCypher(school).getStatements();
         executeStatementsAndAssertSameGraph(cypher, "CREATE (j:Teacher {name:'Miss Jones'}), (w:Teacher {name:'Mr White'})," +
                 " (s:School:DomainObject), (s)-[:TEACHERS]->(j), (s)-[:TEACHERS]->(w)");
     }
@@ -142,7 +142,7 @@ public class ObjectToCypherMapperTest {
         teacher.setName("Mrs Kapoor");
         teacher.setCourses(Arrays.asList(physics, maths));
 
-        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(teacher);
+        List<ParameterisedStatement> cypher = this.mapper.mapToCypher(teacher).getStatements();
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Mrs Kapoor'}), "
                 + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
                 + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
@@ -161,7 +161,7 @@ public class ObjectToCypherMapperTest {
         student.setId(id);
         student.setName("Melanie");
 
-        List<ParameterisedQuery> cypherStatements = this.mapper.mapToCypher(student);
+        List<ParameterisedStatement> cypherStatements = this.mapper.mapToCypher(student).getStatements();
         executeStatementsAndAssertSameGraph(cypherStatements,
                 "CREATE (:Student:DomainObject:Person {student_id:'mr714',name:'Melanie'})");
     }
@@ -185,18 +185,18 @@ public class ObjectToCypherMapperTest {
         spanish.setName("A-Level Spanish");
         teacher.setCourses(Arrays.asList(german, spanish));
 
-        List<ParameterisedQuery> cypher = this.mapper.mapToCypher(teacher);
+        List<ParameterisedStatement> cypher = this.mapper.mapToCypher(teacher).getStatements();
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Mr Gilbert'}), "
                 + "(g:Course {name:'A-Level German'}), (s:Course {name:'A-Level Spanish'}),"
                 + "(t)-[:COURSES]->(g), (t)-[:COURSES]->(s)");
     }
 
-    private void executeStatementsAndAssertSameGraph(List<ParameterisedQuery> cypher, String sameGraphCypher) {
+    private void executeStatementsAndAssertSameGraph(List<ParameterisedStatement> cypher, String sameGraphCypher) {
         assertNotNull("The resultant cypher shouldn't be null", cypher);
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.isEmpty());
 
-        for (ParameterisedQuery query : cypher) {
-            executionEngine.execute(query.getCypher(), query.getParameterMap());
+        for (ParameterisedStatement query : cypher) {
+            executionEngine.execute(query.getStatement(), query.getParameters());
         }
         assertSameGraph(graphDatabase, sameGraphCypher);
     }

@@ -50,6 +50,6 @@ public interface CypherBuilder {
      *
      * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    List<ParameterisedQuery> getStatements();
+    List<ParameterisedStatement> getStatements();
 
 }

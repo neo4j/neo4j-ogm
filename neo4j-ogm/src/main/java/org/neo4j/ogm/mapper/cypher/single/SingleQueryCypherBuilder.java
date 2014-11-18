@@ -1,15 +1,10 @@
 package org.neo4j.ogm.mapper.cypher.single;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
-import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
+
+import java.util.*;
 
 /**
  * Implementation of {@link CypherBuilder} that builds a single query for the object graph.
@@ -50,7 +45,7 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
     }
 
     @Override
-    public List<ParameterisedQuery> getStatements() {
+    public List<ParameterisedStatement> getStatements() {
         StringBuilder queryBuilder = new StringBuilder();
         List<String> varStack = new ArrayList<>(this.nodes.size());
         Map<String, Object> parameters = new HashMap<>();
@@ -69,7 +64,7 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
             queryBuilder.append(' ').append(rel);
         }
 
-        return Collections.singletonList(new ParameterisedQuery(queryBuilder.toString(), parameters));
+        return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
     }
 
     private static String toCsv(Iterable<String> elements) {

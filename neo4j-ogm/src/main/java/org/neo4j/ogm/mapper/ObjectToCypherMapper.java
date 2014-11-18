@@ -1,8 +1,8 @@
 package org.neo4j.ogm.mapper;
 
-import java.util.List;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
 
-import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
+import java.util.List;
 
 /**
  * Specification for an object-graph mapper, which can arbitrary Java objects onto Cypher data manipulation queries.
@@ -17,6 +17,6 @@ public interface ObjectToCypherMapper {
      * @return A {@link List} of Cypher queries to write the data contained within the given object to Neo4j
      * @throws NullPointerException if invoked with <code>null</code>
      */
-    List<ParameterisedQuery> mapToCypher(Object toPersist);
+    ParameterisedStatements mapToCypher(Object toPersist);
 
 }

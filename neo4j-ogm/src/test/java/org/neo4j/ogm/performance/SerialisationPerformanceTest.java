@@ -35,7 +35,7 @@ public class SerialisationPerformanceTest {
     public void testAverageSerialisationSpeed() throws Exception {
 
         int count = 1000;
-        int target =1000;          // maximum permitted time (milliseconds) to create the entities;
+        int target =2000;          // maximum permitted time (milliseconds) to create the entities;
 
         // create 3 students
         Student sheila = new Student();

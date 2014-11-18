@@ -1,16 +1,14 @@
 package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.entityaccess.FieldAccess;
+import org.neo4j.ogm.mapper.cypher.CypherBuilder;
 import org.neo4j.ogm.mapper.cypher.CypherBuildingContext;
+import org.neo4j.ogm.mapper.cypher.NodeBuilder;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
+import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.mapper.cypher.CypherBuilder;
-import org.neo4j.ogm.mapper.cypher.NodeBuilder;
-import org.neo4j.ogm.mapper.cypher.ParameterisedQuery;
-import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
-
-import java.util.List;
 
 /**
  * Implementation of {@link ObjectToCypherMapper} that is driven by an instance of {@link MetaData}.
@@ -29,14 +27,14 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
     }
 
     @Override
-    public List<ParameterisedQuery> mapToCypher(Object toPersist) {
+    public ParameterisedStatements mapToCypher(Object toPersist) {
         if (toPersist == null) {
             throw new NullPointerException("Cannot map null root object");
         }
 
         CypherBuilder cypherBuilder = new SingleQueryCypherBuilder();
         deepMap(cypherBuilder, toPersist, new CypherBuildingContext());
-        return cypherBuilder.getStatements();
+        return new ParameterisedStatements(cypherBuilder.getStatements());
     }
 
     /**

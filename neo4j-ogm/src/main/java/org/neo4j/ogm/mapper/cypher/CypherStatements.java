@@ -10,7 +10,7 @@ public class CypherStatements {
 
     private List<String> statements = new ArrayList<>();
 
-    public CypherStatements add(String statement) {
+    public CypherStatements fixup(String statement) {
         statements.add(statement);
         return this;
     }

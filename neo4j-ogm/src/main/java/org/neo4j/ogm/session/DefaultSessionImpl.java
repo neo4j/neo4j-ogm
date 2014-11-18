@@ -1,5 +1,6 @@
 package org.neo4j.ogm.session;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.graphaware.graphmodel.neo4j.GraphModel;
@@ -7,6 +8,11 @@ import org.graphaware.graphmodel.neo4j.Property;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
+import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
+import org.neo4j.ogm.mapper.cypher.RowModelQuery;
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -45,26 +51,50 @@ public class DefaultSessionImpl implements Session {
         this.requestHandler = requestHandler;
     }
 
+    private Neo4jResponseHandler<GraphModel> executeGraphModelQuery(String cypher) {
+        List<ParameterisedStatement> list = new ArrayList<>();
+        GraphModelQuery query = new GraphModelQuery(cypher, new HashMap<String, Object>());
+        list.add(query);
+        try {
+            String json = mapper.writeValueAsString(new ParameterisedStatements(list));
+            Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, json);
+            return new GraphModelResponseHandler(responseHandler, mapper);
+        } catch (JsonProcessingException jpe) {
+            throw new MappingException(jpe.getLocalizedMessage());
+        }
+    }
+
+    private Neo4jResponseHandler<RowModel> executeRowModelQuery(String cypher) {
+        List<ParameterisedStatement> list = new ArrayList<>();
+        RowModelQuery query = new RowModelQuery(cypher, new HashMap<String, Object>());
+        list.add(query);
+        try {
+            String json = mapper.writeValueAsString(new ParameterisedStatements(list));
+            Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, json);
+            return new RowModelResponseHandler(responseHandler, mapper);
+        } catch (JsonProcessingException jpe) {
+            throw new MappingException(jpe.getLocalizedMessage());
+        }
+    }
+
+
     @Override
     public <T> T load(Class<T> type, Long id) {
-        Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, new DepthOneStrategy().findOne(id));
-        Neo4jResponseHandler<GraphModel> graphModelResponseHandler = new GraphModelResponseHandler(responseHandler, mapper);
-        return loadOne(type, graphModelResponseHandler);
+        String cypher = new DepthOneStrategy().findOne(id);
+        return loadOne(type, executeGraphModelQuery(cypher));
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
-        Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, new DepthOneStrategy().findAll(ids));
-        Neo4jResponseHandler<GraphModel> graphModelResponseHandler = new GraphModelResponseHandler(responseHandler, mapper);
-        return loadAll(type, graphModelResponseHandler);
+        String cypher = new DepthOneStrategy().findAll(ids);
+        return loadAll(type, executeGraphModelQuery(cypher));
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, new DepthOneStrategy().findByLabel(classInfo.label()));
-        Neo4jResponseHandler<GraphModel> graphModelResponseHandler = new GraphModelResponseHandler(responseHandler, mapper);
-        return loadAll(type, graphModelResponseHandler);
+        String cypher = new DepthOneStrategy().findByLabel(classInfo.label());
+        return loadAll(type, executeGraphModelQuery(cypher));
     }
 
     @Override
@@ -90,8 +120,8 @@ public class DefaultSessionImpl implements Session {
     }
 
     @Override
-    public void execute(String... statements) {
-        requestHandler.execute(url, statements).close();
+    public void execute(String statement) {
+        requestHandler.execute(url, statement).close();
     }
 
     @Override
@@ -125,7 +155,7 @@ public class DefaultSessionImpl implements Session {
         } else {
             Collection<String> labels = classInfo.labels();
             command = new DepthOneStrategy().createNode(propertyList, labels);
-            setIdentity(identityField, object, new RowModelResponseHandler(requestHandler.execute(url, command), mapper));
+            setIdentity(identityField, object, executeRowModelQuery(command));
         }
     }
 

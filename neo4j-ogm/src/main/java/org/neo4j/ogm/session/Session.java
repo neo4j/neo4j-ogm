@@ -14,7 +14,7 @@ public interface Session {
 
     <T> void deleteAll(Class<T> type);
 
-    void execute(String... commands);
+    void execute(String jsonStatements);
 
     void purge();
 

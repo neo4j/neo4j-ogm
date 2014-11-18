@@ -51,9 +51,9 @@ public class DefaultSessionImpl implements Session {
         this.requestHandler = requestHandler;
     }
 
-    private Neo4jResponseHandler<GraphModel> executeGraphModelQuery(String cypher) {
+    private Neo4jResponseHandler<GraphModel> executeGraphModelQuery(String cypher, Map<String, Object> parameters) {
         List<ParameterisedStatement> list = new ArrayList<>();
-        GraphModelQuery query = new GraphModelQuery(cypher, new HashMap<String, Object>());
+        GraphModelQuery query = new GraphModelQuery(cypher, parameters);
         list.add(query);
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
@@ -64,9 +64,9 @@ public class DefaultSessionImpl implements Session {
         }
     }
 
-    private Neo4jResponseHandler<RowModel> executeRowModelQuery(String cypher) {
+    private Neo4jResponseHandler<RowModel> executeRowModelQuery(String cypher, Map<String, Object> parameters) {
         List<ParameterisedStatement> list = new ArrayList<>();
-        RowModelQuery query = new RowModelQuery(cypher, new HashMap<String, Object>());
+        RowModelQuery query = new RowModelQuery(cypher, parameters);
         list.add(query);
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
@@ -77,24 +77,37 @@ public class DefaultSessionImpl implements Session {
         }
     }
 
+    private Neo4jResponseHandler<String> executeStatement(String cypher, Map<String, Object> parameters) {
+        List<ParameterisedStatement> list = new ArrayList<>();
+        list.add(new ParameterisedStatement(cypher, parameters));
+        try {
+            String json = mapper.writeValueAsString(new ParameterisedStatements(list));
+            return requestHandler.execute(url, json);
+        } catch (JsonProcessingException jpe) {
+            throw new MappingException(jpe.getLocalizedMessage());
+        }
+    }
 
     @Override
     public <T> T load(Class<T> type, Long id) {
         String cypher = new DepthOneStrategy().findOne(id);
-        return loadOne(type, executeGraphModelQuery(cypher));
+        // todo: parameterise!
+        return loadOne(type, executeGraphModelQuery(cypher, new HashMap<String, Object>()));
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
         String cypher = new DepthOneStrategy().findAll(ids);
-        return loadAll(type, executeGraphModelQuery(cypher));
+        // todo: parameterise!
+        return loadAll(type, executeGraphModelQuery(cypher, new HashMap<String, Object>()));
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         String cypher = new DepthOneStrategy().findByLabel(classInfo.label());
-        return loadAll(type, executeGraphModelQuery(cypher));
+        // todo: parameterise!
+        return loadAll(type, executeGraphModelQuery(cypher, new HashMap<String, Object>()));
     }
 
     @Override
@@ -115,18 +128,19 @@ public class DefaultSessionImpl implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        requestHandler.execute(url, new DepthOneStrategy().deleteByLabel(classInfo.label())).close();
+        // todo: parameterise!
+        executeRowModelQuery(new DepthOneStrategy().deleteByLabel(classInfo.label()), new HashMap<String, Object>()).close();
 
     }
 
     @Override
     public void execute(String statement) {
-        requestHandler.execute(url, statement).close();
+        executeStatement(statement, new HashMap<String, Object>()).close();
     }
 
     @Override
     public void purge() {
-        requestHandler.execute(url, new DepthOneStrategy().purge()).close();
+        executeStatement(new DepthOneStrategy().purge(), new HashMap<String, Object>()).close();
     }
 
     @Override
@@ -151,11 +165,13 @@ public class DefaultSessionImpl implements Session {
         String command;
         if (identity != null) {
             command = new DepthOneStrategy().updateProperties(identity, propertyList);
-            requestHandler.execute(url, command).close();
+            // todo: parameterise!
+            executeStatement(command, new HashMap<String, Object>()).close();
         } else {
             Collection<String> labels = classInfo.labels();
             command = new DepthOneStrategy().createNode(propertyList, labels);
-            setIdentity(identityField, object, executeRowModelQuery(command));
+            // todo: parameterise!
+            setIdentity(identityField, object, executeRowModelQuery(command, new HashMap<String, Object>()));
         }
     }
 

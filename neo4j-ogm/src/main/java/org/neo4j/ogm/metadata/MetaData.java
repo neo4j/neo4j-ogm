@@ -64,7 +64,6 @@ public class MetaData {
                 }
             }
             if (baseClasses.size() > 1) {
-                // todo logger.warn
                 LOGGER.info("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
                 return null;
             }
@@ -80,7 +79,6 @@ public class MetaData {
             return fqn;
         }
         if (classInfoList.size() > 1) {
-            // todo logger.warn
             LOGGER.info("More than one class subclasses " + fqn);
             return null;
         }

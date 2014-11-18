@@ -21,8 +21,11 @@ class NewNodeBuilder extends SingleQueryNodeBuilder {
         for (String label : this.labels) {
             queryBuilder.append(":`").append(label).append('`');
         }
-        queryBuilder.append('{').append(this.variableName).append("_props})");
-        parameters.put(this.variableName + "_props", this.props);
+        if (!this.props.isEmpty()) {
+            queryBuilder.append('{').append(this.variableName).append("_props}");
+            parameters.put(this.variableName + "_props", this.props);
+        }
+        queryBuilder.append(')');
         varStack.add(this.variableName);
     }
 

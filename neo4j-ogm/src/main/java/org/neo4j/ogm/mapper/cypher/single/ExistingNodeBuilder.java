@@ -16,7 +16,9 @@ class ExistingNodeBuilder extends SingleQueryNodeBuilder {
     protected void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack) {
         queryBuilder.append(" MATCH (").append(this.variableName).append(")");
         queryBuilder.append(" WHERE id(").append(this.variableName).append(")=").append(this.nodeId);
-        queryBuilder.append(" SET ");
+        if (!this.labels.isEmpty() && !this.props.isEmpty()) {
+            queryBuilder.append(" SET ");
+        }
         if (!this.labels.isEmpty()) {
             queryBuilder.append(this.variableName);
             for (String label : this.labels) {
@@ -24,8 +26,10 @@ class ExistingNodeBuilder extends SingleQueryNodeBuilder {
             }
             queryBuilder.append(", ");
         }
-        queryBuilder.append(this.variableName).append("+={").append(this.variableName).append("_props} ");
-        parameters.put(this.variableName + "_props", this.props);
+        if (!this.props.isEmpty()) {
+            queryBuilder.append(this.variableName).append("+={").append(this.variableName).append("_props} ");
+            parameters.put(this.variableName + "_props", this.props);
+        }
 
         varStack.add(this.variableName);
     }

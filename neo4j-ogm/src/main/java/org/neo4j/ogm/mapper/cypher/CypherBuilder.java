@@ -11,10 +11,19 @@ public interface CypherBuilder {
      * Creates a relationship from the specified start node to end node with the given relationship type.
      *
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
-     * @param relationshipType The type of relationship to create between the node
+     * @param relationshipType The type of relationship to create between the nodes
      * @param endNode The {@link NodeBuilder} representation of the relationship end node
      */
     void relate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode);
+
+    /**
+     * Deletes a relationship from the specified start node to end node with the given relationship type.
+     *
+     * @param startNode The {@link NodeBuilder} representation of the relationship start node
+     * @param relationshipType The type of relationship between the nodes to delete
+     * @param endNode The {@link NodeBuilder} representation of the relationship end node
+     */
+    void unrelate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode);
 
     /**
      * Returns a {@link NodeBuilder} that represents a new node to be created in the database.

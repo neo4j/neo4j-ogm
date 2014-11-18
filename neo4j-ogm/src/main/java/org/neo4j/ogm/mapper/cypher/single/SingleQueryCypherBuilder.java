@@ -23,8 +23,16 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
     @Override
     public void relate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode) {
         // records: (startNode)-[relationshipType]->(endNode)
-        relationships.add("MERGE (" + ((SingleQueryNodeBuilder) startNode).variableName + ")-[:" + relationshipType + "]->("
+        this.relationships.add("MERGE (" + ((SingleQueryNodeBuilder) startNode).variableName + ")-[:" + relationshipType + "]->("
                 + ((SingleQueryNodeBuilder) endNode).variableName + ')');
+    }
+
+    @Override
+    public void unrelate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode) {
+        String relationshipIdentifier = this.identifiers.nextIdentifier();
+        this.relationships.add("MATCH (" + ((SingleQueryNodeBuilder) startNode).variableName
+                + ")-[" + relationshipIdentifier + ':' + relationshipType + "]->("
+                + ((SingleQueryNodeBuilder) endNode).variableName + ") DELETE " + relationshipIdentifier);
     }
 
     @Override
@@ -48,8 +56,8 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
         Map<String, Object> parameters = new HashMap<>();
 
         for (Iterator<NodeBuilder> it = this.nodes.iterator() ; it.hasNext() ; ) {
-            SingleQueryNodeBuilder pnb = (SingleQueryNodeBuilder) it.next();
-            pnb.renderTo(queryBuilder, parameters, varStack);
+            SingleQueryNodeBuilder node = (SingleQueryNodeBuilder) it.next();
+            node.renderTo(queryBuilder, parameters, varStack);
             if (it.hasNext()) {
                 queryBuilder.append(" WITH ").append(toCsv(varStack));
             }

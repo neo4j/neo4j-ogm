@@ -13,19 +13,20 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
 
     private final IdentifierManager identifiers = new IdentifierManager();
     private final List<NodeBuilder> nodes = new ArrayList<>();
-    private final List<String> relationships = new ArrayList<>();
+    private final List<String> relationshipsToAdd = new ArrayList<>();
+    private final List<String> relationshipsToRemove = new ArrayList<>();
 
     @Override
     public void relate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode) {
         // records: (startNode)-[relationshipType]->(endNode)
-        this.relationships.add("MERGE (" + ((SingleQueryNodeBuilder) startNode).variableName + ")-[:" + relationshipType + "]->("
+        this.relationshipsToAdd.add("MERGE (" + ((SingleQueryNodeBuilder) startNode).variableName + ")-[:" + relationshipType + "]->("
                 + ((SingleQueryNodeBuilder) endNode).variableName + ')');
     }
 
     @Override
     public void unrelate(NodeBuilder startNode, String relationshipType, NodeBuilder endNode) {
         String relationshipIdentifier = this.identifiers.nextIdentifier();
-        this.relationships.add("MATCH (" + ((SingleQueryNodeBuilder) startNode).variableName
+        this.relationshipsToRemove.add("MATCH (" + ((SingleQueryNodeBuilder) startNode).variableName
                 + ")-[" + relationshipIdentifier + ':' + relationshipType + "]->("
                 + ((SingleQueryNodeBuilder) endNode).variableName + ") DELETE " + relationshipIdentifier);
     }
@@ -57,11 +58,20 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
                 queryBuilder.append(" WITH ").append(toCsv(varStack));
             }
         }
-        if (!this.relationships.isEmpty()) {
+        if (!this.relationshipsToAdd.isEmpty()) {
             queryBuilder.append(" WITH ").append(toCsv(varStack));
         }
-        for (String rel : this.relationships) {
+        for (String rel : this.relationshipsToAdd) {
             queryBuilder.append(' ').append(rel);
+        }
+        if (!this.relationshipsToRemove.isEmpty()) {
+            queryBuilder.append(" WITH ").append(toCsv(varStack));
+        }
+        for (Iterator<String> it = this.relationshipsToRemove.iterator() ; it.hasNext() ; ) {
+            queryBuilder.append(' ').append(it.next());
+            if (it.hasNext()) {
+                queryBuilder.append(" WITH ").append(toCsv(varStack));
+            }
         }
 
         return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));

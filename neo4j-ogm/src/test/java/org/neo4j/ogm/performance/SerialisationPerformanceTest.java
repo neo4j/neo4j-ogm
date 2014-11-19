@@ -1,6 +1,7 @@
 package org.neo4j.ogm.performance;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,8 +11,12 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MetaDataDrivenObjectToCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.session.MappedRelationshipCache;
+import org.neo4j.ogm.session.MappedRelationship;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertTrue;
 
@@ -28,7 +33,12 @@ public class SerialisationPerformanceTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new MetaDataDrivenObjectToCypherMapper(mappingMetadata);
+        this.mapper = new MetaDataDrivenObjectToCypherMapper(mappingMetadata, new MappedRelationshipCache() {
+            @Override
+            public Iterator<MappedRelationship> iterator() {
+                return Collections.emptyIterator();
+            }
+        });
     }
 
     @Test

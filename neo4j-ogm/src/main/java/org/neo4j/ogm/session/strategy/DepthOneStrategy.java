@@ -1,4 +1,4 @@
-package org.neo4j.ogm.session.querystrategy;
+package org.neo4j.ogm.session.strategy;
 
 import org.neo4j.graphmodel.Property;
 import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
@@ -10,16 +10,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DepthOneStrategy implements QueryStrategy {
+public class DepthOneStrategy implements ReadStrategy, WriteStrategy {
 
-    @Override
     public GraphModelQuery findOne(Long id) {
         return new GraphModelQuery("MATCH p=(n)--(m) WHERE id(n) = { id } RETURN p", Utils.map("id", id));
     }
 
     @Override
+    public GraphModelQuery findOne(Long id, int depth) {
+        return findOne(id);
+    }
+
     public GraphModelQuery findAll(Collection<Long> ids) {
         return new GraphModelQuery("MATCH p=(n)--(m) WHERE id(n) in { ids } RETURN p", Utils.map("ids", ids));
+    }
+
+    @Override
+    public GraphModelQuery findAll(Collection<Long> ids, int depth) {
+        return findAll(ids);
     }
 
     @Override
@@ -27,16 +35,24 @@ public class DepthOneStrategy implements QueryStrategy {
         return new GraphModelQuery("MATCH p=()-->() RETURN p", Utils.map());
     }
 
-    @Override
     public GraphModelQuery findByLabel(String label) {
         return new GraphModelQuery(String.format("MATCH p=(n:%s)--(m) RETURN p", label), Utils.map());
     }
 
     @Override
+    public GraphModelQuery findByLabel(String label, int depth) {
+        return findByLabel(label);
+    }
+
     public GraphModelQuery findByProperty(String label, Property<String, Object> property) {
         List<Property<String, Object>> properties = new ArrayList<>();
         properties.add(property);
         return new GraphModelQuery(String.format("MATCH p=(n:%s { %s } )--(m) return p", label, property.getKey()), Utils.map(property.getKey(), property.asParameter()));
+    }
+
+    @Override
+    public GraphModelQuery findByProperty(String label, Property<String, Object> property, int depth) {
+        return findByProperty(label, property);
     }
 
     @Override
@@ -77,15 +93,6 @@ public class DepthOneStrategy implements QueryStrategy {
             sb.append(label);
         }
         return sb.toString();
-    }
-
-    private String idList(Collection<Long> ids) {
-        StringBuilder builder = new StringBuilder();
-        for (Long id : ids) {
-            builder.append(",");
-            builder.append(id);
-        }
-        return builder.toString().substring(1);
     }
 
     private String setProperties(Collection<Property<String, Object>> properties) {

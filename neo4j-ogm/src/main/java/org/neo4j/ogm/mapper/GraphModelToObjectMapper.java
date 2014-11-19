@@ -2,6 +2,8 @@ package org.neo4j.ogm.mapper;
 
 import org.neo4j.graphmodel.GraphModel;
 
+import java.util.Collection;
+
 /**
  * Specification for an object-graph mapper, which can map {@link org.neo4j.graphmodel.GraphModel}s onto arbitrary Java objects.
  *
@@ -16,5 +18,7 @@ public interface GraphModelToObjectMapper<G extends GraphModel> {
      * @return An object of type <code>T</code> containing relevant data extracted from the given graph model
      */
     <T> T load(Class<T> type, G graphModel);
+
+    <T> Collection<T> loadAll(Class<T> type, G graphModel);
 
 }

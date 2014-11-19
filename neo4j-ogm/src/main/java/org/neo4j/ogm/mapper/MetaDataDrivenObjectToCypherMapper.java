@@ -46,6 +46,7 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
     }
 
     private void deleteObsoleteRelationships(CypherBuilder cypherBuilder, CypherBuildingContext context) {
+
         for (MappedRelationship rel : this.mappedRelationships) {
             // TODO: optimise this, it does too many "findById" calls throughout this process - suggest some sort of result object
             // it also feels like I'm calling getThis getThat a few too many times

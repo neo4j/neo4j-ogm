@@ -1,50 +1,13 @@
-package org.neo4j.ogm.session.querystrategy;
+package org.neo4j.ogm.session.strategy;
+
 
 import org.neo4j.graphmodel.Property;
-import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.mapper.cypher.RowModelQuery;
 
 import java.util.Collection;
 
-public interface QueryStrategy {
-
-    /**
-     * construct a query to fetch a single object with the specified id
-     * @param id the id of the object to find
-     * @return a Cypher expression
-     */
-     GraphModelQuery findOne(Long id);
-
-    /**
-     * construct a query to fetch all objects with the specified ids
-     * @param ids the ids of the objects to find
-     * @return a Cypher expression
-     */
-    GraphModelQuery findAll(Collection<Long> ids);
-
-    /**
-     * construct a query to fetch all objects
-     * @return a Cypher expression
-     */
-    GraphModelQuery findAll();
-
-    /**
-     * construct a query to fetch all objects with the specified label
-     * @param label the labels attached to the objects
-     * @return a Cypher expression
-     */
-    GraphModelQuery findByLabel(String label);
-
-    /**
-     * construct a query to fetch all objects with the specified label and property
-     * @param label the label value to filter on
-     * @param property a property<K,V> value to filter on
-     * @return a Cypher expression
-     */
-    GraphModelQuery findByProperty(String label, Property<String, Object> property);
-
-
+public interface WriteStrategy {
     /**
      * construct a query to delete an object
      * @param id the id of the object to delete
@@ -91,6 +54,5 @@ public interface QueryStrategy {
      * @return
      */
     RowModelQuery createNode(Collection<Property<String,Object>> properties, Collection<String> labels);
-
 
 }

@@ -16,13 +16,14 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;
+import org.neo4j.ogm.session.strategy.DepthOneStrategy;
 import org.neo4j.ogm.session.request.DefaultRequestHandler;
 import org.neo4j.ogm.session.request.Neo4jRequestHandler;
 import org.neo4j.ogm.session.response.GraphModelResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 import org.neo4j.ogm.session.response.RowModelResponseHandler;
 import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.strategy.VariableDepthReadStrategy;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -88,22 +89,42 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> T load(Class<T> type, Long id) {
-        return loadOne(type, executeGraphModelQuery(new DepthOneStrategy().findOne(id)));
+        return load(type, id, 1);
+    }
+
+    @Override
+    public <T> T load(Class<T> type, Long id, int depth) {
+        return loadOne(type, executeGraphModelQuery(new VariableDepthReadStrategy().findOne(id, depth)));
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
-        return loadAll(type, executeGraphModelQuery(new DepthOneStrategy().findAll(ids)));
+        return loadAll(type, ids, 1);
+    }
+
+    @Override
+    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, int depth) {
+        return loadAll(type, executeGraphModelQuery(new VariableDepthReadStrategy().findAll(ids, depth)));
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type) {
+        return loadAll(type, 1);
+    }
+
+    @Override
+    public <T> Collection<T> loadAll(Class<T> type, int depth) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        return loadAll(type, executeGraphModelQuery(new DepthOneStrategy().findByLabel(classInfo.label())));
+        return loadAll(type, executeGraphModelQuery(new VariableDepthReadStrategy().findByLabel(classInfo.label(), depth)));
     }
 
     @Override
     public <T> Collection<T> loadAll(Collection<T> objects) {
+        return loadAll(objects, 1);
+    }
+
+    @Override
+    public <T> Collection<T> loadAll(Collection<T> objects, int depth) {
         if (objects == null || objects.isEmpty()) {
             return objects;
         }
@@ -114,7 +135,7 @@ public class DefaultSessionImpl implements Session {
         for (Object o: objects) {
             ids.add((Long) FieldAccess.read(identityField, o));
         }
-        return loadAll(type, ids);
+        return loadAll(type, ids, depth);
     }
 
     @Override
@@ -185,7 +206,7 @@ public class DefaultSessionImpl implements Session {
         ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = stream.next()) != null) {
-            objects.add(ogm.load(type, graphModel));
+            objects.addAll(ogm.loadAll(type, graphModel));
         }
         stream.close();
         return objects;

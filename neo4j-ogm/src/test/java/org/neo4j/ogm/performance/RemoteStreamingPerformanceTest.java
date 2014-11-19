@@ -6,7 +6,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
-import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;
+import org.neo4j.ogm.session.strategy.DepthOneStrategy;
 import org.neo4j.ogm.session.request.DefaultRequestHandler;
 import org.neo4j.ogm.session.response.JsonResponseHandler;
 import org.neo4j.ogm.session.result.GraphModelResult;

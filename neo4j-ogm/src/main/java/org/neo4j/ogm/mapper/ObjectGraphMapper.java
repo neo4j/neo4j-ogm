@@ -31,11 +31,32 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
 
     @Override
     public <T> T load(Class<T> type, GraphModel graphModel)  {
+        map(type, graphModel);
+        try {
+            return type.cast(mappingContext.getRoot(type));
+        } catch (Exception e) {
+            throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
+        }
+    }
 
+    @Override
+    public <T> Set<T> loadAll(Class<T> type, GraphModel graphModel) {
+        map(type, graphModel);
+        try {
+            Set<T> set = new HashSet<>();
+            for (Object o : mappingContext.getObjects(type)) {
+                set.add(type.cast(o));
+            }
+            return set;
+        } catch (Exception e) {
+            throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
+        }
+    }
+
+    private <T> void map(Class<T> type, GraphModel graphModel) {
         try {
             mapNodes(graphModel);
             mapRelationships(graphModel);
-            return type.cast(mappingContext.getRoot(type));
         } catch (Exception e) {
             throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }
@@ -46,7 +67,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
             Object object = mappingContext.get(node.getId());
             if (object == null) {
                 object = mappingContext.register(objectFactory.newObject(node), node.getId());
-
                 if (getIdentity(object) == null) {
                     synchronized (object) {
                         setIdentity(object, node.getId());
@@ -55,7 +75,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
                 }
             }
             mappingContext.registerTypeMember(object);
-            // during hydration of previous objects, this object may have been removed from the type-map.
+            // during hydration of previous objects, this object may have been modified in the type-map.
             // this ensures it is always there.
 
         }

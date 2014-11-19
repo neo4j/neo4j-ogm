@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session.querystrategy;
 
-import org.graphaware.graphmodel.neo4j.Property;
+import org.neo4j.graphmodel.Property;
 import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.mapper.cypher.RowModelQuery;

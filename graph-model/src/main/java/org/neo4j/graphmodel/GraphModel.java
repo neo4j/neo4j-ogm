@@ -1,4 +1,4 @@
-package org.graphaware.graphmodel.neo4j;
+package org.neo4j.graphmodel;
 
 import java.util.HashMap;
 import java.util.Map;

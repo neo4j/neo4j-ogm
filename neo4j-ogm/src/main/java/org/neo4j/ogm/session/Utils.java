@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session;
 
-import org.graphaware.graphmodel.neo4j.Property;
+import org.neo4j.graphmodel.Property;
 
 import java.util.Collection;
 import java.util.HashMap;

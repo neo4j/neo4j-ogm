@@ -1,7 +1,7 @@
 package org.neo4j.ogm.unit.mapper.cypher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.graphaware.graphmodel.neo4j.Property;
+import org.neo4j.graphmodel.Property;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;

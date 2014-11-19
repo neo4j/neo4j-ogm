@@ -1,7 +1,7 @@
 package org.neo4j.ogm.metadata.factory;
 
-import org.graphaware.graphmodel.neo4j.NodeModel;
-import org.graphaware.graphmodel.neo4j.RelationshipModel;
+import org.neo4j.graphmodel.NodeModel;
+import org.neo4j.graphmodel.RelationshipModel;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;

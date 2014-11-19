@@ -1,7 +1,7 @@
 package org.neo4j.ogm.metadata.factory;
 
-import org.graphaware.graphmodel.neo4j.RelationshipModel;
-import org.graphaware.graphmodel.neo4j.NodeModel;
+import org.neo4j.graphmodel.RelationshipModel;
+import org.neo4j.graphmodel.NodeModel;
 
 /**
  * Responsible for creating objects that correspond to components of a graph model.  Note that resultant instances will not be

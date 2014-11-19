@@ -38,27 +38,22 @@ public class VariableDepthReadStrategyTest {
 
     @Test
     public void testFindOneZeroDepth() throws Exception {
-
+        assertEquals("MATCH (n) WHERE id(n) = { id } RETURN n", strategy.findOne(0L, 0).getStatement());
     }
 
     @Test
     public void testFindAllCollectionZeroDepth() throws Exception {
-
-    }
-
-    @Test
-    public void testFindAllZeroDepth() throws Exception {
-
+        assertEquals("MATCH (n) WHERE id(n) in { ids } RETURN collect(n)", strategy.findAll(Arrays.asList(1L, 2L, 3L), 0).getStatement());
     }
 
     @Test
     public void testFindByLabelZeroDepth() throws Exception {
-
+        assertEquals("MATCH (n:Orbit) RETURN collect(n)", strategy.findByLabel("Orbit", 0).getStatement());
     }
 
     @Test
     public void testFindByPropertyZeroDepth() throws Exception {
-
+        assertEquals("MATCH (n:Asteroid) WHERE n.diameter = { diameter } RETURN collect(n)", strategy.findByProperty("Asteroid", new Property<String, Object>("diameter", 60.2), 0).getStatement());
     }
 
 

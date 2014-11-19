@@ -35,10 +35,6 @@ public class MappingContext {
         return roots.get(roots.size()-1);
     }
 
-    public void evict(Class<?> type) {
-        typeMap.remove(type);
-    }
-
     public List<Object> getObjects(Class<?> type) {
         List<Object> objectList = typeMap.get(type);
         if (objectList == null) {

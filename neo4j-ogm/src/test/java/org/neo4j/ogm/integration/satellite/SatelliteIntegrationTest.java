@@ -103,7 +103,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
         session.execute(load("org/neo4j/ogm/cql/satellites.cql"));
     }
 
-    private String[] load(String cqlFile) {
+    private String load(String cqlFile) {
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFile)));
         String line;
@@ -115,7 +115,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new String[] { sb.toString() };
+        return sb.toString();
     }
 
 }

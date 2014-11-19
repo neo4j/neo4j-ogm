@@ -10,7 +10,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.neo4j.ogm.mapper.cypher.CypherStatements;
 import org.neo4j.ogm.session.response.JsonResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 import org.neo4j.ogm.session.result.SessionException;
@@ -27,13 +26,8 @@ public class DefaultRequestHandler implements Neo4jRequestHandler<String> {
         this.httpClient = httpClient;
     }
 
-    public Neo4jResponseHandler<String> execute(String url, String... statements) {
+    public Neo4jResponseHandler<String> execute(String url, String cypherQuery) {
 
-        CypherStatements cypherStatements = new CypherStatements();
-        for (String statement : statements) {
-            cypherStatements.add(statement);
-        }
-        String cypherQuery = cypherStatements.toString();
         try {
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypherQuery);

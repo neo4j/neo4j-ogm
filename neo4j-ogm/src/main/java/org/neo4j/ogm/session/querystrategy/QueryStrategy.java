@@ -1,6 +1,9 @@
 package org.neo4j.ogm.session.querystrategy;
 
 import org.graphaware.graphmodel.neo4j.Property;
+import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.RowModelQuery;
 
 import java.util.Collection;
 
@@ -11,27 +14,27 @@ public interface QueryStrategy {
      * @param id the id of the object to find
      * @return a Cypher expression
      */
-    String findOne(Long id);
+     GraphModelQuery findOne(Long id);
 
     /**
      * construct a query to fetch all objects with the specified ids
      * @param ids the ids of the objects to find
      * @return a Cypher expression
      */
-    String findAll(Collection<Long> ids);
+    GraphModelQuery findAll(Collection<Long> ids);
 
     /**
      * construct a query to fetch all objects
      * @return a Cypher expression
      */
-    String findAll();
+    GraphModelQuery findAll();
 
     /**
      * construct a query to fetch all objects with the specified label
      * @param label the labels attached to the objects
      * @return a Cypher expression
      */
-    String findByLabel(String label);
+    GraphModelQuery findByLabel(String label);
 
     /**
      * construct a query to fetch all objects with the specified label and property
@@ -39,7 +42,7 @@ public interface QueryStrategy {
      * @param property a property<K,V> value to filter on
      * @return a Cypher expression
      */
-    String findByProperty(String label, Property<String, Object> property);
+    GraphModelQuery findByProperty(String label, Property<String, Object> property);
 
 
     /**
@@ -47,27 +50,27 @@ public interface QueryStrategy {
      * @param id the id of the object to delete
      * @return a Cypher expression
      */
-    String delete(Long id);
+    ParameterisedStatement delete(Long id);
 
     /**
      * construct a query to delete all objects with the specified ids
      * @param ids the ids of the objects to delete
      * @return a Cypher expression
      */
-    String deleteAll(Collection<Long> ids);
+    ParameterisedStatement deleteAll(Collection<Long> ids);
 
     /**
      * construct a query to purge the database
      * @return a Cypher expression
      */
-    String purge();
+    ParameterisedStatement purge();
 
     /**
      * construct a query to delete all objects having the supplied label
      * @param label the label for the objects to be deleted
      * @return a Cypher expression
      */
-    String deleteByLabel(String label);
+    ParameterisedStatement deleteByLabel(String label);
 
     /**
      * Construct an update statement to update the properties of
@@ -77,7 +80,7 @@ public interface QueryStrategy {
      * @param properties
      * @return
      */
-    String updateProperties(Long identity, Collection<Property<String, Object>> properties);
+    ParameterisedStatement updateProperties(Long identity, Collection<Property<String, Object>> properties);
 
     /**
      * Construct an update statement to update the properties of
@@ -87,6 +90,7 @@ public interface QueryStrategy {
      * @param labels
      * @return
      */
-    String createNode(Collection<Property<String,Object>> properties, Collection<String> labels);
+    RowModelQuery createNode(Collection<Property<String,Object>> properties, Collection<String> labels);
+
 
 }

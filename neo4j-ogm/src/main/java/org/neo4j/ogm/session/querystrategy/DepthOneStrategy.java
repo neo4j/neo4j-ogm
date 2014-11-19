@@ -1,65 +1,73 @@
 package org.neo4j.ogm.session.querystrategy;
 
 import org.graphaware.graphmodel.neo4j.Property;
+import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.RowModelQuery;
+import org.neo4j.ogm.session.Utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class DepthOneStrategy implements QueryStrategy {
 
     @Override
-    public String findOne(Long id) {
-        return String.format("MATCH p=(n)--(m) WHERE id(n) = %d RETURN p", id);
+    public GraphModelQuery findOne(Long id) {
+        return new GraphModelQuery("MATCH p=(n)--(m) WHERE id(n) = { id } RETURN p", Utils.map("id", id));
     }
 
     @Override
-    public String findAll(Collection<Long> ids) {
-        return String.format("MATCH p=(n)--(m) WHERE id(n) in [%s] RETURN p", idList(ids));
+    public GraphModelQuery findAll(Collection<Long> ids) {
+        return new GraphModelQuery("MATCH p=(n)--(m) WHERE id(n) in { ids } RETURN p", Utils.map("ids", ids));
     }
 
     @Override
-    public String findAll() {
-        return "MATCH p=()-->() RETURN p";
+    public GraphModelQuery findAll() {
+        return new GraphModelQuery("MATCH p=()-->() RETURN p", Utils.map());
     }
 
     @Override
-    public String findByLabel(String label) {
-        return String.format("MATCH p=(n:%s)--(m) RETURN p", label);
+    public GraphModelQuery findByLabel(String label) {
+        return new GraphModelQuery(String.format("MATCH p=(n:%s)--(m) RETURN p", label), Utils.map());
     }
 
     @Override
-    public String findByProperty(String label, Property<String, Object> property) {
-        return String.format("MATCH p=(n:%s)--(m) WHERE n.%s = %s return p", label, property.getKey(), property.asParameter());
+    public GraphModelQuery findByProperty(String label, Property<String, Object> property) {
+        List<Property<String, Object>> properties = new ArrayList<>();
+        properties.add(property);
+        return new GraphModelQuery(String.format("MATCH p=(n:%s { %s } )--(m) return p", label, property.getKey()), Utils.map(property.getKey(), property.asParameter()));
     }
 
     @Override
-    public String delete(Long id) {
-        return String.format("MATCH (n) WHERE id(n) = %d OPTIONAL MATCH (n)-[r]-() DELETE r, n", id);
+    public ParameterisedStatement delete(Long id) {
+        return new ParameterisedStatement("MATCH (n) WHERE id(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("id",id));
     }
 
     @Override
-    public String deleteAll(Collection<Long> ids) {
-        return String.format("MATCH (n) WHERE id(n) in [%s] OPTIONAL MATCH (n)-[r]-() DELETE r, n", idList(ids));
+    public ParameterisedStatement deleteAll(Collection<Long> ids) {
+        return new ParameterisedStatement("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("ids", ids));
     }
 
     @Override
-    public String purge() {
-        return "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n";
+    public ParameterisedStatement purge() {
+        return new ParameterisedStatement("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
     }
 
     @Override
-    public String deleteByLabel(String label) {
-        return String.format("MATCH (n:%s) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label);
+    public ParameterisedStatement deleteByLabel(String label) {
+        return new ParameterisedStatement(String.format("MATCH (n:%s) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label), Utils.map());
     }
 
     @Override
-    public String updateProperties(Long identity, Collection<Property<String, Object>> properties) {
-        return String.format("MATCH (n) WHERE id(n) = %d %s", identity, setProperties(properties));
+    public ParameterisedStatement updateProperties(Long identity, Collection<Property<String, Object>> properties) {
+        return new ParameterisedStatement(String.format("MATCH (n) WHERE id(n) = { id } %s", setProperties(properties)), Utils.map("id", identity));
 
     }
 
     @Override
-    public String createNode(Collection<Property<String, Object>> properties, Collection<String> labels) {
-        return String.format("CREATE (n%s) %s return id(n)", setLabels(labels), setProperties(properties));
+    public RowModelQuery createNode(Collection<Property<String, Object>> properties, Collection<String> labels) {
+        return new RowModelQuery(String.format("CREATE (n%s { properties }) return id(n)", setLabels(labels)), Utils.mapCollection("properties", properties));
     }
 
     private String setLabels(Collection<String> labels) {

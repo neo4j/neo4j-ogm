@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
 import org.neo4j.ogm.session.querystrategy.DepthOneStrategy;
@@ -14,7 +13,6 @@ import org.neo4j.ogm.session.result.GraphModelResult;
 import org.neo4j.ogm.session.result.SessionException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -32,15 +30,11 @@ public class RemoteStreamingPerformanceTest {
     @Test
     public void testFindAllLengthOnePaths() throws Exception {
 
-        String query = new DepthOneStrategy().findAll();
         List<ParameterisedStatement> statements = new ArrayList<>();
-
-        statements.add(new GraphModelQuery(query, new HashMap<String, Object>()));
+        statements.add(new DepthOneStrategy().findAll());
 
         try {
             String cypher = objectMapper.writeValueAsString(new ParameterisedStatements(statements));
-
-
 
             JsonResponseHandler responseHandler = (JsonResponseHandler) requestHandler.execute(url, cypher);
             // todo: the request handler should know whether its getting a graph or row response model

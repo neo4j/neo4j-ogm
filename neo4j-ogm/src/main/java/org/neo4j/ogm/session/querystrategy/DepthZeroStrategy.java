@@ -1,62 +1,66 @@
 package org.neo4j.ogm.session.querystrategy;
 
 import org.graphaware.graphmodel.neo4j.Property;
+import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.RowModelQuery;
+import org.neo4j.ogm.session.Utils;
 
 import java.util.Collection;
 
 public class DepthZeroStrategy implements QueryStrategy {
     @Override
-    public String findOne(Long id) {
+    public GraphModelQuery findOne(Long id) {
         return null;
     }
 
     @Override
-    public String findAll(Collection<Long> ids) {
+    public GraphModelQuery findAll(Collection<Long> ids) {
         return null;
     }
 
     @Override
-    public String findAll() {
+    public GraphModelQuery findAll() {
         return null ;
     }
 
     @Override
-    public String findByLabel(String label) {
-        return String.format("MATCH p=(n:%s) return p", label);
+    public GraphModelQuery findByLabel(String label) {
+        return new GraphModelQuery(String.format("MATCH p=(n:%s) return p", label), Utils.map());
     }
 
     @Override
-    public String findByProperty(String label, Property<String, Object> property) {
-        return String.format("MATCH p=(n:%s) WHERE n.%s = %s return p", label, property.getKey(), property.asParameter());
+    public GraphModelQuery findByProperty(String label, Property<String, Object> property) {
+        return new GraphModelQuery(String.format("MATCH p=(n:%s { properties } ) return p", label), Utils.map(property.getKey(), property.asParameter()));
     }
 
     @Override
-    public String delete(Long id) {
+    public ParameterisedStatement delete(Long id) {
         return null;
     }
 
     @Override
-    public String deleteAll(Collection<Long> ids) {
+    public ParameterisedStatement deleteAll(Collection<Long> ids) {
         return null;
     }
 
     @Override
-    public String purge() {
+    public ParameterisedStatement purge() {
         return null;
     }
 
     @Override
-    public String deleteByLabel(String label) {
+    public ParameterisedStatement deleteByLabel(String label) {
         return null;
     }
 
     @Override
-    public String updateProperties(Long identity, Collection<Property<String, Object>> properties) {
+    public ParameterisedStatement updateProperties(Long identity, Collection<Property<String, Object>> properties) {
         return null;
     }
 
     @Override
-    public String createNode(Collection<Property<String, Object>> properties, Collection<String> labels) {
+    public RowModelQuery createNode(Collection<Property<String, Object>> properties, Collection<String> labels) {
         return null;
     }
 }

@@ -282,6 +282,27 @@ public class ObjectToCypherMapperTest {
                 "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt)");
     }
 
+    @Test
+    public void shouldCorrectlyRemoveRelationshipWhenItemIsDisconnectedFromNonOwningSide() {
+        ExecutionResult executionResult = executionEngine.execute("CREATE (s:School:DomainObject), "
+                + "(s)-[:TEACHERS]->(j:Teacher {name:'Miss Jones'}), "
+                + "(s)-[:TEACHERS]->(w:Teacher {name:'Mr White'}) "
+                + "RETURN id(s) AS school_id, id(j) AS jones_id, id(w) AS white_id");
+        Map<String, ?> next = executionResult.iterator().next();
+        Long schoolId = (Long) next.get("school_id");
+        Long whiteId = (Long) next.get("white_id");
+
+        mockLoadedRelationships.add(new MappedRelationship(schoolId, "TEACHERS", whiteId));
+
+        Teacher mrWhiteWithNullSchool = new Teacher();
+        mrWhiteWithNullSchool.setId(whiteId);
+        mrWhiteWithNullSchool.setName("Mr White");
+
+        ParameterisedStatements cypher = this.mapper.mapToCypher(mrWhiteWithNullSchool);
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (w:Teacher {name:'Mr White'}), "
+                + "(s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
+    }
+
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());

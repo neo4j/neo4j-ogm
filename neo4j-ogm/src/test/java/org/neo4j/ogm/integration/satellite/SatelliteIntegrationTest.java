@@ -22,7 +22,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
    @Before
     public void importData() throws IOException {
-       super.setUp();
+       //
        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession("http://localhost:" + neoPort);
        importSatellites();
     }

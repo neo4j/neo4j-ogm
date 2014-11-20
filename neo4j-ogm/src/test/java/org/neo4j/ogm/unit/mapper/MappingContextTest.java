@@ -5,9 +5,12 @@ import org.junit.Test;
 import org.neo4j.ogm.mapper.MappingContext;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MappingContextTest {
 
@@ -37,13 +40,14 @@ public class MappingContextTest {
             }
         }
 
-        List<Object> objects = context.getObjects(TestObject.class);
+        Set<Object> objects = context.getObjects(TestObject.class);
         assertEquals(NUM_OBJECTS, objects.size());
 
         int sum = (NUM_OBJECTS * (NUM_OBJECTS + 1)) / 2;
 
+        Iterator iterator = objects.iterator();
         for (int i = 0; i < NUM_OBJECTS; i++) {
-            TestObject testObject = (TestObject) objects.get(i);
+            TestObject testObject = (TestObject) iterator.next();
             sum -= testObject.id; // remove this id from sum of all ids
             assertTrue(testObject.notes.size() == 1); // only one thread created this object
         }
@@ -80,7 +84,6 @@ public class MappingContextTest {
                         }
                     }
                 }
-                context.registerTypeMember(testObject);
             }
         }
     }

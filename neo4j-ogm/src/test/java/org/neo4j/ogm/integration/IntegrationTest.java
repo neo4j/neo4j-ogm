@@ -1,7 +1,7 @@
 package org.neo4j.ogm.integration;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.server.NeoServer;
 import org.neo4j.server.helpers.CommunityServerBuilder;
@@ -11,20 +11,20 @@ import java.net.ServerSocket;
 
 public class IntegrationTest     {
 
-    private NeoServer neoServer;
+    private static NeoServer neoServer;
+    protected static int neoPort;
 
     protected Session session;
-    protected int neoPort;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeClass
+    public static void setUp() throws IOException {
         neoPort = getAvailablePort();
         neoServer = CommunityServerBuilder.server().onPort(neoPort).build();
         neoServer.start();
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         neoServer.stop();
     }
 

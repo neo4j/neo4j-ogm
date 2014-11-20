@@ -2,9 +2,7 @@ package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.metadata.MappingException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -14,8 +12,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
-    private final ConcurrentMap<Long, Object>           objectMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<?>, List<Object>> typeMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Object>          objectMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
 
     public Object get(Long id) {
         return  objectMap.get(id);
@@ -23,35 +21,25 @@ public class MappingContext {
 
     public Object register(Object object, Long id) {
         objectMap.putIfAbsent(id, object);
-        return objectMap.get(id);
+        getObjects(object.getClass()).add(object = objectMap.get(id));
+        return object;
     }
 
     public Object getRoot(Class<?> type ) throws Exception {
-        List<Object> roots = typeMap.get(type);
-
+        Set<Object> roots = typeMap.get(type);
         if (roots == null || roots.isEmpty()) {
             throw new MappingException("FATAL: Could not return class of type " + type.getSimpleName());
         }
-        return roots.get(roots.size()-1);
+        return roots.iterator().next();
     }
 
-    public List<Object> getObjects(Class<?> type) {
-        List<Object> objectList = typeMap.get(type);
+    public Set<Object> getObjects(Class<?> type) {
+        Set<Object> objectList = typeMap.get(type);
         if (objectList == null) {
-            typeMap.putIfAbsent(type, Collections.synchronizedList(new ArrayList<>()));
+            typeMap.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
             objectList = typeMap.get(type);
         }
         return objectList;
-    }
-
-    public void registerTypeMember(Object object) {
-        List<Object> objects = getObjects(object.getClass());
-        synchronized (objects) {
-            if (objects.contains(object)) {
-                objects.remove(object);
-            }
-            objects.add(object);
-        }
     }
 
 }

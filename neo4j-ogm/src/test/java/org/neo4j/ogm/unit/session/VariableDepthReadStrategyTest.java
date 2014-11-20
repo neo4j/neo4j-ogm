@@ -1,7 +1,8 @@
-package org.neo4j.ogm.session.strategy;
+package org.neo4j.ogm.unit.session;
 
 import org.neo4j.graphmodel.Property;
 import org.junit.Test;
+import org.neo4j.ogm.session.strategy.VariableDepthReadStrategy;
 
 import java.util.Arrays;
 

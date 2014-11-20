@@ -74,10 +74,6 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
                     }
                 }
             }
-            mappingContext.registerTypeMember(object);
-            // during hydration of previous objects, this object may have been modified in the type-map.
-            // this ensures it is always there.
-
         }
     }
 
@@ -201,7 +197,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
         mapOneToMany(oneToMany);
     }
 
-    public List<Object> get(Class<?> clazz) {
+    public Set<Object> get(Class<?> clazz) {
         return mappingContext.getObjects(clazz);
     }
 

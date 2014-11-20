@@ -4,11 +4,15 @@ import java.util.List;
 
 public class Course {
 
-    String name;
+    private String name;
+    private List<Student> students;
+    private Long id;
 
-    List<Student> students;
+    public Course() {}
 
-    Long id;
+    public Course(String name) {
+        setName(name);
+    }
 
     public Long getId() {
         return id;

@@ -6,6 +6,13 @@ import java.util.List;
 public class School extends DomainObject {
 
     private List<Teacher> teachers = new ArrayList<>();
+    private String name;
+
+    public School() {}
+
+    public School(String name) {
+        setName(name);
+    }
 
     public List<Teacher> getTeachers() {
         return teachers;
@@ -18,4 +25,11 @@ public class School extends DomainObject {
         this.teachers = teachers;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

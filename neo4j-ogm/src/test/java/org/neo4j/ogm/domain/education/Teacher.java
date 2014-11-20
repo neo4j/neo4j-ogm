@@ -5,12 +5,15 @@ import java.util.List;
 public class Teacher {
 
     private String name;
-
     private List<Course> courses;
-
     private Long id;
-
     private School school;
+
+    public Teacher() {}
+
+    public Teacher(String name) {
+        setName(name);
+    }
 
     public Long getId() {
         return id;

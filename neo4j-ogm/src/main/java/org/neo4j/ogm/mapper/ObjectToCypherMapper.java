@@ -17,4 +17,6 @@ public interface ObjectToCypherMapper {
      */
     ParameterisedStatements mapToCypher(Object toPersist);
 
+    ParameterisedStatements mapToCypher(Object toPersist, int depth);
+
 }

@@ -1,12 +1,5 @@
 package org.neo4j.ogm.unit.mapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
@@ -20,9 +13,11 @@ import org.neo4j.ogm.mapper.ObjectToCypherMapper;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.MappedRelationshipCache;
 import org.neo4j.ogm.session.MappedRelationship;
+import org.neo4j.ogm.session.MappedRelationshipCache;
 import org.neo4j.test.TestGraphDatabaseFactory;
+
+import java.util.*;
 
 import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
 import static org.junit.Assert.*;
@@ -129,12 +124,12 @@ public class ObjectToCypherMapperTest {
         missJones.setName("Miss Jones");
         Teacher mrWhite = new Teacher();
         mrWhite.setName("Mr White");
-        School school = new School();
+        School school = new School("Hilly Fields");
         school.setTeachers(Arrays.asList(missJones, mrWhite));
 
         ParameterisedStatements cypher = this.mapper.mapToCypher(school);
         executeStatementsAndAssertSameGraph(cypher, "CREATE (j:Teacher {name:'Miss Jones'}), (w:Teacher {name:'Mr White'})," +
-                " (s:School:DomainObject), (s)-[:TEACHERS]->(j), (s)-[:TEACHERS]->(w)");
+                " (s:School:DomainObject {name:'Hilly Fields'}), (s)-[:TEACHERS]->(j), (s)-[:TEACHERS]->(w)");
     }
 
     @Test
@@ -301,6 +296,87 @@ public class ObjectToCypherMapperTest {
         ParameterisedStatements cypher = this.mapper.mapToCypher(mrWhiteWithNullSchool);
         executeStatementsAndAssertSameGraph(cypher, "CREATE (w:Teacher {name:'Mr White'}), "
                 + "(s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
+    }
+
+
+    @Test
+    public void testVariablePersistenceToDepthZero() {
+
+        Teacher claraOswald = new Teacher();
+        Teacher dannyPink = new Teacher();
+        School coalHillSchool = new School("Coal Hill");
+
+        coalHillSchool.setTeachers(Arrays.asList(claraOswald, dannyPink));
+
+        ParameterisedStatements cypher = this.mapper.mapToCypher(coalHillSchool, 0);
+
+        // we don't expect the teachers to be persisted when persisting the school to depth 0
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (s:School:DomainObject {name:'Coal Hill'})");
+
+    }
+
+
+    @Test
+    public void testVariablePersistenceToDepthOne() {
+
+        School coalHillSchool = new School("Coal Hill");
+
+        Teacher claraOswald = new Teacher("Clara Oswald");
+        Teacher dannyPink = new Teacher("Danny Pink");
+
+        Course english = new Course("English");
+        Course maths = new Course("Maths");
+
+        // do we need to set both sides?
+        coalHillSchool.setTeachers(Arrays.asList(claraOswald, dannyPink));
+
+        // do we need to set both sides?
+        claraOswald.setCourses(Arrays.asList(english));
+        dannyPink.setCourses(Arrays.asList(maths));
+
+        ParameterisedStatements cypher = this.mapper.mapToCypher(coalHillSchool, 1);
+
+        // we ONLY expect the school and its teachers to be persisted when persisting the school to depth 1
+        executeStatementsAndAssertSameGraph(cypher, "CREATE " +
+                "(s:School:DomainObject {name:'Coal Hill'}), " +
+                "(c:Teacher {name:'Clara Oswald'}), " +
+                "(d:Teacher {name:'Danny Pink'}), " +
+                "(s)-[:TEACHERS]->(c), " +
+                "(s)-[:TEACHERS]->(d)");
+
+    }
+
+    @Test
+    public void testVariablePersistenceToDepthTwo() {
+
+        School coalHillSchool = new School("Coal Hill");
+
+        Teacher claraOswald = new Teacher("Clara Oswald");
+        Teacher dannyPink = new Teacher("Danny Pink");
+
+        Course english = new Course("English");
+        Course maths = new Course("Maths");
+
+        // do we need to set both sides?
+        coalHillSchool.setTeachers(Arrays.asList(claraOswald, dannyPink));
+
+        // do we need to set both sides?
+        claraOswald.setCourses(Arrays.asList(english));
+        dannyPink.setCourses(Arrays.asList(maths));
+
+        ParameterisedStatements cypher = this.mapper.mapToCypher(coalHillSchool, 2);
+        // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
+        executeStatementsAndAssertSameGraph(cypher, "CREATE " +
+                "(school:School:DomainObject {name:'Coal Hill'}), " +
+                "(clara:Teacher {name:'Clara Oswald'}), " +
+                "(danny:Teacher {name:'Danny Pink'}), " +
+                "(english:Course {name:'English'}), " +
+                "(maths:Course {name:'Maths'}), " +
+                "(school)-[:TEACHERS]->(clara), " +
+                "(school)-[:TEACHERS]->(danny), " +
+                "(danny)-[:COURSES]->(maths), " +
+                "(clara)-[:COURSES]->(english)");
+
     }
 
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {

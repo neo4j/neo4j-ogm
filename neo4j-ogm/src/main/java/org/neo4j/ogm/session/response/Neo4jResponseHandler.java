@@ -4,6 +4,6 @@ public interface Neo4jResponseHandler<T> {
 
     T next();
     void close();
-    void setScanToken(String token);
-
+    void initialiseScan(String token);
+    String[] columns();
 }

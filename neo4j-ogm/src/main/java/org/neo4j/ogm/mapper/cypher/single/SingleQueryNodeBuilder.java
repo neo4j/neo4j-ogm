@@ -1,11 +1,11 @@
 package org.neo4j.ogm.mapper.cypher.single;
 
+import org.neo4j.ogm.mapper.cypher.NodeBuilder;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.neo4j.ogm.mapper.cypher.NodeBuilder;
 
 /**
  * Abstract implementation of {@link NodeBuilder} that's designed to work within a single Cypher query that affects
@@ -54,6 +54,11 @@ abstract class SingleQueryNodeBuilder implements NodeBuilder {
         return this;
     }
 
+    @Override
+    public String getVariableName() {
+        return variableName;
+    }
+
     /**
      * Renders this node to the given Cypher query builder in an appropriate format, ensuring all labels and properties
      * are written to it.
@@ -67,6 +72,8 @@ abstract class SingleQueryNodeBuilder implements NodeBuilder {
      * @param varStack The variable stack carried through the query, to which this node's variable name should be added
      */
     protected abstract void renderTo(StringBuilder queryBuilder, Map<String, Object> parameters, List<String> varStack);
+
+
 
     @Override
     public String toString() {

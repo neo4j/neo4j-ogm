@@ -1,5 +1,6 @@
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.mapper.cypher.CypherContext;
 import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
 
 /**
@@ -15,8 +16,8 @@ public interface ObjectToCypherMapper {
      * @return A {@link ParameterisedStatements} object containing the statements required to persist the given object to Neo4j, never <code>null</code>
      * @throws NullPointerException if invoked with <code>null</code>
      */
-    ParameterisedStatements mapToCypher(Object toPersist);
+    CypherContext mapToCypher(Object toPersist);
 
-    ParameterisedStatements mapToCypher(Object toPersist, int depth);
+    CypherContext mapToCypher(Object toPersist, int depth);
 
 }

@@ -1,10 +1,10 @@
 package org.neo4j.ogm.integration.satellite;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.integration.IntegrationTest;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
+import org.neo4j.ogm.integration.IntegrationTest;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.BufferedReader;
@@ -20,11 +20,12 @@ import static org.junit.Assert.assertEquals;
  */
 public class SatelliteIntegrationTest extends IntegrationTest {
 
-   @Before
-    public void importData() throws IOException {
-       //
-       session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession("http://localhost:" + neoPort);
-       importSatellites();
+    @BeforeClass
+    public static void init() throws IOException {
+        setUp();
+        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession("http://localhost:" + neoPort);
+        importSatellites();
+
     }
 
     @Test
@@ -98,12 +99,11 @@ public class SatelliteIntegrationTest extends IntegrationTest {
         }
     }
 
-    private void importSatellites() {
-        session.purge();
+    private static void importSatellites() {
         session.execute(load("org/neo4j/ogm/cql/satellites.cql"));
     }
 
-    private String load(String cqlFile) {
+    private static String load(String cqlFile) {
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFile)));
         String line;

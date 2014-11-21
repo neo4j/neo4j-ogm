@@ -47,13 +47,19 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
 
     @Override
     public List<ParameterisedStatement> getStatements() {
+
         StringBuilder queryBuilder = new StringBuilder();
         List<String> varStack = new ArrayList<>(this.nodes.size());
+        List<String> newStack = new ArrayList<>();
+
         Map<String, Object> parameters = new HashMap<>();
 
         for (Iterator<NodeBuilder> it = this.nodes.iterator() ; it.hasNext() ; ) {
             SingleQueryNodeBuilder node = (SingleQueryNodeBuilder) it.next();
             node.renderTo(queryBuilder, parameters, varStack);
+            if (node instanceof NewNodeBuilder) {
+                newStack.add(node.variableName);
+            }
             if (it.hasNext()) {
                 queryBuilder.append(" WITH ").append(toCsv(varStack));
             }
@@ -73,7 +79,19 @@ public class SingleQueryCypherBuilder implements CypherBuilder {
                 queryBuilder.append(" WITH ").append(toCsv(varStack));
             }
         }
-
+        if (!newStack.isEmpty()) {
+            queryBuilder.append(" RETURN ");
+            for (int i = 0; i < newStack.size(); i++) {
+                String var = newStack.get(i);
+                queryBuilder.append("id(");
+                queryBuilder.append(var);
+                queryBuilder.append(") AS ");
+                queryBuilder.append(var);
+                if (i < newStack.size() - 1) {
+                    queryBuilder.append(", ");
+                }
+            }
+        }
         return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
     }
 

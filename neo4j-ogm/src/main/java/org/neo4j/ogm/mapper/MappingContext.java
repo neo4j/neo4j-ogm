@@ -8,7 +8,8 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
- * of an object map (domain hierarchy).
+ * of an object map (domain hierarchy). The MappingContext lifetime is concurrent
+ * with a session lifetime.
  */
 public class MappingContext {
 
@@ -36,8 +37,7 @@ public class MappingContext {
     public Set<Object> getObjects(Class<?> type) {
         Set<Object> objectList = typeMap.get(type);
         if (objectList == null) {
-            typeMap.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
-            objectList = typeMap.get(type);
+            typeMap.putIfAbsent(type, Collections.synchronizedSet(objectList = new HashSet<>()));
         }
         return objectList;
     }

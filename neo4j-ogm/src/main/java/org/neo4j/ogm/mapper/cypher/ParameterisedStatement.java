@@ -29,7 +29,7 @@ public class ParameterisedStatement {
     }
 
     public String getStatement() {
-        return statement;
+        return statement.trim();
     }
 
     public Map<String, Object> getParameters() {

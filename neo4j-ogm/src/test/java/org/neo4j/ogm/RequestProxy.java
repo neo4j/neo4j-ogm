@@ -35,8 +35,13 @@ public abstract class RequestProxy implements Neo4jRequestHandler<String> {
         }
 
         @Override
-        public void setScanToken(String token) {
+        public void initialiseScan(String token) {
             // nothing to do
+        }
+
+        @Override
+        public String[] columns() {
+            return new String[0];
         }
     }
 

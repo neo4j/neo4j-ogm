@@ -28,4 +28,6 @@ public interface Session {
     void purge();
 
     <T> void save(T object);
+
+    <T> void save(T object, int depth);
 }

@@ -14,7 +14,7 @@ public class IntegrationTest     {
     private static NeoServer neoServer;
     protected static int neoPort;
 
-    protected Session session;
+    protected static Session session;
 
     @BeforeClass
     public static void setUp() throws IOException {

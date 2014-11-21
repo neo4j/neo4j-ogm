@@ -2,9 +2,8 @@ package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.cypher.CypherBuilder;
-import org.neo4j.ogm.mapper.cypher.CypherBuildingContext;
+import org.neo4j.ogm.mapper.cypher.CypherContext;
 import org.neo4j.ogm.mapper.cypher.NodeBuilder;
-import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
 import org.neo4j.ogm.mapper.cypher.single.SingleQueryCypherBuilder;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -33,41 +32,47 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
 
 
     @Override
-    public ParameterisedStatements mapToCypher(Object toPersist, int horizon) {
+    public CypherContext mapToCypher(Object toPersist, int horizon) {
 
         if (toPersist == null) {
             throw new NullPointerException("Cannot map null root object");
         }
 
         CypherBuilder cypherBuilder = new SingleQueryCypherBuilder();
-        CypherBuildingContext context = new CypherBuildingContext();
+        CypherContext context = new CypherContext();
+
         deepMap(cypherBuilder, toPersist, context, horizon);
         deleteObsoleteRelationships(cypherBuilder, context);
 
-        return new ParameterisedStatements(cypherBuilder.getStatements());
+        context.setStatements(cypherBuilder.getStatements());
+
+        return context;
     }
 
 
     @Override
-    public ParameterisedStatements mapToCypher(Object toPersist) {
+    public CypherContext mapToCypher(Object toPersist) {
         return mapToCypher(toPersist, -1);
     }
 
-    private void deleteObsoleteRelationships(CypherBuilder cypherBuilder, CypherBuildingContext context) {
+    private void deleteObsoleteRelationships(CypherBuilder cypherBuilder, CypherContext context) {
 
-        for (MappedRelationship rel : this.mappedRelationships) {
-            // TODO: optimise this, it does too many "findById" calls throughout this process - suggest some sort of result object
-            // it also feels like I'm calling getThis getThat a few too many times
-            if (context.doesNotContainRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId())) {
-                NodeBuilder startNode = context.findById(rel.getStartNodeId());
-                if (startNode == null) {
-                    startNode = cypherBuilder.existingNode(rel.getStartNodeId());
+        // temp fix. I'm not sure this is how we'll end up doing this.
+        if (this.mappedRelationships != null) {
+            for (MappedRelationship rel : this.mappedRelationships) {
+                // TODO: optimise this, it does too many "findById" calls throughout this process - suggest some sort of result object
+                // it also feels like I'm calling getThis getThat a few too many times
+                if (context.doesNotContainRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId())) {
+                    NodeBuilder startNode = context.findById(rel.getStartNodeId());
+                    if (startNode == null) {
+                        startNode = cypherBuilder.existingNode(rel.getStartNodeId());
+                    }
+                    NodeBuilder endNode = context.findById(rel.getEndNodeId());
+                    if (endNode == null) {
+                        endNode = cypherBuilder.existingNode(rel.getEndNodeId());
+                    }
+                    cypherBuilder.unrelate(startNode, rel.getRelationshipType(), endNode);
                 }
-                NodeBuilder endNode = context.findById(rel.getEndNodeId());
-                if (endNode == null) {
-                    endNode = cypherBuilder.existingNode(rel.getEndNodeId());
-                }
-                cypherBuilder.unrelate(startNode, rel.getRelationshipType(), endNode);
             }
         }
     }
@@ -77,10 +82,10 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
      *
      * @param cypherBuilder The builder used to construct the query
      * @param toPersist The object to persist into the graph database
-     * @param context A {@link CypherBuildingContext} that manages the objects visited during the mapping process
+     * @param context A {@link org.neo4j.ogm.mapper.cypher.CypherContext} that manages the objects visited during the mapping process
      * @return The "root" node of the object graph that matches
      */
-    private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist, CypherBuildingContext context, int horizon) {
+    private NodeBuilder deepMap(CypherBuilder cypherBuilder, Object toPersist, CypherContext context, int horizon) {
 
         if (context.containsObject(toPersist)) {
             return context.retrieveNodeBuilderForObject(toPersist);
@@ -90,12 +95,12 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
         mapPropertyFieldsToNodeProperties(toPersist, nodeBuilder);
 
         if (horizon != 0) {
-            mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder, context, horizon-1);
+            mapNestedEntitiesToGraphObjects(cypherBuilder, toPersist, nodeBuilder, context, horizon - 1);
         }
         return nodeBuilder;
     }
 
-    private NodeBuilder buildNode(CypherBuilder cypherBuilder, Object toPersist, CypherBuildingContext context) {
+    private NodeBuilder buildNode(CypherBuilder cypherBuilder, Object toPersist, CypherContext context) {
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         Object id = FieldAccess.read(classInfo.getField(classInfo.identityField()), toPersist);
@@ -103,6 +108,7 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
         if (id == null) {
             NodeBuilder newNode = cypherBuilder.newNode().addLabels(classInfo.labels());
             context.add(toPersist, newNode);
+            context.registerNewObject(newNode.getVariableName(), toPersist);
             return newNode;
         }
         NodeBuilder existingNode = cypherBuilder.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
@@ -117,13 +123,17 @@ public class MetaDataDrivenObjectToCypherMapper implements ObjectToCypherMapper 
         for (FieldInfo propertyField : classInfo.propertyFields()) {
             String propertyName = propertyField.property();
             Object value = FieldAccess.read(classInfo.getField(propertyField), toPersist);
-            nodeBuilder.addProperty(propertyName, value);
+
+            // TODO: WE NEED A DIFFERENT STRATEGY FOR CREATE AND UPDATE
+            if (value != null) {
+                nodeBuilder.addProperty(propertyName, value);
+            }
         }
     }
 
 
     private void mapNestedEntitiesToGraphObjects(CypherBuilder cypherBuilder, Object toPersist, NodeBuilder nodeBuilder,
-            CypherBuildingContext context, int horizon) {
+            CypherContext context, int horizon) {
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         // TODO again, this is field-specific

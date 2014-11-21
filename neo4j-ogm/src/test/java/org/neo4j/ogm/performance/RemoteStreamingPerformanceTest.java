@@ -38,7 +38,7 @@ public class RemoteStreamingPerformanceTest {
 
             JsonResponseHandler responseHandler = (JsonResponseHandler) requestHandler.execute(url, cypher);
             // todo: the request handler should know whether its getting a graph or row response model
-            responseHandler.setScanToken("graph");
+            responseHandler.initialiseScan("graph");
 
             String json;
             int count = 0;

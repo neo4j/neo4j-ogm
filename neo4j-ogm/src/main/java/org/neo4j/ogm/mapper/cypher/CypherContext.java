@@ -1,18 +1,17 @@
 package org.neo4j.ogm.mapper.cypher;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Maintains contextual information throughout the process of building Cypher statements to persist a graph of objects.
  */
-public class CypherBuildingContext {
+public class CypherContext {
 
     private final Map<Object, NodeBuilder> visitedObjects = new HashMap<>();
+    private final Map<String, Object> cypherObjects = new HashMap();
     private final Map<Long, NodeBuilder> nodesById = new HashMap<>();
     private final Collection<RegisteredRelationship> registeredRelationships = new HashSet<>();
+    private List<ParameterisedStatement> statements;
 
     public boolean containsObject(Object obj) {
         return this.visitedObjects.containsKey(obj);
@@ -44,6 +43,23 @@ public class CypherBuildingContext {
                 new RegisteredRelationship(findById(startNodeId), relationshipType, findById(endNodeId)));
     }
 
+    public void setStatements(List<ParameterisedStatement> statements) {
+        this.statements = statements;
+    }
+
+    public List<ParameterisedStatement> getStatements() {
+        return this.statements;
+    }
+
+    public void registerNewObject(String cypherName, Object toPersist) {
+        cypherObjects.put(cypherName, toPersist);
+    }
+
+    public Object getNewObject(String cypherName) {
+        return cypherObjects.get(cypherName);
+    }
+
+
     private static final class RegisteredRelationship {
 
         private final String type;
@@ -70,7 +86,7 @@ public class CypherBuildingContext {
         public boolean equals(Object obj) {
             if (this == obj)
                 return true;
-            if (!(obj instanceof CypherBuildingContext.RegisteredRelationship))
+            if (!(obj instanceof CypherContext.RegisteredRelationship))
                 return false;
             RegisteredRelationship other = (RegisteredRelationship) obj;
             if (this.endNode == null) {

@@ -16,7 +16,7 @@ public class GraphModelResponseHandler implements Neo4jResponseHandler<GraphMode
     public GraphModelResponseHandler(Neo4jResponseHandler<String> responseHandler, ObjectMapper mapper) {
         this.responseHandler = responseHandler;
         this.objectMapper = mapper;
-        setScanToken("graph");
+        initialiseScan("graph");
     }
 
     @Override
@@ -42,8 +42,13 @@ public class GraphModelResponseHandler implements Neo4jResponseHandler<GraphMode
     }
 
     @Override
-    public void setScanToken(String token) {
-        responseHandler.setScanToken(token);
+    public void initialiseScan(String token) {
+        responseHandler.initialiseScan(token);
+    }
+
+    @Override
+    public String[] columns() {
+        return responseHandler.columns();
     }
 
 }

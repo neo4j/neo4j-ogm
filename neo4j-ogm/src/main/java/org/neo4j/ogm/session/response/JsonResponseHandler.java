@@ -9,26 +9,26 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
     private static final String START_RECORD_TOKEN = "{\"";
     private static final String NEXT_RECORD_TOKEN  = COMMA + START_RECORD_TOKEN;
     private static final String ERRORS_TOKEN = "],\"errors";
+    private static final String COLUMNS_TOKEN = "{\"columns";
 
     private final InputStream results;
     private final Scanner scanner;
     private String scanToken = null;
+    private String[] columns;
 
     public JsonResponseHandler(InputStream results) {
         this.results = results;
         this.scanner = new Scanner(results);
     }
 
-    public void setScanToken(String token) {
+    public void initialiseScan(String token) {
         this.scanToken = token;
         this.scanner.useDelimiter(scanToken);
         // TODO: this currently assumes only ONE data[] element in the response stream.
-        this.scanner.next(); // consume the header
+        parseColumns();
     }
 
-    // todo: throw a CypherException if there are errors in the request.
     public String next() {
-
         try {
 
             String json = scanner.next();
@@ -47,9 +47,10 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
                 json = json.substring(0, json.length() - NEXT_RECORD_TOKEN.length());
             } else if (json.contains(ERRORS_TOKEN)) {
                 json = json.substring(0, json.indexOf(ERRORS_TOKEN));
-                // todo: should check errors!
+                // todo: should check errors? they will usually not exist if we have data
             }
-            return START_RECORD_TOKEN + scanToken + json;
+            String record = START_RECORD_TOKEN + scanToken + json;
+            return record;
 
         } catch (Exception e) {
             return null;
@@ -62,5 +63,30 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String[] columns() {
+        return this.columns;
+    }
+
+    private void parseColumns() {
+        String header = this.scanner.next(); // consume the header and return the columns array to the caller
+        int cp = header.indexOf(COLUMNS_TOKEN);
+        if (cp == -1) {
+            parseErrors(header);
+        } else {
+            String colStart = header.substring(cp);
+            this.columns = colStart.substring(colStart.indexOf("[") + 1, colStart.indexOf("]")).replaceAll("\"", "").split(",");
+        }
+    }
+
+    private void parseErrors(String header) {
+        int cp = header.indexOf(ERRORS_TOKEN);
+        if (cp == -1) {
+            throw new RuntimeException("Unexpected problem! Cypher response starts: " + header + "...");
+        }
+        String errStart = header.substring(cp);
+        String errors = errStart.substring(errStart.indexOf("[") + 1, errStart.indexOf("]"));
+        throw new RuntimeException(errors);
     }
 }

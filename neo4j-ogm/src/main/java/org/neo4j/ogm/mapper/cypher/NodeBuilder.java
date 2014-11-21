@@ -38,4 +38,5 @@ public interface NodeBuilder {
      */
     NodeBuilder addProperty(String propertyName, Object value);
 
+    String getVariableName();
 }

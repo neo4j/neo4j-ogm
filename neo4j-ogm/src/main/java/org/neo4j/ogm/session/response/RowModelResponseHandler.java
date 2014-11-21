@@ -16,7 +16,7 @@ public class RowModelResponseHandler implements Neo4jResponseHandler<RowModel> {
     public RowModelResponseHandler(Neo4jResponseHandler<String> responseHandler, ObjectMapper mapper) {
         this.responseHandler = responseHandler;
         this.objectMapper = mapper;
-        setScanToken("row");
+        initialiseScan("row");
     }
 
     @Override
@@ -41,7 +41,12 @@ public class RowModelResponseHandler implements Neo4jResponseHandler<RowModel> {
     }
 
     @Override
-    public void setScanToken(String token) {
-        responseHandler.setScanToken(token);
+    public void initialiseScan(String token) {
+        responseHandler.initialiseScan(token);
+    }
+
+    @Override
+    public String[] columns() {
+        return responseHandler.columns();
     }
 }

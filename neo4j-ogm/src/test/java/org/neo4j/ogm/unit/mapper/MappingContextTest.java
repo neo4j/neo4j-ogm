@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 public class MappingContextTest {
 
     private MappingContext context;
-    private static final int NUM_OBJECTS=1000;
+    private static final int NUM_OBJECTS=100000;
     private static final int NUM_THREADS=15;
 
     @Before
@@ -24,7 +24,7 @@ public class MappingContextTest {
     }
 
     @Test
-    public void testMultiThreadedAccess() {
+    public void testMultiThreadedAccess() throws InterruptedException {
 
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < NUM_THREADS; i++) {
@@ -33,26 +33,31 @@ public class MappingContextTest {
             thread.start();
         }
 
-        // wait for all threads to finish
         for (int i = 0; i < NUM_THREADS; i++) {
-            while (threads.get(i).isAlive()) {
-                continue;
-            }
+            threads.get(i).join();
         }
 
         Set<Object> objects = context.getObjects(TestObject.class);
         assertEquals(NUM_OBJECTS, objects.size());
 
         int sum = (NUM_OBJECTS * (NUM_OBJECTS + 1)) / 2;
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
 
         Iterator iterator = objects.iterator();
         for (int i = 0; i < NUM_OBJECTS; i++) {
             TestObject testObject = (TestObject) iterator.next();
+
             sum -= testObject.id; // remove this id from sum of all ids
             assertTrue(testObject.notes.size() == 1); // only one thread created this object
+            int id = Integer.parseInt(testObject.notes.get(0));
+            if (id < min ) min = id;
+            if (id > max ) max = id;
         }
 
         assertEquals(0, sum); // all objects were created
+
+        assertEquals(NUM_THREADS, max-min+1);  // all threads took part
     }
 
 

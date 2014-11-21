@@ -4,25 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.graphmodel.GraphModel;
-import org.neo4j.graphmodel.Property;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.mapper.MetaDataDrivenObjectToCypherMapper;
 import org.neo4j.ogm.mapper.ObjectGraphMapper;
-import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
-import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
-import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
-import org.neo4j.ogm.mapper.cypher.RowModelQuery;
+import org.neo4j.ogm.mapper.cypher.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.session.strategy.DepthOneStrategy;
 import org.neo4j.ogm.session.request.DefaultRequestHandler;
 import org.neo4j.ogm.session.request.Neo4jRequestHandler;
 import org.neo4j.ogm.session.response.GraphModelResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 import org.neo4j.ogm.session.response.RowModelResponseHandler;
 import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.strategy.DepthOneStrategy;
 import org.neo4j.ogm.session.strategy.VariableDepthReadStrategy;
 
 import java.lang.reflect.Field;
@@ -125,9 +121,11 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> Collection<T> loadAll(Collection<T> objects, int depth) {
+
         if (objects == null || objects.isEmpty()) {
             return objects;
         }
+
         Set<Long> ids = new HashSet<>();
         Class type = objects.iterator().next().getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
@@ -158,36 +156,35 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> void save(T object) {
-
-        ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
-
-        // get the object identity (will be null for new objects)
-        Field identityField = classInfo.getField(classInfo.identityField());
-        Long identity = (Long) FieldAccess.read(identityField, object);
-
-        // collect the node properties
-        Collection<FieldInfo> properties = classInfo.propertyFields();
-        List<Property<String, Object>> propertyList = new ArrayList<>();
-        for (FieldInfo fieldInfo : properties) {
-            Field field = classInfo.getField(fieldInfo);
-            String key = fieldInfo.property();
-            Object value = FieldAccess.read(field, object);
-            propertyList.add(new Property(key, value));
-        }
-
-        //String command;
-        if (identity != null) {
-            executeStatement(new DepthOneStrategy().updateProperties(identity, propertyList)).close();
-        } else {
-            Collection<String> labels = classInfo.labels();
-            setIdentity(identityField, object, executeRowModelQuery(new DepthOneStrategy().createNode(propertyList, labels)));
-        }
+        save(object, -1); // default : full tree of changed objects
     }
 
-    private <T> void setIdentity(Field identityField, T object, Neo4jResponseHandler<RowModel> response) {
-        Long identity = Long.parseLong(response.next().getValues()[0].toString());
-        response.close();
-        FieldAccess.write(identityField, object, identity);
+    @Override
+    public <T> void save(T object, int depth) {
+
+        CypherContext context = new MetaDataDrivenObjectToCypherMapper(metaData, null).mapToCypher(object, depth);
+
+        try {
+            List<ParameterisedStatement> statements = context.getStatements();
+            String json = mapper.writeValueAsString(new ParameterisedStatements(statements));
+            RowModelResponseHandler responseHandler = new RowModelResponseHandler(requestHandler.execute(url, json), mapper);
+            String[] variables = responseHandler.columns();
+            RowModel rowModel;
+            while ((rowModel = responseHandler.next()) != null) {
+                Object[] results = rowModel.getValues();
+                for (int i = 0; i < variables.length; i++) {
+                    String variable = variables[i];
+                    Object persisted = context.getNewObject(variable);
+                    Long identity = Long.parseLong(results[i].toString());
+                    ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
+                    Field identityField = classInfo.getField(classInfo.identityField());
+                    FieldAccess.write(identityField, persisted, identity);
+                }
+            }
+            responseHandler.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

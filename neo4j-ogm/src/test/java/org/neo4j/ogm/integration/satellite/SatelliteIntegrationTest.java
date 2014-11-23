@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * This is a full integration test that requires a running neo4j
@@ -47,7 +48,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
                 }
             }
         } else {
-            System.out.println("Satellite Integration Tests not run: Is there a database?");
+            fail("Satellite Integration Tests not run: Is there a database?");
         }
     }
 
@@ -73,7 +74,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
             }
         } else {
-            System.out.println("Satellite Integration Tests not run: Is there a database?");
+            fail("Satellite Integration Tests not run: Is there a database?");
         }
     }
 
@@ -95,7 +96,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
 
         } else {
-            System.out.println("Satellite Integration Tests not run: Is there a database?");
+            fail("Satellite Integration Tests not run: Is there a database?");
         }
     }
 

@@ -28,4 +28,25 @@ public class MappedRelationship {
         return endNodeId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MappedRelationship that = (MappedRelationship) o;
+
+        if (endNodeId != that.endNodeId) return false;
+        if (startNodeId != that.startNodeId) return false;
+        if (!relationshipType.equals(that.relationshipType)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (startNodeId ^ (startNodeId >>> 32));
+        result = 31 * result + relationshipType.hashCode();
+        result = 31 * result + (int) (endNodeId ^ (endNodeId >>> 32));
+        return result;
+    }
 }

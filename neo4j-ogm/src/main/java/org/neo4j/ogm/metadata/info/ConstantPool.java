@@ -35,7 +35,7 @@ public class ConstantPool {
                 case ConstantPoolTags.METHOD_REF:
                 case ConstantPoolTags.INTERFACE_REF:
                 case ConstantPoolTags.NAME_AND_TYPE:
-                    stream.skipBytes(2); // reference to owning class
+                    stream.skipBytes(2); // cypherReference to owning class
                     pool[i]=stream.readUnsignedShort();
                     break;
                 case ConstantPoolTags.METHOD_HANDLE:

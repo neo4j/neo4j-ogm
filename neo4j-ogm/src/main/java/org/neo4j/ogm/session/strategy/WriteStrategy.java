@@ -2,8 +2,8 @@ package org.neo4j.ogm.session.strategy;
 
 
 import org.neo4j.graphmodel.Property;
-import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
-import org.neo4j.ogm.mapper.cypher.RowModelQuery;
+import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.statements.RowModelQuery;
 
 import java.util.Collection;
 

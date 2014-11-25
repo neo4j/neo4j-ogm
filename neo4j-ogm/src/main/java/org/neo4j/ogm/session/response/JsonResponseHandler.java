@@ -30,8 +30,9 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
 
     public String next() {
         try {
-
+            //long now = System.currentTimeMillis();
             String json = scanner.next();
+
             while (!json.endsWith(NEXT_RECORD_TOKEN)) {
                 // the scan token may be embedded in the current response record, we need to keep parsing...
                 try {
@@ -49,6 +50,7 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
                 json = json.substring(0, json.indexOf(ERRORS_TOKEN));
                 // todo: should check errors? they will usually not exist if we have data
             }
+            //System.out.println("time taken to parse single response: " + (System.currentTimeMillis()-now));
             String record = START_RECORD_TOKEN + scanToken + json;
             return record;
 

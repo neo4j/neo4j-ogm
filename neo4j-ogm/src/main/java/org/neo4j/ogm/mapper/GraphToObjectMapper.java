@@ -9,7 +9,7 @@ import java.util.Collection;
  *
  * @param <G> The Graph implementation
  */
-public interface GraphModelToObjectMapper<G extends GraphModel> {
+public interface GraphToObjectMapper<G extends GraphModel> {
 
     /**
      * Maps the data representation in the given {@link org.neo4j.graphmodel.GraphModel} onto an instance of <code>T</code>.

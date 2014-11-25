@@ -1,6 +1,7 @@
 package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +16,7 @@ public class MappingContext {
 
     private final ConcurrentMap<Long, Object>          objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
+    private final ObjectMemo objectMemo = new ObjectMemo();
 
     public Object get(Long id) {
         return  objectMap.get(id);
@@ -25,6 +27,7 @@ public class MappingContext {
         getObjects(object.getClass()).add(object = objectMap.get(id));
         return object;
     }
+
 
     public Object getRoot(Class<?> type ) throws Exception {
         Set<Object> roots = typeMap.get(type);
@@ -42,4 +45,11 @@ public class MappingContext {
         return objectList;
     }
 
+    public void remember(Object object, ClassInfo classInfo) {
+        objectMemo.remember(object, classInfo);
+    }
+
+    public boolean isDirty(Object toPersist, ClassInfo classInfo) {
+        return !objectMemo.remembered(toPersist, classInfo);
+    }
 }

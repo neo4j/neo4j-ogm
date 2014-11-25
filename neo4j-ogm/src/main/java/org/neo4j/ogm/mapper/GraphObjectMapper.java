@@ -17,13 +17,13 @@ import org.neo4j.ogm.metadata.info.MethodInfo;
 
 import java.util.*;
 
-public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
+public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private final MappingContext mappingContext;
     private final ObjectFactory objectFactory;
     private final MetaData metadata;
 
-    public ObjectGraphMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphObjectMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
         this.objectFactory = new DefaultConstructorObjectFactory(metadata);
         this.mappingContext = mappingContext;
@@ -71,6 +71,7 @@ public class ObjectGraphMapper implements GraphModelToObjectMapper<GraphModel> {
                     synchronized (object) {
                         setIdentity(object, node.getId());
                         setProperties(node, object);
+                        mappingContext.remember(object, metadata.classInfo(object.getClass().getName()));
                     }
                 }
             }

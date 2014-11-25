@@ -46,10 +46,17 @@ public class Teacher {
     }
 
     public void setSchool(School school) {
-        if (!school.getTeachers().contains(this)) {
-            school.getTeachers().add(this);
+
+        if (this.school != null) {
+            this.school.getTeachers().remove(this);
         }
+
         this.school = school;
+
+        if (this.school != null) {
+            this.school.getTeachers().add(this);
+        }
+
     }
 
 }

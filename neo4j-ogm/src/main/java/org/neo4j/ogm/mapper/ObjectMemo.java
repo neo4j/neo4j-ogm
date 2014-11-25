@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NodeMemo {
+public class ObjectMemo {
 
     private Map<Object, Long> nodeHash = new HashMap<>();
 
@@ -36,7 +36,7 @@ public class NodeMemo {
      * @return
      */
     public boolean remembered(Object object, ClassInfo classInfo) {
-        return hash(object, classInfo) == nodeHash.get(object);
+        return nodeHash.containsKey(object) && hash(object, classInfo) == nodeHash.get(object);
     }
 
     private static long hash(Object object, ClassInfo classInfo) {

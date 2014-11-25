@@ -1,7 +1,7 @@
 package org.neo4j.ogm.session.strategy;
 
 import org.neo4j.graphmodel.Property;
-import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.statements.GraphModelQuery;
 
 import java.util.Collection;
 

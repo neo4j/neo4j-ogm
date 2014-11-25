@@ -2,8 +2,8 @@ package org.neo4j.ogm.unit.mapper.cypher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.cypher.ParameterisedStatement;
-import org.neo4j.ogm.mapper.cypher.ParameterisedStatements;
+import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatements;
 import org.neo4j.ogm.session.strategy.DepthOneStrategy;
 
 import java.util.ArrayList;

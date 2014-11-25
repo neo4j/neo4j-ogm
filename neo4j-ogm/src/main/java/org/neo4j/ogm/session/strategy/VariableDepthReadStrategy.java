@@ -1,7 +1,7 @@
 package org.neo4j.ogm.session.strategy;
 
 import org.neo4j.graphmodel.Property;
-import org.neo4j.ogm.mapper.cypher.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.statements.GraphModelQuery;
 import org.neo4j.ogm.session.Utils;
 
 import java.util.Collection;
@@ -41,8 +41,8 @@ public class VariableDepthReadStrategy implements ReadStrategy {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-        String qry = String.format("MATCH p=(n:%s)-[*%d..%d]-(m) RETURN collect(distinct p)", label, min, max);
-        return new GraphModelQuery(qry, Utils.map());
+            String qry = String.format("MATCH p=(n:%s)-[*%d..%d]-(m) RETURN collect(distinct p)", label, min, max);
+            return new GraphModelQuery(qry, Utils.map());
         } else {
             return DepthZeroReadStrategy.findByLabel(label);
         }

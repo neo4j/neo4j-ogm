@@ -30,4 +30,6 @@ public interface Session {
     <T> void save(T object);
 
     <T> void save(T object, int depth);
+
+
 }

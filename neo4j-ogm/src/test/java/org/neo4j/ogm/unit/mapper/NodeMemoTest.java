@@ -3,7 +3,7 @@ package org.neo4j.ogm.unit.mapper;
 import org.junit.Test;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Teacher;
-import org.neo4j.ogm.mapper.NodeMemo;
+import org.neo4j.ogm.mapper.ObjectMemo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class NodeMemoTest {
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.education");
-    private static final NodeMemo nodeMemo = new NodeMemo();
+    private static final ObjectMemo nodeMemo = new ObjectMemo();
 
     @Test
     public void testUnchangedObjectDetected() {

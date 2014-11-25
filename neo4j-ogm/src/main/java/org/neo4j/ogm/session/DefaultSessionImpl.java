@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.graphmodel.GraphModel;
 import org.neo4j.ogm.entityaccess.FieldAccess;
+import org.neo4j.ogm.mapper.GraphObjectMapper;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.MetaDataDrivenObjectToCypherMapper;
-import org.neo4j.ogm.mapper.ObjectGraphMapper;
-import org.neo4j.ogm.mapper.cypher.*;
+import org.neo4j.ogm.mapper.ObjectCypherMapper;
+import org.neo4j.ogm.mapper.cypher.compiler.CypherContext;
+import org.neo4j.ogm.mapper.cypher.statements.GraphModelQuery;
+import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
+import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatements;
+import org.neo4j.ogm.mapper.cypher.statements.RowModelQuery;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -33,6 +37,11 @@ public class DefaultSessionImpl implements Session {
     private final String url;
 
     private Neo4jRequestHandler<String> requestHandler;
+
+    private long buildTime;
+    private long jsonTime;
+    private long executeTime;
+    private long processTime;
 
     public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
 
@@ -162,25 +171,36 @@ public class DefaultSessionImpl implements Session {
     @Override
     public <T> void save(T object, int depth) {
 
-        CypherContext context = new MetaDataDrivenObjectToCypherMapper(metaData, null).mapToCypher(object, depth);
-
+        long now = System.currentTimeMillis();
+        CypherContext context = new ObjectCypherMapper(metaData, null, new MappingContext()).mapToCypher(object, depth);
+        buildTime += (System.currentTimeMillis() - now);
         try {
             List<ParameterisedStatement> statements = context.getStatements();
+            now = System.currentTimeMillis();
             String json = mapper.writeValueAsString(new ParameterisedStatements(statements));
+            //System.out.println(json);
+            jsonTime += (System.currentTimeMillis() - now);
+            now = System.currentTimeMillis();
             RowModelResponseHandler responseHandler = new RowModelResponseHandler(requestHandler.execute(url, json), mapper);
+            executeTime += (System.currentTimeMillis() - now);
+            now = System.currentTimeMillis();
             String[] variables = responseHandler.columns();
             RowModel rowModel;
+
             while ((rowModel = responseHandler.next()) != null) {
                 Object[] results = rowModel.getValues();
                 for (int i = 0; i < variables.length; i++) {
                     String variable = variables[i];
+                    //System.out.println(variable);
                     Object persisted = context.getNewObject(variable);
                     Long identity = Long.parseLong(results[i].toString());
+                    // todo: metaData should cache this stuff
                     ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
                     Field identityField = classInfo.getField(classInfo.identityField());
                     FieldAccess.write(identityField, persisted, identity);
                 }
             }
+            processTime += (System.currentTimeMillis() - now);
             responseHandler.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -191,7 +211,7 @@ public class DefaultSessionImpl implements Session {
     private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
         GraphModel graphModel = stream.next();
         if (graphModel != null) {
-            ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
+            GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
             stream.close();
             return ogm.load(type, graphModel);
         }
@@ -200,7 +220,7 @@ public class DefaultSessionImpl implements Session {
 
     private <T> Collection<T> loadAll(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
         Set<T> objects = new HashSet<>();
-        ObjectGraphMapper ogm = new ObjectGraphMapper(metaData, mappingContext);
+        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = stream.next()) != null) {
             objects.addAll(ogm.loadAll(type, graphModel));
@@ -221,4 +241,19 @@ public class DefaultSessionImpl implements Session {
         return url + "db/data/transaction/commit";
     }
 
+    public long getBuildTime() {
+        return buildTime;
+    }
+
+    public long getJsonTime() {
+        return jsonTime;
+    }
+
+    public long getExecuteTime() {
+        return executeTime;
+    }
+
+    public long getProcessTime() {
+        return processTime;
+    }
 }

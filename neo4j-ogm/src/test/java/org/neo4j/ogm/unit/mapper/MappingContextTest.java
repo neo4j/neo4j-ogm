@@ -33,6 +33,12 @@ public class MappingContextTest {
             thread.start();
         }
 
+        // occasionally only NUM-OBJECTS-1 get created. I have no
+        // idea why. Sleeping the main thread seems to solve the
+        // problem, but I can't really explain why.
+
+        Thread.sleep(1000);
+
         for (int i = 0; i < NUM_THREADS; i++) {
             threads.get(i).join();
         }
@@ -76,6 +82,7 @@ public class MappingContextTest {
 
                 // this is the code pattern the ogm must use when loading objects in a multi-threaded context
                 TestObject testObject = (TestObject) context.get(id);
+
                 if (testObject == null) {
                     testObject = (TestObject) context.register(new TestObject(), id);
                     synchronized (testObject) {

@@ -1,15 +1,13 @@
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.cypher.compiler.CypherCompiler;
+import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.cypher.compiler.NodeBuilder;
+import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
 import org.neo4j.ogm.entityaccess.FieldAccess;
-import org.neo4j.ogm.mapper.cypher.compiler.CypherCompiler;
-import org.neo4j.ogm.mapper.cypher.compiler.CypherContext;
-import org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder;
-import org.neo4j.ogm.mapper.cypher.compiler.SingleStatementBuilder;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.session.MappedRelationship;
-import org.neo4j.ogm.session.MappedRelationshipCache;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -29,7 +27,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      * Constructs a new {@link ObjectCypherMapper} that uses the given {@link MetaData}.
      *
      * @param metaData The {@link MetaData} containing the mapping information
-     * @param mappedRelationships The {@link MappedRelationshipCache} containing the relationships loaded in the current session
+     * @param mappedRelationships A list containing the relationships loaded in the current session
      */
     public ObjectCypherMapper(MetaData metaData, List<MappedRelationship> mappedRelationships, MappingContext mappingContext) {
         this.metaData = metaData;
@@ -64,9 +62,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private void deleteObsoleteRelationships(CypherCompiler cypherBuilder, CypherContext context) {
         if (this.mappedRelationships != null) {
             for (MappedRelationship rel : this.mappedRelationships) {
-                //System.out.println("checking previous relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
+                System.out.println("checking previous relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
                 if (!context.contains(new MappedRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId()))) {
-                    //System.out.println("deleting previous relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
+                    System.out.println("deleting previous relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
                     cypherBuilder.unrelate("$" + rel.getStartNodeId(), rel.getRelationshipType(), "$" + rel.getEndNodeId());
                 }
             }
@@ -78,7 +76,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      *
      * @param cypherBuilder The builder used to construct the query
      * @param toPersist The object to persist into the graph database
-     * @param context A {@link org.neo4j.ogm.mapper.cypher.compiler.CypherContext} that manages the objects visited during the mapping process
+     * @param context A {@link org.neo4j.ogm.cypher.compiler.CypherContext} that manages the objects visited during the mapping process
      * @return The "root" node of the object graph that matches
      */
     private NodeBuilder deepMap(CypherCompiler cypherBuilder, Object toPersist, CypherContext context, int horizon) {
@@ -130,7 +128,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
     private void mapRelatedObjects(CypherCompiler cypherBuilder, Object toPersist, NodeBuilder source, CypherContext context, int horizon) {
 
-        //System.out.println("mapping relationships from : " + toPersist);
+        System.out.println("looking for related objects of : " + toPersist);
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         Field sourceIdentityField = classInfo.getField(classInfo.identityField());
@@ -143,56 +141,43 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
             if (relatedObject instanceof Iterable) {
                 for (Object object : (Iterable<?>) relatedObject) {
-
-                    NodeBuilder target = deepMap(cypherBuilder, object, context, horizon);
-
-                    ClassInfo targetInfo = metaData.classInfo(object.getClass().getName());
-                    Field targetIdentityField = targetInfo.getField(targetInfo.identityField());
-                    Long targetIdentity = (Long) FieldAccess.read(targetIdentityField, object);
-
-                    if (targetIdentity == null) {
-                        //System.out.println("creating new relationship: ($" + sourceIdentity + ")-[:" + relationshipType + "]->(?)");
-                        cypherBuilder.relate(source.reference(), relationshipType, target.reference());
-                        continue;
-                    }
-
-                    MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
-                    if (!mappedRelationships.contains(relationship)) {
-                        //System.out.println("creating new relationship: ($" + sourceIdentity + ")-[:" + relationshipType + "]->($" + targetIdentity + ")");
-                        cypherBuilder.relate(source.reference(), relationshipType, target.reference());
-                    } else {
-                        //System.out.println("skipping unchanged relationship: ($" + sourceIdentity + ")-[:" + relationshipType + "]->($" + targetIdentity + ")");
-                        context.registerRelationship(relationship);
-                    }
+                    mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, object, context, horizon);
                 }
             } else {
-                if (relatedObject != null && !context.visited(toPersist)) {
-
-                    NodeBuilder target = deepMap(cypherBuilder, relatedObject, context, horizon);
-
-                    // TODO: assuming outbound relationship, need to consider what the annotation says
-                    ClassInfo targetInfo = metaData.classInfo(relatedObject.getClass().getName());
-                    Field targetIdentityField = targetInfo.getField(targetInfo.identityField());
-                    Long targetIdentity = (Long) FieldAccess.read(targetIdentityField, relatedObject);
-
-                    if (targetIdentity == null) {
-                        //System.out.println("creating new relationship: ($" + sourceIdentity + ")-[:" + relationshipType + "]->(?)");
-                        cypherBuilder.relate(source.reference(), relationshipType, target.reference());
-                        break;
-                    }
-
-                    MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
-                    if (!mappedRelationships.contains(relationship)) {
-                        //System.out.println("creating new relationship: ($" + sourceIdentity + ")-[:" + relationshipType + "]->($" + targetIdentity + ")");
-                        cypherBuilder.relate(source.reference(), relationshipType, target.reference());
-                    } else {
-                        //System.out.println("skipping unchanged relationship: ($" + sourceIdentity + ")-[:" + relationshipType + "]->($" + targetIdentity + ")");
-                        context.registerRelationship(relationship);
-                    }
+                if (relatedObject != null && !context.visited(relatedObject)) {
+                    mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, relatedObject, context, horizon);
                 }
             }
         }
     }
+
+    private void mapRelatedObject(CypherCompiler cypherBuilder, NodeBuilder source, Object toPersist, Long sourceIdentity, String relationshipType, Object relatedObject, CypherContext context, int horizon) {
+
+        NodeBuilder target = deepMap(cypherBuilder, relatedObject, context, horizon);
+
+        ClassInfo targetInfo = metaData.classInfo(relatedObject.getClass().getName());
+        Field targetIdentityField = targetInfo.getField(targetInfo.identityField());
+        Long targetIdentity = (Long) FieldAccess.read(targetIdentityField, relatedObject);
+
+        System.out.println("checking relationship history: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+
+        if (targetIdentity == null || sourceIdentity == null) {
+            System.out.println("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            cypherBuilder.relate(source.reference(), relationshipType, target.reference());
+            return;
+        }
+
+        MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
+        if (!mappedRelationships.contains(relationship)) {
+            System.out.println("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            cypherBuilder.relate(source.reference(), relationshipType, target.reference());
+        } else {
+            System.out.println("skipping unchanged relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            context.registerRelationship(relationship);
+        }
+
+    }
+
 
     private static String resolveRelationshipType(FieldInfo relField) {
         // should be doing the opposite of ObjectGraphMapper#setterNameFromRelationshipType, but I don't know at this point

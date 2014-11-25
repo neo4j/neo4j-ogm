@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ObjectMemo {
 
-    private Map<Object, Long> nodeHash = new HashMap<>();
+    private Map<Object, Long> objectHash = new HashMap<>();
 
     // objects with no properties will always hash to this value.
     private static final long seed = 0xDEADBEEF / (11 * 257);
@@ -22,7 +22,7 @@ public class ObjectMemo {
      * @param classInfo
      */
     public void remember(Object object, ClassInfo classInfo) {
-        nodeHash.put(object, hash(object, classInfo));
+        objectHash.put(object, hash(object, classInfo));
     }
 
     /**
@@ -36,7 +36,7 @@ public class ObjectMemo {
      * @return
      */
     public boolean remembered(Object object, ClassInfo classInfo) {
-        return nodeHash.containsKey(object) && hash(object, classInfo) == nodeHash.get(object);
+        return objectHash.containsKey(object) && hash(object, classInfo) == objectHash.get(object);
     }
 
     private static long hash(Object object, ClassInfo classInfo) {

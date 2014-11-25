@@ -1,6 +1,6 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 import java.util.*;
 
@@ -15,7 +15,7 @@ public class SingleStatementBuilder implements CypherCompiler {
     private final List<CypherEmitter> updatedNodes = new ArrayList<>();
     private final List<CypherEmitter> newRelationships = new ArrayList<>();
     private final List<CypherEmitter> deletedRelationships = new ArrayList<>();
-    private final CypherEmitter returnStatement = new ReturnStatementBuilder();
+    private final CypherEmitter returnClause = new ReturnClauseBuilder();
 
     @Override
     public void relate(String startNode, String relationshipType, String endNode) {
@@ -30,14 +30,14 @@ public class SingleStatementBuilder implements CypherCompiler {
     @Override
     public NodeBuilder newNode() {
         NodeBuilder newNode = new NewNodeBuilder(this.identifiers.nextIdentifier());
-        this.newNodes.add((CypherEmitter) newNode);
+        this.newNodes.add(newNode);
         return newNode;
     }
 
     @Override
     public NodeBuilder existingNode(Long existingNodeId) {
         NodeBuilder node = new ExistingNodeBuilder(this.identifiers.identifier(existingNodeId));
-        this.updatedNodes.add((CypherEmitter) node);
+        this.updatedNodes.add(node);
         return node;
     }
 
@@ -57,7 +57,7 @@ public class SingleStatementBuilder implements CypherCompiler {
             for (Iterator<CypherEmitter> it = this.newNodes.iterator() ; it.hasNext() ; ) {
                 NodeBuilder node = (NodeBuilder) it.next();
                 if (node.emit(queryBuilder, parameters, varStack)) {
-                    newStack.add(node.cypherReference);  // for the return clause
+                    newStack.add(node.reference());  // for the return clause
                     if (it.hasNext()) {
                           queryBuilder.append(", ");
                     }
@@ -77,7 +77,7 @@ public class SingleStatementBuilder implements CypherCompiler {
             emitter.emit(queryBuilder, null, varStack);
         }
 
-        returnStatement.emit(queryBuilder, null, newStack);
+        returnClause.emit(queryBuilder, null, newStack);
 
         return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
     }

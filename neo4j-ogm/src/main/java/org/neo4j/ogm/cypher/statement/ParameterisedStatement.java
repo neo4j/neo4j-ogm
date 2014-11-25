@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.cypher.statements;
+package org.neo4j.ogm.cypher.statement;
 
 import java.util.HashMap;
 import java.util.Map;

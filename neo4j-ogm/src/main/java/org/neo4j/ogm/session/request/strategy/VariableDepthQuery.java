@@ -1,12 +1,12 @@
-package org.neo4j.ogm.session.strategy;
+package org.neo4j.ogm.session.request.strategy;
 
 import org.neo4j.graphmodel.Property;
-import org.neo4j.ogm.mapper.cypher.statements.GraphModelQuery;
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.session.Utils;
 
 import java.util.Collection;
 
-public class VariableDepthReadStrategy implements ReadStrategy {
+public class VariableDepthQuery implements QueryStatements {
 
     @Override
     public GraphModelQuery findOne(Long id, int depth) {

@@ -12,7 +12,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.session.response.JsonResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
-import org.neo4j.ogm.session.result.SessionException;
+import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class DefaultRequestHandler implements Neo4jRequestHandler<String> {
 
         }
         catch (Exception e) {
-            throw new SessionException("Failed to execute request: ", e);
+            throw new ResultProcessingException("Failed to execute request: ", e);
         }
     }
 }

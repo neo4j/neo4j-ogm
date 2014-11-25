@@ -20,9 +20,6 @@ public interface Session {
 
     <T> Collection<T> loadAll(Collection<T> objects, int depth);
 
-    //
-    <T> void deleteAll(Class<T> type);
-
     void execute(String jsonStatements);
 
     void purge();
@@ -31,5 +28,7 @@ public interface Session {
 
     <T> void save(T object, int depth);
 
+    <T> void delete(T object);
 
+    <T> void deleteAll(Class<T> type);
 }

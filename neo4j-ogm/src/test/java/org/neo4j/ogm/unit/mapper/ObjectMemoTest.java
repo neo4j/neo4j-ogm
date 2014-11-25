@@ -52,7 +52,7 @@ public class ObjectMemoTest {
         nodeMemo.remember(teacher, classInfo);
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
-        teacher.setSchool(new School("Roedean")); // the teacher's name property has changed.
+        teacher.setSchool(new School("Roedean")); // a related object does not affect the property list.
 
         assertTrue(nodeMemo.remembered(teacher, classInfo));
     }

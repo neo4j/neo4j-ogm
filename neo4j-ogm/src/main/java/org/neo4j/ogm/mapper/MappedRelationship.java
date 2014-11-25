@@ -1,4 +1,4 @@
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.mapper;
 
 /**
  * Light-weight record of a relationship mapped from the database, stored as a triplet:

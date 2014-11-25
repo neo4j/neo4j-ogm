@@ -11,10 +11,10 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.MappedRelationship;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.*;
@@ -151,12 +151,65 @@ public class ObjectToCypherMapperTest {
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(bscComputerScience).getStatements());
 
         expect("CREATE (_0:`Student`:`DomainObject`{_0_props}) " +
-                "WITH _0 MATCH($0) WHERE id($0)=0 MERGE ($0)-[:STUDENTS]->(_0) " +
+                "WITH _0 MATCH ($0) WHERE id($0)=0 MERGE ($0)-[:STUDENTS]->(_0) " +
                 "RETURN id(_0) AS _0", cypher);
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
+    }
+
+    @Test
+    public void addRelatedObject() {
+
+
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (s:School:DomainObject {name:'Waller'})-[:TEACHERS]->(t:Teacher {name:'Mary'}) " +
+                "RETURN id(s) AS school_id, id(t) AS teacher_id");
+
+        Map<String, Object> resultSetRow = executionResult.iterator().next();
+        Long wallerId = Long.valueOf(resultSetRow.get("school_id").toString());
+        Long maryId = Long.valueOf(resultSetRow.get("teacher_id").toString());
+
+        Teacher mary = new Teacher("Mary");
+        mary.setId(maryId);
+
+        School waller = new School("Waller");
+        waller.setId(wallerId);
+
+        mappingContext.remember(mary, mappingMetadata.classInfo(Teacher.class.getName()));
+        mappingContext.remember(waller, mappingMetadata.classInfo(School.class.getName()));
+        mockLoadedRelationships.add(new MappedRelationship(wallerId, "TEACHERS", maryId));
+
+        // create a new teacher and add him to the school
+        Teacher jim = new Teacher("Jim");
+        jim.setSchool(waller);
+
+        String schoolNode = var(wallerId);
+        String maryNode = var(maryId);
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(jim).getStatements());
+
+        // note what happens here! this cypher is actually wrong, because we're deleting a relationship
+        // between objects that haven't been persisted. this needs fixing.
+        expect( "CREATE (_0:`Teacher`{_0_props}) " +
+                "WITH _0 " +
+                "MATCH (" + schoolNode + ") WHERE id(" + schoolNode + ")=" + wallerId + " " +
+                "MERGE (" + schoolNode + ")-[:TEACHERS]->(_0) " +
+                "WITH " + schoolNode + ",_0 " +
+                "MERGE (_0)-[:SCHOOL]->(" + schoolNode + ") " +
+                "WITH " + schoolNode + ",_0 " +
+                "MATCH (" + schoolNode + ")-[_1:TEACHERS]->(" + maryNode + ") " +
+                "WHERE id(" + maryNode + ")=" + maryId + " " +
+                "DELETE _1 RETURN id(_0) AS _0", cypher);     // SHOULD NOT DO THIS!
+
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE " +
+                "(s:School:DomainObject {name:'Waller'}), " +
+                "(m:Teacher {name:'Mary'}), " +
+                "(j:Teacher {name:'Jim'}), " +
+                "(j)-[:SCHOOL]->(s), " +
+                "(s)-[:TEACHERS]->(j)");
     }
 
     @Test
@@ -339,8 +392,8 @@ public class ObjectToCypherMapperTest {
         String businessStudiesNode = var(businessStudies.getId());
         String shivaniNode = var(shivani.getId());
 
-        expect( "MATCH(" + designTechNode + ") WHERE id(" + designTechNode + ")=" + designTech.getId() + " " +
-                "MATCH(" + shivaniNode + ") WHERE id(" + shivaniNode + ")=" + shivani.getId() + " " +
+        expect( "MATCH (" + designTechNode + ") WHERE id(" + designTechNode + ")=" + designTech.getId() + " " +
+                "MATCH (" + shivaniNode + ") WHERE id(" + shivaniNode + ")=" + shivani.getId() + " " +
                 "MERGE (" + designTechNode + ")-[:STUDENTS]->(" + shivaniNode + ") " +
                 "WITH " + shivaniNode + "," + designTechNode + " " +
                 "MATCH (" + businessStudiesNode + ")-[_0:STUDENTS]->(" + shivaniNode + ") WHERE id(" + businessStudiesNode + ")=" + businessStudies.getId() + " DELETE _0", cypher);

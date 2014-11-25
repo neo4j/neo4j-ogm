@@ -8,22 +8,22 @@ import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.GraphObjectMapper;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
-import org.neo4j.ogm.mapper.cypher.compiler.CypherContext;
-import org.neo4j.ogm.mapper.cypher.statements.GraphModelQuery;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatements;
-import org.neo4j.ogm.mapper.cypher.statements.RowModelQuery;
+import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.request.DefaultRequestHandler;
 import org.neo4j.ogm.session.request.Neo4jRequestHandler;
+import org.neo4j.ogm.session.request.strategy.DeleteStatements;
+import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.response.GraphModelResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 import org.neo4j.ogm.session.response.RowModelResponseHandler;
 import org.neo4j.ogm.session.result.RowModel;
-import org.neo4j.ogm.session.strategy.DepthOneStrategy;
-import org.neo4j.ogm.session.strategy.VariableDepthReadStrategy;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -99,7 +99,7 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> T load(Class<T> type, Long id, int depth) {
-        return loadOne(type, executeGraphModelQuery(new VariableDepthReadStrategy().findOne(id, depth)));
+        return loadOne(type, executeGraphModelQuery(new VariableDepthQuery().findOne(id, depth)));
     }
 
     @Override
@@ -109,7 +109,7 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, int depth) {
-        return loadAll(type, executeGraphModelQuery(new VariableDepthReadStrategy().findAll(ids, depth)));
+        return loadAll(type, executeGraphModelQuery(new VariableDepthQuery().findAll(ids, depth)));
     }
 
     @Override
@@ -120,7 +120,7 @@ public class DefaultSessionImpl implements Session {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, int depth) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        return loadAll(type, executeGraphModelQuery(new VariableDepthReadStrategy().findByLabel(classInfo.label(), depth)));
+        return loadAll(type, executeGraphModelQuery(new VariableDepthQuery().findByLabel(classInfo.label(), depth)));
     }
 
     @Override
@@ -148,7 +148,7 @@ public class DefaultSessionImpl implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        executeStatement(new DepthOneStrategy().deleteByLabel(classInfo.label())).close();
+        executeStatement(new DeleteStatements().deleteByLabel(classInfo.label())).close();
 
     }
 
@@ -160,7 +160,7 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public void purge() {
-        executeStatement(new DepthOneStrategy().purge()).close();
+        executeStatement(new DeleteStatements().purge()).close();
     }
 
     @Override
@@ -206,6 +206,16 @@ public class DefaultSessionImpl implements Session {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public <T> void delete(T object) {
+        ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+        Field identityField = classInfo.getField(classInfo.identityField());
+        Long identity = (Long) FieldAccess.read(identityField, object);
+        if (identity != null) {
+            executeStatement(new DeleteStatements().delete(identity)).close();
+        }
     }
 
     private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {

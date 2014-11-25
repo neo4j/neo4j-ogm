@@ -1,7 +1,7 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
-import org.neo4j.ogm.session.MappedRelationship;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.mapper.MappedRelationship;
 
 import java.util.*;
 
@@ -12,7 +12,6 @@ public class CypherContext {
 
     private final Map<Object, NodeBuilder> visitedObjects = new HashMap<>();
     private final Map<String, Object> createdObjects = new HashMap();
-    private final Map<Long, NodeBuilder> nodesById = new HashMap<>();
     private final Collection<MappedRelationship> registeredRelationships = new HashSet<>();
 
     private List<ParameterisedStatement> statements;
@@ -27,7 +26,6 @@ public class CypherContext {
 
     public void visit(Object toPersist, Long identity, NodeBuilder nodeBuilder) {
         this.visitedObjects.put(toPersist, nodeBuilder);
-        this.nodesById.put(identity, nodeBuilder);
     }
 
     public void registerRelationship(MappedRelationship mappedRelationship) {

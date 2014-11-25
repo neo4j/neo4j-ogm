@@ -1,10 +1,10 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class ReturnStatementBuilder implements CypherEmitter {
+public class ReturnClauseBuilder implements CypherEmitter {
     @Override
     public boolean emit(StringBuilder queryBuilder, Map<String, Object> parameters, Set<String> varStack) {
 

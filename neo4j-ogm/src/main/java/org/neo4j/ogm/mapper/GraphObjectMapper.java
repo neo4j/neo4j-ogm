@@ -9,8 +9,7 @@ import org.neo4j.ogm.entityaccess.MethodAccess;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
-import org.neo4j.ogm.metadata.factory.ObjectFactory;
+import org.neo4j.ogm.entityaccess.ObjectFactory;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -25,7 +24,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     public GraphObjectMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
-        this.objectFactory = new DefaultConstructorObjectFactory(metadata);
+        this.objectFactory = new ObjectFactory(metadata);
         this.mappingContext = mappingContext;
     }
 

@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
@@ -6,7 +6,8 @@ import java.util.*;
 
 public abstract class NodeBuilder implements CypherEmitter {
 
-    protected final String cypherReference;
+    private final String cypherReference;
+
     protected final Map<String, Object> props = new HashMap<>();
     protected final List<String> labels = new ArrayList<>();
 

@@ -1,7 +1,7 @@
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.mapper.cypher.compiler.CypherContext;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatements;
+import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 
 /**
  * Specification for an object-graph mapper, which can map arbitrary Java objects onto Cypher data manipulation queries.

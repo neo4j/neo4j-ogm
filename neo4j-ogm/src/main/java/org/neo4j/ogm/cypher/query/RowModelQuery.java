@@ -1,4 +1,6 @@
-package org.neo4j.ogm.mapper.cypher.statements;
+package org.neo4j.ogm.cypher.query;
+
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 import java.util.Map;
 

@@ -1,6 +1,6 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 import java.util.List;
 
@@ -12,33 +12,33 @@ public interface CypherCompiler {
     /**
      * Defines a new relationship from the specified start node to end node with the given relationship type.
      *
-     * @param startNode The {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} representation of the relationship start node
+     * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship to create between the nodes
-     * @param endNode The {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} representation of the relationship end node
+     * @param endNode The {@link NodeBuilder} representation of the relationship end node
      */
     void relate(String startNode, String relationshipType, String endNode);
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type.
      *
-     * @param startNode The {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} representation of the relationship start node
+     * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship between the nodes to delete
-     * @param endNode The {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} representation of the relationship end node
+     * @param endNode The {@link NodeBuilder} representation of the relationship end node
      */
     void unrelate(String startNode, String relationshipType, String endNode);
 
     /**
-     * Returns {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} that represents a new node to be created in the database.
+     * Returns {@link NodeBuilder} that represents a new node to be created in the database.
      *
-     * @return A {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} representing a new node
+     * @return A {@link NodeBuilder} representing a new node
      */
     NodeBuilder newNode();
 
     /**
-     * Returns a {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} that represents a node that already exists in the database and matches the given ID.
+     * Returns a {@link NodeBuilder} that represents a node that already exists in the database and matches the given ID.
      *
      * @param existingNodeId The ID of the node in the database
-     * @return A {@link org.neo4j.ogm.mapper.cypher.compiler.NodeBuilder} representing the ndoe in the database that corresponds to the given ID
+     * @return A {@link NodeBuilder} representing the ndoe in the database that corresponds to the given ID
      */
     NodeBuilder existingNode(Long existingNodeId);
 

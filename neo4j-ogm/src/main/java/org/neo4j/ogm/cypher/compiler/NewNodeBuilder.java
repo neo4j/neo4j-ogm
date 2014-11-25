@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -32,16 +32,16 @@ class NewNodeBuilder extends NodeBuilder {
     public boolean emit(StringBuilder queryBuilder, Map<String, Object> parameters, Set<String> varStack) {
 
         queryBuilder.append('(');
-        queryBuilder.append(this.cypherReference);
+        queryBuilder.append(this.reference());
         for (String label : this.labels) {
             queryBuilder.append(":`").append(label).append('`');
         }
         if (!this.props.isEmpty()) {
-            queryBuilder.append('{').append(this.cypherReference).append("_props}");
-            parameters.put(this.cypherReference + "_props", this.props);
+            queryBuilder.append('{').append(this.reference()).append("_props}");
+            parameters.put(this.reference() + "_props", this.props);
         }
         queryBuilder.append(')');
-        varStack.add(this.cypherReference);
+        varStack.add(this.reference());
 
         return true;
     }

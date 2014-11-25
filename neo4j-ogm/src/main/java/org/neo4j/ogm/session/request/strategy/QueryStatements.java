@@ -1,11 +1,11 @@
-package org.neo4j.ogm.session.strategy;
+package org.neo4j.ogm.session.request.strategy;
 
 import org.neo4j.graphmodel.Property;
-import org.neo4j.ogm.mapper.cypher.statements.GraphModelQuery;
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
 
 import java.util.Collection;
 
-public interface ReadStrategy {
+public interface QueryStatements {
 
     /**
      * construct a query to fetch a single object with the specified id

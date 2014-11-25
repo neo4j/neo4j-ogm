@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 /**
  * Manages identifiers used within the scope of a single Cypher query.

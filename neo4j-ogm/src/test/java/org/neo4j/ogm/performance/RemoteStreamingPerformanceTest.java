@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatement;
-import org.neo4j.ogm.mapper.cypher.statements.ParameterisedStatements;
-import org.neo4j.ogm.session.strategy.DepthOneStrategy;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.session.request.DefaultRequestHandler;
+import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.response.JsonResponseHandler;
 import org.neo4j.ogm.session.result.GraphModelResult;
-import org.neo4j.ogm.session.result.SessionException;
+import org.neo4j.ogm.session.result.ResultProcessingException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class RemoteStreamingPerformanceTest {
     public void testFindAllLengthOnePaths() throws Exception {
 
         List<ParameterisedStatement> statements = new ArrayList<>();
-        statements.add(new DepthOneStrategy().findAll());
+        statements.add(new VariableDepthQuery().findAll());
 
         try {
             String cypher = objectMapper.writeValueAsString(new ParameterisedStatements(statements));
@@ -64,7 +64,7 @@ public class RemoteStreamingPerformanceTest {
 
 
             responseHandler.close();
-        } catch (SessionException se) {
+        } catch (ResultProcessingException se) {
             System.out.println("Tests failed to run. Probable cause: " +  se.getCause().getLocalizedMessage());
         }
         finally {

@@ -7,9 +7,9 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.canonical.ClassWithPrivateConstructor;
 import org.neo4j.ogm.domain.canonical.ClassWithoutZeroArgumentConstructor;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.entityaccess.ObjectFactory;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.factory.DefaultConstructorObjectFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class DefaultConstructorObjectFactoryTest {
 
-    private DefaultConstructorObjectFactory objectCreator;
+    private ObjectFactory objectCreator;
 
     @Before
     public void setUp() {
@@ -26,7 +26,7 @@ public class DefaultConstructorObjectFactoryTest {
         mappings.put("ClassWithPrivateConstructor", ClassWithPrivateConstructor.class.getName());
         mappings.put("ClassWithoutZeroArgumentConstructor", ClassWithoutZeroArgumentConstructor.class.getName());
         mappings.put("Person", Individual.class.getName());
-        this.objectCreator = new DefaultConstructorObjectFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
+        this.objectCreator = new ObjectFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
     }
 
     @Test

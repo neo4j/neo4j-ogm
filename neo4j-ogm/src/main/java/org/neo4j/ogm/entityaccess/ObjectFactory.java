@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata.factory;
+package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.graphmodel.NodeModel;
 import org.neo4j.graphmodel.RelationshipModel;
@@ -8,22 +8,20 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.*;
 
-public class DefaultConstructorObjectFactory implements ObjectFactory {
+public class ObjectFactory {
 
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
     private final MetaData metadata;
 
-    public DefaultConstructorObjectFactory(MetaData metadata) {
+    public ObjectFactory(MetaData metadata) {
         this.metadata = metadata;
     }
 
-    @Override
     public <T> T newObject(NodeModel nodeModel) {
         return instantiateObjectFromTaxa(nodeModel.getLabels());
     }
 
-    @Override
     public <T> T newObject(RelationshipModel edgeModel) {
         return instantiateObjectFromTaxa(edgeModel.getType());
     }

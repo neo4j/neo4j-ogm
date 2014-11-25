@@ -1,4 +1,4 @@
-package org.neo4j.ogm.mapper.cypher.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -38,17 +38,17 @@ class ExistingNodeBuilder extends NodeBuilder {
             queryBuilder.append(" WITH ").append(toCsv(varStack));
         }
 
-        varStack.add(this.cypherReference);
+        varStack.add(this.reference());
 
-        queryBuilder.append(" MATCH (").append(this.cypherReference).append(")");
-        queryBuilder.append(" WHERE id(").append(this.cypherReference).append(")=").append(this.cypherReference.substring(1));
+        queryBuilder.append(" MATCH (").append(this.reference()).append(")");
+        queryBuilder.append(" WHERE id(").append(this.reference()).append(")=").append(this.reference().substring(1));
 
         if (!this.labels.isEmpty() && !this.props.isEmpty()) {
             queryBuilder.append(" SET ");
         }
         // set the labels (at the moment we set all labels, not just new ones)
         if (!this.labels.isEmpty()) {
-            queryBuilder.append(this.cypherReference);
+            queryBuilder.append(this.reference());
             for (String label : this.labels) {
                 queryBuilder.append(":`").append(label).append('`');
             }
@@ -56,8 +56,8 @@ class ExistingNodeBuilder extends NodeBuilder {
         }
 
         if (!this.props.isEmpty()) {
-            queryBuilder.append(this.cypherReference).append("+={").append(this.cypherReference).append("_props} ");
-            parameters.put(this.cypherReference + "_props", this.props);
+            queryBuilder.append(this.reference()).append("+={").append(this.reference()).append("_props} ");
+            parameters.put(this.reference() + "_props", this.props);
         }
 
         return true;

@@ -11,7 +11,7 @@ import java.util.*;
 public class CypherContext {
 
     private final Map<Object, NodeBuilder> visitedObjects = new HashMap<>();
-    private final Map<String, Object> createdObjects = new HashMap();
+    private final Map<String, Object> createdObjects = new HashMap<>();
     private final Collection<MappedRelationship> registeredRelationships = new HashSet<>();
 
     private List<ParameterisedStatement> statements;

@@ -14,12 +14,12 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
-    private final ConcurrentMap<Long, Object>          objectMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
     private final ObjectMemo objectMemo = new ObjectMemo();
 
     public Object get(Long id) {
-        return  objectMap.get(id);
+        return objectMap.get(id);
     }
 
     public Object register(Object object, Long id) {
@@ -27,7 +27,6 @@ public class MappingContext {
         getObjects(object.getClass()).add(object = objectMap.get(id));
         return object;
     }
-
 
     public Object getRoot(Class<?> type ) throws Exception {
         Set<Object> roots = typeMap.get(type);

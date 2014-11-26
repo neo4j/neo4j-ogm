@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class ObjectCypherMapper implements ObjectToCypherMapper {
 
+    // TODO: use an SLF4j logger instead
     private static final boolean debugging = false;
 
     private final MetaData metaData;

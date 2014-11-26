@@ -160,7 +160,7 @@ public class ObjectToCypherMapperTest {
     }
 
     @Test
-    public void addRelatedObject() {
+    public void PersistManyToOneObjectFromSingletonSide() {
 
 
         ExecutionResult executionResult = executionEngine.execute(
@@ -171,11 +171,12 @@ public class ObjectToCypherMapperTest {
         Long wallerId = Long.valueOf(resultSetRow.get("school_id").toString());
         Long maryId = Long.valueOf(resultSetRow.get("teacher_id").toString());
 
-        Teacher mary = new Teacher("Mary");
-        mary.setId(maryId);
-
         School waller = new School("Waller");
         waller.setId(wallerId);
+
+        Teacher mary = new Teacher("Mary");
+        mary.setId(maryId);
+        mary.setSchool(waller);
 
         mappingContext.remember(mary, mappingMetadata.classInfo(Teacher.class.getName()));
         mappingContext.remember(waller, mappingMetadata.classInfo(School.class.getName()));
@@ -186,22 +187,16 @@ public class ObjectToCypherMapperTest {
         jim.setSchool(waller);
 
         String schoolNode = var(wallerId);
-        String maryNode = var(maryId);
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(jim).getStatements());
 
-        // note what happens here! this cypher is actually wrong, because we're deleting a relationship
-        // between objects that haven't been persisted. this needs fixing.
         expect( "CREATE (_0:`Teacher`{_0_props}) " +
                 "WITH _0 " +
                 "MATCH (" + schoolNode + ") WHERE id(" + schoolNode + ")=" + wallerId + " " +
                 "MERGE (" + schoolNode + ")-[:TEACHERS]->(_0) " +
                 "WITH " + schoolNode + ",_0 " +
                 "MERGE (_0)-[:SCHOOL]->(" + schoolNode + ") " +
-                "WITH " + schoolNode + ",_0 " +
-                "MATCH (" + schoolNode + ")-[_1:TEACHERS]->(" + maryNode + ") " +
-                "WHERE id(" + maryNode + ")=" + maryId + " " +
-                "DELETE _1 RETURN id(_0) AS _0", cypher);     // SHOULD NOT DO THIS!
+                "RETURN id(_0) AS _0", cypher);
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE " +
@@ -209,7 +204,8 @@ public class ObjectToCypherMapperTest {
                 "(m:Teacher {name:'Mary'}), " +
                 "(j:Teacher {name:'Jim'}), " +
                 "(j)-[:SCHOOL]->(s), " +
-                "(s)-[:TEACHERS]->(j)");
+                "(s)-[:TEACHERS]->(j), " +
+                "(s)-[:TEACHERS]->(m)");
     }
 
     @Test

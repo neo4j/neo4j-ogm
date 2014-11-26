@@ -17,6 +17,8 @@ import java.util.List;
  */
 public class ObjectCypherMapper implements ObjectToCypherMapper {
 
+    private static final boolean debugging = false;
+
     private final MetaData metaData;
 
     // todo: the list of mapped relationships belong in the mapping context
@@ -60,15 +62,15 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     }
 
     private void deleteObsoleteRelationships(CypherCompiler cypherBuilder, CypherContext context) {
-        if (this.mappedRelationships != null) {
-            for (MappedRelationship rel : this.mappedRelationships) {
-                System.out.println("checking previous relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
-                if (!context.contains(new MappedRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId()))) {
-                    System.out.println("deleting previous relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
-                    cypherBuilder.unrelate("$" + rel.getStartNodeId(), rel.getRelationshipType(), "$" + rel.getEndNodeId());
-                }
+
+        for (MappedRelationship rel : this.mappedRelationships) {
+            dbg("delete-check relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
+            if (!context.contains(new MappedRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId()))) {
+                dbg("not found! deleting: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
+                cypherBuilder.unrelate("$" + rel.getStartNodeId(), rel.getRelationshipType(), "$" + rel.getEndNodeId());
             }
         }
+
     }
 
     /**
@@ -128,7 +130,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
     private void mapRelatedObjects(CypherCompiler cypherBuilder, Object toPersist, NodeBuilder source, CypherContext context, int horizon) {
 
-        System.out.println("looking for related objects of : " + toPersist);
+        dbg("looking for related objects of : " + toPersist);
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         Field sourceIdentityField = classInfo.getField(classInfo.identityField());
@@ -140,11 +142,15 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             String relationshipType = resolveRelationshipType(relField);
 
             if (relatedObject instanceof Iterable) {
+
+                dbg("(collection)");
+
                 for (Object object : (Iterable<?>) relatedObject) {
                     mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, object, context, horizon);
                 }
             } else {
                 if (relatedObject != null && !context.visited(relatedObject)) {
+                    dbg("(singleton)");
                     mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, relatedObject, context, horizon);
                 }
             }
@@ -159,20 +165,20 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         Field targetIdentityField = targetInfo.getField(targetInfo.identityField());
         Long targetIdentity = (Long) FieldAccess.read(targetIdentityField, relatedObject);
 
-        System.out.println("checking relationship history: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+        dbg("checking relationship history: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
 
         if (targetIdentity == null || sourceIdentity == null) {
-            System.out.println("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            dbg("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
             return;
         }
 
         MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
         if (!mappedRelationships.contains(relationship)) {
-            System.out.println("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            dbg("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
         } else {
-            System.out.println("skipping unchanged relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            dbg("skipping unchanged relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
             context.registerRelationship(relationship);
         }
 
@@ -190,4 +196,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         return relField.relationship().toUpperCase();
     }
 
+    private static void dbg(String msg) {
+        if (debugging) {
+            System.out.println(msg);
+        }
+    }
 }

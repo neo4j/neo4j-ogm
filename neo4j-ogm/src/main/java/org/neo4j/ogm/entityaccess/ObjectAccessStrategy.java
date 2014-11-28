@@ -9,10 +9,10 @@ public interface ObjectAccessStrategy {
 
     // TODO: consider whether we should have getProperty(Write|Read)Access or just return an ObjectAccess that
     // is capable of doing both, as the ObjectAccess contract dictates
-    ObjectAccess getPropertyWriteAccess(ClassInfo classInfo, String propertyName);
+    PropertyObjectAccess getPropertyWriteAccess(ClassInfo classInfo, String propertyName);
 
-    ObjectAccess getRelationshipAccess(ClassInfo classInfo, String relationshipType, Object parameter);
+    RelationalObjectAccess getRelationshipAccess(ClassInfo classInfo, String relationshipType, Object parameter);
 
-    ObjectAccess getIterableAccess(ClassInfo classInfo, Class<?> parameterType);
+    RelationalObjectAccess getIterableAccess(ClassInfo classInfo, Class<?> parameterType);
 
 }

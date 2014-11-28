@@ -55,7 +55,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
 
         // 2nd, try to find a field called or annotated as the neo4j relationship type
         fieldInfo = classInfo.relationshipField(relationshipType);
-        if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+        if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty() && fieldInfo.isTypeOf(parameter.getClass())) {
             return new FieldAccess(classInfo, fieldInfo);
         }
 

@@ -3,7 +3,7 @@ package org.neo4j.ogm.entityaccess;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public abstract class ObjectAccess {
+public abstract class ObjectAccess implements PropertyObjectAccess, RelationalObjectAccess {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) throws Exception {
@@ -71,9 +71,5 @@ public abstract class ObjectAccess {
         set.addAll(list2);
         return new Vector<>(set);
     }
-
-    public abstract void write(Object instance, Object value);
-
-    public abstract Object read(Object instance);
 
 }

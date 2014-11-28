@@ -46,4 +46,9 @@ public class FieldAccess extends ObjectAccess {
         throw new UnsupportedOperationException("atg hasn't written this method yet");
     }
 
+    @Override
+    public String relationshipType() {
+        return this.fieldInfo.relationship();
+    }
+
 }

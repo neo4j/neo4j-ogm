@@ -25,10 +25,14 @@ public class Satellite extends DomainObject {
     private String name;
 
     private String launched;
+    @Property(name="manned")
     private String manned;
 
     private Location location;
     private Orbit orbit;
+
+    // incoming relationship
+    private Program program;
 
     public String getName() {
         return name;
@@ -79,9 +83,6 @@ public class Satellite extends DomainObject {
         this.orbit = orbit;
     }
 
-    // incoming relationship
-    private Program program;
-
     public Program getProgram() {
         return program;
     }
@@ -89,4 +90,5 @@ public class Satellite extends DomainObject {
     public void setProgram(Program program) {
         this.program = program;
     }
+
 }

@@ -71,4 +71,9 @@ public abstract class ObjectAccess {
         set.addAll(list2);
         return new Vector<>(set);
     }
+
+    public abstract void write(Object instance, Object value);
+
+    public abstract Object read(Object instance);
+
 }

@@ -12,6 +12,7 @@ public class Member extends Login  {
 
     private IMembership memberShip;
     private Date renewalDate;
+    @Relationship(type ="HAS_ACTIVITY")
     private List<Activity> activityList;
     private List<Member> followers;
     private List<Member> followees;

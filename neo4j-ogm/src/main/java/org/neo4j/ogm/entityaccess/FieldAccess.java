@@ -2,7 +2,18 @@ package org.neo4j.ogm.entityaccess;
 
 import java.lang.reflect.Field;
 
+import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.FieldInfo;
+
 public class FieldAccess extends ObjectAccess {
+
+    private final FieldInfo fieldInfo;
+    private final ClassInfo classInfo;
+
+    public FieldAccess(ClassInfo classInfo, FieldInfo fieldInfo) {
+        this.classInfo = classInfo;
+        this.fieldInfo = fieldInfo;
+    }
 
     public static void write(Field field, Object instance, Object value) {
         try {
@@ -23,6 +34,16 @@ public class FieldAccess extends ObjectAccess {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void write(Object instance, Object value) {
+        FieldAccess.write(classInfo.getField(fieldInfo), instance, value);
+    }
+
+    @Override
+    public Object read(Object instance) {
+        throw new UnsupportedOperationException("atg hasn't written this method yet");
     }
 
 }

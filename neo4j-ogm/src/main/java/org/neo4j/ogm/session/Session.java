@@ -1,5 +1,7 @@
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.session.transaction.Transaction;
+
 import java.util.Collection;
 
 public interface Session {
@@ -31,4 +33,8 @@ public interface Session {
     <T> void delete(T object);
 
     <T> void deleteAll(Class<T> type);
+
+    Transaction beginTransaction();
+
+    void close();
 }

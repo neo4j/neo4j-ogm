@@ -39,6 +39,10 @@ public class ObjectMemo {
         return objectHash.containsKey(object) && hash(object, classInfo) == objectHash.get(object);
     }
 
+    public void clear() {
+        objectHash.clear();
+    }
+
     private static long hash(Object object, ClassInfo classInfo) {
         long hash = seed;
         for (FieldInfo fieldInfo : classInfo.propertyFields()) {

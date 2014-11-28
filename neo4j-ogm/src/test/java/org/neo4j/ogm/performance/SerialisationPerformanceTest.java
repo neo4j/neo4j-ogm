@@ -11,9 +11,7 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.mapper.MappedRelationship;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
@@ -31,7 +29,7 @@ public class SerialisationPerformanceTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectCypherMapper(mappingMetadata, new ArrayList<MappedRelationship>(), new MappingContext());
+        this.mapper = new ObjectCypherMapper(mappingMetadata, new MappingContext());
     }
 
     @Test

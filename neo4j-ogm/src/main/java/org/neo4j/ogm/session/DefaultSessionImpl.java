@@ -4,26 +4,28 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.graphmodel.GraphModel;
+import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
+import org.neo4j.ogm.cypher.query.RowModelQuery;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.mapper.GraphObjectMapper;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
-import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.cypher.query.GraphModelQuery;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
-import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.request.DefaultRequestHandler;
 import org.neo4j.ogm.session.request.Neo4jRequestHandler;
+import org.neo4j.ogm.session.request.TransactionRequestHandler;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.response.GraphModelResponseHandler;
 import org.neo4j.ogm.session.response.Neo4jResponseHandler;
 import org.neo4j.ogm.session.response.RowModelResponseHandler;
 import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -33,10 +35,11 @@ public class DefaultSessionImpl implements Session {
     private final MetaData metaData;
     private final MappingContext mappingContext;
     private final ObjectMapper mapper;
-
-    private final String url;
+    private final String autoCommitUrl;
 
     private Neo4jRequestHandler<String> requestHandler;
+    private TransactionRequestHandler transactionRequestHandler;
+    private Transaction transaction;
 
     private long buildTime;
     private long jsonTime;
@@ -49,20 +52,29 @@ public class DefaultSessionImpl implements Session {
         this.mappingContext = new MappingContext();
         this.mapper = mapper;
         this.requestHandler = new DefaultRequestHandler(client);
-
-        this.url = transformUrl(url);
+        this.transactionRequestHandler = new TransactionRequestHandler(client, url);
+        this.autoCommitUrl = autoCommit(url);
     }
 
     public void setRequestHandler(Neo4jRequestHandler<String> requestHandler) {
         this.requestHandler = requestHandler;
     }
 
+    private Transaction getOrCreateTransaction() {
+        if (this.transaction != null) {
+            return this.transaction;
+        } else {
+            return new Transaction(mappingContext, autoCommitUrl);
+        }
+    }
+
     private Neo4jResponseHandler<GraphModel> executeGraphModelQuery(GraphModelQuery query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
+        Transaction tx = getOrCreateTransaction();
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
-            Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, json);
+            Neo4jResponseHandler<String> responseHandler = requestHandler.execute(tx.url(), json);
             return new GraphModelResponseHandler(responseHandler, mapper);
         } catch (JsonProcessingException jpe) {
             throw new MappingException(jpe.getLocalizedMessage());
@@ -72,9 +84,10 @@ public class DefaultSessionImpl implements Session {
     private Neo4jResponseHandler<RowModel> executeRowModelQuery(RowModelQuery query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
+        Transaction tx = getOrCreateTransaction();
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
-            Neo4jResponseHandler<String> responseHandler = requestHandler.execute(url, json);
+            Neo4jResponseHandler<String> responseHandler = requestHandler.execute(tx.url(), json);
             return new RowModelResponseHandler(responseHandler, mapper);
         } catch (JsonProcessingException jpe) {
             throw new MappingException(jpe.getLocalizedMessage());
@@ -84,9 +97,10 @@ public class DefaultSessionImpl implements Session {
     private Neo4jResponseHandler<String> executeStatement(ParameterisedStatement statement) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(statement);
+        Transaction tx = getOrCreateTransaction();
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
-            return requestHandler.execute(url, json);
+            return requestHandler.execute(tx.url(), json);
         } catch (JsonProcessingException jpe) {
             throw new MappingException(jpe.getLocalizedMessage());
         }
@@ -153,6 +167,22 @@ public class DefaultSessionImpl implements Session {
     }
 
     @Override
+    public Transaction beginTransaction() {
+        // todo: ensure existing transaction is not pending
+        // todo: make this threadsafe
+        if (transaction != null && transaction.status() == (Transaction.OPEN | Transaction.PENDING)) {
+            throw new RuntimeException("The current transaction should be rolled back or committed before beginning a new one");
+        }
+        transaction = new Transaction(mappingContext, transactionRequestHandler.execute());
+        return transaction;
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
     public void execute(String statement) {
         ParameterisedStatement parameterisedStatement = new ParameterisedStatement(statement, Utils.map());
         executeStatement(parameterisedStatement).close();
@@ -171,8 +201,13 @@ public class DefaultSessionImpl implements Session {
     @Override
     public <T> void save(T object, int depth) {
 
+        // should we allow mutable operations outside of a user-defined transaction?
+        Transaction tx = getOrCreateTransaction();
+
         long now = System.currentTimeMillis();
-        CypherContext context = new ObjectCypherMapper(metaData, null, new MappingContext()).mapToCypher(object, depth);
+
+        CypherContext context = new ObjectCypherMapper(metaData, new MappingContext()).mapToCypher(object, depth);
+
         buildTime += (System.currentTimeMillis() - now);
         try {
             List<ParameterisedStatement> statements = context.getStatements();
@@ -181,12 +216,12 @@ public class DefaultSessionImpl implements Session {
             //System.out.println(json);
             jsonTime += (System.currentTimeMillis() - now);
             now = System.currentTimeMillis();
-            RowModelResponseHandler responseHandler = new RowModelResponseHandler(requestHandler.execute(url, json), mapper);
+            RowModelResponseHandler responseHandler = new RowModelResponseHandler(requestHandler.execute(tx.url(), json), mapper);
             executeTime += (System.currentTimeMillis() - now);
             now = System.currentTimeMillis();
+
             String[] variables = responseHandler.columns();
             RowModel rowModel;
-
             while ((rowModel = responseHandler.next()) != null) {
                 Object[] results = rowModel.getValues();
                 for (int i = 0; i < variables.length; i++) {
@@ -202,7 +237,11 @@ public class DefaultSessionImpl implements Session {
             }
             processTime += (System.currentTimeMillis() - now);
             responseHandler.close();
+
+            // todo: tx.append(context.log)
+            // todo: (if not on tx endpoint) tx.commit();
         } catch (Exception e) {
+            // todo: tx.rollback // just clear the commit log
             throw new RuntimeException(e);
         }
 
@@ -239,7 +278,7 @@ public class DefaultSessionImpl implements Session {
         return objects;
     }
 
-    private String transformUrl(String url) {
+    private String autoCommit(String url) {
         if (url == null) {
             return url;
         }

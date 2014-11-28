@@ -31,12 +31,15 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
     @Test
     public void loadPrograms() {
+
         Collection<Program> programs = session.loadAll(Program.class);
 
         if (!programs.isEmpty()) {
             assertEquals(4, programs.size());
             for (Program program : programs) {
+
                 System.out.println("program:" + program.getName());
+
                 for (Satellite satellite : program.getSatellites()) {
                     // 1-side of many->1 is auto-hydrated
                     assertEquals(satellite.getProgram(), program);

@@ -6,10 +6,10 @@ import org.neo4j.graphmodel.Property;
 import org.neo4j.graphmodel.RelationshipModel;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.entityaccess.MethodAccess;
+import org.neo4j.ogm.entityaccess.ObjectFactory;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.entityaccess.ObjectFactory;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -125,16 +125,13 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
         MethodInfo methodInfo;
 
-        // 1st, try to find a method annotated with the relationship type.
+        // try to find a method called or annotated as the relationship type.
         methodInfo = classInfo.relationshipSetter(relationshipType);
-        if (methodInfo != null) return methodInfo;
+        if (methodInfo != null) {
+            return methodInfo;
+        }
 
-        // 2nd, try to find a "setXXX" method where XXX is derived from the relationship type
-        String setterName = setterNameFromRelationshipType(relationshipType);
-        methodInfo = classInfo.relationshipSetter(setterName);
-        if (methodInfo != null) return methodInfo;
-
-        // 3rd, try to find a single setter that takes the parameter
+        // try to find a single setter that takes the parameter
         List<MethodInfo> methodInfos = classInfo.findSetters(parameter.getClass());
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
@@ -146,16 +143,13 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private FieldInfo getOneToOneRelationshipFieldInfo(ClassInfo classInfo, String relationshipType, Object parameter) {
         FieldInfo fieldInfo;
 
-        // 1st, try to find a field annotated with with relationship type
+        // try to find a field called or annotated as the neo4j relationship type
         fieldInfo = classInfo.relationshipField(relationshipType);
-        if (fieldInfo != null) return fieldInfo;
+        if (fieldInfo != null && fieldInfo.isTypeOf(parameter.getClass())) {
+            return fieldInfo;
+        }
 
-        // 2nd, try to find a "XXX" field name where XXX is derived from the relationship type
-        String fieldName = setterNameFromRelationshipType(relationshipType).substring(4);
-        fieldInfo = classInfo.relationshipField(fieldName);
-        if (fieldInfo != null) return fieldInfo;
-
-        // 3rd, try to find a single setter that takes the parameter
+        // try to find a unique field of the parameter class
         List<FieldInfo> fieldInfos = classInfo.findFields(parameter.getClass());
         if (fieldInfos.size() == 1) {
             return fieldInfos.iterator().next();
@@ -164,19 +158,25 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         return null;
     }
 
-    private boolean mapOneToOne(Object source, Object target, String relationshipType) {
+    // todo: on a successful mapping, create and remember a mapped relationship
+    private boolean mapOneToOne(Object source, Object target, RelationshipModel edge) {
 
+        String edgeLabel = edge.getType();
         ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
 
-        MethodInfo methodInfo = getOneToOneRelationshipMethodInfo(sourceInfo, relationshipType, target);
+        MethodInfo methodInfo = getOneToOneRelationshipMethodInfo(sourceInfo, edgeLabel, target);
         if (methodInfo != null) {
             MethodAccess.write(sourceInfo.getMethod(methodInfo, target.getClass()), source, target);
+            String relType = relationshipType(methodInfo.relationship().substring(3));
+            mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
             return true;
         }
 
-        FieldInfo fieldInfo = getOneToOneRelationshipFieldInfo(sourceInfo, relationshipType, target);
+        FieldInfo fieldInfo = getOneToOneRelationshipFieldInfo(sourceInfo, edgeLabel, target);
         if (fieldInfo != null) {
             FieldAccess.write(sourceInfo.getField(fieldInfo), source, target);
+            String relType = relationshipType(fieldInfo.relationship());
+            mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
             return true;
         }
         return false;
@@ -184,15 +184,16 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void mapRelationships(GraphModel graphModel) throws Exception {
 
-        final List<RelationshipModel> oneToMany = new ArrayList<>();
+        final Set<RelationshipModel> oneToMany = new HashSet<>();
 
         for (RelationshipModel edge : graphModel.getRelationships()) {
             Object source   = mappingContext.get(edge.getStartNode());
             Object target    = mappingContext.get(edge.getEndNode());
-            if (!mapOneToOne(source, target, edge.getType())) {
+
+            if (!mapOneToOne(source, target, edge)) {
                 oneToMany.add(edge);
             }
-            mapOneToOne(target, source, edge.getType());  // try the inverse mapping
+            mapOneToOne(target, source, edge);  // try the inverse mapping
         }
         mapOneToMany(oneToMany);
     }
@@ -201,12 +202,14 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         return mappingContext.getObjects(clazz);
     }
 
-    private void mapOneToMany(List<RelationshipModel> oneToManyRelationships) throws Exception {
+    // FIXME: this code is buggy. it is setting the same collection multiple times!
+    private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) throws Exception {
 
         Map< Object, Map<Class, Set<Object>>> typeRelationships = new HashMap<>();
 
         // first, build the full set of related objects of each type for each source object in the relationship
         for (RelationshipModel edge : oneToManyRelationships) {
+
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
 
@@ -227,24 +230,32 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
             Map<Class, Set<Object>> handled = typeRelationships.get(instance);
             for (Class type : handled.keySet()) {
                 Collection objects = handled.get(type);
-                mapOneToMany(instance, type, objects);
+                mapOneToMany(instance, type, objects, oneToManyRelationships);
             }
         }
     }
 
-    private boolean mapOneToMany(Object instance, Class type, Collection objects) {
+    private boolean mapOneToMany(Object instance, Class type, Collection objects, Set<RelationshipModel> edges) {
 
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
 
         MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
         if (methodInfo != null) {
+            String relType = relationshipType(methodInfo.relationship().substring(3));
             MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, objects);
+            for (RelationshipModel edge : edges) {
+                mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
+            }
             return true;
         }
 
         FieldInfo fieldInfo = getIterableFieldInfo(classInfo, type);
         if (fieldInfo != null) {
+            String relType = relationshipType(fieldInfo.relationship());
             FieldAccess.write(classInfo.getField(fieldInfo), instance, objects);
+            for (RelationshipModel edge : edges) {
+                mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
+            }
             return true;
         }
 
@@ -305,5 +316,17 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         } else {
             return null;
         }
+    }
+
+    // this is temporary - will be replaced by work Adam is doing.
+    private String relationshipType(String property) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : property.toCharArray()) {
+            if (sb.length() > 0 && Character.isUpperCase(c)) {
+                sb.append("_");
+            }
+            sb.append(Character.toUpperCase(c));
+        }
+        return sb.toString();
     }
 }

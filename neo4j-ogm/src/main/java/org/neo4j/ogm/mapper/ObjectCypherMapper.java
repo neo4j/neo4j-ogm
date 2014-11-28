@@ -10,7 +10,6 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * Implementation of {@link ObjectToCypherMapper} that is driven by an instance of {@link MetaData}.
@@ -22,18 +21,16 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private final MetaData metaData;
 
     // todo: the list of mapped relationships belong in the mapping context
-    private final List<MappedRelationship> mappedRelationships;
     private final MappingContext mappingContext;
 
     /**
      * Constructs a new {@link ObjectCypherMapper} that uses the given {@link MetaData}.
      *
      * @param metaData The {@link MetaData} containing the mapping information
-     * @param mappedRelationships A list containing the relationships loaded in the current session
+
      */
-    public ObjectCypherMapper(MetaData metaData, List<MappedRelationship> mappedRelationships, MappingContext mappingContext) {
+    public ObjectCypherMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
-        this.mappedRelationships = mappedRelationships;
         this.mappingContext = mappingContext;
     }
 
@@ -63,7 +60,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
     private void deleteObsoleteRelationships(CypherCompiler cypherBuilder, CypherContext context) {
 
-        for (MappedRelationship rel : this.mappedRelationships) {
+        for (MappedRelationship rel : mappingContext.mappedRelationships()) {
             dbg("delete-check relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
             if (!context.contains(new MappedRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId()))) {
                 dbg("not found! deleting: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
@@ -92,7 +89,8 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         // don't give Neo4j more work to do than it needs
         if (mappingContext.isDirty(toPersist, classInfo)) {
-             nodeBuilder.mapProperties(toPersist, classInfo);
+            // todo: context.log(toPersist)
+            nodeBuilder.mapProperties(toPersist, classInfo);
         }
 
         if (horizon != 0) {
@@ -174,9 +172,10 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         }
 
         MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
-        if (!mappedRelationships.contains(relationship)) {
+        if (!mappingContext.contains(relationship)) {
             dbg("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
+            // todo: context.log(relationship);
         } else {
             dbg("skipping unchanged relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
             context.registerRelationship(relationship);

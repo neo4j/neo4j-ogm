@@ -92,6 +92,17 @@ public class DefaultObjectAccessStrategyTest {
     }
 
     @Test
+    public void shouldNotRetrieveSetterMethodObjectAccessIfTypesAreIncompatible() {
+        ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
+
+        Satellite singleSatellite = new Satellite();
+
+        // the SATELLITES type matches the setter that takes an Iterable argument
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "SATELLITES", singleSatellite);
+        assertNull("A compatible object accessor shouldn't have been found", objectAccess);
+    }
+
+    @Test
     public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenSettingRelationshipObject() {
         // 1st, try to find a method annotated with the relationship type.
         ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());

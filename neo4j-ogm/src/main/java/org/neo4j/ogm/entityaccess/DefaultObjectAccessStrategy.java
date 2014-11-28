@@ -2,6 +2,7 @@ package org.neo4j.ogm.entityaccess;
 
 import java.util.List;
 
+import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -67,7 +68,10 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         String setterName = setterNameFromRelationshipType(relationshipType);
         methodInfo = classInfo.relationshipSetter(setterName);
         if (methodInfo != null) {
-            return new MethodAccess(classInfo, methodInfo);
+            Class<?> setterParemeterType = ClassUtils.getType(methodInfo.getDescriptor());
+            if (setterParemeterType.isAssignableFrom(parameter.getClass())) {
+                return new MethodAccess(classInfo, methodInfo);
+            }
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
@@ -134,7 +138,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         if (name != null && name.length() > 0) {
             if (!name.contains("_")) {
                 sb.append(name.substring(0, 1).toUpperCase());
-                sb.append(name.substring(1));
+                sb.append(name.substring(1).toLowerCase());
             } else {
                 String[] parts = name.split("_");
                 for (String part : parts) {

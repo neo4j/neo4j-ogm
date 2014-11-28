@@ -14,10 +14,14 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
+
+    private final Logger logger = LoggerFactory.getLogger(GraphObjectMapper.class);
 
     private final MappingContext mappingContext;
     private final ObjectFactory objectFactory;
@@ -103,7 +107,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private void writeProperty(ClassInfo classInfo, Object instance, Property property) {
         PropertyObjectAccess objectAccess = objectAccessStrategy.getPropertyWriteAccess(classInfo, property.getKey().toString());
         if (objectAccess == null) {
-            // TODO: log a warning, we don't recognise this property
+            logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
         } else {
             objectAccess.write(instance, property.getValue());
         }
@@ -123,7 +127,6 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
             return true;
         }
 
-        // TODO: log a warning here stating that we don't know how to map that relationship type
         return false;
     }
 
@@ -191,7 +194,8 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
             }
             return true;
         }
-        // TODO: should probably log something here too, since we plan to do so for missing properties
+
+        logger.warn("Unable to map iterable of type: {} onto property of {}", type, classInfo.name());
         return false;
     }
 

@@ -5,6 +5,8 @@ import java.util.List;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link ObjectAccessStrategy} that looks up information from {@link ClassInfo} in the following order.
@@ -19,6 +21,8 @@ import org.neo4j.ogm.metadata.info.MethodInfo;
  * fields.
  */
 public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
+
+    private final Logger logger = LoggerFactory.getLogger(DefaultObjectAccessStrategy.class);
 
     @Override
     public ObjectAccess getPropertyWriteAccess(ClassInfo classInfo, String propertyName) {
@@ -150,7 +154,9 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }
-        // TODO: log a warning. multiple methods match this setter signature. We cannot map the value
+
+        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching setter found.",
+                parameterType, classInfo.name());
         return null;
     }
 
@@ -159,7 +165,9 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         if (fieldInfos.size() == 1) {
             return fieldInfos.iterator().next();
         }
-        // TODO: log a warning. multiple methods match this setter signature. We cannot map the value
+
+        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching field found.",
+                parameterType, classInfo.name());
         return null;
     }
 

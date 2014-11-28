@@ -8,6 +8,8 @@ import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
@@ -16,8 +18,7 @@ import java.lang.reflect.Field;
  */
 public class ObjectCypherMapper implements ObjectToCypherMapper {
 
-    // TODO: use an SLF4j logger instead
-    private static final boolean debugging = false;
+    private final Logger logger = LoggerFactory.getLogger(ObjectCypherMapper.class);
 
     private final MetaData metaData;
 
@@ -62,9 +63,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private void deleteObsoleteRelationships(CypherCompiler cypherBuilder, CypherContext context) {
 
         for (MappedRelationship rel : mappingContext.mappedRelationships()) {
-            dbg("delete-check relationship: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
+            logger.debug("delete-check relationship: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
             if (!context.contains(new MappedRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId()))) {
-                dbg("not found! deleting: ($" + rel.getStartNodeId() + ")-[:" + rel.getRelationshipType() + "]->($" + rel.getEndNodeId() + ")");
+                logger.debug("not found! deleting: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
                 cypherBuilder.unrelate("$" + rel.getStartNodeId(), rel.getRelationshipType(), "$" + rel.getEndNodeId());
             }
         }
@@ -129,7 +130,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
     private void mapRelatedObjects(CypherCompiler cypherBuilder, Object toPersist, NodeBuilder source, CypherContext context, int horizon) {
 
-        dbg("looking for related objects of : " + toPersist);
+        logger.debug("looking for related objects of: {}", toPersist);
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         Field sourceIdentityField = classInfo.getField(classInfo.identityField());
@@ -142,14 +143,14 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
             if (relatedObject instanceof Iterable) {
 
-                dbg("(collection)");
+                logger.debug("(collection)");
 
                 for (Object object : (Iterable<?>) relatedObject) {
                     mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, object, context, horizon);
                 }
             } else {
                 if (relatedObject != null && !context.visited(relatedObject)) {
-                    dbg("(singleton)");
+                    logger.debug("(singleton)");
                     mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, relatedObject, context, horizon);
                 }
             }
@@ -164,21 +165,21 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         Field targetIdentityField = targetInfo.getField(targetInfo.identityField());
         Long targetIdentity = (Long) FieldAccess.read(targetIdentityField, relatedObject);
 
-        dbg("checking relationship history: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+        logger.debug("checking relationship history: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
 
         if (targetIdentity == null || sourceIdentity == null) {
-            dbg("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            logger.debug("creating new relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
             return;
         }
 
         MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
         if (!mappingContext.contains(relationship)) {
-            dbg("creating new relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            logger.debug("creating new relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
             // todo: context.log(relationship);
         } else {
-            dbg("skipping unchanged relationship: (" + source.reference() + ":" + toPersist.getClass().getSimpleName() + ")-[:" + relationshipType + "]->(" + target.reference() + ":" + relatedObject.getClass().getSimpleName() + ")");
+            logger.debug("skipping unchanged relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             context.registerRelationship(relationship);
         }
 
@@ -196,9 +197,4 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         return relField.relationship().toUpperCase();
     }
 
-    private static void dbg(String msg) {
-        if (debugging) {
-            System.out.println(msg);
-        }
-    }
 }

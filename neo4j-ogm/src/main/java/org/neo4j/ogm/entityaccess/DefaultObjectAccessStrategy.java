@@ -49,34 +49,30 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
 
     @Override
     public ObjectAccess getRelationshipAccess(ClassInfo classInfo, String relationshipType, Object parameter) {
-        MethodInfo methodInfo = null;
-        FieldInfo fieldInfo = null;
 
         // 1st, try to find a method annotated with the relationship type.
-        methodInfo = classInfo.relationshipSetter(relationshipType);
+        MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType);
         if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
             return new MethodAccess(classInfo, methodInfo);
         }
 
         // 2nd, try to find a field called or annotated as the neo4j relationship type
-        fieldInfo = classInfo.relationshipField(relationshipType);
+        FieldInfo fieldInfo = classInfo.relationshipField(relationshipType);
         if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty() && fieldInfo.isTypeOf(parameter.getClass())) {
             return new FieldAccess(classInfo, fieldInfo);
         }
 
         // 3rd, try to find a "setXYZ" method where XYZ is derived from the relationship type
-        String setterName = setterNameFromRelationshipType(relationshipType);
-        methodInfo = classInfo.relationshipSetter(setterName);
+        methodInfo = classInfo.relationshipSetter(setterNameFromRelationshipType(relationshipType));
         if (methodInfo != null) {
-            Class<?> setterParemeterType = ClassUtils.getType(methodInfo.getDescriptor());
-            if (setterParemeterType.isAssignableFrom(parameter.getClass())) {
+            Class<?> setterParameterType = ClassUtils.getType(methodInfo.getDescriptor());
+            if (setterParameterType.isAssignableFrom(parameter.getClass())) {
                 return new MethodAccess(classInfo, methodInfo);
             }
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-        String fieldName = fieldNameFromRelationshipType(relationshipType);
-        fieldInfo = classInfo.relationshipField(fieldName);
+        fieldInfo = classInfo.relationshipField(fieldNameFromRelationshipType(relationshipType));
         if (fieldInfo != null && fieldInfo.isTypeOf(parameter.getClass())) {
             return new FieldAccess(classInfo, fieldInfo);
         }

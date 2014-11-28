@@ -26,6 +26,7 @@ public abstract class ClassUtils {
         try {
             return Class.forName(typeName);
         } catch (Exception e) {
+            // FIXME: this fails for setters that take primitives
             throw new RuntimeException(e);
         }
     }

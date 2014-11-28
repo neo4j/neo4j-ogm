@@ -548,12 +548,12 @@ public class ClassInfo {
     /**
      *
      * @param methodInfo
-     * @param parameter
+     * @param parameterTypes
      * @return
      */
-    public Method getMethod(MethodInfo methodInfo, Class... parameter) {
+    public Method getMethod(MethodInfo methodInfo, Class... parameterTypes) {
         try {
-            return Class.forName(name()).getMethod(methodInfo.getName(), parameter);
+            return Class.forName(name()).getMethod(methodInfo.getName(), parameterTypes);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -53,7 +53,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
             return new MethodAccess(classInfo, methodInfo);
         }
 
-        // 2nd, try to find a field annotated with with relationship type
+        // 2nd, try to find a field called or annotated as the neo4j relationship type
         fieldInfo = classInfo.relationshipField(relationshipType);
         if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
             return new FieldAccess(classInfo, fieldInfo);
@@ -69,7 +69,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
         String fieldName = fieldNameFromRelationshipType(relationshipType);
         fieldInfo = classInfo.relationshipField(fieldName);
-        if (fieldInfo != null) {
+        if (fieldInfo != null && fieldInfo.isTypeOf(parameter.getClass())) {
             return new FieldAccess(classInfo, fieldInfo);
         }
 

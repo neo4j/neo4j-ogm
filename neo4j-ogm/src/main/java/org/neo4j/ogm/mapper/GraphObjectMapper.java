@@ -13,6 +13,7 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.neo4j.ogm.metadata.info.MethodInfo;
 
 import java.util.*;
 
@@ -108,10 +109,13 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    private boolean mapOneToOne(Object source, Object parameter, String relationshipType) {
+    // todo: on a successful mapping, create and remember a mapped relationship
+    private boolean mapOneToOne(Object source, Object parameter, RelationshipModel edge) {
+
+        String edgeLabel = edge.getType();
         ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
 
-        ObjectAccess objectAccess = objectAccessStrategy.getRelationshipAccess(sourceInfo, relationshipType, parameter);
+        ObjectAccess objectAccess = objectAccessStrategy.getRelationshipAccess(sourceInfo, edgeLabel, parameter);
         if (objectAccess != null) {
             objectAccess.write(source, parameter);
             return true;
@@ -122,15 +126,15 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void mapRelationships(GraphModel graphModel) throws Exception {
 
-        final List<RelationshipModel> oneToMany = new ArrayList<>();
+        final Set<RelationshipModel> oneToMany = new HashSet<>();
 
         for (RelationshipModel edge : graphModel.getRelationships()) {
             Object source = mappingContext.get(edge.getStartNode());
             Object target = mappingContext.get(edge.getEndNode());
-            if (!mapOneToOne(source, target, edge.getType())) {
+            if (!mapOneToOne(source, target, edge)) {
                 oneToMany.add(edge);
             }
-            mapOneToOne(target, source, edge.getType());  // try the inverse mapping
+            mapOneToOne(target, source, edge);  // try the inverse mapping
         }
         mapOneToMany(oneToMany);
     }
@@ -139,12 +143,14 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         return mappingContext.getObjects(clazz);
     }
 
-    private void mapOneToMany(List<RelationshipModel> oneToManyRelationships) throws Exception {
+    // FIXME: this code is buggy. it is setting the same collection multiple times!
+    private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) throws Exception {
 
         Map<Object, Map<Class<?>, Set<Object>>> typeRelationships = new HashMap<>();
 
         // first, build the full set of related objects of each type for each source object in the relationship
         for (RelationshipModel edge : oneToManyRelationships) {
+
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
 
@@ -165,21 +171,69 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
             Map<Class<?>, Set<Object>> handled = typeRelationships.get(instance);
             for (Class<?> type : handled.keySet()) {
                 Collection<?> objects = handled.get(type);
-                mapOneToMany(instance, type, objects);
+                mapOneToMany(instance, type, objects, oneToManyRelationships);
             }
         }
     }
 
-    private boolean mapOneToMany(Object instance, Class<?> type, Collection<?> objects) {
+    private boolean mapOneToMany(Object instance, Class<?> type, Collection<?> objects, Set<RelationshipModel> edges) {
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
 
         ObjectAccess objectAccess = objectAccessStrategy.getIterableAccess(classInfo, type);
         if (objectAccess != null) {
             objectAccess.write(instance, objects);
+            String relType = resolveRelationshipType(classInfo, type);
+            for (RelationshipModel edge : edges) {
+                mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
+            }
             return true;
         }
         // TODO: should probably log something here too, since we plan to do so for missing properties
         return false;
+    }
+
+    private String resolveRelationshipType(ClassInfo classInfo, Class<?> type) {
+        // FIXME: this may be inconsistent with ObjectAccess as returned by the strategy and shouldn't be here
+        MethodInfo methodInfo = getIterableMethodInfo(classInfo, type);
+        if (methodInfo != null) {
+            return relationshipType(methodInfo.relationship().substring(3));
+        }
+        FieldInfo fieldInfo = getIterableFieldInfo(classInfo, type);
+        if (fieldInfo != null) {
+            return relationshipType(fieldInfo.relationship());
+        }
+        throw new MappingException("We've written something with ObjectAccess but have failed to resolve the relationship type"
+                + " from either the FieldInfo or MethodInfo so something's gone really wrong!");
+    }
+
+    private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
+        List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType);
+        if (methodInfos.size() == 1) {
+            return methodInfos.iterator().next();
+        }
+        // log a warning. multiple methods match this setter signature. We cannot map the value
+        return null;
+    }
+
+    private FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType) {
+        List<FieldInfo> fieldInfos = classInfo.findIterableFields(parameterType);
+        if (fieldInfos.size() == 1) {
+            return fieldInfos.iterator().next();
+        }
+        // log a warning. multiple fields match this signature. We cannot map the value
+        return null;
+    }
+
+    // this is temporary - will be replaced by work Adam is doing.
+    private String relationshipType(String property) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : property.toCharArray()) {
+            if (sb.length() > 0 && Character.isUpperCase(c)) {
+                sb.append("_");
+            }
+            sb.append(Character.toUpperCase(c));
+        }
+        return sb.toString();
     }
 
 }

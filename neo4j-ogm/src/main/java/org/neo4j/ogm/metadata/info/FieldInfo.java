@@ -22,6 +22,11 @@ public class FieldInfo {
         return name;
     }
 
+    public boolean isTypeOf(Class type) {
+        String fieldSignature = "L" + type.getName().replace(".", "/") + ";";
+        return descriptor.equals(fieldSignature);
+    }
+
     public String property() {
         if (isSimple()) {
             try {

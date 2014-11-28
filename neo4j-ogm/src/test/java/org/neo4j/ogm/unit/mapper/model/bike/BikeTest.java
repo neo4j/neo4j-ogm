@@ -18,7 +18,7 @@ public class BikeTest {
         BikeRequest bikeRequest = new BikeRequest();
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        DefaultSessionImpl session = ((DefaultSessionImpl) sessionFactory.openSession(null));
+        DefaultSessionImpl session = ((DefaultSessionImpl) sessionFactory.openSession("dummy-url"));
         session.setRequestHandler(bikeRequest);
 
         long now = -System.currentTimeMillis();

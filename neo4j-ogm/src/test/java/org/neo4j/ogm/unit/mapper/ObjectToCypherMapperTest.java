@@ -31,12 +31,8 @@ public class ObjectToCypherMapperTest {
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 
-    /** Simulates the loaded relationships that are managed by the session */
-    protected static List<MappedRelationship> mockLoadedRelationships = new ArrayList<>();
-
     @BeforeClass
     public static void setUpTestDatabase() {
-
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
         executionEngine = new ExecutionEngine(graphDatabase);
         mappingMetadata = new MetaData("org.neo4j.ogm.domain.education");
@@ -51,13 +47,13 @@ public class ObjectToCypherMapperTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectCypherMapper(mappingMetadata, mockLoadedRelationships,mappingContext);
+        this.mapper = new ObjectCypherMapper(mappingMetadata, mappingContext);
     }
 
     @After
     public void cleanGraph() {
         executionEngine.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
-        mockLoadedRelationships.clear();
+        mappingContext.clear();
     }
 
     @Test(expected = NullPointerException.class)
@@ -140,7 +136,7 @@ public class ObjectToCypherMapperTest {
 
         mappingContext.remember(gianFranco, mappingMetadata.classInfo(Student.class.getName()));
         mappingContext.remember(bscComputerScience, mappingMetadata.classInfo(Course.class.getName()));
-        mockLoadedRelationships.add(new MappedRelationship(courseId, "STUDENTS", studentId));
+        mappingContext.remember(new MappedRelationship(courseId, "STUDENTS", studentId));
 
         // create a new student and set both students on the course
         Student lakshmipathy = new Student("Lakshmipathy");
@@ -180,7 +176,7 @@ public class ObjectToCypherMapperTest {
 
         mappingContext.remember(mary, mappingMetadata.classInfo(Teacher.class.getName()));
         mappingContext.remember(waller, mappingMetadata.classInfo(School.class.getName()));
-        mockLoadedRelationships.add(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.remember(new MappedRelationship(wallerId, "TEACHERS", maryId));
 
         // create a new teacher and add him to the school
         Teacher jim = new Teacher("Jim");
@@ -303,9 +299,9 @@ public class ObjectToCypherMapperTest {
         Student zack = new Student("Zack");
         zack.setId(zid);
 
-        mockLoadedRelationships.add(new MappedRelationship(mid, "STUDENTS", xid));
-        mockLoadedRelationships.add(new MappedRelationship(mid, "STUDENTS", yid));
-        mockLoadedRelationships.add(new MappedRelationship(mid, "STUDENTS", zid));
+        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", xid));
+        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", yid));
+        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", zid));
 
         mappingContext.remember(xavier, mappingMetadata.classInfo(Student.class.getName()));
         mappingContext.remember(yvonne, mappingMetadata.classInfo(Student.class.getName()));
@@ -369,9 +365,9 @@ public class ObjectToCypherMapperTest {
         shivani.setId(studentId);
 
         // NB: this simulates the graph not being fully hydrated, so Jeff's enrolment on GCSE D+T should remain untouched
-        mockLoadedRelationships.add(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
-        mockLoadedRelationships.add(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
-        mockLoadedRelationships.add(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId));
+        mappingContext.remember(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
+        mappingContext.remember(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
+        mappingContext.remember(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId));
 
         mappingContext.remember(msThompson, mappingMetadata.classInfo(Teacher.class.getName()));
         mappingContext.remember(businessStudies, mappingMetadata.classInfo(Course.class.getName()));
@@ -427,8 +423,8 @@ public class ObjectToCypherMapperTest {
         // need to ensure teachers list is mutable
         hillsRoad.setTeachers(new ArrayList<>(Arrays.asList(missJones, mrWhite)));
 
-        mockLoadedRelationships.add(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mockLoadedRelationships.add(new MappedRelationship(schoolId, "TEACHERS", jonesId));
+        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
+        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
 
         mappingContext.remember(hillsRoad, mappingMetadata.classInfo(School.class.getName()));
         mappingContext.remember(mrWhite, mappingMetadata.classInfo(Teacher.class.getName()));

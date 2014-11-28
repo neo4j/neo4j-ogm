@@ -16,6 +16,9 @@ public class MappingContext {
 
     private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
+
+    // using these two objects we maintain synchronisation state with the database
+    private final List<MappedRelationship> mappedRelationships = new ArrayList<>();
     private final ObjectMemo objectMemo = new ObjectMemo();
 
     public Object get(Long id) {
@@ -50,5 +53,22 @@ public class MappingContext {
 
     public boolean isDirty(Object toPersist, ClassInfo classInfo) {
         return !objectMemo.remembered(toPersist, classInfo);
+    }
+
+    public boolean contains(MappedRelationship relationship) {
+        return mappedRelationships.contains(relationship);
+    }
+
+    public List<MappedRelationship> mappedRelationships() {
+        return mappedRelationships;
+    }
+
+    public void remember(MappedRelationship relationship) {
+        mappedRelationships.add(relationship);
+    }
+
+    public void clear() {
+        objectMemo.clear();
+        mappedRelationships.clear();
     }
 }

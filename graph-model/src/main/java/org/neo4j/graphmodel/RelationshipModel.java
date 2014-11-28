@@ -5,9 +5,33 @@ import java.util.Map;
 public class RelationshipModel  {
 
     private Long id;
+
     private String type;
     private Long startNode;
     private Long endNode;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RelationshipModel that = (RelationshipModel) o;
+
+        if (!endNode.equals(that.endNode)) return false;
+        if (!startNode.equals(that.startNode)) return false;
+        if (!type.equals(that.type)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + startNode.hashCode();
+        result = 31 * result + endNode.hashCode();
+        return result;
+    }
+
     private Map<String, Object> properties;
 
     public Long getId() {

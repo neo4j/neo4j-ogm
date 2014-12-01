@@ -19,6 +19,7 @@ import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.MethodAccess;
 import org.neo4j.ogm.entityaccess.ObjectAccess;
+import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 
@@ -68,15 +69,23 @@ public class DefaultObjectAccessStrategyTest {
     }
 
     @Test
-    public void shouldReturnFieldCorrespondingToPropertyIfNoAnnotationsOrAccessorMethodsArePresent() {
+    public void shouldAccessViaFieldCorrespondingToPropertyIfNoAnnotationsOrAccessorMethodsArePresent() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
-        objectAccess.write(domainObject, 27);
+        domainObject.propertyWithoutAccessorMethods = 9;
+
+        // test writing via field
+        ObjectAccess writer = this.objectAccessStrategy.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
+        assertNotNull("The resultant writer shouldn't be null", writer);
+        writer.write(domainObject, 27);
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);
-    }
+
+        // test reading via field
+        PropertyReader reader = this.objectAccessStrategy.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
+        assertNotNull("The resultant reader shouldn't be null", reader);
+        assertEquals(domainObject.propertyWithoutAccessorMethods, reader.read(domainObject));
+   }
 
     @Test
     public void shouldRetrieveObjectAccessForWritingIterableObject() {
@@ -186,6 +195,43 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, forumPost);
         assertEquals(domainObject.postWithoutAccessorMethods, forumPost);
+    }
+
+    @Test
+    public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenReadingFromAnObject() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.fullyAnnotatedProperty = "test text";
+
+        PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "testAnnoProp");
+        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
+        assertEquals(domainObject.fullyAnnotatedProperty, objectAccess.read(domainObject));
+        assertTrue("The accessor method wasn't used to get the value", domainObject.fullyAnnotatedPropertyAccessorWasCalled);
+    }
+
+    @Test
+    public void shouldPreferAnnotatedFieldToPlainGetterWhenReadingFromAnObject() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.annotatedTestProperty = "more arbitrary text";
+
+        PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "testProp");
+        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
+        assertEquals(domainObject.annotatedTestProperty, objectAccess.read(domainObject));
+    }
+
+    @Test
+    public void shouldPreferMethodBasedAccessToFieldAccessWhenReadingFromObjectsWithoutAnnotations() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.nonAnnotatedTestProperty = new Double(30.16);
+
+        PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
+        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
+        assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.read(domainObject));
     }
 
     /**

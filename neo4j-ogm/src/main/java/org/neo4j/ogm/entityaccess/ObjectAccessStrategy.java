@@ -13,4 +13,6 @@ public interface ObjectAccessStrategy {
 
     RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType);
 
+    PropertyReader getPropertyReader(ClassInfo classInfo, String propertyName);
+
 }

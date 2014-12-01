@@ -25,24 +25,59 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultObjectAccessStrategy.class);
 
+    /** Used internally to hide differences in object construction from strategy algorithm. */
+    private static interface AccessorFactory<T> {
+        T makeMethodAccessor(MethodInfo methodInfo);
+        T makeFieldAccessor(FieldInfo fieldInfo);
+    }
+
     @Override
-    public ObjectAccess getPropertyWriter(ClassInfo classInfo, String propertyName) {
-        MethodInfo methodInfo = classInfo.propertySetter(propertyName);
+    public ObjectAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
+        MethodInfo setterInfo = classInfo.propertySetter(propertyName);
+        return determineAccessor(classInfo, propertyName, setterInfo, new AccessorFactory<ObjectAccess>() {
+            @Override
+            public ObjectAccess makeMethodAccessor(MethodInfo methodInfo) {
+                return new MethodAccess(classInfo, methodInfo);
+            }
+
+            @Override
+            public ObjectAccess makeFieldAccessor(FieldInfo fieldInfo) {
+                return new FieldAccess(classInfo, fieldInfo);
+            }
+        });
+    }
+
+    @Override
+    public PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
+        MethodInfo getterInfo = classInfo.propertyGetter(propertyName);
+        return determineAccessor(classInfo, propertyName, getterInfo, new AccessorFactory<PropertyReader>() {
+            @Override
+            public PropertyReader makeMethodAccessor(MethodInfo methodInfo) {
+                return new MethodPropertyReader(classInfo, methodInfo);
+            }
+            @Override
+            public PropertyReader makeFieldAccessor(FieldInfo fieldInfo) {
+                return new FieldPropertyReader(classInfo, fieldInfo);
+            }
+        });
+    }
+
+    private <T> T determineAccessor(ClassInfo classInfo, String propertyName, MethodInfo methodInfo, AccessorFactory<T> factory) {
         if (methodInfo != null) {
             if (methodInfo.getAnnotations().isEmpty()) {
                 // if there's an annotated field then we should prefer that over the non-annotated method
                 FieldInfo fieldInfo = classInfo.propertyField(propertyName);
                 if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                    return new FieldAccess(classInfo, fieldInfo);
+                    return factory.makeFieldAccessor(fieldInfo);
                 }
             }
-            return new MethodAccess(classInfo, methodInfo);
+            return factory.makeMethodAccessor(methodInfo);
         }
 
         // fall back to the field if method cannot be found
         FieldInfo fieldInfo = classInfo.propertyField(propertyName);
         if (fieldInfo != null) {
-            return new FieldAccess(classInfo, fieldInfo);
+            return factory.makeFieldAccessor(fieldInfo);
         }
         return null;
     }

@@ -9,11 +9,11 @@ import org.neo4j.ogm.metadata.info.MethodInfo;
 public class MethodAccess extends ObjectAccess {
 
     private final ClassInfo classInfo;
-    private final MethodInfo methodInfo;
+    private final MethodInfo setterMethodInfo;
 
     public MethodAccess(ClassInfo enclosingClassInfo, MethodInfo methodInfo) {
         this.classInfo = enclosingClassInfo;
-        this.methodInfo = methodInfo;
+        this.setterMethodInfo = methodInfo;
     }
 
     public static void write(Method method, Object instance, Object value) {
@@ -43,17 +43,12 @@ public class MethodAccess extends ObjectAccess {
 
     @Override
     public void write(Object instance, Object value) {
-        MethodAccess.write(classInfo.getMethod(methodInfo, ClassUtils.getType(methodInfo.getDescriptor())), instance, value);
-    }
-
-    @Override
-    public Object read(Object instance) {
-        throw new UnsupportedOperationException("atg hasn't written this method yet");
+        MethodAccess.write(classInfo.getMethod(setterMethodInfo, ClassUtils.getType(setterMethodInfo.getDescriptor())), instance, value);
     }
 
     @Override
     public String relationshipType() {
-        return this.methodInfo.relationship().substring(3);
+        return this.setterMethodInfo.relationship().substring(3);
     }
 
 }

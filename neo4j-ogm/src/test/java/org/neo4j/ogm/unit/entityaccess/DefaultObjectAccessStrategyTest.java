@@ -3,6 +3,7 @@ package org.neo4j.ogm.unit.entityaccess;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class DefaultObjectAccessStrategyTest {
             "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.satellites");
 
     @Test
-    public void shouldReturnAnnotatedMethodInPreferenceToAnnotatedFieldWhenFindingPropertyToSet() {
+    public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenFindingPropertyToSet() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriteAccess(classInfo, "testAnnoProp");
@@ -42,7 +43,7 @@ public class DefaultObjectAccessStrategyTest {
     }
 
     @Test
-    public void shouldReturnAnnotatedFieldInPreferenceToPlainMethodWhenFindingPropertyToSet() {
+    public void shouldPreferAnnotatedFieldToPlainMethodWhenFindingPropertyToSet() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
@@ -128,7 +129,6 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, parameter);
         assertEquals(domainObject.member, parameter);
-        assertFalse("The access mechanism should be via the field", domainObject.containsAccessorWasCalled);
     }
 
     @Test
@@ -153,6 +153,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Topic favouriteTopic = new Topic();
 
+        // NB: the setter is called setTopic here, so a relationship type of just "TOPIC" would choose the setter
         ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "FAVOURITE_TOPIC", favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -194,7 +195,6 @@ public class DefaultObjectAccessStrategyTest {
     public static class DummyDomainObject {
 
         // interestingly, if I extend DomainObject then the inherited ID field isn't found within a nested class
-        @SuppressWarnings("unused")
         private Long id;
 
         @Property(name = "testProp")
@@ -211,12 +211,19 @@ public class DefaultObjectAccessStrategyTest {
 
         @Relationship(type = "CONTAINS")
         Member member;
-        boolean containsAccessorWasCalled;
 
         Topic favouriteTopic;
         boolean topicAccessorWasCalled;
 
         Post postWithoutAccessorMethods;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public void setTestProp(String value) {
             throw new UnsupportedOperationException("Shouldn't be calling the setter with: " + value);
@@ -249,13 +256,11 @@ public class DefaultObjectAccessStrategyTest {
         }
 
         public Member getContains() {
-            this.containsAccessorWasCalled = true;
-            return member;
+            throw new UnsupportedOperationException("Shouldn't be calling the getter");
         }
 
         public void setContains(Member nestedObject) {
-            this.containsAccessorWasCalled = true;
-            this.member = nestedObject;
+            throw new UnsupportedOperationException("Shouldn't be calling the setter with: " + nestedObject);
         }
 
         public Topic getTopic() {

@@ -3,7 +3,6 @@ package org.neo4j.ogm.unit.entityaccess;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class DefaultObjectAccessStrategyTest {
     public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenFindingPropertyToSet() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriteAccess(classInfo, "testAnnoProp");
+        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "testAnnoProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -47,7 +46,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
-        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriteAccess(classInfo, "testProp");
+        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -59,7 +58,7 @@ public class DefaultObjectAccessStrategyTest {
     public void shouldReturnAccessorMethodInPreferenceToFieldIfNoAnnotationsArePresent() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriteAccess(classInfo, "nonAnnotatedTestProperty");
+        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -72,7 +71,7 @@ public class DefaultObjectAccessStrategyTest {
     public void shouldReturnFieldCorrespondingToPropertyIfNoAnnotationsOrAccessorMethodsArePresent() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriteAccess(classInfo, "propertyWithoutAccessorMethods");
+        ObjectAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, 27);
@@ -84,7 +83,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
         // TODO: this supports the behaviour required currently, but what happens if there's more than one collection of X?
-        ObjectAccess iterableAccess = this.objectAccessStrategy.getIterableAccess(classInfo, Satellite.class);
+        ObjectAccess iterableAccess = this.objectAccessStrategy.getIterableWriter(classInfo, Satellite.class);
         assertNotNull("The resultant object accessor shouldn't be null", iterableAccess);
         Program spaceProgramme = new Program();
         iterableAccess.write(spaceProgramme, Arrays.asList(new Satellite()));
@@ -99,7 +98,7 @@ public class DefaultObjectAccessStrategyTest {
         Satellite singleSatellite = new Satellite();
 
         // the SATELLITES type matches the setter that takes an Iterable argument
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "SATELLITES", singleSatellite);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "SATELLITES", singleSatellite);
         assertNull("A compatible object accessor shouldn't have been found", objectAccess);
     }
 
@@ -109,7 +108,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
         List<? extends Activity> parameter = Arrays.asList(new Comment());
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "HAS_ACTIVITY", parameter);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "HAS_ACTIVITY", parameter);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodAccess);
         Member member = new Member();
@@ -124,7 +123,7 @@ public class DefaultObjectAccessStrategyTest {
 
         Member parameter = new Member();
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "CONTAINS", parameter);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "CONTAINS", parameter);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, parameter);
@@ -139,7 +138,7 @@ public class DefaultObjectAccessStrategyTest {
         Location satelliteLocation = new Location();
         satelliteLocation.setName("Outer Space");
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "LOCATION", satelliteLocation);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "LOCATION", satelliteLocation);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodAccess);
         Satellite satellite = new Satellite();
@@ -154,7 +153,7 @@ public class DefaultObjectAccessStrategyTest {
         Topic favouriteTopic = new Topic();
 
         // NB: the setter is called setTopic here, so a relationship type of just "TOPIC" would choose the setter
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "FAVOURITE_TOPIC", favouriteTopic);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -168,7 +167,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Topic favouriteTopic = new Topic();
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "DOES_NOT_MATCH", favouriteTopic);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "DOES_NOT_MATCH", favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -182,7 +181,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Post forumPost = new Post();
 
-        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationshipAccess(classInfo, "UTTER_RUBBISH", forumPost);
+        ObjectAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "UTTER_RUBBISH", forumPost);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, forumPost);

@@ -7,10 +7,10 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
  */
 public interface ObjectAccessStrategy {
 
-    PropertyWriteAccess getPropertyWriteAccess(ClassInfo classInfo, String propertyName);
+    PropertyWriter getPropertyWriter(ClassInfo classInfo, String propertyName);
 
-    RelationalWriteAccess getRelationshipAccess(ClassInfo classInfo, String relationshipType, Object parameter);
+    RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter);
 
-    RelationalWriteAccess getIterableAccess(ClassInfo classInfo, Class<?> parameterType);
+    RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType);
 
 }

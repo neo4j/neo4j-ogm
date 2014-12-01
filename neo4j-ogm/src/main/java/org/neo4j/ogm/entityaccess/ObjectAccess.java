@@ -3,7 +3,7 @@ package org.neo4j.ogm.entityaccess;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public abstract class ObjectAccess implements PropertyWriteAccess, RelationalWriteAccess {
+public abstract class ObjectAccess implements PropertyWriter, RelationalWriter {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) throws Exception {

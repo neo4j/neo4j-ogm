@@ -26,7 +26,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     private final Logger logger = LoggerFactory.getLogger(DefaultObjectAccessStrategy.class);
 
     @Override
-    public ObjectAccess getPropertyWriteAccess(ClassInfo classInfo, String propertyName) {
+    public ObjectAccess getPropertyWriter(ClassInfo classInfo, String propertyName) {
         MethodInfo methodInfo = classInfo.propertySetter(propertyName);
         if (methodInfo != null) {
             if (methodInfo.getAnnotations().isEmpty()) {
@@ -48,7 +48,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
-    public ObjectAccess getRelationshipAccess(ClassInfo classInfo, String relationshipType, Object parameter) {
+    public ObjectAccess getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter) {
 
         // 1st, try to find a method annotated with the relationship type.
         MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType);
@@ -93,7 +93,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
-    public ObjectAccess getIterableAccess(ClassInfo classInfo, Class<?> parameterType) {
+    public ObjectAccess getIterableWriter(ClassInfo classInfo, Class<?> parameterType) {
         MethodInfo methodInfo = getIterableMethodInfo(classInfo, parameterType);
         if (methodInfo != null) {
             return new MethodAccess(classInfo, methodInfo);

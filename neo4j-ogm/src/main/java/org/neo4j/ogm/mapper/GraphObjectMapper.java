@@ -8,8 +8,8 @@ import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.ObjectFactory;
-import org.neo4j.ogm.entityaccess.PropertyWriteAccess;
-import org.neo4j.ogm.entityaccess.RelationalWriteAccess;
+import org.neo4j.ogm.entityaccess.PropertyWriter;
+import org.neo4j.ogm.entityaccess.RelationalWriter;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -105,7 +105,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     }
 
     private void writeProperty(ClassInfo classInfo, Object instance, Property property) {
-        PropertyWriteAccess objectAccess = objectAccessStrategy.getPropertyWriteAccess(classInfo, property.getKey().toString());
+        PropertyWriter objectAccess = objectAccessStrategy.getPropertyWriter(classInfo, property.getKey().toString());
         if (objectAccess == null) {
             logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
         } else {
@@ -119,7 +119,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         String edgeLabel = edge.getType();
         ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
 
-        RelationalWriteAccess objectAccess = objectAccessStrategy.getRelationshipAccess(sourceInfo, edgeLabel, parameter);
+        RelationalWriter objectAccess = objectAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, parameter);
         if (objectAccess != null) {
             objectAccess.write(source, parameter);
             mappingContext.remember(new MappedRelationship(
@@ -185,7 +185,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private boolean mapOneToMany(Object instance, Class<?> type, Collection<?> objects, Set<RelationshipModel> edges) {
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
 
-        RelationalWriteAccess objectAccess = objectAccessStrategy.getIterableAccess(classInfo, type);
+        RelationalWriter objectAccess = objectAccessStrategy.getIterableWriter(classInfo, type);
         if (objectAccess != null) {
             objectAccess.write(instance, objects);
             String relType = objectAccess.relationshipType();

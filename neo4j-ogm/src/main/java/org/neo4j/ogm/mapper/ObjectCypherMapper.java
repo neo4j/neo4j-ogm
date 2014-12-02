@@ -7,6 +7,7 @@ import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
 import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
+import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -140,8 +141,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         for (FieldInfo relField : classInfo.relationshipFields()) {
 
-            Object relatedObject = FieldAccess.read(classInfo.getField(relField), toPersist);
-            String relationshipType = resolveRelationshipType(relField);
+            RelationalReader objectAccessor = objectAccessStrategy.getRelationalReader(classInfo, relField.relationship());
+            Object relatedObject = objectAccessor.read(toPersist);
+            String relationshipType = objectAccessor.relationshipType();
 
             if (relatedObject instanceof Iterable) {
 
@@ -185,18 +187,6 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             context.registerRelationship(relationship);
         }
 
-    }
-
-
-    private static String resolveRelationshipType(FieldInfo relField) {
-        // should be doing the opposite of ObjectGraphMapper#setterNameFromRelationshipType, but I don't know at this point
-        // whether or not the relationship is read from an annotation and therefore don't know if I shouldn't do any work!
-
-        // @Adam: the relationship() method will return the relationshipType name if its annotated on the relationShipInfo. If not,
-        // it currently returns the field type name, e.g. "Wheel", which is not what we ultimately want.
-
-        // todo: fix this for non-annotated fields (and getters)
-        return relField.relationship().toUpperCase();
     }
 
 }

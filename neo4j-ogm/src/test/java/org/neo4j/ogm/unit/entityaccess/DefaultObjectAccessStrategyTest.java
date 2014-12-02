@@ -18,10 +18,13 @@ import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.MethodAccess;
+import org.neo4j.ogm.entityaccess.MethodReader;
 import org.neo4j.ogm.entityaccess.ObjectAccess;
 import org.neo4j.ogm.entityaccess.PropertyReader;
+import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.metadata.info.FieldInfo;
 
 public class DefaultObjectAccessStrategyTest {
 
@@ -126,7 +129,7 @@ public class DefaultObjectAccessStrategyTest {
     }
 
     @Test
-    public void shouldPreferAnnotatedFieldToPlainSetterMatchingRelationshipTypeNameWhenSettingRelationshipObject() {
+    public void shouldPreferAnnotatedFieldToPlainSetterMatchingRelationshipTypeWhenSettingRelationshipObject() {
         // 2nd, try to find a field annotated with with relationship type
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
@@ -140,7 +143,7 @@ public class DefaultObjectAccessStrategyTest {
     }
 
     @Test
-    public void shouldPreferSetterBasedOnRelationshipTypeNameToFieldInObjectWithoutAnnotations() {
+    public void shouldPreferSetterBasedOnRelationshipTypeToFieldInObjectWithoutAnnotations() {
         // 3rd, try to find a "setXYZ" method where XYZ is derived from the relationship type
         ClassInfo classInfo = this.domainInfo.getClass(Satellite.class.getName());
 
@@ -156,7 +159,7 @@ public class DefaultObjectAccessStrategyTest {
     }
 
     @Test
-    public void shouldPreferFieldBasedOnRelationshipTypeNameToPlainSetterWithMatchingParameterType() {
+    public void shouldPreferFieldBasedOnRelationshipTypeToPlainSetterWithMatchingParameterType() {
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Topic favouriteTopic = new Topic();
@@ -232,6 +235,77 @@ public class DefaultObjectAccessStrategyTest {
         PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.read(domainObject));
+    }
+
+    @org.junit.Ignore("...or should it?  We did ask for a field here, but do we link fields and accessors?")
+    @Test
+    public void shouldResolvePropertyReaderBasedOnPropertyNameReturnedFromClassMetadata() {
+        ClassInfo classInfo = this.domainInfo.getClass(Satellite.class.getName());
+        FieldInfo fieldInfo = classInfo.propertyField("launch_date"); // this is actually the annotation on its setter
+        assertNotNull("Couldn't find the field matching the @Property annotation on its corresponding setter/getter", fieldInfo);
+
+        Satellite satellite = new Satellite();
+        satellite.setLaunched("Yesterday");
+
+        PropertyReader reader = this.objectAccessStrategy.getPropertyReader(classInfo, fieldInfo.property());
+        assertNotNull("The resultant object accessor shouldn't be null", reader);
+        assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
+        assertEquals("Yesterday", reader.read(satellite));
+    }
+
+    @Test
+    public void shouldPreferAnnotatedMethodToAnnotatedFieldMatchingRelationshipTypeWhenReadingRelationshipObject() {
+        ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
+        Member member = new Member();
+        member.setActivityList(Arrays.<Activity>asList(new Comment()));
+
+        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY");
+        assertNotNull("The resultant object reader shouldn't be null", reader);
+        assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
+        assertSame(member.getActivityList(), reader.read(member));
+        assertEquals("HAS_ACTIVITY", reader.relationshipType());
+    }
+
+    @Test
+    public void shouldPreferAnnotatedFieldToPlainGetterMethodMatchingRelationshipType() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.member = new Member();
+
+        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "CONTAINS");
+        assertNotNull("The resultant object reader shouldn't be null", reader);
+        assertSame(domainObject.member, reader.read(domainObject));
+        assertEquals("CONTAINS", reader.relationshipType());
+    }
+
+    @Test
+    public void shouldPreferGetterBasedOnRelationshipTypeToFieldInObjectWithoutAnnotations() {
+        ClassInfo classInfo = this.domainInfo.getClass(Satellite.class.getName());
+
+        Satellite satellite = new Satellite();
+        Location satelliteLocation = new Location();
+        satelliteLocation.setName("Outer Space");
+        satellite.setLocation(satelliteLocation);
+
+        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "location");
+        assertNotNull("The resultant object accessor shouldn't be null", reader);
+        assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
+        assertSame(satellite.getLocation(), reader.read(satellite));
+        assertEquals("LOCATION", reader.relationshipType());
+    }
+
+    @Test
+    public void shouldReadFromFieldMatchingRelationshipTypeInObjectWithoutAnnotationsOrAccessorMethods() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.postWithoutAccessorMethods = new Post();
+
+        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS");
+        assertNotNull("The resultant object accessor shouldn't be null", reader);
+        assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
+        assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
     }
 
     /**

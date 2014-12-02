@@ -53,11 +53,11 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         return determineAccessor(classInfo, propertyName, getterInfo, new AccessorFactory<PropertyReader>() {
             @Override
             public PropertyReader makeMethodAccessor(MethodInfo methodInfo) {
-                return new MethodPropertyReader(classInfo, methodInfo);
+                return new MethodReader(classInfo, methodInfo);
             }
             @Override
             public PropertyReader makeFieldAccessor(FieldInfo fieldInfo) {
-                return new FieldPropertyReader(classInfo, fieldInfo);
+                return new FieldReader(classInfo, fieldInfo);
             }
         });
     }
@@ -128,6 +128,34 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
+    public RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType) {
+        // 1st, try to find a method annotated with the relationship type.
+        MethodInfo methodInfo = classInfo.relationshipGetter(relationshipType);
+        if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
+            return new MethodReader(classInfo, methodInfo, relationshipType);
+        }
+
+        // 2nd, try to find a field called or annotated as the neo4j relationship type
+        FieldInfo fieldInfo = classInfo.relationshipField(relationshipType);
+        if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+            return new FieldReader(classInfo, fieldInfo, relationshipType);
+        }
+
+        // 3rd, try to find a "getXYZ" method where XYZ is derived from the given relationship type
+        methodInfo = classInfo.relationshipGetter(getterNameFromRelationshipType(relationshipType));
+        if (methodInfo != null) {
+            return new MethodReader(classInfo, methodInfo, resolveRelationshipTypeFromMember(relationshipType));
+        }
+
+        // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
+        fieldInfo = classInfo.relationshipField(fieldNameFromRelationshipType(relationshipType));
+        if (fieldInfo != null) {
+            return new FieldReader(classInfo, fieldInfo, resolveRelationshipTypeFromMember(relationshipType));
+        }
+        return null;
+    }
+
+    @Override
     public ObjectAccess getIterableWriter(ClassInfo classInfo, Class<?> parameterType) {
         MethodInfo methodInfo = getIterableMethodInfo(classInfo, parameterType);
         if (methodInfo != null) {
@@ -143,6 +171,11 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     private String setterNameFromRelationshipType(String relationshipType) {
         StringBuilder setterName = resolveMemberFromRelationshipType(new StringBuilder("set"), relationshipType);
         return setterName.toString();
+    }
+
+    private String getterNameFromRelationshipType(String relationshipType) {
+        StringBuilder getterName = resolveMemberFromRelationshipType(new StringBuilder("get"), relationshipType);
+        return getterName.toString();
     }
 
     private String fieldNameFromRelationshipType(String relationshipType) {
@@ -182,6 +215,12 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
             }
         }
         return sb;
+    }
+
+    private static String resolveRelationshipTypeFromMember(String memberName) {
+        // TODO: To fix this properly, I reckon we need to bring in a meta-data class called RelationshipResolver that's
+        // called from here for writing to objects and called from FieldInfo/MethodInfo when reading from them.
+        return memberName.toUpperCase();
     }
 
     private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {

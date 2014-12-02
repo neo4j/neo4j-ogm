@@ -45,7 +45,7 @@ public class FieldInfo {
             } catch (NullPointerException npe) {
                 // TODO: this is the "simple" strategy, but here the logic is different from the reading code
                 // in that a field called changedPlacesWith won't end up as "CHANGED_PLACES_WITH"
-                // see ObjectGraphMapper#setterNameFromRelationshipType
+                // see DefaultObjectAccessStrategy#setterNameFromRelationshipType
                 return getName();
             }
         }

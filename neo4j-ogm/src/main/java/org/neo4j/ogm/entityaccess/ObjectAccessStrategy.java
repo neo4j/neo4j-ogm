@@ -15,4 +15,6 @@ public interface ObjectAccessStrategy {
 
     PropertyReader getPropertyReader(ClassInfo classInfo, String propertyName);
 
+    RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType);
+
 }

@@ -34,7 +34,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     @Override
     public ObjectAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         MethodInfo setterInfo = classInfo.propertySetter(propertyName);
-        return determineAccessor(classInfo, propertyName, setterInfo, new AccessorFactory<ObjectAccess>() {
+        return determinePropertyAccessor(classInfo, propertyName, setterInfo, new AccessorFactory<ObjectAccess>() {
             @Override
             public ObjectAccess makeMethodAccessor(MethodInfo methodInfo) {
                 return new MethodAccess(classInfo, methodInfo);
@@ -50,7 +50,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     @Override
     public PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
         MethodInfo getterInfo = classInfo.propertyGetter(propertyName);
-        return determineAccessor(classInfo, propertyName, getterInfo, new AccessorFactory<PropertyReader>() {
+        return determinePropertyAccessor(classInfo, propertyName, getterInfo, new AccessorFactory<PropertyReader>() {
             @Override
             public PropertyReader makeMethodAccessor(MethodInfo methodInfo) {
                 return new MethodReader(classInfo, methodInfo);
@@ -62,16 +62,17 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         });
     }
 
-    private <T> T determineAccessor(ClassInfo classInfo, String propertyName, MethodInfo methodInfo, AccessorFactory<T> factory) {
-        if (methodInfo != null) {
-            if (methodInfo.getAnnotations().isEmpty()) {
+    private <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, MethodInfo accessorMethodInfo,
+            AccessorFactory<T> factory) {
+        if (accessorMethodInfo != null) {
+            if (accessorMethodInfo.getAnnotations().isEmpty()) {
                 // if there's an annotated field then we should prefer that over the non-annotated method
                 FieldInfo fieldInfo = classInfo.propertyField(propertyName);
                 if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
                     return factory.makeFieldAccessor(fieldInfo);
                 }
             }
-            return factory.makeMethodAccessor(methodInfo);
+            return factory.makeMethodAccessor(accessorMethodInfo);
         }
 
         // fall back to the field if method cannot be found
@@ -168,6 +169,11 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         return null;
     }
 
+    @Override
+    public PropertyReader getIdentityPropertyReader(ClassInfo classInfo) {
+        return new FieldReader(classInfo, classInfo.identityField());
+    }
+
     private String setterNameFromRelationshipType(String relationshipType) {
         StringBuilder setterName = resolveMemberFromRelationshipType(new StringBuilder("set"), relationshipType);
         return setterName.toString();
@@ -197,7 +203,6 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     // "IS_A_BRONZE_MEDALLIST"  => "[get,set]BronzeMedallist"
     // "CHANGED_PLACES_WITH"    => "[get,set]ChangedPlacesWith"
     //
-    // the MethodInfo class should help here at some point, but its not accessible currently
     private static StringBuilder resolveMemberFromRelationshipType(StringBuilder sb, String name) {
         if (name != null && name.length() > 0) {
             if (!name.contains("_")) {

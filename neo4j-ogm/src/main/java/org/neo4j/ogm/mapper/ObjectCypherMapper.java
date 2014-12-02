@@ -5,7 +5,6 @@ import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
 import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
-import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
@@ -13,8 +12,6 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
 
 /**
  * Implementation of {@link ObjectToCypherMapper} that is driven by an instance of {@link MetaData}.
@@ -115,7 +112,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private NodeBuilder getNodeBuilder(CypherCompiler cypherBuilder, Object toPersist, CypherContext context) {
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
-        Object id = FieldAccess.read(classInfo.getField(classInfo.identityField()), toPersist);
+        Object id = objectAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
 
         if (id == null) {
             NodeBuilder newNode = cypherBuilder.newNode().addLabels(classInfo.labels());
@@ -127,7 +124,6 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         NodeBuilder existingNode = cypherBuilder.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
         context.visit(toPersist, Long.valueOf(id.toString()), existingNode);
 
-
         return existingNode;
     }
 
@@ -136,8 +132,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         logger.debug("looking for related objects of: {}", toPersist);
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
-        Field sourceIdentityField = classInfo.getField(classInfo.identityField());
-        Long sourceIdentity = (Long) FieldAccess.read(sourceIdentityField, toPersist);
+        Long sourceIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
 
         for (FieldInfo relField : classInfo.relationshipFields()) {
 
@@ -166,8 +161,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         NodeBuilder target = deepMap(cypherBuilder, relatedObject, context, horizon);
 
         ClassInfo targetInfo = metaData.classInfo(relatedObject.getClass().getName());
-        Field targetIdentityField = targetInfo.getField(targetInfo.identityField());
-        Long targetIdentity = (Long) FieldAccess.read(targetIdentityField, relatedObject);
+        Long targetIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(relatedObject);
 
         logger.debug("checking relationship history: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
 

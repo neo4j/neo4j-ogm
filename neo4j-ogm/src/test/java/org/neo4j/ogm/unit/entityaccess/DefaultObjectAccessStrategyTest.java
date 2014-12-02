@@ -308,12 +308,26 @@ public class DefaultObjectAccessStrategyTest {
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
     }
 
+    @Test
+    public void shouldUseFieldAccessUnconditionallyForReadingIdentityProperty() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        final long id = 593L;
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.setId(id);
+
+        PropertyReader idReader = this.objectAccessStrategy.getIdentityPropertyReader(classInfo);
+        assertNotNull("The resultant ID reader shouldn't be null", idReader);
+        assertEquals(id, idReader.read(domainObject));
+    }
+
     /**
      * Domain object exhibiting various annotation configurations on its properties for test purposes.
      */
     public static class DummyDomainObject {
 
         // interestingly, if I extend DomainObject then the inherited ID field isn't found within a nested class
+        @SuppressWarnings("unused")
         private Long id;
 
         @Property(name = "testProp")
@@ -337,7 +351,7 @@ public class DefaultObjectAccessStrategyTest {
         Post postWithoutAccessorMethods;
 
         public Long getId() {
-            return id;
+            throw new UnsupportedOperationException("Shouldn't be calling the ID getter");
         }
 
         public void setId(Long id) {

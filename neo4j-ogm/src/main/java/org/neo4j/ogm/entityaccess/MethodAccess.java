@@ -16,7 +16,7 @@ public class MethodAccess extends ObjectAccess {
         this.setterMethodInfo = methodInfo;
     }
 
-    public static void write(Method method, Object instance, Object value) {
+    private static void write(Method method, Object instance, Object value) {
         try {
             Class<?> parameterType = method.getParameterTypes()[0];
 

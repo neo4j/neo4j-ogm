@@ -4,7 +4,9 @@ import org.neo4j.ogm.cypher.compiler.CypherCompiler;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
+import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.FieldAccess;
+import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -21,19 +23,19 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private final Logger logger = LoggerFactory.getLogger(ObjectCypherMapper.class);
 
     private final MetaData metaData;
-
-    // todo: the list of mapped relationships belong in the mapping context
+    private final ObjectAccessStrategy objectAccessStrategy;
     private final MappingContext mappingContext;
 
     /**
      * Constructs a new {@link ObjectCypherMapper} that uses the given {@link MetaData}.
      *
      * @param metaData The {@link MetaData} containing the mapping information
-
+     * @param mappingContext The {@link MappingContext} for the current session
      */
     public ObjectCypherMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
+        this.objectAccessStrategy = new DefaultObjectAccessStrategy();
     }
 
 
@@ -92,7 +94,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         // don't give Neo4j more work to do than it needs
         if (mappingContext.isDirty(toPersist, classInfo)) {
             // todo: context.log(toPersist)
-            nodeBuilder.mapProperties(toPersist, classInfo);
+            nodeBuilder.mapProperties(toPersist, classInfo, objectAccessStrategy);
         }
 
         if (horizon != 0) {

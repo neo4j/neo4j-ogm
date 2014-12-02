@@ -1,5 +1,6 @@
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public abstract class NodeBuilder implements CypherEmitter {
         return this;
     }
 
-    public abstract NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo);
+    public abstract NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, ObjectAccessStrategy objectAccessStrategy);
 
     @Override
     public String toString() {

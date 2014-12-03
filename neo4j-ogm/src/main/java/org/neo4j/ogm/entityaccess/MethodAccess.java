@@ -11,7 +11,7 @@ public class MethodAccess extends ObjectAccess {
     private final ClassInfo classInfo;
     private final MethodInfo setterMethodInfo;
 
-    public MethodAccess(ClassInfo enclosingClassInfo, MethodInfo methodInfo) {
+    MethodAccess(ClassInfo enclosingClassInfo, MethodInfo methodInfo) {
         this.classInfo = enclosingClassInfo;
         this.setterMethodInfo = methodInfo;
     }

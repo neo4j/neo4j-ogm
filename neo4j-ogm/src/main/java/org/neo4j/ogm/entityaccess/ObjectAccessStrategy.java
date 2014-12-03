@@ -1,5 +1,7 @@
 package org.neo4j.ogm.entityaccess;
 
+import java.util.Collection;
+
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
 /**
@@ -18,5 +20,9 @@ public interface ObjectAccessStrategy {
     RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType);
 
     PropertyReader getIdentityPropertyReader(ClassInfo classInfo);
+
+    Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo);
+
+    Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo);
 
 }

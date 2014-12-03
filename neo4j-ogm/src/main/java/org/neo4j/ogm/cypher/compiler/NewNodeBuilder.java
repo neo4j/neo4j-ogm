@@ -1,8 +1,8 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
+import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,13 +18,10 @@ class NewNodeBuilder extends NodeBuilder {
 
     @Override
     public NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, ObjectAccessStrategy objectAccessStrategy) {
-        // FIXME: using fields here doesn't guarantee we get the correct corresponding property name and will actually
-        // rely on the default strategy implementation to rescue the situation!
-        for (FieldInfo propertyField : classInfo.propertyFields()) {
-            String propertyName = propertyField.property();
-            Object value = objectAccessStrategy.getPropertyReader(classInfo, propertyName).read(toPersist);
+        for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(classInfo)) {
+            Object value = propertyReader.read(toPersist);
             if (value != null) {
-                addProperty(propertyName, value);
+                addProperty(propertyReader.propertyName(), value);
             }
         }
         return this;

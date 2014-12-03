@@ -27,6 +27,11 @@ public class MethodInfo {
             try {
                 return getAnnotations().get(Property.CLASS).get(Property.NAME, getName());
             } catch (NullPointerException npe) {
+                if (name.startsWith("get") || name.startsWith("set")) {
+                    StringBuilder sb = new StringBuilder(name.substring(3));
+                    sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+                    return sb.toString();
+                }
                 return getName();
             }
         }

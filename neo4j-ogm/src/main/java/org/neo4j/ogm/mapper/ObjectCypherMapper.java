@@ -9,7 +9,6 @@ import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,9 +133,8 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
         Long sourceIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
 
-        for (FieldInfo relField : classInfo.relationshipFields()) {
+        for (RelationalReader objectAccessor : objectAccessStrategy.getRelationalReaders(classInfo)) {
 
-            RelationalReader objectAccessor = objectAccessStrategy.getRelationalReader(classInfo, relField.relationship());
             Object relatedObject = objectAccessor.read(toPersist);
             String relationshipType = objectAccessor.relationshipType();
 

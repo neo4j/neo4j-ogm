@@ -3,7 +3,10 @@ package org.neo4j.ogm.unit.entityaccess;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Property;
@@ -17,6 +20,7 @@ import org.neo4j.ogm.domain.satellites.Location;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
+import org.neo4j.ogm.entityaccess.FieldReader;
 import org.neo4j.ogm.entityaccess.MethodAccess;
 import org.neo4j.ogm.entityaccess.MethodReader;
 import org.neo4j.ogm.entityaccess.ObjectAccess;
@@ -321,6 +325,35 @@ public class DefaultObjectAccessStrategyTest {
         assertEquals(id, idReader.read(domainObject));
     }
 
+    @Test
+    public void shouldRetrieveAppropriateObjectAccessToAllRelationalAttributesForParticularClass() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.postWithoutAccessorMethods = new Post();
+        domainObject.favouriteTopic = new Topic();
+        domainObject.member = new Member();
+        domainObject.readOnlyComment = new Comment();
+
+        Collection<RelationalReader> relationalAccessors = this.objectAccessStrategy.getRelationalReaders(classInfo);
+        assertNotNull("The resultant list of object accessors shouldn't be null", relationalAccessors);
+        assertEquals("An unexpected number of accessors was returned", 4, relationalAccessors.size());
+
+        // TODO: these relationship types should really have underscores in them
+        Map<String, Class<? extends RelationalReader>> expectedRelationalReaders = new HashMap<>();
+        expectedRelationalReaders.put("COMMENT", MethodReader.class);
+        expectedRelationalReaders.put("FAVOURITETOPIC", FieldReader.class);
+        expectedRelationalReaders.put("CONTAINS", FieldReader.class);
+        expectedRelationalReaders.put("POSTWITHOUTACCESSORMETHODS", FieldReader.class);
+
+        for (RelationalReader objectAccess : relationalAccessors) {
+            String relType = objectAccess.relationshipType();
+            assertTrue("Relationship type " + relType + " wasn't expected", expectedRelationalReaders.containsKey(relType));
+            assertEquals(expectedRelationalReaders.get(relType), objectAccess.getClass());
+            assertNotNull(objectAccess.read(domainObject));
+        }
+    }
+
     /**
      * Domain object exhibiting various annotation configurations on its properties for test purposes.
      */
@@ -349,6 +382,8 @@ public class DefaultObjectAccessStrategyTest {
         boolean topicAccessorWasCalled;
 
         Post postWithoutAccessorMethods;
+
+        Comment readOnlyComment;
 
         public Long getId() {
             throw new UnsupportedOperationException("Shouldn't be calling the ID getter");
@@ -404,6 +439,11 @@ public class DefaultObjectAccessStrategyTest {
         public void setTopic(Topic favouriteTopic) {
             this.topicAccessorWasCalled = true;
             this.favouriteTopic = favouriteTopic;
+        }
+
+        @Relationship(type = "COMMENT")
+        public Comment getReadOnlyComment() {
+            return this.readOnlyComment;
         }
 
     }

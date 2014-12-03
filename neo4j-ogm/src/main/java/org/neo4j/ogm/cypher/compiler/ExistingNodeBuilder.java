@@ -1,8 +1,8 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
+import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,10 +18,9 @@ class ExistingNodeBuilder extends NodeBuilder {
 
     @Override
     public NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, ObjectAccessStrategy objectAccessStrategy) {
-        for (FieldInfo propertyField : classInfo.propertyFields()) {
-            String propertyName = propertyField.property();
-            Object value = objectAccessStrategy.getPropertyReader(classInfo, propertyName).read(toPersist);
-            addProperty(propertyName, value);
+        for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(classInfo)) {
+            Object value = propertyReader.read(toPersist);
+            addProperty(propertyReader.propertyName(), value);
         }
         return this;
     }

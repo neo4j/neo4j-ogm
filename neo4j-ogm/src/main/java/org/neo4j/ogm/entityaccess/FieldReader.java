@@ -10,7 +10,7 @@ public class FieldReader implements RelationalReader {
     private final String relationshipType;
 
     FieldReader(ClassInfo classInfo, FieldInfo fieldInfo) {
-        this(classInfo, fieldInfo, null);
+        this(classInfo, fieldInfo, fieldInfo.relationship());
     }
 
     FieldReader(ClassInfo classInfo, FieldInfo fieldInfo, String relationshipType) {
@@ -26,8 +26,12 @@ public class FieldReader implements RelationalReader {
 
     @Override
     public String relationshipType() {
-        // NB: not as simple as fieldInfo.relationship() since the relType could've come from its getter annotation
         return relationshipType;
+    }
+
+    @Override
+    public String propertyName() {
+        return fieldInfo.property();
     }
 
 }

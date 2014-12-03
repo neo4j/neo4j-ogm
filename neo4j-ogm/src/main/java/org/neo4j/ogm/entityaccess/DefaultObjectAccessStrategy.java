@@ -1,5 +1,7 @@
 package org.neo4j.ogm.entityaccess;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.neo4j.ogm.metadata.ClassUtils;
@@ -157,6 +159,45 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
+    public Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
+        // do we care about "implicit" fields?  i.e., setX/getX with no matching X field
+
+        Collection<PropertyReader> readers = new ArrayList<>();
+        for (FieldInfo fieldInfo : classInfo.propertyFields()) {
+            MethodInfo getterInfo = classInfo.propertyGetter(fieldInfo.property());
+            if (getterInfo != null) {
+                if (!getterInfo.getAnnotations().isEmpty() || fieldInfo.getAnnotations().isEmpty()) {
+                    readers.add(new MethodReader(classInfo, getterInfo));
+                    continue;
+                }
+            }
+            readers.add(new FieldReader(classInfo, fieldInfo));
+        }
+        return readers;
+    }
+
+    @Override
+    public Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
+        Collection<RelationalReader> readers = new ArrayList<>();
+        for (FieldInfo fieldInfo : classInfo.relationshipFields()) {
+            StringBuilder sb = new StringBuilder(fieldInfo.getName());
+            sb.setCharAt(0, Character.toUpperCase(fieldInfo.getName().charAt(0)));
+            String getterName = sb.insert(0, "get").toString();
+
+            MethodInfo getterInfo = classInfo.methodsInfo().get(getterName);
+
+            if (getterInfo != null) {
+                if (!getterInfo.getAnnotations().isEmpty() || fieldInfo.getAnnotations().isEmpty()) {
+                    readers.add(new MethodReader(classInfo, getterInfo, resolveRelationshipTypeFromMember(getterInfo.relationship())));
+                    continue;
+                }
+            }
+            readers.add(new FieldReader(classInfo, fieldInfo, resolveRelationshipTypeFromMember(fieldInfo.relationship())));
+        }
+        return readers;
+    }
+
+    @Override
     public ObjectAccess getIterableWriter(ClassInfo classInfo, Class<?> parameterType) {
         MethodInfo methodInfo = getIterableMethodInfo(classInfo, parameterType);
         if (methodInfo != null) {
@@ -225,7 +266,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     private static String resolveRelationshipTypeFromMember(String memberName) {
         // TODO: To fix this properly, I reckon we need to bring in a meta-data class called RelationshipResolver that's
         // called from here for writing to objects and called from FieldInfo/MethodInfo when reading from them.
-        return memberName.toUpperCase();
+        return memberName.startsWith("get") ? memberName.substring(3).toUpperCase() : memberName.toUpperCase();
     }
 
     private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {

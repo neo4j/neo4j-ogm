@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -101,7 +102,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         }
 
         // 3rd, try to find a "setXYZ" method where XYZ is derived from the relationship type
-        methodInfo = classInfo.relationshipSetter(setterNameFromRelationshipType(relationshipType));
+        methodInfo = classInfo.relationshipSetter(relationshipType);
         if (methodInfo != null) {
             Class<?> setterParameterType = ClassUtils.getType(methodInfo.getDescriptor());
             if (setterParameterType.isAssignableFrom(parameter.getClass())) {
@@ -110,7 +111,7 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-        fieldInfo = classInfo.relationshipField(fieldNameFromRelationshipType(relationshipType));
+        fieldInfo = classInfo.relationshipField(RelationshipUtils.inferFieldName(relationshipType));
         if (fieldInfo != null && fieldInfo.isTypeOf(parameter.getClass())) {
             return new FieldAccess(classInfo, fieldInfo);
         }
@@ -135,25 +136,25 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         // 1st, try to find a method annotated with the relationship type.
         MethodInfo methodInfo = classInfo.relationshipGetter(relationshipType);
         if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
-            return new MethodReader(classInfo, methodInfo, relationshipType);
+            return new MethodReader(classInfo, methodInfo);
         }
 
         // 2nd, try to find a field called or annotated as the neo4j relationship type
         FieldInfo fieldInfo = classInfo.relationshipField(relationshipType);
         if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-            return new FieldReader(classInfo, fieldInfo, relationshipType);
+            return new FieldReader(classInfo, fieldInfo);
         }
 
         // 3rd, try to find a "getXYZ" method where XYZ is derived from the given relationship type
-        methodInfo = classInfo.relationshipGetter(getterNameFromRelationshipType(relationshipType));
+        methodInfo = classInfo.relationshipGetter(relationshipType);
         if (methodInfo != null) {
-            return new MethodReader(classInfo, methodInfo, resolveRelationshipTypeFromMember(relationshipType));
+            return new MethodReader(classInfo, methodInfo);
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-        fieldInfo = classInfo.relationshipField(fieldNameFromRelationshipType(relationshipType));
+        fieldInfo = classInfo.relationshipField(RelationshipUtils.inferFieldName(relationshipType));
         if (fieldInfo != null) {
-            return new FieldReader(classInfo, fieldInfo, resolveRelationshipTypeFromMember(relationshipType));
+            return new FieldReader(classInfo, fieldInfo);
         }
         return null;
     }
@@ -180,21 +181,23 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     public Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
         Collection<RelationalReader> readers = new ArrayList<>();
         for (FieldInfo fieldInfo : classInfo.relationshipFields()) {
-            StringBuilder sb = new StringBuilder(fieldInfo.getName());
-            sb.setCharAt(0, Character.toUpperCase(fieldInfo.getName().charAt(0)));
-            String getterName = sb.insert(0, "get").toString();
-
-            MethodInfo getterInfo = classInfo.methodsInfo().get(getterName);
+            MethodInfo getterInfo = classInfo.methodsInfo().get(inferGetterName(fieldInfo));
 
             if (getterInfo != null) {
                 if (!getterInfo.getAnnotations().isEmpty() || fieldInfo.getAnnotations().isEmpty()) {
-                    readers.add(new MethodReader(classInfo, getterInfo, resolveRelationshipTypeFromMember(getterInfo.relationship())));
+                    readers.add(new MethodReader(classInfo, getterInfo));
                     continue;
                 }
             }
-            readers.add(new FieldReader(classInfo, fieldInfo, resolveRelationshipTypeFromMember(fieldInfo.relationship())));
+            readers.add(new FieldReader(classInfo, fieldInfo));
         }
         return readers;
+    }
+
+    private static String inferGetterName(FieldInfo fieldInfo) {
+        StringBuilder getterNameBuilder = new StringBuilder(fieldInfo.getName());
+        getterNameBuilder.setCharAt(0, Character.toUpperCase(fieldInfo.getName().charAt(0)));
+        return getterNameBuilder.insert(0, "get").toString();
     }
 
     @Override
@@ -213,60 +216,6 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     @Override
     public PropertyReader getIdentityPropertyReader(ClassInfo classInfo) {
         return new FieldReader(classInfo, classInfo.identityField());
-    }
-
-    private String setterNameFromRelationshipType(String relationshipType) {
-        StringBuilder setterName = resolveMemberFromRelationshipType(new StringBuilder("set"), relationshipType);
-        return setterName.toString();
-    }
-
-    private String getterNameFromRelationshipType(String relationshipType) {
-        StringBuilder getterName = resolveMemberFromRelationshipType(new StringBuilder("get"), relationshipType);
-        return getterName.toString();
-    }
-
-    private String fieldNameFromRelationshipType(String relationshipType) {
-        StringBuilder fieldName = resolveMemberFromRelationshipType(new StringBuilder(), relationshipType);
-        fieldName.setCharAt(0, Character.toLowerCase(fieldName.charAt(0)));
-        return fieldName.toString();
-    }
-
-    // guesses the name of a type accessor method, based on the supplied graph attribute
-    // the graph attribute can be a node property, e.g. "Name", or a relationship type e.g. "LIKES"
-    //
-    // A simple attribute e.g. "PrimarySchool" will be mapped to a value "[get,set]PrimarySchool"
-    //
-    // An attribute with elements separated by underscores will have each element processed and then
-    // the parts will be elided to a camelCase name. Elements that imply structure, ("HAS", "IS", "A")
-    // will be excluded from the mapping, i.e:
-    //
-    // "HAS_WHEELS"             => "[get,set]Wheels"
-    // "IS_A_BRONZE_MEDALLIST"  => "[get,set]BronzeMedallist"
-    // "CHANGED_PLACES_WITH"    => "[get,set]ChangedPlacesWith"
-    //
-    private static StringBuilder resolveMemberFromRelationshipType(StringBuilder sb, String name) {
-        if (name != null && name.length() > 0) {
-            if (!name.contains("_")) {
-                sb.append(name.substring(0, 1).toUpperCase());
-                sb.append(name.substring(1).toLowerCase());
-            } else {
-                String[] parts = name.split("_");
-                for (String part : parts) {
-                    String test = part.toLowerCase();
-                    if ("has|is|a".contains(test)) {
-                        continue;
-                    }
-                    resolveMemberFromRelationshipType(sb, test);
-                }
-            }
-        }
-        return sb;
-    }
-
-    private static String resolveRelationshipTypeFromMember(String memberName) {
-        // TODO: To fix this properly, I reckon we need to bring in a meta-data class called RelationshipResolver that's
-        // called from here for writing to objects and called from FieldInfo/MethodInfo when reading from them.
-        return memberName.startsWith("get") ? memberName.substring(3).toUpperCase() : memberName.toUpperCase();
     }
 
     private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {

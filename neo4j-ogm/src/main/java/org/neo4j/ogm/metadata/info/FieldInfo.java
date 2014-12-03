@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata.info;
 
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.metadata.RelationshipUtils;
 
 public class FieldInfo {
 
@@ -22,7 +23,7 @@ public class FieldInfo {
         return name;
     }
 
-    public boolean isTypeOf(Class type) {
+    public boolean isTypeOf(Class<?> type) {
         String fieldSignature = "L" + type.getName().replace(".", "/") + ";";
         return descriptor.equals(fieldSignature);
     }
@@ -43,10 +44,7 @@ public class FieldInfo {
             try {
                 return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
             } catch (NullPointerException npe) {
-                // TODO: this is the "simple" strategy, but here the logic is different from the reading code
-                // in that a field called changedPlacesWith won't end up as "CHANGED_PLACES_WITH"
-                // see DefaultObjectAccessStrategy#setterNameFromRelationshipType
-                return getName();
+                return RelationshipUtils.inferRelationshipType(getName());
             }
         }
         return null;

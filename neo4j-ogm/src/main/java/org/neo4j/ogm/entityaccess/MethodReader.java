@@ -7,16 +7,10 @@ public class MethodReader implements RelationalReader {
 
     private final ClassInfo classInfo;
     private final MethodInfo methodInfo;
-    private final String relationshipType;
 
     MethodReader(ClassInfo classInfo, MethodInfo methodInfo) {
-        this(classInfo, methodInfo, methodInfo.relationship());
-    }
-
-    MethodReader(ClassInfo classInfo, MethodInfo methodInfo, String relationshipType) {
         this.classInfo = classInfo;
         this.methodInfo = methodInfo;
-        this.relationshipType = relationshipType;
     }
 
     @Override
@@ -26,7 +20,7 @@ public class MethodReader implements RelationalReader {
 
     @Override
     public String relationshipType() {
-        return relationshipType;
+        return methodInfo.relationship();
     }
 
     @Override

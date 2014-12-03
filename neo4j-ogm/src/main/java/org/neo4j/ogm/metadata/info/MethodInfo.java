@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata.info;
 
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.metadata.RelationshipUtils;
 
 public class MethodInfo {
 
@@ -43,7 +44,7 @@ public class MethodInfo {
             try {
                 return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
             } catch (NullPointerException npe) {
-                return getName();
+                return RelationshipUtils.inferRelationshipType(getName());
             }
         }
         return null;

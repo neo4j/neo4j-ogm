@@ -28,7 +28,6 @@ import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
 
 public class DefaultObjectAccessStrategyTest {
 
@@ -241,22 +240,6 @@ public class DefaultObjectAccessStrategyTest {
         assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.read(domainObject));
     }
 
-    @org.junit.Ignore("...or should it?  We did ask for a field here, but do we link fields and accessors?")
-    @Test
-    public void shouldResolvePropertyReaderBasedOnPropertyNameReturnedFromClassMetadata() {
-        ClassInfo classInfo = this.domainInfo.getClass(Satellite.class.getName());
-        FieldInfo fieldInfo = classInfo.propertyField("launch_date"); // this is actually the annotation on its setter
-        assertNotNull("Couldn't find the field matching the @Property annotation on its corresponding setter/getter", fieldInfo);
-
-        Satellite satellite = new Satellite();
-        satellite.setLaunched("Yesterday");
-
-        PropertyReader reader = this.objectAccessStrategy.getPropertyReader(classInfo, fieldInfo.property());
-        assertNotNull("The resultant object accessor shouldn't be null", reader);
-        assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertEquals("Yesterday", reader.read(satellite));
-    }
-
     @Test
     public void shouldPreferAnnotatedMethodToAnnotatedFieldMatchingRelationshipTypeWhenReadingRelationshipObject() {
         ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
@@ -309,7 +292,7 @@ public class DefaultObjectAccessStrategyTest {
         RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS");
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
-        assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
+        assertEquals("POSTWITHOUTACCESSORMETHODS", reader.relationshipType());
     }
 
     @Test

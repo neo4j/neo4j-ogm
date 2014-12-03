@@ -7,16 +7,10 @@ public class FieldReader implements RelationalReader {
 
     private final ClassInfo classInfo;
     private final FieldInfo fieldInfo;
-    private final String relationshipType;
 
     FieldReader(ClassInfo classInfo, FieldInfo fieldInfo) {
-        this(classInfo, fieldInfo, fieldInfo.relationship());
-    }
-
-    FieldReader(ClassInfo classInfo, FieldInfo fieldInfo, String relationshipType) {
         this.classInfo = classInfo;
         this.fieldInfo = fieldInfo;
-        this.relationshipType = relationshipType;
     }
 
     @Override
@@ -26,7 +20,7 @@ public class FieldReader implements RelationalReader {
 
     @Override
     public String relationshipType() {
-        return relationshipType;
+        return fieldInfo.relationship();
     }
 
     @Override

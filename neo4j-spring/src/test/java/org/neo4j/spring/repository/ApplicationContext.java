@@ -3,6 +3,10 @@ package org.neo4j.spring.repository;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.spring.Neo4jServer;
+import org.neo4j.spring.domain.A;
+import org.neo4j.spring.domain.B;
+import org.neo4j.spring.repositories.GraphRepository;
+import org.neo4j.spring.repositories.impl.GraphRepositoryImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -36,4 +40,13 @@ class ApplicationContext {
         return new Neo4jServer();
     }
 
+    @Bean
+    GraphRepository<A> ARepo() throws Exception {
+        return new GraphRepositoryImpl<>(A.class, getSession());
+    }
+
+    @Bean
+    GraphRepository<B> BRepo() throws Exception {
+        return new GraphRepositoryImpl<>(B.class, getSession());
+    }
 }

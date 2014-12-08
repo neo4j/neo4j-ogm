@@ -14,6 +14,7 @@
     <modules>
         <module>graph-model</module>
         <module>neo4j-ogm</module>
+        <module>neo4j-spring</module>
     </modules>
 
     <properties>

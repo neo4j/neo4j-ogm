@@ -16,4 +16,8 @@ public interface GraphRepository<T> extends CrudRepository<T, Long> {
 
     Iterable<T> findAll(java.lang.Iterable<Long> ids, int depth);
 
+    Iterable<T> findByProperty(String propertyName, Object propertyValue);
+
+    Iterable<T> findByProperty(String propertyName, Object propertyValue, int depth);
+
 }

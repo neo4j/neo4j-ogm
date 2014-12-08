@@ -1,10 +1,10 @@
-package org.neo4j.spring.repository;
+package org.neo4j.spring.example.world;
 
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.spring.InMemoryNeo4jServer;
-import org.neo4j.spring.domain.A;
-import org.neo4j.spring.domain.B;
+import org.neo4j.spring.Neo4jServer;
+import org.neo4j.spring.domain.World;
 import org.neo4j.spring.repositories.GraphRepository;
 import org.neo4j.spring.repositories.impl.GraphRepositoryImpl;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import org.springframework.core.env.Environment;
 import javax.annotation.Resource;
 
 @Configuration
-@ComponentScan("org.neo4j.spring.repositories.impl")
+@ComponentScan({"org.neo4j.spring.repositories.impl", "org.neo4j.spring.example.world"})
 @PropertySource("classpath:application.properties")
 class ApplicationContext {
 
@@ -37,17 +37,14 @@ class ApplicationContext {
     }
 
     @Bean
-    InMemoryNeo4jServer getNeo4jServer() throws Exception {
+    Neo4jServer getNeo4jServer() throws Exception {
         return new InMemoryNeo4jServer();
+        //return new LocalhostServer();
     }
 
     @Bean
-    GraphRepository<A> ARepo() throws Exception {
-        return new GraphRepositoryImpl<>(A.class, getSession());
+    GraphRepository<World> worldRepository() throws Exception {
+        return new GraphRepositoryImpl<>(World.class, getSession());
     }
 
-    @Bean
-    GraphRepository<B> BRepo() throws Exception {
-        return new GraphRepositoryImpl<>(B.class, getSession());
-    }
 }

@@ -27,7 +27,7 @@ public class MappingContext {
 
     public Object register(Object object, Long id) {
         objectMap.putIfAbsent(id, object);
-        getObjects(object.getClass()).add(object = objectMap.get(id));
+        getAll(object.getClass()).add(object = objectMap.get(id));
         return object;
     }
 
@@ -39,12 +39,12 @@ public class MappingContext {
         return roots.iterator().next();
     }
 
-    public Set<Object> getObjects(Class<?> type) {
+    public Set<Object> getAll(Class<?> type) {
         Set<Object> objectList = typeMap.get(type);
         if (objectList == null) {
-            typeMap.putIfAbsent(type, Collections.synchronizedSet(objectList = new HashSet<>()));
+            typeMap.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
         }
-        return objectList;
+        return typeMap.get(type);
     }
 
     public void remember(Object object, ClassInfo classInfo) {

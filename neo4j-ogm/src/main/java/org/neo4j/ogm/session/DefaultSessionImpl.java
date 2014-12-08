@@ -178,7 +178,7 @@ public class DefaultSessionImpl implements Session {
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         executeStatement(new DeleteStatements().deleteByLabel(classInfo.label())).close();
-        mappingContext.getObjects(type).clear();
+        mappingContext.getAll(type).clear();
     }
 
     @Override
@@ -297,7 +297,7 @@ public class DefaultSessionImpl implements Session {
         Long identity = (Long) FieldAccess.read(identityField, object);
         if (identity != null) {
             executeStatement(new DeleteStatements().delete(identity)).close();
-            mappingContext.getObjects(classInfo.label().getClass()).remove(object);
+            mappingContext.getAll(classInfo.label().getClass()).remove(object);
         }
     }
 

@@ -52,7 +52,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         map(type, graphModel);
         try {
             Set<T> set = new HashSet<>();
-            for (Object o : mappingContext.getObjects(type)) {
+            for (Object o : mappingContext.getAll(type)) {
                 set.add(type.cast(o));
             }
             return set;
@@ -148,7 +148,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     }
 
     public Set<Object> get(Class<?> clazz) {
-        return mappingContext.getObjects(clazz);
+        return mappingContext.getAll(clazz);
     }
 
     // FIXME: this code is buggy. it is setting the same collection multiple times!

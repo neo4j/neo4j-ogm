@@ -9,18 +9,18 @@ import static org.junit.Assert.assertEquals;
 public class TransactionTest {
 
     @Test public void createTransaction() {
-        Transaction tx = new Transaction(new MappingContext(), "");
+        Transaction tx = new Transaction(new MappingContext(), "", null);
         assertEquals(Transaction.OPEN, tx.status());
     }
 
     @Test public void testCommit() {
-        Transaction tx = new Transaction(new MappingContext(), "");
+        Transaction tx = new Transaction(new MappingContext(), "", null);
         tx.commit();
         assertEquals(Transaction.OPEN | Transaction.COMMITTED, tx.status());
     }
 
     @Test public void testRollback() {
-        Transaction tx = new Transaction(new MappingContext(), "");
+        Transaction tx = new Transaction(new MappingContext(), "", null);
         tx.rollback();
         assertEquals(Transaction.OPEN | Transaction.ROLLEDBACK, tx.status());
 

@@ -1,9 +1,5 @@
 package org.neo4j.ogm.entityaccess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -11,6 +7,10 @@ import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Default implementation of {@link ObjectAccessStrategy} that looks up information from {@link ClassInfo} in the following order.
@@ -92,7 +92,10 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         // 1st, try to find a method annotated with the relationship type.
         MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType);
         if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
-            return new MethodAccess(classInfo, methodInfo);
+            Class<?> setterParameterType = ClassUtils.getType(methodInfo.getDescriptor());
+            if (setterParameterType.isAssignableFrom(parameter.getClass())) {
+                return new MethodAccess(classInfo, methodInfo);
+            }
         }
 
         // 2nd, try to find a field called or annotated as the neo4j relationship type

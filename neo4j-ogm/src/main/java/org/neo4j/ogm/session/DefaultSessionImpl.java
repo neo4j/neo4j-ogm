@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.graphmodel.GraphModel;
+import org.neo4j.graphmodel.NodeModel;
+import org.neo4j.graphmodel.Property;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
@@ -61,11 +63,11 @@ public class DefaultSessionImpl implements Session {
     }
 
     private Transaction getOrCreateTransaction() {
-        if (this.transaction != null) {
-            return this.transaction;
-        } else {
-            return new Transaction(mappingContext, autoCommitUrl);
-        }
+        //if (this.transaction != null) {
+        //    return this.transaction;
+        //} else {
+            return new Transaction(mappingContext, autoCommitUrl, this);
+        //}
     }
 
     private Neo4jResponseHandler<GraphModel> executeGraphModelQuery(GraphModelQuery query) {
@@ -74,6 +76,7 @@ public class DefaultSessionImpl implements Session {
         Transaction tx = getOrCreateTransaction();
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
+            System.out.println(json);
             Neo4jResponseHandler<String> responseHandler = requestHandler.execute(tx.url(), json);
             return new GraphModelResponseHandler(responseHandler, mapper);
         } catch (JsonProcessingException jpe) {
@@ -100,6 +103,7 @@ public class DefaultSessionImpl implements Session {
         Transaction tx = getOrCreateTransaction();
         try {
             String json = mapper.writeValueAsString(new ParameterisedStatements(list));
+            System.out.println(json);
             return requestHandler.execute(tx.url(), json);
         } catch (JsonProcessingException jpe) {
             throw new MappingException(jpe.getLocalizedMessage());
@@ -108,12 +112,12 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> T load(Class<T> type, Long id) {
-        return load(type, id, 1);
+        return load(type, id, 0);
     }
 
     @Override
     public <T> T load(Class<T> type, Long id, int depth) {
-        return loadOne(type, executeGraphModelQuery(new VariableDepthQuery().findOne(id, depth)));
+        return loadById(type, executeGraphModelQuery(new VariableDepthQuery().findOne(id, depth)), id);
     }
 
     @Override
@@ -128,7 +132,7 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type) {
-        return loadAll(type, 1);
+        return loadAll(type, 1); // was 1. need to do optional match.
     }
 
     @Override
@@ -160,10 +164,21 @@ public class DefaultSessionImpl implements Session {
     }
 
     @Override
+    public <T> Collection<T> loadByProperty(Class<T> type, Property<String, Object> property) {
+        return loadByProperty(type, property, 1);
+    }
+
+    @Override
+    public <T> Collection<T> loadByProperty(Class<T> type, Property<String, Object> property, int depth) {
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        return loadByProperty(type, executeGraphModelQuery(new VariableDepthQuery().findByProperty(classInfo.label(), property, depth)), property);
+    }
+
+    @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         executeStatement(new DeleteStatements().deleteByLabel(classInfo.label())).close();
-
+        mappingContext.getObjects(type).clear();
     }
 
     @Override
@@ -173,13 +188,20 @@ public class DefaultSessionImpl implements Session {
         if (transaction != null && transaction.status() == (Transaction.OPEN | Transaction.PENDING)) {
             throw new RuntimeException("The current transaction should be rolled back or committed before beginning a new one");
         }
-        transaction = new Transaction(mappingContext, transactionRequestHandler.execute());
+        transaction = new Transaction(mappingContext, transactionRequestHandler.openTransaction(), this);
         return transaction;
     }
 
     @Override
     public void close() {
+        flush();
+    }
 
+    @Override
+    public void flush() {
+        if (transaction != null && transaction.status() == (Transaction.OPEN | Transaction.PENDING)) {
+
+        }
     }
 
     @Override
@@ -191,6 +213,7 @@ public class DefaultSessionImpl implements Session {
     @Override
     public void purge() {
         executeStatement(new DeleteStatements().purge()).close();
+        mappingContext.clear();
     }
 
     @Override
@@ -209,39 +232,59 @@ public class DefaultSessionImpl implements Session {
         CypherContext context = new ObjectCypherMapper(metaData, new MappingContext()).mapToCypher(object, depth);
 
         buildTime += (System.currentTimeMillis() - now);
+
         try {
             List<ParameterisedStatement> statements = context.getStatements();
+
             now = System.currentTimeMillis();
             String json = mapper.writeValueAsString(new ParameterisedStatements(statements));
-            //System.out.println(json);
+            System.out.println(json);
             jsonTime += (System.currentTimeMillis() - now);
             now = System.currentTimeMillis();
+
             RowModelResponseHandler responseHandler = new RowModelResponseHandler(requestHandler.execute(tx.url(), json), mapper);
+
             executeTime += (System.currentTimeMillis() - now);
             now = System.currentTimeMillis();
 
             String[] variables = responseHandler.columns();
+
+            // The database operation has succeeded. We now update the objects with their new ids
+            // however, these objects remain in a detached state in our mappingContext (session)
+            // until the underlying db transaction is committed.
+
+            // this may have already happened, if the db tx endpoint is autocommit (".../commit").
+
+            // if so, when we append the output of the database operation (the cypher context) to
+            // our session transaction, it will also "auto-commit" to the mapping context
+            // and any deltas will be applied (new/updated/deleted relationships and objects).
+
+            // if this is not the case (i.e we're in a multi-request transaction), we must
+            // explicitly commit the transaction. This will call the tx commit endpoint for cypher.
+            // if the cypher operation is successful, all the cypher contexts that have been appended to the
+            // session transaction are applied, and the mapping context is updated.
+
+            // see transaction.commit() for more information.
+
             RowModel rowModel;
             while ((rowModel = responseHandler.next()) != null) {
                 Object[] results = rowModel.getValues();
                 for (int i = 0; i < variables.length; i++) {
                     String variable = variables[i];
-                    //System.out.println(variable);
                     Object persisted = context.getNewObject(variable);
                     Long identity = Long.parseLong(results[i].toString());
-                    // todo: metaData should cache this stuff
                     ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
                     Field identityField = classInfo.getField(classInfo.identityField());
                     FieldAccess.write(identityField, persisted, identity);
                 }
             }
             processTime += (System.currentTimeMillis() - now);
-            responseHandler.close();
 
-            // todo: tx.append(context.log)
-            // todo: (if not on tx endpoint) tx.commit();
+            responseHandler.close();
+            tx.append(context);
+
         } catch (Exception e) {
-            // todo: tx.rollback // just clear the commit log
+            tx.rollback();
             throw new RuntimeException(e);
         }
 
@@ -254,18 +297,38 @@ public class DefaultSessionImpl implements Session {
         Long identity = (Long) FieldAccess.read(identityField, object);
         if (identity != null) {
             executeStatement(new DeleteStatements().delete(identity)).close();
+            mappingContext.getObjects(classInfo.label().getClass()).remove(object);
         }
     }
 
-    private <T> T loadOne(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
-        GraphModel graphModel = stream.next();
-        if (graphModel != null) {
-            GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
-            stream.close();
-            return ogm.load(type, graphModel);
+    private <T> Set<T> loadByProperty(Class<T> type, Neo4jResponseHandler<GraphModel> stream, Property<String, Object> filter) {
+
+        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphModel graphModel;
+        Set<T> objects = new HashSet<>();
+
+        while ((graphModel = stream.next()) != null) {
+            ogm.loadAll(type, graphModel);
+            for (NodeModel nodeModel : graphModel.getNodes()) {
+                if (nodeModel.getPropertyList().contains(filter)) {
+                    objects.add((T) mappingContext.get(nodeModel.getId()));
+                }
+            }
         }
-        return null;
+        stream.close();
+
+        return objects;
     }
+
+    private <T> T loadById(Class<T> type, Neo4jResponseHandler<GraphModel> stream, Long id) {
+        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphModel graphModel;
+        while ((graphModel = stream.next()) != null) {
+            ogm.loadAll(type, graphModel);
+        }
+        return (T) mappingContext.get(id);
+    }
+
 
     private <T> Collection<T> loadAll(Class<T> type, Neo4jResponseHandler<GraphModel> stream) {
         Set<T> objects = new HashSet<>();

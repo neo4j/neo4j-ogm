@@ -6,6 +6,9 @@ import java.util.*;
 
 public class FieldsInfo {
 
+    private static final int STATIC_FIELD = 0x0008;
+    private static final int FINAL_FIELD = 0x0010;
+
     private Map<String, FieldInfo> fields = new HashMap<>();
 
     FieldsInfo() {}
@@ -14,7 +17,7 @@ public class FieldsInfo {
         // get the field information for this class
         int fieldCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < fieldCount; i++) {
-            dataInputStream.skipBytes(2); // access_flags
+            int accessFlags = dataInputStream.readUnsignedShort();
             String fieldName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
             String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
@@ -34,7 +37,9 @@ public class FieldsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            fields.put(fieldName, new FieldInfo(fieldName, descriptor, objectAnnotations));
+            if ((accessFlags & (STATIC_FIELD | FINAL_FIELD)) == 0) {
+                fields.put(fieldName, new FieldInfo(fieldName, descriptor, objectAnnotations));
+            }
         }
     }
 

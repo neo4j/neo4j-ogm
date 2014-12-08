@@ -14,12 +14,12 @@ public class QueryTest {
 
     @Test
     public void testFindOne() throws Exception {
-        assertEquals("MATCH p=(n)-[*1..2]-(m) WHERE id(n) = { id } RETURN collect(distinct p)", query.findOne(0L, 2).getStatement());
+        assertEquals("MATCH p=(n)-[*0..2]-(m) WHERE id(n) = { id } RETURN collect(distinct p)", query.findOne(0L, 2).getStatement());
     }
 
     @Test
     public void testFindAllCollection() throws Exception {
-        assertEquals("MATCH p=(n)-[*1..1]-(m) WHERE id(n) in { ids } RETURN collect(distinct p)", query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
+        assertEquals("MATCH p=(n)-[*0..1]-(m) WHERE id(n) in { ids } RETURN collect(distinct p)", query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
     }
 
     @Test
@@ -29,12 +29,12 @@ public class QueryTest {
 
     @Test
     public void testFindByLabel() throws Exception {
-        assertEquals("MATCH p=(n:Orbit)-[*1..3]-(m) RETURN collect(distinct p)", query.findByLabel("Orbit", 3).getStatement());
+        assertEquals("MATCH p=(n:Orbit)-[*0..3]-(m) RETURN collect(distinct p)", query.findByLabel("Orbit", 3).getStatement());
     }
 
     @Test
     public void testFindByProperty() throws Exception {
-        assertEquals("MATCH p=(n:Asteroid)-[*1..4]-(m) WHERE n.diameter = { diameter } RETURN collect(distinct p)", query.findByProperty("Asteroid", new Property<String, Object>("diameter", 60.2), 4).getStatement());
+        assertEquals("MATCH p=(n:Asteroid)-[*0..4]-(m) WHERE n.diameter = { diameter } RETURN collect(distinct p)", query.findByProperty("Asteroid", new Property<String, Object>("diameter", 60.2), 4).getStatement());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.neo4j.ogm.session;
 
+import org.neo4j.graphmodel.Property;
 import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.Collection;
@@ -22,9 +23,15 @@ public interface Session {
 
     <T> Collection<T> loadAll(Collection<T> objects, int depth);
 
+    <T> Collection<T> loadByProperty(Class<T> type, Property<String, Object> property);
+
+    <T> Collection<T> loadByProperty(Class<T> type, Property<String, Object> property, int depth);
+
+
     void execute(String jsonStatements);
 
     void purge();
+
 
     <T> void save(T object);
 
@@ -34,7 +41,11 @@ public interface Session {
 
     <T> void deleteAll(Class<T> type);
 
+
+
     Transaction beginTransaction();
 
     void close();
+
+    void flush();
 }

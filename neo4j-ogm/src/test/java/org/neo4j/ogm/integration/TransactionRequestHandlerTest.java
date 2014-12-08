@@ -17,7 +17,7 @@ public class TransactionRequestHandlerTest extends IntegrationTest {
 
         TransactionRequestHandler txRequestHandler = new TransactionRequestHandler(httpClient, "http://localhost:" + neoPort);
 
-        String txEndpoint = txRequestHandler.execute();
+        String txEndpoint = txRequestHandler.openTransaction();
         String txEndpointRoot = "http://localhost:" + neoPort + "/db/data/transaction/";
         String txId = txEndpoint.substring(txEndpointRoot.length());
 

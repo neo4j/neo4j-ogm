@@ -35,6 +35,8 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         this.objectAccessStrategy = new DefaultObjectAccessStrategy();
     }
 
+    // this method doesn't guarantee to return the object we're interested in, it should be "load one"
+    // or it should be removed.
     @Override
     public <T> T load(Class<T> type, GraphModel graphModel)  {
         map(type, graphModel);

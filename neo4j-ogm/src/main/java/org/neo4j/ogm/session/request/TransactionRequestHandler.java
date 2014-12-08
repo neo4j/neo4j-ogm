@@ -22,7 +22,7 @@ public class TransactionRequestHandler {
         this.httpClient = httpClient;
     }
 
-    public String execute() {
+    public String openTransaction() {
         try {
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity("");
@@ -47,6 +47,14 @@ public class TransactionRequestHandler {
         catch (Exception e) {
             throw new ResultProcessingException("Failed to execute request: ", e);
         }
+    }
+
+    public void rollback() {
+
+    }
+
+    public void commit() {
+
     }
 
     private String transactionEndpoint(String server) {

@@ -61,7 +61,7 @@ public class VariableDepthQuery implements QueryStatements {
     }
 
     private int min(int depth) {
-        return Math.min(1, depth);
+        return Math.min(0, depth);
     }
 
     private int max(int depth) {

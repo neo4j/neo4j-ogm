@@ -308,7 +308,7 @@ public class DefaultSessionImpl implements Session {
         Set<T> objects = new HashSet<>();
 
         while ((graphModel = stream.next()) != null) {
-            ogm.loadAll(type, graphModel);
+            ogm.load(type, graphModel);
             for (NodeModel nodeModel : graphModel.getNodes()) {
                 if (nodeModel.getPropertyList().contains(filter)) {
                     objects.add((T) mappingContext.get(nodeModel.getId()));
@@ -324,7 +324,7 @@ public class DefaultSessionImpl implements Session {
         GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = stream.next()) != null) {
-            ogm.loadAll(type, graphModel);
+            ogm.load(type, graphModel);
         }
         return (T) mappingContext.get(id);
     }
@@ -335,7 +335,7 @@ public class DefaultSessionImpl implements Session {
         GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = stream.next()) != null) {
-            objects.addAll(ogm.loadAll(type, graphModel));
+            objects.addAll(ogm.load(type, graphModel));
         }
         stream.close();
         return objects;

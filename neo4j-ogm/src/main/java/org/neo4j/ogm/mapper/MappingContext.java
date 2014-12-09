@@ -40,11 +40,16 @@ public class MappingContext {
     }
 
     public Set<Object> getAll(Class<?> type) {
+
         Set<Object> objectList = typeMap.get(type);
+
         if (objectList == null) {
             typeMap.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
+            objectList = typeMap.get(type);
         }
-        return typeMap.get(type);
+
+        return objectList;
+
     }
 
     public void remember(Object object, ClassInfo classInfo) {

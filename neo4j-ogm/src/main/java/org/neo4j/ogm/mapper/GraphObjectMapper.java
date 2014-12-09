@@ -35,20 +35,8 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         this.objectAccessStrategy = new DefaultObjectAccessStrategy();
     }
 
-    // this method doesn't guarantee to return the object we're interested in, it should be "load one"
-    // or it should be removed.
     @Override
-    public <T> T load(Class<T> type, GraphModel graphModel)  {
-        map(type, graphModel);
-        try {
-            return type.cast(mappingContext.getRoot(type));
-        } catch (Exception e) {
-            throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
-        }
-    }
-
-    @Override
-    public <T> Set<T> loadAll(Class<T> type, GraphModel graphModel) {
+    public <T> Set<T> load(Class<T> type, GraphModel graphModel) {
         map(type, graphModel);
         try {
             Set<T> set = new HashSet<>();
@@ -115,7 +103,6 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    // todo: on a successful mapping, create and remember a mapped relationship
     private boolean mapOneToOne(Object source, Object parameter, RelationshipModel edge) {
 
         String edgeLabel = edge.getType();

@@ -17,8 +17,6 @@ public interface GraphToObjectMapper<G extends GraphModel> {
      * @param graphModel The {@link org.neo4j.graphmodel.GraphModel} model containing the data to map onto the object
      * @return An object of type <code>T</code> containing relevant data extracted from the given graph model
      */
-    <T> T load(Class<T> type, G graphModel);
-
-    <T> Collection<T> loadAll(Class<T> type, G graphModel);
+    <T> Collection<T> load(Class<T> type, G graphModel);
 
 }

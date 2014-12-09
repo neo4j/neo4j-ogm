@@ -7,7 +7,6 @@ public class Neo4jRepositoryConfigurationExtension extends RepositoryConfigurati
 
     @Override
     public String getRepositoryFactoryClassName() {
-        System.out.println("getting repository factory bean class");
         return GraphRepositoryFactoryBean.class.getName();
     }
 

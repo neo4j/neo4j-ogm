@@ -1,21 +1,22 @@
 package org.neo4j.spring.example.world;
 
 import org.neo4j.spring.domain.World;
-import org.neo4j.spring.repositories.GraphRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Component
+@Service
 public class GalaxyService {
 
 
-    // TODO: private WorldRespository extends GraphRepository<World>
+    // TODO: private WorldRepository extends GraphRepository<World>
 
     @Autowired
-    private GraphRepository<World> worldRepository;
+    //private GraphRepository<World> worldRepository;
+
+    private WorldRepository worldRepository;
 
     public long getNumberOfWorlds() {
         return worldRepository.count();
@@ -96,5 +97,7 @@ public class GalaxyService {
     public void deleteAll() {
         worldRepository.deleteAll();
     }
+
+
 
 }

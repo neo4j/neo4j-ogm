@@ -1,50 +1,23 @@
 package org.neo4j.spring.example.world;
 
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.spring.InMemoryNeo4jServer;
-import org.neo4j.spring.Neo4jServer;
-import org.neo4j.spring.domain.World;
-import org.neo4j.spring.repositories.GraphRepository;
-import org.neo4j.spring.repositories.impl.GraphRepositoryImpl;
+import org.neo4j.spring.InProcessServer;
+import org.springframework.data.neo4j.server.Neo4jServer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-
-import javax.annotation.Resource;
+import org.springframework.data.neo4j.EnableNeo4jRepositories;
+import org.springframework.data.neo4j.config.Neo4jConfiguration;
 
 @Configuration
-@ComponentScan({"org.neo4j.spring.repositories.impl", "org.neo4j.spring.example.world"})
+@ComponentScan({"org.neo4j.spring.example.world"})
 @PropertySource("classpath:application.properties")
-class ApplicationContext {
-
-    @Resource
-    private Environment environment;
+@EnableNeo4jRepositories("org.neo4j.spring.example.world")
+class ApplicationContext extends Neo4jConfiguration {
 
     @Bean
-    SessionFactory getSessionFactory() {
-        return new SessionFactory(environment.getRequiredProperty("domain"));
+    public Neo4jServer neo4jServer() {
+        return new InProcessServer();
+        //production: return new OutOfProcessServer(environment.getRequiredProperty("url");
     }
-
-    @Bean
-    Session getSession() throws Exception {
-        // do this in production.
-        //return getSessionFactory().openSession(environment.getRequiredProperty("url"));
-
-        return getSessionFactory().openSession(getNeo4jServer().url());
-    }
-
-    @Bean
-    Neo4jServer getNeo4jServer() throws Exception {
-        return new InMemoryNeo4jServer();
-        //return new LocalhostServer();
-    }
-
-    @Bean
-    GraphRepository<World> worldRepository() throws Exception {
-        return new GraphRepositoryImpl<>(World.class, getSession());
-    }
-
 }

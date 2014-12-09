@@ -1,4 +1,4 @@
-package org.neo4j.spring;
+package org.springframework.data.neo4j.server;
 
 public interface Neo4jServer {
     String url();

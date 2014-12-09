@@ -1,11 +1,12 @@
-package org.neo4j.spring.repositories.impl;
+package org.springframework.data.neo4j.repository;
 
 import org.neo4j.graphmodel.Property;
 import org.neo4j.ogm.session.Session;
-import org.neo4j.spring.repositories.GraphRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 
+@Repository
 public class GraphRepositoryImpl<T> implements GraphRepository<T> {
 
     private final Class clazz;

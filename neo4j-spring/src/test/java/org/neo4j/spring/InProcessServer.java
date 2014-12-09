@@ -2,26 +2,29 @@ package org.neo4j.spring;
 
 import org.neo4j.server.NeoServer;
 import org.neo4j.server.helpers.CommunityServerBuilder;
+import org.springframework.data.neo4j.server.Neo4jServer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class InMemoryNeo4jServer implements Neo4jServer {
+public class InProcessServer implements Neo4jServer {
 
     private final NeoServer neoServer;
     protected int neoPort;
 
-    public InMemoryNeo4jServer() throws IOException {
+    public InProcessServer()  {
         neoPort = getAvailablePort();
-        neoServer = CommunityServerBuilder.server().onPort(neoPort).build();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                neoServer.stop();
-            }
-        });
-
-        neoServer.start();
+        try {
+            neoServer = CommunityServerBuilder.server().onPort(neoPort).build();
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    neoServer.stop();
+                }
+            });
+            neoServer.start();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
     }
 
     public String url() {

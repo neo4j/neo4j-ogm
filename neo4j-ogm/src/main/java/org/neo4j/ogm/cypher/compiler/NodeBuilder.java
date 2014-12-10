@@ -9,8 +9,8 @@ public abstract class NodeBuilder implements CypherEmitter {
 
     private final String cypherReference;
 
-    protected final Map<String, Object> props = new HashMap<>();
-    protected final List<String> labels = new ArrayList<>();
+    final Map<String, Object> props = new HashMap<>();
+    final List<String> labels = new ArrayList<>();
 
     /**
      * Constructs a new {@link NodeBuilder} identified by the named variable in the context of its enclosing Cypher
@@ -22,13 +22,13 @@ public abstract class NodeBuilder implements CypherEmitter {
         this.cypherReference = variableName;
     }
 
-    public NodeBuilder addLabel(String labelName) {
+    NodeBuilder addLabel(String labelName) {
         this.labels.add(labelName);
         return this;
     }
 
 
-    public NodeBuilder addProperty(String propertyName, Object value) {
+    NodeBuilder addProperty(String propertyName, Object value) {
         this.props.put(propertyName, value);
         return this;
     }

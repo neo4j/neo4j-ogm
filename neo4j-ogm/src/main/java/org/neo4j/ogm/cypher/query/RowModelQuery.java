@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class RowModelQuery extends ParameterisedStatement {
 
-    public RowModelQuery(String cypher, Map<String, ? extends Object> parameters) {
+    public RowModelQuery(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters, "row");
     }
 }

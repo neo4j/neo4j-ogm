@@ -38,7 +38,7 @@ public interface CypherCompiler {
      * Returns a {@link NodeBuilder} that represents a node that already exists in the database and matches the given ID.
      *
      * @param existingNodeId The ID of the node in the database
-     * @return A {@link NodeBuilder} representing the ndoe in the database that corresponds to the given ID
+     * @return A {@link NodeBuilder} representing the node in the database that corresponds to the given ID
      */
     NodeBuilder existingNode(Long existingNodeId);
 

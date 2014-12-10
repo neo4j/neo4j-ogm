@@ -18,7 +18,7 @@ package org.neo4j.ogm.cypher.compiler;
  * overlap.
  *
  */
-public class IdentifierManager {
+class IdentifierManager {
 
     private static final String NEW_FORMAT = "_%d";
     private static final String EXISTING_FORMAT = "$%d";

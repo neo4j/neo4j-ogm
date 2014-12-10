@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class GraphModelQuery extends ParameterisedStatement {
 
-    public GraphModelQuery(String cypher, Map<String, ? extends Object> parameters) {
+    public GraphModelQuery(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters, "graph");
     }
 }

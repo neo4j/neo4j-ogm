@@ -18,11 +18,11 @@ public class ParameterisedStatement {
      * @param cypher The parameterised Cypher query string
      * @param parameters The name-value pairs that satisfy the parameters in the given query
      */
-    public ParameterisedStatement(String cypher, Map<String, ? extends Object> parameters) {
+    public ParameterisedStatement(String cypher, Map<String, ?> parameters) {
         this(cypher, parameters, "row");
     }
 
-    public ParameterisedStatement(String cypher, Map<String, ? extends Object> parameters, String... resultDataContents) {
+    protected ParameterisedStatement(String cypher, Map<String, ?> parameters, String... resultDataContents) {
         this.statement = cypher;
         this.parameters.putAll(parameters);
         this.resultDataContents = resultDataContents;

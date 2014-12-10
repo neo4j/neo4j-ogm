@@ -41,20 +41,16 @@ public class MappingContextTest {
         assertEquals(NUM_OBJECTS, objects.size());
 
         int sum = (NUM_OBJECTS * (NUM_OBJECTS + 1)) / 2;
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
 
         for (Object object : objects) {
             TestObject testObject = (TestObject) object;
             sum -= testObject.id;                           // remove this id from sum of all ids
             assertEquals(1, testObject.notes.size());       // only one thread created this object
             int id = Integer.parseInt(testObject.notes.get(0));
-            if (id < min ) min = id;                        // update min thread-id found
-            if (id > max ) max = id;                        // update max thread-id found
         }
 
         assertEquals(0, sum);                               // all objects were created
-        assertEquals(NUM_THREADS, max-min+1);               // all threads took part
+
     }
 
     class TestObject {

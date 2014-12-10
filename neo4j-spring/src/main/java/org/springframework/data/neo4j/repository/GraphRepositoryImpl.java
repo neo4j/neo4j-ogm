@@ -1,6 +1,6 @@
 package org.springframework.data.neo4j.repository;
 
-import org.neo4j.graphmodel.Property;
+import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.Session;
 import org.springframework.stereotype.Repository;
 

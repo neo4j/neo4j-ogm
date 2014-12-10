@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session.request.strategy;
 
-import org.neo4j.graphmodel.Property;
+import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.session.Utils;
 

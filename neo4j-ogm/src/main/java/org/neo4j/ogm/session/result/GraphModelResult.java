@@ -1,6 +1,6 @@
 package org.neo4j.ogm.session.result;
 
-import org.neo4j.graphmodel.GraphModel;
+import org.neo4j.ogm.model.GraphModel;
 
 public class GraphModelResult {
 

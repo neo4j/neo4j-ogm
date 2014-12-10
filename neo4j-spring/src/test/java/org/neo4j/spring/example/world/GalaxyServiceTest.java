@@ -53,6 +53,18 @@ public class GalaxyServiceTest {
     }
 
     @Test
+    public void createAllWorldsAtOnce() {
+        galaxyService.makeAllWorldsAtOnce();
+        assertEquals(13, galaxyService.getNumberOfWorlds());
+
+        World earth = galaxyService.findWorldByName("Earth");
+        World mars = galaxyService.findWorldByName("Mars");
+
+        assertTrue(mars.canBeReachedFrom(earth));
+        assertTrue(earth.canBeReachedFrom(mars));
+    }
+
+    @Test
     public void shouldFindWorldsById() {
         galaxyService.makeSomeWorlds();
 

@@ -1,7 +1,7 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.graphmodel.GraphModel;
+import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.result.GraphModelResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

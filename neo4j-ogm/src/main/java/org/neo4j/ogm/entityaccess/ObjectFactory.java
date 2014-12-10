@@ -1,7 +1,7 @@
 package org.neo4j.ogm.entityaccess;
 
-import org.neo4j.graphmodel.NodeModel;
-import org.neo4j.graphmodel.RelationshipModel;
+import org.neo4j.ogm.model.NodeModel;
+import org.neo4j.ogm.model.RelationshipModel;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;

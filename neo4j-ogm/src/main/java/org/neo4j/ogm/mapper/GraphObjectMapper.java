@@ -1,9 +1,9 @@
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.graphmodel.GraphModel;
-import org.neo4j.graphmodel.NodeModel;
-import org.neo4j.graphmodel.Property;
-import org.neo4j.graphmodel.RelationshipModel;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.NodeModel;
+import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.model.RelationshipModel;
 import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
 import org.neo4j.ogm.entityaccess.FieldAccess;
 import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;

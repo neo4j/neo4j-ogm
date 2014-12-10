@@ -1,4 +1,4 @@
-package org.neo4j.graphmodel;
+package org.neo4j.ogm.model;
 
 public class Property<K, V> {
 

@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class ObjectMemoTest {
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.education");
-    private static final ObjectMemo nodeMemo = new ObjectMemo();
+    private static final ObjectMemo objectMemo = new ObjectMemo();
 
     @Test
     public void testUnchangedObjectDetected() {
@@ -21,11 +21,11 @@ public class ObjectMemoTest {
         ClassInfo classInfo = metaData.classInfo(Teacher.class.getName());
         Teacher mrsJones = new Teacher();
 
-        nodeMemo.remember(mrsJones, classInfo);
+        objectMemo.remember(mrsJones, classInfo);
 
         mrsJones.setId(115L); // the id field must not be part of the memoised property list
 
-        assertTrue(nodeMemo.remembered(mrsJones, classInfo));
+        assertTrue(objectMemo.remembered(mrsJones, classInfo));
 
     }
 
@@ -35,12 +35,12 @@ public class ObjectMemoTest {
         ClassInfo classInfo = metaData.classInfo(Teacher.class.getName());
         Teacher teacher = new Teacher("Miss White");
 
-        nodeMemo.remember(teacher, classInfo);
+        objectMemo.remember(teacher, classInfo);
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
         teacher.setName("Mrs Jones"); // the teacher's name property has changed.
 
-        assertFalse(nodeMemo.remembered(teacher, classInfo));
+        assertFalse(objectMemo.remembered(teacher, classInfo));
     }
 
     @Test
@@ -49,12 +49,27 @@ public class ObjectMemoTest {
         ClassInfo classInfo = metaData.classInfo(Teacher.class.getName());
         Teacher teacher = new Teacher("Miss White");
 
-        nodeMemo.remember(teacher, classInfo);
+        objectMemo.remember(teacher, classInfo);
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
         teacher.setSchool(new School("Roedean")); // a related object does not affect the property list.
 
-        assertTrue(nodeMemo.remembered(teacher, classInfo));
+        assertTrue(objectMemo.remembered(teacher, classInfo));
+    }
+
+    @Test
+    public void testCostOfNodeMemoisationIsAcceptable() {
+
+        ClassInfo classInfo = metaData.classInfo(Teacher.class.getName());
+
+        long elapsed = -System.currentTimeMillis();
+        for (int i = 0; i < 100000; i++) {
+            objectMemo.remember(new Teacher("mr " + i), classInfo);
+        }
+        elapsed += System.currentTimeMillis();
+        assertTrue(elapsed < 1000);  // at least 100 per second
+
+
     }
 
 }

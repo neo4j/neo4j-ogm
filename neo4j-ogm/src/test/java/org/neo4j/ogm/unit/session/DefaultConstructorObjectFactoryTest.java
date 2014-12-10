@@ -1,7 +1,7 @@
 package org.neo4j.ogm.unit.session;
 
-import org.neo4j.graphmodel.NodeModel;
-import org.neo4j.graphmodel.RelationshipModel;
+import org.neo4j.ogm.model.NodeModel;
+import org.neo4j.ogm.model.RelationshipModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.canonical.ClassWithPrivateConstructor;

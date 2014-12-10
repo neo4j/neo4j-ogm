@@ -10,12 +10,7 @@ import java.util.Collection;
 @Service
 public class GalaxyService {
 
-
-    // TODO: private WorldRepository extends GraphRepository<World>
-
     @Autowired
-    //private GraphRepository<World> worldRepository;
-
     private WorldRepository worldRepository;
 
     public long getNumberOfWorlds() {
@@ -62,8 +57,6 @@ public class GalaxyService {
         World earth = createWorld("Earth", 1);
         World mars = createWorld("Mars", 2);
 
-
-
         mars.addRocketRouteTo(earth);
 
         // todo: handle bi-directional automatically
@@ -94,10 +87,44 @@ public class GalaxyService {
         return worlds;
     }
 
+    // not in original
+    public Collection<World> makeAllWorldsAtOnce() {
+
+        Collection<World> worlds = new ArrayList<World>();
+        
+        // Solar worlds
+        
+        worlds.add(new World("Mercury", 0));
+        worlds.add(new World("Venus", 0));
+
+        World earth = new World("Earth", 1);
+        World mars = new World("Mars", 2);
+
+        mars.addRocketRouteTo(earth);
+        earth.addRocketRouteTo(mars);
+
+        worlds.add(earth);
+        worlds.add(mars);
+
+        worlds.add(new World("Jupiter", 63));
+        worlds.add(new World("Saturn", 62));
+        worlds.add(new World("Uranus", 27));
+        worlds.add(new World("Neptune", 13));
+
+        // Norse worlds
+        worlds.add(new World("Alfheimr", 0));
+        worlds.add(new World("Midgard", 1));
+        worlds.add(new World("Muspellheim", 2));
+        worlds.add(new World("Asgard", 63));
+        worlds.add(new World("Hel", 62));
+
+        worldRepository.save(worlds);
+
+        return worlds;
+    }
+    
     public void deleteAll() {
         worldRepository.deleteAll();
     }
-
-
 
 }

@@ -1,6 +1,6 @@
 package org.neo4j.ogm.unit.mapper.cypher;
 
-import org.neo4j.graphmodel.Property;
+import org.neo4j.ogm.model.Property;
 import org.junit.Test;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 

@@ -17,11 +17,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>graph-model</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
@@ -85,7 +80,6 @@
                             </includes>
                             <excludes>
                                 <exclude>**/integration/**</exclude>
-                                <exclude>**/performance/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -102,29 +96,10 @@
                             </includes>
                             <excludes>
                                 <exclude>**/unit/**</exclude>
-                                <exclude>**/performance/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
 
-                    <!--
-                    <execution>
-                        <id>performance-test</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/performance/**</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/unit/**</exclude>
-                                <exclude>**/integration/**</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    -->
                 </executions>
             </plugin>
         </plugins>

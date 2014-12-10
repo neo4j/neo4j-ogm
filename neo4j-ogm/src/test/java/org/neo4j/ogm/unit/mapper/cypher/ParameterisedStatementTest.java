@@ -2,7 +2,7 @@ package org.neo4j.ogm.unit.mapper.cypher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.neo4j.graphmodel.Property;
+import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;

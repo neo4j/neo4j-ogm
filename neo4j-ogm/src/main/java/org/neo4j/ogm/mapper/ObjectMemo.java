@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ObjectMemo {
 
-    private Map<Object, Long> objectHash = new HashMap<>();
+    private final Map<Object, Long> objectHash = new HashMap<>();
 
     // objects with no properties will always hash to this value.
     private static final long seed = 0xDEADBEEF / (11 * 257);
@@ -18,8 +18,8 @@ public class ObjectMemo {
     /**
      * constructs a 64-bit hash of this object's node properties
      * and maps the object to that hash. The object must not be null
-     * @param object
-     * @param classInfo
+     * @param object the object whose persistable properties we want to hash
+     * @param classInfo metadata about the object
      */
     public void remember(Object object, ClassInfo classInfo) {
         objectHash.put(object, hash(object, classInfo));
@@ -31,9 +31,9 @@ public class ObjectMemo {
      * is regarded as memorised if its hash value in the memo hash
      * is identical to a recalculation of its hash value.
      *
-     * @param object
-     * @param classInfo
-     * @return
+     * @param object the object whose persistable properties we want to check
+     * @param classInfo metadata about the object
+     * @return true if the object hasn't changed since it was remembered, false otherwise
      */
     public boolean remembered(Object object, ClassInfo classInfo) {
         return objectHash.containsKey(object) && hash(object, classInfo) == objectHash.get(object);

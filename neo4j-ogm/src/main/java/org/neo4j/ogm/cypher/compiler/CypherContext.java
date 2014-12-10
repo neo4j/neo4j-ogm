@@ -24,11 +24,6 @@ public class CypherContext {
         this.visitedObjects.put(toPersist, nodeBuilder);
     }
 
-    @Deprecated
-    public void visit(Object toPersist, Long identity, NodeBuilder nodeBuilder) {
-        this.visitedObjects.put(toPersist, nodeBuilder);
-    }
-
     public void registerRelationship(MappedRelationship mappedRelationship) {
         this.registeredRelationships.add(mappedRelationship);
     }

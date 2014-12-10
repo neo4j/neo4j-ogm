@@ -1,6 +1,5 @@
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.*;
@@ -29,14 +28,6 @@ public class MappingContext {
         objectMap.putIfAbsent(id, object);
         getAll(object.getClass()).add(object = objectMap.get(id));
         return object;
-    }
-
-    public Object getRoot(Class<?> type ) throws Exception {
-        Set<Object> roots = typeMap.get(type);
-        if (roots == null || roots.isEmpty()) {
-            throw new MappingException("FATAL: Could not return class of type " + type.getSimpleName());
-        }
-        return roots.iterator().next();
     }
 
     public Set<Object> getAll(Class<?> type) {

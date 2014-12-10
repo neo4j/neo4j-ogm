@@ -58,7 +58,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    private void mapNodes(GraphModel graphModel) throws Exception {
+    private void mapNodes(GraphModel graphModel) {
         for (NodeModel node : graphModel.getNodes()) {
             Object object = mappingContext.get(node.getId());
             if (object == null) {
@@ -74,19 +74,19 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    private void setIdentity(Object instance, Long id) throws Exception {
+    private void setIdentity(Object instance, Long id) {
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
         FieldInfo fieldInfo = classInfo.identityField();
         FieldAccess.write(classInfo.getField(fieldInfo), instance, id);
     }
 
-    private Long getIdentity(Object instance) throws Exception {
+    private Long getIdentity(Object instance) {
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
         FieldInfo fieldInfo = classInfo.identityField();
         return (Long) FieldAccess.read(classInfo.getField(fieldInfo), instance);
     }
 
-    private void setProperties(NodeModel nodeModel, Object instance) throws Exception {
+    private void setProperties(NodeModel nodeModel, Object instance) {
         // cache this.
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
         for (Property property : nodeModel.getPropertyList()) {
@@ -119,7 +119,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         return false;
     }
 
-    private void mapRelationships(GraphModel graphModel) throws Exception {
+    private void mapRelationships(GraphModel graphModel) {
 
         final Set<RelationshipModel> oneToMany = new HashSet<>();
 
@@ -139,7 +139,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     }
 
     // FIXME: this code is buggy. it is setting the same collection multiple times!
-    private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) throws Exception {
+    private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) {
 
         Map<Object, Map<Class<?>, Set<Object>>> typeRelationships = new HashMap<>();
 

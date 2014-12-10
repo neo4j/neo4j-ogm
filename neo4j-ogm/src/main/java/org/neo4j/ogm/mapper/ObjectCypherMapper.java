@@ -103,10 +103,10 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     /**
      * Returns a node-builder responsible for handling new or updated nodes
      *
-     * @param cypherBuilder
-     * @param toPersist
-     * @param context
-     * @return
+     * @param cypherBuilder the compiler class
+     * @param toPersist the object to save
+     * @param context the context maintained for the lifetime of the transaction
+     * @return a node builder object for either a new node or an existing one
      */
     private NodeBuilder getNodeBuilder(CypherCompiler cypherBuilder, Object toPersist, CypherContext context) {
 
@@ -121,7 +121,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         }
 
         NodeBuilder existingNode = cypherBuilder.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
-        context.visit(toPersist, Long.valueOf(id.toString()), existingNode);
+        context.visit(toPersist, existingNode);
 
         return existingNode;
     }

@@ -6,7 +6,7 @@ import java.util.*;
 public abstract class ObjectAccess implements PropertyWriter, RelationalWriter {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) throws Exception {
+    static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) {
 
         // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
         if (List.class.isAssignableFrom(parameterType)) {

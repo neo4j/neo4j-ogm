@@ -46,10 +46,10 @@ public class ClassInfo {
     private AnnotationsInfo annotationsInfo = new AnnotationsInfo();
 
     private ClassInfo directSuperclass;
-    private ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
+    private final ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
 
     // ??
-    private HashSet<InterfaceInfo> interfaces = new HashSet<>();
+    private final HashSet<InterfaceInfo> interfaces = new HashSet<>();
     private InterfacesInfo interfacesInfo = new InterfacesInfo();
 
     // todo move this to a factory class
@@ -122,11 +122,11 @@ public class ClassInfo {
         return className;
     }
 
-    public String simpleName() {
+    String simpleName() {
         return className.substring(className.lastIndexOf('.') + 1);
     }
 
-    public ClassInfo directSuperclass() {
+    ClassInfo directSuperclass() {
         return directSuperclass;
     }
 
@@ -159,7 +159,7 @@ public class ClassInfo {
         return directSubclasses;
     }
 
-    public Set<InterfaceInfo> interfaces() {
+    Set<InterfaceInfo> interfaces() {
         return interfaces;
     }
 

@@ -9,9 +9,9 @@ public class FieldInfo {
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
     private static final String scalars = "I,J,S,B,C,F,D,Z";
 
-    private String name;
-    private String descriptor;
-    private ObjectAnnotations annotations;
+    private final String name;
+    private final String descriptor;
+    private final ObjectAnnotations annotations;
 
     public FieldInfo(String name, String descriptor, ObjectAnnotations annotations) {
         this.name = name;

@@ -6,7 +6,7 @@ import java.util.Map;
 public class ObjectAnnotations {
 
     private String objectName; // fully qualified class, method or field name.
-    private Map<String, AnnotationInfo> annotations = new HashMap<>();
+    private final Map<String, AnnotationInfo> annotations = new HashMap<>();
 
     public String getName() {
         return objectName;

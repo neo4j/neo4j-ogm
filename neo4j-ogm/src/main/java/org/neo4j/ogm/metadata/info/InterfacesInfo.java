@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InterfacesInfo {
+class InterfacesInfo {
 
-    private Map<String, InterfaceInfo> interfaceMap = new HashMap<>();
+    private final Map<String, InterfaceInfo> interfaceMap = new HashMap<>();
 
     InterfacesInfo() {}
 

@@ -44,12 +44,14 @@ public class ClassPathScanner {
 
         if (scanFolders || scanFiles) {
             File[] subFiles = folder.listFiles();
-            for (final File subFile : subFiles) {
-                if (subFile.isDirectory()) {
-                    scanFolder(subFile, prefixSize);
-                } else if (scanFiles && subFile.isFile()) {
-                    String leafSuffix = "/" + subFile.getName();
-                    scanFile(subFile, relativePath + leafSuffix);
+            if (subFiles != null) {
+                for (final File subFile : subFiles) {
+                    if (subFile.isDirectory()) {
+                        scanFolder(subFile, prefixSize);
+                    } else if (scanFiles && subFile.isFile()) {
+                        String leafSuffix = "/" + subFile.getName();
+                        scanFile(subFile, relativePath + leafSuffix);
+                    }
                 }
             }
         }

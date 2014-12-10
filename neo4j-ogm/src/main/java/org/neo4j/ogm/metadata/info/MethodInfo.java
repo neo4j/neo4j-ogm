@@ -9,9 +9,9 @@ public class MethodInfo {
     private static final String simpleGetters="()I,()J,()S,()B,()C,()F,()D,()Z,()[I,()[J,()[S,()[B,()[C,()[F,()[D,()[Z";
     private static final String simpleSetters="(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
 
-    private String name;
-    private String descriptor;
-    private ObjectAnnotations annotations;
+    private final String name;
+    private final String descriptor;
+    private final ObjectAnnotations annotations;
 
     public MethodInfo(String name, String descriptor, ObjectAnnotations annotations) {
         this.name = name;

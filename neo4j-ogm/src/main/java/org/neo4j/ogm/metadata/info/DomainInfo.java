@@ -8,7 +8,7 @@ import java.util.*;
 
 public class DomainInfo implements ClassInfoProcessor {
 
-    private List<String> classPaths = new ArrayList<>();
+    private final List<String> classPaths = new ArrayList<>();
 
     private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();

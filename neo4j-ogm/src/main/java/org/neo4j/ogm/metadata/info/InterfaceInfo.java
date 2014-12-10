@@ -6,13 +6,13 @@ import java.util.Set;
 /**
  * Direct and ancestral interfaces of a given interface.
  */
-public class InterfaceInfo {
+class InterfaceInfo {
 
-    private String interfaceName;
-    private Set<InterfaceInfo> superInterfaces = new HashSet<>();
+    private final String interfaceName;
+    private final Set<InterfaceInfo> superInterfaces = new HashSet<>();
 
     // what's this for?
-    private Set<InterfaceInfo> allSuperInterfaces = new HashSet<>();
+    private final Set<InterfaceInfo> allSuperInterfaces = new HashSet<>();
 
     public InterfaceInfo(String name) {
         this.interfaceName = name;
@@ -26,7 +26,7 @@ public class InterfaceInfo {
         return allSuperInterfaces;
     }
 
-    public String name() {
+    String name() {
         return interfaceName;
     }
 

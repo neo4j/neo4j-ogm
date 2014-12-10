@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class AnnotationsInfo {
 
-    private Map<String, AnnotationInfo> classAnnotations = new HashMap<>();
+    private final Map<String, AnnotationInfo> classAnnotations = new HashMap<>();
 
     AnnotationsInfo() {}
 
@@ -43,7 +43,7 @@ public class AnnotationsInfo {
         return classAnnotations.get(annotationName);
     }
 
-    public void add(AnnotationInfo annotationInfo) {
+    void add(AnnotationInfo annotationInfo) {
         classAnnotations.put(annotationInfo.getName(), annotationInfo);
     }
 

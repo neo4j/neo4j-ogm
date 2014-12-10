@@ -15,7 +15,7 @@ public class DuplicateClassLookupException extends MappingException {
      * @param classSimpleName The simple class name that was looked up
      * @param duplicates The collection of offending duplicate classes
      */
-    public DuplicateClassLookupException(String classSimpleName, Collection<? extends Object> duplicates) {
+    public DuplicateClassLookupException(String classSimpleName, Collection<?> duplicates) {
         super("More than one class in classpath found for simple name " + classSimpleName + ": " + duplicates);
     }
 

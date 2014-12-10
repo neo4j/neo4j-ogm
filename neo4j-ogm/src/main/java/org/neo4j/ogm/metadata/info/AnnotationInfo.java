@@ -8,7 +8,7 @@ import java.util.Map;
 public class AnnotationInfo {
 
     private String annotationName;
-    private Map<String, String> elements = new HashMap<>();
+    private final Map<String, String> elements = new HashMap<>();
 
     AnnotationInfo() {}
 
@@ -16,11 +16,11 @@ public class AnnotationInfo {
         return annotationName;
     }
 
-    public void setName(String annotationName) {
+    void setName(String annotationName) {
         this.annotationName = annotationName;
     }
 
-    public void put(String key, String value) {
+    void put(String key, String value) {
         elements.put(key, value);
     }
 

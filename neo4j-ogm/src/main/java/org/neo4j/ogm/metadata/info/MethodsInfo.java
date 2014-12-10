@@ -8,9 +8,9 @@ import java.util.Map;
 
 public class MethodsInfo {
 
-    private Map<String, MethodInfo> methods = new HashMap<>();
-    private Map<String, MethodInfo> getters = new HashMap<>();
-    private Map<String, MethodInfo> setters = new HashMap<>();
+    private final Map<String, MethodInfo> methods = new HashMap<>();
+    private final Map<String, MethodInfo> getters = new HashMap<>();
+    private final Map<String, MethodInfo> setters = new HashMap<>();
 
     MethodsInfo() {}
 

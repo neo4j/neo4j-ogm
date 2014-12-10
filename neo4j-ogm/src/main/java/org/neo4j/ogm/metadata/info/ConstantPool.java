@@ -3,7 +3,7 @@ package org.neo4j.ogm.metadata.info;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class ConstantPool {
+class ConstantPool {
 
     private final Object[] pool;
 
@@ -53,7 +53,7 @@ public class ConstantPool {
         }
     }
 
-    public String lookup(int entry) throws IOException {
+    public String lookup(int entry) {
 
         Object constantPoolObj = pool[entry];
         return (constantPoolObj instanceof Integer

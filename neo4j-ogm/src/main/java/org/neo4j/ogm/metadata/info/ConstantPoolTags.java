@@ -1,6 +1,6 @@
 package org.neo4j.ogm.metadata.info;
 
-public interface ConstantPoolTags {
+interface ConstantPoolTags {
 
     static final int UTF_8          = 1;
     static final int INTEGER        = 3;

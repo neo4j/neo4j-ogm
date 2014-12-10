@@ -9,7 +9,7 @@ public class FieldsInfo {
     private static final int STATIC_FIELD = 0x0008;
     private static final int FINAL_FIELD = 0x0010;
 
-    private Map<String, FieldInfo> fields = new HashMap<>();
+    private final Map<String, FieldInfo> fields = new HashMap<>();
 
     FieldsInfo() {}
 

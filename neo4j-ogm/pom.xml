@@ -107,6 +107,7 @@
                         </configuration>
                     </execution>
 
+                    <!--
                     <execution>
                         <id>performance-test</id>
                         <phase>verify</phase>
@@ -123,7 +124,7 @@
                             </excludes>
                         </configuration>
                     </execution>
-
+                    -->
                 </executions>
             </plugin>
         </plugins>

@@ -57,19 +57,6 @@ public class ObjectMemoTest {
         assertTrue(objectMemo.remembered(teacher, classInfo));
     }
 
-    @Test
-    public void testCostOfNodeMemoisationIsAcceptable() {
 
-        ClassInfo classInfo = metaData.classInfo(Teacher.class.getName());
-
-        long elapsed = -System.currentTimeMillis();
-        for (int i = 0; i < 100000; i++) {
-            objectMemo.remember(new Teacher("mr " + i), classInfo);
-        }
-        elapsed += System.currentTimeMillis();
-        assertTrue(elapsed < 1000);  // at least 100 per second
-
-
-    }
 
 }

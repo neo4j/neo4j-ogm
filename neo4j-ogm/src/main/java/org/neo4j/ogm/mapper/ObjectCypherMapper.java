@@ -89,8 +89,8 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         NodeBuilder nodeBuilder = getNodeBuilder(cypherBuilder, toPersist, context);
 
         // don't give Neo4j more work to do than it needs
-        if (mappingContext.isDirty(toPersist, classInfo)) {
-            // todo: context.log(toPersist)
+        if (mappingContext.isDirty(toPersist)) {
+            context.log(toPersist);
             nodeBuilder.mapProperties(toPersist, classInfo, objectAccessStrategy);
         }
 
@@ -173,7 +173,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         if (!mappingContext.contains(relationship)) {
             logger.debug("creating new relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
-            // todo: context.log(relationship);
+            context.log(relationship);
         } else {
             logger.debug("skipping unchanged relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             context.registerRelationship(relationship);

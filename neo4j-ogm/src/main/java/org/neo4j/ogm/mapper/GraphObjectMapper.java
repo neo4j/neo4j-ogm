@@ -67,7 +67,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
                     synchronized (object) {
                         setIdentity(object, node.getId());
                         setProperties(node, object);
-                        mappingContext.remember(object, metadata.classInfo(object.getClass().getName()));
+                        mappingContext.remember(object);
                     }
                 }
             }

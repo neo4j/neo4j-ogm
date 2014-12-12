@@ -1,6 +1,6 @@
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.MetaData;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,12 +13,19 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
+
     private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
 
     // using these two objects we maintain synchronisation state with the database
     private final List<MappedRelationship> mappedRelationships = new ArrayList<>();
     private final ObjectMemo objectMemo = new ObjectMemo();
+
+    private final MetaData metaData;
+
+    public MappingContext(MetaData metaData) {
+        this.metaData = metaData;
+    }
 
     public Object get(Long id) {
         return objectMap.get(id);
@@ -43,12 +50,12 @@ public class MappingContext {
 
     }
 
-    public void remember(Object object, ClassInfo classInfo) {
-        objectMemo.remember(object, classInfo);
+    public void remember(Object object) {
+        objectMemo.remember(object, metaData.classInfo(object.getClass().getName()));
     }
 
-    public boolean isDirty(Object toPersist, ClassInfo classInfo) {
-        return !objectMemo.remembered(toPersist, classInfo);
+    public boolean isDirty(Object toPersist) {
+        return !objectMemo.remembered(toPersist, metaData.classInfo(toPersist.getClass().getName()));
     }
 
     public boolean contains(MappedRelationship relationship) {

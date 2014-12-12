@@ -1,6 +1,7 @@
 package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.Session;
 
@@ -33,10 +34,14 @@ public class Transaction {
     }
 
     public final void append(CypherContext context) {
-        contexts.add(context);
-        status = OPEN | PENDING;
-        if (autocommit) {
-            commit();
+        if (status == OPEN) {
+            contexts.add(context);
+            status = PENDING;
+            if (autocommit) {
+                commit();
+            }
+        } else {
+            throw new RuntimeException("Transaction is closed. Cannot accept new operations");
         }
     }
 
@@ -44,21 +49,34 @@ public class Transaction {
         return url;
     }
 
+    // rollback a transaction that has pending writes
+    // calling rollback on a transaction with no pending read/writes is an error
     public final void rollback() {
-        contexts.clear();
-        status = OPEN | ROLLEDBACK;
+        if (status == PENDING) {
+            contexts.clear();
+            status = ROLLEDBACK;
+        } else {
+            throw new RuntimeException("Transaction has no pending operations. Cannot rollback");
+        }
     }
 
     // commit a transaction that has pending writes
-    // calling commit on a transaction with no pending read/writes has no effect
+    // calling commit on a transaction with no pending read/writes is an error
     public final void commit() {
 
-        if (status == (OPEN | PENDING) ) {
-
-            session.flush();
+        if (status == (PENDING) ) {
 
             // 1. iterate over the cypher contexts and update the mapping context accordingly.
             for (CypherContext cypherContext : contexts) {
+                for (Object o : cypherContext.log())  {
+                    // dirty disgusting hack
+                    // todo : we need separate logs for each of new objects, new rels and deleted rels
+                    if (o instanceof MappedRelationship) {
+                        mappingContext.remember((MappedRelationship) o);
+                    } else {
+                        mappingContext.remember(o);
+                    }
+                }
                 // mappingContext.remember(cypherContext.dirtyObjects[])
                 // mappingContext.remember(new relationships);
                 // mappingContext.remove(deleted relationships);
@@ -66,13 +84,15 @@ public class Transaction {
 
             // 2. clear the tx history
             contexts.clear();
+            status = COMMITTED;
+        } else {
+            throw new RuntimeException("Transaction has no pending writes. Cannot commit");
         }
-        status = OPEN | COMMITTED;
+
     }
 
     public int status() {
         return status;
     }
-
 
 }

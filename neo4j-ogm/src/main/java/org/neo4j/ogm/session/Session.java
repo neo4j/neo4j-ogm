@@ -42,10 +42,8 @@ public interface Session {
     <T> void deleteAll(Class<T> type);
 
 
-
     Transaction beginTransaction();
 
     void close();
 
-    void flush();
 }

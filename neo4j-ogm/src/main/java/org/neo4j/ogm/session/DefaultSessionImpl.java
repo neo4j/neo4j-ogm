@@ -40,6 +40,7 @@ public class DefaultSessionImpl implements Session {
     private final String autoCommitUrl;
 
     private Neo4jRequestHandler<String> requestHandler;
+
     private TransactionRequestHandler transactionRequestHandler;
     private Transaction transaction;
 
@@ -51,7 +52,7 @@ public class DefaultSessionImpl implements Session {
     public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
 
         this.metaData = metaData;
-        this.mappingContext = new MappingContext();
+        this.mappingContext = new MappingContext(metaData);
         this.mapper = mapper;
         this.requestHandler = new DefaultRequestHandler(client);
         this.transactionRequestHandler = new TransactionRequestHandler(client, url);
@@ -63,11 +64,11 @@ public class DefaultSessionImpl implements Session {
     }
 
     private Transaction getOrCreateTransaction() {
-        //if (this.transaction != null) {
-        //    return this.transaction;
-        //} else {
+        if (this.transaction != null) {
+            return this.transaction;
+        } else {
             return new Transaction(mappingContext, autoCommitUrl, this);
-        //}
+        }
     }
 
     private Neo4jResponseHandler<GraphModel> executeGraphModelQuery(GraphModelQuery query) {
@@ -183,25 +184,16 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public Transaction beginTransaction() {
-        // todo: ensure existing transaction is not pending
-        // todo: make this threadsafe
-        if (transaction != null && transaction.status() == (Transaction.OPEN | Transaction.PENDING)) {
-            throw new RuntimeException("The current transaction should be rolled back or committed before beginning a new one");
+        if (transaction != null && transaction.status() == (Transaction.PENDING)) {
+            throw new RuntimeException("The current transaction has uncommitted writes that should be rolled back or committed before beginning a new one");
         }
-        transaction = new Transaction(mappingContext, transactionRequestHandler.openTransaction(), this);
+        this.transaction = new Transaction(mappingContext, transactionRequestHandler.openTransaction(), this);
         return transaction;
     }
 
     @Override
     public void close() {
-        flush();
-    }
-
-    @Override
-    public void flush() {
-        if (transaction != null && transaction.status() == (Transaction.OPEN | Transaction.PENDING)) {
-
-        }
+        // what does this do??
     }
 
     @Override
@@ -229,7 +221,8 @@ public class DefaultSessionImpl implements Session {
 
         long now = System.currentTimeMillis();
 
-        CypherContext context = new ObjectCypherMapper(metaData, new MappingContext()).mapToCypher(object, depth);
+        // TODO: this looks wrong, we should be passing in the session info, not creating a new mappingContext each time.
+        CypherContext context = new ObjectCypherMapper(metaData, new MappingContext(metaData)).mapToCypher(object, depth);
 
         buildTime += (System.currentTimeMillis() - now);
 

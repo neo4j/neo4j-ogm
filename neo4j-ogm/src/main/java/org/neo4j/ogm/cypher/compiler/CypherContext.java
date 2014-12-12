@@ -13,6 +13,7 @@ public class CypherContext {
     private final Map<Object, NodeBuilder> visitedObjects = new HashMap<>();
     private final Map<String, Object> createdObjects = new HashMap<>();
     private final Collection<MappedRelationship> registeredRelationships = new HashSet<>();
+    private final Collection<Object> log = new HashSet<>();
 
     private List<ParameterisedStatement> statements;
 
@@ -54,5 +55,13 @@ public class CypherContext {
 
     public Collection<MappedRelationship> registeredRelationships() {
         return registeredRelationships;
+    }
+
+    public void log(Object object) {
+        log.add(object);
+    }
+
+    public Collection<Object> log() {
+        return log;
     }
 }

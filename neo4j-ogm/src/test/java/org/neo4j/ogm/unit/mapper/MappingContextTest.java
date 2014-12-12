@@ -18,7 +18,7 @@ public class MappingContextTest {
 
     @Before
     public void setUp() {
-        collector = new MappingContext();
+        collector = new MappingContext(null);
     }
 
     @Test

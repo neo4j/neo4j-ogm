@@ -16,7 +16,9 @@ public class DomainInfo implements ClassInfoProcessor {
     private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
     public DomainInfo(String... packages) {
+        long now = -System.currentTimeMillis();
         load(packages);
+        System.out.println(classNameToClassInfo.entrySet().size() + " classes loaded in " + (now + System.currentTimeMillis()) + " milliseconds");
     }
 
     private void buildAnnotationNameToClassInfoMap() {
@@ -35,7 +37,7 @@ public class DomainInfo implements ClassInfoProcessor {
     public void finish() {
         buildAnnotationNameToClassInfoMap();
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            if (classInfo.name().equals("java.lang.Object")) continue;
+            if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
             if (classInfo.superclassName() == null || classInfo.superclassName().equals("java.lang.Object")) {
                 extend(classInfo, classInfo.directSubclasses());
             }

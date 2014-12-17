@@ -63,7 +63,9 @@ public class AnnotationInfo {
         for (int i = 0; i < numElementValuePairs; i++) {
             String elementName = constantPool.lookup(dataInputStream.readUnsignedShort());
             Object value = readAnnotationElementValue(dataInputStream, constantPool);
-            put(elementName, value.toString());
+            if (elementName != null && value != null) {
+                put(elementName, value.toString());
+            }
         }
     }
 

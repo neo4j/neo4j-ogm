@@ -72,8 +72,10 @@ public class ClassInfo {
         isInterface = (flags & 0x0200) != 0;
 
         className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-        directSuperclassName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-
+        String sce = constantPool.lookup(dataInputStream.readUnsignedShort());
+        if (sce != null) {
+            directSuperclassName = sce.replace('/', '.');
+        }
         interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
         fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);

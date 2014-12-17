@@ -12,8 +12,6 @@ import java.util.List;
 public class DefaultTransactionImpl implements Transaction {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultTransactionImpl.class);
-
-
     private final MappingContext mappingContext;
     private final String url;
     private final boolean autocommit;
@@ -30,6 +28,7 @@ public class DefaultTransactionImpl implements Transaction {
     }
 
     public final void append(CypherContext context) {
+        logger.debug("Appending transaction context " + context);
         if (status == Status.OPEN) {
             contexts.add(context);
             status = Status.PENDING;
@@ -37,7 +36,7 @@ public class DefaultTransactionImpl implements Transaction {
                 commit();
             }
         } else {
-            throw new RuntimeException("Transaction is closed. Cannot accept new operations");
+            throw new TransactionException("Transaction is closed. Cannot accept new operations");
         }
     }
 
@@ -45,25 +44,21 @@ public class DefaultTransactionImpl implements Transaction {
         return url;
     }
 
-    // rollback a transaction that has pending writes
-    // calling rollback on a transaction with no pending read/writes is an error
     public final void rollback() {
+        logger.debug("Attempting to rollback transaction");
         if (status == Status.PENDING) {
             contexts.clear();
             status = Status.ROLLEDBACK;
         } else {
-            throw new RuntimeException("Transaction has no pending operations. Cannot rollback");
+            throw new TransactionException("Transaction has no pending operations. Cannot rollback");
         }
     }
 
-    // commit a transaction that has pending writes
-    // calling commit on a transaction with no pending read/writes is an error
     public final void commit() {
-
+        logger.debug("Attempting to commit transaction");
         if (status == Status.PENDING ) {
-
-            // 1. iterate over the cypher contexts and update the mapping context accordingly.
             for (CypherContext cypherContext : contexts) {
+                logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
                 // todo : subclass these
                 for (Object o : cypherContext.log())  {
                     if (o instanceof MappedRelationship) {
@@ -73,15 +68,11 @@ public class DefaultTransactionImpl implements Transaction {
                     }
                 }
             }
-
-            // 2. clear the tx history
-            logger.debug("clearing transaction log");
             contexts.clear();
             status = Status.COMMITTED;
         } else {
-            throw new RuntimeException("Transaction has no pending operations. Cannot commit");
+            throw new TransactionException("Transaction has no pending operations. Cannot commit");
         }
-
     }
 
     public Status status() {

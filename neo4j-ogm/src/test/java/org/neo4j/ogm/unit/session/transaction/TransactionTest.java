@@ -6,7 +6,9 @@ import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.session.transaction.DefaultTransactionImpl;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionException;
 
 import static org.junit.Assert.*;
 
@@ -20,71 +22,71 @@ public class TransactionTest {
     @Before
     public void setUp() {
         mappingContext = new MappingContext(metaData);
-        tx = new Transaction(mappingContext, "");
+        tx = new DefaultTransactionImpl(mappingContext, "");
     }
 
-    @Test public void createTransaction() {
-        assertEquals(Transaction.OPEN, tx.status());
+    @Test public void assertNewTransactionIsOpen() {
+        assertEquals(Transaction.Status.OPEN, tx.status());
     }
 
-    @Test public void testCommit() {
+    @Test public void assertCommitOperation() {
         tx.append(new CypherContext());
         tx.commit();
-        assertEquals(Transaction.COMMITTED, tx.status());
+        assertEquals(Transaction.Status.COMMITTED, tx.status());
     }
 
-    @Test public void testRollback() {
+    @Test public void assertRollbackOperation() {
         tx.append(new CypherContext());
         tx.rollback();
-        assertEquals(Transaction.ROLLEDBACK, tx.status());
+        assertEquals(Transaction.Status.ROLLEDBACK, tx.status());
 
     }
 
-    @Test(expected = RuntimeException.class) public void testCannotRollbackIfNothingToDo() {
-        tx.rollback();
-    }
-
-    @Test(expected = RuntimeException.class) public void testCannotCommitIfNothingToDo() {
-        tx.commit();
-    }
-
-    @Test(expected = RuntimeException.class) public void testCannotRollbackIfCommitted() {
-        tx.append(new CypherContext());
-        tx.commit();
+    @Test(expected = TransactionException.class) public void failRollbackIfNothingToDo() {
         tx.rollback();
     }
 
-    @Test(expected = RuntimeException.class) public void testCannotRollbackIfRolledBack() {
+    @Test(expected = TransactionException.class) public void failCommitIfNothingToDo() {
+        tx.commit();
+    }
+
+    @Test(expected = TransactionException.class) public void failRollbackIfCommitted() {
+        tx.append(new CypherContext());
+        tx.commit();
+        tx.rollback();
+    }
+
+    @Test(expected = TransactionException.class) public void failRollbackIfRolledBack() {
         tx.append(new CypherContext());
         tx.rollback();
         tx.rollback();
     }
 
-    @Test(expected = RuntimeException.class) public void testCannotCommitIfCommitted() {
+    @Test(expected = TransactionException.class) public void failCommitIfCommitted() {
         tx.append(new CypherContext());
         tx.commit();
         tx.commit();
     }
 
-    @Test(expected = RuntimeException.class) public void testCannotCommitIfRolledBack() {
+    @Test(expected = TransactionException.class) public void failCommitIfRolledBack() {
         tx.append(new CypherContext());
         tx.rollback();
         tx.commit();
     }
 
-    @Test(expected = RuntimeException.class) public void testAddNewOperationIfRolledBack() {
+    @Test(expected = TransactionException.class) public void failNewOperationIfRolledBack() {
         tx.append(new CypherContext());
         tx.rollback();
         tx.append(new CypherContext());
     }
 
-    @Test(expected = RuntimeException.class) public void testAddNewOperationIfCommitted() {
+    @Test(expected = TransactionException.class) public void failNewOperationIfCommitted() {
         tx.append(new CypherContext());
         tx.commit();
         tx.append(new CypherContext());
     }
 
-    @Test public void testDirtyObjectIsNotDirtyAfterCommit() {
+    @Test public void assertNotDirtyAfterCommit() {
         // 'load' a teacher
         Teacher teacher = new Teacher();
         teacher.setId(1L);

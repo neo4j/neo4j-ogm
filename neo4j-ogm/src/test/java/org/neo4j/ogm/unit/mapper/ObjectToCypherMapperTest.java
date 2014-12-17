@@ -483,6 +483,18 @@ public class ObjectToCypherMapperTest {
     }
 
     @Test
+    public void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
+        Individual individual = new Individual();
+        individual.setName("Gary");
+        individual.setAge(36);
+        individual.setFavouriteRadioStations(new Vector<Double>(Arrays.asList(97.4, 105.4, 98.2)));
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(individual).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (:Individual {name:'Gary', age:36, favouriteRadioStations:[97.4, 105.4, 98.2]})");
+    }
+
+    @Test
     public void testVariablePersistenceToDepthOne() {
 
         School coalHillSchool = new School("Coal Hill");

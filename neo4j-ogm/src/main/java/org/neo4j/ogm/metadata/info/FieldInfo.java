@@ -7,15 +7,25 @@ import org.neo4j.ogm.metadata.RelationshipUtils;
 public class FieldInfo {
 
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
-    private static final String scalars = "I,J,S,B,C,F,D,Z";
 
     private final String name;
     private final String descriptor;
+    private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
 
-    public FieldInfo(String name, String descriptor, ObjectAnnotations annotations) {
+    /**
+     * Constructs a new {@link FieldInfo} based on the given arguments.
+     *
+     * @param name The name of the field
+     * @param descriptor The field descriptor that expresses the type of the field using Java signature string notation
+     * @param typeParameterDescriptor The descriptor that expresses the generic type parameter, which may be <code>null</code>
+     *        if that's not appropriate
+     * @param annotations The {@link ObjectAnnotations} applied to the field
+     */
+    public FieldInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.name = name;
         this.descriptor = descriptor;
+        this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
     }
 
@@ -59,7 +69,9 @@ public class FieldInfo {
     }
 
     public boolean isSimple() {
-        return primitives.contains(descriptor) || descriptor.contains("java/lang/");
+        // XXX: don't we have a bug here if someone's class has a field of type java.lang.Iterable?
+        return primitives.contains(descriptor) || descriptor.contains("java/lang/")
+                || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 
 }

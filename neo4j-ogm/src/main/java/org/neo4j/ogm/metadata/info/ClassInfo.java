@@ -564,10 +564,10 @@ public class ClassInfo {
     /**
      * Find all setter MethodInfos for the specified ClassInfo whose parameter type matches the supplied class
      *
-     * @param parameterType  the setter parameter type to look for.
-     * @return
+     * @param parameterType The setter parameter type to look for.
+     * @return A {@link List} of {@link MethodInfo} objects that accept the given parameter type, never <code>null</code>
      */
-    public List<MethodInfo> findSetters(Class parameterType) {
+    public List<MethodInfo> findSetters(Class<?> parameterType) {
         String setterSignature = "(L" + parameterType.getName().replace(".", "/") + ";)V";
         List<MethodInfo> methodInfos = new ArrayList<>();
         for (MethodInfo methodInfo : methodsInfo().methods()) {
@@ -581,10 +581,10 @@ public class ClassInfo {
     /**
      * Find all FieldInfos for the specified ClassInfo whose type matches the supplied fieldType
      *
-     * @param fieldType The fieldType to look for
-     * @return
+     * @param fieldType The field type to look for
+     * @return A {@link List} of {@link FieldInfo} objects that are of the given type, never <code>null</code>
      */
-    public List<FieldInfo> findFields(Class fieldType) {
+    public List<FieldInfo> findFields(Class<?> fieldType) {
         String fieldSignature = "L" + fieldType.getName().replace(".", "/") + ";";
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields() ) {

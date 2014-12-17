@@ -22,6 +22,7 @@ public class FieldsInfo {
             String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor_index
             int attributesCount = dataInputStream.readUnsignedShort();
             ObjectAnnotations objectAnnotations = new ObjectAnnotations();
+            String typeParameterDescriptor = null; // available as an attribute for parameterised collections
             for (int j = 0; j < attributesCount; j++) {
                 String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
@@ -32,13 +33,16 @@ public class FieldsInfo {
                         // todo: maybe register just the annotations we're interested in.
                         objectAnnotations.put(info.getName(), info);
                     }
+                } else if ("Signature".equals(attributeName)) {
+                    String signature = constantPool.lookup(dataInputStream.readUnsignedShort());
+                    typeParameterDescriptor = signature.substring(signature.indexOf('<') + 1, signature.indexOf('>'));
                 }
                 else {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
             if ((accessFlags & (STATIC_FIELD | FINAL_FIELD)) == 0) {
-                fields.put(fieldName, new FieldInfo(fieldName, descriptor, objectAnnotations));
+                fields.put(fieldName, new FieldInfo(fieldName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }
     }

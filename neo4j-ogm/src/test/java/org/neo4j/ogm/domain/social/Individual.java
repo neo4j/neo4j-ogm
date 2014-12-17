@@ -1,6 +1,7 @@
 package org.neo4j.ogm.domain.social;
 
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Arbitrary POJO used to test mapping code.
@@ -13,6 +14,7 @@ public class Individual {
 
     private List<Individual> friends;
     private int[] primitiveIntArray;
+    private Vector<Double> favouriteRadioStations;
 
     public Long getId() {
         return id;
@@ -53,4 +55,13 @@ public class Individual {
     public void setPrimitiveIntArray(int[] primitiveIntArray) {
         this.primitiveIntArray = primitiveIntArray;
     }
+
+    public Vector<Double> getFavouriteRadioStations() {
+        return favouriteRadioStations;
+    }
+
+    public void setFavouriteRadioStations(Vector<Double> fmFrequencies) {
+        this.favouriteRadioStations = fmFrequencies;
+    }
+
 }

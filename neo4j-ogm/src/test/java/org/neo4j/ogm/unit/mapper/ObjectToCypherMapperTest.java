@@ -8,6 +8,7 @@ import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
@@ -35,7 +36,7 @@ public class ObjectToCypherMapperTest {
     public static void setUpTestDatabase() {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
         executionEngine = new ExecutionEngine(graphDatabase);
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education");
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.social");
         mappingContext = new MappingContext(mappingMetadata);
 
     }
@@ -156,8 +157,7 @@ public class ObjectToCypherMapperTest {
     }
 
     @Test
-    public void PersistManyToOneObjectFromSingletonSide() {
-
+    public void persistManyToOneObjectFromSingletonSide() {
 
         ExecutionResult executionResult = executionEngine.execute(
                 "CREATE (s:School:DomainObject {name:'Waller'})-[:TEACHERS]->(t:Teacher {name:'Mary'}) " +
@@ -464,9 +464,23 @@ public class ObjectToCypherMapperTest {
 
         // we don't expect the teachers to be persisted when persisting the school to depth 0
         executeStatementsAndAssertSameGraph(cypher, "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
-
     }
 
+    @Test
+    public void shouldGenerateCypherToPersistArraysOfPrimitives() {
+        Individual individual = new Individual();
+        individual.setName("Jeff");
+        individual.setAge(41);
+        individual.setPrimitiveIntArray(new int[] {1, 6, 4, 7, 2});
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(individual).getStatements());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {name:'Jeff', age:41, primitiveIntArray:[1,6,4,7,2]})");
+
+        ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveIntArray AS ints");
+        for (Map<String, Object> result : executionResult) {
+            assertEquals("The array wasn't persisted as the correct type", 5, ((int[]) result.get("ints")).length);
+        }
+    }
 
     @Test
     public void testVariablePersistenceToDepthOne() {

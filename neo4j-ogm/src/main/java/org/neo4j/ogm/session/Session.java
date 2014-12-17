@@ -5,7 +5,7 @@ import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.Collection;
 
-public interface Session extends AutoCloseable {
+public interface Session {
 
     <T> T load(Class<T> type, Long id);
 
@@ -43,7 +43,5 @@ public interface Session extends AutoCloseable {
 
 
     Transaction beginTransaction();
-
-    void close();
 
 }

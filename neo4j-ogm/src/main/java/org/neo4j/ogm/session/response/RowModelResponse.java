@@ -6,22 +6,22 @@ import org.neo4j.ogm.session.result.RowModelResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RowModelResponseHandler implements Neo4jResponseHandler<RowModel> {
+public class RowModelResponse implements Neo4jResponse<RowModel> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RowModelResponseHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RowModelResponse.class);
 
     private final ObjectMapper objectMapper;
-    private final Neo4jResponseHandler<String> responseHandler;
+    private final Neo4jResponse<String> response;
 
-    public RowModelResponseHandler(Neo4jResponseHandler<String> responseHandler, ObjectMapper mapper) {
-        this.responseHandler = responseHandler;
+    public RowModelResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
+        this.response = response;
         this.objectMapper = mapper;
         initialiseScan("row");
     }
 
     @Override
     public RowModel next() {
-        String json = responseHandler.next();
+        String json = response.next();
         if (json != null) {
             try {
                 return new RowModel(objectMapper.readValue(json, RowModelResult.class).getRow());
@@ -37,16 +37,21 @@ public class RowModelResponseHandler implements Neo4jResponseHandler<RowModel> {
 
     @Override
     public void close() {
-        responseHandler.close();
+        response.close();
     }
 
     @Override
     public void initialiseScan(String token) {
-        responseHandler.initialiseScan(token);
+        response.initialiseScan(token);
     }
 
     @Override
     public String[] columns() {
-        return responseHandler.columns();
+        return response.columns();
+    }
+
+    @Override
+    public int rowId() {
+        return response.rowId();
     }
 }

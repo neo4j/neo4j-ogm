@@ -83,10 +83,6 @@ public class EndToEndTest extends IntegrationTest {
         System.out.println("Number of threads: 1");
         System.out.println("Number of new objects to create per request: 3");
         System.out.println("Number of relationships to create per request: 2");
-        System.out.println("Average time per request (milliseconds) to construct persistence information: " + (defaultSession.getBuildTime() / 1000.0));
-        System.out.println("Average time per request (milliseconds) to construct json cypher statements : " + (defaultSession.getJsonTime() / 1000.0));
-        System.out.println("Average time per request (milliseconds) to execute request and get response : " + (defaultSession.getExecuteTime() / 1000.0));
-        System.out.println("Average time per request (milliseconds) to process entire response stream   : " + (defaultSession.getProcessTime() / 1000.0));
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
     }
 
@@ -137,10 +133,6 @@ public class EndToEndTest extends IntegrationTest {
         System.out.println("Number of threads: " + NUM_THREADS);
         System.out.println("Number of new objects to create per request: 3");
         System.out.println("Number of relationships to create per request: 2");
-        System.out.println("Average time per request (milliseconds) to construct persistence information: " + (defaultSession.getBuildTime() / 1000.0));
-        System.out.println("Average time per request (milliseconds) to construct json cypher statements : " + (defaultSession.getJsonTime() / 1000.0));
-        System.out.println("Average time per request (milliseconds) to execute request and get response : " + (defaultSession.getExecuteTime() / 1000.0));
-        System.out.println("Average time per request (milliseconds) to process entire response stream   : " + (defaultSession.getProcessTime() / 1000.0));
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
 
 

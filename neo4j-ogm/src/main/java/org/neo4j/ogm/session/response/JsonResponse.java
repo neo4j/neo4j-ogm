@@ -3,7 +3,7 @@ package org.neo4j.ogm.session.response;
 import java.io.InputStream;
 import java.util.Scanner;
 
-public class JsonResponseHandler implements Neo4jResponseHandler<String> {
+public class JsonResponse implements Neo4jResponse<String> {
 
     private static final String COMMA = ",";
     private static final String START_RECORD_TOKEN = "{\"";
@@ -15,8 +15,9 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
     private final Scanner scanner;
     private String scanToken = null;
     private String[] columns;
+    private int currentRow = -1;
 
-    public JsonResponseHandler(InputStream results) {
+    public JsonResponse(InputStream results) {
         this.results = results;
         this.scanner = new Scanner(results);
     }
@@ -30,9 +31,7 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
 
     public String next() {
         try {
-            //long now = System.currentTimeMillis();
             String json = scanner.next();
-
             while (!json.endsWith(NEXT_RECORD_TOKEN)) {
                 // the scan token may be embedded in the current response record, we need to keep parsing...
                 try {
@@ -47,11 +46,12 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
             if (json.endsWith(NEXT_RECORD_TOKEN)) {
                 json = json.substring(0, json.length() - NEXT_RECORD_TOKEN.length());
             } else if (json.contains(ERRORS_TOKEN)) {
+
                 json = json.substring(0, json.indexOf(ERRORS_TOKEN));
                 // todo: should check errors? they will usually not exist if we have data
             }
-            //System.out.println("time taken to parse single response: " + (System.currentTimeMillis()-now));
             String record = START_RECORD_TOKEN + scanToken + json;
+            currentRow++;
             return record;
 
         } catch (Exception e) {
@@ -71,8 +71,14 @@ public class JsonResponseHandler implements Neo4jResponseHandler<String> {
         return this.columns;
     }
 
+    @Override
+    public int rowId() {
+        return currentRow;
+    }
+
     private void parseColumns() {
         String header = this.scanner.next(); // consume the header and return the columns array to the caller
+
         int cp = header.indexOf(COLUMNS_TOKEN);
         if (cp == -1) {
             parseErrors(header);

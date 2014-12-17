@@ -43,6 +43,11 @@ public class ObjectMemo {
         objectHash.clear();
     }
 
+    public boolean contains(Object o) {
+        return objectHash.containsKey(o);
+    }
+
+
     private static long hash(Object object, ClassInfo classInfo) {
         long hash = seed;
         for (FieldInfo fieldInfo : classInfo.propertyFields()) {

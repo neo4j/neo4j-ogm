@@ -6,15 +6,15 @@ import org.neo4j.ogm.session.result.GraphModelResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphModelResponseHandler implements Neo4jResponseHandler<GraphModel> {
+public class GraphModelResponse implements Neo4jResponse<GraphModel> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphModelResponseHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphModelResponse.class);
 
     private final ObjectMapper objectMapper;
-    private final Neo4jResponseHandler<String> responseHandler;
+    private final Neo4jResponse<String> response;
 
-    public GraphModelResponseHandler(Neo4jResponseHandler<String> responseHandler, ObjectMapper mapper) {
-        this.responseHandler = responseHandler;
+    public GraphModelResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
+        this.response = response;
         this.objectMapper = mapper;
         initialiseScan("graph");
     }
@@ -22,7 +22,7 @@ public class GraphModelResponseHandler implements Neo4jResponseHandler<GraphMode
     @Override
     public GraphModel next() {
 
-        String json = responseHandler.next();
+        String json = response.next();
 
         if (json != null) {
             try {
@@ -38,17 +38,22 @@ public class GraphModelResponseHandler implements Neo4jResponseHandler<GraphMode
 
     @Override
     public void close() {
-        responseHandler.close();
+        response.close();
     }
 
     @Override
     public void initialiseScan(String token) {
-        responseHandler.initialiseScan(token);
+        response.initialiseScan(token);
     }
 
     @Override
     public String[] columns() {
-        return responseHandler.columns();
+        return response.columns();
+    }
+
+    @Override
+    public int rowId() {
+        return response.rowId();
     }
 
 }

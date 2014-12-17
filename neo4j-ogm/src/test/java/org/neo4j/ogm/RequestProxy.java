@@ -1,17 +1,17 @@
 package org.neo4j.ogm;
 
-import org.neo4j.ogm.session.request.Neo4jRequestHandler;
-import org.neo4j.ogm.session.response.Neo4jResponseHandler;
+import org.neo4j.ogm.session.request.Neo4jRequest;
+import org.neo4j.ogm.session.response.Neo4jResponse;
 
-public abstract class RequestProxy implements Neo4jRequestHandler<String> {
+public abstract class RequestProxy implements Neo4jRequest<String> {
 
     protected abstract String[] getResponse();
 
-    public Neo4jResponseHandler<String> execute(String url, String request) {
+    public Neo4jResponse<String> execute(String url, String request) {
         return new Response(getResponse());
     }
 
-    static class Response implements Neo4jResponseHandler<String> {
+    static class Response implements Neo4jResponse<String> {
 
         private final String[] jsonModel;
         private int count = 0;
@@ -42,6 +42,11 @@ public abstract class RequestProxy implements Neo4jRequestHandler<String> {
         @Override
         public String[] columns() {
             return new String[0];
+        }
+
+        @Override
+        public int rowId() {
+            return count-1;
         }
     }
 

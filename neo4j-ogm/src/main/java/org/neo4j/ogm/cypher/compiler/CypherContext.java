@@ -11,8 +11,10 @@ import java.util.*;
 public class CypherContext {
 
     private final Map<Object, NodeBuilder> visitedObjects = new HashMap<>();
+
     private final Map<String, Object> createdObjects = new HashMap<>();
     private final Collection<MappedRelationship> registeredRelationships = new HashSet<>();
+
     private final Collection<Object> log = new HashSet<>();
 
     private List<ParameterisedStatement> statements;
@@ -33,7 +35,7 @@ public class CypherContext {
         return this.visitedObjects.get(obj);
     }
 
-    public boolean contains(MappedRelationship mappedRelationship) {
+    public boolean isRegisteredRelationship(MappedRelationship mappedRelationship) {
         return this.registeredRelationships.contains(mappedRelationship);
     }
 
@@ -63,5 +65,15 @@ public class CypherContext {
 
     public Collection<Object> log() {
         return log;
+    }
+
+    public void deregisterRelationships(Long src, String relationshipType) {
+        Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
+        while (iterator.hasNext()) {
+           MappedRelationship mappedRelationship = iterator.next();
+           if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType)) {
+                iterator.remove();
+            }
+        }
     }
 }

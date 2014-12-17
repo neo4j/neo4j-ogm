@@ -58,7 +58,7 @@ public class MappingContext {
         return !objectMemo.remembered(toPersist, metaData.classInfo(toPersist.getClass().getName()));
     }
 
-    public boolean contains(MappedRelationship relationship) {
+    public boolean isRegisteredRelationship(MappedRelationship relationship) {
         return mappedRelationships.contains(relationship);
     }
 

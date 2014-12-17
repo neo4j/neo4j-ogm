@@ -57,9 +57,6 @@ public class ClassPathScanner {
         }
     }
 
-    /**
-     * Scan a zipfile for matching file path patterns. (Does not recurse into zipfiles within zipfiles.)
-     */
     private void scanZipFile(final ZipFile zipFile) throws IOException {
 
         for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
@@ -88,16 +85,16 @@ public class ClassPathScanner {
         this.processor = processor;
 
         try {
-            for (File pathElt : ClassUtils.getUniqueClasspathElements()) {
-                String path = pathElt.getPath();
-                if (pathElt.isDirectory()) {
-                    scanFolder(pathElt, path.length() + 1);
-                } else if (pathElt.isFile()) {
+            for (File classPathElement : ClassUtils.getUniqueClasspathElements()) {
+                String path = classPathElement.getPath();
+                if (classPathElement.isDirectory()) {
+                    scanFolder(classPathElement, path.length() + 1);
+                } else if (classPathElement.isFile()) {
                     String pathLower = path.toLowerCase();
                     if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip")) {
-                        scanZipFile(new ZipFile(pathElt));
+                        scanZipFile(new ZipFile(classPathElement));
                     } else {
-                        scanFile(pathElt, pathElt.getName());
+                        scanFile(classPathElement, classPathElement.getName());
                     }
                 }
             }

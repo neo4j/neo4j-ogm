@@ -10,23 +10,23 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.neo4j.ogm.session.response.JsonResponseHandler;
-import org.neo4j.ogm.session.response.Neo4jResponseHandler;
+import org.neo4j.ogm.session.response.JsonResponse;
+import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultRequestHandler implements Neo4jRequestHandler<String> {
+public class DefaultRequest implements Neo4jRequest<String> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRequestHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRequest.class);
 
     private final CloseableHttpClient httpClient;
 
-    public DefaultRequestHandler(CloseableHttpClient httpClient) {
+    public DefaultRequest(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    public Neo4jResponseHandler<String> execute(String url, String cypherQuery) {
+    public Neo4jResponse<String> execute(String url, String cypherQuery) {
 
         try {
             HttpPost request = new HttpPost(url);
@@ -52,7 +52,7 @@ public class DefaultRequestHandler implements Neo4jRequestHandler<String> {
             }
 
             LOGGER.debug("response is OK, creating response handler");
-            return new JsonResponseHandler(responseEntity.getContent());
+            return new JsonResponse(responseEntity.getContent());
 
 
         }

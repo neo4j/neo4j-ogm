@@ -46,6 +46,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         CypherCompiler cypherBuilder = new SingleStatementBuilder();
         CypherContext context = new CypherContext();
 
+        // add all the relationships we know about:
+        context.registeredRelationships().addAll(mappingContext.mappedRelationships());
+
         deepMap(cypherBuilder, toPersist, context, horizon);
         deleteObsoleteRelationships(cypherBuilder, context);
         context.setStatements(cypherBuilder.getStatements());
@@ -63,12 +66,11 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         for (MappedRelationship rel : mappingContext.mappedRelationships()) {
             logger.debug("delete-check relationship: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
-            if (!context.contains(new MappedRelationship(rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId()))) {
+            if (!context.isRegisteredRelationship(rel)) {
                 logger.debug("not found! deleting: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
                 cypherBuilder.unrelate("$" + rel.getStartNodeId(), rel.getRelationshipType(), "$" + rel.getEndNodeId());
             }
         }
-
     }
 
     /**
@@ -138,10 +140,13 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             Object relatedObject = objectAccessor.read(toPersist);
             String relationshipType = objectAccessor.relationshipType();
 
+            // clear the relationship<s> in the current context for pre-existing objects
+            if (sourceIdentity != null) {
+                context.deregisterRelationships(sourceIdentity, relationshipType);
+            }
+
             if (relatedObject instanceof Iterable) {
-
                 logger.debug("(collection)");
-
                 for (Object object : (Iterable<?>) relatedObject) {
                     mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, object, context, horizon);
                 }
@@ -170,13 +175,15 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         }
 
         MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
-        if (!mappingContext.contains(relationship)) {
+
+        if (!mappingContext.isRegisteredRelationship(relationship)) {
             logger.debug("creating new relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             cypherBuilder.relate(source.reference(), relationshipType, target.reference());
-            context.log(relationship);
-        } else {
+            context.log(relationship); // we log the new relationship as part of the transaction context.
+        }
+        else {
             logger.debug("skipping unchanged relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
-            context.registerRelationship(relationship);
+            context.registerRelationship(relationship); // this relationship was loaded previously
         }
 
     }

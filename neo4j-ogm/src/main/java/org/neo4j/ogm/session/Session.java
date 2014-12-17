@@ -5,7 +5,7 @@ import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.Collection;
 
-public interface Session {
+public interface Session extends AutoCloseable {
 
     <T> T load(Class<T> type, Long id);
 

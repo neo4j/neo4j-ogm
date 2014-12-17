@@ -6,12 +6,9 @@ import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.transaction.Transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TransactionTest {
 
@@ -23,7 +20,7 @@ public class TransactionTest {
     @Before
     public void setUp() {
         mappingContext = new MappingContext(metaData);
-        tx = new Transaction(mappingContext, "", null);
+        tx = new Transaction(mappingContext, "");
     }
 
     @Test public void createTransaction() {
@@ -88,18 +85,23 @@ public class TransactionTest {
     }
 
     @Test public void testDirtyObjectIsNotDirtyAfterCommit() {
-        ClassInfo classInfo = metaData.classInfo(Teacher.class.getName());
+        // 'load' a teacher
         Teacher teacher = new Teacher();
         teacher.setId(1L);
         mappingContext.remember(teacher);
-        teacher.setName("St Ursula's");
+
+        // change the teacher's properties
+        teacher.setName("Richard Feynman");
         assertTrue(mappingContext.isDirty(teacher));
 
+        // create a new cypher context, representing the response from saving the teacher
         CypherContext cypherContext = new CypherContext();
         cypherContext.log(teacher);
 
         tx.append(cypherContext);
         tx.commit();
+
+        // the mapping context should now be in sync with the persistent state
         assertFalse(mappingContext.isDirty(teacher));
 
     }

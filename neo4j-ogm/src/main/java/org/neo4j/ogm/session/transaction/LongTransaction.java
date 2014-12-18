@@ -28,7 +28,9 @@ public class LongTransaction extends SimpleTransaction {
     }
 
     public void close() {
-        transactionRequestHandler.rollback(this);
+        if (this.status().equals(Status.OPEN) || this.status().equals(Status.PENDING)) {
+            transactionRequestHandler.rollback(this);
+        }
         super.close();
     }
 }

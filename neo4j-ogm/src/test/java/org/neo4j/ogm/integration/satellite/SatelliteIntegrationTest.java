@@ -6,6 +6,7 @@ import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.integration.IntegrationTest;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -102,6 +103,93 @@ public class SatelliteIntegrationTest extends IntegrationTest {
             fail("Satellite Integration Tests not run: Is there a database?");
         }
     }
+
+    @Test
+    public void useLongTransaction() {
+
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            // load all
+            Collection<Satellite> satellites = session.loadAll(Satellite.class);
+            assertEquals(11, satellites.size());
+
+            Satellite satellite = satellites.iterator().next();
+            Long id = satellite.getId();
+            satellite.setName("Updated satellite");
+
+            // update
+            session.save(satellite);
+
+            // refetch
+            Satellite updatedSatellite = session.load(Satellite.class, id);
+            assertEquals("Updated satellite", updatedSatellite.getName());
+
+        }
+    }
+
+
+    @Test
+    public void rollbackLongTransaction() {
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            // load all
+            Collection<Satellite> satellites = session.loadAll(Satellite.class);
+            assertEquals(11, satellites.size());
+
+            Satellite satellite = satellites.iterator().next();
+            Long id = satellite.getId();
+            String name = satellite.getName();
+            satellite.setName("Updated satellite");
+
+            // update
+            session.save(satellite);
+
+            // refetch
+            Satellite updatedSatellite = session.load(Satellite.class, id);
+            assertEquals("Updated satellite", updatedSatellite.getName());
+
+            tx.rollback();
+
+            // fetch - after rollback should not be changed
+            // note, that because we aren't starting a new tx, we will be given an autocommit one.
+            updatedSatellite = session.load(Satellite.class, id);
+            assertEquals(name, updatedSatellite.getName());
+
+        }
+    }
+
+    @Test
+    public void commitLongTransaction() {
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            // load all
+            Collection<Satellite> satellites = session.loadAll(Satellite.class);
+            assertEquals(11, satellites.size());
+
+            Satellite satellite = satellites.iterator().next();
+            Long id = satellite.getId();
+            satellite.setName("Updated satellite");
+
+            // update
+            session.save(satellite);
+
+            // refetch
+            Satellite updatedSatellite = session.load(Satellite.class, id);
+            assertEquals("Updated satellite", updatedSatellite.getName());
+
+            tx.commit();
+
+            // fetch - after commit should be changed
+            // note, that because we aren't starting a new tx, we will be given an autocommit one.
+            updatedSatellite = session.load(Satellite.class, id);
+            assertEquals("Updated satellite", updatedSatellite.getName());
+
+        }
+    }
+
 
     private static void importSatellites() {
         session.execute(load("org/neo4j/ogm/cql/satellites.cql"));

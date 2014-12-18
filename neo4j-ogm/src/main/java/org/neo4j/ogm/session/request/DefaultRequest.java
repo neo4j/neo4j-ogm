@@ -29,6 +29,9 @@ public class DefaultRequest implements Neo4jRequest<String> {
     public Neo4jResponse<String> execute(String url, String cypherQuery) {
 
         try {
+
+            LOGGER.info("POST " + url + ", request: " + cypherQuery);
+
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypherQuery);
 
@@ -36,7 +39,6 @@ public class DefaultRequest implements Neo4jRequest<String> {
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
             request.setEntity(entity);
 
-            LOGGER.debug("executing request: " + cypherQuery);
             HttpResponse response = httpClient.execute(request);
 
             StatusLine statusLine = response.getStatusLine();

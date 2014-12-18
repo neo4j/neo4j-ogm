@@ -1,6 +1,7 @@
 package org.neo4j.ogm.session.request;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
@@ -10,6 +11,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.LongTransaction;
@@ -63,9 +65,18 @@ public class TransactionRequestHandler {
                         statusLine.getStatusCode(),
                         statusLine.getReasonPhrase());
             }
-            // we're not interested in the content, but we must always close the content stream
+            // we're not interested in the content, but we must always close the content stream/release the connection
             try {
-                response.getEntity().getContent().close();
+                HttpEntity responseEntity = response.getEntity();
+
+                if (responseEntity != null) {
+                    String responseText = EntityUtils.toString(responseEntity);
+                    logger.info(responseText);
+                    EntityUtils.consume(responseEntity);
+                }
+                else {
+                    request.releaseConnection();
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

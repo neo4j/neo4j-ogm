@@ -63,14 +63,10 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
             Object object = mappingContext.get(node.getId());
             if (object == null) {
                 object = mappingContext.register(objectFactory.newObject(node), node.getId());
-                if (getIdentity(object) == null) {
-                    synchronized (object) {
-                        setIdentity(object, node.getId());
-                        setProperties(node, object);
-                        mappingContext.remember(object);
-                    }
-                }
             }
+            setIdentity(object, node.getId());
+            setProperties(node, object);
+            mappingContext.remember(object);
         }
     }
 

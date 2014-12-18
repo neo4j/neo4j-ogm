@@ -142,9 +142,18 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public Transaction beginTransaction() {
-        if (transaction != null && transaction.status() == Transaction.Status.PENDING) {
-            throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
+        if (transaction != null) {
+            // return current transaction if no operations yet. i.e. don't waste db transactions
+            if (transaction.status() == Transaction.Status.OPEN) {
+                return transaction;
+            }
+            // but it is probably a bug to call begin transaction again on a transaction with uncommitted operations
+            if (transaction.status() == Transaction.Status.PENDING) {
+                throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
+            }
         }
+
+        // no current user transaction - lets get one.
         this.transaction = transactionRequestHandler.openTransaction(mappingContext);
         return transaction;
     }
@@ -220,10 +229,24 @@ public class DefaultSessionImpl implements Session {
 
     // if there is no user transaction, create a transient auto-commit one;
     private Transaction getOrCreateTransaction() {
-        if (this.transaction != null) {
-            return this.transaction;
-        } else {
+
+        if (transaction == null) {
             return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
+
+        if  (transaction.status().equals(Transaction.Status.CLOSED)) {
+            return new SimpleTransaction(mappingContext, autoCommitUrl);
+        }
+
+        if  (transaction.status().equals(Transaction.Status.ROLLEDBACK)) {
+            return new SimpleTransaction(mappingContext, autoCommitUrl);
+        }
+
+        if  (transaction.status().equals(Transaction.Status.COMMITTED)) {
+            return new SimpleTransaction(mappingContext, autoCommitUrl);
+        }
+
+        return transaction;
+
     }
 }

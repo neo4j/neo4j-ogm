@@ -74,12 +74,11 @@ public class GalaxyServiceTest {
         }
     }
 
+
     @Test
     public void shouldFindWorldsByName() {
         galaxyService.makeSomeWorlds();
-
         for(World world : galaxyService.getAllWorlds()) {
-            System.out.println("looking up world: " + world.getName());
             World foundWorld = galaxyService.findWorldByName(world.getName());
             assertNotNull(foundWorld);
         }

@@ -2,7 +2,7 @@ package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 
-public interface Transaction {
+public interface Transaction extends AutoCloseable {
 
 
     /**
@@ -36,7 +36,8 @@ public interface Transaction {
     Status status();
 
     public enum Status {
-        OPEN, PENDING, ROLLEDBACK, COMMITTED
+        OPEN, PENDING, ROLLEDBACK, COMMITTED, CLOSED
     }
 
+    void close();
 }

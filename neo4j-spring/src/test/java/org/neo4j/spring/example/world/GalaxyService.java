@@ -60,14 +60,14 @@ public class GalaxyService {
         mars.addRocketRouteTo(earth);
 
         // todo: handle bi-directional automatically
-        earth.addRocketRouteTo(mars);
+        //earth.addRocketRouteTo(mars);
 
 
         // this is a bit silly
         worldRepository.save(mars);
 
         // todo: handle-bidirectional automatically
-        worldRepository.save(earth);
+        //worldRepository.save(earth);
 
         worlds.add(earth);
         worlds.add(mars);

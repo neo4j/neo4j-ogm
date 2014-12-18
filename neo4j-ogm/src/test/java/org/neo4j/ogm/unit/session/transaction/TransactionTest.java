@@ -6,7 +6,7 @@ import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.transaction.DefaultTransactionImpl;
+import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 
@@ -22,7 +22,7 @@ public class TransactionTest {
     @Before
     public void setUp() {
         mappingContext = new MappingContext(metaData);
-        tx = new DefaultTransactionImpl(mappingContext, "");
+        tx = new SimpleTransaction(mappingContext, "");
     }
 
     @Test public void assertNewTransactionIsOpen() {

@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultTransactionImpl implements Transaction {
+public class SimpleTransaction implements Transaction {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultTransactionImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(SimpleTransaction.class);
     private final MappingContext mappingContext;
     private final String url;
     private final boolean autocommit;
@@ -20,7 +20,7 @@ public class DefaultTransactionImpl implements Transaction {
 
     private Status status = Status.OPEN;
 
-    public DefaultTransactionImpl(MappingContext mappingContext, String url) {
+    public SimpleTransaction(MappingContext mappingContext, String url) {
         this.mappingContext = mappingContext;
         this.url = url;
         this.autocommit = url.endsWith("/commit");
@@ -44,8 +44,8 @@ public class DefaultTransactionImpl implements Transaction {
         return url;
     }
 
-    public final void rollback() {
-        logger.debug("Attempting to rollback transaction");
+    public void rollback() {
+        logger.info("rollback invoked");
         if (status == Status.PENDING) {
             contexts.clear();
             status = Status.ROLLEDBACK;
@@ -54,8 +54,8 @@ public class DefaultTransactionImpl implements Transaction {
         }
     }
 
-    public final void commit() {
-        logger.debug("Attempting to commit transaction");
+    public void commit() {
+        logger.info("commit invoked");
         if (status == Status.PENDING ) {
             for (CypherContext cypherContext : contexts) {
                 logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
@@ -75,8 +75,11 @@ public class DefaultTransactionImpl implements Transaction {
         }
     }
 
-    public Status status() {
+    public final Status status() {
         return status;
     }
 
+    public void close() {
+        status = Status.CLOSED;
+    }
 }

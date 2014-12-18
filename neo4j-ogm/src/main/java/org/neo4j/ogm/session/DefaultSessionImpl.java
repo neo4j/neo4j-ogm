@@ -18,7 +18,7 @@ import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.response.ResponseHandler;
 import org.neo4j.ogm.session.response.SessionResponseHandler;
-import org.neo4j.ogm.session.transaction.DefaultTransactionImpl;
+import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 import org.slf4j.Logger;
@@ -145,7 +145,7 @@ public class DefaultSessionImpl implements Session {
         if (transaction != null && transaction.status() == Transaction.Status.PENDING) {
             throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
         }
-        this.transaction = new DefaultTransactionImpl(mappingContext, transactionRequestHandler.openTransaction());
+        this.transaction = transactionRequestHandler.openTransaction(mappingContext);
         return transaction;
     }
 
@@ -223,7 +223,7 @@ public class DefaultSessionImpl implements Session {
         if (this.transaction != null) {
             return this.transaction;
         } else {
-            return new DefaultTransactionImpl(mappingContext, autoCommitUrl);
+            return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
     }
 }

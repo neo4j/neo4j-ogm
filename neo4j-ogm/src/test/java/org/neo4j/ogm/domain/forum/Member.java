@@ -13,7 +13,7 @@ public class Member extends Login  {
     private IMembership memberShip;
     private Date renewalDate;
     @Relationship(type ="HAS_ACTIVITY")
-    private List<Activity> activityList;
+    private Iterable<Activity> activityList;
     private List<Member> followers;
     private List<Member> followees;
     private Long membershipNumber;
@@ -36,12 +36,12 @@ public class Member extends Login  {
     }
 
     @Relationship(type ="HAS_ACTIVITY")
-    public List<Activity> getActivityList() {
+    public Iterable<Activity> getActivityList() {
         return activityList;
     }
 
     @Relationship(type ="HAS_ACTIVITY")
-    public void setActivityList(List<Activity> activityList) {
+    public void setActivityList(Iterable<Activity> activityList) {
         this.activityList = activityList;
     }
 
@@ -76,4 +76,5 @@ public class Member extends Login  {
     public void setNicknames(int[] nicknames) {
         this.nicknames = nicknames;
     }
+
 }

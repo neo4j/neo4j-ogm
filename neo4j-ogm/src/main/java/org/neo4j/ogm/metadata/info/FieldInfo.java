@@ -69,8 +69,7 @@ public class FieldInfo {
     }
 
     public boolean isSimple() {
-        // XXX: don't we have a bug here if someone's class has a field of type java.lang.Iterable?
-        return primitives.contains(descriptor) || descriptor.contains("java/lang/")
+        return primitives.contains(descriptor) || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 

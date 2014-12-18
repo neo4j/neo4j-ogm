@@ -104,7 +104,6 @@ public class MetaDataTest {
 
     }
 
-
     /**
      * Find all fields that will be mapped as objects at the end of a relationship
      */
@@ -400,12 +399,11 @@ public class MetaDataTest {
     public void testFindListFields() {
         ClassInfo classInfo = metaData.classInfo("User");
         List<FieldInfo> fieldInfos = classInfo.findFields(List.class);
-        int count = 3;
+        int count = 2;
         assertEquals(count, fieldInfos.size());
         for (FieldInfo fieldInfo : fieldInfos) {
             if (fieldInfo.getName().equals("followees")) count--;
             if (fieldInfo.getName().equals("followers")) count--;
-            if (fieldInfo.getName().equals("activityList")) count--;
         }
         assertEquals(0, count);
     }

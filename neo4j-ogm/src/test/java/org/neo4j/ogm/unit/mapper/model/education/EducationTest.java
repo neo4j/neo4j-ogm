@@ -9,7 +9,7 @@ import org.neo4j.ogm.session.SessionFactory;
 
 import java.util.*;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class EducationTest {
 
@@ -50,7 +50,7 @@ public class EducationTest {
         hydrateCourses(teachers.values());
 
 
-        Set<Course> courses = new HashSet();
+        Set<Course> courses = new HashSet<>();
         for (Teacher teacher : teachers.values()) {
             for (Course course : teacher.getCourses()) {
                 if (!courses.contains(course)) {

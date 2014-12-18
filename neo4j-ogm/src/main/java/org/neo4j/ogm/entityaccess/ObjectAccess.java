@@ -5,71 +5,81 @@ import java.util.*;
 
 public abstract class ObjectAccess implements PropertyWriter, RelationalWriter {
 
+    /**
+     * Merges the contents of <em>collection</em> with <em>hydrated</em> ensuring no duplicates and returns the result as an
+     * instance of the given parameter type.
+     *
+     * @param parameterType The type of Iterable or array to return
+     * @param collection The objects to merge into a collection of the given parameter type, which may not necessarily be of a
+     *        type assignable from <em>parameterType</em> already
+     * @param hydrated The Iterable to merge into, which may be <code>null</code> if a new collection needs creating
+     * @return The result of the merge, as an instance of the specified parameter type
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) {
 
-        // basic "collection" types we will handle: List<T>, Set<T>, Vector<T>, T[]
-        if (List.class.isAssignableFrom(parameterType)) {
-            List<Object> list = new ArrayList<>();
-            list.addAll((Collection)collection);
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                list = union(list, ((List<Object>) hydrated));
-            }
-            return list;
-        }
-
-        else if (Set.class.isAssignableFrom(parameterType)) {
-            Set<Object> set = new HashSet<>();
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                set.addAll((Collection) hydrated);
-            }
-            set.addAll((Collection) collection);
-            return set;
-        }
-
-        else if (Vector.class.isAssignableFrom(parameterType)) {
-            Vector<Object> v = new Vector<>();
-            v.addAll((Collection) collection);
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                v = union(v, (Vector<Object>) hydrated);
-            }
-            return v;
-        }
-
-        else if (parameterType.isArray()) {
+        if (parameterType.isArray()) {
             Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>();
+            List<Object> objects = new ArrayList<>(union(collection, hydrated));
 
-            objects.addAll((Collection) collection);
-
-            if (hydrated != null && hydrated.iterator().hasNext()) {
-                objects = union(objects, Arrays.<Object>asList(hydrated));
-            }
-
-            Object array = Array.newInstance(type, ((Collection) objects).size());
+            Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
                 Array.set(array, i, objects.get(i));
             }
             return array;
         }
 
-        else {
-            throw new RuntimeException("Unsupported: " + parameterType.getName());
+        // we don't know how to make the requested parameter type, so let's just try to work with what we've got
+        if (hydrated != null && parameterType.isAssignableFrom(hydrated.getClass())) {
+            if (Collection.class.isAssignableFrom(hydrated.getClass())) {
+                Collection col = (Collection) hydrated;
+                for (Object object : collection) {
+                    if (!col.contains(object)) {
+                        col.add(object);
+                    }
+                }
+                return hydrated;
+            }
         }
+
+        // hydrated is unusable at this point so we can just set the other collection if it's compatible
+        if (parameterType.isAssignableFrom(collection.getClass())) {
+            return collection;
+        }
+
+        // create the desired type of collection and use it for the merge
+        Collection newCollection = createCollection(parameterType, collection, hydrated);
+        if (newCollection != null) {
+            return newCollection;
+        }
+
+        throw new RuntimeException("Unsupported: " + parameterType.getName());
     }
 
-    private static ArrayList<Object> union(List<Object> list1, List<Object> list2) {
-        Set<Object> set = new HashSet<>();
-        set.addAll(list1);
-        set.addAll(list2);
-        return new ArrayList<>(set);
+    private static Collection<?> createCollection(Class<?> parameterType, Iterable<?> collection, Iterable<?> hydrated) {
+        if (Vector.class.isAssignableFrom(parameterType)) {
+            return new Vector<>(union(collection, hydrated));
+        }
+        if (List.class.isAssignableFrom(parameterType)) {
+            return new ArrayList<>(union(collection, hydrated));
+        }
+        if (Set.class.isAssignableFrom(parameterType)) {
+            return union(collection, hydrated);
+        }
+        return null;
     }
 
-    private static Vector<Object> union(Vector<Object> list1, Vector<Object> list2) {
+    private static Set<Object> union(Iterable<?> collection, Iterable<?> hydrated) {
         Set<Object> set = new HashSet<>();
-        set.addAll(list1);
-        set.addAll(list2);
-        return new Vector<>(set);
+        for (Object object : collection) {
+            set.add(object);
+        }
+        if (hydrated != null) {
+            for (Object object : hydrated) {
+                set.add(object);
+            }
+        }
+        return set;
     }
 
 }

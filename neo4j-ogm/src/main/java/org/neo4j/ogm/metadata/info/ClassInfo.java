@@ -524,7 +524,7 @@ public class ClassInfo {
      */
     public boolean isScalar(FieldInfo fieldInfo) {
         Field field = getField(fieldInfo);
-        return(!Collection.class.isAssignableFrom(field.getType()) && !fieldInfo.getDescriptor().contains("["));
+        return(!Iterable.class.isAssignableFrom(field.getType()) && !fieldInfo.getDescriptor().contains("["));
     }
 
     /**
@@ -596,14 +596,15 @@ public class ClassInfo {
     }
 
     /**
-     *
+     * Retrieves a {@link List} of {@link FieldInfo} representing all of the fields that can be iterated over
+     * using a "foreach" loop.
      */
     public List<FieldInfo> findIterableFields() {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
                 Class type = getField(fieldInfo).getType();
-                if (type.isArray() || Collection.class.isAssignableFrom(type)) {
+                if (type.isArray() || Iterable.class.isAssignableFrom(type)) {
                     fieldInfos.add(fieldInfo);
                 }
             }
@@ -627,7 +628,7 @@ public class ClassInfo {
                 if (type.isArray() && type.getComponentType().equals(iteratedType)) {
                     fieldInfos.add(fieldInfo);
                 }
-                else if (Collection.class.isAssignableFrom(type)) {
+                else if (Iterable.class.isAssignableFrom(type)) {
                     ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
                     Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                     if (parameterizedTypeClass == iteratedType) {
@@ -659,7 +660,7 @@ public class ClassInfo {
                             if (methodParameterType.isArray() && methodParameterType.getComponentType() == iteratedType) {
                                 methodInfos.add(methodInfo);
                             }
-                            else if (Collection.class.isAssignableFrom(methodParameterType)) {
+                            else if (Iterable.class.isAssignableFrom(methodParameterType)) {
                                 ParameterizedType parameterizedType = (ParameterizedType) method.getGenericParameterTypes()[0];
                                 Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                                 if (parameterizedTypeClass == iteratedType) {

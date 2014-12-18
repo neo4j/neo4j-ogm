@@ -23,6 +23,7 @@ public class MethodsInfo {
             String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor
             ObjectAnnotations objectAnnotations = new ObjectAnnotations();
             int attributesCount = dataInputStream.readUnsignedShort();
+            String typeParameterDescriptor = null; // available as an attribute for parameterised collections
             for (int j = 0; j < attributesCount; j++) {
                 String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
@@ -33,13 +34,15 @@ public class MethodsInfo {
                         // todo: maybe register just the annotations we're interested in.
                         objectAnnotations.put(info.getName(), info);
                     }
-                }
-                else {
+                } else if ("Signature".equals(attributeName)) {
+                    String signature = constantPool.lookup(dataInputStream.readUnsignedShort());
+                    typeParameterDescriptor = signature.substring(signature.indexOf('<') + 1, signature.indexOf('>'));
+                } else {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
             if (!methodName.equals("<init>")) {
-                addMethod(new MethodInfo(methodName, descriptor, objectAnnotations));
+                addMethod(new MethodInfo(methodName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }
     }

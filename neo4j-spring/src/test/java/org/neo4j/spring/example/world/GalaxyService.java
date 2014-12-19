@@ -3,11 +3,13 @@ package org.neo4j.spring.example.world;
 import org.neo4j.spring.domain.World;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
+@Transactional
 public class GalaxyService {
 
     @Autowired

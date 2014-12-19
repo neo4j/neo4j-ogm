@@ -4,7 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
-import org.neo4j.ogm.session.DefaultSessionImpl;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
@@ -78,7 +78,7 @@ public class EndToEndTest extends IntegrationTest {
         }
         now += System.currentTimeMillis();
 
-        DefaultSessionImpl defaultSession = (DefaultSessionImpl) session;
+        Neo4jSession defaultSession = (Neo4jSession) session;
         System.out.println("Number of separate requests: 1000");
         System.out.println("Number of threads: 1");
         System.out.println("Number of new objects to create per request: 3");
@@ -128,7 +128,7 @@ public class EndToEndTest extends IntegrationTest {
         }
         now += System.currentTimeMillis();
 
-        DefaultSessionImpl defaultSession = (DefaultSessionImpl) session;
+        Neo4jSession defaultSession = (Neo4jSession) session;
         System.out.println("Number of separate requests: 1000");
         System.out.println("Number of threads: " + NUM_THREADS);
         System.out.println("Number of new objects to create per request: 3");

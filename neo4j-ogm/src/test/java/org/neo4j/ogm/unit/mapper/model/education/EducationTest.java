@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
-import org.neo4j.ogm.session.DefaultSessionImpl;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class EducationTest {
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.education");
-    private static final DefaultSessionImpl session = (DefaultSessionImpl) sessionFactory.openSession("dummy-url");
+    private static final Neo4jSession session = (Neo4jSession) sessionFactory.openSession("dummy-url");
 
     @Test
     public void testTeachers() throws Exception {

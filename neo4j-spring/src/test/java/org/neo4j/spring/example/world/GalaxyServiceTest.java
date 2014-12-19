@@ -7,6 +7,7 @@ import org.neo4j.spring.domain.World;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -19,14 +20,12 @@ import static org.junit.Assert.*;
 
 @ContextConfiguration(classes={org.neo4j.spring.example.world.ApplicationContext.class})
 @RunWith(SpringJUnit4ClassRunner.class)
-// TODO: @Transactional
+@Transactional
 public class GalaxyServiceTest {
 
     @Autowired
     private GalaxyService galaxyService;
 
-//  TODO:  @Rollback(false)
-//  TODO:  @BeforeTransaction
     @Before
     public void setUp()  {
         galaxyService.deleteAll();

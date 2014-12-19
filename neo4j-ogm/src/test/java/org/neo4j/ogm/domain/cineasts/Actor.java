@@ -3,11 +3,14 @@ package org.neo4j.ogm.domain.cineasts;
 import java.util.Set;
 
 public class Actor {
-    String id;
-    String name;
-    Set<Movie> filmography;
 
-    Role playedIn(Movie movie, String role) {
+    private String id;
+    private String name;
+    private Set<Movie> filmography;
+
+    public Role playedIn(Movie movie, String role) {
         return null;
     }
+
+
 }

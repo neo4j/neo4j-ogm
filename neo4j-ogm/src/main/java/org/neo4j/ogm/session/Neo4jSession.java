@@ -20,7 +20,6 @@ import org.neo4j.ogm.session.response.ResponseHandler;
 import org.neo4j.ogm.session.response.SessionResponseHandler;
 import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.session.transaction.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +28,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DefaultSessionImpl implements Session {
+public class Neo4jSession implements Session {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultSessionImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(Neo4jSession.class);
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
@@ -44,7 +43,7 @@ public class DefaultSessionImpl implements Session {
     private TransactionRequestHandler transactionRequestHandler;
     private Transaction transaction;
 
-    public DefaultSessionImpl(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
+    public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
         this.metaData = metaData;
         this.mapper = mapper;
         this.mappingContext = new MappingContext(metaData);
@@ -142,20 +141,26 @@ public class DefaultSessionImpl implements Session {
 
     @Override
     public Transaction beginTransaction() {
-        if (transaction != null) {
-            // return current transaction if no operations yet. i.e. don't waste db transactions
-            if (transaction.status() == Transaction.Status.OPEN) {
-                return transaction;
-            }
-            // but it is probably a bug to call begin transaction again on a transaction with uncommitted operations
-            if (transaction.status() == Transaction.Status.PENDING) {
-                throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
-            }
-        }
 
-        // no current user transaction - lets get one.
+        logger.info("beginTransaction() being called on thread: " + Thread.currentThread().getId());
+        logger.info("Neo4jSession identity: " + this);
+
+
+//        if (transaction != null && transaction instanceof LongTransaction) {
+//            // return current transaction if no operations yet. i.e. don't waste db transactions
+//            if (transaction.status() == Transaction.Status.OPEN) {
+//                return transaction;
+//            }
+//            // but it is probably a bug to call begin transaction again on a transaction with uncommitted operations
+//            if (transaction.status() == Transaction.Status.PENDING) {
+//                throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
+//            }
+//        }
+//
+//        // no current user transaction - lets get one.
         this.transaction = transactionRequestHandler.openTransaction(mappingContext);
-        return transaction;
+        logger.info("obtained new transaction: " + this.transaction.url());
+        return this.transaction;
     }
 
     @Override
@@ -230,22 +235,26 @@ public class DefaultSessionImpl implements Session {
     // if there is no user transaction, create a transient auto-commit one;
     private Transaction getOrCreateTransaction() {
 
+        logger.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
+        logger.info("Session identity: " + this);
+
         if (transaction == null) {
+            logger.info("There is no existing transaction, creating a transient one");
             return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
 
         if  (transaction.status().equals(Transaction.Status.CLOSED)) {
-            return new SimpleTransaction(mappingContext, autoCommitUrl);
+            //return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
 
         if  (transaction.status().equals(Transaction.Status.ROLLEDBACK)) {
-            return new SimpleTransaction(mappingContext, autoCommitUrl);
+            //return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
 
         if  (transaction.status().equals(Transaction.Status.COMMITTED)) {
-            return new SimpleTransaction(mappingContext, autoCommitUrl);
+            //return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
-
+        logger.info("current transaction: " + transaction.url());
         return transaction;
 
     }

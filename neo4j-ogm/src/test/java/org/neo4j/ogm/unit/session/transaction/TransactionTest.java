@@ -42,14 +42,6 @@ public class TransactionTest {
 
     }
 
-    @Test(expected = TransactionException.class) public void failRollbackIfNothingToDo() {
-        tx.rollback();
-    }
-
-    @Test(expected = TransactionException.class) public void failCommitIfNothingToDo() {
-        tx.commit();
-    }
-
     @Test(expected = TransactionException.class) public void failRollbackIfCommitted() {
         tx.append(new CypherContext());
         tx.commit();

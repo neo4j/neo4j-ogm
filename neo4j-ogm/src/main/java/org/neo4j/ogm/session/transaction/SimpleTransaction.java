@@ -29,14 +29,14 @@ public class SimpleTransaction implements Transaction {
 
     public final void append(CypherContext context) {
         logger.debug("Appending transaction context " + context);
-        if (status == Status.OPEN) {
+        if (status == Status.OPEN || status == Status.PENDING) {
             contexts.add(context);
             status = Status.PENDING;
             if (autocommit) {
                 commit();
             }
         } else {
-            throw new TransactionException("Transaction is closed. Cannot accept new operations");
+            throw new TransactionException("Transaction is no longer open. Cannot accept new operations");
         }
     }
 
@@ -46,17 +46,17 @@ public class SimpleTransaction implements Transaction {
 
     public void rollback() {
         logger.info("rollback invoked");
-        if (status == Status.PENDING) {
+        if (status == Status.OPEN || status == Status.PENDING) {
             contexts.clear();
             status = Status.ROLLEDBACK;
         } else {
-            throw new TransactionException("Transaction has no pending operations. Cannot rollback");
+            throw new TransactionException("Transaction is no longer open. Cannot rollback");
         }
     }
 
     public void commit() {
         logger.info("commit invoked");
-        if (status == Status.PENDING ) {
+        if (status == Status.OPEN || status == Status.PENDING) {
             for (CypherContext cypherContext : contexts) {
                 logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
                 // todo : subclass these
@@ -71,7 +71,7 @@ public class SimpleTransaction implements Transaction {
             contexts.clear();
             status = Status.COMMITTED;
         } else {
-            throw new TransactionException("Transaction has no pending operations. Cannot commit");
+            throw new TransactionException("Transaction is no longer open. Cannot commit");
         }
     }
 

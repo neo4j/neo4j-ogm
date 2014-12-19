@@ -3,7 +3,7 @@ package org.neo4j.ogm.unit.mapper.model.bike;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
-import org.neo4j.ogm.session.DefaultSessionImpl;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.util.Collection;
@@ -18,7 +18,7 @@ public class BikeTest {
         BikeRequest bikeRequest = new BikeRequest();
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        DefaultSessionImpl session = ((DefaultSessionImpl) sessionFactory.openSession("dummy-url"));
+        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession("dummy-url"));
         session.setRequestHandler(bikeRequest);
 
         long now = -System.currentTimeMillis();

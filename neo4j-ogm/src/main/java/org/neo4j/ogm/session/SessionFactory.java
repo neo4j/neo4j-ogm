@@ -16,7 +16,7 @@ public class SessionFactory {
     }
 
     public Session openSession(String url) {
-        return new DefaultSessionImpl(metaData, url, httpClient, objectMapper);
+        return new Neo4jSession(metaData, url, httpClient, objectMapper);
     }
 
 }

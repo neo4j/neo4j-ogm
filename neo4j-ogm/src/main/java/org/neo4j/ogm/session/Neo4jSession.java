@@ -36,27 +36,36 @@ public class Neo4jSession implements Session {
     private final MappingContext mappingContext;
     private final ObjectMapper mapper;
     private final String autoCommitUrl;
+    private final TransactionRequestHandler transactionRequestHandler;
 
-    private RequestHandler requestHandler;
-    private ResponseHandler responseHandler;
+    private Neo4jRequest<String> request;
 
-    private TransactionRequestHandler transactionRequestHandler;
-    private Transaction transaction;
+    // all transaction objects must have thread local scope
+    private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
     public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
         this.metaData = metaData;
         this.mapper = mapper;
         this.mappingContext = new MappingContext(metaData);
-
         this.transactionRequestHandler = new TransactionRequestHandler(client, url);
         this.autoCommitUrl = autoCommit(url);
-
-        this.requestHandler = new SessionRequestHandler(mapper, new DefaultRequest(client));
-        this.responseHandler = new SessionResponseHandler(metaData, mappingContext);
+        this.request = new DefaultRequest(client);
     }
 
-    public void setRequestHandler(Neo4jRequest<String> requestHandler) {
-        this.requestHandler = new SessionRequestHandler(mapper, requestHandler);
+    public void setRequest(Neo4jRequest<String> neo4jRequest) {
+        this.request=neo4jRequest;
+    }
+
+    private RequestHandler getRequestHandler() {
+        return new SessionRequestHandler(mapper, request);
+    }
+
+    private ResponseHandler getResponseHandler() {
+        return new SessionResponseHandler(metaData, mappingContext);
+    }
+
+    private Transaction getCurrentTransaction() {
+        return transaction.get();
     }
 
     @Override
@@ -68,8 +77,8 @@ public class Neo4jSession implements Session {
     public <T> T load(Class<T> type, Long id, int depth) {
         String url = getOrCreateTransaction().url();
         GraphModelQuery qry = new VariableDepthQuery().findOne(id, depth);
-        try (Neo4jResponse<GraphModel> response = requestHandler.execute(qry, url)) {
-            return responseHandler.loadById(type, response, id);
+        try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
+            return getResponseHandler().loadById(type, response, id);
         }
     }
 
@@ -82,8 +91,8 @@ public class Neo4jSession implements Session {
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, int depth) {
         String url = getOrCreateTransaction().url();
         GraphModelQuery qry = new VariableDepthQuery().findAll(ids, depth);
-        try (Neo4jResponse<GraphModel> response = requestHandler.execute(qry, url)) {
-            return responseHandler.loadAll(type, response);
+        try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
+            return getResponseHandler().loadAll(type, response);
         }
     }
 
@@ -97,8 +106,8 @@ public class Neo4jSession implements Session {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         String url = getOrCreateTransaction().url();
         GraphModelQuery qry = new VariableDepthQuery().findByLabel(classInfo.label(), depth);
-        try (Neo4jResponse<GraphModel> response = requestHandler.execute(qry, url)) {
-            return responseHandler.loadAll(type, response);
+        try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
+            return getResponseHandler().loadAll(type, response);
         }
     }
 
@@ -134,8 +143,8 @@ public class Neo4jSession implements Session {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         String url = getOrCreateTransaction().url();
         GraphModelQuery qry = new VariableDepthQuery().findByProperty(classInfo.label(), property, depth);
-        try (Neo4jResponse<GraphModel> response = requestHandler.execute(qry, url)) {
-            return responseHandler.loadByProperty(type, response, property);
+        try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
+            return getResponseHandler().loadByProperty(type, response, property);
         }
     }
 
@@ -144,7 +153,6 @@ public class Neo4jSession implements Session {
 
         logger.info("beginTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Neo4jSession identity: " + this);
-
 
 //        if (transaction != null && transaction instanceof LongTransaction) {
 //            // return current transaction if no operations yet. i.e. don't waste db transactions
@@ -157,23 +165,24 @@ public class Neo4jSession implements Session {
 //            }
 //        }
 //
-//        // no current user transaction - lets get one.
-        this.transaction = transactionRequestHandler.openTransaction(mappingContext);
-        logger.info("obtained new transaction: " + this.transaction.url());
-        return this.transaction;
+
+        Transaction tx = transactionRequestHandler.openTransaction(mappingContext);
+        transaction.set(tx);
+        logger.info("obtained new transaction: " + tx.url());
+        return tx;
     }
 
     @Override
     public void execute(String statement) {
         ParameterisedStatement parameterisedStatement = new ParameterisedStatement(statement, Utils.map());
         String url = getOrCreateTransaction().url();
-        requestHandler.execute(parameterisedStatement, url).close();
+        getRequestHandler().execute(parameterisedStatement, url).close();
     }
 
     @Override
     public void purge() {
         String url = getOrCreateTransaction().url();
-        requestHandler.execute(new DeleteStatements().purge(), url).close();
+        getRequestHandler().execute(new DeleteStatements().purge(), url).close();
         mappingContext.clear();
     }
 
@@ -186,8 +195,8 @@ public class Neo4jSession implements Session {
     public <T> void save(T object, int depth) {
         Transaction tx = getOrCreateTransaction();
         CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
-        try (Neo4jResponse<String> response = requestHandler.execute(context.getStatements(), tx.url())) {
-            responseHandler.updateObjects(context, response, mapper);
+        try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
+            getResponseHandler().updateObjects(context, response, mapper);
             tx.append(context);
         }
         catch (Exception e) {
@@ -204,7 +213,7 @@ public class Neo4jSession implements Session {
         if (identity != null) {
             String url = getOrCreateTransaction().url();
             ParameterisedStatement request = new DeleteStatements().delete(identity);
-            try (Neo4jResponse<String> response = requestHandler.execute(request, url)) {
+            try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
                 // nothing to process on the response - looks a bit odd.
                 // should be done on commit?? when do these objects disappear?
                 mappingContext.getAll(object.getClass()).remove(object);
@@ -219,7 +228,7 @@ public class Neo4jSession implements Session {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         String url = getOrCreateTransaction().url();
         ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
-        try (Neo4jResponse<String> response = requestHandler.execute(request, url)) {
+        try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
             // should be done on commit.
             mappingContext.getAll(type).clear();
             mappingContext.mappedRelationships().clear(); // not the real deal
@@ -232,30 +241,19 @@ public class Neo4jSession implements Session {
         return url + "db/data/transaction/commit";
     }
 
-    // if there is no user transaction, create a transient auto-commit one;
     private Transaction getOrCreateTransaction() {
 
         logger.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Session identity: " + this);
 
-        if (transaction == null) {
+        Transaction tx = getCurrentTransaction();
+        if (tx == null) {
             logger.info("There is no existing transaction, creating a transient one");
             return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
 
-        if  (transaction.status().equals(Transaction.Status.CLOSED)) {
-            //return new SimpleTransaction(mappingContext, autoCommitUrl);
-        }
-
-        if  (transaction.status().equals(Transaction.Status.ROLLEDBACK)) {
-            //return new SimpleTransaction(mappingContext, autoCommitUrl);
-        }
-
-        if  (transaction.status().equals(Transaction.Status.COMMITTED)) {
-            //return new SimpleTransaction(mappingContext, autoCommitUrl);
-        }
-        logger.info("current transaction: " + transaction.url());
-        return transaction;
+        logger.info("current transaction: " + tx.url());
+        return tx;
 
     }
 }

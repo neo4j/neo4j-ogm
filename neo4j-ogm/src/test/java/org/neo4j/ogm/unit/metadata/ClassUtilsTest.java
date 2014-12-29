@@ -1,16 +1,18 @@
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.unit.metadata;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
+import org.neo4j.ogm.metadata.ClassUtils;
 
 import java.util.Date;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class ClassUtilsTest {
 
     @Test
     public void shouldResolveParameterTypeForSetterMethodFromSignatureString() {
-        assertEquals(Date.class, ClassUtils.getType("(Ljava/util/Date;)V"));
+        Assert.assertEquals(Date.class, ClassUtils.getType("(Ljava/util/Date;)V"));
         assertEquals(String[].class, ClassUtils.getType("([Ljava/lang/String;)V"));
         assertEquals(boolean.class, ClassUtils.getType("(Z)V"));
         assertEquals(byte.class, ClassUtils.getType("(B)V"));

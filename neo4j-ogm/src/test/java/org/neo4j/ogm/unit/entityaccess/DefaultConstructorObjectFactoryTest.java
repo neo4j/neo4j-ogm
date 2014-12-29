@@ -1,4 +1,4 @@
-package org.neo4j.ogm.unit.session;
+package org.neo4j.ogm.unit.entityaccess;
 
 import org.neo4j.ogm.model.NodeModel;
 import org.neo4j.ogm.model.RelationshipModel;

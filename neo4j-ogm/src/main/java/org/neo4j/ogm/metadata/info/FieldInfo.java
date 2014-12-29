@@ -3,15 +3,18 @@ package org.neo4j.ogm.metadata.info;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.RelationshipUtils;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 public class FieldInfo {
 
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
+    private static final String DATE_DESCRIPTOR = "Ljava/util/Date;";
 
     private final String name;
     private final String descriptor;
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
+    private final AttributeConverter<Class<?>, Class<?>> converter = null;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -27,6 +30,7 @@ public class FieldInfo {
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
+        setConverter();
     }
 
     public String getName() {
@@ -69,8 +73,27 @@ public class FieldInfo {
     }
 
     public boolean isSimple() {
-        return primitives.contains(descriptor) || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
+        return primitives.contains(descriptor)
+                || isConvertible()
+                || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
+    }
+
+    public boolean isConvertible() {
+        if (typeParameterDescriptor == null) {
+            if (descriptor.equals(DATE_DESCRIPTOR)) return true;
+        } else {
+            if (typeParameterDescriptor.equals(DATE_DESCRIPTOR)) return true;
+        }
+        return false;
+    }
+
+    public AttributeConverter<Class<?>, Class<?>> getConverter() {
+        return converter;
+    }
+
+    private void setConverter() {
+        // what to do here?
     }
 
 }

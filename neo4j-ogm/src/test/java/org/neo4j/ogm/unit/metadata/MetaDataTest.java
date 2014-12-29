@@ -1,4 +1,4 @@
-package org.neo4j.ogm.unit.session;
+package org.neo4j.ogm.unit.metadata;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.education.Student;
@@ -112,10 +112,9 @@ public class MetaDataTest {
         ClassInfo classInfo = metaData.classInfo("Member");
         Collection<FieldInfo> fieldInfos = classInfo.relationshipFields();
 
-        int count = 5;
+        int count = 4;
         assertEquals(count, fieldInfos.size());
         for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("renewalDate")) count--; // todo: this will go when we have transformers
             if (fieldInfo.getName().equals("activityList")) count--;
             if (fieldInfo.getName().equals("followees")) count--;
             if (fieldInfo.getName().equals("memberShip")) count--;
@@ -238,10 +237,9 @@ public class MetaDataTest {
     public void testRelationshipGetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<MethodInfo> relationshipGetters = classInfo.relationshipGetters();
-        int count = 5;
+        int count = 4;
         assertEquals(count, relationshipGetters.size());
         for (MethodInfo relationshipGetter : relationshipGetters) {
-            if (relationshipGetter.getName().equals("getRenewalDate")) count--;
             if (relationshipGetter.getName().equals("getActivityList")) count--;
             if (relationshipGetter.getName().equals("getFollowees")) count--;
             if (relationshipGetter.getName().equals("getMemberShip")) count--;
@@ -257,10 +255,9 @@ public class MetaDataTest {
     public void testRelationshipSetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<MethodInfo> relationshipSetters = classInfo.relationshipSetters();
-        int count = 5;
+        int count = 4;
         assertEquals(count, relationshipSetters.size());
         for (MethodInfo relationshipSetter : relationshipSetters) {
-            if (relationshipSetter.getName().equals("setRenewalDate")) count--;
             if (relationshipSetter.getName().equals("setActivityList")) count--;
             if (relationshipSetter.getName().equals("setFollowees")) count--;
             if (relationshipSetter.getName().equals("setMemberShip")) count--;
@@ -269,15 +266,16 @@ public class MetaDataTest {
     }
 
     /**
-     * Can find methods for getting objects which are nodes in the graph
+     * Can find methods for getting objects which can be represented as node properties in the graph
      */
     @Test
     public void testPropertyGetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<MethodInfo> propertyGetters = classInfo.propertyGetters();
-        int count = 4;
+        int count = 5;
         assertEquals(count, propertyGetters.size());
         for (MethodInfo propertyGetter : propertyGetters) {
+            if (propertyGetter.getName().equals("getRenewalDate")) count--;
             if (propertyGetter.getName().equals("getUserName")) count--;
             if (propertyGetter.getName().equals("getPassword")) count--;
             if (propertyGetter.getName().equals("getMembershipNumber")) count--;
@@ -287,15 +285,16 @@ public class MetaDataTest {
     }
 
     /**
-     * Can find methods for setting objects which are node properties in the graph.
+     * Can find methods for setting objects which can be represented as node properties in the graph.
      */
     @Test
     public void testPropertySetters() {
         ClassInfo classInfo = metaData.classInfo("User");
         Collection<MethodInfo> propertySetters = classInfo.propertySetters();
-        int count = 4;
+        int count = 5;
         assertEquals(count, propertySetters.size());
         for (MethodInfo propertySetter : propertySetters) {
+            if (propertySetter.getName().equals("setRenewalDate")) count--;
             if (propertySetter.getName().equals("setUserName")) count--;
             if (propertySetter.getName().equals("setPassword")) count--;
             if (propertySetter.getName().equals("setMembershipNumber")) count--;
@@ -385,14 +384,27 @@ public class MetaDataTest {
     public void testFindDateSetter() {
         ClassInfo classInfo = metaData.classInfo("Member");
         List<MethodInfo> methodInfos = classInfo.findSetters(Date.class);
-        assertEquals("setRenewalDate", methodInfos.iterator().next().getName());
+        MethodInfo methodInfo = methodInfos.iterator().next();
+        assertEquals("setRenewalDate",methodInfo.getName());
+        assertTrue(methodInfo.isConvertibleSetter());
+    }
+
+    @Test
+    public void testFindDateGetter() {
+        ClassInfo classInfo = metaData.classInfo("Member");
+        List<MethodInfo> methodInfos = classInfo.findGetters(Date.class);
+        MethodInfo methodInfo = methodInfos.iterator().next();
+        assertEquals("getRenewalDate", methodInfo.getName());
+        assertTrue(methodInfo.isConvertibleGetter());
     }
 
     @Test
     public void testFindDateField() {
         ClassInfo classInfo = metaData.classInfo("Member");
         List<FieldInfo> fieldInfos = classInfo.findFields( Date.class);
-        assertEquals("renewalDate", fieldInfos.iterator().next().getName());
+        FieldInfo fieldInfo = fieldInfos.iterator().next();
+        assertEquals("renewalDate", fieldInfo.getName());
+        assertTrue(fieldInfo.isConvertible());
     }
 
     @Test

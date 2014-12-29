@@ -8,6 +8,8 @@ public class MethodInfo {
 
     private static final String primitiveGetters="()I,()J,()S,()B,()C,()F,()D,()Z,()[I,()[J,()[S,()[B,()[C,()[F,()[D,()[Z";
     private static final String primitiveSetters="(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
+    private static final String DATE_GETTER="()Ljava/util/Date;";
+    private static final String DATE_SETTER="(Ljava/util/Date;)V";
 
     private final String name;
     private final String descriptor;
@@ -71,16 +73,38 @@ public class MethodInfo {
     }
 
     public boolean isSimpleGetter() {
-        return primitiveGetters.contains(descriptor) || usesSimpleJavaTypes();
+        return primitiveGetters.contains(descriptor)
+                || usesSimpleJavaTypes()
+                || isConvertibleGetter();
     }
 
     public boolean isSimpleSetter() {
-        return primitiveSetters.contains(descriptor) || usesSimpleJavaTypes();
+        return primitiveSetters.contains(descriptor)
+                || usesSimpleJavaTypes()
+                || isConvertibleSetter();
     }
 
     private boolean usesSimpleJavaTypes() {
         return (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
+    }
+
+    public boolean isConvertibleGetter() {
+        if (typeParameterDescriptor == null) {
+            if (descriptor.equals(DATE_GETTER)) return true;
+        } else {
+            if (typeParameterDescriptor.equals(DATE_GETTER)) return true;
+        }
+        return false;
+    }
+
+    public boolean isConvertibleSetter() {
+        if (typeParameterDescriptor == null) {
+            if (descriptor.equals(DATE_SETTER)) return true;
+        } else {
+            if (typeParameterDescriptor.equals(DATE_SETTER)) return true;
+        }
+        return false;
     }
 
 }

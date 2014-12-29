@@ -579,6 +579,23 @@ public class ClassInfo {
     }
 
     /**
+     * Find all getter MethodInfos for the specified ClassInfo whose return type matches the supplied class
+     *
+     * @param returnType The getter return type to look for.
+     * @return A {@link List} of {@link MethodInfo} objects that return the given type, never <code>null</code>
+     */
+    public List<MethodInfo> findGetters(Class<?> returnType) {
+        String setterSignature = "()L" + returnType.getName().replace(".", "/") + ";";
+        List<MethodInfo> methodInfos = new ArrayList<>();
+        for (MethodInfo methodInfo : methodsInfo().methods()) {
+            if (methodInfo.getDescriptor().equals(setterSignature)) {
+                methodInfos.add(methodInfo);
+            }
+        }
+        return methodInfos;
+    }
+
+    /**
      * Find all FieldInfos for the specified ClassInfo whose type matches the supplied fieldType
      *
      * @param fieldType The field type to look for

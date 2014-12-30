@@ -230,15 +230,13 @@ public class ClassInfo {
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (!fieldInfo.getName().equals(identityField.getName())) {
                 // todo: when building fieldInfos, we must exclude fields annotated @Transient, or with the transient modifier
-                if (fieldInfo.getAnnotations().isEmpty()) {
+                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
+                if (annotationInfo == null) {
                     if (fieldInfo.isSimple()) {
                         fieldInfos.add(fieldInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
-                    if (annotationInfo != null) {
-                        fieldInfos.add(fieldInfo);
-                    }
+                    fieldInfos.add(fieldInfo);
                 }
             }
         }
@@ -272,15 +270,13 @@ public class ClassInfo {
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo != identityField) {
                 // todo: when building fieldInfos, we must exclude fields annotated @Transient, or with the transient modifier
-                if (fieldInfo.getAnnotations().isEmpty()) {
+                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.CLASS);
+                if (annotationInfo == null) {
                     if (!fieldInfo.isSimple()) {
                         fieldInfos.add(fieldInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.CLASS);
-                    if (annotationInfo != null) {
-                        fieldInfos.add(fieldInfo);
-                    }
+                    fieldInfos.add(fieldInfo);
                 }
             }
         }
@@ -362,15 +358,13 @@ public class ClassInfo {
         Set<MethodInfo> propertyGetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().getters()) {
             if (identityGetter == null || !methodInfo.getName().equals(identityGetter.getName())) {
-                if (methodInfo.getAnnotations().isEmpty()) {
+                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
+                if (annotationInfo == null) {
                     if (methodInfo.isSimpleGetter()) {
                         propertyGetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
-                    if (annotationInfo != null) {
-                        propertyGetters.add(methodInfo);
-                    }
+                    propertyGetters.add(methodInfo);
                 }
             }
         }
@@ -388,15 +382,13 @@ public class ClassInfo {
         Set<MethodInfo> propertySetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().setters()) {
             if (identitySetter == null || !methodInfo.getName().equals(identitySetter.getName())) {
-                if (methodInfo.getAnnotations().isEmpty()) {
+                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
+                if (annotationInfo == null) {
                     if (methodInfo.isSimpleSetter()) {
                         propertySetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
-                    if (annotationInfo != null) {
-                        propertySetters.add(methodInfo);
-                    }
+                    propertySetters.add(methodInfo);
                 }
             }
         }
@@ -414,15 +406,13 @@ public class ClassInfo {
         Set<MethodInfo> relationshipGetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().getters()) {
             if (identityGetter == null || !methodInfo.getName().equals(identityGetter.getName())) {
-                if (methodInfo.getAnnotations().isEmpty()) {
+                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
+                if (annotationInfo == null) {
                     if (!methodInfo.isSimpleGetter()) {
                         relationshipGetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
-                    if (annotationInfo != null) {
-                        relationshipGetters.add(methodInfo);
-                    }
+                    relationshipGetters.add(methodInfo);
                 }
             }
         }
@@ -440,15 +430,13 @@ public class ClassInfo {
         Set<MethodInfo> relationshipSetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().setters()) {
             if (identitySetter == null || !methodInfo.getName().equals(identitySetter.getName())) {
-                if (methodInfo.getAnnotations().isEmpty()) {
+                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
+                if (annotationInfo == null) {
                     if (!methodInfo.isSimpleSetter()) {
                         relationshipSetters.add(methodInfo);
                     }
                 } else {
-                    AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
-                    if (annotationInfo != null) {
-                        relationshipSetters.add(methodInfo);
-                    }
+                    relationshipSetters.add(methodInfo);
                 }
             }
         }

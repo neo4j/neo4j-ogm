@@ -16,27 +16,26 @@ import java.util.Date;
  *
  * @DateLong will read and write dates as Long values in the database.
  */
-public class DateString implements AttributeConverter<Date, String> {
+public class DateStringConverter implements AttributeConverter<Date, String> {
 
     private String format;
 
-    public DateString(String userDefinedFormat) {
+    public DateStringConverter(String userDefinedFormat) {
         this.format = userDefinedFormat;
     }
 
     @Override
-    public String toGraphProperty(Date value) {
-        return new SimpleDateFormat(format).format(value);
+    public String toGraphProperty(Object value) {
+        return new SimpleDateFormat(format).format((Date) value);
     }
 
     @Override
-    public Date toEntityAttribute(String value) {
+    public Date toEntityAttribute(Object value) {
         try {
-            return new SimpleDateFormat(format).parse(value);
+            return new SimpleDateFormat(format).parse((String) value);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
     }
-
 
 }

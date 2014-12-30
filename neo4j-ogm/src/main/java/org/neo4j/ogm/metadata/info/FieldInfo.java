@@ -8,13 +8,12 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 public class FieldInfo {
 
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
-    private static final String DATE_DESCRIPTOR = "Ljava/util/Date;";
 
     private final String name;
     private final String descriptor;
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
-    private final AttributeConverter<Class<?>, Class<?>> converter = null;
+    private final AttributeConverter<?, ?> converter;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -30,7 +29,7 @@ public class FieldInfo {
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
-        setConverter();
+        this.converter = registerTypeConverter();
     }
 
     public String getName() {
@@ -81,19 +80,25 @@ public class FieldInfo {
 
     public boolean isConvertible() {
         if (typeParameterDescriptor == null) {
-            if (descriptor.equals(DATE_DESCRIPTOR)) return true;
+            if (descriptor.equals(ConvertibleTypes.DATE)) return true;
         } else {
-            if (typeParameterDescriptor.equals(DATE_DESCRIPTOR)) return true;
+            if (typeParameterDescriptor.equals(ConvertibleTypes.DATE)) return true;
         }
         return false;
     }
 
-    public AttributeConverter<Class<?>, Class<?>> getConverter() {
+    public AttributeConverter<?, ?> converter() {
         return converter;
     }
 
-    private void setConverter() {
-        // what to do here?
+    private AttributeConverter<?, ?> registerTypeConverter() {
+        if (isConvertible()) {
+            if (typeParameterDescriptor == null) {
+                return getAnnotations().getConverter(descriptor);
+            } else {
+                return getAnnotations().getConverter(typeParameterDescriptor);
+            }
+        }
+        return null;
     }
-
 }

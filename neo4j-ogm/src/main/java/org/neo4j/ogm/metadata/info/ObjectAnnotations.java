@@ -1,5 +1,12 @@
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.CustomType;
+import org.neo4j.ogm.annotation.DateLong;
+import org.neo4j.ogm.annotation.DateString;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.typeconversion.DateLongConverter;
+import org.neo4j.ogm.typeconversion.DateStringConverter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,4 +34,37 @@ public class ObjectAnnotations {
     public boolean isEmpty() {
         return annotations.isEmpty();
     }
+
+    public AttributeConverter<?, ?> getConverter(String typeDescriptor) {
+
+        // try to get a custom type converter
+        AnnotationInfo customType = get(CustomType.CLASS);
+        if (customType != null) {
+            try {
+                String classDescriptor = customType.get(CustomType.CONVERTER, null);
+                String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
+                Class clazz = Class.forName(className);
+                return (AttributeConverter<?, ?>) clazz.newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // try to find a pre-registered type annotation. this is very clumsy, but at least it is done only once
+        AnnotationInfo dateLongConverterInfo = get(DateLong.CLASS);
+        if (dateLongConverterInfo != null) {
+            return new DateLongConverter();
+        }
+
+        AnnotationInfo dateStringConverterInfo = get(DateString.CLASS);
+        if (dateStringConverterInfo != null) {
+            String format = dateStringConverterInfo.get(DateString.FORMAT, DateString.ISO_8601);
+            return new DateStringConverter(format);
+        }
+
+        // no pre-registered types found. select the correct default
+        return ConvertibleTypes.getDefaultConverter(typeDescriptor);
+
+    }
+
 }

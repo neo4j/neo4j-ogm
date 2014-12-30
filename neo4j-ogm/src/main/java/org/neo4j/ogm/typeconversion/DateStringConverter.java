@@ -3,9 +3,10 @@ package org.neo4j.ogm.typeconversion;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
- * By default the OGM will map date objects to ISO8601 compliant
+ * By default the OGM will map date objects to UTC-based ISO8601 compliant
  * String values when being stored as a node / relationship property
  *
  * Users can override this behaviour for Date objects using
@@ -26,7 +27,9 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
 
     @Override
     public String toGraphProperty(Object value) {
-        return new SimpleDateFormat(format).format((Date) value);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return simpleDateFormat.format((Date) value);
     }
 
     @Override

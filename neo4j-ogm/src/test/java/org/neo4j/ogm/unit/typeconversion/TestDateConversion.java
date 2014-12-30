@@ -25,7 +25,7 @@ public class TestDateConversion {
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         Date date = new Date(0);
         String value = attributeConverter.toGraphProperty(date);
-        assertEquals("1970-01-01T01:00:00.000+01:00", value);
+        assertEquals("1970-01-01T00:00:00.000Z", value);
     }
 
     @Test

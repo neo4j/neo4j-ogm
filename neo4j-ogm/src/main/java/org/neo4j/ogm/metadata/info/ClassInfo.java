@@ -39,6 +39,7 @@ public class ClassInfo {
     private int minorVersion;
     private String directSuperclassName;
     private boolean isInterface;
+    private boolean isEnum;
     private boolean hydrated;
 
     private FieldsInfo fieldsInfo = new FieldsInfo();
@@ -70,18 +71,19 @@ public class ClassInfo {
         // Access flags
         int flags = dataInputStream.readUnsignedShort();
         isInterface = (flags & 0x0200) != 0;
+        isEnum = (flags & 0x4000) != 0;
 
         className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
         String sce = constantPool.lookup(dataInputStream.readUnsignedShort());
         if (sce != null) {
             directSuperclassName = sce.replace('/', '.');
         }
+
         interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
         fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
 
-        //System.out.println(className);
 
     }
 
@@ -173,6 +175,10 @@ public class ClassInfo {
 
     public boolean isInterface() {
         return isInterface;
+    }
+
+    public boolean isEnum() {
+        return isEnum;
     }
 
     public AnnotationsInfo annotationsInfo() {

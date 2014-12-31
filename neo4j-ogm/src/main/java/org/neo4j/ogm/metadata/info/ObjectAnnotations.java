@@ -77,8 +77,8 @@ public class ObjectAnnotations {
         }
 
         // no pre-registered types found. select the correct default (if applicable)
-        return ConvertibleTypes.getDefaultConverter(typeDescriptor);
-
+        // return ConvertibleTypes.getDateConverter(typeDescriptor);
+        return null;
     }
 
 }

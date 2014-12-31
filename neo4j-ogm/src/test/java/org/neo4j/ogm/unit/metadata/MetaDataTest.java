@@ -404,7 +404,7 @@ public class MetaDataTest {
         List<FieldInfo> fieldInfos = classInfo.findFields( Date.class);
         FieldInfo fieldInfo = fieldInfos.iterator().next();
         assertEquals("renewalDate", fieldInfo.getName());
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
     }
 
     @Test

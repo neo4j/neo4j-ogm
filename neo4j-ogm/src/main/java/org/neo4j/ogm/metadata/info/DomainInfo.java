@@ -8,12 +8,15 @@ import java.util.*;
 
 public class DomainInfo implements ClassInfoProcessor {
 
-    private final List<String> classPaths = new ArrayList<>();
+    private static final String dateSignature = "java/util/Date";
 
+    private final List<String> classPaths = new ArrayList<>();
     private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
     private final HashMap<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+
+    private final Set<String> enumTypes = new HashSet<>();
 
     public DomainInfo(String... packages) {
         long now = -System.currentTimeMillis();
@@ -34,8 +37,44 @@ public class DomainInfo implements ClassInfoProcessor {
         }
     }
 
+    private void registerDefaultTypeConverters() {
+
+        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+            if (!classInfo.isEnum() && !classInfo.isInterface()) {
+
+                for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
+                    if (!fieldInfo.hasConverter()) {
+                        if (fieldInfo.getDescriptor().contains(dateSignature)) {
+                            fieldInfo.setConverter(ConvertibleTypes.getDateConverter());
+                        } else {
+                            for (String enumSignature : enumTypes) {
+                                if (fieldInfo.getDescriptor().contains(enumSignature)) {
+                                    fieldInfo.setConverter(ConvertibleTypes.getEnumConverter(enumSignature));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for (MethodInfo methodInfo : classInfo.methodsInfo().methods()) {
+                    //
+                    if (methodInfo.getDescriptor().contains(dateSignature)) {
+                        System.out.println("TODO: " + classInfo.name() + ": " + methodInfo.getName() + " handles date objects");
+                    } else {
+                        for (String enumSignature : enumTypes) {
+                            if (methodInfo.getDescriptor().contains(enumSignature)) {
+                                System.out.println("TODO: " + classInfo.name() + ": " + methodInfo.getName() + " handles enum objects");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void finish() {
         buildAnnotationNameToClassInfoMap();
+        registerDefaultTypeConverters();
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
             if (classInfo.superclassName() == null || classInfo.superclassName().equals("java.lang.Object")) {
@@ -77,6 +116,11 @@ public class DomainInfo implements ClassInfoProcessor {
                     } else {
                         superclassInfo.addSubclass(thisClassInfo);
                     }
+                }
+                if (thisClassInfo.isEnum()) {
+                    String enumSignature = thisClassInfo.name().replace(".", "/");
+                    //System.out.println("registering enum class: " + enumSignature);
+                    enumTypes.add(enumSignature);
                 }
             }
         }

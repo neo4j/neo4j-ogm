@@ -13,7 +13,8 @@ public class FieldInfo {
     private final String descriptor;
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
-    private final AttributeConverter<?, ?> converter;
+
+    private AttributeConverter<?, ?> converter;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -29,7 +30,9 @@ public class FieldInfo {
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
-        this.converter = registerTypeConverter();
+        if (!this.annotations.isEmpty()) {
+            setConverter(getAnnotatedTypeConverter());
+        }
     }
 
     public String getName() {
@@ -82,11 +85,17 @@ public class FieldInfo {
         return converter;
     }
 
-    public boolean isConvertible() {
+    public void setConverter( AttributeConverter<?, ?> converter ) {
+        if (this.converter == null && converter != null) {
+            this.converter = converter;
+        } // we maybe set an annotated converter when object was constructed, so don't override with a default one
+    }
+
+    public boolean hasConverter() {
         return converter != null;
     }
 
-    private AttributeConverter<?, ?> registerTypeConverter() {
+    private AttributeConverter<?, ?> getAnnotatedTypeConverter() {
         if (typeParameterDescriptor == null) {
             return getAnnotations().getConverter(descriptor);
         } else {

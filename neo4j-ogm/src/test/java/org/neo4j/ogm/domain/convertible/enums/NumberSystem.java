@@ -12,15 +12,11 @@ public enum NumberSystem {
 
     NumberSystem(String domain) {
         this.domain = domain;
-        System.out.println(this.toString());
+        System.out.println(domain);
     }
 
     public String getDomain() {
         return domain;
-    }
-
-    public boolean isSubSetOf(NumberSystem that) {
-        return this.ordinal() < that.ordinal();
     }
 
 }

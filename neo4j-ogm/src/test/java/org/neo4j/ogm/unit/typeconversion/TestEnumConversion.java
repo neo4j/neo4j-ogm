@@ -19,9 +19,9 @@ public class TestEnumConversion {
     private static final ClassInfo personInfo = metaData.classInfo("Person");
 
     @Test
-    public void testSave() {
+    public void testSaveWithAnnotatedConverter() {
         FieldInfo fieldInfo = algebraInfo.propertyField("numberSystem");
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
 
         Algebra algebra = new Algebra();
         algebra.setNumberSystem(NumberSystem.NATURAL);
@@ -32,9 +32,9 @@ public class TestEnumConversion {
     }
 
     @Test
-    public void testLoad() {
+    public void testLoadWithAnnotatedConverter() {
         FieldInfo fieldInfo = algebraInfo.propertyField("numberSystem");
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
         // a node / rel property value loaded from neo4j, to be stored in on an enum
         String value = "INTEGER";
         Algebra algebra = new Algebra();
@@ -45,14 +45,14 @@ public class TestEnumConversion {
     }
 
     @Test
-    public void testGenderMale() {
+    public void testGenderWithAutoDetectedConverter() {
 
         Person bob = new Person();
         bob.setGender(Gender.MALE);
 
         FieldInfo fieldInfo = personInfo.propertyField("gender");
-        assertTrue(fieldInfo.isConvertible());
 
+        assertTrue(fieldInfo.hasConverter());
         assertEquals("MALE", fieldInfo.converter().toGraphProperty(bob.getGender()));
 
     }

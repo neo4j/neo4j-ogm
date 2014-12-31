@@ -8,6 +8,7 @@ public class MethodInfo {
 
     private static final String primitiveGetters="()I,()J,()S,()B,()C,()F,()D,()Z,()[I,()[J,()[S,()[B,()[C,()[F,()[D,()[Z";
     private static final String primitiveSetters="(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
+
     private static final String DATE_GETTER="()Ljava/util/Date;";
     private static final String DATE_SETTER="(Ljava/util/Date;)V";
 
@@ -15,6 +16,7 @@ public class MethodInfo {
     private final String descriptor;
     private final ObjectAnnotations annotations;
     private final String typeParameterDescriptor;
+    private boolean isEnum;
 
     /**
      * Constructs a new {@link MethodInfo} based on the given arguments.

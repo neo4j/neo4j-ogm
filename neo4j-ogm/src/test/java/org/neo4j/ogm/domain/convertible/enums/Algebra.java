@@ -6,6 +6,7 @@ public class Algebra {
 
     private Long id;
 
+
     @EnumString(NumberSystem.class)
     private NumberSystem numberSystem;
 

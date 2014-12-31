@@ -20,7 +20,7 @@ public class TestDateConversion {
     @Test
     public void assertDateConversionToISO8601FormatByDefault() {
         FieldInfo fieldInfo = memoInfo.propertyField("recorded");
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
         AttributeConverter<?, ?> attributeConverter = fieldInfo.converter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         Date date = new Date(0);
@@ -31,7 +31,7 @@ public class TestDateConversion {
     @Test
     public void assertDateConversionWithUserDefinedFormat() {
         FieldInfo fieldInfo = memoInfo.propertyField("actioned");
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
         AttributeConverter<?, ?> attributeConverter = fieldInfo.converter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         Date date = new Date(0);
@@ -42,7 +42,7 @@ public class TestDateConversion {
     @Test
     public void assertDateLongConversion() {
         FieldInfo fieldInfo = memoInfo.propertyField("closed");
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
         AttributeConverter<?, ?> attributeConverter = fieldInfo.converter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateLongConverter.class));
         Date date = new Date(0);
@@ -53,7 +53,7 @@ public class TestDateConversion {
     @Test
     public void assertCustomTypeConversion() {
         FieldInfo fieldInfo = memoInfo.propertyField("approved");
-        assertTrue(fieldInfo.isConvertible());
+        assertTrue(fieldInfo.hasConverter());
         AttributeConverter<?, ?> attributeConverter = fieldInfo.converter();
         Date date = new Date(1234567890123L);
         String value = attributeConverter.toGraphProperty(date);

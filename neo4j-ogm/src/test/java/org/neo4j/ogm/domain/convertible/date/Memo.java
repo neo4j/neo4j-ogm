@@ -1,4 +1,4 @@
-package org.neo4j.ogm.domain.convertible;
+package org.neo4j.ogm.domain.convertible.date;
 
 import org.neo4j.ogm.annotation.CustomType;
 import org.neo4j.ogm.annotation.DateLong;

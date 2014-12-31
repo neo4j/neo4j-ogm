@@ -29,7 +29,7 @@ public class MethodAccess extends ObjectAccess {
 
             method.invoke(instance, value);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to invoke " + method.getName(), e);
         }
     }
 

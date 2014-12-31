@@ -73,32 +73,24 @@ public class FieldInfo {
 
     public boolean isSimple() {
         return primitives.contains(descriptor)
-                || isConvertible()
+                || converter != null
                 || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
-    }
-
-    public boolean isConvertible() {
-        if (typeParameterDescriptor == null) {
-            if (descriptor.equals(ConvertibleTypes.DATE)) return true;
-        } else {
-            if (typeParameterDescriptor.equals(ConvertibleTypes.DATE)) return true;
-        }
-        return false;
     }
 
     public AttributeConverter<?, ?> converter() {
         return converter;
     }
 
+    public boolean isConvertible() {
+        return converter != null;
+    }
+
     private AttributeConverter<?, ?> registerTypeConverter() {
-        if (isConvertible()) {
-            if (typeParameterDescriptor == null) {
-                return getAnnotations().getConverter(descriptor);
-            } else {
-                return getAnnotations().getConverter(typeParameterDescriptor);
-            }
+        if (typeParameterDescriptor == null) {
+            return getAnnotations().getConverter(descriptor);
+        } else {
+            return getAnnotations().getConverter(typeParameterDescriptor);
         }
-        return null;
     }
 }

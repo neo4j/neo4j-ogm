@@ -73,5 +73,7 @@ public class MappingContext {
     public void clear() {
         objectMemo.clear();
         mappedRelationships.clear();
+        objectMap.clear();
+        typeMap.clear();
     }
 }

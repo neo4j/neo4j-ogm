@@ -3,9 +3,11 @@ package org.neo4j.ogm.metadata.info;
 import org.neo4j.ogm.annotation.CustomType;
 import org.neo4j.ogm.annotation.DateLong;
 import org.neo4j.ogm.annotation.DateString;
+import org.neo4j.ogm.annotation.EnumString;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.DateLongConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
+import org.neo4j.ogm.typeconversion.EnumStringConverter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +64,19 @@ public class ObjectAnnotations {
             return new DateStringConverter(format);
         }
 
-        // no pre-registered types found. select the correct default
+        AnnotationInfo enumStringConverterInfo = get(EnumString.CLASS);
+        if (enumStringConverterInfo != null) {
+            String classDescriptor = enumStringConverterInfo.get(EnumString.ENUM, null);
+            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
+            try {
+                Class clazz = Class.forName(className);
+                return new EnumStringConverter(clazz);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // no pre-registered types found. select the correct default (if applicable)
         return ConvertibleTypes.getDefaultConverter(typeDescriptor);
 
     }

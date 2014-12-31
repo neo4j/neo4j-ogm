@@ -36,7 +36,9 @@ public class MethodsInfo {
                     }
                 } else if ("Signature".equals(attributeName)) {
                     String signature = constantPool.lookup(dataInputStream.readUnsignedShort());
-                    typeParameterDescriptor = signature.substring(signature.indexOf('<') + 1, signature.indexOf('>'));
+                    if (signature.contains("<")) {
+                        typeParameterDescriptor = signature.substring(signature.indexOf('<') + 1, signature.indexOf('>'));
+                    }
                 } else {
                     dataInputStream.skipBytes(attributeLength);
                 }

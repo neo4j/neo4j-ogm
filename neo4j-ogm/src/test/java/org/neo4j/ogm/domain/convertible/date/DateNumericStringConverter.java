@@ -1,4 +1,4 @@
-package org.neo4j.ogm.domain.convertible;
+package org.neo4j.ogm.domain.convertible.date;
 
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;

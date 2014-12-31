@@ -12,6 +12,6 @@ public abstract class ConvertibleTypes {
         if (typeDescriptor.equals(DATE)) {
             return new DateStringConverter(DateString.ISO_8601);
         }
-        throw new RuntimeException("Could not obtain type converter for convertible type: " + typeDescriptor);
+        return null;
     }
 }

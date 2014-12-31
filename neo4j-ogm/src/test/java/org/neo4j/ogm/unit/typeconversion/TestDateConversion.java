@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestDateConversion {
 
-    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible");
+    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.date");
     private static final ClassInfo memoInfo = metaData.classInfo("Memo");
 
     @Test

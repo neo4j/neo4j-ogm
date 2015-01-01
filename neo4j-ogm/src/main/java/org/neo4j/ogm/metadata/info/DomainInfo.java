@@ -57,13 +57,14 @@ public class DomainInfo implements ClassInfoProcessor {
                 }
 
                 for (MethodInfo methodInfo : classInfo.methodsInfo().methods()) {
-                    //
-                    if (methodInfo.getDescriptor().contains(dateSignature)) {
-                        System.out.println("TODO: " + classInfo.name() + ": " + methodInfo.getName() + " handles date objects");
-                    } else {
-                        for (String enumSignature : enumTypes) {
-                            if (methodInfo.getDescriptor().contains(enumSignature)) {
-                                System.out.println("TODO: " + classInfo.name() + ": " + methodInfo.getName() + " handles enum objects");
+                    if (!methodInfo.hasConverter()) {
+                        if (methodInfo.getDescriptor().contains(dateSignature)) {
+                            methodInfo.setConverter(ConvertibleTypes.getDateConverter());
+                        } else {
+                            for (String enumSignature : enumTypes) {
+                                if (methodInfo.getDescriptor().contains(enumSignature)) {
+                                    methodInfo.setConverter(ConvertibleTypes.getEnumConverter(enumSignature));
+                                }
                             }
                         }
                     }

@@ -10,12 +10,12 @@ public class DateNumericStringConverter implements AttributeConverter<Date, Stri
     private final DateStringConverter converter = new DateStringConverter("yyyyMMddhhmmss");
 
     @Override
-    public <F> F toGraphProperty(Object value) {
-        return (F) converter.toGraphProperty(value);
+    public String toGraphProperty(Date value) {
+        return converter.toGraphProperty(value);
     }
 
     @Override
-    public <T> T toEntityAttribute(Object value) {
-        return (T) converter.toEntityAttribute(value);
+    public Date toEntityAttribute(String value) {
+        return converter.toEntityAttribute(value);
     }
 }

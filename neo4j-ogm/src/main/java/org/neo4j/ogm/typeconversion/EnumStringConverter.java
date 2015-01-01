@@ -21,12 +21,12 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
     }
 
     @Override
-    public String toGraphProperty(Object value) {
+    public String toGraphProperty(Enum value) {
         return ((Enum)value).name();
     }
 
     @Override
-    public Enum toEntityAttribute(Object value) {
+    public Enum toEntityAttribute(String value) {
         return Enum.valueOf(enumClass, value.toString());
     }
 

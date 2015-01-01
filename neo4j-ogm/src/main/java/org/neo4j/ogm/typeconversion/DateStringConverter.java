@@ -26,14 +26,14 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
     }
 
     @Override
-    public String toGraphProperty(Object value) {
+    public String toGraphProperty(Date value) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return simpleDateFormat.format((Date) value);
     }
 
     @Override
-    public Date toEntityAttribute(Object value) {
+    public Date toEntityAttribute(String value) {
         try {
             return new SimpleDateFormat(format).parse((String) value);
         } catch (ParseException e) {

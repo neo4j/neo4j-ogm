@@ -81,7 +81,7 @@ public class FieldInfo {
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 
-    public AttributeConverter<?, ?> converter() {
+    public AttributeConverter converter() {
         return converter;
     }
 

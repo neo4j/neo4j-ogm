@@ -3,20 +3,19 @@ package org.neo4j.ogm.metadata.info;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.RelationshipUtils;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 public class MethodInfo {
 
     private static final String primitiveGetters="()I,()J,()S,()B,()C,()F,()D,()Z,()[I,()[J,()[S,()[B,()[C,()[F,()[D,()[Z";
     private static final String primitiveSetters="(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
 
-    private static final String DATE_GETTER="()Ljava/util/Date;";
-    private static final String DATE_SETTER="(Ljava/util/Date;)V";
-
     private final String name;
     private final String descriptor;
     private final ObjectAnnotations annotations;
     private final String typeParameterDescriptor;
-    private boolean isEnum;
+
+    private AttributeConverter<?, ?> converter;
 
     /**
      * Constructs a new {@link MethodInfo} based on the given arguments.
@@ -33,6 +32,9 @@ public class MethodInfo {
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
+        if (!this.getAnnotations().isEmpty()) {
+            setConverter(getAnnotatedTypeConverter());
+        }
     }
 
     public String getName() {
@@ -76,14 +78,14 @@ public class MethodInfo {
 
     public boolean isSimpleGetter() {
         return primitiveGetters.contains(descriptor)
-                || usesSimpleJavaTypes()
-                || isConvertibleGetter();
+                || hasConverter()
+                || usesSimpleJavaTypes();
     }
 
     public boolean isSimpleSetter() {
         return primitiveSetters.contains(descriptor)
-                || usesSimpleJavaTypes()
-                || isConvertibleSetter();
+                || hasConverter()
+                || usesSimpleJavaTypes();
     }
 
     private boolean usesSimpleJavaTypes() {
@@ -91,22 +93,26 @@ public class MethodInfo {
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 
-    public boolean isConvertibleGetter() {
-        if (typeParameterDescriptor == null) {
-            if (descriptor.equals(DATE_GETTER)) return true;
-        } else {
-            if (typeParameterDescriptor.equals(DATE_GETTER)) return true;
-        }
-        return false;
+    public AttributeConverter converter() {
+        return converter;
     }
 
-    public boolean isConvertibleSetter() {
+    public boolean hasConverter() {
+        return converter != null;
+    }
+
+    private AttributeConverter getAnnotatedTypeConverter() {
         if (typeParameterDescriptor == null) {
-            if (descriptor.equals(DATE_SETTER)) return true;
+            return getAnnotations().getConverter(descriptor);
         } else {
-            if (typeParameterDescriptor.equals(DATE_SETTER)) return true;
+            return getAnnotations().getConverter(typeParameterDescriptor);
         }
-        return false;
+    }
+
+    public void setConverter(AttributeConverter<?, ?> converter) {
+        if (this.converter == null && converter != null) {
+            this.converter = converter;
+        }
     }
 
 }

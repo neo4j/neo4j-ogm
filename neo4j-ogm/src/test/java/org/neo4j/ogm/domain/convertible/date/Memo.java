@@ -52,10 +52,12 @@ public class Memo {
         return actioned;
     }
 
+    @DateString("yyyy-MM-dd")
     public void setActioned(Date actioned) {
         this.actioned = actioned;
     }
 
+    @DateLong
     public Date getClosed() {
         return closed;
     }
@@ -68,6 +70,7 @@ public class Memo {
         return approved;
     }
 
+    @CustomType(DateNumericStringConverter.class)
     public void setApproved(Date approved) {
         this.approved = approved;
     }

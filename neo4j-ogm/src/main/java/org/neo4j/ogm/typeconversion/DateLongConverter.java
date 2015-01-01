@@ -5,12 +5,12 @@ import java.util.Date;
 public class DateLongConverter implements AttributeConverter<Date, Long> {
 
     @Override
-    public Long toGraphProperty(Object value) {
-        return ((Date)value).getTime();
+    public Long toGraphProperty(Date value) {
+        return value.getTime();
     }
 
     @Override
-    public Date toEntityAttribute(Object value) {
-        return new Date((Long) value);
+    public Date toEntityAttribute(Long value) {
+        return new Date(value);
     }
 }

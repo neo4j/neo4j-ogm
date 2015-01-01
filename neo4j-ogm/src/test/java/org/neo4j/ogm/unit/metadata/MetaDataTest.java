@@ -386,7 +386,7 @@ public class MetaDataTest {
         List<MethodInfo> methodInfos = classInfo.findSetters(Date.class);
         MethodInfo methodInfo = methodInfos.iterator().next();
         assertEquals("setRenewalDate",methodInfo.getName());
-        assertTrue(methodInfo.isConvertibleSetter());
+        assertTrue(methodInfo.hasConverter());
     }
 
     @Test
@@ -395,7 +395,7 @@ public class MetaDataTest {
         List<MethodInfo> methodInfos = classInfo.findGetters(Date.class);
         MethodInfo methodInfo = methodInfos.iterator().next();
         assertEquals("getRenewalDate", methodInfo.getName());
-        assertTrue(methodInfo.isConvertibleGetter());
+        assertTrue(methodInfo.hasConverter());
     }
 
     @Test

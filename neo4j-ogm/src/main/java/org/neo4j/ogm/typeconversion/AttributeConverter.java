@@ -10,7 +10,7 @@ package org.neo4j.ogm.typeconversion;
  */
 public interface AttributeConverter<T, F> {
 
-    <F> F toGraphProperty(Object value);
-    <T> T toEntityAttribute(Object value);
+    <F> F toGraphProperty(T value);
+    <T> T toEntityAttribute(F value);
 
 }

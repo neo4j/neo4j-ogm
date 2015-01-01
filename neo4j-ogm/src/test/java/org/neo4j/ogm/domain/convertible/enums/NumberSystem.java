@@ -12,7 +12,6 @@ public enum NumberSystem {
 
     NumberSystem(String domain) {
         this.domain = domain;
-        System.out.println(domain);
     }
 
     public String getDomain() {

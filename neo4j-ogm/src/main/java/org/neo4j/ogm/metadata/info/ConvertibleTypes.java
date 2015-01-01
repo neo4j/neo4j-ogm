@@ -1,9 +1,13 @@
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.annotation.DateString;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
 import org.neo4j.ogm.typeconversion.EnumStringConverter;
+import org.neo4j.ogm.typeconversion.NumberStringConverter;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public abstract class ConvertibleTypes {
 
@@ -21,4 +25,11 @@ public abstract class ConvertibleTypes {
         }
     }
 
+    public static AttributeConverter<?,?> getBigIntegerConverter() {
+        return new NumberStringConverter(BigInteger.class);
+    }
+
+    public static AttributeConverter<?, ?> getBigDecimalConverter() {
+        return new NumberStringConverter(BigDecimal.class);
+    }
 }

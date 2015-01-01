@@ -1,13 +1,7 @@
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.annotation.CustomType;
-import org.neo4j.ogm.annotation.DateLong;
-import org.neo4j.ogm.annotation.DateString;
-import org.neo4j.ogm.annotation.EnumString;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
-import org.neo4j.ogm.typeconversion.DateLongConverter;
-import org.neo4j.ogm.typeconversion.DateStringConverter;
-import org.neo4j.ogm.typeconversion.EnumStringConverter;
+import org.neo4j.ogm.annotation.typeconversion.*;
+import org.neo4j.ogm.typeconversion.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,10 +34,10 @@ public class ObjectAnnotations {
     public AttributeConverter<?, ?> getConverter(String typeDescriptor) {
 
         // try to get a custom type converter
-        AnnotationInfo customType = get(CustomType.CLASS);
+        AnnotationInfo customType = get(Convert.CLASS);
         if (customType != null) {
             try {
-                String classDescriptor = customType.get(CustomType.CONVERTER, null);
+                String classDescriptor = customType.get(Convert.CONVERTER, null);
                 String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
                 Class clazz = Class.forName(className);
                 return (AttributeConverter<?, ?>) clazz.newInstance();
@@ -66,7 +60,7 @@ public class ObjectAnnotations {
 
         AnnotationInfo enumStringConverterInfo = get(EnumString.CLASS);
         if (enumStringConverterInfo != null) {
-            String classDescriptor = enumStringConverterInfo.get(EnumString.ENUM, null);
+            String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
                 Class clazz = Class.forName(className);
@@ -76,8 +70,18 @@ public class ObjectAnnotations {
             }
         }
 
-        // no pre-registered types found. select the correct default (if applicable)
-        // return ConvertibleTypes.getDateConverter(typeDescriptor);
+        AnnotationInfo numberStringConverterInfo = get(NumberString.CLASS);
+        if (numberStringConverterInfo != null) {
+            String classDescriptor = enumStringConverterInfo.get(NumberString.TYPE, null);
+            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
+            try {
+                Class clazz = Class.forName(className);
+                return new NumberStringConverter(clazz);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         return null;
     }
 

@@ -10,7 +10,7 @@ public class NumberSystemDomainConverter implements AttributeConverter<NumberSys
     }
 
     @Override
-    public Enum toEntityAttribute(String value) {
+    public NumberSystem toEntityAttribute(String value) {
         for (NumberSystem numberSystem : NumberSystem.values()) {
             if (numberSystem.getDomain().equals(value)) {
                 return numberSystem;

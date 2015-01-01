@@ -7,8 +7,8 @@ import java.lang.annotation.*;
 @Inherited
 public @interface NodeEntity {
 
-    static final String LABEL = "label";
     static final String CLASS = "org.neo4j.ogm.annotation.NodeEntity";
+    static final String LABEL = "label";
 
     String label() default "";
 }

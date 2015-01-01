@@ -9,6 +9,8 @@ import java.util.*;
 public class DomainInfo implements ClassInfoProcessor {
 
     private static final String dateSignature = "java/util/Date";
+    private static final String bigDecimalSignature = "java/math/BigDecimal";
+    private static final String bigIntegerSignature = "java/math/BigInteger";
 
     private final List<String> classPaths = new ArrayList<>();
     private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
@@ -46,7 +48,14 @@ public class DomainInfo implements ClassInfoProcessor {
                     if (!fieldInfo.hasConverter()) {
                         if (fieldInfo.getDescriptor().contains(dateSignature)) {
                             fieldInfo.setConverter(ConvertibleTypes.getDateConverter());
-                        } else {
+                        }
+                        else if (fieldInfo.getDescriptor().contains(bigIntegerSignature)) {
+                            fieldInfo.setConverter(ConvertibleTypes.getBigIntegerConverter());
+                        }
+                        else if (fieldInfo.getDescriptor().contains(bigDecimalSignature)) {
+                            fieldInfo.setConverter(ConvertibleTypes.getBigDecimalConverter());
+                        }
+                        else {
                             for (String enumSignature : enumTypes) {
                                 if (fieldInfo.getDescriptor().contains(enumSignature)) {
                                     fieldInfo.setConverter(ConvertibleTypes.getEnumConverter(enumSignature));
@@ -60,7 +69,14 @@ public class DomainInfo implements ClassInfoProcessor {
                     if (!methodInfo.hasConverter()) {
                         if (methodInfo.getDescriptor().contains(dateSignature)) {
                             methodInfo.setConverter(ConvertibleTypes.getDateConverter());
-                        } else {
+                        }
+                        else if (methodInfo.getDescriptor().contains(bigIntegerSignature)) {
+                            methodInfo.setConverter(ConvertibleTypes.getBigIntegerConverter());
+                        }
+                        else if (methodInfo.getDescriptor().contains(bigDecimalSignature)) {
+                            methodInfo.setConverter(ConvertibleTypes.getBigDecimalConverter());
+                        }
+                        else {
                             for (String enumSignature : enumTypes) {
                                 if (methodInfo.getDescriptor().contains(enumSignature)) {
                                     methodInfo.setConverter(ConvertibleTypes.getEnumConverter(enumSignature));

@@ -1,8 +1,8 @@
 package org.neo4j.ogm.domain.convertible.date;
 
-import org.neo4j.ogm.annotation.CustomType;
-import org.neo4j.ogm.annotation.DateLong;
-import org.neo4j.ogm.annotation.DateString;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import java.util.Date;
 
@@ -15,7 +15,7 @@ public class Memo {
     private Date recorded;
 
     // declares a custom converter
-    @CustomType(DateNumericStringConverter.class)
+    @Convert(DateNumericStringConverter.class)
     private Date approved;
 
     @DateString("yyyy-MM-dd")
@@ -70,7 +70,7 @@ public class Memo {
         return approved;
     }
 
-    @CustomType(DateNumericStringConverter.class)
+    @Convert(DateNumericStringConverter.class)
     public void setApproved(Date approved) {
         this.approved = approved;
     }

@@ -1,16 +1,14 @@
 package org.neo4j.ogm.typeconversion;
 
 /**
- * By default the OGM will map date objects to UTC-based ISO8601 compliant
- * String values when being stored as a node / relationship property
+ * By default the OGM will map enum objects to and from
+ * the string value returned by enum.name()
  *
- * Users can override this behaviour for Date objects using
- * the appropriate annotations:
- *
- * @DateString("format") will convert between dates and strings
- * using a user defined date format, e.g. "yy-MM-dd"
- *
- * @DateLong will read and write dates as Long values in the database.
+ * enum.name() is preferred to enum.ordinal() because it
+ * is (slightly) safer: a persisted enum have to be renamed
+ * to break its database mapping, whereas if its ordinal
+ * was persisted instead, the mapping would be broken
+ * simply by changing the declaration order in the enum set.
  */
 public class EnumStringConverter implements AttributeConverter<Enum, String> {
 
@@ -22,7 +20,7 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
 
     @Override
     public String toGraphProperty(Enum value) {
-        return ((Enum)value).name();
+        return value.name();
     }
 
     @Override

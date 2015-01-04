@@ -120,6 +120,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
             // update
             session.save(satellite);
+            System.out.println("saved");
 
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
@@ -152,11 +153,13 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
             tx.rollback();
 
+            //Transaction tx2 = session.beginTransaction();
             // fetch - after rollback should not be changed
             // note, that because we aren't starting a new tx, we will be given an autocommit one.
             updatedSatellite = session.load(Satellite.class, id);
             assertEquals(name, updatedSatellite.getName());
 
+            //tx2.close();
         }
     }
 

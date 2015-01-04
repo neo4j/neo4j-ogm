@@ -59,7 +59,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
         }
         catch (Exception e) {
-            throw new ResultProcessingException("Failed to execute request: ", e);
+            throw new ResultProcessingException("Failed to execute request: " + cypherQuery, e);
         }
     }
 }

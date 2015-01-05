@@ -218,10 +218,10 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType) {
-//        MethodInfo methodInfo = getIterableGetterMethodInfo(classInfo, parameterType);
-//        if (methodInfo != null) {
-//            return new MethodReader(classInfo, methodInfo);
-//        }
+        MethodInfo methodInfo = getIterableGetterMethodInfo(classInfo, parameterType);
+        if (methodInfo != null) {
+            return new MethodReader(classInfo, methodInfo);
+        }
         FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType);
         if (fieldInfo != null) {
             return new FieldReader(classInfo, fieldInfo);

@@ -44,4 +44,6 @@ public interface Session {
 
     Transaction beginTransaction();
 
+    //<T> Query<T> createQuery(T type, String cypher, Map<String, Object> parameters);
+
 }

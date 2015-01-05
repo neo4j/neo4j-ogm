@@ -172,6 +172,7 @@ public class Neo4jSession implements Session {
         return tx;
     }
 
+
     @Override
     public void execute(String statement) {
         ParameterisedStatement parameterisedStatement = new ParameterisedStatement(statement, Utils.map());
@@ -247,7 +248,10 @@ public class Neo4jSession implements Session {
         logger.info("Session identity: " + this);
 
         Transaction tx = getCurrentTransaction();
-        if (tx == null) {
+        if (tx == null
+                || tx.status().equals(Transaction.Status.CLOSED)
+                || tx.status().equals(Transaction.Status.COMMITTED)
+                || tx.status().equals(Transaction.Status.ROLLEDBACK)) {
             logger.info("There is no existing transaction, creating a transient one");
             return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
@@ -256,4 +260,33 @@ public class Neo4jSession implements Session {
         return tx;
 
     }
+
+
+//    @Override
+//    public <T> Query<T> createQuery(final T type, final String cypher, final Map<String, Object> parameters) {
+//
+//        return new Query<T>() {
+//
+//            private Neo4jResponse<T> response;
+//
+//            @Override
+//            public Query<T> execute() {
+//                ParameterisedStatement statement = new ParameterisedStatement(cypher, parameters);
+//                Transaction tx = getOrCreateTransaction();
+//                Neo4jResponse<String> jsonResponse = getRequestHandler().execute(statement, tx.url());
+//                //response = new GraphModelResponse(jsonResponse, mapper);
+//                return this;
+//            }
+//
+//            @Override
+//            public T next() {
+//                return response.next();
+//            }
+//
+//            @Override
+//            public void close() throws Exception {
+//                response.close();
+//            }
+//        };
+//    }
 }

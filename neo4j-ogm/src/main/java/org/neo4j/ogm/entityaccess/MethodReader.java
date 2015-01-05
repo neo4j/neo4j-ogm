@@ -15,7 +15,11 @@ public class MethodReader implements RelationalReader {
 
     @Override
     public Object read(Object instance) {
-        return MethodAccess.read(classInfo.getMethod(methodInfo), instance);
+        Object value = MethodAccess.read(classInfo.getMethod(methodInfo), instance);
+        if (methodInfo.hasConverter()) {
+            value = methodInfo.converter().toGraphProperty(value);
+        }
+        return value;
     }
 
     @Override

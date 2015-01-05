@@ -1,10 +1,10 @@
 package org.neo4j.ogm.entityaccess;
 
-import java.lang.reflect.Method;
-
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
+
+import java.lang.reflect.Method;
 
 public class MethodAccess extends ObjectAccess {
 
@@ -43,6 +43,9 @@ public class MethodAccess extends ObjectAccess {
 
     @Override
     public void write(Object instance, Object value) {
+        if (setterMethodInfo.hasConverter()) {
+            value = setterMethodInfo.converter().toEntityAttribute(value);
+        }
         MethodAccess.write(classInfo.getMethod(setterMethodInfo, ClassUtils.getType(setterMethodInfo.getDescriptor())), instance, value);
     }
 

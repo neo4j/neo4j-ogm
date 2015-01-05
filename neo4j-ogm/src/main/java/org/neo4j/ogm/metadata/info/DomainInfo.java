@@ -15,8 +15,8 @@ public class DomainInfo implements ClassInfoProcessor {
     private final List<String> classPaths = new ArrayList<>();
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    private final Map<String, List<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
+    private final Map<String, List<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
     private final Set<String> enumTypes = new HashSet<>();
 
@@ -30,7 +30,7 @@ public class DomainInfo implements ClassInfoProcessor {
         // A <-[:has_annotation]- T
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             for (AnnotationInfo annotation : classInfo.annotations()) {
-                ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
+                List<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
                 if (classInfoList == null) {
                     annotationNameToClassInfo.put(annotation.getName(), classInfoList = new ArrayList<>());
                 }

@@ -1,0 +1,2 @@
+* change all @RelatedTo annotations to @Relationship
+* change org.springframework.data.neo4j.annotation.* to org.neo4j.ogm.annotation.*

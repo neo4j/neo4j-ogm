@@ -14,7 +14,6 @@
     <modules>
         <module>neo4j-ogm</module>
         <module>neo4j-spring</module>
-        <module>neo4j-spring-examples</module>
         <module>neo4j-spring-docs</module>
     </modules>
 

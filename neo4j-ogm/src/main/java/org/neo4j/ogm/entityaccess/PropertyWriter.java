@@ -7,4 +7,6 @@ public interface PropertyWriter {
 
     void write(Object instance, Object valueToSet);
 
+    Class<?> type();
+
 }

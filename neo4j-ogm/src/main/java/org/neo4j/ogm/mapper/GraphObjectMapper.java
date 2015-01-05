@@ -1,19 +1,14 @@
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.NodeModel;
-import org.neo4j.ogm.model.Property;
-import org.neo4j.ogm.model.RelationshipModel;
-import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
-import org.neo4j.ogm.entityaccess.FieldAccess;
-import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
-import org.neo4j.ogm.entityaccess.ObjectFactory;
-import org.neo4j.ogm.entityaccess.PropertyWriter;
-import org.neo4j.ogm.entityaccess.RelationalWriter;
+import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.NodeModel;
+import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.model.RelationshipModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +21,13 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private final MappingContext mappingContext;
     private final ObjectFactory objectFactory;
     private final MetaData metadata;
-    private final ObjectAccessStrategy objectAccessStrategy;
+    private final EntityAccessStrategy objectAccessStrategy;
 
     public GraphObjectMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
         this.objectFactory = new ObjectFactory(metadata);
         this.mappingContext = mappingContext;
-        this.objectAccessStrategy = new DefaultObjectAccessStrategy();
+        this.objectAccessStrategy = new DefaultEntityAccessStrategy();
     }
 
     @Override
@@ -73,13 +68,13 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private void setIdentity(Object instance, Long id) {
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
         FieldInfo fieldInfo = classInfo.identityField();
-        FieldAccess.write(classInfo.getField(fieldInfo), instance, id);
+        FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
     }
 
     private Long getIdentity(Object instance) {
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
         FieldInfo fieldInfo = classInfo.identityField();
-        return (Long) FieldAccess.read(classInfo.getField(fieldInfo), instance);
+        return (Long) FieldWriter.read(classInfo.getField(fieldInfo), instance);
     }
 
     private void setProperties(NodeModel nodeModel, Object instance) {
@@ -91,11 +86,26 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     }
 
     private void writeProperty(ClassInfo classInfo, Object instance, Property property) {
-        PropertyWriter objectAccess = objectAccessStrategy.getPropertyWriter(classInfo, property.getKey().toString());
-        if (objectAccess == null) {
+
+        PropertyWriter writer = objectAccessStrategy.getPropertyWriter(classInfo, property.getKey().toString());
+
+        if (writer == null) {
             logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
         } else {
-            objectAccess.write(instance, property.getValue());
+            Object value = property.getValue();
+            // merge iterable / arrays and co-erce to the correct attribute type
+            if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
+                PropertyReader reader = objectAccessStrategy.getPropertyReader(classInfo, property.getKey().toString());
+                if (reader != null) {
+                    Object currentValue = reader.read(instance);
+                    if (writer.type().isArray()) {
+                        value = EntityAccess.merge(writer.type(), (Iterable<?>) value, (Object[]) currentValue);
+                    } else {
+                        value = EntityAccess.merge(writer.type(), (Iterable<?>) value, (Iterable<?>) currentValue);
+                    }
+                }
+            }
+            writer.write(instance, value);
         }
     }
 
@@ -108,7 +118,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         if (objectAccess != null) {
             objectAccess.write(source, parameter);
             mappingContext.remember(new MappedRelationship(
-                    edge.getStartNode(), relationshipType(objectAccess.relationshipType()), edge.getEndNode()));
+                    edge.getStartNode(), relationshipType(objectAccess.relationshipName()), edge.getEndNode()));
             return true;
         }
 
@@ -134,7 +144,6 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         return mappingContext.getAll(clazz);
     }
 
-    // FIXME: this code is buggy. it is setting the same collection multiple times!
     private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) {
 
         Map<Object, Map<Class<?>, Set<Object>>> typeRelationships = new HashMap<>();
@@ -167,20 +176,34 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    private boolean mapOneToMany(Object instance, Class<?> type, Collection<?> objects, Set<RelationshipModel> edges) {
+    private boolean mapOneToMany(Object instance, Class<?> valueType, Object values, Set<RelationshipModel> edges) {
+
         ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
 
-        RelationalWriter objectAccess = objectAccessStrategy.getIterableWriter(classInfo, type);
-        if (objectAccess != null) {
-            objectAccess.write(instance, objects);
-            String relType = objectAccess.relationshipType();
+        RelationalWriter writer = objectAccessStrategy.getIterableWriter(classInfo, valueType);
+        if (writer != null) {
+            if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
+                RelationalReader reader = objectAccessStrategy.getIterableReader(classInfo, valueType);
+                if (reader != null) {
+                    Object currentValues = reader.read(instance);
+                    if (writer.type().isArray()) {
+                        values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues);
+                    } else {
+                        values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Iterable<?>) currentValues);
+                    }
+                }
+                values = EntityAccess.merge(writer.type(), (Iterable<?>) values, new ArrayList());
+            }
+            writer.write(instance, values);
+
+            String relType = writer.relationshipName();
             for (RelationshipModel edge : edges) {
                 mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
             }
             return true;
         }
 
-        logger.warn("Unable to map iterable of type: {} onto property of {}", type, classInfo.name());
+        logger.warn("Unable to map iterable of type: {} onto property of {}", valueType, classInfo.name());
         return false;
     }
 

@@ -22,10 +22,6 @@ public class Bike {
         return colours;
     }
 
-    public void setColours(String[] colours) {
-        this.colours = colours;
-    }
-
     public List<Wheel> getWheels() {
         return wheels;
     }
@@ -38,15 +34,8 @@ public class Bike {
         return frame;
     }
 
-    public void setFrame(Frame frame) {
-        this.frame = frame;
-    }
-
     public Saddle getSaddle() {
         return saddle;
     }
 
-    public void setSaddle(Saddle saddle) {
-        this.saddle = saddle;
-    }
 }

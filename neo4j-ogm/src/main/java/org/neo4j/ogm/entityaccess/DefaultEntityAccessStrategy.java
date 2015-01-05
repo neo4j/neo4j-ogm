@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Default implementation of {@link ObjectAccessStrategy} that looks up information from {@link ClassInfo} in the following order.
+ * Default implementation of {@link EntityAccessStrategy} that looks up information from {@link ClassInfo} in the following order.
  * <ol>
  * <li>Annotated Method (getter/setter)</li>
  * <li>Annotated Field</li>
@@ -24,9 +24,9 @@ import java.util.List;
  * use methods in preference to field access, because in many cases hydrating an object means more than just assigning values to
  * fields.
  */
-public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
+public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultObjectAccessStrategy.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultEntityAccessStrategy.class);
 
     /** Used internally to hide differences in object construction from strategy algorithm. */
     private static interface AccessorFactory<T> {
@@ -35,17 +35,17 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
-    public ObjectAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
+    public EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         MethodInfo setterInfo = classInfo.propertySetter(propertyName);
-        return determinePropertyAccessor(classInfo, propertyName, setterInfo, new AccessorFactory<ObjectAccess>() {
+        return determinePropertyAccessor(classInfo, propertyName, setterInfo, new AccessorFactory<EntityAccess>() {
             @Override
-            public ObjectAccess makeMethodAccessor(MethodInfo methodInfo) {
-                return new MethodAccess(classInfo, methodInfo);
+            public EntityAccess makeMethodAccessor(MethodInfo methodInfo) {
+                return new MethodWriter(classInfo, methodInfo);
             }
 
             @Override
-            public ObjectAccess makeFieldAccessor(FieldInfo fieldInfo) {
-                return new FieldAccess(classInfo, fieldInfo);
+            public EntityAccess makeFieldAccessor(FieldInfo fieldInfo) {
+                return new FieldWriter(classInfo, fieldInfo);
             }
         });
     }
@@ -87,21 +87,21 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
-    public ObjectAccess getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter) {
+    public EntityAccess getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter) {
 
         // 1st, try to find a method annotated with the relationship type.
         MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType);
         if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
             Class<?> setterParameterType = ClassUtils.getType(methodInfo.getDescriptor());
             if (setterParameterType.isAssignableFrom(parameter.getClass())) {
-                return new MethodAccess(classInfo, methodInfo);
+                return new MethodWriter(classInfo, methodInfo);
             }
         }
 
         // 2nd, try to find a field called or annotated as the neo4j relationship type
         FieldInfo fieldInfo = classInfo.relationshipField(relationshipType);
         if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty() && fieldInfo.isTypeOf(parameter.getClass())) {
-            return new FieldAccess(classInfo, fieldInfo);
+            return new FieldWriter(classInfo, fieldInfo);
         }
 
         // 3rd, try to find a "setXYZ" method where XYZ is derived from the relationship type
@@ -109,26 +109,26 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         if (methodInfo != null) {
             Class<?> setterParameterType = ClassUtils.getType(methodInfo.getDescriptor());
             if (setterParameterType.isAssignableFrom(parameter.getClass())) {
-                return new MethodAccess(classInfo, methodInfo);
+                return new MethodWriter(classInfo, methodInfo);
             }
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
         fieldInfo = classInfo.relationshipField(RelationshipUtils.inferFieldName(relationshipType));
         if (fieldInfo != null && fieldInfo.isTypeOf(parameter.getClass())) {
-            return new FieldAccess(classInfo, fieldInfo);
+            return new FieldWriter(classInfo, fieldInfo);
         }
 
         // 5th, try to find a single setter that takes the parameter
         List<MethodInfo> methodInfos = classInfo.findSetters(parameter.getClass());
         if (methodInfos.size() == 1) {
-            return new MethodAccess(classInfo, methodInfos.iterator().next());
+            return new MethodWriter(classInfo, methodInfos.iterator().next());
         }
 
         // 6th, try to find a field that shares the same type as the parameter
         List<FieldInfo> fieldInfos = classInfo.findFields(parameter.getClass());
         if (fieldInfos.size() == 1) {
-            return new FieldAccess(classInfo, fieldInfos.iterator().next());
+            return new FieldWriter(classInfo, fieldInfos.iterator().next());
         }
 
         return null;
@@ -204,14 +204,27 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
     }
 
     @Override
-    public ObjectAccess getIterableWriter(ClassInfo classInfo, Class<?> parameterType) {
-        MethodInfo methodInfo = getIterableMethodInfo(classInfo, parameterType);
+    public EntityAccess getIterableWriter(ClassInfo classInfo, Class<?> parameterType) {
+        MethodInfo methodInfo = getIterableSetterMethodInfo(classInfo, parameterType);
         if (methodInfo != null) {
-            return new MethodAccess(classInfo, methodInfo);
+            return new MethodWriter(classInfo, methodInfo);
         }
         FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType);
         if (fieldInfo != null) {
-            return new FieldAccess(classInfo, fieldInfo);
+            return new FieldWriter(classInfo, fieldInfo);
+        }
+        return null;
+    }
+
+    @Override
+    public RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType) {
+//        MethodInfo methodInfo = getIterableGetterMethodInfo(classInfo, parameterType);
+//        if (methodInfo != null) {
+//            return new MethodReader(classInfo, methodInfo);
+//        }
+        FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType);
+        if (fieldInfo != null) {
+            return new FieldReader(classInfo, fieldInfo);
         }
         return null;
     }
@@ -221,13 +234,24 @@ public class DefaultObjectAccessStrategy implements ObjectAccessStrategy {
         return new FieldReader(classInfo, classInfo.identityField());
     }
 
-    private MethodInfo getIterableMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
+    private MethodInfo getIterableSetterMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
         List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType);
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }
 
         logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching setter found.",
+                parameterType, classInfo.name());
+        return null;
+    }
+
+    private MethodInfo getIterableGetterMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
+        List<MethodInfo> methodInfos = classInfo.findIterableGetters(parameterType);
+        if (methodInfos.size() == 1) {
+            return methodInfos.iterator().next();
+        }
+
+        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
                 parameterType, classInfo.name());
         return null;
     }

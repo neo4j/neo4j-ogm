@@ -1,28 +1,26 @@
 package org.neo4j.ogm.entityaccess;
 
-import java.util.Collection;
-
 import org.neo4j.ogm.metadata.info.ClassInfo;
+
+import java.util.Collection;
 
 /**
  * Implements the logic to determine how entities should be accessed in both reading and writing scenarios.
  */
-public interface ObjectAccessStrategy {
-
-    PropertyWriter getPropertyWriter(ClassInfo classInfo, String propertyName);
-
-    RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter);
-
-    RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType);
-
-    PropertyReader getPropertyReader(ClassInfo classInfo, String propertyName);
-
-    RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType);
+public interface EntityAccessStrategy {
 
     PropertyReader getIdentityPropertyReader(ClassInfo classInfo);
 
-    Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo);
+    PropertyReader getPropertyReader(ClassInfo classInfo, String propertyName);
+    PropertyWriter getPropertyWriter(ClassInfo classInfo, String propertyName);
 
+    RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter);
+    RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType);
+
+    RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType);
+    RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType);
+
+    Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo);
     Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo);
 
 }

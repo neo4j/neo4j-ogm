@@ -1,4 +1,4 @@
-package org.neo4j.ogm.domain.cineasts;
+package org.neo4j.ogm.domain.cineasts.plain;
 
 public class Role {
     Movie movie;

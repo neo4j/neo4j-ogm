@@ -6,7 +6,9 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.server.NeoServer;
 import org.neo4j.server.helpers.CommunityServerBuilder;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 
 public class IntegrationTest     {
@@ -39,5 +41,20 @@ public class IntegrationTest     {
         } catch (IOException e) {
             throw new IllegalStateException("Cannot find available port: " + e.getMessage(), e);
         }
+    }
+
+    protected static String load(String cqlFile) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFile)));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append(" ");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return sb.toString();
     }
 }

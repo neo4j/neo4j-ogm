@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -70,6 +71,7 @@ public class SatelliteIntegrationTest extends IntegrationTest {
                 System.out.println("\tname:" + satellite.getName());
                 System.out.println("\tlaunched:" + satellite.getLaunched());
                 System.out.println("\tmanned:" + satellite.getManned());
+                System.out.println("\tupdated:" + satellite.getUpdated());
 
                 System.out.println("\tlocation:" + satellite.getLocation().getRef());
                 System.out.println("\torbit:" + satellite.getOrbit().getName());
@@ -91,12 +93,16 @@ public class SatelliteIntegrationTest extends IntegrationTest {
 
             Satellite satellite = satellites.iterator().next();
             Long id = satellite.getId();
+
             satellite.setName("Updated satellite");
+            Date date = new Date();
+            satellite.setUpdated(date);
 
             session.save(satellite);
 
             Satellite updatedSatellite = session.load(Satellite.class, id);
             assertEquals("Updated satellite", updatedSatellite.getName());
+            assertEquals(date, updatedSatellite.getUpdated());
 
 
         } else {

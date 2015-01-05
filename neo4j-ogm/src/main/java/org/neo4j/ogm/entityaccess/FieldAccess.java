@@ -1,9 +1,9 @@
 package org.neo4j.ogm.entityaccess;
 
-import java.lang.reflect.Field;
-
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+
+import java.lang.reflect.Field;
 
 public class FieldAccess extends ObjectAccess {
 
@@ -38,6 +38,9 @@ public class FieldAccess extends ObjectAccess {
 
     @Override
     public void write(Object instance, Object value) {
+        if (fieldInfo.hasConverter()) {
+            value = fieldInfo.converter().toEntityAttribute(value);
+        }
         FieldAccess.write(classInfo.getField(fieldInfo), instance, value);
     }
 

@@ -7,7 +7,7 @@ Michael Hunger; Oliver Gierke; Vince Bickers; Adam George; Michal Bachman
 :idprefix:
 :spring-data-commons-docs: https://raw.githubusercontent.com/spring-projects/spring-data-commons/issue/DATACMNS-567/src/main/asciidoc
 
-(C) 2010-2014 Neo Technology, Inc. - Pivotal Software, Inc.
+(C) 2010-2015 Neo Technology, Inc. - Pivotal Software, Inc.
 
 NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
 

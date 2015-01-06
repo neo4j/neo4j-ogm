@@ -4,8 +4,8 @@ import org.neo4j.ogm.cypher.compiler.CypherCompiler;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
-import org.neo4j.ogm.entityaccess.DefaultObjectAccessStrategy;
-import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
+import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -20,7 +20,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private final Logger logger = LoggerFactory.getLogger(ObjectCypherMapper.class);
 
     private final MetaData metaData;
-    private final ObjectAccessStrategy objectAccessStrategy;
+    private final EntityAccessStrategy objectAccessStrategy;
     private final MappingContext mappingContext;
 
     /**
@@ -32,7 +32,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     public ObjectCypherMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
-        this.objectAccessStrategy = new DefaultObjectAccessStrategy();
+        this.objectAccessStrategy = new DefaultEntityAccessStrategy();
     }
 
 

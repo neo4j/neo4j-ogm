@@ -3,24 +3,35 @@ package org.neo4j.ogm.entityaccess;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public abstract class ObjectAccess implements PropertyWriter, RelationalWriter {
+public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
+
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Object merge(Class<?> parameterType, Iterable<?> newValues, Object[] currentValues) {
+        if (currentValues != null) {
+            return merge(parameterType, newValues, Arrays.asList(currentValues));
+        } else {
+            return merge(parameterType, newValues, new ArrayList());
+        }
+    }
+
 
     /**
      * Merges the contents of <em>collection</em> with <em>hydrated</em> ensuring no duplicates and returns the result as an
      * instance of the given parameter type.
      *
      * @param parameterType The type of Iterable or array to return
-     * @param collection The objects to merge into a collection of the given parameter type, which may not necessarily be of a
+     * @param newValues The objects to merge into a collection of the given parameter type, which may not necessarily be of a
      *        type assignable from <em>parameterType</em> already
-     * @param hydrated The Iterable to merge into, which may be <code>null</code> if a new collection needs creating
+     * @param currentValues The Iterable to merge into, which may be <code>null</code> if a new collection needs creating
      * @return The result of the merge, as an instance of the specified parameter type
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    static Object merge(Class parameterType, Iterable<?> collection, Iterable<?> hydrated) {
+    public static Object merge(Class<?> parameterType, Iterable<?> newValues, Iterable<?> currentValues) {
 
         if (parameterType.isArray()) {
             Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union(collection, hydrated));
+            List<Object> objects = new ArrayList<>(union(newValues, currentValues));
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
@@ -30,25 +41,25 @@ public abstract class ObjectAccess implements PropertyWriter, RelationalWriter {
         }
 
         // we don't know how to make the requested parameter type, so let's just try to work with what we've got
-        if (hydrated != null && parameterType.isAssignableFrom(hydrated.getClass())) {
-            if (Collection.class.isAssignableFrom(hydrated.getClass())) {
-                Collection col = (Collection) hydrated;
-                for (Object object : collection) {
+        if (currentValues != null && parameterType.isAssignableFrom(currentValues.getClass())) {
+            if (Collection.class.isAssignableFrom(currentValues.getClass())) {
+                Collection col = (Collection) currentValues;
+                for (Object object : newValues) {
                     if (!col.contains(object)) {
                         col.add(object);
                     }
                 }
-                return hydrated;
+                return currentValues;
             }
         }
 
         // hydrated is unusable at this point so we can just set the other collection if it's compatible
-        if (parameterType.isAssignableFrom(collection.getClass())) {
-            return collection;
+        if (parameterType.isAssignableFrom(newValues.getClass())) {
+            return newValues;
         }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, collection, hydrated);
+        Collection newCollection = createCollection(parameterType, newValues, currentValues);
         if (newCollection != null) {
             return newCollection;
         }

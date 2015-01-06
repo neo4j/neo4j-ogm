@@ -18,7 +18,7 @@ public class MappingContext {
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
 
     // using these two objects we maintain synchronisation state with the database
-    private final List<MappedRelationship> mappedRelationships = new ArrayList<>();
+    private final Set<MappedRelationship> mappedRelationships = new HashSet<>();
     private final ObjectMemo objectMemo = new ObjectMemo();
 
     private final MetaData metaData;
@@ -62,7 +62,7 @@ public class MappingContext {
         return mappedRelationships.contains(relationship);
     }
 
-    public List<MappedRelationship> mappedRelationships() {
+    public Set<MappedRelationship> mappedRelationships() {
         return mappedRelationships;
     }
 

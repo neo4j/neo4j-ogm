@@ -2,7 +2,7 @@ package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.entityaccess.FieldAccess;
+import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.mapper.GraphObjectMapper;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
@@ -61,7 +61,7 @@ public class SessionResponseHandler implements ResponseHandler {
                 Long identity = Long.parseLong(results[i].toString());
                 ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
                 Field identityField = classInfo.getField(classInfo.identityField());
-                FieldAccess.write(identityField, persisted, identity);
+                FieldWriter.write(identityField, persisted, identity);
             }
         }
         rowModelResponse.close();

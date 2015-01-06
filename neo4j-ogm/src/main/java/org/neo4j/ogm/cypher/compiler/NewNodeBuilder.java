@@ -1,6 +1,6 @@
 package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.entityaccess.ObjectAccessStrategy;
+import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
@@ -17,7 +17,7 @@ class NewNodeBuilder extends NodeBuilder {
     }
 
     @Override
-    public NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, ObjectAccessStrategy objectAccessStrategy) {
+    public NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy) {
         for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(classInfo)) {
             Object value = propertyReader.read(toPersist);
             if (value != null) {

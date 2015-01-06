@@ -1,6 +1,6 @@
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.entityaccess.FieldAccess;
+import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 
@@ -52,7 +52,7 @@ public class ObjectMemo {
         long hash = seed;
         for (FieldInfo fieldInfo : classInfo.propertyFields()) {
             Field field = classInfo.getField(fieldInfo);
-            Object value = FieldAccess.read(field, object);
+            Object value = FieldWriter.read(field, object);
             if (value != null) {
                 hash = hash * 31L + hash(value.toString());
             }

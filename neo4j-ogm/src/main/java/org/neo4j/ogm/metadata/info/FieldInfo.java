@@ -70,6 +70,10 @@ public class FieldInfo {
         return descriptor;
     }
 
+    public String getTypeParameterDescriptor() {
+        return typeParameterDescriptor;
+    }
+
     public ObjectAnnotations getAnnotations() {
         return annotations;
     }

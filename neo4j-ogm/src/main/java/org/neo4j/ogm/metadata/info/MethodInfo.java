@@ -72,6 +72,10 @@ public class MethodInfo {
         return descriptor;
     }
 
+    public String getTypeParameterDescriptor() {
+        return typeParameterDescriptor;
+    }
+
     public ObjectAnnotations getAnnotations() {
         return annotations;
     }

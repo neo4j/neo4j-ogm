@@ -6,6 +6,6 @@ package org.neo4j.ogm.entityaccess;
  */
 public interface RelationalWriter extends PropertyWriter {
 
-    String relationshipType();
+    String relationshipName();
 
 }

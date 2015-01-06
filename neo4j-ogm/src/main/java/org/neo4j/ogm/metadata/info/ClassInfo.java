@@ -47,10 +47,10 @@ public class ClassInfo {
     private AnnotationsInfo annotationsInfo = new AnnotationsInfo();
 
     private ClassInfo directSuperclass;
-    private final ArrayList<ClassInfo> directSubclasses = new ArrayList<>();
+    private final List<ClassInfo> directSubclasses = new ArrayList<>();
 
     // ??
-    private final HashSet<InterfaceInfo> interfaces = new HashSet<>();
+    private final Set<InterfaceInfo> interfaces = new HashSet<>();
     private InterfacesInfo interfacesInfo = new InterfacesInfo();
 
     // todo move this to a factory class

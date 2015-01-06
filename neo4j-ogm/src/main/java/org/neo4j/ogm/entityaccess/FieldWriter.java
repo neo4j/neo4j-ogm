@@ -5,21 +5,20 @@ import org.neo4j.ogm.metadata.info.FieldInfo;
 
 import java.lang.reflect.Field;
 
-public class FieldAccess extends ObjectAccess {
+public class FieldWriter extends EntityAccess {
 
     private final FieldInfo fieldInfo;
-    private final ClassInfo classInfo;
+    private final Field field;
+    private final Class<?> fieldType;
 
-    public FieldAccess(ClassInfo classInfo, FieldInfo fieldInfo) {
-        this.classInfo = classInfo;
+    public FieldWriter(ClassInfo classInfo, FieldInfo fieldInfo) {
         this.fieldInfo = fieldInfo;
+        this.field = classInfo.getField(fieldInfo);
+        this.fieldType = this.field.getType();
     }
 
     public static void write(Field field, Object instance, Object value) {
         try {
-            if (Iterable.class.isAssignableFrom(field.getType()) || field.getType().isArray()) {
-                value = merge(field.getType(),  (Iterable<?>) value, (Iterable<?>) read(field, instance));
-            }
             field.setAccessible(true);
             field.set(instance, value);
         } catch (Exception e) {
@@ -41,11 +40,16 @@ public class FieldAccess extends ObjectAccess {
         if (fieldInfo.hasConverter()) {
             value = fieldInfo.converter().toEntityAttribute(value);
         }
-        FieldAccess.write(classInfo.getField(fieldInfo), instance, value);
+        FieldWriter.write(field, instance, value);
     }
 
     @Override
-    public String relationshipType() {
+    public Class<?> type() {
+        return fieldType;
+    }
+
+    @Override
+    public String relationshipName() {
         return this.fieldInfo.relationship();
     }
 

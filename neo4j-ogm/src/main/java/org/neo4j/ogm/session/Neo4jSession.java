@@ -5,7 +5,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.entityaccess.FieldAccess;
+import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
@@ -128,7 +128,7 @@ public class Neo4jSession implements Session {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         Field identityField = classInfo.getField(classInfo.identityField());
         for (Object o: objects) {
-            ids.add((Long) FieldAccess.read(identityField, o));
+            ids.add((Long) FieldWriter.read(identityField, o));
         }
         return loadAll(type, ids, depth);
     }
@@ -210,7 +210,7 @@ public class Neo4jSession implements Session {
 
         ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
         Field identityField = classInfo.getField(classInfo.identityField());
-        Long identity = (Long) FieldAccess.read(identityField, object);
+        Long identity = (Long) FieldWriter.read(identityField, object);
         if (identity != null) {
             String url = getOrCreateTransaction().url();
             ParameterisedStatement request = new DeleteStatements().delete(identity);

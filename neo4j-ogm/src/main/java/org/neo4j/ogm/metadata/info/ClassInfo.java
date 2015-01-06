@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 /**
@@ -629,24 +628,21 @@ public class ClassInfo {
     }
 
     /**
-     * Finds all fields whose type is equivalent to Array<X> or assignable from Collection<X>
-     * where X is the generic parameter type of the Array or Collection
+     * Finds all fields whose type is equivalent to Array<X> or assignable from Iterable<X>
+     * where X is the generic parameter type of the Array or Iterable
      */
     public List<FieldInfo> findIterableFields(Class iteratedType) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
+        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
+        String arrayOfTypeSignature = "[" + typeSignature;
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
-                Field field = getField(fieldInfo);
-                Class type = field.getType();
-                if (type.isArray() && type.getComponentType().equals(iteratedType)) {
-                    fieldInfos.add(fieldInfo);
-                }
-                else if (Iterable.class.isAssignableFrom(type)) {
-                    ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-                    Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                    if (parameterizedTypeClass == iteratedType) {
+                if (fieldInfo.getTypeParameterDescriptor() != null) {
+                    if (fieldInfo.getTypeParameterDescriptor().equals(typeSignature)) {
                         fieldInfos.add(fieldInfo);
                     }
+                } else if (fieldInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                    fieldInfos.add(fieldInfo);
                 }
             }
             return fieldInfos;
@@ -656,30 +652,73 @@ public class ClassInfo {
         }
     }
 
-     /**
-     * Finds all setter methods whose parameter signature is equivalent to Array<X> or assignable from Collection<X>
-     * where X is the generic parameter type of the Array or Collection
+    /**
+     * Finds all setter methods whose parameter signature is equivalent to Array<X> or assignable from Iterable<X>
+     * where X is the generic parameter type of the Array or Iterable
      */
     public List<MethodInfo> findIterableSetters(Class iteratedType) {
         List<MethodInfo> methodInfos = new ArrayList<>();
+        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
+        String arrayOfTypeSignature = "([" + typeSignature + ")V";
         try {
-            Class clazz = Class.forName(name());
-            for (Method method : clazz.getDeclaredMethods()) {
-                MethodInfo methodInfo = methodsInfo().get(method.getName());
-                if (methodInfo != null) {
-                    if (methodInfo.getDescriptor().endsWith(")V")) {
-                        if (method.getParameterTypes().length == 1) {
-                            Class methodParameterType = method.getParameterTypes()[0];
-                            if (methodParameterType.isArray() && methodParameterType.getComponentType() == iteratedType) {
-                                methodInfos.add(methodInfo);
-                            }
-                            else if (Iterable.class.isAssignableFrom(methodParameterType)) {
-                                ParameterizedType parameterizedType = (ParameterizedType) method.getGenericParameterTypes()[0];
-                                Class<?> parameterizedTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                                if (parameterizedTypeClass == iteratedType) {
-                                    methodInfos.add(methodInfo);
-                                }
-                            }
+            for (MethodInfo methodInfo : propertySetters()) {
+                if (methodInfo.getTypeParameterDescriptor() != null) {
+                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                        methodInfos.add(methodInfo);
+                    }
+                } else {
+                    if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                        methodInfos.add(methodInfo);
+                    }
+                }
+            }
+
+            for (MethodInfo methodInfo : relationshipSetters()) {
+                if (methodInfo.getTypeParameterDescriptor() != null) {
+                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                        methodInfos.add(methodInfo);
+                    } else {
+                        if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                            methodInfos.add(methodInfo);
+                        }
+                    }
+                }
+            }
+            return methodInfos;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Finds all getter methods whose parameterised return type is equivalent to Array<X> or assignable from Iterable<X>
+     * where X is the generic parameter type of the Array or Iterable
+     */
+    public List<MethodInfo> findIterableGetters(Class iteratedType) {
+        List<MethodInfo> methodInfos = new ArrayList<>();
+        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
+        String arrayOfTypeSignature = "()[" + typeSignature;
+        try {
+            for (MethodInfo methodInfo : propertyGetters()) {
+                if (methodInfo.getTypeParameterDescriptor() != null) {
+                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                        methodInfos.add(methodInfo);
+                    }
+                } else {
+                    if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                        methodInfos.add(methodInfo);
+                    }
+                }
+            }
+
+            for (MethodInfo methodInfo : relationshipGetters()) {
+                if (methodInfo.getTypeParameterDescriptor() != null) {
+                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                        methodInfos.add(methodInfo);
+                    } else {
+                        if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                            methodInfos.add(methodInfo);
                         }
                     }
                 }

@@ -316,18 +316,6 @@ public class ObjectToCypherMapperTest {
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(music).getStatements());
 
-        String musicNode = var(mid);
-        String xavierNode = var(xid);
-        String zackNode = var(zid);
-
-        expect( "MATCH (" + musicNode + ")-[_0:STUDENTS]->(" + xavierNode + ") " +
-                "WHERE id(" + musicNode + ")=" + mid + " AND id(" + xavierNode + ")=" + xid + " " +
-                "DELETE _0 " +
-                "WITH " + musicNode + "," + xavierNode + " " +
-                "MATCH (" + musicNode + ")-[_1:STUDENTS]->(" + zackNode + ") " +
-                "WHERE id(" + zackNode + ")=" + zid + " " +
-                "DELETE _1", cypher);
-
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Xavier'}), "
                 + "(:Student:DomainObject {name:'Zack'}), "
                 + "(:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'})");

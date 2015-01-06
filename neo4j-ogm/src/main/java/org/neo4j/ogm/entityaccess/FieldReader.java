@@ -15,7 +15,7 @@ public class FieldReader implements RelationalReader {
 
     @Override
     public Object read(Object instance) {
-        Object value = FieldAccess.read(classInfo.getField(fieldInfo), instance);
+        Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
         if (fieldInfo.hasConverter()) {
             value = fieldInfo.converter().toGraphProperty(value);
         }

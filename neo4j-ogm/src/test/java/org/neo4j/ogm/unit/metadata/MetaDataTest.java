@@ -332,6 +332,13 @@ public class MetaDataTest {
     }
 
     @Test
+    public void testCanResolveRelationshipEntityFromRelationshipType() {
+        ClassInfo classInfo = metaData.resolve("MEMBER_OF");
+        assertNotNull("The resolved class info shouldn't be null", classInfo);
+        assertEquals("org.neo4j.ogm.domain.forum.ArbitraryRelationshipEntity", classInfo.name());
+    }
+
+    @Test
     public void testCanResolveClassHierarchies() {
         ClassInfo classInfo = metaData.resolve("Login", "User");
         assertEquals("org.neo4j.ogm.domain.forum.Member", classInfo.name());

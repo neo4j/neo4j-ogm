@@ -1,6 +1,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
@@ -29,25 +30,35 @@ public class MetaData {
      * @return A ClassInfo matching the supplied name, or null if it doesn't exist
      */
     public ClassInfo classInfo(String name) {
-        String annotation = NodeEntity.class.getName();
-        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(annotation);
+        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
+        if (classInfo != null) {
+            return classInfo;
+        }
+        classInfo = _classInfo(name, RelationshipEntity.class.getName(), "type");
+        if (classInfo != null) {
+            return classInfo;
+        }
+        return domainInfo.getClassSimpleName(name);
+    }
+
+    private ClassInfo _classInfo(String name, String nodeEntityAnnotation, String annotationPropertyName) {
+        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
         if (labelledClasses != null) {
             for (ClassInfo labelledClass : labelledClasses) {
-                AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(annotation);
-                String value = annotationInfo.get("label", labelledClass.name());
+                AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
+                String value = annotationInfo.get(annotationPropertyName, labelledClass.name());
                 if (value.equals(name)) {
                     return labelledClass;
                 }
             }
         }
-        return domainInfo.getClassSimpleName(name);
+        return null;
     }
 
-
     /**
-     * Given an set of fully qualified names that are possibly within a type hierarchy
-     * This function returns the base class from among them.
-     * @param
+     * Given an set of names (simple or fully-qualified) that are possibly within a type hierarchy, this function returns the
+     * base class from among them.
+     *
      * @param taxa the taxa (simple class names or labels)
      * @return The ClassInfo representing the base class among the taxa
      */

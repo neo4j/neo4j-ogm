@@ -1,13 +1,5 @@
 package org.neo4j.ogm.unit.entityaccess;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -20,9 +12,12 @@ import org.neo4j.ogm.domain.satellites.Location;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.entityaccess.*;
-import org.neo4j.ogm.entityaccess.EntityAccess;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public class DefaultObjectAccessStrategyTest {
 
@@ -270,7 +265,7 @@ public class DefaultObjectAccessStrategyTest {
         satelliteLocation.setName("Outer Space");
         satellite.setLocation(satelliteLocation);
 
-        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "location");
+        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "LOCATION");
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
         assertSame(satellite.getLocation(), reader.read(satellite));
@@ -287,7 +282,7 @@ public class DefaultObjectAccessStrategyTest {
         RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS");
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
-        assertEquals("POSTWITHOUTACCESSORMETHODS", reader.relationshipType());
+        assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
     }
 
     @Test
@@ -317,12 +312,11 @@ public class DefaultObjectAccessStrategyTest {
         assertNotNull("The resultant list of object accessors shouldn't be null", relationalAccessors);
         assertEquals("An unexpected number of accessors was returned", 4, relationalAccessors.size());
 
-        // TODO: these relationship types should really have underscores in them
         Map<String, Class<? extends RelationalReader>> expectedRelationalReaders = new HashMap<>();
         expectedRelationalReaders.put("COMMENT", MethodReader.class);
-        expectedRelationalReaders.put("FAVOURITETOPIC", FieldReader.class);
+        expectedRelationalReaders.put("FAVOURITE_TOPIC", FieldReader.class);
         expectedRelationalReaders.put("CONTAINS", FieldReader.class);
-        expectedRelationalReaders.put("POSTWITHOUTACCESSORMETHODS", FieldReader.class);
+        expectedRelationalReaders.put("POST_WITHOUT_ACCESSOR_METHODS", FieldReader.class);
 
         for (RelationalReader objectAccess : relationalAccessors) {
             String relType = objectAccess.relationshipType();

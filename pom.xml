@@ -17,15 +17,6 @@
         <module>neo4j-spring-docs</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>include-examples</id>
-            <modules>
-                <module>neo4j-spring-examples/cineasts</module>
-            </modules>
-        </profile>
-    </profiles>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.neo4j>2.1.6</version.neo4j>

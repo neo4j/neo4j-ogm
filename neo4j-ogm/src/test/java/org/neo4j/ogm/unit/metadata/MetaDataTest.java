@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 
 public class MetaDataTest {
 
-    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
+    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical");
 
     /**
      * A class can be found if its simple name is unique in the domain
@@ -335,7 +335,7 @@ public class MetaDataTest {
     public void testCanResolveRelationshipEntityFromRelationshipType() {
         ClassInfo classInfo = metaData.resolve("MEMBER_OF");
         assertNotNull("The resolved class info shouldn't be null", classInfo);
-        assertEquals("org.neo4j.ogm.domain.forum.ArbitraryRelationshipEntity", classInfo.name());
+        assertEquals("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity", classInfo.name());
     }
 
     @Test

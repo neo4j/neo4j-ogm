@@ -40,7 +40,7 @@ public abstract class Neo4jConfiguration {
         return new PersistenceExceptionTranslator() {
             @Override
             public DataAccessException translateExceptionIfPossible(RuntimeException e) {
-                throw new RuntimeException(e);
+                throw e;
             }
         };
     }

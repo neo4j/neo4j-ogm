@@ -3,9 +3,12 @@
 
 == Spring Data and Spring Data Neo4j
 
-http://springsource.org/spring-data[Spring Data] is a SpringSource project that aims to provide Spring's convenient programming model and well known conventions for NOSQL databases. Currently there is support for graph (Neo4j), key-value (Redis, Riak), document (MongoDB) and relational (Oracle) databases. Mark Pollack, the author of Spring.NET, is the project lead for the Spring Data project.
+http://springsource.org/spring-data[Spring Data] is a SpringSource project that aims to provide Spring's convenient
+programming model and well known conventions for NOSQL databases. Currently there is support for graph (Neo4j),
+key-value (Redis, Riak), document (MongoDB) and relational (Oracle) databases.
 
-The Spring Data Neo4j project, as part of the Spring Data initiative, aims to simplify development with the Neo4j graph database. Like JPA, it uses annotations on simple POJO domain objects. The annotations activate one of the supported mapping approaches, either the simple mapping or the advanced AspectJ mapping. Both use the annotation and reflection metadata for mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
+The Spring Data Neo4j project, as part of the Spring Data initiative, aims to simplify development with the Neo4j graph
+database. Like JPA, it uses annotations on simple POJO domain objects. The annotations activate one of the supported mapping approaches, either the simple mapping or the advanced AspectJ mapping. Both use the annotation and reflection metadata for mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
 
 Spring Data Neo4j allows, at any time, to drop down to the Neo4j-API level, see <<neo4j>> to execute functionality with the highest performance possible.
 

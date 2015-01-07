@@ -1,5 +1,7 @@
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.Transient;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -43,7 +45,7 @@ public class MethodsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            if (!methodName.equals("<init>")) {
+            if (!methodName.equals("<init>") && objectAnnotations.get(Transient.CLASS) == null) {
                 addMethod(new MethodInfo(methodName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }

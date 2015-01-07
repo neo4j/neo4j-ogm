@@ -1,7 +1,10 @@
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.metadata.ClassPathScanner;
 import org.neo4j.ogm.metadata.MappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
@@ -20,10 +23,12 @@ public class DomainInfo implements ClassInfoProcessor {
 
     private final Set<String> enumTypes = new HashSet<>();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfoProcessor.class);
+
     public DomainInfo(String... packages) {
         long now = -System.currentTimeMillis();
         load(packages);
-        System.out.println(classNameToClassInfo.entrySet().size() + " classes loaded in " + (now + System.currentTimeMillis()) + " milliseconds");
+        LOGGER.info(classNameToClassInfo.entrySet().size() + " classes loaded in " + (now + System.currentTimeMillis()) + " milliseconds");
     }
 
     private void buildAnnotationNameToClassInfoMap() {
@@ -110,6 +115,10 @@ public class DomainInfo implements ClassInfoProcessor {
     public void process(final InputStream inputStream) throws IOException {
 
         ClassInfo classInfo = new ClassInfo(inputStream);
+        if (classInfo.annotationsInfo().get(Transient.CLASS) != null) {
+            LOGGER.info("Skipping @Transient class: " + classInfo.name());
+            return;
+        }
         String className = classInfo.name();
         String superclassName = classInfo.superclassName();
 
@@ -136,7 +145,7 @@ public class DomainInfo implements ClassInfoProcessor {
                 }
                 if (thisClassInfo.isEnum()) {
                     String enumSignature = thisClassInfo.name().replace(".", "/");
-                    //System.out.println("registering enum class: " + enumSignature);
+                    LOGGER.info("Registering enum class: " + enumSignature);
                     enumTypes.add(enumSignature);
                 }
             }

@@ -1,5 +1,7 @@
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.Transient;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.*;
@@ -8,6 +10,7 @@ public class FieldsInfo {
 
     private static final int STATIC_FIELD = 0x0008;
     private static final int FINAL_FIELD = 0x0010;
+    private static final int TRANSIENT_FIELD = 0x0080;
 
     private final Map<String, FieldInfo> fields = new HashMap<>();
 
@@ -43,7 +46,7 @@ public class FieldsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            if ((accessFlags & (STATIC_FIELD | FINAL_FIELD)) == 0) {
+            if ((accessFlags & (STATIC_FIELD | FINAL_FIELD | TRANSIENT_FIELD)) == 0 && objectAnnotations.get(Transient.CLASS) == null) {
                 fields.put(fieldName, new FieldInfo(fieldName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }

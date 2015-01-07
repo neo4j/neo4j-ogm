@@ -10,7 +10,7 @@ import java.util.List;
 public interface CypherCompiler {
 
     /**
-     * Defines a new relationship from the specified start node to end node with the given relationship type.
+     * Defines a new relationship between the specified start node to end node with the given relationship type and direction
      *
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship to create between the nodes
@@ -19,7 +19,7 @@ public interface CypherCompiler {
     void relate(String startNode, String relationshipType, String endNode);
 
     /**
-     * Defines a relationship deletion between the specified start node to end node with the given relationship type.
+     * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.
      *
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship between the nodes to delete

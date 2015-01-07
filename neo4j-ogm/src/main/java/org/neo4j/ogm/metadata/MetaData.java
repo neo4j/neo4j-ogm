@@ -43,7 +43,6 @@ public class MetaData {
         return domainInfo.getClassSimpleName(name);
     }
 
-
     /**
      * Given an set of fully qualified names that are possibly within a type hierarchy
      * This function returns the base class from among them.

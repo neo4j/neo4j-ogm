@@ -62,4 +62,27 @@ public class DeletedRelationshipBuilder implements CypherEmitter {
         return true;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeletedRelationshipBuilder that = (DeletedRelationshipBuilder) o;
+
+        if (!rid.equals(that.rid)) return false;
+        if (!src.equals(that.src)) return false;
+        if (!tgt.equals(that.tgt)) return false;
+        if (!type.equals(that.type)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + src.hashCode();
+        result = 31 * result + tgt.hashCode();
+        result = 31 * result + rid.hashCode();
+        return result;
+    }
 }

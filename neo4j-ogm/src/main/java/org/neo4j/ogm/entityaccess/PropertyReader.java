@@ -5,13 +5,15 @@ package org.neo4j.ogm.entityaccess;
  */
 public interface PropertyReader {
 
-    Object read(Object instance);
-
     /**
      * Retrieves the property name as it would be written to the node or relationship in the graph database.
      *
      * @return The name of the property to write to the graph database property container
      */
     String propertyName();
+
+    Object read(Object instance);
+
+
 
 }

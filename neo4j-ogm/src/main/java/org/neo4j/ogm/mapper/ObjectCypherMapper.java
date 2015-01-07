@@ -1,5 +1,6 @@
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.compiler.CypherCompiler;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
@@ -128,61 +129,70 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         return existingNode;
     }
 
-    private void mapRelatedObjects(CypherCompiler cypherBuilder, Object toPersist, NodeBuilder source, CypherContext context, int horizon) {
+    private void mapRelatedObjects(CypherCompiler cypherBuilder, Object srcObject, NodeBuilder nodeBuilder, CypherContext context, int horizon) {
 
-        logger.debug("looking for related objects of: {}", toPersist);
+        logger.debug("looking for related objects of: {}", srcObject);
 
-        ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
-        Long sourceIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
+        ClassInfo srcInfo = metaData.classInfo(srcObject.getClass().getName());
+        Long srcIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(srcInfo).read(srcObject);
 
-        for (RelationalReader objectAccessor : objectAccessStrategy.getRelationalReaders(classInfo)) {
+        for (RelationalReader reader : objectAccessStrategy.getRelationalReaders(srcInfo)) {
 
-            Object relatedObject = objectAccessor.read(toPersist);
-            String relationshipType = objectAccessor.relationshipType();
+            Object relatedObject = reader.read(srcObject);
+            String relationshipType = reader.relationshipType();
+            String relationshipDirection = reader.relationshipDirection();
 
             // clear the relationship<s> in the current context for pre-existing objects
-            if (sourceIdentity != null) {
-                context.deregisterRelationships(sourceIdentity, relationshipType);
+            if (srcIdentity != null) {
+                context.deregisterRelationships(srcIdentity, relationshipType);
             }
 
             if (relatedObject instanceof Iterable) {
                 logger.debug("(collection)");
-                for (Object object : (Iterable<?>) relatedObject) {
-                    mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, object, context, horizon);
+                for (Object tgtObject : (Iterable<?>) relatedObject) {
+                    mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, tgtObject, context, horizon);
                 }
             } else {
                 if (relatedObject != null && !context.visited(relatedObject)) {
+                    Object tgtObject = relatedObject;
                     logger.debug("(singleton)");
-                    mapRelatedObject(cypherBuilder, source, toPersist, sourceIdentity, relationshipType, relatedObject, context, horizon);
+                    mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, tgtObject, context, horizon);
                 }
             }
         }
     }
 
-    private void mapRelatedObject(CypherCompiler cypherBuilder, NodeBuilder source, Object toPersist, Long sourceIdentity, String relationshipType, Object relatedObject, CypherContext context, int horizon) {
+    private void createRelationship(CypherCompiler cypherCompiler, String src, String type, String tgt) {
+        cypherCompiler.relate(src, type, tgt);
+    }
 
-        NodeBuilder target = deepMap(cypherBuilder, relatedObject, context, horizon);
+    private void mapRelatedObject(CypherCompiler cypherBuilder, NodeBuilder nodeBuilder, Object srcObject, Long srcIdentity, String relationshipType, String relationshipDirection, Object tgtObject, CypherContext context, int horizon) {
 
-        ClassInfo targetInfo = metaData.classInfo(relatedObject.getClass().getName());
-        Long targetIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(relatedObject);
+        NodeBuilder target = deepMap(cypherBuilder, tgtObject, context, horizon);
 
-        logger.debug("checking relationship history: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
+        ClassInfo targetInfo = metaData.classInfo(tgtObject.getClass().getName());
+        Long tgtIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(tgtObject);
 
-        if (targetIdentity == null || sourceIdentity == null) {
-            logger.debug("creating new relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
-            cypherBuilder.relate(source.reference(), relationshipType, target.reference());
+        if (tgtIdentity == null || srcIdentity == null) {
+            if (relationshipDirection.equals(Relationship.OUTGOING)) {
+                createRelationship(cypherBuilder, nodeBuilder.reference(), relationshipType, target.reference());
+            } else {
+                createRelationship(cypherBuilder, target.reference(), relationshipType, nodeBuilder.reference());
+            }
             return;
         }
 
-        MappedRelationship relationship = new MappedRelationship(sourceIdentity, relationshipType, targetIdentity);
+        MappedRelationship relationship = new MappedRelationship(srcIdentity, relationshipType, tgtIdentity);
 
         if (!mappingContext.isRegisteredRelationship(relationship)) {
-            logger.debug("creating new relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
-            cypherBuilder.relate(source.reference(), relationshipType, target.reference());
+            if (relationshipDirection.equals(Relationship.OUTGOING)) {
+                createRelationship(cypherBuilder, nodeBuilder.reference(), relationshipType, target.reference());
+            } else {
+                createRelationship(cypherBuilder, target.reference(), relationshipType, nodeBuilder.reference());
+            }
             context.log(relationship); // we log the new relationship as part of the transaction context.
         }
         else {
-            logger.debug("skipping unchanged relationship: ({}:{})-[:{}]->({}:{})", source.reference(), toPersist.getClass().getSimpleName(), relationshipType, target.reference(), relatedObject.getClass().getSimpleName());
             context.registerRelationship(relationship); // this relationship was loaded previously
         }
 

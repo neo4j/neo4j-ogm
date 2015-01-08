@@ -4,6 +4,7 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface Session {
 
@@ -43,6 +44,10 @@ public interface Session {
 
 
     Transaction beginTransaction();
+
+    <T> T queryForObject(Class<T> objectType, String cypher,  Map<String, Object> parameters);
+
+//    <T> T queryForObject(QueryResultMapper<T> objectType, String cypher,  Map<String, Object> parameters);
 
     //<T> Query<T> createQuery(T type, String cypher, Map<String, Object> parameters);
 

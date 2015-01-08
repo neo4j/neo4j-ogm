@@ -15,6 +15,7 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.request.*;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+import org.neo4j.ogm.session.response.GraphModelResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.response.ResponseHandler;
 import org.neo4j.ogm.session.response.SessionResponseHandler;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Neo4jSession implements Session {
@@ -170,6 +172,27 @@ public class Neo4jSession implements Session {
         transaction.set(tx);
         logger.info("obtained new transaction: " + tx.url());
         return tx;
+    }
+
+    @Override
+    public <T> T queryForObject(Class<T> type, String cypher, Map<String, Object> parameters)
+    {
+        String url = getOrCreateTransaction().url();
+        GraphModelQuery qry = new GraphModelQuery(cypher, parameters);
+
+        try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
+            Collection<T> results = getResponseHandler().loadAll(type, response);
+
+            if (results.size() < 1 ) {
+                return null;
+            }
+
+            if (results.size() < 1) {
+                throw new RuntimeException("Found more than 1 result");
+            }
+
+            return results.iterator().next();
+        }
     }
 
 

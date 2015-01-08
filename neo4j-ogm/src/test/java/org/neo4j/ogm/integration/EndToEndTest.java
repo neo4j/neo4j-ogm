@@ -3,6 +3,7 @@ package org.neo4j.ogm.integration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
@@ -10,8 +11,10 @@ import org.neo4j.ogm.session.SessionFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
@@ -27,6 +30,45 @@ public class EndToEndTest extends IntegrationTest {
         setUp();
         sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
         session = sessionFactory.openSession("http://localhost:" + neoPort);
+    }
+
+    @Test
+    public void canSimpleQueryDatabase() {
+        Saddle expected = new Saddle();
+        expected.setPrice(29.95);
+        expected.setMaterial("Leather");
+        session.save(expected);
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("material", "Leather");
+        Saddle actual = session.queryForObject(Saddle.class, "MATCH (saddle:Saddle{material: {material}}) RETURN saddle", parameters);
+
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getMaterial(), actual.getMaterial());
+    }
+
+    @Test
+    public void canComplexQueryDatabase() {
+        Saddle saddle = new Saddle();
+        saddle.setPrice(29.95);
+        saddle.setMaterial("Leather");
+        Wheel frontWheel = new Wheel();
+        Wheel backWheel = new Wheel();
+        Bike bike = new Bike();
+        bike.setBrand("Huffy");
+        bike.setWheels(Arrays.asList(frontWheel, backWheel));
+        bike.setSaddle(saddle);
+
+        session.save(bike);
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("brand", "Huffy");
+        Bike actual = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
+
+        assertEquals(bike.getId(), actual.getId());
+        assertEquals(bike.getBrand(), actual.getBrand());
+        assertEquals(bike.getWheels().size(), actual.getWheels().size());
+        assertNotNull(actual.getSaddle());
     }
 
     @Test

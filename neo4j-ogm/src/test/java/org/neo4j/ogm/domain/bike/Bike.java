@@ -9,6 +9,17 @@ public class Bike {
     private List<Wheel> wheels;
     private Frame frame;
     private Saddle saddle;
+    private String brand;
+
+    public String getBrand()
+    {
+        return brand;
+    }
+
+    public void setBrand(String brand)
+    {
+        this.brand = brand;
+    }
 
     public Long getId() {
         return id;
@@ -28,6 +39,11 @@ public class Bike {
 
     public void setWheels(List<Wheel> wheels) {
         this.wheels = wheels;
+    }
+
+    public void setSaddle(Saddle saddle)
+    {
+        this.saddle = saddle;
     }
 
     public Frame getFrame() {

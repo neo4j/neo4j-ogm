@@ -13,6 +13,7 @@ public @interface Relationship {
 
     static final String INCOMING = "INCOMING";
     static final String OUTGOING = "OUTGOING";
+    static final String BOTH = "BOTH";
 
     String type() default "";
     String direction() default OUTGOING;

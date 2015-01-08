@@ -60,7 +60,7 @@ public class MetaData {
      * base class from among them.
      *
      * @param taxa the taxa (simple class names or labels)
-     * @return The ClassInfo representing the base class among the taxa
+     * @return The ClassInfo representing the base class among the taxa or <code>null</code> if it cannot be found
      */
     public ClassInfo resolve(String... taxa) {
         if (taxa.length > 0) {

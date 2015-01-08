@@ -52,4 +52,16 @@ public class TransientRelationship {
 
         return new MappedRelationship(srcIdentity, rel, tgtIdentity);
     }
+
+    public boolean equalsIgnoreDirection(String src, String type, String tgt) {
+        if (this.rel.equals(type)) {
+            if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                return true;
+            }
+            if (this.src.equals(tgt) && this.tgt.equals(src)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

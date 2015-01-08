@@ -1,14 +1,29 @@
 package org.neo4j.ogm.domain.cineasts.annotated;
 
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 @RelationshipEntity(type = "RATED")
 public class Rating {
-    User user;
-    Movie movie;
-    int stars;
-    String comment;
+
+    @GraphId
+    private Long id;
+    @StartNode
+    private User user;
+    @EndNode
+    private Movie movie;
+    private int stars;
+    private String comment;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public User getUser() {
         return user;

@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
-
+    private final ConcurrentMap<Long, Object> relationshipEntityMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
 
@@ -75,5 +75,16 @@ public class MappingContext {
         mappedRelationships.clear();
         objectMap.clear();
         typeMap.clear();
+        relationshipEntityMap.clear();
     }
+
+    public Object getRelationshipEntity(Long relationshipId) {
+        return relationshipEntityMap.get(relationshipId);
+    }
+
+    public Object registerRelationship(Object relationshipEntity, Long id) {
+        relationshipEntityMap.putIfAbsent(id, relationshipEntity);
+        return relationshipEntity;
+    }
+
 }

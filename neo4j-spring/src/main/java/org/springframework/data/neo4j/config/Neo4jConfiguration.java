@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
@@ -30,6 +31,7 @@ public abstract class Neo4jConfiguration {
     }
 
     @Bean
+    @Scope("prototype")
     public Session getSession() throws Exception {
         logger.info("Initialising Neo4jSession");
         return getSessionFactory().openSession(neo4jServer().url());
@@ -40,7 +42,7 @@ public abstract class Neo4jConfiguration {
         return new PersistenceExceptionTranslator() {
             @Override
             public DataAccessException translateExceptionIfPossible(RuntimeException e) {
-                throw new RuntimeException(e);
+                throw e;
             }
         };
     }

@@ -535,4 +535,5 @@ public class MetaDataTest {
         assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
     }
 
+
 }

@@ -49,11 +49,9 @@ public class AnnotationInfo {
         String annotationClassName;
         if (annotationFieldDescriptor.charAt(0) == 'L'
                 && annotationFieldDescriptor.charAt(annotationFieldDescriptor.length() - 1) == ';') {
-            // Lcom/xyz/Annotation; -> com.xyz.Annotation
             annotationClassName = annotationFieldDescriptor.substring(1,
                     annotationFieldDescriptor.length() - 1).replace('/', '.');
         } else {
-            // Should not happen
             annotationClassName = annotationFieldDescriptor;
         }
         setName(annotationClassName);

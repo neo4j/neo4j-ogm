@@ -44,6 +44,7 @@ public class FieldInfo {
         return descriptor.equals(fieldSignature);
     }
 
+    // should these two methods be on PropertyReader, RelationshipReader respectively?
     public String property() {
         if (isSimple()) {
             try {

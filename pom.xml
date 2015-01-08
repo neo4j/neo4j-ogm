@@ -14,12 +14,22 @@
     <modules>
         <module>neo4j-ogm</module>
         <module>neo4j-spring</module>
+        <module>neo4j-spring-docs</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.neo4j>2.1.5</version.neo4j>
+        <version.neo4j>2.1.6</version.neo4j>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>include-examples</id>
+            <modules>
+                <module>neo4j-spring-examples/cineasts</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
 
@@ -53,8 +63,18 @@
             <dependency>
                 <groupId>com.graphaware.neo4j</groupId>
                 <artifactId>tests</artifactId>
-                <version>${version.neo4j}.25</version>
+                <version>${version.neo4j}.26</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

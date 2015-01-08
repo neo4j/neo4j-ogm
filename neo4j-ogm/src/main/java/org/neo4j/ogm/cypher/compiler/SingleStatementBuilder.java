@@ -11,10 +11,10 @@ public class SingleStatementBuilder implements CypherCompiler {
 
     private final IdentifierManager identifiers = new IdentifierManager();
 
-    private final List<CypherEmitter> newNodes = new ArrayList<>();
-    private final List<CypherEmitter> updatedNodes = new ArrayList<>();
-    private final List<CypherEmitter> newRelationships = new ArrayList<>();
-    private final List<CypherEmitter> deletedRelationships = new ArrayList<>();
+    private final Set<CypherEmitter> newNodes = new HashSet<>();
+    private final Set<CypherEmitter> updatedNodes = new HashSet<>();
+    private final Set<CypherEmitter> newRelationships = new HashSet<>();
+    private final Set<CypherEmitter> deletedRelationships = new HashSet<>();
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
 
     @Override

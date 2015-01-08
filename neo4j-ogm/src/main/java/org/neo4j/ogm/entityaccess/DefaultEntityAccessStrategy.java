@@ -1,7 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.metadata.ClassUtils;
-import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -114,7 +113,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-        fieldInfo = classInfo.relationshipField(RelationshipUtils.inferFieldName(relationshipType));
+        fieldInfo = classInfo.relationshipField(relationshipType);
         if (fieldInfo != null && fieldInfo.isTypeOf(parameter.getClass())) {
             return new FieldWriter(classInfo, fieldInfo);
         }
@@ -149,16 +148,17 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
 
         // 3rd, try to find a "getXYZ" method where XYZ is derived from the given relationship type
-        methodInfo = classInfo.relationshipGetter(relationshipType);
         if (methodInfo != null) {
+            System.out.println("ordinary getter found");
             return new MethodReader(classInfo, methodInfo);
         }
 
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-        fieldInfo = classInfo.relationshipField(RelationshipUtils.inferFieldName(relationshipType));
         if (fieldInfo != null) {
             return new FieldReader(classInfo, fieldInfo);
         }
+
+        //
         return null;
     }
 

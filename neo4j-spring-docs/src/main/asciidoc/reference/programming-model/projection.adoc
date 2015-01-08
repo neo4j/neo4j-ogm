@@ -1,3 +1,5 @@
+todo delete this
+
 [[reference_programming-model_projection]]
 = Projecting entities
 

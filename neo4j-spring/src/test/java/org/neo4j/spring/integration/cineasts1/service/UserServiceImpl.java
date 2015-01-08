@@ -23,10 +23,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void notInterestedIn(Long userId, Long genreId) {
+
         User user = userRepository.findOne(userId);
         Genre genre = genreRepository.findOne(genreId);
-        user.notInterestedIn(genre);
 
+        user.notInterestedIn(genre);
         userRepository.save(user);
     }
 }

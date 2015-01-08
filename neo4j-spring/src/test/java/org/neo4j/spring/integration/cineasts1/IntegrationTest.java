@@ -56,9 +56,8 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
 
     @Test
     public void shouldUpdateUserUsingRepository() {
-        User user = new User("Michal");
-        userRepository.save(user);
 
+        User user = userRepository.save(new User("Michal"));
         user.setName("Adam");
         userRepository.save(user);
 
@@ -67,7 +66,9 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
+    @Ignore
+    // this test expects the session/tx to check for dirty objects, which it currently does not do
+    // you must save objects explicitly.
     public void shouldUpdateUserUsingTransactionalService() {
         User user = new User("Michal");
         userRepository.save(user);
@@ -79,7 +80,6 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
     public void shouldFindUser() {
         User user = new User("Michal");
         userRepository.save(user);
@@ -88,6 +88,7 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
 
         assertEquals(0L, (long) loaded.getId());
         assertEquals("Michal", loaded.getName());
+
         assertTrue(loaded.equals(user));
         assertTrue(loaded == user);
     }
@@ -206,8 +207,8 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
     public void shouldRemoveGenreFromUser() {
+
         User michal = new User("Michal");
         Genre drama = new Genre("Drama");
         michal.interestedIn(drama);
@@ -224,7 +225,6 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
     public void shouldRemoveGenreFromUserUsingService() {
         User michal = new User("Michal");
         Genre drama = new Genre("Drama");
@@ -240,7 +240,6 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo - almost works, except the relationship written is "visited" in lowercase
     public void shouldAddNewVisitorToCinema() {
         Cinema cinema = new Cinema("Odeon");
         cinema.addVisitor(new User("Michal"));
@@ -254,7 +253,6 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo - almost works, except the relationship written is "visited" in lowercase
     public void shouldAddExistingVisitorToCinema() {
         User michal = new User("Michal");
         userRepository.save(michal);
@@ -271,18 +269,18 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
+    //@Ignore
     public void shouldBefriendPeople() {
         User michal = new User("Michal");
         michal.befriend(new User("Adam"));
         userRepository.save(michal);
 
-        //this is what it is, but shouldn't be, todo remove:
-        assertSameGraph(getDatabase(), "CREATE " +
-                "(m:User {name:'Michal'})," +
-                "(a:User {name:'Adam'})," +
-                "(m)-[:FRIEND_OF]->(a)," +
-                "(m)<-[:FRIEND_OF]-(a)");
+//        //this is what it is, but shouldn't be, todo remove:
+//        assertSameGraph(getDatabase(), "CREATE " +
+//                "(m:User {name:'Michal'})," +
+//                "(a:User {name:'Adam'})," +
+//                "(m)-[:FRIEND_OF]->(a)," +
+//                "(m)<-[:FRIEND_OF]-(a)");
 
         try {
             assertSameGraph(getDatabase(), "CREATE (m:User {name:'Michal'})-[:FRIEND_OF]->(a:User {name:'Adam'})");

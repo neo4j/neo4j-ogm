@@ -240,9 +240,8 @@ public class Neo4jSession implements Session {
             try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
                 // nothing to process on the response - looks a bit odd.
                 // should be done on commit?? when do these objects disappear?
-                mappingContext.getAll(object.getClass()).remove(object);
-                // should also remove relationships associated with this object;
-
+                mappingContext.deregister(object, identity);
+                // maybe should also remove relationships associated with this object, but won't matter if not;
             }
         }
     }

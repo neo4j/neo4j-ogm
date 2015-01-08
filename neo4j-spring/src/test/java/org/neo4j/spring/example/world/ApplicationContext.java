@@ -20,6 +20,13 @@ class ApplicationContext extends Neo4jConfiguration {
     @Bean
     public Neo4jServer neo4jServer() {
         return new InProcessServer();
-        //production: return new OutOfProcessServer(environment.getRequiredProperty("url");
+        //production: return new RemoteServer(environment.getRequiredProperty("url");
     }
+
+//    @Bean
+//    @Scope("request")
+//    public Session getSession() throws Exception {
+//        System.out.println("request scoped bean");
+//        return getSessionFactory().openSession(neo4jServer().url());
+//    }
 }

@@ -59,7 +59,7 @@ public class FieldInfo {
     public String relationship() {
         if (!isSimple()) {
             try {
-                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
+                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
             } catch (NullPointerException npe) {
                 return RelationshipUtils.inferRelationshipType(getName());
             }

@@ -149,7 +149,6 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
         // 3rd, try to find a "getXYZ" method where XYZ is derived from the given relationship type
         if (methodInfo != null) {
-            System.out.println("ordinary getter found");
             return new MethodReader(classInfo, methodInfo);
         }
 

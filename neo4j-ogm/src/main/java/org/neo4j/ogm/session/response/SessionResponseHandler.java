@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.mapper.GraphObjectMapper;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.mapper.TransientRelationship;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -13,9 +15,7 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.result.RowModel;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class SessionResponseHandler implements ResponseHandler {
 
@@ -49,9 +49,12 @@ public class SessionResponseHandler implements ResponseHandler {
 
     @Override
     public void updateObjects(CypherContext context, Neo4jResponse<String> response, ObjectMapper mapper) {
+
         RowModelResponse rowModelResponse = new RowModelResponse(response, mapper);
         String[] variables = rowModelResponse.columns();
         RowModel rowModel;
+
+        Map<String, Long> refMap = new HashMap<>();
 
         while ((rowModel = rowModelResponse.next()) != null) {
             Object[] results = rowModel.getValues();
@@ -59,9 +62,17 @@ public class SessionResponseHandler implements ResponseHandler {
                 String variable = variables[i];
                 Object persisted = context.getNewObject(variable);
                 Long identity = Long.parseLong(results[i].toString());
+                refMap.put(variable, identity);
                 ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
                 Field identityField = classInfo.getField(classInfo.identityField());
                 FieldWriter.write(identityField, persisted, identity);
+                mappingContext.register(persisted, identity);
+            }
+        }
+        for (Object object : context.log()) {
+            if (object instanceof TransientRelationship) {
+                MappedRelationship relationship = (((TransientRelationship) object).convert(refMap));
+                mappingContext.mappedRelationships().add(relationship);
             }
         }
         rowModelResponse.close();

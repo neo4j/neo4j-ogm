@@ -4,6 +4,7 @@ import com.graphaware.test.integration.WrappingServerIntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.spring.integration.cineasts1.context.PersistenceContext;
@@ -56,7 +57,6 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
 
     @Test
     public void shouldUpdateUserUsingRepository() {
-
         User user = userRepository.save(new User("Michal"));
         user.setName("Adam");
         userRepository.save(user);
@@ -208,7 +208,6 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
 
     @Test
     public void shouldRemoveGenreFromUser() {
-
         User michal = new User("Michal");
         Genre drama = new Genre("Drama");
         michal.interestedIn(drama);
@@ -269,23 +268,45 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    //@Ignore
     public void shouldBefriendPeople() {
         User michal = new User("Michal");
         michal.befriend(new User("Adam"));
         userRepository.save(michal);
-
-//        //this is what it is, but shouldn't be, todo remove:
-//        assertSameGraph(getDatabase(), "CREATE " +
-//                "(m:User {name:'Michal'})," +
-//                "(a:User {name:'Adam'})," +
-//                "(m)-[:FRIEND_OF]->(a)," +
-//                "(m)<-[:FRIEND_OF]-(a)");
 
         try {
             assertSameGraph(getDatabase(), "CREATE (m:User {name:'Michal'})-[:FRIEND_OF]->(a:User {name:'Adam'})");
         } catch (AssertionError error) {
             assertSameGraph(getDatabase(), "CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
         }
+    }
+
+    @Test
+    public void shouldLoadFriends() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})-[:FRIEND_OF]->(a:User {name:'Adam'})");
+
+        User michal = userRepository.findByProperty("name", "Michal").iterator().next();
+        assertEquals(1, michal.getFriends().size());
+
+        User adam = michal.getFriends().iterator().next();
+        assertEquals("Adam", adam.getName());
+        assertEquals(1, adam.getFriends().size());
+
+        assertTrue(michal == adam.getFriends().iterator().next());
+        assertTrue(michal.equals(adam.getFriends().iterator().next()));
+    }
+
+    @Test
+    public void shouldLoadFriends2() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        User michal = userRepository.findByProperty("name", "Michal").iterator().next();
+        assertEquals(1, michal.getFriends().size());
+
+        User adam = michal.getFriends().iterator().next();
+        assertEquals("Adam", adam.getName());
+        assertEquals(1, adam.getFriends().size());
+
+        assertTrue(michal == adam.getFriends().iterator().next());
+        assertTrue(michal.equals(adam.getFriends().iterator().next()));
     }
 }

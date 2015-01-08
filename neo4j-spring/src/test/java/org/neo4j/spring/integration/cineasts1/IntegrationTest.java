@@ -269,18 +269,18 @@ public class IntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void shouldBefriendPeople() {
         User michal = new User("Michal");
         michal.befriend(new User("Adam"));
         userRepository.save(michal);
 
-        //this is what it is, but shouldn't be, todo remove:
-        assertSameGraph(getDatabase(), "CREATE " +
-                "(m:User {name:'Michal'})," +
-                "(a:User {name:'Adam'})," +
-                "(m)-[:FRIEND_OF]->(a)," +
-                "(m)<-[:FRIEND_OF]-(a)");
+//        //this is what it is, but shouldn't be, todo remove:
+//        assertSameGraph(getDatabase(), "CREATE " +
+//                "(m:User {name:'Michal'})," +
+//                "(a:User {name:'Adam'})," +
+//                "(m)-[:FRIEND_OF]->(a)," +
+//                "(m)<-[:FRIEND_OF]-(a)");
 
         try {
             assertSameGraph(getDatabase(), "CREATE (m:User {name:'Michal'})-[:FRIEND_OF]->(a:User {name:'Adam'})");

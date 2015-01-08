@@ -60,7 +60,7 @@ public class MethodInfo {
     public String relationship() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
             try {
-                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
+                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
             } catch (NullPointerException npe) {
                 return RelationshipUtils.inferRelationshipType(getName());
             }

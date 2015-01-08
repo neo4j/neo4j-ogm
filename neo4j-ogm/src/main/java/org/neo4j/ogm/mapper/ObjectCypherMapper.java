@@ -68,7 +68,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         for (MappedRelationship rel : mappingContext.mappedRelationships()) {
             logger.debug("delete-check relationship: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
             if (!context.isRegisteredRelationship(rel)) {
-                logger.debug("not found! deleting: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
+                logger.debug("not found in tx context! deleting: (${})-[:{}]->(${})", rel.getStartNodeId(), rel.getRelationshipType(), rel.getEndNodeId());
                 cypherBuilder.unrelate("$" + rel.getStartNodeId(), rel.getRelationshipType(), "$" + rel.getEndNodeId());
             }
         }
@@ -143,6 +143,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             String relationshipDirection = reader.relationshipDirection();
 
             // clear the relationship<s> in the current context for pre-existing objects
+            // note: the mappingContext will still have this relationship entry
             if (srcIdentity != null) {
                 context.deregisterRelationships(srcIdentity, relationshipType);
             }
@@ -162,8 +163,10 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         }
     }
 
-    private void createRelationship(CypherCompiler cypherCompiler, String src, String type, String tgt) {
+    private void createRelationship(CypherCompiler cypherCompiler, CypherContext ctx, String src, String type, String tgt) {
         cypherCompiler.relate(src, type, tgt);
+        ctx.log(new TransientRelationship(src, type, tgt)); // we log the new relationship as part of the transaction context.
+
     }
 
     private void mapRelatedObject(CypherCompiler cypherBuilder, NodeBuilder nodeBuilder, Object srcObject, Long srcIdentity, String relationshipType, String relationshipDirection, Object tgtObject, CypherContext context, int horizon) {
@@ -173,26 +176,35 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         ClassInfo targetInfo = metaData.classInfo(tgtObject.getClass().getName());
         Long tgtIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(tgtObject);
 
+        // this relationship is new, because the src object or tgt object has not yet been persisted
         if (tgtIdentity == null || srcIdentity == null) {
             if (relationshipDirection.equals(Relationship.OUTGOING)) {
-                createRelationship(cypherBuilder, nodeBuilder.reference(), relationshipType, target.reference());
+                createRelationship(cypherBuilder, context, nodeBuilder.reference(), relationshipType, target.reference());
             } else {
-                createRelationship(cypherBuilder, target.reference(), relationshipType, nodeBuilder.reference());
+                createRelationship(cypherBuilder, context, target.reference(), relationshipType, nodeBuilder.reference());
             }
             return;
         }
 
+        // in the case where the src object and tgt object both exist, we need to find out whether
+        // the relationship we're considering was loaded previously, or if it has been created by the user
+        // and so has not yet been persisted.
         MappedRelationship relationship = new MappedRelationship(srcIdentity, relationshipType, tgtIdentity);
 
+
+        // in the event that this is a new relationship, we simply ensure that it will be created
         if (!mappingContext.isRegisteredRelationship(relationship)) {
             if (relationshipDirection.equals(Relationship.OUTGOING)) {
-                createRelationship(cypherBuilder, nodeBuilder.reference(), relationshipType, target.reference());
+                createRelationship(cypherBuilder, context, nodeBuilder.reference(), relationshipType, target.reference());
             } else {
-                createRelationship(cypherBuilder, target.reference(), relationshipType, nodeBuilder.reference());
+                createRelationship(cypherBuilder, context, target.reference(), relationshipType, nodeBuilder.reference());
             }
-            context.log(relationship); // we log the new relationship as part of the transaction context.
         }
         else {
+            // but if we have seen this relationship before we don't want to ask Neo4j to re-establish
+            // it for us as it already exists, so we register it in the tx context. Because this relationship
+            // was previously deleted from the tx context, but not from the mapping context, this brings both
+            // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
             context.registerRelationship(relationship); // this relationship was loaded previously
         }
 

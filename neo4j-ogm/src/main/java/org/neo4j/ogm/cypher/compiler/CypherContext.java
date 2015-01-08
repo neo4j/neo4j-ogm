@@ -72,8 +72,8 @@ public class CypherContext {
         while (iterator.hasNext()) {
            MappedRelationship mappedRelationship = iterator.next();
            if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType)) {
-                iterator.remove();
-            }
+               iterator.remove();
+           }
         }
     }
 }

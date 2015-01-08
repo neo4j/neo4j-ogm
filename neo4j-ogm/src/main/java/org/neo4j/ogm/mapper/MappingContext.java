@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
-
     private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
 
@@ -35,6 +34,19 @@ public class MappingContext {
         objectMap.putIfAbsent(id, object);
         getAll(object.getClass()).add(object = objectMap.get(id));
         return object;
+    }
+
+    /**
+     * Deregisters an object from the mapping context
+     * - removes the object instance from the typeMap
+     * - removes the object id from the objectMap
+     *
+     * @param object the object to deregister
+     * @param id the id of the object in Neo4j
+     */
+    public void deregister(Object object, Long id) {
+        getAll(object.getClass()).remove(object);
+        objectMap.remove(id);
     }
 
     public Set<Object> getAll(Class<?> type) {

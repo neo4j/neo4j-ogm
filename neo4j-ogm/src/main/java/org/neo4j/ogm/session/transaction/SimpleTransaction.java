@@ -3,6 +3,7 @@ package org.neo4j.ogm.session.transaction;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.mapper.TransientRelationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class SimpleTransaction implements Transaction {
                 for (Object o : cypherContext.log())  {
                     if (o instanceof MappedRelationship) {
                         mappingContext.remember((MappedRelationship) o);
-                    } else {
+                    } else if (!(o instanceof TransientRelationship)) {
                         mappingContext.remember(o);
                     }
                 }

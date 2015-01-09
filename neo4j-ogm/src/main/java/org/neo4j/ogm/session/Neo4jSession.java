@@ -20,6 +20,7 @@ import org.neo4j.ogm.session.response.ResponseHandler;
 import org.neo4j.ogm.session.response.SessionResponseHandler;
 import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,18 +37,15 @@ public class Neo4jSession implements Session {
     private final MappingContext mappingContext;
     private final ObjectMapper mapper;
     private final String autoCommitUrl;
-    private final TransactionRequestHandler transactionRequestHandler;
+    private final TransactionManager transactionRequestHandler;
 
     private Neo4jRequest<String> request;
-
-    // all transaction objects must have thread local scope
-    private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
     public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
         this.metaData = metaData;
         this.mapper = mapper;
         this.mappingContext = new MappingContext(metaData);
-        this.transactionRequestHandler = new TransactionRequestHandler(client, url);
+        this.transactionRequestHandler = new TransactionManager(client, url);
         this.autoCommitUrl = autoCommit(url);
         this.request = new DefaultRequest(client);
     }
@@ -62,10 +60,6 @@ public class Neo4jSession implements Session {
 
     private ResponseHandler getResponseHandler() {
         return new SessionResponseHandler(metaData, mappingContext);
-    }
-
-    private Transaction getCurrentTransaction() {
-        return transaction.get();
     }
 
     @Override
@@ -154,20 +148,8 @@ public class Neo4jSession implements Session {
         logger.info("beginTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Neo4jSession identity: " + this);
 
-//        if (transaction != null && transaction instanceof LongTransaction) {
-//            // return current transaction if no operations yet. i.e. don't waste db transactions
-//            if (transaction.status() == Transaction.Status.OPEN) {
-//                return transaction;
-//            }
-//            // but it is probably a bug to call begin transaction again on a transaction with uncommitted operations
-//            if (transaction.status() == Transaction.Status.PENDING) {
-//                throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
-//            }
-//        }
-//
-
         Transaction tx = transactionRequestHandler.openTransaction(mappingContext);
-        transaction.set(tx);
+
         logger.info("obtained new transaction: " + tx.url());
         return tx;
     }
@@ -246,7 +228,7 @@ public class Neo4jSession implements Session {
         logger.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Session identity: " + this);
 
-        Transaction tx = getCurrentTransaction();
+        Transaction tx = transactionRequestHandler.getCurrentTransaction();
         if (tx == null
                 || tx.status().equals(Transaction.Status.CLOSED)
                 || tx.status().equals(Transaction.Status.COMMITTED)

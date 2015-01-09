@@ -154,10 +154,6 @@ public class ObjectToCypherMapperTest {
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(bscComputerScience).getStatements());
 
-        expect("CREATE (_0:`Student`:`DomainObject`{_0_props}) " +
-                "WITH _0 MATCH ($0) WHERE id($0)=0 MERGE ($0)-[:STUDENTS]->(_0) " +
-                "RETURN id(_0) AS _0", cypher);
-
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
@@ -373,12 +369,6 @@ public class ObjectToCypherMapperTest {
         String businessStudiesNode = var(businessStudies.getId());
         String shivaniNode = var(shivani.getId());
 
-        expect( "MATCH (" + designTechNode + ") WHERE id(" + designTechNode + ")=" + designTech.getId() + " " +
-                "MATCH (" + shivaniNode + ") WHERE id(" + shivaniNode + ")=" + shivani.getId() + " " +
-                "MERGE (" + designTechNode + ")-[:STUDENTS]->(" + shivaniNode + ") " +
-                "WITH " + shivaniNode + "," + designTechNode + " " +
-                "MATCH (" + businessStudiesNode + ")-[_0:STUDENTS]->(" + shivaniNode + ") WHERE id(" + businessStudiesNode + ")=" + businessStudies.getId() + " DELETE _0", cypher);
-
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
                 "(dt)-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
@@ -426,17 +416,8 @@ public class ObjectToCypherMapperTest {
         // so we must persist from the collection (school) side.
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(hillsRoad).getStatements());
 
-        String hillsRoadNode = var(hillsRoad.getId());
-        String mrWhiteNode = var(mrWhite.getId());
-
-        expect( "MATCH (" + hillsRoadNode + ")-[_0:TEACHERS]->(" + mrWhiteNode + ") " +
-                "WHERE id(" + hillsRoadNode + ")=" + hillsRoad.getId() + " " +
-                "AND id(" + mrWhiteNode + ")=" + mrWhite.getId() + " " +
-                "DELETE _0", cypher);
-
         executeStatementsAndAssertSameGraph(cypher,
-                "CREATE (w:Teacher {name:'Mr White'}), " +
-                        "(s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
+                "CREATE (w:Teacher {name:'Mr White'}), (s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
     }
 
 

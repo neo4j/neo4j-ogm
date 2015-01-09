@@ -5,10 +5,12 @@ import java.util.Set;
 
 class ExistingRelationshipBuilder extends RelationshipBuilder {
 
+    private final Long id;
     private String startNodeIdentifier;
     private String endNodeIdentifier;
 
-    ExistingRelationshipBuilder(Long relationshipId) {
+    ExistingRelationshipBuilder(String variableName, Long relationshipId) {
+        super(variableName);
         this.id = relationshipId;
     }
 
@@ -30,12 +32,12 @@ class ExistingRelationshipBuilder extends RelationshipBuilder {
             queryBuilder.append(" WITH ").append(NodeBuilder.toCsv(varStack));
         }
 
-        // TODO: replace all 'r' with this.reference() when it's working
-        queryBuilder.append(" MATCH ()-[r]->() WHERE id(r)=").append(this.id);
+        queryBuilder.append(" MATCH ()-[").append(this.reference).append("]->() WHERE id(")
+                .append(this.reference).append(")=").append(this.id);
 
         if (!this.props.isEmpty()) {
-            queryBuilder.append(" SET ").append('r').append("+={").append('r').append("_props} ");
-            parameters.put('r' + "_props", this.props);
+            queryBuilder.append(" SET ").append(this.reference).append("+={").append(this.reference).append("_props} ");
+            parameters.put(this.reference + "_props", this.props);
         }
 
         return true;

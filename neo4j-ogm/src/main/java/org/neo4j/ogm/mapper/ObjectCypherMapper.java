@@ -170,8 +170,8 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
                         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
                         relationship.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
 
-                        for (PropertyReader pf : objectAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
-                            relationship.addProperty(pf.propertyName(), pf.read(tgtObject));
+                        for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
+                            relationship.addProperty(propertyReader.propertyName(), propertyReader.read(tgtObject));
                         }
 
                         // TODO: temporary default - will refactor this onto EntityAccessStrategy, probably

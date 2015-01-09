@@ -9,6 +9,10 @@ class NewRelationshipBuilder extends RelationshipBuilder {
     private String startNodeIdentifier;
     private String endNodeIdentifier;
 
+    public NewRelationshipBuilder(String reference) {
+        super(reference);
+    }
+
     @Override
     public void relate(String startNodeIdentifier, String endNodeIdentifier) {
         this.startNodeIdentifier = startNodeIdentifier;

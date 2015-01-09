@@ -52,14 +52,14 @@ public class SingleStatementBuilder implements CypherCompiler {
 
     @Override
     public RelationshipBuilder newRelationship() {
-        RelationshipBuilder builder = new NewRelationshipBuilder();
+        RelationshipBuilder builder = new NewRelationshipBuilder(this.identifiers.nextIdentifier());
         this.newRelationships.add(builder);
         return builder;
     }
 
     @Override
     public RelationshipBuilder existingRelationship(Long existingRelationshipId) {
-        RelationshipBuilder builder = new ExistingRelationshipBuilder(existingRelationshipId);
+        RelationshipBuilder builder = new ExistingRelationshipBuilder(this.identifiers.nextIdentifier(), existingRelationshipId);
         this.updatedRelationships.add(builder);
         return builder;
     }
@@ -94,6 +94,8 @@ public class SingleStatementBuilder implements CypherCompiler {
 
         for (CypherEmitter emitter : newRelationships) {
             emitter.emit(queryBuilder, parameters, varStack);
+            //TODO: if the above returns true we need to store the reference on newStack()
+            // WRITE A TEST FOR THIS FIRST
         }
 
         for (CypherEmitter emitter : updatedRelationships) {

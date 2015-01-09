@@ -10,9 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- *
- */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -39,30 +36,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private void buildNetwork(User user, Set<User> network) {
-//        if (user.getFriends().isEmpty()) {
-//            return;
-//        }
-
         for (User friend : user.getFriends()) {
             if (!network.contains(friend)) {
                 network.add(friend);
                 buildNetwork(friend, network);
             }
         }
-    }
-
-    @Transactional
-    @Override
-    public void populateDb() {
-        User adam = new User("Adam");
-        User daniela = new User("Daniela");
-        User michal = new User("Michal");
-        User vince = new User("Vince");
-
-        adam.befriend(daniela);
-        daniela.befriend(michal);
-        michal.befriend(vince);
-
-        userRepository.save(adam);
     }
 }

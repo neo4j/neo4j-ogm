@@ -5,9 +5,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- *
- */
 public class Cinema {
 
     private Long id;

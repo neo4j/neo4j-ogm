@@ -29,10 +29,4 @@ public class UserController {
 
         return result.toString().trim();
     }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/populate")
-    @ResponseStatus(HttpStatus.OK)
-    public void populateDb() {
-        userService.populateDb();
-    }
 }

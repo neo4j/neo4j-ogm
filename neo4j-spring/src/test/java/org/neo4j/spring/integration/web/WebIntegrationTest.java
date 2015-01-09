@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = {WebAppContext.class, PersistenceContext.class})
@@ -39,25 +38,20 @@ public class WebIntegrationTest {
     public void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 
-//        User adam = new User("Adam");
-//        User daniela = new User("Daniela");
-//        User michal = new User("Michal");
-//        User vince = new User("Vince");
-//
-//        adam.befriend(daniela);
-//        daniela.befriend(michal);
-//        michal.befriend(vince);
-//
-//        userRepository.save(adam);
+        User adam = new User("Adam");
+        User daniela = new User("Daniela");
+        User michal = new User("Michal");
+        User vince = new User("Vince");
+
+        adam.befriend(daniela);
+        daniela.befriend(michal);
+        michal.befriend(vince);
+
+        userRepository.save(adam);
     }
 
     @Test
     public void shouldNotShareSessionBetweenRequests() throws Exception {
-        mockMvc.perform(post("/populate"))
-                .andExpect(status().isOk());
-
-//        Thread.sleep(30000);
-
         mockMvc.perform(get("/user/{name}/friends", "Adam"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("Daniela"));

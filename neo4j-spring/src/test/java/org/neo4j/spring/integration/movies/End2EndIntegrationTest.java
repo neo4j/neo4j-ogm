@@ -21,7 +21,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +57,22 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})");
         assertEquals(0L, (long) user.getId());
+    }
+
+    @Test
+    public void shouldSaveUsers() {
+        Set<User> set = new HashSet<>();
+        set.add(new User("Michal"));
+        set.add(new User("Adam"));
+        set.add(new User("Vince"));
+
+        userRepository.save(set);
+
+        assertSameGraph(getDatabase(), "CREATE (:User {name:'Michal'})," +
+                "(:User {name:'Vince'})," +
+                "(:User {name:'Adam'})");
+
+        assertEquals(3, userRepository.count());
     }
 
     @Test
@@ -147,6 +165,25 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         userRepository.save(user);
 
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:INTERESTED]->(g:Genre {name:'Drama'})");
+    }
+
+    @Test
+    public void shouldSaveUserAndNewGenres() {
+        User user = new User("Michal");
+        user.interestedIn(new Genre("Drama"));
+        user.interestedIn(new Genre("Historical"));
+        user.interestedIn(new Genre("Thriller"));
+
+        userRepository.save(user);
+
+        assertSameGraph(getDatabase(), "CREATE " +
+                "(u:User {name:'Michal'})," +
+                "(g1:Genre {name:'Drama'})," +
+                "(g2:Genre {name:'Historical'})," +
+                "(g3:Genre {name:'Thriller'})," +
+                "(u)-[:INTERESTED]->(g1)," +
+                "(u)-[:INTERESTED]->(g2)," +
+                "(u)-[:INTERESTED]->(g3)");
     }
 
     @Test
@@ -323,4 +360,6 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         assertEquals("Michal", iterator.next().getName());
         assertFalse(iterator.hasNext());
     }
+
+
 }

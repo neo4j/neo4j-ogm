@@ -20,6 +20,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -308,5 +310,17 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         assertTrue(michal == adam.getFriends().iterator().next());
         assertTrue(michal.equals(adam.getFriends().iterator().next()));
+    }
+
+    @Test
+    @Ignore //todo fixme
+    public void shouldFindUsersByName() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        Collection<User> users = userRepository.findUsersByName("Michal");
+        Iterator<User> iterator = users.iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals("Michal", iterator.next().getName());
+        assertFalse(iterator.hasNext());
     }
 }

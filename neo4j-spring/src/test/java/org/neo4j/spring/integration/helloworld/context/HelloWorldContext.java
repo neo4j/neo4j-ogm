@@ -1,5 +1,6 @@
 package org.neo4j.spring.integration.helloworld.context;
 
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.spring.InProcessServer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,15 +19,16 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class HelloWorldContext extends Neo4jConfiguration {
 
     @Bean
+    @Override
     public Neo4jServer neo4jServer() {
         return new InProcessServer();
         //production: return new RemoteServer(environment.getRequiredProperty("url");
     }
 
-//    @Bean
-//    @Scope("request")
-//    public Session getSession() throws Exception {
-//        System.out.println("request scoped bean");
-//        return getSessionFactory().openSession(neo4jServer().url());
-//    }
+    @Bean
+    @Override
+    public SessionFactory getSessionFactory() {
+        return new SessionFactory("org.neo4j.spring.integration.helloworld.domain");
+    }
+
 }

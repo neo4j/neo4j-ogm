@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
 public class UserController {
 
@@ -15,7 +17,8 @@ public class UserController {
 
     @RequestMapping(value = "/user/{name}/friends")
     @ResponseBody
-    public String listFriends(@PathVariable String name) {
+    public String listFriends(@PathVariable String name, HttpSession session) {
+        System.out.println("Session: " + session);
         User user = userService.getUserByName(name);
 
         if (user == null) {
@@ -28,11 +31,5 @@ public class UserController {
         }
 
         return result.toString().trim();
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/populate")
-    @ResponseStatus(HttpStatus.OK)
-    public void populateDb() {
-        userService.populateDb();
     }
 }

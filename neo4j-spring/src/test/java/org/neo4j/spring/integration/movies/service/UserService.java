@@ -13,4 +13,9 @@ public interface UserService {
 
     @Transactional
     void notInterestedIn(Long userId, Long genreId);
+
+    @Transactional
+    void saveWithTxAnnotationOnInterface(User user);
+
+    void saveWithTxAnnotationOnImpl(User user);
 }

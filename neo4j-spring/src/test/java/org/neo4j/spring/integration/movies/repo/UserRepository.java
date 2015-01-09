@@ -1,6 +1,6 @@
-package org.neo4j.spring.integration.cineasts1.repo;
+package org.neo4j.spring.integration.movies.repo;
 
-import org.neo4j.spring.integration.cineasts1.domain.User;
+import org.neo4j.spring.integration.movies.domain.User;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 

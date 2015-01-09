@@ -1,9 +1,9 @@
-package org.neo4j.spring.integration.cineasts1.service;
+package org.neo4j.spring.integration.movies.service;
 
-import org.neo4j.spring.integration.cineasts1.domain.Genre;
-import org.neo4j.spring.integration.cineasts1.domain.User;
-import org.neo4j.spring.integration.cineasts1.repo.GenreRepository;
-import org.neo4j.spring.integration.cineasts1.repo.UserRepository;
+import org.neo4j.spring.integration.movies.domain.Genre;
+import org.neo4j.spring.integration.movies.domain.User;
+import org.neo4j.spring.integration.movies.repo.GenreRepository;
+import org.neo4j.spring.integration.movies.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

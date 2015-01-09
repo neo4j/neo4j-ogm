@@ -1,6 +1,7 @@
-package org.neo4j.spring.example.world;
+package org.neo4j.spring.integration.helloworld.service;
 
-import org.neo4j.spring.domain.World;
+import org.neo4j.spring.integration.helloworld.domain.World;
+import org.neo4j.spring.integration.helloworld.repo.WorldRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

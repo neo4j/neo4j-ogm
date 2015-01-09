@@ -1,4 +1,4 @@
-package org.neo4j.spring.integration.cineasts1.domain;
+package org.neo4j.spring.integration.movies.domain;
 
 import org.neo4j.ogm.annotation.Relationship;
 

@@ -1,9 +1,11 @@
-package org.neo4j.spring.example.world;
+package org.neo4j.spring.integration.helloworld;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.neo4j.spring.domain.World;
+import org.neo4j.spring.integration.helloworld.context.HelloWorldContext;
+import org.neo4j.spring.integration.helloworld.domain.World;
+import org.neo4j.spring.integration.helloworld.service.GalaxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,8 +19,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
 
 
-
-@ContextConfiguration(classes={org.neo4j.spring.example.world.ApplicationContext.class})
+@ContextConfiguration(classes = {HelloWorldContext.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
 public class GalaxyServiceTest {
@@ -27,7 +28,7 @@ public class GalaxyServiceTest {
     private GalaxyService galaxyService;
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         galaxyService.deleteAll();
         assertEquals(0, galaxyService.getNumberOfWorlds());
     }
@@ -67,7 +68,7 @@ public class GalaxyServiceTest {
     public void shouldFindWorldsById() {
         galaxyService.makeSomeWorlds();
 
-        for(World world : galaxyService.getAllWorlds()) {
+        for (World world : galaxyService.getAllWorlds()) {
             World foundWorld = galaxyService.findWorldById(world.getId());
             assertNotNull(foundWorld);
         }
@@ -77,7 +78,7 @@ public class GalaxyServiceTest {
     @Test
     public void shouldFindWorldsByName() {
         galaxyService.makeSomeWorlds();
-        for(World world : galaxyService.getAllWorlds()) {
+        for (World world : galaxyService.getAllWorlds()) {
             World foundWorld = galaxyService.findWorldByName(world.getName());
             assertNotNull(foundWorld);
         }
@@ -101,7 +102,7 @@ public class GalaxyServiceTest {
         Iterable<World> foundWorlds = galaxyService.getAllWorlds();
 
         int countOfFoundWorlds = 0;
-        for(World foundWorld : foundWorlds) {
+        for (World foundWorld : foundWorlds) {
             assertTrue(madeWorlds.contains(foundWorld));
             countOfFoundWorlds++;
         }
@@ -114,7 +115,7 @@ public class GalaxyServiceTest {
     public void shouldFindWorldsWith1Moon() {
         galaxyService.makeSomeWorlds();
 
-        for(World worldWithOneMoon : galaxyService.findAllByNumberOfMoons(1)) {
+        for (World worldWithOneMoon : galaxyService.findAllByNumberOfMoons(1)) {
             assertThat(
                     worldWithOneMoon.getName(),
                     is(anyOf(containsString("Earth"), containsString("Midgard"))));

@@ -1,4 +1,4 @@
-package org.neo4j.spring.integration.cineasts1;
+package org.neo4j.spring.integration.movies;
 
 import com.graphaware.test.integration.WrappingServerIntegrationTest;
 import org.junit.Ignore;
@@ -7,13 +7,13 @@ import org.junit.runner.RunWith;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
-import org.neo4j.spring.integration.cineasts1.context.PersistenceContext;
-import org.neo4j.spring.integration.cineasts1.domain.Cinema;
-import org.neo4j.spring.integration.cineasts1.domain.Genre;
-import org.neo4j.spring.integration.cineasts1.domain.User;
-import org.neo4j.spring.integration.cineasts1.repo.CinemaRepository;
-import org.neo4j.spring.integration.cineasts1.repo.UserRepository;
-import org.neo4j.spring.integration.cineasts1.service.UserService;
+import org.neo4j.spring.integration.movies.context.PersistenceContext;
+import org.neo4j.spring.integration.movies.domain.Cinema;
+import org.neo4j.spring.integration.movies.domain.Genre;
+import org.neo4j.spring.integration.movies.domain.User;
+import org.neo4j.spring.integration.movies.repo.CinemaRepository;
+import org.neo4j.spring.integration.movies.repo.UserRepository;
+import org.neo4j.spring.integration.movies.service.UserService;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = {PersistenceContext.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class IntegrationTest extends WrappingServerIntegrationTest {
+public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;

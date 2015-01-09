@@ -1,6 +1,6 @@
-package org.neo4j.spring.integration.cineasts1.service;
+package org.neo4j.spring.integration.movies.service;
 
-import org.neo4j.spring.integration.cineasts1.domain.User;
+import org.neo4j.spring.integration.movies.domain.User;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

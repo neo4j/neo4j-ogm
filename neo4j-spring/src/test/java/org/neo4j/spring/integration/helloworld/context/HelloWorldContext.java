@@ -1,4 +1,4 @@
-package org.neo4j.spring.example.world;
+package org.neo4j.spring.integration.helloworld.context;
 
 import org.neo4j.spring.InProcessServer;
 import org.springframework.context.annotation.Bean;
@@ -11,11 +11,11 @@ import org.springframework.data.neo4j.server.Neo4jServer;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@ComponentScan({"org.neo4j.spring.example.world"})
+@ComponentScan({"org.neo4j.spring.integration.helloworld.*"})
 @PropertySource("classpath:application.properties")
-@EnableNeo4jRepositories("org.neo4j.spring.example.world")
+@EnableNeo4jRepositories("org.neo4j.spring.integration.helloworld.repo")
 @EnableTransactionManagement
-class ApplicationContext extends Neo4jConfiguration {
+public class HelloWorldContext extends Neo4jConfiguration {
 
     @Bean
     public Neo4jServer neo4jServer() {

@@ -1,4 +1,4 @@
-package org.neo4j.spring.domain;
+package org.neo4j.spring.integration.helloworld.domain;
 
 import org.neo4j.ogm.annotation.Relationship;
 

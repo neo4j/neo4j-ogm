@@ -1,4 +1,4 @@
-package org.neo4j.spring.integration.cineasts1.context;
+package org.neo4j.spring.integration.movies.context;
 
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +11,7 @@ import org.springframework.data.neo4j.server.RemoteServer;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@ComponentScan({"org.neo4j.spring.integration.cineasts1"})
+@ComponentScan({"org.neo4j.spring.integration.movies"})
 @EnableNeo4jRepositories("org.neo4j.spring.integration.cineasts1")
 @EnableTransactionManagement
 public class PersistenceContext extends Neo4jConfiguration {

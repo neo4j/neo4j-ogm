@@ -87,7 +87,7 @@ public class WebIntegrationTest {
     @Test
     public void shouldNotShareSessionBetweenMultiThreadedRequests() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             final int j = i;
             executor.submit(new Runnable() {
                 @Override

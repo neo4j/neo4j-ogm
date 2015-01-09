@@ -1,39 +1,31 @@
 package org.neo4j.ogm.unit.entityaccess;
 
-import org.neo4j.ogm.model.NodeModel;
-import org.neo4j.ogm.model.RelationshipModel;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.domain.canonical.ClassWithPrivateConstructor;
-import org.neo4j.ogm.domain.canonical.ClassWithoutZeroArgumentConstructor;
+import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.entityaccess.ObjectFactory;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.model.NodeModel;
+import org.neo4j.ogm.model.RelationshipModel;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
-
-public class DefaultConstructorObjectFactoryTest {
+public class ObjectFactoryTest {
 
     private ObjectFactory objectCreator;
 
     @Before
     public void setUp() {
-        Map<String, String> mappings = new HashMap<>();
-        mappings.put("ClassWithPrivateConstructor", ClassWithPrivateConstructor.class.getName());
-        mappings.put("ClassWithoutZeroArgumentConstructor", ClassWithoutZeroArgumentConstructor.class.getName());
-        mappings.put("Person", Individual.class.getName());
         this.objectCreator = new ObjectFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
     }
 
     @Test
     public void shouldConstructObjectOfParticularTypeUsingItsDefaultZeroArgConstructor() {
         RelationshipModel personRelationshipModel = new RelationshipModel();
-        personRelationshipModel.setType("Individual");
-        Individual gary = this.objectCreator.newObject(personRelationshipModel);
+        personRelationshipModel.setType("MEMBER_OF");
+        ArbitraryRelationshipEntity gary = this.objectCreator.newObject(personRelationshipModel);
         assertNotNull(gary);
 
         NodeModel personNodeModel = new NodeModel();

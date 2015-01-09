@@ -62,6 +62,7 @@ public class MethodInfo {
             try {
                 return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, getName());
             } catch (NullPointerException npe) {
+                // TODO: consider whether to check parameter/return type here for an @RelationshipEntity annotation
                 return RelationshipUtils.inferRelationshipType(getName());
             }
         }

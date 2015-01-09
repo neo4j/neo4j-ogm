@@ -52,7 +52,7 @@ public class MethodWriter extends EntityAccess {
 
     @Override
     public String relationshipName() {
-        return this.setterMethodInfo.relationship().substring(3);
+        return this.setterMethodInfo.relationship();
     }
 
 }

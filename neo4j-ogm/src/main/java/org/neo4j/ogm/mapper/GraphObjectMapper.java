@@ -123,8 +123,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
             objectAccess.write(source, parameter);
             // FIXME: this doesn't remember the right relationship type when objectAccess sets a RelEntity
             // indeed, why do we use objectAccess.relationshipName instead of just edge.getType?
-            mappingContext.remember(new MappedRelationship(
-                    edge.getStartNode(), objectAccess.relationshipName(), edge.getEndNode()));
+            mappingContext.remember(new MappedRelationship(edge.getStartNode(), edgeLabel, edge.getEndNode()));
             return true;
         }
 
@@ -258,7 +257,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
             String relType = writer.relationshipName(); // FIXME: doesn't work for a relationship entity
             for (RelationshipModel edge : edges) {
-                mappingContext.remember(new MappedRelationship(edge.getStartNode(), relType, edge.getEndNode()));
+                mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
             }
             return true;
         }

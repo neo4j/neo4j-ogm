@@ -18,10 +18,26 @@ public class ObjectFactory {
         this.metadata = metadata;
     }
 
+    /**
+     * Constructs a new object based on the class mapped to the labels on the given {@link NodeModel}.  In the
+     * case of multiple labels, only the one that identifies a class in the domain will be used, and if there
+     * are any ambiguities in which label to use then an exception will be thrown.
+     *
+     * @param nodeModel The {@link NodeModel} from which to determine the type
+     * @return A new instance of the class that corresponds to the node label, never <code>null</code>
+     * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
+     */
     public <T> T newObject(NodeModel nodeModel) {
         return instantiateObjectFromTaxa(nodeModel.getLabels());
     }
 
+    /**
+     * Constructs a new object based on the class mapped to the type in the given {@link RelationshipModel}.
+     *
+     * @param edgeModel The {@link RelationshipModel} from which to determine the type
+     * @return A new instance of the class that corresponds to the relationship type, never <code>null</code>
+     * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
+     */
     public <T> T newObject(RelationshipModel edgeModel) {
         return instantiateObjectFromTaxa(edgeModel.getType());
     }

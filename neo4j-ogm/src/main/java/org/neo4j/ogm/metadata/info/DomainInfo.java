@@ -16,10 +16,10 @@ public class DomainInfo implements ClassInfoProcessor {
     private static final String bigIntegerSignature = "java/math/BigInteger";
 
     private final List<String> classPaths = new ArrayList<>();
-    private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
-    private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
-    private final HashMap<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
-    private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
+    private final Map<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
     private final Set<String> enumTypes = new HashSet<>();
 

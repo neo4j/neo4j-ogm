@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,7 +27,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public Collection<User> getNetwork(User user) {
-        Set<User> network = new HashSet<>();
+        Set<User> network = new TreeSet<>(new Comparator<User>() {
+            @Override
+            public int compare(User u1, User u2) {
+                return u1.getName().compareTo(u2.getName());
+            }
+        });
         buildNetwork(user, network);
         network.remove(user);
         return network;

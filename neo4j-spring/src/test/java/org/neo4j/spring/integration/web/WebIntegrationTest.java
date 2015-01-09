@@ -8,6 +8,7 @@ import org.neo4j.spring.integration.web.context.WebAppContext;
 import org.neo4j.spring.integration.web.domain.User;
 import org.neo4j.spring.integration.web.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -16,6 +17,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.servlet.http.HttpSession;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +57,7 @@ public class WebIntegrationTest {
     }
 
     @Test
-    public void shouldNotShareSessionBetweenRequests() throws Exception {
+    public void shouldNotShareSessionBetweenRequestsWithDifferentSession() throws Exception {
         mockMvc.perform(get("/user/{name}/friends", "Adam"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("Daniela"));
@@ -60,4 +66,57 @@ public class WebIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("Michal"));
     }
+
+    @Test
+    public void shouldShareSessionBetweenRequestsDuringSameSession() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+
+        mockMvc.perform(get("/user/{name}/friends", "Adam").session(session))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Daniela"));
+
+        mockMvc.perform(get("/user/{name}/friends", "Daniela").session(session))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Adam Michal"));
+
+        mockMvc.perform(get("/user/{name}/friends", "Vince").session(session))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Adam Daniela Michal"));
+    }
+
+    @Test
+    public void shouldNotShareSessionBetweenMultiThreadedRequests() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        for (int i = 0; i < 1000; i++) {
+            final int j = i;
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    if (j % 2 == 0) {
+                        try {
+                            mockMvc.perform(get("/user/{name}/friends", "Adam"))
+                                    .andExpect(status().isOk())
+                                    .andExpect(MockMvcResultMatchers.content().string("Daniela"));
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+
+                        try {
+                            mockMvc.perform(get("/user/{name}/friends", "Vince"))
+                                    .andExpect(status().isOk())
+                                    .andExpect(MockMvcResultMatchers.content().string("Michal"));
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(1, TimeUnit.MINUTES);
+    }
+
 }

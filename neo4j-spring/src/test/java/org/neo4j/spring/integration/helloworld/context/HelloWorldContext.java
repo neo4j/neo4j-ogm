@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan({"org.neo4j.spring.integration.helloworld.*"})
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:helloworld.properties")
 @EnableNeo4jRepositories("org.neo4j.spring.integration.helloworld.repo")
 @EnableTransactionManagement
 public class HelloWorldContext extends Neo4jConfiguration {

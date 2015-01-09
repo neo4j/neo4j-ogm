@@ -12,13 +12,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @ComponentScan({"org.neo4j.spring.integration.movies"})
-@EnableNeo4jRepositories("org.neo4j.spring.integration.cineasts1")
+@EnableNeo4jRepositories("org.neo4j.spring.integration.movies.repo")
 @EnableTransactionManagement
 public class PersistenceContext extends Neo4jConfiguration {
 
     @Override
     public SessionFactory getSessionFactory() {
-        return new SessionFactory("org.neo4j.spring.integration.cineasts1.domain");
+        return new SessionFactory("org.neo4j.spring.integration.movies.domain");
     }
 
     @Bean

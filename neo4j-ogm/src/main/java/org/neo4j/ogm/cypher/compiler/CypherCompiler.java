@@ -13,11 +13,13 @@ public interface CypherCompiler {
     /**
      * Defines a new relationship between the specified start node to end node with the given relationship type and direction
      *
+     * @deprecated Setting relationships should now be done through the RelationshipBuilder
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship to create between the nodes
      * @param relationshipProperties The (optional) {@code Map} containing the properties of the relationship
      * @param endNode The {@link NodeBuilder} representation of the relationship end node
      */
+    @Deprecated
     void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode);
 
     /**
@@ -43,6 +45,9 @@ public interface CypherCompiler {
      * @return A {@link NodeBuilder} representing the node in the database that corresponds to the given ID
      */
     NodeBuilder existingNode(Long existingNodeId);
+
+    RelationshipBuilder newRelationship();
+    RelationshipBuilder existingRelationship(Long existingRelationshipId);
 
     /**
      * Retrieves the Cypher queries that have been built up through this {@link CypherCompiler}.

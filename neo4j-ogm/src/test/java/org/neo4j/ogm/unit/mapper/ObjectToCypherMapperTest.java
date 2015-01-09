@@ -1,9 +1,20 @@
 package org.neo4j.ogm.unit.mapper;
 
-import org.junit.*;
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -12,19 +23,12 @@ import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.test.TestGraphDatabaseFactory;
-
-import java.util.*;
-
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {
 
@@ -554,10 +558,36 @@ public class ObjectToCypherMapperTest {
         forum.setTopicsInForum(Arrays.asList(link));
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
-        System.err.println(cypher.getStatements().get(0).getStatement());
-        System.err.println(cypher.getStatements().get(0).getParameters());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
                 + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
+    }
+
+    @Test
+    public void shouldProduceCypherForUpdatingExistingRichRelationshipBetweenNodes() {
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:20000}]->(t:Topic) " +
+                "RETURN id(f) AS forumId, id(t) AS topicId, id(r) AS relId");
+        Map<String, Object> rs = executionResult.iterator().next();
+        Long forumId = (Long) rs.get("forumId");
+        Long topicId = (Long) rs.get("topicId");
+        Long relationshipId = (Long) rs.get("relId");
+
+        Forum forum = new Forum();
+        forum.setId(forumId);
+        forum.setName("Spring Data Neo4j");
+        Topic topic = new Topic();
+        topic.setTopicId(topicId);
+        topic.setInActive(Boolean.FALSE);
+        ForumTopicLink link = new ForumTopicLink();
+        link.setId(relationshipId);
+        link.setForum(forum);
+        link.setTopic(topic);
+        link.setTimestamp(327790L);
+        forum.setTopicsInForum(Arrays.asList(link));
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+                + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
     }
 
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {

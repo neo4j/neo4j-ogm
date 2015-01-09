@@ -7,5 +7,8 @@ import java.lang.annotation.*;
 @Inherited
 public @interface RelationshipEntity {
 
+    static final String CLASS = "org.neo4j.ogm.annotation.RelationshipEntity";
+    static final String TYPE = "type";
+
     String type() default "";
 }

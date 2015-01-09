@@ -24,12 +24,6 @@ public abstract class Neo4jConfiguration {
     private Environment environment;
 
     @Bean
-    public SessionFactory getSessionFactory() {
-        logger.info("Initialising Neo4jSessionFactory");
-        return new SessionFactory(environment.getRequiredProperty("domain"));
-    }
-
-    @Bean
     public Session getSession() throws Exception {
         logger.info("Initialising Neo4jSession");
         return getSessionFactory().openSession(neo4jServer().url());
@@ -51,7 +45,11 @@ public abstract class Neo4jConfiguration {
         return new Neo4jTransactionManager(getSession());
     }
 
+    @Bean
     public abstract Neo4jServer neo4jServer();
+
+    @Bean
+    public abstract SessionFactory getSessionFactory();
 
 
 }

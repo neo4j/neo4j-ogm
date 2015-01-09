@@ -208,6 +208,7 @@ public class Neo4jSession implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
+        //todo if classInfo == null...
         String url = getOrCreateTransaction().url();
         ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
         try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {

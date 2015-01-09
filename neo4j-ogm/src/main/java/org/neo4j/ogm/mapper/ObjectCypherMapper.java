@@ -156,7 +156,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             } else {
                 if (relatedObject != null && !context.visited(relatedObject)) {
                     Object tgtObject = relatedObject;
-                    logger.debug("(singleton)");
+                    logger.debug("(object ref or array)");
                     mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, tgtObject, context, horizon);
                 }
             }

@@ -1,4 +1,4 @@
-package org.neo4j.ogm.session.request;
+package org.neo4j.ogm.session.transaction;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -14,18 +14,18 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.transaction.LongTransaction;
-import org.neo4j.ogm.session.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionRequestHandler {
+public class TransactionManager {
 
-    private final Logger logger = LoggerFactory.getLogger(TransactionRequestHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
     private final CloseableHttpClient httpClient;
     private final String url;
 
-    public TransactionRequestHandler(CloseableHttpClient httpClient, String server) {
+    private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
+
+    public TransactionManager(CloseableHttpClient httpClient, String server) {
         this.url = transactionRequestEndpoint(server);
         this.httpClient = httpClient;
     }
@@ -33,7 +33,8 @@ public class TransactionRequestHandler {
     public Transaction openTransaction(MappingContext mappingContext) {
         String transactionEndpoint = newTransactionEndpointUrl();
         logger.info("creating new transaction with endpoint " + transactionEndpoint);
-        return new LongTransaction(mappingContext, transactionEndpoint, this);
+        transaction.set(new LongTransaction(mappingContext, transactionEndpoint, this));
+        return transaction.get();
     }
 
     public void rollback(Transaction tx) {
@@ -41,6 +42,7 @@ public class TransactionRequestHandler {
         logger.info("DELETE " + url);
         HttpDelete request = new HttpDelete(url);
         executeRequest(request);
+        transaction.remove();
     }
 
     public void commit(Transaction tx) {
@@ -49,6 +51,11 @@ public class TransactionRequestHandler {
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
         executeRequest(request);
+        transaction.remove();
+    }
+
+    public Transaction getCurrentTransaction() {
+        return transaction.get();
     }
 
     private HttpResponse executeRequest(HttpRequestBase request) {

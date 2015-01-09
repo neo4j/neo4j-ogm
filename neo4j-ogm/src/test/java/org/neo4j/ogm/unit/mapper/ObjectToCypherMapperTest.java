@@ -8,6 +8,9 @@ import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.domain.forum.Forum;
+import org.neo4j.ogm.domain.forum.ForumTopicLink;
+import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
@@ -36,7 +39,7 @@ public class ObjectToCypherMapperTest {
     public static void setUpTestDatabase() {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
         executionEngine = new ExecutionEngine(graphDatabase);
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.social");
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social");
         mappingContext = new MappingContext(mappingMetadata);
 
     }
@@ -184,7 +187,6 @@ public class ObjectToCypherMapperTest {
 
         // ensure that the domain objects are mutually established by the code
         assertTrue(waller.getTeachers().contains(jim));
-        String schoolNode = var(wallerId);
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(jim).getStatements());
 
@@ -540,6 +542,24 @@ public class ObjectToCypherMapperTest {
                 "(clara)-[:COURSES]->(english)");
     }
 
+    @Test
+    public void shouldProduceCypherForSavingNewRichRelationshipBetweenNodes() {
+        Forum forum = new Forum();
+        forum.setName("SDN FAQs");
+        Topic topic = new Topic();
+        ForumTopicLink link = new ForumTopicLink();
+        link.setForum(forum);
+        link.setTopic(topic);
+        link.setTimestamp(1647209L);
+        forum.setTopicsInForum(Arrays.asList(link));
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
+        System.err.println(cypher.getStatements().get(0).getStatement());
+        System.err.println(cypher.getStatements().get(0).getParameters());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+                + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
+    }
+
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
@@ -553,10 +573,10 @@ public class ObjectToCypherMapperTest {
 
     private void expect(String expected, ParameterisedStatements cypher) {
         assertEquals(expected, cypher.getStatements().get(0).getStatement());
-
     }
 
     private String var(Long nodeId) {
         return "$" + nodeId;
     }
+
 }

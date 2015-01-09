@@ -3,6 +3,7 @@ package org.neo4j.ogm.cypher.compiler;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines a simple API for building up Cypher queries programmatically.
@@ -14,9 +15,10 @@ public interface CypherCompiler {
      *
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship to create between the nodes
+     * @param relationshipProperties The (optional) {@code Map} containing the properties of the relationship
      * @param endNode The {@link NodeBuilder} representation of the relationship end node
      */
-    void relate(String startNode, String relationshipType, String endNode);
+    void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode);
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.

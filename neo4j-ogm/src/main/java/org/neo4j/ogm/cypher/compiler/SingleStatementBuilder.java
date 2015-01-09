@@ -18,8 +18,9 @@ public class SingleStatementBuilder implements CypherCompiler {
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
 
     @Override
-    public void relate(String startNode, String relationshipType, String endNode) {
-        newRelationships.add(new NewRelationshipBuilder(relationshipType, startNode, endNode));
+    public void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode) {
+        // TODO: add support for updating existing relationship
+        newRelationships.add(new NewRelationshipBuilder(relationshipType, relationshipProperties, startNode, endNode));
     }
 
     @Override

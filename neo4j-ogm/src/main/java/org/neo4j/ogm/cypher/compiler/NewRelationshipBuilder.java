@@ -1,6 +1,8 @@
 package org.neo4j.ogm.cypher.compiler;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class NewRelationshipBuilder implements CypherEmitter {
@@ -8,13 +10,18 @@ public class NewRelationshipBuilder implements CypherEmitter {
     private final String type;
     private final String src;
     private final String tgt;
+    private final Map<String, Object> props = new HashMap<>();
 
-    public NewRelationshipBuilder(String type, String src, String tgt) {
+    public NewRelationshipBuilder(String type, Map<String, ? extends Object> relationshipProperties, String src, String tgt) {
         this.type = type;
         this.src = src;
         this.tgt = tgt;
+        if (relationshipProperties != null) {
+            this.props.putAll(relationshipProperties);
+        }
     }
 
+    @Override
     public boolean emit(StringBuilder queryBuilder, Map<String, Object> parameters, Set<String> varStack) {
 
         if (!varStack.isEmpty()) {
@@ -45,6 +52,16 @@ public class NewRelationshipBuilder implements CypherEmitter {
         queryBuilder.append(src);
         queryBuilder.append(")-[:");
         queryBuilder.append(type);
+        if (!this.props.isEmpty()) {
+            // TODO: should update this to use query parameters properly like we do with nodes
+            queryBuilder.append(" {");
+            for (Entry<String, Object> relationshipProperty: this.props.entrySet()) {
+                if (relationshipProperty.getValue() != null) {
+                    queryBuilder.append(relationshipProperty.getKey()).append(':').append(relationshipProperty.getValue());
+                }
+            }
+            queryBuilder.append('}');
+        }
         queryBuilder.append("]->(");
         queryBuilder.append(tgt);
         queryBuilder.append(")");

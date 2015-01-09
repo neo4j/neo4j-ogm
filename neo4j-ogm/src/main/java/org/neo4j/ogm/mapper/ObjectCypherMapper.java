@@ -1,15 +1,23 @@
 package org.neo4j.ogm.mapper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.cypher.compiler.CypherCompiler;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,28 +150,55 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
 
-            // clear the relationship<s> in the current context for pre-existing objects
+            // clear the relationship<s> in the current cypher context for pre-existing objects
             // note: the mappingContext will still have this relationship entry
             if (srcIdentity != null) {
                 context.deregisterRelationships(srcIdentity, relationshipType);
             }
 
+            final Map<String, Object> relationshipParams = new HashMap<>();
+
             if (relatedObject instanceof Iterable) {
                 logger.debug("(collection)");
                 for (Object tgtObject : (Iterable<?>) relatedObject) {
-                    mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, tgtObject, context, horizon);
+                    if (isRelationshipEntity(tgtObject)) {
+                        ClassInfo relEntityClassInfo = metaData.classInfo(tgtObject.getClass().getName());
+                        AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.class.getName());
+                        // TODO: I'm sure resolving the type is already implemented somewhere else
+                        relationshipType = annotation.get("type", relEntityClassInfo.name());
+
+                        // TODO: ideally, we'd have a relationshipBuilder here, I think, but this gets called later
+                        // - how about something we just append relational information to and then send this to cypherCompiler?
+                        for (PropertyReader pf : objectAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
+                            relationshipParams.put(pf.propertyName(), pf.read(tgtObject));
+                        }
+
+                        String startNodeAttribute = "startNode"; // TODO: temporary default - will refactor this
+                        for (FieldInfo fieldInfo : relEntityClassInfo.relationshipFields()) {
+                            if (fieldInfo.getAnnotations().get(EndNode.class.getName()) != null) {
+                                startNodeAttribute = fieldInfo.getName();
+                                break;
+                            }
+                        }
+
+                        RelationalReader actualEndNodeReader = objectAccessStrategy.getRelationalReader(relEntityClassInfo, startNodeAttribute);
+                        tgtObject = actualEndNodeReader.read(tgtObject);
+                    }
+
+                    mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, relationshipParams, tgtObject, context, horizon);
                 }
             } else {
                 if (relatedObject != null && !context.visited(relatedObject)) {
                     Object tgtObject = relatedObject;
                     logger.debug("(object ref or array)");
-                    mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, tgtObject, context, horizon);
+                    // TODO: don't forget to implement relationship entity for non-collections
+                    mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationshipType, relationshipDirection, relationshipParams, tgtObject, context, horizon);
                 }
             }
         }
     }
 
-    private void mapRelatedObject(CypherCompiler cypherBuilder, NodeBuilder nodeBuilder, Object srcObject, Long srcIdentity, String relationshipType, String relationshipDirection, Object tgtObject, CypherContext context, int horizon) {
+    private void mapRelatedObject(CypherCompiler cypherBuilder, NodeBuilder nodeBuilder, Object srcObject, Long srcIdentity, String relationshipType, String relationshipDirection, Map<String, Object> relationshipProps, Object tgtObject, CypherContext context, int horizon) {
 
         NodeBuilder target = deepMap(cypherBuilder, tgtObject, context, horizon);
 
@@ -172,14 +207,14 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         // this relationship is new, because the src object or tgt object has not yet been persisted
         if (tgtIdentity == null || srcIdentity == null) {
-            maybeCreateRelationship(cypherBuilder, context, nodeBuilder.reference(), relationshipType, relationshipDirection, target.reference());
+            maybeCreateRelationship(cypherBuilder, context, nodeBuilder.reference(), relationshipType, relationshipDirection, relationshipProps, target.reference());
         } else {
             // in the case where the src object and tgt object both exist, we need to find out whether
             // the relationship we're considering was loaded previously, or if it has been created by the user
             // and so has not yet been persisted.
             MappedRelationship relationship = new MappedRelationship(srcIdentity, relationshipType, tgtIdentity);
             if (!mappingContext.isRegisteredRelationship(relationship)) {
-                maybeCreateRelationship(cypherBuilder, context, nodeBuilder.reference(), relationshipType, relationshipDirection, target.reference());
+                maybeCreateRelationship(cypherBuilder, context, nodeBuilder.reference(), relationshipType, relationshipDirection, relationshipProps, target.reference());
             }
             else {
                 // we have seen this relationship before and we don't want to ask Neo4j to re-establish
@@ -194,7 +229,8 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     // checks the relationship creation request to ensure it will be handled correctly. This includes
     // ensuring the correct direction is observed, and that a relationship with direction BOTH is created only
     // once from one of the participating nodes (rather than from both ends)
-    private void maybeCreateRelationship(CypherCompiler cypherBuilder, CypherContext context, String src, String relationshipType, String relationshipDirection, String tgt) {
+    private void maybeCreateRelationship(CypherCompiler cypherBuilder, CypherContext context, String src,
+            String relationshipType, String relationshipDirection, Map<String, Object> relationshipProps, String tgt) {
         if (relationshipDirection.equals(Relationship.BOTH)) {
             if (hasTransientRelationship(context, src, relationshipType, tgt)) {
                 return;
@@ -202,9 +238,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             relationshipDirection.equals(Relationship.OUTGOING);
         }
         if (relationshipDirection.equals(Relationship.OUTGOING)) {
-            createRelationship(cypherBuilder, context, src, relationshipType, tgt);
+            createRelationship(cypherBuilder, context, src, relationshipType, relationshipProps, tgt);
         } else {
-            createRelationship(cypherBuilder, context, tgt, relationshipType, src);
+            createRelationship(cypherBuilder, context, tgt, relationshipType, relationshipProps, src);
         }
     }
 
@@ -221,9 +257,18 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     }
 
     // establishes a new relationship creation request with the cypher compiler, and logs a new transient relationship
-    private void createRelationship(CypherCompiler cypherCompiler, CypherContext ctx, String src, String type, String tgt) {
-        cypherCompiler.relate(src, type, tgt);
+    private void createRelationship(CypherCompiler cypherCompiler, CypherContext ctx, String src, String type, Map<String, Object> properties, String tgt) {
+        cypherCompiler.relate(src, type, properties, tgt);
         ctx.log(new TransientRelationship(src, type, tgt)); // we log the new relationship as part of the transaction context.
+    }
+
+    /**
+     * Determines whether or not the given object is annotated with <code>RelationshipEntity</code> and thus shouldn't
+     * be written to a node.
+     */
+    private boolean isRelationshipEntity(Object potentialRelationshipEntity) {
+        ClassInfo classInfo = metaData.classInfo(potentialRelationshipEntity.getClass().getName());
+        return null != classInfo.annotationsInfo().get(RelationshipEntity.class.getName());
     }
 
 }

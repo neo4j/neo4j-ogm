@@ -6,7 +6,7 @@ import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import java.util.Date;
 
 //the fields here will move to Movie, this separate class exists temporarily after its tests pass
-public class ReleasedMovie extends Entity {
+public class ReleasedMovie extends AbstractAnnotatedEntity {
 
     private String title;
 

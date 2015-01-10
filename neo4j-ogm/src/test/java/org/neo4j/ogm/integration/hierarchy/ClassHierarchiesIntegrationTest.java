@@ -4,14 +4,18 @@ import com.graphaware.test.integration.WrappingServerIntegrationTest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.integration.hierarchy.domain.annotated.*;
 import org.neo4j.ogm.integration.hierarchy.domain.plain.*;
+import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.io.IOException;
 
 import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -25,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * - empty or null labels must not be allowed
  * - classes / hierarchies that are not to be persisted must be annotated with @Transient
  */
-@Ignore //todo many failures, fix pls
+@Ignore //todo many failures
 public class ClassHierarchiesIntegrationTest extends WrappingServerIntegrationTest {
 
     private Session session;
@@ -230,7 +234,59 @@ public class ClassHierarchiesIntegrationTest extends WrappingServerIntegrationTe
         assertNotNull(session.load(PlainSingleClass.class, 0L));
     }
 
-    //todo next: transient ones
+    @Test
+    public void plainChildOfTransientParent() {
+        session.save(new PlainChildOfTransientParent());
+
+        try (Transaction tx = getDatabase().beginTx()) {
+            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            tx.success();
+        }
+    }
+
+    @Test
+    public void transientChildWithPlainConcreteParent() {
+        session.save(new TransientChildWithPlainConcreteParent());
+
+        try (Transaction tx = getDatabase().beginTx()) {
+            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            tx.success();
+        }
+    }
+
+    @Test
+    public void transientSingleClass() {
+        session.save(new TransientSingleClass());
+
+        try (Transaction tx = getDatabase().beginTx()) {
+            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            tx.success();
+        }
+    }
+
+    @Test
+    public void transientSingleClassWithId() {
+        session.save(new TransientSingleClassWithId());
+
+        try (Transaction tx = getDatabase().beginTx()) {
+            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            tx.success();
+        }
+    }
+
+    @Test
+    public void plainClassWithTransientFields() {
+        PlainClassWithTransientFields toSave = new PlainClassWithTransientFields();
+        toSave.setAnotherTransientField(new PlainSingleClass());
+        toSave.setTransientField(new PlainChildOfTransientParent());
+        toSave.setYetAnotherTransientField(new PlainSingleClass());
+
+        session.save(toSave);
+
+        assertSameGraph(getDatabase(), "CREATE (:PlainClassWithTransientFields)");
+
+        assertNotNull(session.load(PlainClassWithTransientFields.class, 0L));
+    }
 
     @Test(expected = RuntimeException.class)
     //todo fix, happily loads a completely different class

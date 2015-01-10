@@ -3,6 +3,7 @@ package org.neo4j.ogm.cypher.compiler;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Implementation of {@link CypherCompiler} that builds a single query for the object graph.
@@ -14,12 +15,20 @@ public class SingleStatementBuilder implements CypherCompiler {
     private final Set<CypherEmitter> newNodes = new HashSet<>();
     private final Set<CypherEmitter> updatedNodes = new HashSet<>();
     private final Set<CypherEmitter> newRelationships = new HashSet<>();
+    private final Set<CypherEmitter> updatedRelationships = new HashSet<>();
     private final Set<CypherEmitter> deletedRelationships = new HashSet<>();
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
 
+    @Deprecated
     @Override
-    public void relate(String startNode, String relationshipType, String endNode) {
-        newRelationships.add(new NewRelationshipBuilder(relationshipType, startNode, endNode));
+    public void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode) {
+        RelationshipBuilder newRelationship = newRelationship();
+        newRelationship.type(relationshipType);
+        for (Entry<String, Object> property : relationshipProperties.entrySet()) {
+            newRelationship.addProperty(property.getKey(), property.getValue());
+        }
+        newRelationship.relate(startNode, endNode);
+        newRelationships.add(newRelationship);
     }
 
     @Override
@@ -39,6 +48,20 @@ public class SingleStatementBuilder implements CypherCompiler {
         NodeBuilder node = new ExistingNodeBuilder(this.identifiers.identifier(existingNodeId));
         this.updatedNodes.add(node);
         return node;
+    }
+
+    @Override
+    public RelationshipBuilder newRelationship() {
+        RelationshipBuilder builder = new NewRelationshipBuilder(this.identifiers.nextIdentifier());
+        this.newRelationships.add(builder);
+        return builder;
+    }
+
+    @Override
+    public RelationshipBuilder existingRelationship(Long existingRelationshipId) {
+        RelationshipBuilder builder = new ExistingRelationshipBuilder(this.identifiers.nextIdentifier(), existingRelationshipId);
+        this.updatedRelationships.add(builder);
+        return builder;
     }
 
     @Override
@@ -70,14 +93,20 @@ public class SingleStatementBuilder implements CypherCompiler {
         }
 
         for (CypherEmitter emitter : newRelationships) {
-            emitter.emit(queryBuilder, null, varStack);
+            emitter.emit(queryBuilder, parameters, varStack);
+            //TODO: if the above returns true we need to store the reference on newStack()
+            // WRITE A TEST FOR THIS FIRST
+        }
+
+        for (CypherEmitter emitter : updatedRelationships) {
+            emitter.emit(queryBuilder, parameters, varStack);
         }
 
         for (CypherEmitter emitter : deletedRelationships) {
-            emitter.emit(queryBuilder, null, varStack);
+            emitter.emit(queryBuilder, parameters, varStack);
         }
 
-        returnClause.emit(queryBuilder, null, newStack);
+        returnClause.emit(queryBuilder, parameters, newStack);
 
         return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
     }

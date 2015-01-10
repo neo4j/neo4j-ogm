@@ -3,6 +3,7 @@ package org.neo4j.ogm.cypher.compiler;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines a simple API for building up Cypher queries programmatically.
@@ -12,11 +13,14 @@ public interface CypherCompiler {
     /**
      * Defines a new relationship between the specified start node to end node with the given relationship type and direction
      *
+     * @deprecated Setting relationships should now be done through the RelationshipBuilder
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship to create between the nodes
+     * @param relationshipProperties The (optional) {@code Map} containing the properties of the relationship
      * @param endNode The {@link NodeBuilder} representation of the relationship end node
      */
-    void relate(String startNode, String relationshipType, String endNode);
+    @Deprecated
+    void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode);
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.
@@ -41,6 +45,9 @@ public interface CypherCompiler {
      * @return A {@link NodeBuilder} representing the node in the database that corresponds to the given ID
      */
     NodeBuilder existingNode(Long existingNodeId);
+
+    RelationshipBuilder newRelationship();
+    RelationshipBuilder existingRelationship(Long existingRelationshipId);
 
     /**
      * Retrieves the Cypher queries that have been built up through this {@link CypherCompiler}.

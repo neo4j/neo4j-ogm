@@ -46,7 +46,7 @@ public class MetaData {
         if (labelledClasses != null) {
             for (ClassInfo labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
-                String value = annotationInfo.get(annotationPropertyName, labelledClass.name());
+                String value = annotationInfo.get(annotationPropertyName, labelledClass.label());
                 if (value.equals(name)) {
                     return labelledClass;
                 }

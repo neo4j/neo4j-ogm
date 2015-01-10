@@ -10,8 +10,10 @@ import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.spring.integration.movies.context.PersistenceContext;
 import org.neo4j.spring.integration.movies.domain.Cinema;
 import org.neo4j.spring.integration.movies.domain.Genre;
+import org.neo4j.spring.integration.movies.domain.ReleasedMovie;
 import org.neo4j.spring.integration.movies.domain.User;
 import org.neo4j.spring.integration.movies.repo.CinemaRepository;
+import org.neo4j.spring.integration.movies.repo.EntityRepository;
 import org.neo4j.spring.integration.movies.repo.UserRepository;
 import org.neo4j.spring.integration.movies.service.UserService;
 import org.neo4j.tooling.GlobalGraphOperations;
@@ -20,10 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +44,9 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     @Autowired
     private CinemaRepository cinemaRepository;
 
+    @Autowired
+    private EntityRepository entityRepository;
+
     @Override
     protected int neoServerPort() {
         return 7879;
@@ -57,6 +59,44 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})");
         assertEquals(0L, (long) user.getId());
+    }
+
+    @Test
+    public void shouldSaveUserWithoutName() {
+        User user = new User();
+        userRepository.save(user);
+
+        assertSameGraph(getDatabase(), "CREATE (u:User)");
+        assertEquals(0L, (long) user.getId());
+    }
+
+    @Test
+    @Ignore //todo fix
+    public void shouldSaveReleasedMovie() {
+        Calendar cinemaReleaseDate = Calendar.getInstance();
+        cinemaReleaseDate.set(1994, Calendar.SEPTEMBER, 10);
+
+        Calendar cannesReleaseDate = Calendar.getInstance();
+        cannesReleaseDate.set(1994, Calendar.MAY, 12);
+
+        ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", cinemaReleaseDate.getTime(), cannesReleaseDate.getTime());
+
+        entityRepository.save(releasedMovie);
+
+        //todo assert graph contents when test passes
+    }
+
+    @Test
+    @Ignore //todo fix
+    public void shouldSaveReleasedMovie2() {
+        Calendar cannesReleaseDate = Calendar.getInstance();
+        cannesReleaseDate.set(1994, Calendar.MAY, 12);
+
+        ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", null, cannesReleaseDate.getTime());
+
+        entityRepository.save(releasedMovie);
+
+        //todo assert graph contents when test passes
     }
 
     @Test
@@ -108,6 +148,20 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         assertEquals(0L, (long) loaded.getId());
         assertEquals("Michal", loaded.getName());
+
+        assertTrue(loaded.equals(user));
+        assertTrue(loaded == user);
+    }
+
+    @Test
+    public void shouldFindUserWithoutName() {
+        User user = new User();
+        userRepository.save(user);
+
+        User loaded = userRepository.findOne(0L);
+
+        assertEquals(0L, (long) loaded.getId());
+        assertNull(loaded.getName());
 
         assertTrue(loaded.equals(user));
         assertTrue(loaded == user);

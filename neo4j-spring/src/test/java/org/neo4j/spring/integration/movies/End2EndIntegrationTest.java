@@ -130,6 +130,22 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
+    public void shouldSaveUsers2() {
+        List<User> list = new LinkedList<>();
+        list.add(new User("Michal"));
+        list.add(new User("Adam"));
+        list.add(new User("Vince"));
+
+        userRepository.save(list);
+
+        assertSameGraph(getDatabase(), "CREATE (:User {name:'Michal'})," +
+                "(:User {name:'Vince'})," +
+                "(:User {name:'Adam'})");
+
+        assertEquals(3, userRepository.count());
+    }
+
+    @Test
     public void shouldUpdateUserUsingRepository() {
         User user = userRepository.save(new User("Michal"));
         user.setName("Adam");

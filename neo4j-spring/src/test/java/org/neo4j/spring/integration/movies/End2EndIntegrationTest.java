@@ -8,12 +8,10 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.spring.integration.movies.context.PersistenceContext;
-import org.neo4j.spring.integration.movies.domain.Cinema;
-import org.neo4j.spring.integration.movies.domain.Genre;
-import org.neo4j.spring.integration.movies.domain.ReleasedMovie;
-import org.neo4j.spring.integration.movies.domain.User;
+import org.neo4j.spring.integration.movies.domain.*;
+import org.neo4j.spring.integration.movies.repo.AbstractEntityRepository;
 import org.neo4j.spring.integration.movies.repo.CinemaRepository;
-import org.neo4j.spring.integration.movies.repo.EntityRepository;
+import org.neo4j.spring.integration.movies.repo.AbstractAnnotatedEntityRepository;
 import org.neo4j.spring.integration.movies.repo.UserRepository;
 import org.neo4j.spring.integration.movies.service.UserService;
 import org.neo4j.tooling.GlobalGraphOperations;
@@ -45,7 +43,10 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     private CinemaRepository cinemaRepository;
 
     @Autowired
-    private EntityRepository entityRepository;
+    private AbstractAnnotatedEntityRepository abstractAnnotatedEntityRepository;
+
+    @Autowired
+    private AbstractEntityRepository abstractEntityRepository;
 
     @Override
     protected int neoServerPort() {
@@ -81,7 +82,7 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", cinemaReleaseDate.getTime(), cannesReleaseDate.getTime());
 
-        entityRepository.save(releasedMovie);
+        abstractAnnotatedEntityRepository.save(releasedMovie);
 
         //todo assert graph contents when test passes
     }
@@ -94,9 +95,22 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", null, cannesReleaseDate.getTime());
 
-        entityRepository.save(releasedMovie);
+        abstractAnnotatedEntityRepository.save(releasedMovie);
 
         //todo assert graph contents when test passes
+    }
+
+    @Test
+    @Ignore //todo fix
+    //there are two problems here: 1) Movie is getting AbstractEntity label which it shouldn't, 2) byte[] isn't stored as array but as a String
+    public void shouldSaveMovie() {
+        Movie movie = new Movie("Pulp Fiction");
+        movie.setTags(new String[]{"cool", "classic"});
+        movie.setImage(new byte[]{1, 2, 3});
+
+        abstractEntityRepository.save(movie);
+
+        assertSameGraph(getDatabase(), "CREATE (m:Movie {title:'Pulp Fiction', tags:['cool','classic'], image:[1,2,3]})");
     }
 
     @Test

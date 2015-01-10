@@ -567,6 +567,52 @@ public class ObjectToCypherMapperTest {
                 + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
     }
 
+    @org.junit.Ignore
+    @Test
+    public void shouldSaveCollectionOfRichRelationships() {
+        ExecutionResult executionResult = executionEngine.execute("CREATE "
+                + "(f:Forum {name:'SDN 4.x'})-[r:HAS_TOPIC]->(t:Topic) RETURN id(f) AS forumId, id(r) AS relId, id(t) AS topicId");
+        Map<String, Object> resultSet = executionResult.iterator().next();
+        Long forumId = (Long) resultSet.get("forumId");
+        Long relationshipId = (Long) resultSet.get("relId");
+        Long topicId = (Long) resultSet.get("topicId");
+
+        Forum neo4jForum = new Forum();
+        neo4jForum.setName("Neo4j Questions");
+        Topic neo4jTopicOne = new Topic();
+        Topic neo4jTopicTwo = new Topic();
+
+        Forum sdnForum = new Forum();
+        sdnForum.setId(forumId);
+        sdnForum.setName("SDN 4.x");
+        Topic sdnTopic = new Topic();
+        sdnTopic.setTopicId(topicId);
+
+        ForumTopicLink firstRelationshipEntity = new ForumTopicLink();
+        firstRelationshipEntity.setId(relationshipId);
+        firstRelationshipEntity.setForum(sdnForum); // NB these don't set bidirectionally
+        firstRelationshipEntity.setTopic(sdnTopic);
+        firstRelationshipEntity.setTimestamp(500L);
+        ForumTopicLink secondRelationshipEntity = new ForumTopicLink();
+        secondRelationshipEntity.setForum(neo4jForum);
+        secondRelationshipEntity.setTopic(neo4jTopicTwo);
+        secondRelationshipEntity.setTimestamp(750L);
+        ForumTopicLink thirdRelationshipEntity = new ForumTopicLink();
+        thirdRelationshipEntity.setForum(neo4jForum);
+        thirdRelationshipEntity.setTopic(neo4jTopicOne);
+        thirdRelationshipEntity.setTimestamp(1000L);
+        List<ForumTopicLink> linksToSave = Arrays.asList(firstRelationshipEntity, secondRelationshipEntity, thirdRelationshipEntity);
+
+        // FIXME: currently fails straight away, but do we even support mapping collections in this way?
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(linksToSave).getStatements());
+        System.err.println(cypher.getStatements().get(0).getStatement());
+        System.err.println(cypher.getStatements().get(0).getParameters());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+                + "(:Forum {name:'SDN 4.x'})-[:HAS_TOPIC {timestamp:500}]->(x:Topic), "
+                + "(f:Forum {name:'Neo4j Questions'})-[:HAS_TOPIC {timestamp:750}]->(y:Topic), "
+                + "(f)-[:HAS_TOPIC {timestamp:1000}]->(z:Topic)");
+    }
+
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());

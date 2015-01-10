@@ -146,7 +146,6 @@ public class ClassInfo {
         return collectLabels(new ArrayList<String>());
     }
 
-    // todo: we currently only set one label per class. is this a problem?
     public String label() {
         AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
         return((annotationInfo != null) ? annotationInfo.get(NodeEntity.LABEL, simpleName()) : simpleName());

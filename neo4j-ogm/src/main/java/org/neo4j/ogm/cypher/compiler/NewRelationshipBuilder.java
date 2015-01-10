@@ -53,18 +53,24 @@ class NewRelationshipBuilder extends RelationshipBuilder {
 
         queryBuilder.append(" MERGE (");
         queryBuilder.append(startNodeIdentifier);
-        queryBuilder.append(")-[:");
+        queryBuilder.append(")-[").append(this.reference).append(":`");
         queryBuilder.append(type);
+        queryBuilder.append('`');
         if (!this.props.isEmpty()) {
-            // TODO: should update this to use query parameters properly like we do with nodes
-            queryBuilder.append(" {");
+            queryBuilder.append('{');
+
+            // for MERGE, we need properties in this format: name:{_#_props}.name
+            final String propertyVariablePrefix = '{' + this.reference + "_props}.";
             for (Entry<String, Object> relationshipProperty: this.props.entrySet()) {
                 if (relationshipProperty.getValue() != null) {
-                    queryBuilder.append(relationshipProperty.getKey()).append(':').append(relationshipProperty.getValue()).append(',');
+                    queryBuilder.append(relationshipProperty.getKey()).append(':')
+                        .append(propertyVariablePrefix).append(relationshipProperty.getKey()).append(',');
                 }
             }
             queryBuilder.setLength(queryBuilder.length() - 1);
             queryBuilder.append('}');
+
+            parameters.put(this.reference + "_props", this.props);
         }
         queryBuilder.append("]->(");
         queryBuilder.append(endNodeIdentifier);

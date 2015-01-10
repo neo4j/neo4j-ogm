@@ -365,10 +365,6 @@ public class ObjectToCypherMapperTest {
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(msThompson).getStatements());
 
-        String designTechNode = var(designTech.getId());
-        String businessStudiesNode = var(businessStudies.getId());
-        String shivaniNode = var(shivani.getId());
-
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
                 "(dt)-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +

@@ -4,8 +4,10 @@ import com.graphaware.test.integration.WrappingServerIntegrationTest;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.integration.hierarchy.domain.annotated.*;
+import org.neo4j.ogm.integration.hierarchy.domain.people.*;
 import org.neo4j.ogm.integration.hierarchy.domain.plain.*;
 import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
@@ -13,16 +15,17 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
- *
+ * <p/>
  * The rules should be as follows:
- *
+ * <p/>
  * - any plain concrete class in the hierarchy generates a label by default
  * - plain abstract class does not generate a label by default
  * - any class annotated with @NodeEntity or @NodeEntity(label="something") generates a label
@@ -155,7 +158,7 @@ public class ClassHierarchiesIntegrationTest extends WrappingServerIntegrationTe
 
     @Test
     public void annotatedNamedSingleClass() {
-        session.save(new AnnotatedSingleClass());
+        session.save(new AnnotatedNamedSingleClass());
 
         assertSameGraph(getDatabase(), "CREATE (:Single)");
 
@@ -294,4 +297,215 @@ public class ClassHierarchiesIntegrationTest extends WrappingServerIntegrationTe
         session.save(new AnnotatedNamedSingleClass());
         session.load(PlainSingleClass.class, 0L);
     }
+
+    @Test
+    public void shouldSaveHierarchy() {
+        session.save(new Female("Daniela"));
+        session.save(new Male("Michal"));
+        session.save(new Bloke("Adam"));
+
+        //todo should not contain Entity labels
+        assertSameGraph(getDatabase(), "CREATE (:Female:Person:Entity {name:'Daniela'})," +
+                "(:Male:Person:Entity {name:'Michal'})," +
+                "(:Bloke:Male:Person:Entity {name:'Adam'})");
+    }
+
+    @Test
+    public void shouldSaveHierarchy2() {
+        session.save(Arrays.asList(new Female("Daniela"), new Male("Michal"), new Bloke("Adam")));
+
+        //todo should not contain Entity labels
+        assertSameGraph(getDatabase(), "CREATE (:Female:Person:Entity {name:'Daniela'})," +
+                "(:Male:Person:Entity {name:'Michal'})," +
+                "(:Bloke:Male:Person:Entity {name:'Adam'})");
+    }
+
+    @Test
+    public void shouldReadHierarchy() {
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        session.save(Arrays.asList(daniela, michal, adam));
+
+        Collection<Entity> entities = session.loadAll(Entity.class);
+        Collection<Person> people = session.loadAll(Person.class);
+        Collection<Male> males = session.loadAll(Male.class);
+        Collection<Female> females = session.loadAll(Female.class);
+        Collection<Bloke> blokes = session.loadAll(Bloke.class);
+
+        assertEquals(3, entities.size());
+        assertTrue(entities.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(3, people.size());
+        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(2, males.size());
+        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+
+        assertEquals(1, females.size());
+        assertTrue(females.contains(daniela));
+
+        assertEquals(1, blokes.size());
+        assertTrue(blokes.contains(adam));
+    }
+
+    @Test
+    public void shouldReadHierarchy2() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person:Entity {name:'Daniela'})," +
+                "(:Male:Person:Entity {name:'Michal'})," +
+                "(:Bloke:Male:Person:Entity {name:'Adam'})");
+
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        Collection<Entity> entities = session.loadAll(Entity.class);
+        Collection<Person> people = session.loadAll(Person.class);
+        Collection<Male> males = session.loadAll(Male.class);
+        Collection<Female> females = session.loadAll(Female.class);
+        Collection<Bloke> blokes = session.loadAll(Bloke.class);
+
+        assertEquals(3, entities.size());
+        assertTrue(entities.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(3, people.size());
+        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(2, males.size());
+        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+
+        assertEquals(1, females.size());
+        assertTrue(females.contains(daniela));
+
+        assertEquals(1, blokes.size());
+        assertTrue(blokes.contains(adam));
+    }
+
+    @Test
+    public void shouldReadHierarchy3() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})," +
+                "(:Male:Person {name:'Michal'})," +
+                "(:Bloke:Male:Person {name:'Adam'})");
+
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        Collection<Entity> entities = session.loadAll(Entity.class);
+        Collection<Person> people = session.loadAll(Person.class);
+        Collection<Male> males = session.loadAll(Male.class);
+        Collection<Female> females = session.loadAll(Female.class);
+        Collection<Bloke> blokes = session.loadAll(Bloke.class);
+
+        assertEquals(3, entities.size());
+        assertTrue(entities.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(3, people.size());
+        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(2, males.size());
+        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+
+        assertEquals(1, females.size());
+        assertTrue(females.contains(daniela));
+
+        assertEquals(1, blokes.size());
+        assertTrue(blokes.contains(adam));
+    }
+
+    @Test
+    public void shouldReadHierarchy4() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Female {name:'Daniela'})," +
+                "(:Male {name:'Michal'})," +
+                "(:Bloke:Male {name:'Adam'})");
+
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        Collection<Entity> entities = session.loadAll(Entity.class);
+        Collection<Person> people = session.loadAll(Person.class);
+        Collection<Male> males = session.loadAll(Male.class);
+        Collection<Female> females = session.loadAll(Female.class);
+        Collection<Bloke> blokes = session.loadAll(Bloke.class);
+
+        assertEquals(3, entities.size());
+        assertTrue(entities.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(3, people.size());
+        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(2, males.size());
+        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+
+        assertEquals(1, females.size());
+        assertTrue(females.contains(daniela));
+
+        assertEquals(1, blokes.size());
+        assertTrue(blokes.contains(adam));
+    }
+
+    @Test
+    public void shouldReadHierarchy5() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Female {name:'Daniela'})," +
+                "(:Male {name:'Michal'})," +
+                "(:Bloke {name:'Adam'})");
+
+        Female daniela = new Female("Daniela");
+        Male michal = new Male("Michal");
+        Bloke adam = new Bloke("Adam");
+
+        Collection<Entity> entities = session.loadAll(Entity.class);
+        Collection<Person> people = session.loadAll(Person.class);
+        Collection<Male> males = session.loadAll(Male.class);
+        Collection<Female> females = session.loadAll(Female.class);
+        Collection<Bloke> blokes = session.loadAll(Bloke.class);
+
+        assertEquals(3, entities.size());
+        assertTrue(entities.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(3, people.size());
+        assertTrue(people.containsAll(Arrays.asList(daniela, michal, adam)));
+
+        assertEquals(2, males.size());
+        assertTrue(males.containsAll(Arrays.asList(michal, adam)));
+
+        assertEquals(1, females.size());
+        assertTrue(females.contains(daniela));
+
+        assertEquals(1, blokes.size());
+        assertTrue(blokes.contains(adam));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldNotReadHierarchy() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Person {name:'Daniela'})");
+
+        session.loadAll(Person.class);
+    }
+
+    @Test
+    public void shouldLeaveExistingLabelsAlone() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person:GoldMember {name:'Daniela'})");
+
+        session.save(session.load(Person.class, 0L));
+
+        assertSameGraph(getDatabase(), "CREATE (:Female:Person:GoldMember {name:'Daniela'})");
+    }
+
+    //this should throw an exception, but for a different reason than it does now!
+    @Test//(expected = RuntimeException.class)
+    public void shouldFailWithConflictingHierarchies() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})");
+
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.integration.hierarchy.conflicting");
+        session = sessionFactory.openSession("http://localhost:" + 7896);
+
+        session.loadAll(Person.class);
+    }
+
+    //todo interfaces in domain objects
+
+
 }

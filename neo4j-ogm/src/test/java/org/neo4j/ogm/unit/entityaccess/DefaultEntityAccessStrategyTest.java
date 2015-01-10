@@ -19,9 +19,9 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-public class DefaultObjectAccessStrategyTest {
+public class DefaultEntityAccessStrategyTest {
 
-    private DefaultEntityAccessStrategy objectAccessStrategy = new DefaultEntityAccessStrategy();
+    private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
     private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.unit.entityaccess",
             "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.satellites");
 
@@ -29,7 +29,7 @@ public class DefaultObjectAccessStrategyTest {
     public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenFindingPropertyToSet() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "testAnnoProp");
+        EntityAccess objectAccess = this.entityAccessStrategy.getPropertyWriter(classInfo, "testAnnoProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -43,7 +43,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
-        EntityAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "testProp");
+        EntityAccess objectAccess = this.entityAccessStrategy.getPropertyWriter(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -55,7 +55,7 @@ public class DefaultObjectAccessStrategyTest {
     public void shouldReturnAccessorMethodInPreferenceToFieldIfNoAnnotationsArePresent() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getPropertyWriter(classInfo, "nonAnnotatedTestProperty");
+        EntityAccess objectAccess = this.entityAccessStrategy.getPropertyWriter(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -72,13 +72,13 @@ public class DefaultObjectAccessStrategyTest {
         domainObject.propertyWithoutAccessorMethods = 9;
 
         // test writing via field
-        EntityAccess writer = this.objectAccessStrategy.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
+        EntityAccess writer = this.entityAccessStrategy.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant writer shouldn't be null", writer);
         writer.write(domainObject, 27);
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);
 
         // test reading via field
-        PropertyReader reader = this.objectAccessStrategy.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
+        PropertyReader reader = this.entityAccessStrategy.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant reader shouldn't be null", reader);
         assertEquals(domainObject.propertyWithoutAccessorMethods, reader.read(domainObject));
    }
@@ -88,7 +88,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
         // TODO: this supports the behaviour required currently, but what happens if there's more than one collection of X?
-        EntityAccess iterableAccess = this.objectAccessStrategy.getIterableWriter(classInfo, Satellite.class);
+        EntityAccess iterableAccess = this.entityAccessStrategy.getIterableWriter(classInfo, Satellite.class);
         assertNotNull("The resultant object accessor shouldn't be null", iterableAccess);
         Program spaceProgramme = new Program();
         iterableAccess.write(spaceProgramme, Arrays.asList(new Satellite()));
@@ -103,7 +103,7 @@ public class DefaultObjectAccessStrategyTest {
         Satellite singleSatellite = new Satellite();
 
         // the SATELLITES type matches the setter that takes an Iterable argument
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "SATELLITES", singleSatellite);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SATELLITES", singleSatellite);
         assertNull("A compatible object accessor shouldn't have been found", objectAccess);
     }
 
@@ -113,7 +113,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
         List<? extends Activity> parameter = Arrays.asList(new Comment());
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "HAS_ACTIVITY", parameter);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "HAS_ACTIVITY", parameter);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodWriter);
         Member member = new Member();
@@ -128,7 +128,7 @@ public class DefaultObjectAccessStrategyTest {
 
         Member parameter = new Member();
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "CONTAINS", parameter);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "CONTAINS", parameter);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, parameter);
@@ -143,7 +143,7 @@ public class DefaultObjectAccessStrategyTest {
         Location satelliteLocation = new Location();
         satelliteLocation.setName("Outer Space");
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "LOCATION", satelliteLocation);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LOCATION", satelliteLocation);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodWriter);
         Satellite satellite = new Satellite();
@@ -158,7 +158,7 @@ public class DefaultObjectAccessStrategyTest {
         Topic favouriteTopic = new Topic();
 
         // NB: the setter is called setTopic here, so a relationship type of just "TOPIC" would choose the setter
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", favouriteTopic);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -172,7 +172,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Topic favouriteTopic = new Topic();
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "DOES_NOT_MATCH", favouriteTopic);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "DOES_NOT_MATCH", favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -186,7 +186,7 @@ public class DefaultObjectAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Post forumPost = new Post();
 
-        EntityAccess objectAccess = this.objectAccessStrategy.getRelationalWriter(classInfo, "UTTER_RUBBISH", forumPost);
+        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "UTTER_RUBBISH", forumPost);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, forumPost);
@@ -200,7 +200,7 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.fullyAnnotatedProperty = "test text";
 
-        PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "testAnnoProp");
+        PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "testAnnoProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.fullyAnnotatedProperty, objectAccess.read(domainObject));
         assertTrue("The accessor method wasn't used to get the value", domainObject.fullyAnnotatedPropertyAccessorWasCalled);
@@ -213,7 +213,7 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.annotatedTestProperty = "more arbitrary text";
 
-        PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "testProp");
+        PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.annotatedTestProperty, objectAccess.read(domainObject));
     }
@@ -225,7 +225,7 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.nonAnnotatedTestProperty = new Double(30.16);
 
-        PropertyReader objectAccess = this.objectAccessStrategy.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
+        PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.read(domainObject));
     }
@@ -236,7 +236,7 @@ public class DefaultObjectAccessStrategyTest {
         Member member = new Member();
         member.setActivityList(Arrays.<Activity>asList(new Comment()));
 
-        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY");
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
         assertSame(member.getActivityList(), reader.read(member));
@@ -250,7 +250,7 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.member = new Member();
 
-        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "CONTAINS");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "CONTAINS");
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertSame(domainObject.member, reader.read(domainObject));
         assertEquals("CONTAINS", reader.relationshipType());
@@ -265,7 +265,7 @@ public class DefaultObjectAccessStrategyTest {
         satelliteLocation.setName("Outer Space");
         satellite.setLocation(satelliteLocation);
 
-        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "LOCATION");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "LOCATION");
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
         assertSame(satellite.getLocation(), reader.read(satellite));
@@ -279,7 +279,7 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.postWithoutAccessorMethods = new Post();
 
-        RelationalReader reader = this.objectAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS");
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
@@ -293,7 +293,7 @@ public class DefaultObjectAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.setId(id);
 
-        PropertyReader idReader = this.objectAccessStrategy.getIdentityPropertyReader(classInfo);
+        PropertyReader idReader = this.entityAccessStrategy.getIdentityPropertyReader(classInfo);
         assertNotNull("The resultant ID reader shouldn't be null", idReader);
         assertEquals(id, idReader.read(domainObject));
     }
@@ -308,7 +308,7 @@ public class DefaultObjectAccessStrategyTest {
         domainObject.member = new Member();
         domainObject.readOnlyComment = new Comment();
 
-        Collection<RelationalReader> relationalAccessors = this.objectAccessStrategy.getRelationalReaders(classInfo);
+        Collection<RelationalReader> relationalAccessors = this.entityAccessStrategy.getRelationalReaders(classInfo);
         assertNotNull("The resultant list of object accessors shouldn't be null", relationalAccessors);
         assertEquals("An unexpected number of accessors was returned", 4, relationalAccessors.size());
 

@@ -13,7 +13,7 @@ public interface CypherCompiler {
     /**
      * Defines a new relationship between the specified start node to end node with the given relationship type and direction
      *
-     * @deprecated Setting relationships should now be done through the RelationshipBuilder
+     * @deprecated Setting relationships should now be done through the {@link RelationshipBuilder}
      * @param startNode The {@link NodeBuilder} representation of the relationship start node
      * @param relationshipType The type of relationship to create between the nodes
      * @param relationshipProperties The (optional) {@code Map} containing the properties of the relationship
@@ -46,7 +46,20 @@ public interface CypherCompiler {
      */
     NodeBuilder existingNode(Long existingNodeId);
 
+    /**
+     * Returns a {@link RelationshipBuilder} to use for constructing Cypher for writing a new relationship to the database.
+     *
+     * @return A new {@link RelationshipBuilder}
+     */
     RelationshipBuilder newRelationship();
+
+    /**
+     * Returns a {@link RelationshipBuilder} to use for constructing Cypher to update an existing relationship in the database
+     * that possesses the given ID.
+     *
+     * @param existingRelationshipId The ID of the relationship in the database, which shouldn't be <code>null</code>
+     * @return A new {@link RelationshipBuilder} bound to the identified relationship
+     */
     RelationshipBuilder existingRelationship(Long existingRelationshipId);
 
     /**

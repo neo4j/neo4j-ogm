@@ -7,7 +7,7 @@ import org.neo4j.ogm.cypher.compiler.CypherCompiler;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
-import org.neo4j.ogm.cypher.compiler.SingleStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.SingleStatementCypherCompiler;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -50,7 +50,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             throw new NullPointerException("Cannot map null root object");
         }
 
-        CypherCompiler cypherBuilder = new SingleStatementBuilder();
+        CypherCompiler cypherBuilder = new SingleStatementCypherCompiler();
         CypherContext context = new CypherContext();
 
         // add all the relationships we know about:

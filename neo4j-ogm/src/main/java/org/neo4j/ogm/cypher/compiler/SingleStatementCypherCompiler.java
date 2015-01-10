@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 /**
  * Implementation of {@link CypherCompiler} that builds a single query for the object graph.
  */
-public class SingleStatementBuilder implements CypherCompiler {
+public class SingleStatementCypherCompiler implements CypherCompiler {
 
     private final IdentifierManager identifiers = new IdentifierManager();
 

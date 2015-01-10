@@ -185,9 +185,32 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
                 if (relatedObject != null && !context.visited(relatedObject)) {
                     Object tgtObject = relatedObject;
                     logger.debug("(object ref or array)");
-                    // TODO: still need to properly implement relationship entity here for non-collections
-                    RelationshipBuilder relationship = cypherBuilder.newRelationship()
-                            .direction(relationshipDirection).type(relationshipType);
+
+                    //TODO: exactly t'same code as for iterable handling above - refactor
+                    final RelationshipBuilder relationship;
+                    if (isRelationshipEntity(tgtObject)) {
+                        ClassInfo relEntityClassInfo = metaData.classInfo(tgtObject.getClass().getName());
+                        Long relId = (Long) objectAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).read(tgtObject);
+
+                        // only if it's a relationship entity and it's got an ID then we need to to an update
+                        relationship = relId != null
+                                ? cypherBuilder.existingRelationship(relId)
+                                : cypherBuilder.newRelationship();
+
+                        AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+                        relationship.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
+
+                        for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
+                            relationship.addProperty(propertyReader.propertyName(), propertyReader.read(tgtObject));
+                        }
+
+                        RelationalReader actualEndNodeReader = objectAccessStrategy.getEndNodeReader(relEntityClassInfo);
+                        tgtObject = actualEndNodeReader.read(tgtObject);
+                    } else {
+                        relationship = cypherBuilder.newRelationship().type(relationshipType);
+                    }
+                    relationship.direction(relationshipDirection);
+
                     mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationship, tgtObject, context, horizon);
                 }
             }

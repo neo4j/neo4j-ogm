@@ -2,7 +2,6 @@ package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.cypher.compiler.CypherCompiler;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.compiler.NodeBuilder;
@@ -15,7 +14,6 @@ import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,16 +172,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
                             relationship.addProperty(propertyReader.propertyName(), propertyReader.read(tgtObject));
                         }
 
-                        // TODO: temporary default - will refactor this onto EntityAccessStrategy, probably
-                        String startNodeAttribute = "startNode";
-                        for (FieldInfo fieldInfo : relEntityClassInfo.relationshipFields()) {
-                            if (fieldInfo.getAnnotations().get(EndNode.class.getName()) != null) {
-                                startNodeAttribute = fieldInfo.getName();
-                                break;
-                            }
-                        }
-
-                        RelationalReader actualEndNodeReader = objectAccessStrategy.getRelationalReader(relEntityClassInfo, startNodeAttribute);
+                        RelationalReader actualEndNodeReader = objectAccessStrategy.getEndNodeReader(relEntityClassInfo);
                         tgtObject = actualEndNodeReader.read(tgtObject);
                     } else {
                         relationship = cypherBuilder.newRelationship().type(relationshipType);

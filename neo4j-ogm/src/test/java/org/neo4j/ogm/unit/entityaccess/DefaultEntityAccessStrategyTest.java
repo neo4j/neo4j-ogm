@@ -3,6 +3,7 @@ package org.neo4j.ogm.unit.entityaccess;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.forum.activity.Activity;
@@ -324,6 +325,25 @@ public class DefaultEntityAccessStrategyTest {
             assertEquals(expectedRelationalReaders.get(relType), objectAccess.getClass());
             assertNotNull(objectAccess.read(domainObject));
         }
+    }
+
+    @Test
+    public void shouldRetrieveAppropriateObjectAccessToEndNodeAttributeOnRelationshipEntity() {
+        ClassInfo relationshipEntityClassInfo = domainInfo.getClass(ForumTopicLink.class.getName());
+
+        RelationalReader endNodeReader = this.entityAccessStrategy.getEndNodeReader(relationshipEntityClassInfo);
+        assertNotNull("The resultant end node reader shouldn't be null", endNodeReader);
+
+        ForumTopicLink forumTopicLink = new ForumTopicLink();
+        Topic topic = new Topic();
+        forumTopicLink.setTopic(topic);
+        assertSame("The value wasn't read correctly", topic, endNodeReader.read(forumTopicLink));
+    }
+
+    @Test
+    public void shouldReturnNullOnAttemptToAccessNonExistentEndNodeAttributeOnRelationshipEntity() {
+        ClassInfo classInfoOfNonRelationshipEntity = domainInfo.getClass(Member.class.getName());
+        assertNull(this.entityAccessStrategy.getEndNodeReader(classInfoOfNonRelationshipEntity));
     }
 
     /**

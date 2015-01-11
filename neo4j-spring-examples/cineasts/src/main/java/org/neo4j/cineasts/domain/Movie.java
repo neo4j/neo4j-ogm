@@ -4,36 +4,39 @@ import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.index.impl.lucene.IndexType;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.*;
 
 import static org.neo4j.graphdb.Direction.INCOMING;
 
-
 @NodeEntity
 public class Movie {
+
     @GraphId
-    Long nodeId;
+    private Long nodeId;
 
-    @Indexed(unique = true)
-    String id;
+    //    @Indexed(unique = true)
+    private String id;
 
-    @Indexed(indexType= IndexType.FULLTEXT, indexName = "search")
-    String title;
+    //    @Indexed(indexType= IndexType.FULLTEXT, indexName = "search")
+    private String title;
 
-    String description;
+    private String description;
 
-    @RelatedTo(type="DIRECTED", direction = INCOMING)
-    Set<Director> directors;
+    @Relationship(type = "DIRECTED", direction = Relationship.INCOMING)
+    private Set<Director> directors;
 
-    @RelatedTo(type = "ACTS_IN", direction = INCOMING)
-    Set<Actor> actors;
+    @Relationship(type = "ACTS_IN", direction = Relationship.INCOMING)
+    private Set<Actor> actors;
 
-    @RelatedToVia(type = "ACTS_IN", direction = INCOMING)
-    Iterable<Role> roles;
+    @Relationship(type = "ACTS_IN", direction = Relationship.INCOMING)
+    private Iterable<Role> roles;
 
-    @RelatedToVia(type = "RATED", direction = INCOMING)
-    @Fetch Iterable<Rating> ratings;
+    @Relationship(type = "RATED", direction = Relationship.INCOMING)
+    //todo demonstrate @Fetch on this when available
+    private Set<Rating> ratings;
+
     private String language;
     private String imdbId;
     private String tagline;
@@ -64,7 +67,7 @@ public class Movie {
     }
 
     public int getYear() {
-        if (releaseDate==null) return 0;
+        if (releaseDate == null) return 0;
         Calendar cal = Calendar.getInstance();
         cal.setTime(releaseDate);
         return cal.get(Calendar.YEAR);
@@ -91,21 +94,24 @@ public class Movie {
         Iterable<Rating> allRatings = ratings;
 
         if (allRatings == null) return 0;
-        int stars=0, count=0;
+        int stars = 0, count = 0;
         for (Rating rating : allRatings) {
             stars += rating.getStars();
             count++;
         }
-        return count==0 ? 0 : stars / count;
+        return count == 0 ? 0 : stars / count;
     }
 
-    public Collection<Rating> getRatings() {
-        Iterable<Rating> allRatings = ratings;
-        return allRatings == null ? Collections.<Rating>emptyList() : IteratorUtil.asCollection(allRatings);
+    public void addRating(Rating rating) {
+        ratings.add(rating);
+    }
+
+    public Set<Rating> getRatings() {
+        return ratings;
     }
 
     public void setTitle(String title) {
-        this.title=title;
+        this.title = title;
     }
 
     public void setLanguage(String language) {
@@ -210,10 +216,10 @@ public class Movie {
 
     public String getYoutubeId() {
         String trailerUrl = trailer;
-        if (trailerUrl==null || !trailerUrl.contains("youtu")) return null;
+        if (trailerUrl == null || !trailerUrl.contains("youtu")) return null;
         String[] parts = trailerUrl.split("[=/]");
         int numberOfParts = parts.length;
-        return numberOfParts > 0 ? parts[numberOfParts-1] : null;
+        return numberOfParts > 0 ? parts[numberOfParts - 1] : null;
     }
 
     @Override

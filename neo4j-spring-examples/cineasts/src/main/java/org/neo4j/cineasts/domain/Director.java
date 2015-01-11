@@ -1,6 +1,6 @@
 package org.neo4j.cineasts.domain;
 
-import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,7 @@ public class Director extends Person {
     public Director() {
     }
 
-    @RelatedTo(elementClass = Movie.class, type = "DIRECTED")
+    @Relationship(type = "DIRECTED")
     private Set<Movie> directedMovies=new HashSet<Movie>();
 
     public Director(String id) {

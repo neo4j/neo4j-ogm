@@ -10,9 +10,9 @@ import java.util.Date;
 public class Person {
     @GraphId
     Long nodeId;
-    @Indexed(unique=true)
+//    @Indexed(unique=true)
     String id;
-    @Indexed(indexType= IndexType.FULLTEXT, indexName = "people")
+//    @Indexed(indexType= IndexType.FULLTEXT, indexName = "people")
     String name;
     private Date birthday;
     private String birthplace;

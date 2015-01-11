@@ -1,13 +1,19 @@
 package org.neo4j.cineasts.domain;
 
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 @RelationshipEntity(type = "ACTS_IN")
 public class Role {
+
     @GraphId
     Long id;
-    @EndNode Movie movie;
-    @StartNode Actor actor;
+    @EndNode
+    Movie movie;
+    @StartNode
+    Actor actor;
 
     String name;
 

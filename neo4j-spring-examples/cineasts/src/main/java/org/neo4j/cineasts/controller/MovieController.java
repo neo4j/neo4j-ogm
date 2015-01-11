@@ -3,6 +3,7 @@ package org.neo4j.cineasts.controller;
 import org.neo4j.cineasts.domain.*;
 import org.neo4j.cineasts.repository.MovieRepository;
 import org.neo4j.cineasts.repository.ActorRepository;
+import org.neo4j.cineasts.repository.RatingRepository;
 import org.neo4j.cineasts.repository.UserRepository;
 import org.neo4j.cineasts.service.DatabasePopulator;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,9 @@ public class MovieController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    Neo4jOperations template;
+    private RatingRepository ratingRepository;
+    @Autowired
+    Neo4jTemplate template;
     @Autowired
     private DatabasePopulator populator;
     private static final Logger log = LoggerFactory.getLogger(MovieController.class);
@@ -55,7 +58,7 @@ public class MovieController {
             final int stars = movie.getStars();
             model.addAttribute("stars", stars);
             Rating rating = null;
-            if (user != null) rating = template.getRelationshipBetween(movie, user, Rating.class, "RATED");
+            if (user != null) rating = ratingRepository.findRating(user, movie);
             if (rating == null) rating = new Rating().rate(stars, null);
             model.addAttribute("userRating", rating);
         }

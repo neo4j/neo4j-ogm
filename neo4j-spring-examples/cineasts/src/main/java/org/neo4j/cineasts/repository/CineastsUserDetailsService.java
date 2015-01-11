@@ -9,11 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author mh
- * @since 08.11.11
- */
 public interface CineastsUserDetailsService extends UserDetailsService {
+
     @Override
     CineastsUserDetails loadUserByUsername(String login) throws UsernameNotFoundException, DataAccessException;
 

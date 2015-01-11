@@ -525,11 +525,8 @@ public class MetaDataTest {
     }
 
     @Test
-    /**
-     * A subclass will be resolved from a superclass if it is a unique leaf class in the type hierarchy
-     */
     public void testLiskovSubstitutionPrinciple() {
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Login").name());
+        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Member").name());
         assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Login", "Member").name());
     }
 
@@ -557,7 +554,7 @@ public class MetaDataTest {
         ClassInfo simpleClassInfo = metaData.classInfo("Topic");
         assertEquals(Arrays.asList("Topic"), simpleClassInfo.labels());
 
-        // test with class hierarchy that's completely void of annotations
+
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.domain.education").classInfo(Student.class.getSimpleName());
         assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
     }

@@ -63,16 +63,30 @@ public class MetaData {
      * @return The ClassInfo representing the base class among the taxa or <code>null</code> if it cannot be found
      */
     public ClassInfo resolve(String... taxa) {
+
         if (taxa.length > 0) {
             Set<ClassInfo> baseClasses = new HashSet<>();
             for (String taxon : taxa) {
                 ClassInfo taxonClassInfo = classInfo(taxon);
                 if (taxonClassInfo != null) {
-                    ClassInfo baseClassInfo = resolveBaseClass(taxonClassInfo, taxonClassInfo.directSubclasses());
-                    if (baseClassInfo != null) {
-                        baseClasses.add(baseClassInfo);
+                    ClassInfo superclassInfo = classInfo(taxonClassInfo.superclassName());
+                    // if this class's superclass has already been registered, simply replace
+                    // the superclass entry with the subclass entry. this is safe to do
+                    // because by definition, the superclass must have a single-inheritance
+                    // subclass-chain in order to have been registered.
+                    if (baseClasses.contains(superclassInfo)) {
+                        baseClasses.remove(superclassInfo);
+                        baseClasses.add(taxonClassInfo);
+                    } else {
+                        // ensure this class has either no subclasses or is the superclass of a single-inheritance subclass-chain
+                        ClassInfo baseClassInfo = findSingleBaseClass(taxonClassInfo, taxonClassInfo.directSubclasses());
+                        if (baseClassInfo != null) {
+                            // we don't care what the base class at the end of the chain is, we register the
+                            // taxon class now.
+                            baseClasses.add(taxonClassInfo);
+                        }
                     }
-                }
+                } // not found, try again
             }
             if (baseClasses.size() > 1) {
                 LOGGER.info("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
@@ -85,7 +99,7 @@ public class MetaData {
         return null;
     }
 
-    private ClassInfo resolveBaseClass(ClassInfo fqn, List<ClassInfo> classInfoList) {
+    private ClassInfo findSingleBaseClass(ClassInfo fqn, List<ClassInfo> classInfoList) {
         if (classInfoList.isEmpty()) {
             return fqn;
         }
@@ -94,7 +108,7 @@ public class MetaData {
             return null;
         }
         ClassInfo classInfo = classInfoList.iterator().next();
-        return resolveBaseClass(classInfo, classInfo.directSubclasses());
+        return findSingleBaseClass(classInfo, classInfo.directSubclasses());
 
     }
 

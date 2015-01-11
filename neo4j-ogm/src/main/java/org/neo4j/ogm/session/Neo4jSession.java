@@ -12,7 +12,10 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Property;
-import org.neo4j.ogm.session.request.*;
+import org.neo4j.ogm.session.request.DefaultRequest;
+import org.neo4j.ogm.session.request.Neo4jRequest;
+import org.neo4j.ogm.session.request.RequestHandler;
+import org.neo4j.ogm.session.request.SessionRequestHandler;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.response.Neo4jResponse;
@@ -25,9 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Neo4jSession implements Session {
 
@@ -171,36 +172,80 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T> void save(T object) {
-        save(object, -1); // default : full tree of changed objects
+        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+            saveAll(object, -1);
+        } else {
+            save(object, -1); // default : full tree of changed objects
+        }
+    }
+
+    private <T> void saveAll(T object, int depth) {
+        List<T> list;
+        if (object.getClass().isArray()) {
+            list = Arrays.asList(object);
+        } else {
+            list = (List<T>) object;
+        }
+        for (T element : list) {
+            save(element, depth);
+        }
+    }
+
+    private <T> void deleteAll(T object) {
+        List<T> list;
+        if (object.getClass().isArray()) {
+            list = Arrays.asList(object);
+        } else {
+            list = (List<T>) object;
+        }
+        for (T element : list) {
+            delete(element);
+        }
     }
 
     @Override
     public <T> void save(T object, int depth) {
-        Transaction tx = getOrCreateTransaction();
-        CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
-        try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
-            getResponseHandler().updateObjects(context, response, mapper);
-            tx.append(context);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+            saveAll(object, depth);
+        } else {
+            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            if (classInfo != null) {
+                Transaction tx = getOrCreateTransaction();
+                CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
+                try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
+                    getResponseHandler().updateObjects(context, response, mapper);
+                    tx.append(context);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                logger.info(object.getClass().getName() + " is not an instance of a persistable class");
+            }
         }
     }
 
     @Override
     public <T> void delete(T object) {
-
-        ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
-        Field identityField = classInfo.getField(classInfo.identityField());
-        Long identity = (Long) FieldWriter.read(identityField, object);
-        if (identity != null) {
-            String url = getOrCreateTransaction().url();
-            ParameterisedStatement request = new DeleteStatements().delete(identity);
-            try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
-                // nothing to process on the response - looks a bit odd.
-                // should be done on commit?? when do these objects disappear?
-                mappingContext.deregister(object, identity);
-                // maybe should also remove relationships associated with this object, but won't matter if not;
+        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+            deleteAll(object);
+        } else {
+            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            if (classInfo != null) {
+                Field identityField = classInfo.getField(classInfo.identityField());
+                Long identity = (Long) FieldWriter.read(identityField, object);
+                if (identity != null) {
+                    String url = getOrCreateTransaction().url();
+                    ParameterisedStatement request = new DeleteStatements().delete(identity);
+                    try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
+                        // nothing to process on the response - looks a bit odd.
+                        // should be done on commit?? when do these objects disappear?
+                        mappingContext.deregister(object, identity);
+                        // maybe should also remove relationships associated with this object, but won't matter if not;
+                    }
+                }
+            } else {
+                logger.info(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
     }
@@ -208,13 +253,16 @@ public class Neo4jSession implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        //todo if classInfo == null...
-        String url = getOrCreateTransaction().url();
-        ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
-        try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
-            // should be done on commit.
-            mappingContext.getAll(type).clear();
-            mappingContext.mappedRelationships().clear(); // not the real deal
+        if (classInfo != null) {
+            String url = getOrCreateTransaction().url();
+            ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
+            try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
+                // should be done on commit.
+                mappingContext.getAll(type).clear();
+                mappingContext.mappedRelationships().clear(); // not the real deal
+            }
+        } else {
+            logger.info(type.getName() + " is not a persistable class");
         }
     }
 

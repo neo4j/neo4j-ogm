@@ -1,9 +1,6 @@
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.metadata.MappingException;
 
 import java.io.BufferedInputStream;
@@ -33,11 +30,14 @@ import java.util.*;
  */
 public class ClassInfo {
 
-    private String className;
     private int majorVersion;
     private int minorVersion;
+
+    private String className;
     private String directSuperclassName;
+
     private boolean isInterface;
+    private boolean isAbstract;
     private boolean isEnum;
     private boolean hydrated;
 
@@ -69,7 +69,9 @@ public class ClassInfo {
 
         // Access flags
         int flags = dataInputStream.readUnsignedShort();
+
         isInterface = (flags & 0x0200) != 0;
+        isAbstract = (flags & 0x0400) != 0;
         isEnum = (flags & 0x4000) != 0;
 
         className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
@@ -77,7 +79,6 @@ public class ClassInfo {
         if (sce != null) {
             directSuperclassName = sce.replace('/', '.');
         }
-
         interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
         fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
@@ -86,14 +87,20 @@ public class ClassInfo {
 
     }
 
-    /** A class that was previously only seen as a superclass of another class can now be fully hydrated. */
-    public void hydrate(ClassInfo classInfo) {
+    /** A class that was previously only seen as a temp superclass of another class can now be fully hydrated. */
+    public void hydrate(ClassInfo classInfoDetails) {
        if (!this.hydrated) {
             this.hydrated = true;
-            this.interfaces.addAll(classInfo.interfaces());
-            this.annotationsInfo.append(classInfo.annotationsInfo());
-            this.fieldsInfo.append(classInfo.fieldsInfo());
-            this.methodsInfo.append(classInfo.methodsInfo());
+
+            this.isAbstract = classInfoDetails.isAbstract;
+            this.isInterface = classInfoDetails.isInterface;
+            this.isEnum = classInfoDetails.isEnum;
+            this.directSuperclassName = classInfoDetails.directSuperclassName;
+
+            this.interfaces.addAll(classInfoDetails.interfaces());
+            this.annotationsInfo.append(classInfoDetails.annotationsInfo());
+            this.fieldsInfo.append(classInfoDetails.fieldsInfo());
+            this.methodsInfo.append(classInfoDetails.methodsInfo());
        }
     }
 
@@ -152,7 +159,9 @@ public class ClassInfo {
     }
 
     private Collection<String> collectLabels(Collection<String> labelNames) {
-        labelNames.add(label());
+        if (!isAbstract || annotationsInfo.get(NodeEntity.CLASS) != null) {
+            labelNames.add(label());
+        }
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
             directSuperclass.collectLabels(labelNames);
         }
@@ -235,7 +244,6 @@ public class ClassInfo {
         Set<FieldInfo> fieldInfos = new HashSet<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (!fieldInfo.getName().equals(identityField.getName())) {
-                // todo: when building fieldInfos, we must exclude fields annotated @Transient, or with the transient modifier
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
                 if (annotationInfo == null) {
                     if (fieldInfo.isSimple()) {
@@ -275,7 +283,6 @@ public class ClassInfo {
         Set<FieldInfo> fieldInfos = new HashSet<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo != identityField) {
-                // todo: when building fieldInfos, we must exclude fields annotated @Transient, or with the transient modifier
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.CLASS);
                 if (annotationInfo == null) {
                     if (!fieldInfo.isSimple()) {
@@ -312,7 +319,6 @@ public class ClassInfo {
      */
     public MethodInfo identityGetter() {
         for (MethodInfo methodInfo : methodsInfo().getters()) {
-            //LOGGER.info(methodInfo.getName() + ": " + methodInfo.getDescriptor());
             AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
                 if (methodInfo.getDescriptor().equals("()Ljava/lang/Long;")) {
@@ -729,5 +735,8 @@ public class ClassInfo {
         }
     }
 
+    public boolean isTransient() {
+        return annotationsInfo.get(Transient.CLASS) != null;
+    }
 }
 

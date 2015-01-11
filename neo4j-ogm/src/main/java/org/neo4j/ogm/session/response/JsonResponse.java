@@ -32,6 +32,7 @@ public class JsonResponse implements Neo4jResponse<String> {
     public String next() {
         try {
             String json = scanner.next();
+
             while (!json.endsWith(NEXT_RECORD_TOKEN)) {
                 // the scan token may be embedded in the current response record, we need to keep parsing...
                 try {

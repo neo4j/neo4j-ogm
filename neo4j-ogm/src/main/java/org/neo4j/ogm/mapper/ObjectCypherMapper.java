@@ -93,16 +93,20 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         }
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
+
         NodeBuilder nodeBuilder = getNodeBuilder(cypherBuilder, toPersist, context);
 
-        // don't give Neo4j more work to do than it needs
-        if (mappingContext.isDirty(toPersist)) {
-            context.log(toPersist);
-            nodeBuilder.mapProperties(toPersist, classInfo, objectAccessStrategy);
-        }
+        // skip all transient classes
+        if (nodeBuilder != null) {
+            // don't give Neo4j more work to do than it needs
+            if (mappingContext.isDirty(toPersist)) {
+                context.log(toPersist);
+                nodeBuilder.mapProperties(toPersist, classInfo, objectAccessStrategy);
+            }
 
-        if (horizon != 0) {
-            mapRelatedObjects(cypherBuilder, toPersist, nodeBuilder, context, horizon - 1);
+            if (horizon != 0) {
+                mapRelatedObjects(cypherBuilder, toPersist, nodeBuilder, context, horizon - 1);
+            }
         }
         return nodeBuilder;
     }
@@ -118,6 +122,12 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private NodeBuilder getNodeBuilder(CypherCompiler cypherBuilder, Object toPersist, CypherContext context) {
 
         ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
+
+        // transient or subclass of transient?
+        if (classInfo == null) {
+            return null;
+        }
+
         Object id = objectAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
 
         if (id == null) {
@@ -221,25 +231,28 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         NodeBuilder target = deepMap(cypherBuilder, tgtObject, context, horizon);
 
-        ClassInfo targetInfo = metaData.classInfo(tgtObject.getClass().getName());
-        Long tgtIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(tgtObject);
+        // target will be null if tgtObject is a transient class, or a subclass of a transient class
+        if (target != null) {
+            ClassInfo targetInfo = metaData.classInfo(tgtObject.getClass().getName());
+            Long tgtIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(tgtObject);
 
-        // this relationship is new, because the src object or tgt object has not yet been persisted
-        if (tgtIdentity == null || srcIdentity == null) {
-            maybeCreateRelationship(cypherBuilder, context, srcNodeBuilder.reference(), relationship, target.reference());
-        } else {
-            // in the case where the src object and tgt object both exist, we need to find out whether
-            // the relationship we're considering was loaded previously, or if it has been created by the user
-            // and so has not yet been persisted.
-            MappedRelationship mappedRelationship = new MappedRelationship(srcIdentity, relationship.getType(), tgtIdentity);
-            if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
+            // this relationship is new, because the src object or tgt object has not yet been persisted
+            if (tgtIdentity == null || srcIdentity == null) {
                 maybeCreateRelationship(cypherBuilder, context, srcNodeBuilder.reference(), relationship, target.reference());
             } else {
-                // we have seen this relationship before and we don't want to ask Neo4j to re-establish
-                // it for us as it already exists, so we register it in the tx context. Because this relationship
-                // was previously deleted from the tx context, but not from the mapping context, this brings both
-                // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
-                context.registerRelationship(mappedRelationship);
+                // in the case where the src object and tgt object both exist, we need to find out whether
+                // the relationship we're considering was loaded previously, or if it has been created by the user
+                // and so has not yet been persisted.
+                MappedRelationship mappedRelationship = new MappedRelationship(srcIdentity, relationship.getType(), tgtIdentity);
+                if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
+                    maybeCreateRelationship(cypherBuilder, context, srcNodeBuilder.reference(), relationship, target.reference());
+                } else {
+                    // we have seen this relationship before and we don't want to ask Neo4j to re-establish
+                    // it for us as it already exists, so we register it in the tx context. Because this relationship
+                    // was previously deleted from the tx context, but not from the mapping context, this brings both
+                    // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
+                    context.registerRelationship(mappedRelationship);
+                }
             }
         }
     }
@@ -289,6 +302,9 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      */
     private boolean isRelationshipEntity(Object potentialRelationshipEntity) {
         ClassInfo classInfo = metaData.classInfo(potentialRelationshipEntity.getClass().getName());
+        if (classInfo == null) {
+            return false;
+        }
         return null != classInfo.annotationsInfo().get(RelationshipEntity.class.getName());
     }
 

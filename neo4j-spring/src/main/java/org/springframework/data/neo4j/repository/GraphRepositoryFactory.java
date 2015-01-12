@@ -13,7 +13,7 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 
 import java.io.Serializable;
 
-public class GraphRepositoryFactory<S, T> extends RepositoryFactorySupport {
+public class GraphRepositoryFactory extends RepositoryFactorySupport {
 
     private final Session session;
 

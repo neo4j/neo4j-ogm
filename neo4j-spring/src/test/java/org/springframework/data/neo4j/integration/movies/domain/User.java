@@ -4,6 +4,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 public class User {
 
@@ -13,6 +14,9 @@ public class User {
 
     @Relationship(type = "FRIEND_OF", direction = Relationship.BOTH)
     private Collection<User> friends = new HashSet<>();
+
+    @Relationship(type = "RATED")
+    private Set<Rating> ratings = new HashSet<>();
 
     public User() {
     }
@@ -32,6 +36,13 @@ public class User {
     public void befriend(User user) {
         friends.add(user);
         user.friends.add(this);
+    }
+
+    public Rating rate(TempMovie movie, int stars, String comment) {
+        Rating rating = new Rating(this, movie, stars, comment);
+        movie.addRating(rating);
+        ratings.add(rating);
+        return rating;
     }
 
     //this doesn't need to be part of the domain, but this class is for testing

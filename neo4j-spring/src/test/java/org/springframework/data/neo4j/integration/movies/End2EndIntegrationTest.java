@@ -445,5 +445,14 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         assertFalse(iterator.hasNext());
     }
 
+    @Test
+    @Ignore //todo
+    public void shouldSaveNewUserAndNewMovieWithRatings() {
+        User user = new User("Michal");
+        TempMovie movie = new TempMovie("Pulp Fiction");
+        user.rate(movie, 5, "Best movie ever");
+        userRepository.save(user);
 
+        assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:RATED {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
+    }
 }

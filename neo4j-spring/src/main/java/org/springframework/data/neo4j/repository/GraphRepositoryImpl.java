@@ -32,13 +32,13 @@ public class GraphRepositoryImpl<T> implements GraphRepository<T> {
     }
 
     @Override
-    public T findOne(Long aLong) {
-        return (T) session.load(clazz, aLong);
+    public T findOne(Long id) {
+        return (T) session.load(clazz, id);
     }
 
     @Override
-    public boolean exists(Long aLong) {
-        return findOne(aLong) != null;
+    public boolean exists(Long id) {
+        return findOne(id) != null;
     }
 
     @Override
@@ -58,8 +58,8 @@ public class GraphRepositoryImpl<T> implements GraphRepository<T> {
     }
 
     @Override
-    public void delete(Long aLong) {
-        Object o = findOne(aLong);
+    public void delete(Long id) {
+        Object o = findOne(id);
         if (o != null) {
             session.delete(o);
         }

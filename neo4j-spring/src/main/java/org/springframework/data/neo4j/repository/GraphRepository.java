@@ -30,6 +30,6 @@ public interface GraphRepository<T> extends Repository<T, Long> {
     void deleteAll();
 
     long count();
-    boolean exists(Long aLong);
+    boolean exists(Long id);
 
 }

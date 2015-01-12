@@ -56,4 +56,16 @@ public class TestNumberConversion {
         account.setFacility((BigInteger) converter.toEntityAttribute("2000"));
         assertEquals(new BigInteger("2000"), account.getFacility());
     }
+
+    @Test
+    public void assertConvertingNullGraphPropertyWorksCorrectly() {
+        AttributeConverter converter = accountInfo.propertyGetter("facility").converter();
+        assertEquals(null, converter.toEntityAttribute(null));
+    }
+
+    @Test
+    public void assertConvertingNullAttributeWorksCorrectly() {
+        AttributeConverter converter = accountInfo.propertyGetter("facility").converter();
+        assertEquals(null, converter.toGraphProperty(null));
+    }
 }

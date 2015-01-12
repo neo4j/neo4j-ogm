@@ -6,6 +6,7 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -87,6 +88,22 @@ public class TestEnumConversion {
         MethodInfo methodInfo = personInfo.propertyGetter("gender");
         assertTrue(methodInfo.hasConverter());
         assertEquals("MALE", methodInfo.converter().toGraphProperty(bob.getGender()));
+    }
+
+    @Test
+    public void assertConvertingNullGraphPropertyWorksCorrectly() {
+        MethodInfo methodInfo = personInfo.propertyGetter("gender");
+        assertTrue(methodInfo.hasConverter());
+        AttributeConverter attributeConverter = methodInfo.converter();
+        assertEquals(null, attributeConverter.toEntityAttribute(null));
+    }
+
+    @Test
+    public void assertConvertingNullAttributeWorksCorrectly() {
+        MethodInfo methodInfo = personInfo.propertyGetter("gender");
+        assertTrue(methodInfo.hasConverter());
+        AttributeConverter attributeConverter = methodInfo.converter();
+        assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 
 }

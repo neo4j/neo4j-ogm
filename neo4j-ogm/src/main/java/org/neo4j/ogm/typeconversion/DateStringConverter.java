@@ -27,6 +27,7 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
 
     @Override
     public String toGraphProperty(Date value) {
+        if (value == null) return null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return simpleDateFormat.format((Date) value);
@@ -34,6 +35,7 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
 
     @Override
     public Date toEntityAttribute(String value) {
+        if (value == null) return null;
         try {
             return new SimpleDateFormat(format).parse((String) value);
         } catch (ParseException e) {

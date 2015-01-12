@@ -7,14 +7,16 @@ import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.entityaccess.FieldWriter;
-import org.neo4j.ogm.mapper.GraphObjectMapper;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Property;
-import org.neo4j.ogm.session.request.*;
+import org.neo4j.ogm.session.request.DefaultRequest;
+import org.neo4j.ogm.session.request.Neo4jRequest;
+import org.neo4j.ogm.session.request.RequestHandler;
+import org.neo4j.ogm.session.request.SessionRequestHandler;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.response.Neo4jResponse;
@@ -23,13 +25,16 @@ import org.neo4j.ogm.session.response.SessionResponseHandler;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -43,12 +48,9 @@ public class Neo4jSession implements Session {
     private final MappingContext mappingContext;
     private final ObjectMapper mapper;
     private final String autoCommitUrl;
-    private final TransactionRequestHandler transactionRequestHandler;
+    private final TransactionManager transactionRequestHandler;
 
     private Neo4jRequest<String> request;
-
-    // all transaction objects must have thread local scope
-    private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE)\\b");
 
@@ -56,7 +58,7 @@ public class Neo4jSession implements Session {
         this.metaData = metaData;
         this.mapper = mapper;
         this.mappingContext = new MappingContext(metaData);
-        this.transactionRequestHandler = new TransactionRequestHandler(client, url);
+        this.transactionRequestHandler = new TransactionManager(client, url);
         this.autoCommitUrl = autoCommit(url);
         this.request = new DefaultRequest(client);
     }
@@ -71,10 +73,6 @@ public class Neo4jSession implements Session {
 
     private ResponseHandler getResponseHandler() {
         return new SessionResponseHandler(metaData, mappingContext);
-    }
-
-    private Transaction getCurrentTransaction() {
-        return transaction.get();
     }
 
     @Override
@@ -163,20 +161,8 @@ public class Neo4jSession implements Session {
         logger.info("beginTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Neo4jSession identity: " + this);
 
-//        if (transaction != null && transaction instanceof LongTransaction) {
-//            // return current transaction if no operations yet. i.e. don't waste db transactions
-//            if (transaction.status() == Transaction.Status.OPEN) {
-//                return transaction;
-//            }
-//            // but it is probably a bug to call begin transaction again on a transaction with uncommitted operations
-//            if (transaction.status() == Transaction.Status.PENDING) {
-//                throw new TransactionException("The current transaction has uncommitted operations that should be rolled back or committed before beginning a new one");
-//            }
-//        }
-//
-
         Transaction tx = transactionRequestHandler.openTransaction(mappingContext);
-        transaction.set(tx);
+
         logger.info("obtained new transaction: " + tx.url());
         return tx;
     }
@@ -271,36 +257,80 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T> void save(T object) {
-        save(object, -1); // default : full tree of changed objects
+        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+            saveAll(object, -1);
+        } else {
+            save(object, -1); // default : full tree of changed objects
+        }
+    }
+
+    private <T> void saveAll(T object, int depth) {
+        List<T> list;
+        if (object.getClass().isArray()) {
+            list = Arrays.asList(object);
+        } else {
+            list = (List<T>) object;
+        }
+        for (T element : list) {
+            save(element, depth);
+        }
+    }
+
+    private <T> void deleteAll(T object) {
+        List<T> list;
+        if (object.getClass().isArray()) {
+            list = Arrays.asList(object);
+        } else {
+            list = (List<T>) object;
+        }
+        for (T element : list) {
+            delete(element);
+        }
     }
 
     @Override
     public <T> void save(T object, int depth) {
-        Transaction tx = getOrCreateTransaction();
-        CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
-        try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
-            getResponseHandler().updateObjects(context, response, mapper);
-            tx.append(context);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+            saveAll(object, depth);
+        } else {
+            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            if (classInfo != null) {
+                Transaction tx = getOrCreateTransaction();
+                CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
+                try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
+                    getResponseHandler().updateObjects(context, response, mapper);
+                    tx.append(context);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                logger.info(object.getClass().getName() + " is not an instance of a persistable class");
+            }
         }
     }
 
     @Override
     public <T> void delete(T object) {
-
-        ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
-        Field identityField = classInfo.getField(classInfo.identityField());
-        Long identity = (Long) FieldWriter.read(identityField, object);
-        if (identity != null) {
-            String url = getOrCreateTransaction().url();
-            ParameterisedStatement request = new DeleteStatements().delete(identity);
-            try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
-                // nothing to process on the response - looks a bit odd.
-                // should be done on commit?? when do these objects disappear?
-                mappingContext.deregister(object, identity);
-                // maybe should also remove relationships associated with this object, but won't matter if not;
+        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+            deleteAll(object);
+        } else {
+            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            if (classInfo != null) {
+                Field identityField = classInfo.getField(classInfo.identityField());
+                Long identity = (Long) FieldWriter.read(identityField, object);
+                if (identity != null) {
+                    String url = getOrCreateTransaction().url();
+                    ParameterisedStatement request = new DeleteStatements().delete(identity);
+                    try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
+                        // nothing to process on the response - looks a bit odd.
+                        // should be done on commit?? when do these objects disappear?
+                        mappingContext.deregister(object, identity);
+                        // maybe should also remove relationships associated with this object, but won't matter if not;
+                    }
+                }
+            } else {
+                logger.info(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
     }
@@ -308,12 +338,16 @@ public class Neo4jSession implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        String url = getOrCreateTransaction().url();
-        ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
-        try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
-            // should be done on commit.
-            mappingContext.getAll(type).clear();
-            mappingContext.mappedRelationships().clear(); // not the real deal
+        if (classInfo != null) {
+            String url = getOrCreateTransaction().url();
+            ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
+            try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
+                // should be done on commit.
+                mappingContext.getAll(type).clear();
+                mappingContext.mappedRelationships().clear(); // not the real deal
+            }
+        } else {
+            logger.info(type.getName() + " is not a persistable class");
         }
     }
 
@@ -328,7 +362,7 @@ public class Neo4jSession implements Session {
         logger.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Session identity: " + this);
 
-        Transaction tx = getCurrentTransaction();
+        Transaction tx = transactionRequestHandler.getCurrentTransaction();
         if (tx == null
                 || tx.status().equals(Transaction.Status.CLOSED)
                 || tx.status().equals(Transaction.Status.COMMITTED)

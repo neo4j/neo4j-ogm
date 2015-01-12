@@ -1,5 +1,6 @@
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -233,14 +234,32 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return new FieldReader(classInfo, classInfo.identityField());
     }
 
+    @Override
+    public RelationalReader getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
+        for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
+            if (fieldInfo.getAnnotations().get(EndNode.CLASS) != null) {
+                return getRelationalReader(relationshipEntityClassInfo, fieldInfo.getName());
+            }
+        }
+        logger.warn("Failed to find an @EndNode on " + relationshipEntityClassInfo);
+        return null;
+    }
+
     private MethodInfo getIterableSetterMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
         List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType);
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }
 
-        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching setter found.",
-                parameterType, classInfo.name());
+        if (methodInfos.size() == 0) {
+            logger.warn("Cannot map iterable of {} to instance of {}. No matching setter found.",
+                    parameterType, classInfo.name());
+        }
+        else {
+            logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching setter found.",
+                    parameterType, classInfo.name());
+        }
+
         return null;
     }
 
@@ -261,8 +280,15 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             return fieldInfos.iterator().next();
         }
 
-        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching field found.",
-                parameterType, classInfo.name());
+        if (fieldInfos.size() == 0) {
+            logger.warn("Cannot map iterable of {} to instance of {}. No matching field found.",
+                    parameterType, classInfo.name());
+        }
+        else {
+            logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
+                    parameterType, classInfo.name());
+        }
+
         return null;
     }
 

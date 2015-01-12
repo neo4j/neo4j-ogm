@@ -2,7 +2,9 @@ package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.metadata.MetaData;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -13,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
+    private final ConcurrentMap<Long, Object> relationshipEntityMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
 
@@ -32,34 +35,53 @@ public class MappingContext {
 
     public Object register(Object object, Long id) {
         objectMap.putIfAbsent(id, object);
-        getAll(object.getClass()).add(object = objectMap.get(id));
+        object = objectMap.get(id);
+        registerTypes(object.getClass(), object);
         return object;
+    }
+
+    private void registerTypes(Class type, Object object) {
+        //System.out.println("registering " + object + " as instance of " + type.getSimpleName());
+        getAll(type).add(object);
+        if (type.getSuperclass() != null
+                && metaData != null
+                && metaData.classInfo(type.getSuperclass().getName()) != null
+                && !type.getSuperclass().getName().equals("java.lang.Object")) {
+            registerTypes(type.getSuperclass(), object);
+        }
+    }
+
+    private void deregisterTypes(Class type, Object object) {
+        //System.out.println("deregistering " + object.getClass().getSimpleName() + " as instance of " + type.getSimpleName());
+        getAll(type).remove(object);
+        if (type.getSuperclass() != null
+                && metaData != null
+                && metaData.classInfo(type.getSuperclass().getName()) != null
+                && !type.getSuperclass().getName().equals("java.lang.Object")) {
+            deregisterTypes(type.getSuperclass(), object);
+        }
     }
 
     /**
      * Deregisters an object from the mapping context
-     * - removes the object instance from the typeMap
+     * - removes the object instance from the typeMap(s)
      * - removes the object id from the objectMap
      *
      * @param object the object to deregister
      * @param id the id of the object in Neo4j
      */
     public void deregister(Object object, Long id) {
-        getAll(object.getClass()).remove(object);
+        deregisterTypes(object.getClass(), object);
         objectMap.remove(id);
     }
 
     public Set<Object> getAll(Class<?> type) {
-
         Set<Object> objectList = typeMap.get(type);
-
         if (objectList == null) {
             typeMap.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
             objectList = typeMap.get(type);
         }
-
         return objectList;
-
     }
 
     public void remember(Object object) {
@@ -87,5 +109,16 @@ public class MappingContext {
         mappedRelationships.clear();
         objectMap.clear();
         typeMap.clear();
+        relationshipEntityMap.clear();
     }
+
+    public Object getRelationshipEntity(Long relationshipId) {
+        return relationshipEntityMap.get(relationshipId);
+    }
+
+    public Object registerRelationship(Object relationshipEntity, Long id) {
+        relationshipEntityMap.putIfAbsent(id, relationshipEntity);
+        return relationshipEntity;
+    }
+
 }

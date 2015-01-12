@@ -23,20 +23,20 @@ public abstract class ClassUtils {
     /**
      * Return the reified class for the parameter of a JavaBean setter from the setter signature
      */
-    public static Class<?> getType(String descriptor) {
+    public static Class<?> getType(String setterDescriptor) {
 
-        int p = descriptor.indexOf("(");
-        int q = descriptor.indexOf(")");
+        int p = setterDescriptor.indexOf("(");
+        int q = setterDescriptor.indexOf(")");
 
-        if (!descriptor.contains("[")) {
-            if (descriptor.endsWith(";)V")) {
+        if (!setterDescriptor.contains("[")) {
+            if (setterDescriptor.endsWith(";)V")) {
                 q--;
             }
-            if (descriptor.startsWith("(L")) {
+            if (setterDescriptor.startsWith("(L")) {
                 p++;
             }
         }
-        String typeName = descriptor.substring(p + 1, q).replace("/", ".");
+        String typeName = setterDescriptor.substring(p + 1, q).replace("/", ".");
         if (typeName.length() == 1) {
             return PRIMITIVE_TYPE_MAP.get(typeName);
         }

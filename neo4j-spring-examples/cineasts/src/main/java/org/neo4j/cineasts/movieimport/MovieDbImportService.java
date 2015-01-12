@@ -1,13 +1,13 @@
 package org.neo4j.cineasts.movieimport;
 
 import org.neo4j.cineasts.domain.*;
+import org.neo4j.cineasts.repository.ActorRepository;
 import org.neo4j.cineasts.repository.DirectorRepository;
 import org.neo4j.cineasts.repository.MovieRepository;
-import org.neo4j.cineasts.repository.ActorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +19,8 @@ import java.util.Map;
 public class MovieDbImportService {
 
     private static final Logger logger = LoggerFactory.getLogger(MovieDbImportService.class);
-    MovieDbJsonMapper movieDbJsonMapper = new MovieDbJsonMapper();
+
+    private MovieDbJsonMapper movieDbJsonMapper = new MovieDbJsonMapper();
 
     @Autowired
     private MovieRepository movieRepository;
@@ -27,17 +28,16 @@ public class MovieDbImportService {
     private ActorRepository actorRepository;
     @Autowired
     private DirectorRepository directorRepository;
-
     @Autowired
     private MovieDbApiClient client;
-
     @Autowired
     private MovieDbLocalStorage localStorage;
-    @Autowired private Neo4jOperations template;
+    @Autowired
+    private Neo4jTemplate template;
 
     @Transactional
     public Map<Integer, String> importMovies(Map<Integer, Integer> ranges) {
-        final Map<Integer,String> movies=new LinkedHashMap<Integer, String>();
+        final Map<Integer, String> movies = new LinkedHashMap<Integer, String>();
         for (Map.Entry<Integer, Integer> entry : ranges.entrySet()) {
             for (int id = entry.getKey(); id <= entry.getValue(); id++) {
                 String result = importMovieFailsafe(id);
@@ -66,11 +66,11 @@ public class MovieDbImportService {
 
         Movie movie = movieRepository.findById(movieId);
         if (movie == null) { // Not found: Create fresh
-            movie = new Movie(movieId,null);
+            movie = new Movie(movieId, null);
         }
 
         Map data = loadMovieData(movieId);
-        if (data.containsKey("not_found")) throw new RuntimeException("Data for Movie "+movieId+" not found.");
+        if (data.containsKey("not_found")) throw new RuntimeException("Data for Movie " + movieId + " not found.");
         movieDbJsonMapper.mapToMovie(data, movie);
         movieRepository.save(movie);
         relatePersonsToMovie(movie, data);
@@ -93,18 +93,18 @@ public class MovieDbImportService {
             String id = "" + entry.get("id");
             String jobName = (String) entry.get("job");
             Roles job = movieDbJsonMapper.mapToRole(jobName);
-            if (job==null) {
-                if (logger.isInfoEnabled()) logger.info("Could not add person with job "+jobName+" "+entry);
+            if (job == null) {
+                if (logger.isInfoEnabled()) logger.info("Could not add person with job " + jobName + " " + entry);
                 continue;
             }
             switch (job) {
                 case DIRECTED:
-                    final Director director = template.projectTo(doImportPerson(id, new Director(id)), Director.class);
+                    final Director director = doImportPerson(id, new Director(id));
                     director.directed(movie);
                     directorRepository.save(director);
                     break;
                 case ACTS_IN:
-                    final Actor actor = template.projectTo(doImportPerson(id, new Actor(id)), Actor.class);
+                    final Actor actor = doImportPerson(id, new Actor(id));
                     actor.playedIn(movie, (String) entry.get("character"));
                     actorRepository.save(actor);
                     break;
@@ -114,15 +114,15 @@ public class MovieDbImportService {
 
     @Transactional
     public <T extends Person> T importPerson(String personId, T person) {
-        return doImportPerson(personId,person);
+        return doImportPerson(personId, person);
     }
 
     private <T extends Person> T doImportPerson(String personId, T newPerson) {
         logger.debug("Importing person " + personId);
-        Person person = template.lookup(Person.class,"id",personId).to(Person.class).singleOrNull();
-        if (person!=null) return (T)person;
+        Person person = template.loadSingleOrNullByProperty(Person.class, "id", personId);
+        if (person != null) return (T) person;
         Map data = loadPersonData(personId);
-        if (data.containsKey("not_found")) throw new RuntimeException("Data for Person "+personId+" not found.");
+        if (data.containsKey("not_found")) throw new RuntimeException("Data for Person " + personId + " not found.");
         movieDbJsonMapper.mapToPerson(data, newPerson);
         return template.save(newPerson);
     }

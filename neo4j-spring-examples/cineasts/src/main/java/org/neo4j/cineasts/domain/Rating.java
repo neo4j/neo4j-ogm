@@ -1,16 +1,32 @@
 package org.neo4j.cineasts.domain;
 
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 @RelationshipEntity
 public class Rating {
+
     private static final int MAX_STARS = 5;
     private static final int MIN_STARS = 0;
+
+    public Rating() {
+    }
+
+    public Rating(User user, Movie movie, int stars, String comment) {
+        this.user = user;
+        this.movie = movie;
+        this.stars = stars;
+        this.comment = comment;
+    }
+
     @GraphId
     Long id;
-
-    @StartNode User user;
-    @EndNode Movie movie;
+    @StartNode
+    User user;
+    @EndNode
+    Movie movie;
 
     int stars;
     String comment;

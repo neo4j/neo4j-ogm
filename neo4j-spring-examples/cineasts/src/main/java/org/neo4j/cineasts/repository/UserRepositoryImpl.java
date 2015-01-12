@@ -6,7 +6,7 @@ import org.neo4j.cineasts.domain.User;
 import org.neo4j.cineasts.service.CineastsUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserRepositoryImpl implements CineastsUserDetailsService {
 
     @Autowired
-    private Neo4jOperations template;
+    private Neo4jTemplate template;
 
     @Override
     public CineastsUserDetails loadUserByUsername(String login) throws UsernameNotFoundException, DataAccessException {
@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
     }
 
     private User findByLogin(String login) {
-        return template.lookup(User.class,"login",login).to(User.class).singleOrNull();
+        return template.loadSingleOrNullByProperty(User.class,"login",login);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class UserRepositoryImpl implements CineastsUserDetailsService {
     @Override
     @Transactional
     public Rating rate(Movie movie, User user, int stars, String comment) {
-        return user.rate(template,movie, stars, comment);
+        return user.rate(movie, stars, comment);
     }
 
 

@@ -1,6 +1,6 @@
 package org.neo4j.cineasts.domain;
 
-import org.springframework.data.neo4j.annotation.RelatedToVia;
+import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.Collection;
 
@@ -12,7 +12,7 @@ public class Actor extends Person {
     public Actor() {
     }
 
-    @RelatedToVia
+    @Relationship
     Collection<Role> roles;
 
     public Actor(String id) {

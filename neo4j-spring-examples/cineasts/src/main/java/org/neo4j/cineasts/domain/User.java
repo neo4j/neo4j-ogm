@@ -4,6 +4,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -12,17 +13,17 @@ import java.util.Set;
 
 @NodeEntity
 public class User {
-    @GraphId
-    Long nodeId;
-
-    private static final String SALT = "cewuiqwzie";
     public static final String FRIEND = "FRIEND";
     public static final String RATED = "RATED";
-    @Indexed
-    String login;
-    String name;
-    String password;
-    String info;
+    private static final String SALT = "cewuiqwzie";
+
+    @GraphId
+    private Long nodeId;
+//    @Indexed
+    private String login;
+    private String name;
+    private String password;
+    private String info;
     private Roles[] roles;
 
     public User() {
@@ -39,23 +40,31 @@ public class User {
         return new Md5PasswordEncoder().encodePassword(password, SALT);
     }
 
-    @RelatedToVia(type = RATED)
-    @Fetch Iterable<Rating> ratings;
+    @Relationship(type = RATED)
+//    @Fetch
+    private Set<Rating> ratings;
 
-    @RelatedTo(type = RATED)
-    Set<Movie> favorites;
+    @Relationship(type = RATED)
+    private Set<Movie> favorites;
 
 
-    @RelatedTo(type = FRIEND, direction = Direction.BOTH)
-    @Fetch Set<User> friends;
+    @Relationship(type = FRIEND, direction = Relationship.BOTH)
+//    @Fetch
+    private Set<User> friends;
 
     public void addFriend(User friend) {
-        this.friends.add(friend);
+        if (!friends.contains(friend)) {
+            friends.add(friend);
+            friend.addFriend(this);
+        }
     }
 
-    public Rating rate(Neo4jOperations template, Movie movie, int stars, String comment) {
-        final Rating rating = template.createRelationshipBetween(this, movie, Rating.class, RATED, false).rate(stars, comment);
-        return template.save(rating);
+    public Rating rate(Movie movie, int stars, String comment) {
+        Rating rating = new Rating(this, movie, stars, comment);
+        movie.addRating(rating);
+        ratings.add(rating);
+
+        return rating;
     }
 
     public Collection<Rating> getRatings() {

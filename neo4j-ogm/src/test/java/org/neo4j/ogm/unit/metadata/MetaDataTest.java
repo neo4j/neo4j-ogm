@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 
 public class MetaDataTest {
 
-    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
+    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical");
 
     /**
      * A class can be found if its simple name is unique in the domain
@@ -332,6 +332,33 @@ public class MetaDataTest {
     }
 
     @Test
+    public void testCanResolveRelationshipEntityFromRelationshipType() {
+        ClassInfo classInfo = metaData.resolve("MEMBER_OF");
+        assertNotNull("The resolved class info shouldn't be null", classInfo);
+        assertEquals("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity", classInfo.name());
+    }
+
+    @org.junit.Ignore("I do think we should implement this, but it's not really possible without loading classes")
+    @Test
+    public void testResolutionOfRelationshipTypeFromMethodInfo() {
+        ClassInfo classInfo = metaData.resolve("Forum");
+        assertNotNull("The resolved class info shouldn't be null", classInfo);
+        assertEquals("org.neo4j.ogm.domain.forum.Forum", classInfo.name());
+
+        final String relationshipType = "HAS_TOPIC";
+
+        // test getters
+        MethodInfo relationshipEntityGetter = classInfo.relationshipGetter(relationshipType);
+        assertNotNull(relationshipEntityGetter);
+        assertEquals(relationshipType, relationshipEntityGetter.relationship());
+
+        // test setters
+        MethodInfo relationshipEntitySetter = classInfo.relationshipSetter(relationshipType);
+        assertNotNull(relationshipEntitySetter);
+        assertEquals(relationshipType, relationshipEntitySetter.relationship());
+    }
+
+    @Test
     public void testCanResolveClassHierarchies() {
         ClassInfo classInfo = metaData.resolve("Login", "User");
         assertEquals("org.neo4j.ogm.domain.forum.Member", classInfo.name());
@@ -498,11 +525,8 @@ public class MetaDataTest {
     }
 
     @Test
-    /**
-     * A subclass will be resolved from a superclass if it is a unique leaf class in the type hierarchy
-     */
     public void testLiskovSubstitutionPrinciple() {
-        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Login").name());
+        assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Member").name());
         assertEquals("org.neo4j.ogm.domain.forum.Member", metaData.resolve("Login", "Member").name());
     }
 
@@ -530,7 +554,7 @@ public class MetaDataTest {
         ClassInfo simpleClassInfo = metaData.classInfo("Topic");
         assertEquals(Arrays.asList("Topic"), simpleClassInfo.labels());
 
-        // test with class hierarchy that's completely void of annotations
+
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.domain.education").classInfo(Student.class.getSimpleName());
         assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
     }

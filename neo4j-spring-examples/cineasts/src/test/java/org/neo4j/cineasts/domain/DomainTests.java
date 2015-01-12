@@ -7,7 +7,8 @@ import org.neo4j.cineasts.repository.MovieRepository;
 import org.neo4j.cineasts.repository.ActorRepository;
 import org.neo4j.cineasts.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.data.neo4j.template.Neo4jTemplate;
+import org.springframework.data.neo4j.util.IterableUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
+import static org.springframework.data.neo4j.util.IterableUtils.*;
 
 /**
  * @author mh
@@ -29,8 +31,8 @@ public class DomainTests {
     protected MovieRepository movieRepository;
     @Autowired
     protected UserRepository userRepository;
-
-    @Autowired Neo4jOperations template;
+    @Autowired
+    Neo4jTemplate template;
     @Autowired
     ActorRepository actorRepository;
 
@@ -57,7 +59,7 @@ public class DomainTests {
     @Test
     public void canFindMovieByTitleQuery() {
         Movie forestGump = template.save(new Movie("1", "Forrest Gump"));
-        Iterator<Movie> queryResults = movieRepository.findAllByQuery("search", "title", "Forre*").iterator();
+        Iterator<Movie> queryResults = movieRepository.findByProperty("title", "Forre*").iterator();
         assertTrue("found movie by query",queryResults.hasNext());
         Movie foundMovie = queryResults.next();
         assertEquals("created and looked up movie equal", forestGump, foundMovie);
@@ -68,9 +70,10 @@ public class DomainTests {
     public void userCanRateMovie() {
         Movie movie = template.save(new Movie("1", "Forrest Gump"));
         User user = template.save(new User("ich", "Micha", "password"));
-        Rating awesome = user.rate(template,movie, 5, "Awesome");
+        Rating awesome = user.rate(movie, 5, "Awesome");
+        template.save(user);
 
-        user = userRepository.findByPropertyValue("login", "ich");
+        user = getSingle(userRepository.findByProperty("login", "ich"));
         movie = movieRepository.findById("1");
         Rating rating = user.getRatings().iterator().next();
         assertEquals(awesome,rating);
@@ -81,7 +84,7 @@ public class DomainTests {
     @Test
     public void canFindUserByLogin() {
         User user = template.save(new User("ich", "Micha", "password"));
-        User foundUser = userRepository.findByPropertyValue("login", "ich");
+        User foundUser = getSingle(userRepository.findByProperty("login", "ich"));
         assertEquals(user, foundUser);
     }
     @Test

@@ -1,27 +1,34 @@
 package org.neo4j.ogm.unit.mapper;
 
-import org.junit.*;
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.domain.forum.Forum;
+import org.neo4j.ogm.domain.forum.ForumTopicLink;
+import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.test.TestGraphDatabaseFactory;
-
-import java.util.*;
-
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {
 
@@ -36,7 +43,7 @@ public class ObjectToCypherMapperTest {
     public static void setUpTestDatabase() {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
         executionEngine = new ExecutionEngine(graphDatabase);
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.social");
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social");
         mappingContext = new MappingContext(mappingMetadata);
 
     }
@@ -147,10 +154,6 @@ public class ObjectToCypherMapperTest {
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(bscComputerScience).getStatements());
 
-        expect("CREATE (_0:`Student`:`DomainObject`{_0_props}) " +
-                "WITH _0 MATCH ($0) WHERE id($0)=0 MERGE ($0)-[:STUDENTS]->(_0) " +
-                "RETURN id(_0) AS _0", cypher);
-
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
@@ -184,7 +187,6 @@ public class ObjectToCypherMapperTest {
 
         // ensure that the domain objects are mutually established by the code
         assertTrue(waller.getTeachers().contains(jim));
-        String schoolNode = var(wallerId);
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(jim).getStatements());
 
@@ -363,16 +365,6 @@ public class ObjectToCypherMapperTest {
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(msThompson).getStatements());
 
-        String designTechNode = var(designTech.getId());
-        String businessStudiesNode = var(businessStudies.getId());
-        String shivaniNode = var(shivani.getId());
-
-        expect( "MATCH (" + designTechNode + ") WHERE id(" + designTechNode + ")=" + designTech.getId() + " " +
-                "MATCH (" + shivaniNode + ") WHERE id(" + shivaniNode + ")=" + shivani.getId() + " " +
-                "MERGE (" + designTechNode + ")-[:STUDENTS]->(" + shivaniNode + ") " +
-                "WITH " + shivaniNode + "," + designTechNode + " " +
-                "MATCH (" + businessStudiesNode + ")-[_0:STUDENTS]->(" + shivaniNode + ") WHERE id(" + businessStudiesNode + ")=" + businessStudies.getId() + " DELETE _0", cypher);
-
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
                 "(dt)-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
@@ -420,17 +412,8 @@ public class ObjectToCypherMapperTest {
         // so we must persist from the collection (school) side.
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(hillsRoad).getStatements());
 
-        String hillsRoadNode = var(hillsRoad.getId());
-        String mrWhiteNode = var(mrWhite.getId());
-
-        expect( "MATCH (" + hillsRoadNode + ")-[_0:TEACHERS]->(" + mrWhiteNode + ") " +
-                "WHERE id(" + hillsRoadNode + ")=" + hillsRoad.getId() + " " +
-                "AND id(" + mrWhiteNode + ")=" + mrWhite.getId() + " " +
-                "DELETE _0", cypher);
-
         executeStatementsAndAssertSameGraph(cypher,
-                "CREATE (w:Teacher {name:'Mr White'}), " +
-                        "(s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
+                "CREATE (w:Teacher {name:'Mr White'}), (s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
     }
 
 
@@ -540,6 +523,96 @@ public class ObjectToCypherMapperTest {
                 "(clara)-[:COURSES]->(english)");
     }
 
+    @Test
+    public void shouldProduceCypherForSavingNewRichRelationshipBetweenNodes() {
+        Forum forum = new Forum();
+        forum.setName("SDN FAQs");
+        Topic topic = new Topic();
+        ForumTopicLink link = new ForumTopicLink();
+        link.setForum(forum);
+        link.setTopic(topic);
+        link.setTimestamp(1647209L);
+        forum.setTopicsInForum(Arrays.asList(link));
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+                + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
+    }
+
+    @Test
+    public void shouldProduceCypherForUpdatingExistingRichRelationshipBetweenNodes() {
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:20000}]->(t:Topic) " +
+                "RETURN id(f) AS forumId, id(t) AS topicId, id(r) AS relId");
+        Map<String, Object> rs = executionResult.iterator().next();
+        Long forumId = (Long) rs.get("forumId");
+        Long topicId = (Long) rs.get("topicId");
+        Long relationshipId = (Long) rs.get("relId");
+
+        Forum forum = new Forum();
+        forum.setId(forumId);
+        forum.setName("Spring Data Neo4j");
+        Topic topic = new Topic();
+        topic.setTopicId(topicId);
+        topic.setInActive(Boolean.FALSE);
+        ForumTopicLink link = new ForumTopicLink();
+        link.setId(relationshipId);
+        link.setForum(forum);
+        link.setTopic(topic);
+        link.setTimestamp(327790L);
+        forum.setTopicsInForum(Arrays.asList(link));
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+                + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
+    }
+
+    @org.junit.Ignore
+    @Test
+    public void shouldSaveCollectionOfRichRelationships() {
+        ExecutionResult executionResult = executionEngine.execute("CREATE "
+                + "(f:Forum {name:'SDN 4.x'})-[r:HAS_TOPIC]->(t:Topic) RETURN id(f) AS forumId, id(r) AS relId, id(t) AS topicId");
+        Map<String, Object> resultSet = executionResult.iterator().next();
+        Long forumId = (Long) resultSet.get("forumId");
+        Long relationshipId = (Long) resultSet.get("relId");
+        Long topicId = (Long) resultSet.get("topicId");
+
+        Forum neo4jForum = new Forum();
+        neo4jForum.setName("Neo4j Questions");
+        Topic neo4jTopicOne = new Topic();
+        Topic neo4jTopicTwo = new Topic();
+
+        Forum sdnForum = new Forum();
+        sdnForum.setId(forumId);
+        sdnForum.setName("SDN 4.x");
+        Topic sdnTopic = new Topic();
+        sdnTopic.setTopicId(topicId);
+
+        ForumTopicLink firstRelationshipEntity = new ForumTopicLink();
+        firstRelationshipEntity.setId(relationshipId);
+        firstRelationshipEntity.setForum(sdnForum); // NB these don't set bidirectionally
+        firstRelationshipEntity.setTopic(sdnTopic);
+        firstRelationshipEntity.setTimestamp(500L);
+        ForumTopicLink secondRelationshipEntity = new ForumTopicLink();
+        secondRelationshipEntity.setForum(neo4jForum);
+        secondRelationshipEntity.setTopic(neo4jTopicTwo);
+        secondRelationshipEntity.setTimestamp(750L);
+        ForumTopicLink thirdRelationshipEntity = new ForumTopicLink();
+        thirdRelationshipEntity.setForum(neo4jForum);
+        thirdRelationshipEntity.setTopic(neo4jTopicOne);
+        thirdRelationshipEntity.setTimestamp(1000L);
+        List<ForumTopicLink> linksToSave = Arrays.asList(firstRelationshipEntity, secondRelationshipEntity, thirdRelationshipEntity);
+
+        // FIXME: currently fails straight away, but do we even support mapping collections in this way?
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(linksToSave).getStatements());
+        System.err.println(cypher.getStatements().get(0).getStatement());
+        System.err.println(cypher.getStatements().get(0).getParameters());
+        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+                + "(:Forum {name:'SDN 4.x'})-[:HAS_TOPIC {timestamp:500}]->(x:Topic), "
+                + "(f:Forum {name:'Neo4j Questions'})-[:HAS_TOPIC {timestamp:750}]->(y:Topic), "
+                + "(f)-[:HAS_TOPIC {timestamp:1000}]->(z:Topic)");
+    }
+
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
@@ -553,10 +626,10 @@ public class ObjectToCypherMapperTest {
 
     private void expect(String expected, ParameterisedStatements cypher) {
         assertEquals(expected, cypher.getStatements().get(0).getStatement());
-
     }
 
     private String var(Long nodeId) {
         return "$" + nodeId;
     }
+
 }

@@ -1,10 +1,11 @@
 package org.neo4j.cineasts.domain;
 
-import org.springframework.data.neo4j.annotation.MapResult;
-import org.springframework.data.neo4j.annotation.ResultColumn;
+import org.neo4j.ogm.annotation.QueryResult;
+import org.neo4j.ogm.annotation.ResultColumn;
 
-@MapResult
+@QueryResult
 public interface MovieRecommendation {
+
     @ResultColumn("otherMovie")
     Movie getMovie();
 

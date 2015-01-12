@@ -1,76 +1,82 @@
 package org.neo4j.ogm.cypher.compiler;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-public class NewRelationshipBuilder implements CypherEmitter {
+class NewRelationshipBuilder extends RelationshipBuilder {
 
-    private final String type;
-    private final String src;
-    private final String tgt;
+    private String startNodeIdentifier;
+    private String endNodeIdentifier;
 
-    public NewRelationshipBuilder(String type, String src, String tgt) {
-        this.type = type;
-        this.src = src;
-        this.tgt = tgt;
+    public NewRelationshipBuilder(String reference) {
+        super(reference);
     }
 
+    @Override
+    public void relate(String startNodeIdentifier, String endNodeIdentifier) {
+        this.startNodeIdentifier = startNodeIdentifier;
+        this.endNodeIdentifier = endNodeIdentifier;
+    }
+
+    @Override
     public boolean emit(StringBuilder queryBuilder, Map<String, Object> parameters, Set<String> varStack) {
+        // don't emit anything if this relationship isn't used to link any nodes
+        // admittedly, this isn't brilliant, as we'd ideally avoid creating the relationship in the first place
+        if (this.startNodeIdentifier == null || this.endNodeIdentifier == null) {
+            return false;
+        }
 
         if (!varStack.isEmpty()) {
             queryBuilder.append(" WITH ").append(NodeBuilder.toCsv(varStack));
         }
 
-        if (!varStack.contains(src)) {
+        if (!varStack.contains(startNodeIdentifier)) {
             queryBuilder.append(" MATCH (");
-            queryBuilder.append(src);
+            queryBuilder.append(startNodeIdentifier);
             queryBuilder.append(") WHERE id(");
-            queryBuilder.append(src);
+            queryBuilder.append(startNodeIdentifier);
             queryBuilder.append(")=");
-            queryBuilder.append(src.substring(1)); // existing nodes have an id. we pass it in as $id
-            varStack.add(src);
+            queryBuilder.append(startNodeIdentifier.substring(1)); // existing nodes have an id. we pass it in as $id
+            varStack.add(startNodeIdentifier);
         }
 
-        if (!varStack.contains(tgt)) {
+        if (!varStack.contains(endNodeIdentifier)) {
             queryBuilder.append(" MATCH (");
-            queryBuilder.append(tgt);
+            queryBuilder.append(endNodeIdentifier);
             queryBuilder.append(") WHERE id(");
-            queryBuilder.append(tgt);
+            queryBuilder.append(endNodeIdentifier);
             queryBuilder.append(")=");
-            queryBuilder.append(tgt.substring(1)); // existing nodes have an id. we pass it in as $id
-            varStack.add(tgt);
+            queryBuilder.append(endNodeIdentifier.substring(1)); // existing nodes have an id. we pass it in as $id
+            varStack.add(endNodeIdentifier);
         }
 
         queryBuilder.append(" MERGE (");
-        queryBuilder.append(src);
-        queryBuilder.append(")-[:");
+        queryBuilder.append(startNodeIdentifier);
+        queryBuilder.append(")-[").append(this.reference).append(":`");
         queryBuilder.append(type);
+        queryBuilder.append('`');
+        if (!this.props.isEmpty()) {
+            queryBuilder.append('{');
+
+            // for MERGE, we need properties in this format: name:{_#_props}.name
+            final String propertyVariablePrefix = '{' + this.reference + "_props}.";
+            for (Entry<String, Object> relationshipProperty: this.props.entrySet()) {
+                if (relationshipProperty.getValue() != null) {
+                    queryBuilder.append(relationshipProperty.getKey()).append(':')
+                        .append(propertyVariablePrefix).append(relationshipProperty.getKey()).append(',');
+                }
+            }
+            queryBuilder.setLength(queryBuilder.length() - 1);
+            queryBuilder.append('}');
+
+            parameters.put(this.reference + "_props", this.props);
+        }
         queryBuilder.append("]->(");
-        queryBuilder.append(tgt);
+        queryBuilder.append(endNodeIdentifier);
         queryBuilder.append(")");
 
         return true;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        NewRelationshipBuilder that = (NewRelationshipBuilder) o;
-
-        if (!src.equals(that.src)) return false;
-        if (!tgt.equals(that.tgt)) return false;
-        if (!type.equals(that.type)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + src.hashCode();
-        result = 31 * result + tgt.hashCode();
-        return result;
-    }
 }

@@ -86,7 +86,7 @@ public class SessionResponseHandler implements ResponseHandler {
             ogm.load(type, graphModel);
         }
         response.close();
-        return (T) mappingContext.get(id);
+        return type.cast(mappingContext.get(id));
     }
 
     @Override

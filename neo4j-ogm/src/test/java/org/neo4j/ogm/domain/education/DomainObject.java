@@ -1,5 +1,8 @@
 package org.neo4j.ogm.domain.education;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+
+@NodeEntity
 public abstract class DomainObject {
 
     Long id;

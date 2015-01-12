@@ -1,7 +1,6 @@
 package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.session.request.TransactionRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,9 +8,9 @@ public class LongTransaction extends SimpleTransaction {
 
     private final Logger logger = LoggerFactory.getLogger(LongTransaction.class);
 
-    private final TransactionRequestHandler transactionRequestHandler;
+    private final TransactionManager transactionRequestHandler;
 
-    public LongTransaction(MappingContext mappingContext, String url, TransactionRequestHandler transactionRequestHandler) {
+    public LongTransaction(MappingContext mappingContext, String url, TransactionManager transactionRequestHandler) {
         super(mappingContext, url);
         this.transactionRequestHandler = transactionRequestHandler;
     }

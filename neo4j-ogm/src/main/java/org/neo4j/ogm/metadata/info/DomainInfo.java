@@ -1,12 +1,13 @@
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.metadata.ClassPathScanner;
 import org.neo4j.ogm.metadata.MappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class DomainInfo implements ClassInfoProcessor {
@@ -16,10 +17,10 @@ public class DomainInfo implements ClassInfoProcessor {
     private static final String bigIntegerSignature = "java/math/BigInteger";
 
     private final List<String> classPaths = new ArrayList<>();
-    private final HashMap<String, ClassInfo> classNameToClassInfo = new HashMap<>();
-    private final HashMap<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
-    private final HashMap<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
-    private final HashMap<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
+    private final Map<String, InterfaceInfo> interfaceNameToInterfaceInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
     private final Set<String> enumTypes = new HashSet<>();
 
@@ -97,13 +98,39 @@ public class DomainInfo implements ClassInfoProcessor {
     public void finish() {
         buildAnnotationNameToClassInfoMap();
         registerDefaultTypeConverters();
+        List<ClassInfo> transientClasses = new ArrayList<>();
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
             if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
+
+            if (classInfo.isTransient()) {
+                LOGGER.info("Registering @Transient baseclass: " + classInfo.name());
+                transientClasses.add(classInfo);
+                continue;
+            }
+
             if (classInfo.superclassName() == null || classInfo.superclassName().equals("java.lang.Object")) {
                 extend(classInfo, classInfo.directSubclasses());
             }
         }
+
+        // remove all transient class hierarchies
+        for (ClassInfo transientClass : transientClasses) {
+            removeTransientClass(transientClass);
+        }
+
     }
+
+    private void removeTransientClass(ClassInfo transientClass) {
+        if (transientClass != null && !transientClass.name().equals("java.lang.Object")) {
+            LOGGER.info("Removing @Transient class: " + transientClass.name());
+            classNameToClassInfo.remove(transientClass.name());
+            for (ClassInfo transientChild : transientClass.directSubclasses()) {
+                removeTransientClass(transientChild);
+            }
+        }
+
+    }
+
 
     private void extend(ClassInfo superclass, List<ClassInfo> subclasses) {
         for (ClassInfo subclass : subclasses) {
@@ -115,12 +142,11 @@ public class DomainInfo implements ClassInfoProcessor {
     public void process(final InputStream inputStream) throws IOException {
 
         ClassInfo classInfo = new ClassInfo(inputStream);
-        if (classInfo.annotationsInfo().get(Transient.CLASS) != null) {
-            LOGGER.info("Skipping @Transient class: " + classInfo.name());
-            return;
-        }
+
         String className = classInfo.name();
         String superclassName = classInfo.superclassName();
+
+        LOGGER.debug("processing: " + className + " -> " + superclassName);
 
         if (className != null) {
             if (classInfo.isInterface()) {

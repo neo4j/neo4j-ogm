@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
+import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.mapper.GraphObjectMapper;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
@@ -15,20 +17,23 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.request.*;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-import org.neo4j.ogm.session.response.GraphModelResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.response.ResponseHandler;
 import org.neo4j.ogm.session.response.SessionResponseHandler;
+import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Neo4jSession implements Session {
 
@@ -44,6 +49,8 @@ public class Neo4jSession implements Session {
 
     // all transaction objects must have thread local scope
     private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
+
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE)\\b");
 
     public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
         this.metaData = metaData;
@@ -174,25 +181,77 @@ public class Neo4jSession implements Session {
         return tx;
     }
 
+
     @Override
     public <T> T queryForObject(Class<T> type, String cypher, Map<String, Object> parameters)
     {
-        String url = getOrCreateTransaction().url();
-        GraphModelQuery qry = new GraphModelQuery(cypher, parameters);
+        Collection<T> results = query(type, cypher, parameters);
 
-        try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
-            Collection<T> results = getResponseHandler().loadAll(type, response);
+        int resultSize = results.size();
 
-            if (results.size() < 1 ) {
-                return null;
-            }
-
-            if (results.size() < 1) {
-                throw new RuntimeException("Found more than 1 result");
-            }
-
-            return results.iterator().next();
+        if (resultSize < 1 ) {
+            return null;
         }
+
+        if (resultSize < 1) {
+            throw new RuntimeException("Found more than 1 result");
+        }
+
+        return results.iterator().next();
+    }
+
+
+    @Override
+    public <T> Collection<T> query(Class<T> type, String cypher, Map<String, Object> parameters)
+    {
+        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
+
+        if (matcher.find()) {
+            throw new RuntimeException("query() only allows read only cypher. To make modifications use execute()");
+        }
+
+        String url = getOrCreateTransaction().url();
+
+        if (metaData.classInfo(type.getSimpleName()) != null) {
+            GraphModelQuery qry = new GraphModelQuery(cypher, parameters);
+            try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
+                return getResponseHandler().loadAll(type, response);
+            }
+        }
+        else {
+            RowModelQuery qry = new RowModelQuery(cypher, parameters);
+            try (Neo4jResponse<RowModel> response = getRequestHandler().execute(qry, url)) {
+
+                String[] variables = response.columns();
+
+                if (variables.length > 1) {
+                    throw new RuntimeException("Scalar response queries must only return one column.");
+                }
+
+                Collection<T> result = new ArrayList<>();
+                RowModel rowModel;
+
+                while ((rowModel = response.next()) != null) {
+                    Object[] results = rowModel.getValues();
+                    for (int i = 0; i < variables.length; i++) {
+                        result.add((T)results[i]);
+                    }
+                }
+
+                return result;
+            }
+        }
+    }
+
+
+    @Override
+    public void execute(String cypher, Map<String, Object> parameters)
+    {
+        String url  = getOrCreateTransaction().url();
+        // NOTE: No need to check if domain objects are parameters and flatten them to json as this is done
+        // for us using the existing execute() method.
+        RowModelQuery qry = new RowModelQuery(cypher, parameters);
+        getRequestHandler().execute(qry, url).close();
     }
 
 

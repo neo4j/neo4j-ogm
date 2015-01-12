@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan({"org.springframework.data.neo4j.integration.web"})
 @EnableNeo4jRepositories("org.springframework.data.neo4j.integration.web.repo")
 @EnableTransactionManagement
-public class PersistenceContext extends Neo4jConfiguration {
+public class WebPersistenceContext extends Neo4jConfiguration {
 
     @Bean
     @Override

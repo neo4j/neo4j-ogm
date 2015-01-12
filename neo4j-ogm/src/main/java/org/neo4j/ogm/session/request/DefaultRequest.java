@@ -53,12 +53,13 @@ public class DefaultRequest implements Neo4jRequest<String> {
                 throw new ClientProtocolException("Response contains no content");
             }
 
-            LOGGER.debug("response is OK, creating response handler");
+            LOGGER.info("response is OK, creating response handler");
             return new JsonResponse(responseEntity.getContent());
 
 
         }
         catch (Exception e) {
+            System.out.println("caught response exception: " + e.getLocalizedMessage());
             throw new ResultProcessingException("Failed to execute request: " + cypherQuery, e);
         }
     }

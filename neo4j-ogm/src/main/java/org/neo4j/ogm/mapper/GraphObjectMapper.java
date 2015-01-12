@@ -140,6 +140,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
             // check whether this edge should in fact be handled as a relationship entity
             ClassInfo relationshipEntityClassInfo = metadata.resolve(edge.getType());
+
             if (relationshipEntityClassInfo != null) {
                 logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(), relationshipEntityClassInfo.name());
 
@@ -190,7 +191,8 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
                     // cannot set RE on target as one-to-one
                     oneToMany.add(edge);
                 }
-            } else {
+            }
+            else {
                 if (!mapOneToOne(source, target, edge)) {
                     oneToMany.add(edge);
                 }

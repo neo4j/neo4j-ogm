@@ -1,22 +1,17 @@
 package org.neo4j.ogm.unit.mapper.model.cineasts.annotated;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.domain.bike.Bike;
-import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.unit.mapper.model.bike.BikeRequest;
 
-import java.util.Collection;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class MovieTest {
 
     @Test
-    @Ignore
     public void testDeserialiseMovie() {
 
         MovieRequest movieRequest = new MovieRequest();
@@ -29,6 +24,11 @@ public class MovieTest {
 
         assertEquals("Pulp Fiction", movie.getTitle());
         assertNotNull(movie.getRatings());
-        assertEquals(2, movie.getRatings().size());
+        assertEquals(1, movie.getRatings().size());
+
+        Rating rating = movie.getRatings().iterator().next();
+
+        assertEquals("Michal", rating.getUser().getName());
+        assertEquals("Pulp Fiction", rating.getMovie().getTitle());
     }
 }

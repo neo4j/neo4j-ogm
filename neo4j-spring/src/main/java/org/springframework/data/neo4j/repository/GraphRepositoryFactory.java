@@ -56,6 +56,7 @@ public class GraphRepositoryFactory<S, T> extends RepositoryFactorySupport {
         result.setTarget(target);
         result.setInterfaces(new Class[] { repositoryInterface, Repository.class });
 
+
         return (T) result.getProxy(classLoader);
     }
 

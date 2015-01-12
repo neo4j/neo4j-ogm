@@ -48,7 +48,7 @@ public class Neo4jSession implements Session {
     private final MappingContext mappingContext;
     private final ObjectMapper mapper;
     private final String autoCommitUrl;
-    private final TransactionManager transactionRequestHandler;
+    private final TransactionManager txManager;
 
     private Neo4jRequest<String> request;
 
@@ -58,7 +58,7 @@ public class Neo4jSession implements Session {
         this.metaData = metaData;
         this.mapper = mapper;
         this.mappingContext = new MappingContext(metaData);
-        this.transactionRequestHandler = new TransactionManager(client, url);
+        this.txManager = new TransactionManager(client, url);
         this.autoCommitUrl = autoCommit(url);
         this.request = new DefaultRequest(client);
     }
@@ -161,9 +161,9 @@ public class Neo4jSession implements Session {
         logger.info("beginTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Neo4jSession identity: " + this);
 
-        Transaction tx = transactionRequestHandler.openTransaction(mappingContext);
+        Transaction tx = txManager.openTransaction(mappingContext);
 
-        logger.info("obtained new transaction: " + tx.url());
+        logger.info("Obtained new transaction: " + tx.url() + ", tx id: " + tx);
         return tx;
     }
 
@@ -301,9 +301,9 @@ public class Neo4jSession implements Session {
                     getResponseHandler().updateObjects(context, response, mapper);
                     tx.append(context);
                 }
-                catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+//                catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
             } else {
                 logger.info(object.getClass().getName() + " is not an instance of a persistable class");
             }
@@ -362,7 +362,7 @@ public class Neo4jSession implements Session {
         logger.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Session identity: " + this);
 
-        Transaction tx = transactionRequestHandler.getCurrentTransaction();
+        Transaction tx = txManager.getCurrentTransaction();
         if (tx == null
                 || tx.status().equals(Transaction.Status.CLOSED)
                 || tx.status().equals(Transaction.Status.COMMITTED)
@@ -371,7 +371,7 @@ public class Neo4jSession implements Session {
             return new SimpleTransaction(mappingContext, autoCommitUrl);
         }
 
-        logger.info("current transaction: " + tx.url());
+        logger.info("Current transaction: " + tx.url() + ", tx id: " + tx);
         return tx;
 
     }

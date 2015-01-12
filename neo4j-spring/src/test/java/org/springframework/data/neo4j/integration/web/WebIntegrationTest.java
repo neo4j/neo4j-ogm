@@ -3,7 +3,7 @@ package org.springframework.data.neo4j.integration.web;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.data.neo4j.integration.web.context.PersistenceContext;
+import org.springframework.data.neo4j.integration.web.context.WebPersistenceContext;
 import org.springframework.data.neo4j.integration.web.context.WebAppContext;
 import org.springframework.data.neo4j.integration.web.domain.User;
 import org.springframework.data.neo4j.integration.web.repo.UserRepository;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ContextConfiguration(classes = {WebAppContext.class, PersistenceContext.class})
+@ContextConfiguration(classes = {WebAppContext.class, WebPersistenceContext.class})
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

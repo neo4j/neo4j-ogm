@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.data.neo4j.integration.repositories.domain.Movie;
 import org.springframework.data.neo4j.integration.repositories.repo.MovieRepository;
-import org.springframework.data.neo4j.repository.GraphRepositoryFactory;
+import org.springframework.data.neo4j.repository.support.GraphRepositoryFactory;
 import org.springframework.data.neo4j.util.IterableUtils;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 

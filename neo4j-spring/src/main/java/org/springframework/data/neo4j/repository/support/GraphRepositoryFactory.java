@@ -1,7 +1,8 @@
-package org.springframework.data.neo4j.repository;
+package org.springframework.data.neo4j.repository.support;
 
 import org.neo4j.ogm.session.Session;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.data.neo4j.repository.GraphRepositoryImpl;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.RepositoryInformation;

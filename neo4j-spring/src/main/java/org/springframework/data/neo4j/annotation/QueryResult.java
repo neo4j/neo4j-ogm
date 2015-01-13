@@ -1,4 +1,4 @@
-package org.neo4j.ogm.annotation;
+package org.springframework.data.neo4j.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

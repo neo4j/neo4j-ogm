@@ -446,6 +446,14 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
+    public void shouldFindTotalUsers() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        int users = userRepository.findTotalUsers();
+        assertEquals(users, 2);
+    }
+
+    @Test
     @Ignore //todo
     public void shouldSaveNewUserAndNewMovieWithRatings() {
         User user = new User("Michal");

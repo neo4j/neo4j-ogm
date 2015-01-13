@@ -1,9 +1,8 @@
-package org.springframework.data.neo4j;
+package org.springframework.data.neo4j.repository.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.neo4j.repository.GraphRepositoryFactoryBean;
-import org.springframework.data.neo4j.support.Neo4jRepositoriesRegistrar;
+import org.springframework.data.neo4j.repository.support.GraphRepositoryFactoryBean;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 
 import java.lang.annotation.*;
@@ -67,7 +66,7 @@ public @interface EnableNeo4jRepositories {
 
     /**
      * Returns the {@link org.springframework.beans.factory.FactoryBean} class to be used for each repository instance. Defaults to
-     * {@link org.springframework.data.neo4j.repository.GraphRepositoryFactoryBean}.
+     * {@link org.springframework.data.neo4j.repository.support.GraphRepositoryFactoryBean}.
      */
     Class<?> repositoryFactoryBeanClass() default GraphRepositoryFactoryBean.class;
 

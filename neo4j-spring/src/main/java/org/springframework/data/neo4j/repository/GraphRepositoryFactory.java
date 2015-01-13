@@ -13,7 +13,7 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 
 import java.io.Serializable;
 
-public class GraphRepositoryFactory<S, T> extends RepositoryFactorySupport {
+public class GraphRepositoryFactory extends RepositoryFactorySupport {
 
     private final Session session;
 
@@ -55,6 +55,7 @@ public class GraphRepositoryFactory<S, T> extends RepositoryFactorySupport {
         ProxyFactory result = new ProxyFactory();
         result.setTarget(target);
         result.setInterfaces(new Class[] { repositoryInterface, Repository.class });
+
 
         return (T) result.getProxy(classLoader);
     }

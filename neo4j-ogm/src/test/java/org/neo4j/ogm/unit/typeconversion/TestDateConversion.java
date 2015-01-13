@@ -95,4 +95,20 @@ public class TestDateConversion {
         assertEquals("20090213113130", attributeConverter.toGraphProperty(date));
     }
 
+    @Test
+    public void assertConvertingNullGraphPropertyWorksCorrectly() {
+        MethodInfo methodInfo = memoInfo.propertySetter("approved");
+        assertTrue(methodInfo.hasConverter());
+        AttributeConverter attributeConverter = methodInfo.converter();
+        assertEquals(null, attributeConverter.toEntityAttribute(null));
+    }
+
+    @Test
+    public void assertConvertingNullAttributeWorksCorrectly() {
+        MethodInfo methodInfo = memoInfo.propertySetter("approved");
+        assertTrue(methodInfo.hasConverter());
+        AttributeConverter attributeConverter = methodInfo.converter();
+        assertEquals(null, attributeConverter.toGraphProperty(null));
+    }
+
 }

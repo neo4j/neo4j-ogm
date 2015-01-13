@@ -20,11 +20,13 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
 
     @Override
     public String toGraphProperty(Enum value) {
+        if (value == null) return null;
         return value.name();
     }
 
     @Override
     public Enum toEntityAttribute(String value) {
+        if (value == null) return null;
         return Enum.valueOf(enumClass, value.toString());
     }
 

@@ -28,11 +28,12 @@ public class TransactionManager {
     public TransactionManager(CloseableHttpClient httpClient, String server) {
         this.url = transactionRequestEndpoint(server);
         this.httpClient = httpClient;
+        transaction.remove(); // ensures this thread does not have a current tx;
     }
 
     public Transaction openTransaction(MappingContext mappingContext) {
         String transactionEndpoint = newTransactionEndpointUrl();
-        logger.info("creating new transaction with endpoint " + transactionEndpoint);
+        logger.info("Creating new transaction with endpoint " + transactionEndpoint);
         transaction.set(new LongTransaction(mappingContext, transactionEndpoint, this));
         return transaction.get();
     }

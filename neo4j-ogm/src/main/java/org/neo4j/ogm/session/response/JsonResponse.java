@@ -1,5 +1,7 @@
 package org.neo4j.ogm.session.response;
 
+import org.neo4j.ogm.session.result.ResultProcessingException;
+
 import java.io.InputStream;
 import java.util.Scanner;
 
@@ -94,8 +96,20 @@ public class JsonResponse implements Neo4jResponse<String> {
         if (cp == -1) {
             throw new RuntimeException("Unexpected problem! Cypher response starts: " + header + "...");
         }
-        String errStart = header.substring(cp);
-        String errors = errStart.substring(errStart.indexOf("[") + 1, errStart.indexOf("]"));
-        throw new RuntimeException(errors);
+
+        StringBuilder sb = new StringBuilder(header);
+        String response;
+        try {
+            while ((response = scanner.next()) != null) {
+                sb.append(response);
+            }
+        } catch (Exception e) {
+            scanner.close();
+        }
+
+        //String errors = sb.substring(cp + 2);
+
+        //errors = errors.substring(sb.indexOf("[") + 1, sb.lastIndexOf("]"));
+        throw new ResultProcessingException(sb.substring(cp + 2), null);
     }
 }

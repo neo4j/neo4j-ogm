@@ -13,7 +13,7 @@ public class GraphRepositoryFactoryBean<S extends Repository<T, Long>, T> extend
 
     @Override
     protected RepositoryFactorySupport doCreateRepositoryFactory() {
-        return new GraphRepositoryFactory<S, T>(session);
+        return new GraphRepositoryFactory(session);
     }
 
 }

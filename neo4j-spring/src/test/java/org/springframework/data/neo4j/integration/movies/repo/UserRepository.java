@@ -10,8 +10,9 @@ import java.util.Collection;
 @Repository
 public interface UserRepository extends GraphRepository<User> {
 
-    Collection<User> findUsersByName(String name);
+    Collection<User> findByName(String name);
 
     @Query("MATCH (user:User) RETURN COUNT(user)")
     int findTotalUsers();
+
 }

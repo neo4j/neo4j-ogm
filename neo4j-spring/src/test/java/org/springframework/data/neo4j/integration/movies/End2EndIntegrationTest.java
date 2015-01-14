@@ -453,7 +453,6 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
     public void shouldSaveNewUserAndNewMovieWithRatings() {
         User user = new User("Michal");
         TempMovie movie = new TempMovie("Pulp Fiction");

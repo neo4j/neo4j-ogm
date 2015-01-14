@@ -61,12 +61,14 @@ public class SessionResponseHandler implements ResponseHandler {
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
                 Object persisted = context.getNewObject(variable);
-                Long identity = Long.parseLong(results[i].toString());
-                refMap.put(variable, identity);
-                ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
-                Field identityField = classInfo.getField(classInfo.identityField());
-                FieldWriter.write(identityField, persisted, identity);
-                mappingContext.register(persisted, identity);
+                if (persisted != null) {  // could be a rel-id, in which case, no node object in context.
+                    Long identity = Long.parseLong(results[i].toString());
+                    refMap.put(variable, identity);
+                    ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
+                    Field identityField = classInfo.getField(classInfo.identityField());
+                    FieldWriter.write(identityField, persisted, identity);
+                    mappingContext.register(persisted, identity);
+                }
             }
         }
         for (Object object : context.log()) {

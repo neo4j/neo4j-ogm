@@ -101,8 +101,6 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo fix
-    //there are two problems here: 1) Movie is getting AbstractEntity label which it shouldn't, 2) byte[] isn't stored as array but as a String
     public void shouldSaveMovie() {
         Movie movie = new Movie("Pulp Fiction");
         movie.setTags(new String[]{"cool", "classic"});
@@ -110,7 +108,8 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
 
         abstractEntityRepository.save(movie);
 
-        assertSameGraph(getDatabase(), "CREATE (m:Movie {title:'Pulp Fiction', tags:['cool','classic'], image:[1,2,3]})");
+        // byte arrays have to be transferred with a JSON-supported format. Base64 is the default.
+        assertSameGraph(getDatabase(), "CREATE (m:Movie {title:'Pulp Fiction', tags:['cool','classic'], image:'AQID'})");
     }
 
     @Test
@@ -434,11 +433,11 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo fixme
+    @Ignore //todo fixme when query methods working in spring aop
     public void shouldFindUsersByName() {
         new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
 
-        Collection<User> users = userRepository.findUsersByName("Michal");
+        Collection<User> users = userRepository.findByName("Michal");
         Iterator<User> iterator = users.iterator();
         assertTrue(iterator.hasNext());
         assertEquals("Michal", iterator.next().getName());
@@ -446,13 +445,20 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo
+    //@Ignore //todo
     public void shouldSaveNewUserAndNewMovieWithRatings() {
         User user = new User("Michal");
         TempMovie movie = new TempMovie("Pulp Fiction");
         user.rate(movie, 5, "Best movie ever");
         userRepository.save(user);
 
-        assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:RATED {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
+        User michal = userRepository.findByProperty("name", "Michal").iterator().next();
+
+        assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
+    }
+
+    @Test
+    public void testDatabaseCheck() {
+//        assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
     }
 }

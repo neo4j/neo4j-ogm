@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-public class DeleteTest {
+public class DeleteStatementsTest {
 
     private final DeleteStatements statements = new DeleteStatements();
 

@@ -42,4 +42,8 @@ class IdentifierManager {
     public String identifier(Long value) {
         return String.format(EXISTING_FORMAT, value);
     }
+
+    public synchronized void releaseIdentifier() {
+        this.idCounter--;
+    }
 }

@@ -4,9 +4,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
@@ -131,31 +131,28 @@ public class EndToEndTest extends IntegrationTest {
         Wheel backWheel = new Wheel();
         Bike bike = new Bike();
 
-        // TODO: can't persist the 1-side of an object relationship...
-        //bike.setFrame(new Frame());
-        //bike.setSaddle(new Saddle());
+        bike.setFrame(new Frame());
+        bike.setSaddle(new Saddle());
         bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
         assertNull(frontWheel.getId());
         assertNull(backWheel.getId());
         assertNull(bike.getId());
-        //assertNull(bike.getFrame().getId());
-        //assertNull(bike.getSaddle().getId());
+        assertNull(bike.getFrame().getId());
+        assertNull(bike.getSaddle().getId());
 
         session.save(bike);
 
         assertNotNull(frontWheel.getId());
         assertNotNull(backWheel.getId());
         assertNotNull(bike.getId());
-        //assertNotNull(bike.getFrame().getId());
-        //assertNotNull(bike.getSaddle().getId());
+        assertNotNull(bike.getFrame().getId());
+        assertNotNull(bike.getSaddle().getId());
 
     }
 
     @Test
     public void tourDeFrance() {
-
-        //session = sessionFactory.openSession("http://localhost:7474");
 
         long now = -System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
@@ -164,28 +161,23 @@ public class EndToEndTest extends IntegrationTest {
             Wheel backWheel = new Wheel();
             Bike bike = new Bike();
 
-            // TODO: can't persist the 1-side of an object relationship...
-            //bike.setFrame(new Frame());
-            //bike.setSaddle(new Saddle());
+            bike.setFrame(new Frame());
+            bike.setSaddle(new Saddle());
             bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
             session.save(bike);
         }
         now += System.currentTimeMillis();
 
-        Neo4jSession defaultSession = (Neo4jSession) session;
         System.out.println("Number of separate requests: 1000");
         System.out.println("Number of threads: 1");
-        System.out.println("Number of new objects to create per request: 3");
+        System.out.println("Number of new objects to create per request: 5");
         System.out.println("Number of relationships to create per request: 2");
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
     }
 
     @Test
     public void multiThreadedTourDeFrance() throws InterruptedException {
-
-        //session = sessionFactory.openSession("http://localhost:7474");
-
 
         final int NUM_THREADS=4;
         final int NUM_INSERTS = 1000 / NUM_THREADS;
@@ -205,9 +197,8 @@ public class EndToEndTest extends IntegrationTest {
                         Wheel backWheel = new Wheel();
                         Bike bike = new Bike();
 
-                        // TODO: can't persist the 1-side of an object relationship...
-                        //bike.setFrame(new Frame());
-                        //bike.setSaddle(new Saddle());
+                        bike.setFrame(new Frame());
+                        bike.setSaddle(new Saddle());
                         bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
                         session.save(bike);
@@ -223,13 +214,11 @@ public class EndToEndTest extends IntegrationTest {
         }
         now += System.currentTimeMillis();
 
-        Neo4jSession defaultSession = (Neo4jSession) session;
         System.out.println("Number of separate requests: 1000");
         System.out.println("Number of threads: " + NUM_THREADS);
-        System.out.println("Number of new objects to create per request: 3");
+        System.out.println("Number of new objects to create per request: 5");
         System.out.println("Number of relationships to create per request: 2");
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
-
 
     }
 }

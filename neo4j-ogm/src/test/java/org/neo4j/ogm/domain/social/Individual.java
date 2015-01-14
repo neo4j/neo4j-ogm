@@ -14,6 +14,8 @@ public class Individual {
 
     private List<Individual> friends;
     private int[] primitiveIntArray;
+    private byte[] primitiveByteArray;
+
     private Vector<Double> favouriteRadioStations;
 
     public Long getId() {
@@ -64,4 +66,11 @@ public class Individual {
         this.favouriteRadioStations = fmFrequencies;
     }
 
+    public byte[] getPrimitiveByteArray() {
+        return primitiveByteArray;
+    }
+
+    public void setPrimitiveByteArray(byte[] primitiveByteArray) {
+        this.primitiveByteArray = primitiveByteArray;
+    }
 }

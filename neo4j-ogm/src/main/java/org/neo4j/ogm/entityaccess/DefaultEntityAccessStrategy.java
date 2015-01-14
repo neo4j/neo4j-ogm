@@ -1,6 +1,7 @@
 package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -242,6 +243,17 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             }
         }
         logger.warn("Failed to find an @EndNode on " + relationshipEntityClassInfo);
+        return null;
+    }
+
+    @Override
+    public RelationalReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
+        for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
+            if (fieldInfo.getAnnotations().get(StartNode.CLASS) != null) {
+                return getRelationalReader(relationshipEntityClassInfo, fieldInfo.getName());
+            }
+        }
+        logger.warn("Failed to find an @StartNode on " + relationshipEntityClassInfo);
         return null;
     }
 

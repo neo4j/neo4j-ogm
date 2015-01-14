@@ -74,4 +74,14 @@ public interface CypherCompiler {
      */
     List<ParameterisedStatement> getStatements();
 
+    /**
+     * Returns an unused relationship's reference to the ref pool
+     *
+     * This is to ensure that references are only created when needed
+     *
+     * @param relationshipBuilder
+     */
+    void release(RelationshipBuilder relationshipBuilder);
+
+    String nextIdentifier();
 }

@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-public class QueryTest {
+public class VariableDepthQueryTest {
 
     private final VariableDepthQuery query = new VariableDepthQuery();
 

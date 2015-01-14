@@ -9,5 +9,5 @@ import java.util.Collection;
 @Repository
 public interface UserRepository extends GraphRepository<User> {
 
-    Collection<User> findUsersByName(String name);
+    Collection<User> findByName(String name);
 }

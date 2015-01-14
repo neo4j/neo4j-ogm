@@ -24,5 +24,5 @@ public interface EntityAccessStrategy {
     Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo);
 
     RelationalReader getEndNodeReader(ClassInfo relationshipEntityClassInfo);
-
+    RelationalReader getStartNodeReader(ClassInfo classInfo);
 }

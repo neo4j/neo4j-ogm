@@ -1,15 +1,6 @@
 package org.neo4j.ogm.unit.mapper;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.*;
-
-import java.util.*;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -29,6 +20,11 @@ import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.mapper.ObjectToCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
+
+import java.util.*;
+
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {
 
@@ -211,14 +207,12 @@ public class ObjectToCypherMapperTest {
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(school).getStatements());
 
-//        // todo optimisation: too many with clauses. only one is necessary, and the merge clauses can be collected together
-//        expect("CREATE (_0:`School`:`DomainObject`{_0_props}), (_1:`Teacher`{_1_props}), (_2:`Teacher`{_2_props}) " +
-//                "WITH _0,_1,_2 MERGE (_0)-[:TEACHERS]->(_1) " +
-//                "WITH _0,_1,_2 MERGE (_0)-[:TEACHERS]->(_2) " +
-//                "RETURN id(_0) AS _0, id(_1) AS _1, id(_2) AS _2", cypher);
-
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (j:Teacher {name:'Miss Jones'}), (w:Teacher {name:'Mr White'})," +
-                " (s:School:DomainObject {name:'Hilly Fields'}), (s)-[:TEACHERS]->(j), (s)-[:TEACHERS]->(w)");
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (j:Teacher {name:'Miss Jones'}), " +
+                        "(w:Teacher {name:'Mr White'}), " +
+                        "(s:School:DomainObject {name:'Hilly Fields'}), " +
+                        "(s)-[:TEACHERS]->(j)-[:SCHOOL]->(s), " +
+                        "(s)-[:TEACHERS]->(w)-[:SCHOOL]->(s)");
     }
 
     @Test
@@ -398,18 +392,18 @@ public class ObjectToCypherMapperTest {
         // need to ensure teachers list is mutable
         hillsRoad.setTeachers(new ArrayList<>(Arrays.asList(missJones, mrWhite)));
 
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
-
         mappingContext.remember(hillsRoad);
         mappingContext.remember(mrWhite);
         mappingContext.remember(missJones);
 
+        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
+        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
+        mappingContext.remember(new MappedRelationship(whiteId, "SCHOOL", schoolId));
+        mappingContext.remember(new MappedRelationship(jonesId, "SCHOOL", schoolId));
+
         // Fire Mr White:
         mrWhite.setSchool(null);
 
-        // at the moment, we can't handle the deleted relationship between school->mrWhite from the mrWhite side
-        // so we must persist from the collection (school) side.
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(hillsRoad).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
@@ -440,11 +434,29 @@ public class ObjectToCypherMapperTest {
         individual.setPrimitiveIntArray(new int[] {1, 6, 4, 7, 2});
 
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(individual).getStatements());
+
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {name:'Jeff', age:41, primitiveIntArray:[1,6,4,7,2]})");
 
         ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveIntArray AS ints");
         for (Map<String, Object> result : executionResult) {
             assertEquals("The array wasn't persisted as the correct type", 5, ((int[]) result.get("ints")).length);
+        }
+    }
+
+    @Test
+    @Ignore // todo : can't persist a byte array using cypher!
+    public void shouldGenerateCypherToPersistByteArray() {
+
+        Individual individual = new Individual();
+        individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(individual).getStatements());
+
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {primitiveByteArray:[1,2,3,4,5]})");
+
+        ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
+        for (Map<String, Object> result : executionResult) {
+            assertEquals("The array wasn't persisted as the correct type", 5, ((byte[]) result.get("bytes")).length);
         }
     }
 
@@ -517,8 +529,8 @@ public class ObjectToCypherMapperTest {
                 "(danny:Teacher {name:'Danny Pink'}), " +
                 "(english:Course {name:'English'}), " +
                 "(maths:Course {name:'Maths'}), " +
-                "(school)-[:TEACHERS]->(clara), " +
-                "(school)-[:TEACHERS]->(danny), " +
+                "(school)-[:TEACHERS]->(clara)-[:SCHOOL]->(school), " +
+                "(school)-[:TEACHERS]->(danny)-[:SCHOOL]->(school), " +
                 "(danny)-[:COURSES]->(maths), " +
                 "(clara)-[:COURSES]->(english)");
     }

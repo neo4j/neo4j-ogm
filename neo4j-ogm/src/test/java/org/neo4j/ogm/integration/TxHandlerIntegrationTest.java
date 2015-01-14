@@ -37,7 +37,7 @@ public class TxHandlerIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Ignore  // FIXME (but how?)
     public void shouldPropagateDatabaseDrivenChangesToObjectGraph() throws InterruptedException {
         WheelWithUUID wheel = new WheelWithUUID();
         wheel.setSpokes(2);

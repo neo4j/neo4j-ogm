@@ -72,32 +72,52 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo fix
     public void shouldSaveReleasedMovie() {
         Calendar cinemaReleaseDate = Calendar.getInstance();
+
+
         cinemaReleaseDate.set(1994, Calendar.SEPTEMBER, 10);
+
+        // need to do this to ensure the test passes, or the calendar will use the current time's values
+        // an alternative (better) would be to specify an date format using one of the @Date converters
+        cinemaReleaseDate.set(Calendar.HOUR_OF_DAY, 0);
+        cinemaReleaseDate.set(Calendar.MINUTE, 0);
+        cinemaReleaseDate.set(Calendar.SECOND, 0);
+        cinemaReleaseDate.set(Calendar.MILLISECOND, 0);
+
 
         Calendar cannesReleaseDate = Calendar.getInstance();
         cannesReleaseDate.set(1994, Calendar.MAY, 12);
+        cannesReleaseDate.set(Calendar.HOUR_OF_DAY, 0);
+        cannesReleaseDate.set(Calendar.MINUTE, 0);
+        cannesReleaseDate.set(Calendar.SECOND, 0);
+        cannesReleaseDate.set(Calendar.MILLISECOND, 0);
 
         ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", cinemaReleaseDate.getTime(), cannesReleaseDate.getTime());
 
         abstractAnnotatedEntityRepository.save(releasedMovie);
 
-        //todo assert graph contents when test passes
+        assertSameGraph(getDatabase(),
+                "CREATE (m:ReleasedMovie:AbstractAnnotatedEntity {cinemaRelease:'1994-09-09T22:00:00.000Z',cannesRelease:768693600000,title:'Pulp Fiction'})");
     }
 
     @Test
-    @Ignore //todo fix
     public void shouldSaveReleasedMovie2() {
+
         Calendar cannesReleaseDate = Calendar.getInstance();
         cannesReleaseDate.set(1994, Calendar.MAY, 12);
+        cannesReleaseDate.set(Calendar.HOUR_OF_DAY, 0);
+        cannesReleaseDate.set(Calendar.MINUTE, 0);
+        cannesReleaseDate.set(Calendar.SECOND, 0);
+        cannesReleaseDate.set(Calendar.MILLISECOND, 0);
 
         ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", null, cannesReleaseDate.getTime());
 
         abstractAnnotatedEntityRepository.save(releasedMovie);
 
-        //todo assert graph contents when test passes
+        assertSameGraph(getDatabase(),
+                "CREATE (m:ReleasedMovie:AbstractAnnotatedEntity {cannesRelease:768693600000,title:'Pulp Fiction'})");
+
     }
 
     @Test
@@ -155,7 +175,7 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Ignore  // FIXME
     // this test expects the session/tx to check for dirty objects, which it currently does not do
     // you must save objects explicitly.
     public void shouldUpdateUserUsingTransactionalService() {
@@ -433,7 +453,7 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore //todo fixme when query methods working in spring aop
+    @Ignore // FIXME when auto-parse query methods working in spring aop
     public void shouldFindUsersByName() {
         new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
 
@@ -459,13 +479,9 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         user.rate(movie, 5, "Best movie ever");
         userRepository.save(user);
 
-        User michal = userRepository.findByProperty("name", "Michal").iterator().next();
+        userRepository.findByProperty("name", "Michal").iterator().next();
 
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
     }
 
-    @Test
-    public void testDatabaseCheck() {
-//        assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
-    }
 }

@@ -444,7 +444,7 @@ public class ObjectToCypherMapperTest {
     }
 
     @Test
-    @Ignore // todo : can't persist a byte array using cypher!
+    @Ignore // FIXME - conversion test
     public void shouldGenerateCypherToPersistByteArray() {
 
         Individual individual = new Individual();

@@ -62,9 +62,21 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>4.1.4.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.data.build</groupId>
+                <artifactId>spring-data-parent</artifactId>
+                <version>1.6.0.BUILD-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>
-                <version>1.6.1.RELEASE</version>
+                <version>1.10.0.BUILD-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -72,12 +84,6 @@
                 <artifactId>spring-test</artifactId>
                 <version>4.1.4.RELEASE</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-jpa</artifactId>
-                <version>1.4.1.RELEASE</version>
             </dependency>
 
             <dependency>
@@ -171,4 +177,11 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>spring-libs-snapshot</id>
+            <name>Spring</name>
+            <url>http://repo.spring.io/libs-snapshot</url>
+        </repository>
+    </repositories>
 </project>

@@ -1,6 +1,5 @@
-package org.springframework.data.neo4j.support;
+package org.springframework.data.neo4j.repository.config;
 
-import org.springframework.data.neo4j.EnableNeo4jRepositories;
 import org.springframework.data.repository.config.RepositoryBeanDefinitionRegistrarSupport;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
 

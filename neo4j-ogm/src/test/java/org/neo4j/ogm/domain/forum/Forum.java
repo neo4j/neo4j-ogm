@@ -1,5 +1,7 @@
 package org.neo4j.ogm.domain.forum;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,8 @@ import java.util.List;
 public class Forum {
 
     private Long id;
+
+    @Relationship(type="HAS_TOPIC")
     private List<ForumTopicLink> topicsInForum;
     private String name;
 

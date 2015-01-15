@@ -1,6 +1,7 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.mapper.GraphObjectMapper;
@@ -54,29 +55,48 @@ public class SessionResponseHandler implements ResponseHandler {
         String[] variables = rowModelResponse.columns();
         RowModel rowModel;
 
-        Map<String, Long> refMap = new HashMap<>();
+        Map<String, Long> directRefMap = new HashMap<>();
 
         while ((rowModel = rowModelResponse.next()) != null) {
             Object[] results = rowModel.getValues();
+
             for (int i = 0; i < variables.length; i++) {
+
                 String variable = variables[i];
+
+                // create the mapping between the cypher variable and the newly created domain object's
+                // identity, as returned by the database
+                Long identity = Long.parseLong(results[i].toString());
+                directRefMap.put(variable, identity);
+
+                // find the newly created domain object in the context log
                 Object persisted = context.getNewObject(variable);
-                if (persisted != null) {  // could be a rel-id, in which case, no node object in context.
-                    Long identity = Long.parseLong(results[i].toString());
-                    refMap.put(variable, identity);
+
+                if (persisted != null) {  // it will be null if the variable represents a simple relationship.
+
+                    // set the id field of the newly created domain object
                     ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
                     Field identityField = classInfo.getField(classInfo.identityField());
                     FieldWriter.write(identityField, persisted, identity);
-                    mappingContext.register(persisted, identity);
+
+                    // ensure the newly created domain object is added into the mapping context
+                    if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+                        mappingContext.registerNode(persisted, identity);
+                    } else {
+                        mappingContext.registerRelationship(persisted, identity);
+                    }
                 }
             }
         }
+
+        // finally, all new relationships just established in the graph need to be added to the mapping context.
         for (Object object : context.log()) {
             if (object instanceof TransientRelationship) {
-                MappedRelationship relationship = (((TransientRelationship) object).convert(refMap));
+                MappedRelationship relationship = (((TransientRelationship) object).convert(directRefMap));
                 mappingContext.mappedRelationships().add(relationship);
             }
         }
+
         rowModelResponse.close();
     }
 
@@ -88,7 +108,21 @@ public class SessionResponseHandler implements ResponseHandler {
             ogm.load(type, graphModel);
         }
         response.close();
-        return type.cast(mappingContext.get(id));
+        return lookup(type, id);
+    }
+
+    private <T> T lookup(Class<T> type, Long id) {
+        Object ref;
+        ClassInfo typeInfo = metaData.classInfo(type.getName());
+        if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+            ref = mappingContext.get(id);
+        } else {
+            ref = mappingContext.getRelationshipEntity(id);
+        }
+//        if (ref == null) {
+//            throw new RuntimeException("Object of type " + type + " with id " + id + " expected in mapping context, but was not found");
+//        }
+        return type.cast(ref);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class MappingContext {
         return objectMap.get(id);
     }
 
-    public Object register(Object object, Long id) {
+    public Object registerNode(Object object, Long id) {
         objectMap.putIfAbsent(id, object);
         object = objectMap.get(id);
         registerTypes(object.getClass(), object);

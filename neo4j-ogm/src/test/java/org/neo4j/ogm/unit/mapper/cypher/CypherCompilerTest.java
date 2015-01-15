@@ -488,6 +488,54 @@ public class CypherCompilerTest {
 
     }
 
+
+
+    @Test
+    public void shouldDeleteExistingRelationshipEntity() {
+
+        Long forumId = 0L;
+        Long topicId = 1L;
+        Long linkId  = 2L;
+
+        Forum forum = new Forum();
+        forum.setId(forumId);
+        forum.setName("Spring Data Neo4j");
+
+        Topic topic = new Topic();
+        topic.setTopicId(topicId);
+        topic.setInActive(Boolean.FALSE);
+
+        ForumTopicLink link = new ForumTopicLink();
+        link.setId(linkId);
+        link.setForum(forum);
+        link.setTopic(topic);
+
+        forum.setTopicsInForum(Arrays.asList(link));
+
+        mappingContext.remember(forum);
+        mappingContext.remember(topic);
+        mappingContext.remember(link);
+        // the mapping context remembers the relationship between the forum and the topic in the graph
+        mappingContext.remember(new MappedRelationship(forumId, "HAS_TOPIC", topicId));
+
+        // unlink the objects manually
+        forum.setTopicsInForum(null);
+        link.setTopic(null);
+
+        // expect the delete to be recognised when the forum is saved
+        expectOnSave(forum, "MATCH ($0)-[_0:HAS_TOPIC]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _0");
+
+        // expect the delete to be recognised if the RE is saved
+        expectOnSave(link, "MATCH ($0)-[_0:HAS_TOPIC]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _0");
+
+        // expect nothing to happen if the topic is saved, because the domain model does not
+        // permit navigation from the topic to the RE (topic has no reference to it)
+        expectOnSave(topic, "");
+
+        // todo: more tests re saving deletes from REs marked as incoming relationships
+
+    }
+
     private void expectOnSave(Object object, String... cypher) {
         ParameterisedStatements statements = new ParameterisedStatements(this.mapper.mapToCypher(object).getStatements());
         for (String s : cypher) {
@@ -495,7 +543,7 @@ public class CypherCompilerTest {
                 return;
             }
         }
-        fail(statements.getStatements().get(0).getStatement());
+        fail("unexpected: '" + statements.getStatements().get(0).getStatement() + "'");
     }
 
     private String var(Long nodeId) {

@@ -45,6 +45,9 @@ public abstract class RelationshipBuilder implements CypherEmitter, Comparable<R
 
     public abstract void relate(String startNodeIdentifier, String endNodeIdentifier);
 
+    public String getReference() {
+        return reference;
+    }
 
     @Override
     public int compareTo(RelationshipBuilder o) {

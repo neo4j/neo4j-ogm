@@ -2,11 +2,7 @@ package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.cypher.compiler.CypherCompiler;
-import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.cypher.compiler.NodeBuilder;
-import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
-import org.neo4j.ogm.cypher.compiler.SingleStatementCypherCompiler;
+import org.neo4j.ogm.cypher.compiler.*;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -25,7 +21,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private final Logger logger = LoggerFactory.getLogger(ObjectCypherMapper.class);
 
     private final MetaData metaData;
-    private final EntityAccessStrategy objectAccessStrategy;
+    private final EntityAccessStrategy entityAccessStrategy;
     private final MappingContext mappingContext;
 
     /**
@@ -37,7 +33,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     public ObjectCypherMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
-        this.objectAccessStrategy = new DefaultEntityAccessStrategy();
+        this.entityAccessStrategy = new DefaultEntityAccessStrategy();
     }
 
 
@@ -62,7 +58,10 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         // i.e. the RE's start node
         if (isRelationshipEntity(toPersist)) {
             ClassInfo classInfo = metaData.classInfo(toPersist.getClass().getName());
-            toPersist = objectAccessStrategy.getStartNodeReader(classInfo).read(toPersist);
+            toPersist = entityAccessStrategy.getStartNodeReader(classInfo).read(toPersist);
+            if (toPersist == null) {
+                throw new RuntimeException("@StartNode of relationship entity may not be null");
+            }
         }
 
         deepMap(cypherBuilder, toPersist, context, horizon);
@@ -113,7 +112,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
             if (mappingContext.isDirty(toPersist)) {
                 context.log(toPersist);
-                nodeBuilder.mapProperties(toPersist, classInfo, objectAccessStrategy);
+                nodeBuilder.mapProperties(toPersist, classInfo, entityAccessStrategy);
             } 
             if (horizon != 0) {
                 findRelatedObjects(cypherBuilder, toPersist, nodeBuilder, context, horizon - 1);
@@ -139,7 +138,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             return null;
         }
 
-        Object id = objectAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
         if (id == null) {
             NodeBuilder newNode = cypherBuilder.newNode().addLabels(classInfo.labels());
             context.visit(toPersist, newNode);
@@ -162,19 +161,19 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     private void findRelatedObjects(CypherCompiler cypherBuilder, Object srcObject, NodeBuilder nodeBuilder, CypherContext context, int horizon) {
 
         ClassInfo srcInfo = metaData.classInfo(srcObject.getClass().getName());
-        Long srcIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(srcInfo).read(srcObject);
+        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(srcInfo).read(srcObject);
 
-        for (RelationalReader reader : objectAccessStrategy.getRelationalReaders(srcInfo)) {
+        for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(srcInfo)) {
 
             Object relatedObject = reader.read(srcObject);
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
 
+
             // clear the relationship<s> in the current cypher context for pre-existing objects
             // note: the mappingContext will still have this relationship entry
             if (srcIdentity != null) {
-                //// TODO: this won't be the right relationship type if it's a RelationshipEntity
-                logger.debug("deregistering relationshipType: " + relationshipType);
+                logger.info("deregistering all relationships of type: " + relationshipType + " for object: " + srcObject);
                 context.deregisterRelationships(srcIdentity, relationshipType);
             }
 
@@ -182,7 +181,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
                 for (Object tgtObject : (Iterable<?>) relatedObject) {
                     RelationshipBuilder relationship = getRelationshipBuilder(cypherBuilder, tgtObject, relationshipDirection, relationshipType);
                     if (isRelationshipEntity(tgtObject)) {
-                        tgtObject = mapRelationshipEntity(srcIdentity, tgtObject, relationship);
+                        tgtObject = mapRelationshipEntity(srcIdentity, tgtObject, relationship, context);
                     }
                     mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationship, tgtObject, context, horizon);
                 }
@@ -191,7 +190,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
                     Object tgtObject = relatedObject;
                     RelationshipBuilder relationship = getRelationshipBuilder(cypherBuilder, tgtObject, relationshipDirection, relationshipType);
                     if (isRelationshipEntity(tgtObject)) {
-                        tgtObject = mapRelationshipEntity(srcIdentity, tgtObject, relationship);
+                        tgtObject = mapRelationshipEntity(srcIdentity, tgtObject, relationship, context);
                     }
                     mapRelatedObject(cypherBuilder, nodeBuilder, srcObject, srcIdentity, relationship, tgtObject, context, horizon);
                 }
@@ -206,7 +205,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         if (isRelationshipEntity(tgtObject)) {
             ClassInfo relEntityClassInfo = metaData.classInfo(tgtObject.getClass().getName());
-            Long relId = (Long) objectAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).read(tgtObject);
+            Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).read(tgtObject);
 
             relationshipBuilder = relId != null
                     ? cypherBuilder.existingRelationship(relId)
@@ -221,7 +220,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         return relationshipBuilder;
     }
 
-    private Object mapRelationshipEntity(Long srcIdentity, Object tgtObject, RelationshipBuilder relationship) {
+    private Object mapRelationshipEntity(Long srcIdentity, Object tgtObject, RelationshipBuilder relationship, CypherContext context) {
 
         ClassInfo relEntityClassInfo = metaData.classInfo(tgtObject.getClass().getName());
 
@@ -230,16 +229,26 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
         relationship.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
 
-        for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
+        // if the RE is new, register it in the context so that we can
+        // set its ID correctly when it is created,
+        if (entityAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).read(tgtObject) == null) {
+            context.registerNewObject(relationship.getReference(), tgtObject);
+        }
+
+        for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
             relationship.addProperty(propertyReader.propertyName(), propertyReader.read(tgtObject));
         }
 
-        RelationalReader actualEndNodeReader = objectAccessStrategy.getEndNodeReader(relEntityClassInfo);
+        RelationalReader actualEndNodeReader = entityAccessStrategy.getEndNodeReader(relEntityClassInfo);
         Object newTargetObject = actualEndNodeReader.read(tgtObject);
+
+        if (newTargetObject == null) {
+            throw new RuntimeException("@EndNode of a relationship entity may not be null");
+        }
 
         if (mappingContext.isDirty(tgtObject)) {
             ClassInfo targetInfo = metaData.classInfo(newTargetObject.getClass().getName());
-            Long tgtIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(newTargetObject);
+            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(newTargetObject);
             if (tgtIdentity != null) {
                 logger.debug("RE in the database is stale");
                 MappedRelationship mappedRelationship = new MappedRelationship(srcIdentity, relationship.getType(), tgtIdentity);
@@ -269,7 +278,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         // target will be null if tgtObject is a transient class, or a subclass of a transient class
         if (target != null) {
             ClassInfo targetInfo = metaData.classInfo(tgtObject.getClass().getName());
-            Long tgtIdentity = (Long) objectAccessStrategy.getIdentityPropertyReader(targetInfo).read(tgtObject);
+            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(tgtObject);
 
             // this relationship is new, because the src object or tgt object has not yet been persisted
             if (tgtIdentity == null || srcIdentity == null) {

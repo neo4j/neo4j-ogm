@@ -221,4 +221,9 @@ public class EndToEndTest extends IntegrationTest {
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
 
     }
+
+    @Test
+    public void testRelationshipEntityHydration() {
+
+    }
 }

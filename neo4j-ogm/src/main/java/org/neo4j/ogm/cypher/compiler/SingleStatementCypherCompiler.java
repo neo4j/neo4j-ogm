@@ -17,7 +17,9 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
     private final Set<CypherEmitter> newRelationships = new TreeSet<>();
     private final Set<CypherEmitter> updatedRelationships = new TreeSet<>();
     private final Set<CypherEmitter> deletedRelationships = new TreeSet<>();
+
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
+    private final CypherContext context = new CypherContext();
 
     @Deprecated
     @Override
@@ -111,6 +113,16 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
         returnClause.emit(queryBuilder, parameters, newStack);
 
         return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
+    }
+
+    public CypherContext context() {
+        return context;
+    }
+
+    @Override
+    public CypherContext compile() {
+        context.setStatements(getStatements());
+        return context;
     }
 
     @Override

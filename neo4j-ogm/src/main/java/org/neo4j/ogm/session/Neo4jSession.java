@@ -294,7 +294,7 @@ public class Neo4jSession implements Session {
             ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
             if (classInfo != null) {
                 Transaction tx = getOrCreateTransaction();
-                CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
+                CypherContext context = new ObjectCypherMapper(metaData, mappingContext).map(object, depth);
                 try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
                     getResponseHandler().updateObjects(context, response, mapper);
                     tx.append(context);

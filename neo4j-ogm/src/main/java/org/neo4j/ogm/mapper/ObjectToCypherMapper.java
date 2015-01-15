@@ -16,7 +16,7 @@ public interface ObjectToCypherMapper {
      *         with a representation of the changes to be made by the Cypher statements never <code>null</code>
      * @throws NullPointerException if invoked with <code>null</code>
      */
-    CypherContext mapToCypher(Object toPersist);
+    CypherContext map(Object toPersist);
 
     /**
      * Processes the given object and any of its composite persistent objects to the specified depth and produces Cypher queries
@@ -28,6 +28,6 @@ public interface ObjectToCypherMapper {
      *         with a representation of the changes to be made by the Cypher statements never <code>null</code>
      * @throws NullPointerException if invoked with <code>null</code>
      */
-    CypherContext mapToCypher(Object toPersist, int depth);
+    CypherContext map(Object toPersist, int depth);
 
 }

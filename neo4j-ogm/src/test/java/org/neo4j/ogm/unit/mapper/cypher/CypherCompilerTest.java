@@ -48,14 +48,14 @@ public class CypherCompilerTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-        this.mapper.mapToCypher(null);
+        this.mapper.map(null);
     }
 
     @Test
     public void createSingleObjectWithLabelsAndProperties() {
 
         Student newStudent = new Student("Gary");
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(newStudent).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(newStudent).getStatements());
 
         assertNull(newStudent.getId());
 
@@ -537,7 +537,7 @@ public class CypherCompilerTest {
     }
 
     private void expectOnSave(Object object, String... cypher) {
-        ParameterisedStatements statements = new ParameterisedStatements(this.mapper.mapToCypher(object).getStatements());
+        ParameterisedStatements statements = new ParameterisedStatements(this.mapper.map(object).getStatements());
         for (String s : cypher) {
             if (s.equals(statements.getStatements().get(0).getStatement())) {
                 return;

@@ -57,7 +57,7 @@ public abstract class MappingTest
 
     public void saveAndVerify(Object domainObject, String sameGraphCypher) {
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(domainObject).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(domainObject).getStatements());
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());

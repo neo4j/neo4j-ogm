@@ -6,6 +6,8 @@ import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface UserRepository extends GraphRepository<User> {
@@ -15,4 +17,9 @@ public interface UserRepository extends GraphRepository<User> {
     @Query("MATCH (user:User) RETURN COUNT(user)")
     int findTotalUsers();
 
+    @Query("MATCH (user:User) RETURN user")
+    Collection<User> getAllUsers();
+
+    @Query("MATCH (m:Movie)<-[:ACTED_IN]-(a:User) RETURN m.title as movie, collect(a.name) as cast")
+    List<Map<String, Object>> getGraph();
 }

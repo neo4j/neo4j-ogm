@@ -484,4 +484,48 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
     }
 
+    @Test
+    @Ignore // FIXME: although this works it brings back disconnected bundles of User properties, not User objects
+    public void shouldFindAllUsers() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        Collection<User> users = userRepository.getAllUsers();
+
+        assertEquals(users.size(), 2);
+        assertTrue(users.iterator().next() instanceof User);
+
+        for (User user : users) {
+            if (user.getName().equals("Adam")) {
+                assertEquals(1, user.getFriends().size());
+            }  else {
+                fail("Adam should have friend relationship");
+            }
+        }
+    }
+
+    @Test
+    @Ignore // FIXME we need to know the user is querying for a table-based structure. We're returning Collection<Object>
+    public void shouldFindArbitraryGraph() {
+        new ExecutionEngine(getDatabase()).execute(
+                "CREATE " +
+                        "(dh:Movie {title:'Die Hard'}), " +
+                        "(fe:Movie {title: 'The Fifth Element'}), " +
+                        "(bw:User {name: 'Bruce Willis'}), " +
+                        "(ar:User {name: 'Alan Rickman'}), " +
+                        "(mj:User {name: 'Milla Jovovich'}), " +
+                        "(mj)-[:ACTED_IN]->(fe), " +
+                        "(ar)-[:ACTED_IN]->(dh), " +
+                        "(bw)-[:ACTED_IN]->(dh), " +
+                        "(bw)-[:ACTED_IN]->(fe)");
+
+        List<Map<String, Object>> graph = userRepository.getGraph();
+
+//        for (Map<String, Object> row : graph) {
+//            System.out.println("row:");
+//            for (Map.Entry entry : row.entrySet()) {
+//                System.out.println("\t" + entry.getKey() + ": " + entry.getValue());
+//            }
+//        }
+
+    }
 }

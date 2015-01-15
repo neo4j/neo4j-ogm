@@ -30,13 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -198,6 +192,7 @@ public class Neo4jSession implements Session {
 
         String url = getOrCreateTransaction().url();
 
+        // FIXME: doesn't handle Collection<S> or S[] where S is a domain object
         if (metaData.classInfo(type.getSimpleName()) != null) {
             GraphModelQuery qry = new GraphModelQuery(cypher, parameters);
             try (Neo4jResponse<GraphModel> response = getRequestHandler().execute(qry, url)) {
@@ -205,6 +200,7 @@ public class Neo4jSession implements Session {
             }
         }
         else {
+            // FIXME: doesn't handle Collection<S> or S[] where S is not a domain object
             RowModelQuery qry = new RowModelQuery(cypher, parameters);
             try (Neo4jResponse<RowModel> response = getRequestHandler().execute(qry, url)) {
 
@@ -216,12 +212,14 @@ public class Neo4jSession implements Session {
 
                 Collection<T> result = new ArrayList<>();
                 RowModel rowModel;
-
                 while ((rowModel = response.next()) != null) {
+//                    Map<String, Object> rowMap = new HashMap<>();
                     Object[] results = rowModel.getValues();
                     for (int i = 0; i < variables.length; i++) {
+//                        rowMap.put(variables[i], results[i]);
                         result.add((T)results[i]);
                     }
+//                    result.add((T)rowMap);
                 }
 
                 return result;

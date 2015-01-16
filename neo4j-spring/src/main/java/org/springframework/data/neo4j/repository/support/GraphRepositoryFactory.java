@@ -45,5 +45,10 @@ public class GraphRepositoryFactory extends RepositoryFactorySupport
     {
         return new GraphQueryLookupStrategy(session, key, evaluationContextProvider);
     }
+    @Override
+    protected QueryLookupStrategy getQueryLookupStrategy(QueryLookupStrategy.Key key)
+    {
+        return new GraphQueryLookupStrategy(session, key, null);
+    }
 
 }

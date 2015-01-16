@@ -15,6 +15,8 @@ public class DomainInfo implements ClassInfoProcessor {
     private static final String dateSignature = "java/util/Date";
     private static final String bigDecimalSignature = "java/math/BigDecimal";
     private static final String bigIntegerSignature = "java/math/BigInteger";
+    private static final String byteArraySignature = "[B";
+    private static final String byteArrayWrapperSignature = "[Ljava/lang/Byte";
 
     private final List<String> classPaths = new ArrayList<>();
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
@@ -61,6 +63,12 @@ public class DomainInfo implements ClassInfoProcessor {
                         else if (fieldInfo.getDescriptor().contains(bigDecimalSignature)) {
                             fieldInfo.setConverter(ConvertibleTypes.getBigDecimalConverter());
                         }
+                        else if (fieldInfo.getDescriptor().contains(byteArraySignature)) {
+                            fieldInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
+                        }
+                        else if (fieldInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
+                            fieldInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
+                        }
                         else {
                             for (String enumSignature : enumTypes) {
                                 if (fieldInfo.getDescriptor().contains(enumSignature)) {
@@ -81,6 +89,12 @@ public class DomainInfo implements ClassInfoProcessor {
                         }
                         else if (methodInfo.getDescriptor().contains(bigDecimalSignature)) {
                             methodInfo.setConverter(ConvertibleTypes.getBigDecimalConverter());
+                        }
+                        else if (methodInfo.getDescriptor().contains(byteArraySignature)) {
+                            methodInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
+                        }
+                        else if (methodInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
+                            methodInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
                         }
                         else {
                             for (String enumSignature : enumTypes) {

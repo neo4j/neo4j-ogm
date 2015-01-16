@@ -15,25 +15,25 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
+public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 
-    private final Logger logger = LoggerFactory.getLogger(GraphObjectMapper.class);
+    private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
     private final MappingContext mappingContext;
-    private final ObjectFactory objectFactory;
+    private final EntityFactory entityFactory;
     private final MetaData metadata;
     private final EntityAccessStrategy entityAccessStrategy;
 
-    public GraphObjectMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
-        this.objectFactory = new ObjectFactory(metadata);
+        this.entityFactory = new EntityFactory(metadata);
         this.mappingContext = mappingContext;
         this.entityAccessStrategy = new DefaultEntityAccessStrategy();
     }
 
     @Override
-    public <T> Set<T> load(Class<T> type, GraphModel graphModel) {
-        map(type, graphModel);
+    public <T> Set<T> map(Class<T> type, GraphModel graphModel) {
+        mapEntities(type, graphModel);
         try {
             Set<T> set = new HashSet<>();
             for (Object o : mappingContext.getAll(type)) {
@@ -45,7 +45,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    private <T> void map(Class<T> type, GraphModel graphModel) {
+    private <T> void mapEntities(Class<T> type, GraphModel graphModel) {
         try {
             mapNodes(graphModel);
             mapRelationships(graphModel);
@@ -56,25 +56,25 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void mapNodes(GraphModel graphModel) {
         for (NodeModel node : graphModel.getNodes()) {
-            Object object = mappingContext.get(node.getId());
-            if (object == null) {
-                object = mappingContext.registerNode(objectFactory.newObject(node), node.getId());
+            Object entity = mappingContext.get(node.getId());
+            if (entity == null) {
+                entity = mappingContext.registerNode(entityFactory.newObject(node), node.getId());
             }
-            setIdentity(object, node.getId());
-            setProperties(node, object);
-            mappingContext.remember(object);
+            setIdentity(entity, node.getId());
+            setProperties(node, entity);
+            mappingContext.remember(entity);
         }
     }
 
     private void setIdentity(Object instance, Long id) {
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
         FieldInfo fieldInfo = classInfo.identityField();
         FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
     }
 
     private void setProperties(NodeModel nodeModel, Object instance) {
         // cache this.
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
         for (Property property : nodeModel.getPropertyList()) {
             writeProperty(classInfo, instance, property);
         }
@@ -82,7 +82,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void setProperties(RelationshipModel relationshipModel, Object instance) {
         // cache this.
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
         if (relationshipModel.getProperties() != null) {
         for (Entry<String, Object> property : relationshipModel.getProperties().entrySet()) {
             writeProperty(classInfo, instance, Property.with(property.getKey(), property.getValue()));
@@ -116,11 +116,11 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private boolean mapOneToOne(Object source, Object parameter, RelationshipModel edge) {
 
         String edgeLabel = edge.getType();
-        ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
+        ClassInfo sourceInfo = metadata.classInfo(source);
 
-        RelationalWriter objectAccess = entityAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, parameter);
-        if (objectAccess != null) {
-            objectAccess.write(source, parameter);
+        RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, parameter);
+        if (writer != null) {
+            writer.write(source, parameter);
             // FIXME: this doesn't remember the right relationship type when objectAccess sets a RelEntity
             // indeed, why do we use objectAccess.relationshipName instead of just edge.getType?
             mappingContext.remember(new MappedRelationship(edge.getStartNode(), edgeLabel, edge.getEndNode()));
@@ -146,7 +146,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
                 Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
                 if (relationshipEntity == null) {
-                    relationshipEntity = objectFactory.newObject(edge);
+                    relationshipEntity = entityFactory.newObject(edge);
                     mappingContext.registerRelationship(relationshipEntity, edge.getId());
 
                     setIdentity(relationshipEntity, edge.getId());
@@ -157,7 +157,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
                     // now, we could just insist that you annotate start/end nodes and resolve these via EAS
                     // Do even we want to have a "simple" strategy for this given anno's are a must for EA anyway?
                     // - still should ask EAS if it's field/method, even if we do look for @StartNode rather than @Relationship
-                    ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity.getClass().getName());
+                    ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
                     RelationalWriter startNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), source);
                     if (startNodeAccess != null) {
                         startNodeAccess.write(relationshipEntity, source);
@@ -170,7 +170,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
                 }
 
                 // source.setRelationshipEntity
-                ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
+                ClassInfo sourceInfo = metadata.classInfo(source);
                 RelationalWriter sourceAccess = entityAccessStrategy.getRelationalWriter(sourceInfo, edge.getType(), relationshipEntity);
                 if (sourceAccess != null) {
                     sourceAccess.write(source, relationshipEntity);
@@ -181,7 +181,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
                 }
 
                 // target.setRelationshipEntity
-                ClassInfo targetInfo = metadata.classInfo(target.getClass().getName());
+                ClassInfo targetInfo = metadata.classInfo(target);
                 RelationalWriter targetAccess = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), relationshipEntity);
                 if (targetAccess != null) {
                     targetAccess.write(target, relationshipEntity);
@@ -208,9 +208,9 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) {
 
-        ObjectCollector typeRelationships = new ObjectCollector();
+        EntityCollector typeRelationships = new EntityCollector();
 
-        // first, build the full set of related objects of each type for each source object in the relationship
+        // first, build the full set of related entities of each type for each source entity in the relationship
         for (RelationshipModel edge : oneToManyRelationships) {
 
             Object instance = mappingContext.get(edge.getStartNode());
@@ -231,15 +231,15 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         for (Object instance : typeRelationships.getOwningTypes()) {
             Map<Class<?>, Set<Object>> handled = typeRelationships.getTypeCollectionMapping(instance);
             for (Class<?> type : handled.keySet()) {
-                Collection<?> objects = handled.get(type);
-                mapOneToMany(instance, type, objects, oneToManyRelationships);
+                Collection<?> entities = handled.get(type);
+                mapOneToMany(instance, type, entities, oneToManyRelationships);
             }
         }
     }
 
     private boolean mapOneToMany(Object instance, Class<?> valueType, Object values, Set<RelationshipModel> edges) {
 
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
 
         RelationalWriter writer = entityAccessStrategy.getIterableWriter(classInfo, valueType);
         if (writer != null) {

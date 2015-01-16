@@ -7,8 +7,8 @@ import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -291,10 +291,10 @@ public class Neo4jSession implements Session {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             saveAll(object, depth);
         } else {
-            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            ClassInfo classInfo = metaData.classInfo(object);
             if (classInfo != null) {
                 Transaction tx = getOrCreateTransaction();
-                CypherContext context = new ObjectCypherMapper(metaData, mappingContext).map(object, depth);
+                CypherContext context = new EntityGraphMapper(metaData, mappingContext).map(object, depth);
                 try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
                     getResponseHandler().updateObjects(context, response, mapper);
                     tx.append(context);
@@ -313,7 +313,7 @@ public class Neo4jSession implements Session {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             deleteAll(object);
         } else {
-            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            ClassInfo classInfo = metaData.classInfo(object);
             if (classInfo != null) {
                 Field identityField = classInfo.getField(classInfo.identityField());
                 Long identity = (Long) FieldWriter.read(identityField, object);

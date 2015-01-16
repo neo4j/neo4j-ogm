@@ -12,10 +12,9 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.ObjectCypherMapper;
-import org.neo4j.ogm.mapper.ObjectToCypherMapper;
+import org.neo4j.ogm.mapper.*;
+import org.neo4j.ogm.mapper.EntityGraphMapper;
+import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.metadata.MetaData;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ import static org.junit.Assert.*;
 
 public class CypherCompilerTest {
 
-    private ObjectToCypherMapper mapper;
+    private EntityToGraphMapper mapper;
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 
@@ -38,7 +37,7 @@ public class CypherCompilerTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectCypherMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
     @After

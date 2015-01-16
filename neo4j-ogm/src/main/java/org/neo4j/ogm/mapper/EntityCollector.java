@@ -9,20 +9,20 @@ import java.util.Set;
 /**
  * Utility to help group elements of a common type into a single collection to be set on an owning object.
  */
-class ObjectCollector {
+class EntityCollector {
 
     private final Map<Object, Map<Class<?>, Set<Object>>> typeRelationships = new HashMap<>();
 
     /**
      * Adds the given collectible element into a collection ready to be set on the given owning type.
      *
-     * @param owningObject The type on which the collection is to be set
+     * @param owningEntity The type on which the collection is to be set
      * @param collectibleElement The element to add to the collection that will eventually be set on the owning type
      */
-    public void recordTypeRelationship(Object owningObject, Object collectibleElement) {
-        Map<Class<?>, Set<Object>> handled = this.typeRelationships.get(owningObject);
+    public void recordTypeRelationship(Object owningEntity, Object collectibleElement) {
+        Map<Class<?>, Set<Object>> handled = this.typeRelationships.get(owningEntity);
         if (handled == null) {
-            this.typeRelationships.put(owningObject, handled = new HashMap<>());
+            this.typeRelationships.put(owningEntity, handled = new HashMap<>());
         }
         Class<?> type = collectibleElement.getClass();
         Set<Object> objects = handled.get(type);
@@ -33,7 +33,7 @@ class ObjectCollector {
     }
 
     /**
-     * @return All the owning types that have been added to this {@link ObjectCollector}
+     * @return All the owning types that have been added to this {@link EntityCollector}
      */
     public Iterable<Object> getOwningTypes() {
         return this.typeRelationships.keySet();

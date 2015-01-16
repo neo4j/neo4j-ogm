@@ -8,9 +8,9 @@ import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.mapper.EntityGraphMapper;
+import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.ObjectCypherMapper;
-import org.neo4j.ogm.mapper.ObjectToCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 public abstract class MappingTest
 {
-    protected ObjectToCypherMapper mapper;
+    protected EntityToGraphMapper mapper;
 
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
@@ -42,7 +42,7 @@ public abstract class MappingTest
 
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectCypherMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
     @After

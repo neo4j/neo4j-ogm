@@ -8,13 +8,13 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.*;
 
-public class ObjectFactory {
+public class EntityFactory {
 
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
     private final MetaData metadata;
 
-    public ObjectFactory(MetaData metadata) {
+    public EntityFactory(MetaData metadata) {
         this.metadata = metadata;
     }
 

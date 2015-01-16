@@ -14,10 +14,9 @@ import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.ObjectCypherMapper;
-import org.neo4j.ogm.mapper.ObjectToCypherMapper;
+import org.neo4j.ogm.mapper.*;
+import org.neo4j.ogm.mapper.EntityGraphMapper;
+import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
@@ -28,7 +27,7 @@ import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {
 
-    private ObjectToCypherMapper mapper;
+    private EntityToGraphMapper mapper;
 
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
@@ -51,7 +50,7 @@ public class ObjectToCypherMapperTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectCypherMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
     @After

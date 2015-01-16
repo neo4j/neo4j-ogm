@@ -87,14 +87,14 @@ public interface CypherCompiler {
 
     /**
      * Returns this compiler's context
-     * @return
+     * @return the current compiler context
      */
     CypherContext context();
 
     /**
      * Compiles the current request and returns the compile context, which
      * includes all the statements to be executed and related information
-     * @return
+     * @return the current compiler context
      */
     CypherContext compile();
 }

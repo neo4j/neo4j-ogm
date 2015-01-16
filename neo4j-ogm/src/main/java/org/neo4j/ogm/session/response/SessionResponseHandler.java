@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.entityaccess.FieldWriter;
-import org.neo4j.ogm.mapper.GraphObjectMapper;
+import org.neo4j.ogm.mapper.GraphEntityMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
@@ -31,12 +31,12 @@ public class SessionResponseHandler implements ResponseHandler {
     @Override
     public <T> Set<T> loadByProperty(Class<T> type, Neo4jResponse<GraphModel> response, Property<String, Object> filter) {
 
-        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         Set<T> objects = new HashSet<>();
 
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            ogm.load(type, graphModel);
+            ogm.map(type, graphModel);
             for (NodeModel nodeModel : graphModel.getNodes()) {
                 if (nodeModel.getPropertyList().contains(filter)) {
                     objects.add((T) mappingContext.get(nodeModel.getId()));
@@ -75,7 +75,7 @@ public class SessionResponseHandler implements ResponseHandler {
                 if (persisted != null) {  // it will be null if the variable represents a simple relationship.
 
                     // set the id field of the newly created domain object
-                    ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
+                    ClassInfo classInfo = metaData.classInfo(persisted);
                     Field identityField = classInfo.getField(classInfo.identityField());
                     FieldWriter.write(identityField, persisted, identity);
 
@@ -102,10 +102,10 @@ public class SessionResponseHandler implements ResponseHandler {
 
     @Override
     public <T> T loadById(Class<T> type, Neo4jResponse<GraphModel> response, Long id) {
-        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            ogm.load(type, graphModel);
+            ogm.map(type, graphModel);
         }
         response.close();
         return lookup(type, id);
@@ -128,10 +128,10 @@ public class SessionResponseHandler implements ResponseHandler {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> response) {
         Set<T> objects = new HashSet<>();
-        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            objects.addAll(ogm.load(type, graphModel));
+            objects.addAll(ogm.map(type, graphModel));
         }
         response.close();
         return objects;

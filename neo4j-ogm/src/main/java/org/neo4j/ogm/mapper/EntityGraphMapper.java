@@ -14,23 +14,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of {@link ObjectToCypherMapper} that is driven by an instance of {@link MetaData}.
+ * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link MetaData}.
  */
-public class ObjectCypherMapper implements ObjectToCypherMapper {
+public class EntityGraphMapper implements EntityToGraphMapper {
 
-    private final Logger logger = LoggerFactory.getLogger(ObjectCypherMapper.class);
+    private final Logger logger = LoggerFactory.getLogger(EntityGraphMapper.class);
 
     private final MetaData metaData;
     private final EntityAccessStrategy entityAccessStrategy;
     private final MappingContext mappingContext;
 
     /**
-     * Constructs a new {@link ObjectCypherMapper} that uses the given {@link MetaData}.
+     * Constructs a new {@link EntityGraphMapper} that uses the given {@link MetaData}.
      *
      * @param metaData The {@link MetaData} containing the mapping information
      * @param mappingContext The {@link MappingContext} for the current session
      */
-    public ObjectCypherMapper(MetaData metaData, MappingContext mappingContext) {
+    public EntityGraphMapper(MetaData metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
         this.entityAccessStrategy = new DefaultEntityAccessStrategy();
@@ -64,7 +64,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             }
         }
 
-        deepMap(entity, horizon, compiler);
+        mapEntity(entity, horizon, compiler);
         deleteObsoleteRelationships(compiler);
 
         return compiler.compile();
@@ -95,7 +95,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      * @param entity The object to persist into the graph database as a node
      * @return The "root" node of the object graph that matches
      */
-    private NodeBuilder deepMap(Object entity, int horizon, CypherCompiler compiler) {
+    private NodeBuilder mapEntity(Object entity, int horizon, CypherCompiler compiler) {
 
         if (isRelationshipEntity(entity)) {
             throw new RuntimeException("Should not happen!");
@@ -111,7 +111,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         if (nodeBuilder != null) {
             update(entity, context, nodeBuilder);
             if (horizon != 0) {
-                findRelatedObjects(compiler, entity, nodeBuilder, horizon - 1);
+                mapEntityReferences(entity, nodeBuilder, horizon - 1, compiler);
             }
         }
         return nodeBuilder;
@@ -120,15 +120,15 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
     /**
      * Creates a new node or updates an existing one in the graph, if it has changed.
      *
-     * @param node the domain object to be persisted
+     * @param entity the domain object to be persisted
      * @param context  the current {@link CypherContext}
      * @param nodeBuilder a {@link NodeBuilder} that knows how to compile node create/update cypher phrases
      */
-    private void update(Object node, CypherContext context, NodeBuilder nodeBuilder) {
-        if (mappingContext.isDirty(node)) {
-            context.log(node);
-            ClassInfo classInfo = metaData.classInfo(node);
-            nodeBuilder.mapProperties(node, classInfo, entityAccessStrategy);
+    private void update(Object entity, CypherContext context, NodeBuilder nodeBuilder) {
+        if (mappingContext.isDirty(entity)) {
+            context.log(entity);
+            ClassInfo classInfo = metaData.classInfo(entity);
+            nodeBuilder.mapProperties(entity, classInfo, entityAccessStrategy);
         }
     }
 
@@ -136,12 +136,12 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      * Returns a {@link NodeBuilder} responsible for handling new or updated nodes
      *
      * @param compiler the {@link CypherCompiler}
-     * @param toPersist the object to save
+     * @param entity the object to save
      * @return a {@link NodeBuilder} object for either a new node or an existing one
      */
-    private NodeBuilder getNodeBuilder(CypherCompiler compiler, Object toPersist) {
+    private NodeBuilder getNodeBuilder(CypherCompiler compiler, Object entity) {
 
-        ClassInfo classInfo = metaData.classInfo(toPersist);
+        ClassInfo classInfo = metaData.classInfo(entity);
 
         // transient or subclass of transient will not have class info
         if (classInfo == null) {
@@ -150,15 +150,15 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         CypherContext context=compiler.context();
 
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(toPersist);
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
         if (id == null) {
             NodeBuilder newNode = compiler.newNode().addLabels(classInfo.labels());
-            context.visit(toPersist, newNode);
-            context.registerNewObject(newNode.reference(), toPersist);
+            context.visit(entity, newNode);
+            context.registerNewObject(newNode.reference(), entity);
             return newNode;
         }
         NodeBuilder existingNode = compiler.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
-        context.visit(toPersist, existingNode);
+        context.visit(entity, existingNode);
 
         return existingNode;
     }
@@ -169,21 +169,21 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      *
      * This includes objects that are directly linked, as well as objects linked via a relationship entity
      *
-     * @param compiler the {@link CypherCompiler}
-     * @param srcObject  the node whose relationships will be updated
+     * @param entity  the node whose relationships will be updated
      * @param nodeBuilder a {@link NodeBuilder} that knows how to create node create/update cypher phrases
      * @param horizon the depth in the tree. If this reaches 0, we stop mapping any deeper
+     * @param compiler the {@link CypherCompiler}
      */
-    private void findRelatedObjects(CypherCompiler compiler, Object srcObject, NodeBuilder nodeBuilder, int horizon) {
+    private void mapEntityReferences(Object entity, NodeBuilder nodeBuilder, int horizon, CypherCompiler compiler) {
 
         CypherContext context=compiler.context();
 
-        ClassInfo srcInfo = metaData.classInfo(srcObject);
-        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(srcInfo).read(srcObject);
+        ClassInfo srcInfo = metaData.classInfo(entity);
+        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(srcInfo).read(entity);
 
         for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(srcInfo)) {
 
-            Object relatedObject = reader.read(srcObject);
+            Object relatedObject = reader.read(entity);
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
 
@@ -191,10 +191,10 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
             if (relatedObject instanceof Iterable) {
                 for (Object tgtObject : (Iterable<?>) relatedObject) {
-                    link(tgtObject, compiler, relationshipDirection, relationshipType, srcIdentity, context, nodeBuilder, srcObject, horizon);
+                    link(tgtObject, compiler, relationshipDirection, relationshipType, srcIdentity, nodeBuilder, entity, horizon);
                 }
             } else {
-                link(relatedObject, compiler, relationshipDirection, relationshipType, srcIdentity, context, nodeBuilder, srcObject, horizon);
+                link(relatedObject, compiler, relationshipDirection, relationshipType, srcIdentity, nodeBuilder, entity, horizon);
             }
         }
     }
@@ -217,23 +217,23 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      * may not already exist in the graph. The nodes at the ends of the relationships are represented
      * by srcObject and tgtObject, but the use of these names does not imply any particular direction.
      *
-     * @param tgtObject         represents the node at the end of the relationship that is not represented by srcObject
+     * @param targetEntity         represents the node at the end of the relationship that is not represented by srcObject
      * @param cypherCompiler     the {@link CypherCompiler}
      * @param relationshipDirection  the relationship direction to establish
      * @param relationshipType   the relationship type to establish
      * @param srcIdentity        a string representing the identity of the start node in the cypher context
-     * @param context            the {@link CypherContext} for the compiler instance
      * @param nodeBuilder        a {@link NodeBuilder} that knows how to create cypher node phrases
-     * @param srcObject          represents the node at the end of the relationship that is not represented by srcObject
+     * @param sourceEntity          represents the node at the end of the relationship that is not represented by srcObject
      * @param horizon            the current depth we have mapped the domain model to.
      */
-    private void link(Object tgtObject, CypherCompiler cypherCompiler, String relationshipDirection, String relationshipType, Long srcIdentity, CypherContext context, NodeBuilder nodeBuilder, Object srcObject, int horizon) {
-        if (tgtObject != null) {
-            RelationshipBuilder relationship = getRelationshipBuilder(cypherCompiler, tgtObject, relationshipDirection, relationshipType);
-            if (isRelationshipEntity(tgtObject)) {
-                tgtObject = mapRelationshipEntity(srcIdentity, tgtObject, relationship, context);
+    private void link(Object targetEntity, CypherCompiler cypherCompiler, String relationshipDirection, String relationshipType, Long srcIdentity, NodeBuilder nodeBuilder, Object sourceEntity, int horizon) {
+        if (targetEntity != null) {
+            CypherContext context = cypherCompiler.context();
+            RelationshipBuilder relationship = getRelationshipBuilder(cypherCompiler, targetEntity, relationshipDirection, relationshipType);
+            if (isRelationshipEntity(targetEntity)) {
+                targetEntity = mapRelationshipEntity(srcIdentity, targetEntity, relationship, context);
             }
-            mapRelatedObject(cypherCompiler, nodeBuilder, srcObject, srcIdentity, relationship, tgtObject, horizon);
+            mapRelatedEntity(cypherCompiler, nodeBuilder, sourceEntity, srcIdentity, relationship, targetEntity, horizon);
         }
     }
 
@@ -245,17 +245,17 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      * its properties and return a a builder associated to the RE's end node instead
      *
      * @param cypherBuilder the {@link CypherCompiler}
-     * @param tgtObject  an object representing a node or relationship entity in the graph
+     * @param entity  an object representing a node or relationship entity in the graph
      * @param relationshipDirection the relationship direction we want to establish
      * @param relationshipType the type of the relationship
      * @return The appropriate {@link RelationshipBuilder}
      */
-    private RelationshipBuilder getRelationshipBuilder(CypherCompiler cypherBuilder, Object tgtObject, String relationshipDirection, String relationshipType) {
+    private RelationshipBuilder getRelationshipBuilder(CypherCompiler cypherBuilder, Object entity, String relationshipDirection, String relationshipType) {
 
         RelationshipBuilder relationshipBuilder;
 
-        if (isRelationshipEntity(tgtObject)) {
-            Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(tgtObject)).read(tgtObject);
+        if (isRelationshipEntity(entity)) {
+            Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
 
             relationshipBuilder = relId != null
                     ? cypherBuilder.existingRelationship(relId)
@@ -266,7 +266,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
 
         relationshipBuilder.direction(relationshipDirection);
 
-        logger.debug("got relationship builder for " + tgtObject + ": " + relationshipBuilder);
+        logger.debug("got relationship builder for " + entity + ": " + relationshipBuilder);
         return relationshipBuilder;
     }
 
@@ -301,15 +301,15 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
         }
 
         RelationalReader actualEndNodeReader = entityAccessStrategy.getEndNodeReader(relEntityClassInfo);
-        Object newTargetObject = actualEndNodeReader.read(relationshipEntity);
+        Object targetEntity = actualEndNodeReader.read(relationshipEntity);
 
-        if (newTargetObject == null) {
+        if (targetEntity == null) {
             throw new RuntimeException("@EndNode of a relationship entity may not be null");
         }
 
         if (mappingContext.isDirty(relationshipEntity)) {
-            ClassInfo targetInfo = metaData.classInfo(newTargetObject);
-            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(newTargetObject);
+            ClassInfo targetInfo = metaData.classInfo(targetEntity);
+            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
             if (tgtIdentity != null) {
                 logger.debug("RE in the database is stale");
                 MappedRelationship mappedRelationship = new MappedRelationship(srcIdentity, relationshipBuilder.getType(), tgtIdentity);
@@ -321,7 +321,7 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
             }
         }
 
-        return newTargetObject;
+        return targetEntity;
 
     }
 
@@ -333,25 +333,25 @@ public class ObjectCypherMapper implements ObjectToCypherMapper {
      *
      * @param compiler the {@link CypherCompiler}
      * @param srcNodeBuilder  a {@link NodeBuilder} that knows how to create cypher phrases about nodes
-     * @param srcObject   the domain object representing the start node of the relationship
+     * @param srcEntity   the domain object representing the start node of the relationship
      * @param srcIdentity  the cypher reference to the start on the object
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param tgtObject the domain object representing the end node of the relationship
+     * @param tgtEntity the domain object representing the end node of the relationship
      * @param horizon  a value representing how deep we are mapping
      */
-    private void mapRelatedObject(CypherCompiler compiler, NodeBuilder srcNodeBuilder, Object srcObject, Long srcIdentity, RelationshipBuilder relationshipBuilder, Object tgtObject, int horizon) {
+    private void mapRelatedEntity(CypherCompiler compiler, NodeBuilder srcNodeBuilder, Object srcEntity, Long srcIdentity, RelationshipBuilder relationshipBuilder, Object tgtEntity, int horizon) {
 
-        if (srcObject == tgtObject) {
+        if (srcEntity == tgtEntity) {
             return;
         }
 
-        NodeBuilder target = deepMap(tgtObject, horizon, compiler);
+        NodeBuilder target = mapEntity(tgtEntity, horizon, compiler);
 
         // target will be null if tgtObject is a transient class, or a subclass of a transient class
         if (target != null) {
 
             CypherContext context=compiler.context();
-            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(tgtObject)).read(tgtObject);
+            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(tgtEntity)).read(tgtEntity);
 
             // this relationship is new, because the src object or tgt object has not yet been persisted
             if (tgtIdentity == null || srcIdentity == null) {

@@ -29,24 +29,12 @@ public class Friendship {
         return person;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
-    }
-
     public Person getFriend() {
         return friend;
     }
 
-    public void setFriend(Person friend) {
-        this.friend = friend;
-    }
-
     public int getStrength() {
         return strength;
-    }
-
-    public void setStrength(int strength) {
-        this.strength = strength;
     }
 
     public Long getId() {

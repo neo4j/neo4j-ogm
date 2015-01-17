@@ -58,7 +58,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         for (NodeModel node : graphModel.getNodes()) {
             Object entity = mappingContext.get(node.getId());
             if (entity == null) {
-                entity = mappingContext.registerNode(entityFactory.newObject(node), node.getId());
+                entity = mappingContext.registerNodeEntity(entityFactory.newObject(node), node.getId());
             }
             setIdentity(entity, node.getId());
             setProperties(node, entity);
@@ -135,19 +135,27 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         final Set<RelationshipModel> oneToMany = new HashSet<>();
 
         for (RelationshipModel edge : graphModel.getRelationships()) {
+
             Object source = mappingContext.get(edge.getStartNode());
             Object target = mappingContext.get(edge.getEndNode());
 
             // check whether this edge should in fact be handled as a relationship entity
+            // This works because a relationship in the graph that has properties must be represented
+            // by a domain entity annotated with @RelationshipEntity, and (if it exists) it will be found by
+            // metadata.resolve(...)
             ClassInfo relationshipEntityClassInfo = metadata.resolve(edge.getType());
 
             if (relationshipEntityClassInfo != null) {
                 logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(), relationshipEntityClassInfo.name());
 
+                // look to see if this relationship already exists in the mapping context.
                 Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
-                if (relationshipEntity == null) {
+
+                // do we know about it?
+                if (relationshipEntity == null) { // no, create a new relationship entity
                     relationshipEntity = entityFactory.newObject(edge);
-                    mappingContext.registerRelationship(relationshipEntity, edge.getId());
+                    // register the new RE in the mapping context
+                    mappingContext.registerRelationshipEntity(relationshipEntity, edge.getId());
 
                     setIdentity(relationshipEntity, edge.getId());
                     setProperties(edge, relationshipEntity);
@@ -157,26 +165,38 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                     // now, we could just insist that you annotate start/end nodes and resolve these via EAS
                     // Do even we want to have a "simple" strategy for this given anno's are a must for EA anyway?
                     // - still should ask EAS if it's field/method, even if we do look for @StartNode rather than @Relationship
+
+                    // set the start node object on our @RelationshipEntity
                     ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
                     RelationalWriter startNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), source);
                     if (startNodeAccess != null) {
                         startNodeAccess.write(relationshipEntity, source);
-                    }
+                    } // todo : throw exception, though this is detectable during metadata load
+
+                    // now we set the end node
                     RelationalWriter endNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), target);
                     if (endNodeAccess != null) {
                         endNodeAccess.write(relationshipEntity, target);
-                    }
-                    // TODO: consider throwing an exception here because the relationship type isn't usable?
+                    } // todo : throw exception, though this is detectable during metadata load
                 }
+
+                // at this point, we have either found or created the RE domain entity. now, we must locate
+                // the start and end entities and connect them to the RE - provided they have references to it.
+                // for this operation to be valid:
+                // the source reference must be of direction OUTGOING/BOTH
+                // the target reference must be of direction INCOMING/BOTH
 
                 // source.setRelationshipEntity
                 ClassInfo sourceInfo = metadata.classInfo(source);
+                // try and find a one-to-one writer
                 RelationalWriter sourceAccess = entityAccessStrategy.getRelationalWriter(sourceInfo, edge.getType(), relationshipEntity);
                 if (sourceAccess != null) {
+                    //logger.info("RelationshipEntity " + edge.getType() + " is referenced as singleton in (start) " + sourceInfo.name());
                     sourceAccess.write(source, relationshipEntity);
                     mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
                 } else {
-                    // cannot set RE on source as one-to-one
+                    // cannot set as one-to-one, try setting as one-to-many.
+                    //logger.info("RelationshipEntity " + edge.getType() + " /may/ be referenced as Iterable or Array in (start) " + sourceInfo.name());
                     oneToMany.add(edge);
                 }
 
@@ -184,11 +204,14 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                 ClassInfo targetInfo = metadata.classInfo(target);
                 RelationalWriter targetAccess = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), relationshipEntity);
                 if (targetAccess != null) {
+                    logger.info("RelationshipEntity " + edge.getType() + " is referenced as singleton in (end) " + sourceInfo.name());
                     targetAccess.write(target, relationshipEntity);
-                    // NB: this is a different direction from the above, although I'm not sure that's the right thing to do :/
-                    mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
+                    // don't remember the mapping from target -> source, because it doesn't exist in the database!
+                    // NB: this is a different direction from the above, although I'm not sure that's the right thing to do
+                    //mappingContext.remember(new MappedRelationship(edge.getEndNode(), edge.getType(), edge.getStartNode()));
                 } else {
-                    // cannot set RE on target as one-to-one
+                    // cannot set RE on target as one-to-one, try it as one-to-many
+                    //logger.info("RelationshipEntity " + edge.getType() + " /may/ be referenced as Iterable or Array in (end) " + sourceInfo.name());
                     oneToMany.add(edge);
                 }
             }
@@ -210,19 +233,27 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 
         EntityCollector typeRelationships = new EntityCollector();
 
+        //logger.info("about to set any one-to-many mappings");
+
         // first, build the full set of related entities of each type for each source entity in the relationship
         for (RelationshipModel edge : oneToManyRelationships) {
 
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
 
+            //logger.info("there is a graph relationship from " + instance.getClass().getSimpleName() + "-> (*)" + parameter.getClass().getSimpleName());
+
+            // is this a relationship entity we're trying to map?
             Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
             if (relationshipEntity != null) {
+                //logger.info("the relationship between the two has properties, and so we must construct an intermediate relationship in the domain model");
                 // process the relationship entity that was previously placed in the mapping context
-                typeRelationships.recordTypeRelationship(parameter, relationshipEntity);
+                //typeRelationships.recordTypeRelationship(parameter, relationshipEntity);
+                // FIXME: for now, we do not handle the incoming side at all. RE's are strictly 'one-way'
                 typeRelationships.recordTypeRelationship(instance, relationshipEntity);
             }
             else {
+                //logger.info("this is just an ordinary relationship without properties");
                 typeRelationships.recordTypeRelationship(instance, parameter);
             }
         }
@@ -253,11 +284,10 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                         values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Iterable<?>) currentValues);
                     }
                 }
-                values = EntityAccess.merge(writer.type(), (Iterable<?>) values, new ArrayList<Object>());
+                values = EntityAccess.merge(writer.type(), (Iterable<?>) values, new ArrayList<>());
             }
             writer.write(instance, values);
 
-            String relType = writer.relationshipName(); // FIXME: doesn't work for a relationship entity
             for (RelationshipModel edge : edges) {
                 mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
             }

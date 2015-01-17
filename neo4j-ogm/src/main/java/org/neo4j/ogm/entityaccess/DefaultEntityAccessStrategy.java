@@ -263,11 +263,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             return methodInfos.iterator().next();
         }
 
-        if (methodInfos.size() == 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}. No matching setter found.",
-                    parameterType, classInfo.name());
-        }
-        else {
+        if (methodInfos.size() > 0) {
             logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching setter found.",
                     parameterType, classInfo.name());
         }
@@ -281,8 +277,10 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             return methodInfos.iterator().next();
         }
 
-        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
-                parameterType, classInfo.name());
+        if (methodInfos.size() > 0) {
+            logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
+                    parameterType, classInfo.name());
+        }
         return null;
     }
 
@@ -292,11 +290,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             return fieldInfos.iterator().next();
         }
 
-        if (fieldInfos.size() == 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}. No matching field found.",
-                    parameterType, classInfo.name());
-        }
-        else {
+        if (fieldInfos.size() > 0) {
             logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
                     parameterType, classInfo.name());
         }

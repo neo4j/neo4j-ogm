@@ -67,7 +67,7 @@ public class MappingContextTest {
 
                 TestObject testObject = (TestObject) collector.get(id);
                 if (testObject == null) {
-                    testObject = (TestObject) collector.registerNode(new TestObject(), id);
+                    testObject = (TestObject) collector.registerNodeEntity(new TestObject(), id);
                     synchronized (testObject) {
                         if (testObject.id == null) {
                             testObject.notes.add(String.valueOf(Thread.currentThread().getId()));

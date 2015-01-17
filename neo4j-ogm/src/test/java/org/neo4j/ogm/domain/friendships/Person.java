@@ -26,16 +26,8 @@ public class Person {
         return friends;
     }
 
-    public void setFriends(List<Friendship> friends) {
-        this.friends = friends;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Long getId() {

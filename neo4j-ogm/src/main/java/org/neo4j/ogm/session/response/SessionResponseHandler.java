@@ -81,9 +81,9 @@ public class SessionResponseHandler implements ResponseHandler {
 
                     // ensure the newly created domain object is added into the mapping context
                     if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-                        mappingContext.registerNode(persisted, identity);
+                        mappingContext.registerNodeEntity(persisted, identity);
                     } else {
-                        mappingContext.registerRelationship(persisted, identity);
+                        mappingContext.registerRelationshipEntity(persisted, identity);
                     }
                 }
             }

@@ -7,6 +7,7 @@ import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -37,6 +38,32 @@ public class RelationshipEntityHydrationTest extends IntegrationTest {
         assertNotNull(mike.getId());
         assertNotNull(dave.getFriends().get(0).getId());
 
+    }
+
+    @Test
+    public void testThatSaveAndReloadAllSetsAllObjectIdsAndReferencesCorrectly() {
+
+        Person mike = new Person("Mike");
+        Person dave = new Person("Dave");
+        dave.getFriends().add(new Friendship(dave, mike, 5));
+
+        session.save(dave);
+
+        Collection<Person> personList = session.loadAll(Person.class);
+
+        int expected = 2;
+        assertEquals(expected, personList.size());
+        for (Person person : personList) {
+            if (person.getName().equals("Dave")) {
+                expected--;
+                assertEquals("Mike", person.getFriends().get(0).getFriend().getName());
+            }
+            else if (person.getName().equals("Mike")) {
+                expected--;
+                assertEquals(0, person.getFriends().size());
+            }
+        }
+        assertEquals(0, expected);
     }
 
     @Test

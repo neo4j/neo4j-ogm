@@ -1,5 +1,7 @@
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.Set;
 
 public class Movie {
@@ -8,6 +10,7 @@ public class Movie {
     String title;
     int year;
     Set<Role> cast;
+
     Set<Rating> ratings;
 
     public Long getId() {
@@ -46,6 +49,7 @@ public class Movie {
         return ratings;
     }
 
+    @Relationship(type="RATED", direction=Relationship.INCOMING)
     public void setRatings(Set<Rating> ratings) {
         this.ratings = ratings;
     }

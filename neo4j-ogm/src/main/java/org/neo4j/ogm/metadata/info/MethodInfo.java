@@ -120,4 +120,15 @@ public class MethodInfo {
         }
     }
 
+    public String relationshipDirection() {
+        if (relationship() != null) {
+            AnnotationInfo annotationInfo = getAnnotations().get(Relationship.CLASS);
+            if (annotationInfo == null) {
+                return Relationship.OUTGOING;
+            }
+            return annotationInfo.get(Relationship.DIRECTION, Relationship.OUTGOING);
+        }
+        throw new RuntimeException("relationship direction call invalid");
+    }
+
 }

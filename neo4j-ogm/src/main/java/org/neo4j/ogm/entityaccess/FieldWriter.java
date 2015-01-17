@@ -53,4 +53,9 @@ public class FieldWriter extends EntityAccess {
         return this.fieldInfo.relationship();
     }
 
+    @Override
+    public String relationshipDirection() {
+        return fieldInfo.relationshipDirection();
+    }
+
 }

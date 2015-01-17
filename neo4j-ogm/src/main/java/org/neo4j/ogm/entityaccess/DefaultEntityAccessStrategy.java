@@ -90,6 +90,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     @Override
     public EntityAccess getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter) {
 
+
         // 1st, try to find a method annotated with the relationship type.
         MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType);
         if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {

@@ -492,6 +492,22 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
+    public void shouldFindUserByName() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        User user = userRepository.findUserByName("Michal");
+        assertEquals("Michal",user.getName());
+    }
+
+    @Test
+    public void shouldFindUserByNameWithNamedParam() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        User user = userRepository.findUserByNameWithNamedParam("Michal");
+        assertEquals("Michal",user.getName());
+    }
+
+    @Test
     public void shouldFindUsersAsProperties() {
         new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
 

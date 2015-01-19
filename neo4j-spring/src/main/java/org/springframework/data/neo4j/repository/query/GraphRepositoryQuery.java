@@ -1,6 +1,8 @@
 package org.springframework.data.neo4j.repository.query;
 
 import org.neo4j.ogm.session.Session;
+import org.springframework.data.repository.query.Parameter;
+import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.RepositoryQuery;
 
 import java.lang.reflect.ParameterizedType;
@@ -30,24 +32,47 @@ public class GraphRepositoryQuery implements RepositoryQuery
         Class<?> concreteType = resolveConcreteType(graphQueryMethod.getMethod().getReturnType(),
                                                     graphQueryMethod.getMethod().getGenericReturnType());
 
+        Map<String, Object> params = resolveParams(parameters);
+
         if (returnType.equals(Void.class))
         {
-            session.execute(graphQueryMethod.getQueryString(), new HashMap<String, Object>());
+            session.execute(graphQueryMethod.getQueryString(), params);
             return null;
         }
         else if (Iterable.class.isAssignableFrom(returnType))
         {
             // Special method to handle SDN Iterable<Map<String, Object>> behaviour.
             // TODO: Do we really want this method in an OGM? It's a little too low level and/or doesn't really fit.
-            if (Map.class.isAssignableFrom(concreteType)) {
-                return session.query(graphQueryMethod.getQueryString(), new HashMap<String, Object>());
+            if (Map.class.isAssignableFrom(concreteType))
+            {
+                return session.query(graphQueryMethod.getQueryString(), params);
             }
-            return session.query(concreteType, graphQueryMethod.getQueryString(), new HashMap<String, Object>());
+            return session.query(concreteType, graphQueryMethod.getQueryString(), params);
         }
         else
         {
-            return session.queryForObject(returnType, graphQueryMethod.getQueryString(), new HashMap<String, Object>());
+            return session.queryForObject(returnType, graphQueryMethod.getQueryString(), params);
         }
+    }
+
+    private Map<String, Object> resolveParams(Object[] parameters)
+    {
+        Parameters<?, ?> methodParameters = graphQueryMethod.getParameters();
+        Map<String, Object> params = new HashMap<>(); for (int i = 0; i < parameters.length; i++)
+        {
+            Parameter parameter = methodParameters.getParameter(i);
+
+            if (parameter.isNamedParameter())
+            {
+                params.put(parameter.getName(), parameters[i]);
+            }
+            else
+            {
+                params.put("" + i, parameters[i]);
+            }
+
+        }
+        return params;
     }
 
     public static Class<?> resolveConcreteType(Class<?> type, final Type genericType)

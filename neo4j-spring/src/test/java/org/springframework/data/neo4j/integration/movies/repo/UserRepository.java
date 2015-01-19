@@ -3,6 +3,7 @@ package org.springframework.data.neo4j.integration.movies.repo;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.integration.movies.domain.User;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -28,4 +29,10 @@ public interface UserRepository extends GraphRepository<User> {
 
     @Query("MATCH (m:Movie)<-[:ACTED_IN]-(a:User) RETURN m.title as movie, collect(a.name) as cast")
     List<Map<String, Object>> getGraph();
+
+    @Query("MATCH (user:User{name:{name}}) RETURN user")
+    User findUserByNameWithNamedParam(@Param("name") String name);
+
+    @Query("MATCH (user:User{name:{0}}) RETURN user")
+    User findUserByName(String name);
 }

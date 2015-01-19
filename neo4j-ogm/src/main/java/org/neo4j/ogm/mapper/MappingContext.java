@@ -1,9 +1,14 @@
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -33,6 +38,7 @@ public class MappingContext {
     private final EntityMemo objectMemo = new EntityMemo();
 
     private final MetaData metaData;
+    private final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
 
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
@@ -63,12 +69,15 @@ public class MappingContext {
 
     private void deregisterTypes(Class type, Object entity) {
         //System.out.println("deregistering " + object.getClass().getSimpleName() + " as instance of " + type.getSimpleName());
-        getAll(type).remove(entity);
-        if (type.getSuperclass() != null
+        //getAll(type).remove(entity);
+        Set<Object> entities = typeRegister.get(type);
+        if (entities != null) {
+            if (type.getSuperclass() != null
                 && metaData != null
                 && metaData.classInfo(type.getSuperclass().getName()) != null
                 && !type.getSuperclass().getName().equals("java.lang.Object")) {
             deregisterTypes(type.getSuperclass(), entity);
+            }
         }
     }
 
@@ -135,4 +144,53 @@ public class MappingContext {
         return relationshipEntity;
     }
 
+    /**
+     * purges all information about objects of the supplied type
+     * from the mapping context
+     *
+     * @param type the type whose object references and relationship mappings we want to purge
+     */
+    public void clear(Class<?> type) {
+
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+        for (Object entity : getAll(type)) {
+            purge(entity, identityReader);
+        }
+        getAll(type).clear();
+    }
+
+    /**
+     * purges all information about this object from the mapping context
+     *
+     * @param type the type whose object references and relationship mappings we want to purge
+     */
+    public void clear(Object entity) {
+        Class<?> type = entity.getClass();
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+        purge(entity, identityReader);
+        getAll(type).remove(entity);
+    }
+
+    private void purge(Object entity, PropertyReader identityReader) {
+
+        // remove this object from the nodeEntity/relationshipEntity register (just try both)
+        Long id = (Long) identityReader.read(entity);
+        if (id != null) {
+
+            nodeEntityRegister.remove(id);
+            relationshipEntityRegister.remove(id);
+
+            // remove all relationship mappings to/from this object
+            Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
+            while (mappedRelationshipIterator.hasNext()) {
+                MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+                if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+                    mappedRelationshipIterator.remove();
+                }
+            }
+        }
+
+    }
 }

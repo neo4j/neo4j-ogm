@@ -12,7 +12,6 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.NodeModel;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.Neo4jRequest;
@@ -31,15 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -351,9 +342,6 @@ public class Neo4jSession implements Session {
                     getResponseHandler().updateObjects(context, response, mapper);
                     tx.append(context);
                 }
-//                catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
             } else {
                 logger.info(object.getClass().getName() + " is not an instance of a persistable class");
             }
@@ -373,10 +361,7 @@ public class Neo4jSession implements Session {
                     String url = getOrCreateTransaction().url();
                     ParameterisedStatement request = new DeleteStatements().delete(identity);
                     try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
-                        // nothing to process on the response - looks a bit odd.
-                        // should be done on commit?? when do these objects disappear?
-                        mappingContext.deregister(object, identity);
-                        // maybe should also remove relationships associated with this object, but won't matter if not;
+                        mappingContext.clear(object);
                     }
                 }
             } else {
@@ -392,9 +377,7 @@ public class Neo4jSession implements Session {
             String url = getOrCreateTransaction().url();
             ParameterisedStatement request = new DeleteStatements().deleteByLabel(classInfo.label());
             try (Neo4jResponse<String> response = getRequestHandler().execute(request, url)) {
-                // should be done on commit.
-                mappingContext.getAll(type).clear();
-                mappingContext.mappedRelationships().clear(); // not the real deal
+                mappingContext.clear(type);
             }
         } else {
             logger.info(type.getName() + " is not a persistable class");
@@ -425,33 +408,4 @@ public class Neo4jSession implements Session {
         return tx;
 
     }
-
-
-//    @Override
-//    public <T> Query<T> createQuery(final T type, final String cypher, final Map<String, Object> parameters) {
-//
-//        return new Query<T>() {
-//
-//            private Neo4jResponse<T> response;
-//
-//            @Override
-//            public Query<T> execute() {
-//                ParameterisedStatement statement = new ParameterisedStatement(cypher, parameters);
-//                Transaction tx = getOrCreateTransaction();
-//                Neo4jResponse<String> jsonResponse = getRequestHandler().execute(statement, tx.url());
-//                //response = new GraphModelResponse(jsonResponse, mapper);
-//                return this;
-//            }
-//
-//            @Override
-//            public T next() {
-//                return response.next();
-//            }
-//
-//            @Override
-//            public void close() throws Exception {
-//                response.close();
-//            }
-//        };
-//    }
 }

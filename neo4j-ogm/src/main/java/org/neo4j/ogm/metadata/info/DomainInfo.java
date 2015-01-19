@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-public class DomainInfo implements ClassInfoProcessor {
+public class DomainInfo implements ClassFileProcessor {
 
     private static final String dateSignature = "java/util/Date";
     private static final String bigDecimalSignature = "java/math/BigDecimal";
@@ -26,7 +26,7 @@ public class DomainInfo implements ClassInfoProcessor {
 
     private final Set<String> enumTypes = new HashSet<>();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfoProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
 
     public DomainInfo(String... packages) {
         long now = -System.currentTimeMillis();
@@ -227,15 +227,6 @@ public class DomainInfo implements ClassInfoProcessor {
             }
         }
         return match;
-    }
-
-    public ClassInfo getNamedClassWithAnnotation(String annotation, String className) {
-        for (ClassInfo classInfo : annotationNameToClassInfo.get(annotation)) {
-            if (classInfo.name().equals(className)) {
-                return classInfo;
-            }
-        }
-        return null;
     }
 
     public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {

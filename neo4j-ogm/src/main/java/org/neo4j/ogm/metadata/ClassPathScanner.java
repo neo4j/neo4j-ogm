@@ -1,6 +1,6 @@
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.metadata.info.ClassInfoProcessor;
+import org.neo4j.ogm.metadata.info.ClassFileProcessor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,7 +14,7 @@ import java.util.zip.ZipFile;
 public class ClassPathScanner {
 
     private List<String> classPaths;
-    private ClassInfoProcessor processor;
+    private ClassFileProcessor processor;
 
     private void scanFile(File file, String relativePath) throws IOException {
         if (relativePath.endsWith(".class")) {
@@ -79,7 +79,7 @@ public class ClassPathScanner {
         }
     }
 
-    public void scan(List<String> classPaths, ClassInfoProcessor processor) {
+    public void scan(List<String> classPaths, ClassFileProcessor processor) {
 
         this.classPaths = classPaths;
         this.processor = processor;

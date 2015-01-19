@@ -2,13 +2,19 @@ package org.neo4j.ogm.unit.mapper;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.domain.policy.Person;
+import org.neo4j.ogm.domain.policy.Policy;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.metadata.MetaData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MappingContextTest {
 
@@ -18,7 +24,81 @@ public class MappingContextTest {
 
     @Before
     public void setUp() {
-        collector = new MappingContext(null);
+        collector = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy"));
+    }
+
+    @Test
+    public void testPath() {
+
+        Person jim = new Person("jim");
+        jim.setId(1L);
+
+        Policy policy = new Policy("healthcare");
+        policy.setId(2L);
+
+        collector.registerNodeEntity(jim, jim.getId());
+        collector.registerNodeEntity(policy, policy.getId());
+        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
+
+        assertEquals(jim, collector.get(jim.getId()));
+        assertEquals(policy, collector.get(policy.getId()));
+        assertTrue(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId())));
+
+    }
+
+    @Test
+    public void clearOne() {
+
+        Person jim = new Person("jim");
+        jim.setId(1L);
+
+        Policy policy = new Policy("healthcare");
+        policy.setId(2L);
+
+        collector.registerNodeEntity(jim, jim.getId());
+        collector.registerNodeEntity(policy, policy.getId());
+        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
+        collector.clear(jim);
+
+        assertEquals(null, collector.get(jim.getId()));
+        assertEquals(policy, collector.get(policy.getId()));
+        assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId())));
+
+    }
+
+    @Test
+    public void clearType() {
+        Person jim = new Person("jim");
+        jim.setId(1L);
+
+        Policy healthcare = new Policy("healthcare");
+        healthcare.setId(2L);
+
+        Policy immigration = new Policy("immigration");
+        immigration.setId(3L);
+
+        Person rik = new Person("rik");
+        rik.setId(4L);
+
+        collector.registerNodeEntity(jim, jim.getId());
+        collector.registerNodeEntity(rik, rik.getId());
+        collector.registerNodeEntity(healthcare, healthcare.getId());
+        collector.registerNodeEntity(immigration, immigration.getId());
+
+        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId()));
+        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId()));
+        collector.remember(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId()));
+
+        collector.clear(Policy.class);
+
+        assertEquals(0, collector.getAll(Policy.class).size());
+        assertEquals(null, collector.get(healthcare.getId()));
+        assertEquals(null, collector.get(immigration.getId()));
+
+        assertEquals(jim, collector.get(jim.getId()));
+        assertEquals(rik, collector.get(rik.getId()));
+        assertEquals(1, collector.mappedRelationships().size());
+
     }
 
     @Test
@@ -53,7 +133,7 @@ public class MappingContextTest {
 
     }
 
-    class TestObject {
+    public class TestObject {
         Long id = null;
         List<String> notes = new ArrayList<>();
     }

@@ -7,16 +7,15 @@ import org.junit.runner.RunWith;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
-import org.springframework.data.neo4j.annotation.Query;
-import org.springframework.data.neo4j.integration.movies.context.PersistenceContext;
-import org.springframework.data.neo4j.integration.movies.domain.*;
-import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
-import org.springframework.data.neo4j.integration.movies.repo.CinemaRepository;
-import org.springframework.data.neo4j.integration.movies.repo.AbstractAnnotatedEntityRepository;
-import org.springframework.data.neo4j.integration.movies.repo.UserRepository;
-import org.springframework.data.neo4j.integration.movies.service.UserService;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.integration.movies.context.PersistenceContext;
+import org.springframework.data.neo4j.integration.movies.domain.*;
+import org.springframework.data.neo4j.integration.movies.repo.AbstractAnnotatedEntityRepository;
+import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
+import org.springframework.data.neo4j.integration.movies.repo.CinemaRepository;
+import org.springframework.data.neo4j.integration.movies.repo.UserRepository;
+import org.springframework.data.neo4j.integration.movies.service.UserService;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -73,60 +72,37 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
-    @Ignore // FIXME this test fails if run in a different timezone than GMT
     public void shouldSaveReleasedMovie() {
-        Calendar cinemaReleaseDate = Calendar.getInstance();
 
-
-        cinemaReleaseDate.set(1994, Calendar.SEPTEMBER, 10);
-
-        // need to do this to ensure the test passes, or the calendar will use the current time's values
-        // an alternative (better) would be to specify an date format using one of the @Date converters
-        cinemaReleaseDate.set(Calendar.HOUR_OF_DAY, 0);
-        cinemaReleaseDate.set(Calendar.MINUTE, 0);
-        cinemaReleaseDate.set(Calendar.SECOND, 0);
-        cinemaReleaseDate.set(Calendar.MILLISECOND, 0);
-
-
-        Calendar cannesReleaseDate = Calendar.getInstance();
-        cannesReleaseDate.set(1994, Calendar.MAY, 12);
-        cannesReleaseDate.set(Calendar.HOUR_OF_DAY, 0);
-        cannesReleaseDate.set(Calendar.MINUTE, 0);
-        cannesReleaseDate.set(Calendar.SECOND, 0);
-        cannesReleaseDate.set(Calendar.MILLISECOND, 0);
+        Calendar cinemaReleaseDate = createDate(1994, Calendar.SEPTEMBER, 10, "GMT");
+        Calendar cannesReleaseDate = createDate(1994, Calendar.MAY, 12, "GMT");
 
         ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", cinemaReleaseDate.getTime(), cannesReleaseDate.getTime());
 
         abstractAnnotatedEntityRepository.save(releasedMovie);
 
         assertSameGraph(getDatabase(),
-                "CREATE (m:ReleasedMovie:AbstractAnnotatedEntity {cinemaRelease:'1994-09-09T22:00:00.000Z',cannesRelease:768693600000,title:'Pulp Fiction'})");
+                "CREATE (m:ReleasedMovie:AbstractAnnotatedEntity {cinemaRelease:'1994-09-10T00:00:00.000Z',cannesRelease:768700800000,title:'Pulp Fiction'})");
     }
 
     @Test
-    @Ignore // FIXME this test fails if run in a different timezone than GMT.
     public void shouldSaveReleasedMovie2() {
 
-        Calendar cannesReleaseDate = Calendar.getInstance();
-        cannesReleaseDate.set(1994, Calendar.MAY, 12);
-        cannesReleaseDate.set(Calendar.HOUR_OF_DAY, 0);
-        cannesReleaseDate.set(Calendar.MINUTE, 0);
-        cannesReleaseDate.set(Calendar.SECOND, 0);
-        cannesReleaseDate.set(Calendar.MILLISECOND, 0);
+        Calendar cannesReleaseDate = createDate(1994, Calendar.MAY, 12, "GMT");
 
         ReleasedMovie releasedMovie = new ReleasedMovie("Pulp Fiction", null, cannesReleaseDate.getTime());
 
         abstractAnnotatedEntityRepository.save(releasedMovie);
 
         assertSameGraph(getDatabase(),
-                "CREATE (m:ReleasedMovie:AbstractAnnotatedEntity {cannesRelease:768693600000,title:'Pulp Fiction'})");
+                "CREATE (m:ReleasedMovie:AbstractAnnotatedEntity {cannesRelease:768700800000,title:'Pulp Fiction'})");
 
     }
 
     @Test
     public void shouldSaveMovie() {
         Movie movie = new Movie("Pulp Fiction");
-        movie.setTags(new String[] {"cool", "classic"});
+        movie.setTags(new String[]{"cool", "classic"});
         movie.setImage(new byte[]{1, 2, 3});
 
         abstractEntityRepository.save(movie);
@@ -161,8 +137,8 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         userRepository.save(list);
 
         assertSameGraph(getDatabase(), "CREATE (:User {name:'Michal'})," +
-                                       "(:User {name:'Vince'})," +
-                                       "(:User {name:'Adam'})");
+                "(:User {name:'Vince'})," +
+                "(:User {name:'Adam'})");
 
         assertEquals(3, userRepository.count());
     }
@@ -455,72 +431,6 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         assertTrue(michal.equals(adam.getFriends().iterator().next()));
     }
 
-    @Test
-    @Ignore // FIXME when auto-parse query methods working in spring aop
-    public void shouldFindUsersByName() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        Collection<User> users = userRepository.findByName("Michal");
-        Iterator<User> iterator = users.iterator();
-        assertTrue(iterator.hasNext());
-        assertEquals("Michal", iterator.next().getName());
-        assertFalse(iterator.hasNext());
-    }
-
-    @Test
-    public void shouldFindTotalUsers() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        int users = userRepository.findTotalUsers();
-        assertEquals(users, 2);
-    }
-
-    @Test
-    public void shouldUserIds() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        List<Integer> users = userRepository.getUserIds();
-        assertEquals(users.size(), 2);
-    }
-
-    @Test
-    public void shouldFindUsers() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        Collection<User> users = userRepository.getAllUsers();
-        assertEquals(users.size(), 2);
-    }
-
-    @Test
-    public void shouldFindUserByName() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        User user = userRepository.findUserByName("Michal");
-        assertEquals("Michal",user.getName());
-    }
-
-    @Test
-    public void shouldFindUserByNameWithNamedParam() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        User user = userRepository.findUserByNameWithNamedParam("Michal");
-        assertEquals("Michal",user.getName());
-    }
-
-    @Test
-    public void shouldFindUsersAsProperties() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        Iterable<Map<String, Object>> users = userRepository.getUsersAsProperties();
-        assertNotNull(users);
-        int i = 0;
-        for (Map<String,Object> properties: users) {
-            i++;
-            assertNotNull(properties);
-        }
-        assertEquals(2, i);
-    }
-
 
     @Test
     public void shouldSaveNewUserAndNewMovieWithRatings() {
@@ -534,36 +444,20 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
     }
 
+    private Calendar createDate(int y, int m, int d, String tz) {
 
-    @Test
-    @Ignore // FIXME we need to know the user is querying for a table-based structure. We're returning Collection<Object>
-    public void shouldFindArbitraryGraph() {
-        new ExecutionEngine(getDatabase()).execute(
-                "CREATE " +
-                        "(dh:Movie {title:'Die Hard'}), " +
-                        "(fe:Movie {title: 'The Fifth Element'}), " +
-                        "(bw:User {name: 'Bruce Willis'}), " +
-                        "(ar:User {name: 'Alan Rickman'}), " +
-                        "(mj:User {name: 'Milla Jovovich'}), " +
-                        "(mj)-[:ACTED_IN]->(fe), " +
-                        "(ar)-[:ACTED_IN]->(dh), " +
-                        "(bw)-[:ACTED_IN]->(dh), " +
-                        "(bw)-[:ACTED_IN]->(fe)");
+        Calendar calendar = Calendar.getInstance();
 
-        List<Map<String, Object>> graph = userRepository.getGraph();
-        assertNotNull(graph);
-        int i = 0;
-        for (Map<String,Object> properties: graph) {
-            i++;
-            assertNotNull(properties);
-        }
-        assertEquals(2, i);
-//        for (Map<String, Object> row : graph) {
-//            System.out.println("row:");
-//            for (Map.Entry entry : row.entrySet()) {
-//                System.out.println("\t" + entry.getKey() + ": " + entry.getValue());
-//            }
-//        }
+        calendar.set(y, m, d);
+        calendar.setTimeZone(TimeZone.getTimeZone(tz));
 
+        // need to do this to ensure the test passes, or the calendar will use the current time's values
+        // an alternative (better) would be to specify an date format using one of the @Date converters
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar;
     }
 }

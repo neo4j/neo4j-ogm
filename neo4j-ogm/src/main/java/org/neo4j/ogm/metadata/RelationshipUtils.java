@@ -86,7 +86,6 @@ public class RelationshipUtils {
                 }
             }
         }
-        System.out.println(sb.toString());
         return sb;
     }
 

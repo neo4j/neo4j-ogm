@@ -1,9 +1,10 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.entityaccess.FieldWriter;
-import org.neo4j.ogm.mapper.GraphObjectMapper;
+import org.neo4j.ogm.mapper.GraphEntityMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
@@ -30,12 +31,12 @@ public class SessionResponseHandler implements ResponseHandler {
     @Override
     public <T> Set<T> loadByProperty(Class<T> type, Neo4jResponse<GraphModel> response, Property<String, Object> filter) {
 
-        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         Set<T> objects = new HashSet<>();
 
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            ogm.load(type, graphModel);
+            ogm.map(type, graphModel);
             for (NodeModel nodeModel : graphModel.getNodes()) {
                 if (nodeModel.getPropertyList().contains(filter)) {
                     objects.add((T) mappingContext.get(nodeModel.getId()));
@@ -54,48 +55,83 @@ public class SessionResponseHandler implements ResponseHandler {
         String[] variables = rowModelResponse.columns();
         RowModel rowModel;
 
-        Map<String, Long> refMap = new HashMap<>();
+        Map<String, Long> directRefMap = new HashMap<>();
 
         while ((rowModel = rowModelResponse.next()) != null) {
             Object[] results = rowModel.getValues();
+
             for (int i = 0; i < variables.length; i++) {
+
                 String variable = variables[i];
-                Object persisted = context.getNewObject(variable);
+
+                // create the mapping between the cypher variable and the newly created domain object's
+                // identity, as returned by the database
                 Long identity = Long.parseLong(results[i].toString());
-                refMap.put(variable, identity);
-                ClassInfo classInfo = metaData.classInfo(persisted.getClass().getName());
-                Field identityField = classInfo.getField(classInfo.identityField());
-                FieldWriter.write(identityField, persisted, identity);
-                mappingContext.register(persisted, identity);
+                directRefMap.put(variable, identity);
+
+                // find the newly created domain object in the context log
+                Object persisted = context.getNewObject(variable);
+
+                if (persisted != null) {  // it will be null if the variable represents a simple relationship.
+
+                    // set the id field of the newly created domain object
+                    ClassInfo classInfo = metaData.classInfo(persisted);
+                    Field identityField = classInfo.getField(classInfo.identityField());
+                    FieldWriter.write(identityField, persisted, identity);
+
+                    // ensure the newly created domain object is added into the mapping context
+                    if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+                        mappingContext.registerNodeEntity(persisted, identity);
+                    } else {
+                        mappingContext.registerRelationshipEntity(persisted, identity);
+                    }
+                }
             }
         }
+
+        // finally, all new relationships just established in the graph need to be added to the mapping context.
         for (Object object : context.log()) {
             if (object instanceof TransientRelationship) {
-                MappedRelationship relationship = (((TransientRelationship) object).convert(refMap));
+                MappedRelationship relationship = (((TransientRelationship) object).convert(directRefMap));
                 mappingContext.mappedRelationships().add(relationship);
             }
         }
+
         rowModelResponse.close();
     }
 
     @Override
     public <T> T loadById(Class<T> type, Neo4jResponse<GraphModel> response, Long id) {
-        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            ogm.load(type, graphModel);
+            ogm.map(type, graphModel);
         }
         response.close();
-        return type.cast(mappingContext.get(id));
+        return lookup(type, id);
+    }
+
+    private <T> T lookup(Class<T> type, Long id) {
+        Object ref;
+        ClassInfo typeInfo = metaData.classInfo(type.getName());
+        if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+            ref = mappingContext.get(id);
+        } else {
+            ref = mappingContext.getRelationshipEntity(id);
+        }
+//        if (ref == null) {
+//            throw new RuntimeException("Object of type " + type + " with id " + id + " expected in mapping context, but was not found");
+//        }
+        return type.cast(ref);
     }
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> response) {
         Set<T> objects = new HashSet<>();
-        GraphObjectMapper ogm = new GraphObjectMapper(metaData, mappingContext);
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            objects.addAll(ogm.load(type, graphModel));
+            objects.addAll(ogm.map(type, graphModel));
         }
         response.close();
         return objects;

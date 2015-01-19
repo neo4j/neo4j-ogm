@@ -5,7 +5,7 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.*;
 
-public abstract class NodeBuilder implements CypherEmitter {
+public abstract class NodeBuilder implements CypherEmitter, Comparable<NodeBuilder> {
 
     private final String cypherReference;
 
@@ -44,7 +44,7 @@ public abstract class NodeBuilder implements CypherEmitter {
 
     @Override
     public String toString() {
-        return this.labels + "(" + this.props + ')';
+        return "(" + cypherReference + ":" + this.labels + " " + this.props + ")";
     }
 
     public static String toCsv(Iterable<String> elements) {
@@ -59,4 +59,11 @@ public abstract class NodeBuilder implements CypherEmitter {
     public String reference() {
         return cypherReference;
     }
+
+    @Override
+    public int compareTo(NodeBuilder o) {
+        return cypherReference.compareTo(o.cypherReference);
+    }
+
+
 }

@@ -1,11 +1,11 @@
 package org.neo4j.ogm.domain.education;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class School extends DomainObject {
 
-    private List<Teacher> teachers = new ArrayList<>();
+    private Set<Teacher> teachers = new HashSet<>();
     private String name;
 
     public School() {}
@@ -14,15 +14,17 @@ public class School extends DomainObject {
         setName(name);
     }
 
-    public List<Teacher> getTeachers() {
+    public Set<Teacher> getTeachers() {
         return teachers;
     }
 
-    public void setTeachers(List<Teacher> teachers) {
+    public void setTeachers(Iterable<Teacher> teachers) {
         for (Teacher teacher : teachers) {
-            teacher.setSchool(this);
+            if (!this.teachers.contains(teacher)) {
+                teacher.setSchool(this);
+                this.teachers.add(teacher);
+            }
         }
-        this.teachers = teachers;
     }
 
     public String getName() {

@@ -55,4 +55,9 @@ public class MethodWriter extends EntityAccess {
         return this.setterMethodInfo.relationship();
     }
 
+    @Override
+    public String relationshipDirection() {
+        return setterMethodInfo.relationshipDirection();
+    }
+
 }

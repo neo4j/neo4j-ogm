@@ -4,15 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Used to compile Cypher that holds information about a relationship, although it does not have any knowledge about its start
- * and end nodes.
+ * Used to compile Cypher that holds information about a relationship
  */
-public abstract class RelationshipBuilder implements CypherEmitter {
+public abstract class RelationshipBuilder implements CypherEmitter, Comparable<RelationshipBuilder> {
 
-    String type;
+    protected String type;
+    protected String startNodeIdentifier;
+    protected String endNodeIdentifier;
+    protected String reference;
+
     private String direction;
     final Map<String, Object> props = new HashMap<>();
-    final String reference;
+
 
     protected RelationshipBuilder(String variableName) {
         this.reference = variableName;
@@ -42,4 +45,17 @@ public abstract class RelationshipBuilder implements CypherEmitter {
 
     public abstract void relate(String startNodeIdentifier, String endNodeIdentifier);
 
+    public String getReference() {
+        return reference;
+    }
+
+    @Override
+    public int compareTo(RelationshipBuilder o) {
+        return reference.compareTo(o.reference);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + startNodeIdentifier + ")-[" + reference + ":" + type + "]->(" + endNodeIdentifier + ")";
+    }
 }

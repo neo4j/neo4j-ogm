@@ -17,9 +17,9 @@ class ExistingNodeBuilder extends NodeBuilder {
     }
 
     @Override
-    public NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy) {
+    public NodeBuilder mapProperties(Object entity, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy) {
         for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(classInfo)) {
-            Object value = propertyReader.read(toPersist);
+            Object value = propertyReader.read(entity);
             addProperty(propertyReader.propertyName(), value);
         }
         return this;

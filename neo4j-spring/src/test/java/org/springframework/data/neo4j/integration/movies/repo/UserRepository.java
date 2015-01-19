@@ -12,7 +12,7 @@ import java.util.Map;
 @Repository
 public interface UserRepository extends GraphRepository<User> {
 
-    Collection<User> findUsersByName(String name);
+    Collection<User> findByName(String name);
 
     @Query("MATCH (user:User) RETURN COUNT(user)")
     int findTotalUsers();
@@ -20,9 +20,12 @@ public interface UserRepository extends GraphRepository<User> {
     @Query("MATCH (user:User) RETURN user.id")
     List<Integer> getUserIds();
 
-    @Query("MATCH (user:User) RETURN user")
-    List<User> getUsers();
-
     @Query("MATCH (user:User) RETURN user.name, user.id")
     Iterable<Map<String,Object>> getUsersAsProperties();
+
+    @Query("MATCH (user:User) RETURN user")
+    Collection<User> getAllUsers();
+
+    @Query("MATCH (m:Movie)<-[:ACTED_IN]-(a:User) RETURN m.title as movie, collect(a.name) as cast")
+    List<Map<String, Object>> getGraph();
 }

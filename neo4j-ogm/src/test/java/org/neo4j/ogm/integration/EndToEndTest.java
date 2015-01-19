@@ -4,9 +4,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
@@ -43,7 +43,13 @@ public class EndToEndTest extends IntegrationTest {
         Saddle expected = new Saddle();
         expected.setPrice(29.95);
         expected.setMaterial("Leather");
-        session.save(expected);
+        Wheel frontWheel = new Wheel();
+        Wheel backWheel = new Wheel();
+        Bike bike = new Bike();
+        bike.setBrand("Huffy");
+        bike.setWheels(Arrays.asList(frontWheel, backWheel));
+        bike.setSaddle(expected);
+        session.save(bike);
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("material", "Leather");
@@ -51,7 +57,17 @@ public class EndToEndTest extends IntegrationTest {
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getMaterial(), actual.getMaterial());
+
+        HashMap<String, Object> parameters2 = new HashMap<>();
+        parameters2.put("brand", "Huffy");
+        Bike actual2 = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand: {brand}}) RETURN bike", parameters2);
+
+        assertEquals(bike.getId(), actual2.getId());
+        assertEquals(bike.getBrand(), actual2.getBrand());
+        assertEquals(bike.getSaddle(), actual2.getSaddle());
+        assertEquals(bike.getWheels().size(), actual2.getWheels().size());
     }
+
 
     @Test
     public void canSimpleScalarQueryDatabase() {
@@ -131,31 +147,28 @@ public class EndToEndTest extends IntegrationTest {
         Wheel backWheel = new Wheel();
         Bike bike = new Bike();
 
-        // TODO: can't persist the 1-side of an object relationship...
-        //bike.setFrame(new Frame());
-        //bike.setSaddle(new Saddle());
+        bike.setFrame(new Frame());
+        bike.setSaddle(new Saddle());
         bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
         assertNull(frontWheel.getId());
         assertNull(backWheel.getId());
         assertNull(bike.getId());
-        //assertNull(bike.getFrame().getId());
-        //assertNull(bike.getSaddle().getId());
+        assertNull(bike.getFrame().getId());
+        assertNull(bike.getSaddle().getId());
 
         session.save(bike);
 
         assertNotNull(frontWheel.getId());
         assertNotNull(backWheel.getId());
         assertNotNull(bike.getId());
-        //assertNotNull(bike.getFrame().getId());
-        //assertNotNull(bike.getSaddle().getId());
+        assertNotNull(bike.getFrame().getId());
+        assertNotNull(bike.getSaddle().getId());
 
     }
 
     @Test
     public void tourDeFrance() {
-
-        //session = sessionFactory.openSession("http://localhost:7474");
 
         long now = -System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
@@ -164,28 +177,23 @@ public class EndToEndTest extends IntegrationTest {
             Wheel backWheel = new Wheel();
             Bike bike = new Bike();
 
-            // TODO: can't persist the 1-side of an object relationship...
-            //bike.setFrame(new Frame());
-            //bike.setSaddle(new Saddle());
+            bike.setFrame(new Frame());
+            bike.setSaddle(new Saddle());
             bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
             session.save(bike);
         }
         now += System.currentTimeMillis();
 
-        Neo4jSession defaultSession = (Neo4jSession) session;
         System.out.println("Number of separate requests: 1000");
         System.out.println("Number of threads: 1");
-        System.out.println("Number of new objects to create per request: 3");
+        System.out.println("Number of new objects to create per request: 5");
         System.out.println("Number of relationships to create per request: 2");
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
     }
 
     @Test
     public void multiThreadedTourDeFrance() throws InterruptedException {
-
-        //session = sessionFactory.openSession("http://localhost:7474");
-
 
         final int NUM_THREADS=4;
         final int NUM_INSERTS = 1000 / NUM_THREADS;
@@ -205,9 +213,8 @@ public class EndToEndTest extends IntegrationTest {
                         Wheel backWheel = new Wheel();
                         Bike bike = new Bike();
 
-                        // TODO: can't persist the 1-side of an object relationship...
-                        //bike.setFrame(new Frame());
-                        //bike.setSaddle(new Saddle());
+                        bike.setFrame(new Frame());
+                        bike.setSaddle(new Saddle());
                         bike.setWheels(Arrays.asList(frontWheel, backWheel));
 
                         session.save(bike);
@@ -223,13 +230,16 @@ public class EndToEndTest extends IntegrationTest {
         }
         now += System.currentTimeMillis();
 
-        Neo4jSession defaultSession = (Neo4jSession) session;
         System.out.println("Number of separate requests: 1000");
         System.out.println("Number of threads: " + NUM_THREADS);
-        System.out.println("Number of new objects to create per request: 3");
+        System.out.println("Number of new objects to create per request: 5");
         System.out.println("Number of relationships to create per request: 2");
         System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
 
+    }
+
+    @Test
+    public void testRelationshipEntityHydration() {
 
     }
 }

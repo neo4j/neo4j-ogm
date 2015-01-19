@@ -1,7 +1,6 @@
 package org.springframework.data.neo4j.integration.repositories;
 
 import com.graphaware.test.integration.WrappingServerIntegrationTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,7 @@ import org.springframework.data.neo4j.integration.repositories.context.Persisten
 import org.springframework.data.neo4j.integration.repositories.domain.Movie;
 import org.springframework.data.neo4j.integration.repositories.repo.MovieRepository;
 import org.springframework.data.neo4j.util.IterableUtils;
+import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration(classes = {PersistenceContext.class})
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore //todo
 public class RepositoryDefinitionTest extends WrappingServerIntegrationTest {
 
     @Autowired
@@ -33,7 +32,7 @@ public class RepositoryDefinitionTest extends WrappingServerIntegrationTest {
         Movie movie = new Movie("PF");
         movieRepository.save(movie);
 
-        assertSameGraph(getDatabase(), "CREATE (m:Movie {name:'PF'})");
+        assertSameGraph(getDatabase(), "CREATE (m:Movie {title:'PF'})");
 
         assertEquals(1, IterableUtils.count(movieRepository.findAll()));
     }

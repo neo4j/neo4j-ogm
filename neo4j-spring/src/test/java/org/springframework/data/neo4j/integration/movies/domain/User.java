@@ -38,6 +38,7 @@ public class User {
         user.friends.add(this);
     }
 
+
     public Rating rate(TempMovie movie, int stars, String comment) {
         Rating rating = new Rating(this, movie, stars, comment);
         movie.addRating(rating);

@@ -15,13 +15,22 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
-    private final ConcurrentMap<Long, Object> relationshipEntityMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Long, Object> objectMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Class<?>, Set<Object>> typeMap = new ConcurrentHashMap<>();
+    // we need multiple registers whose purpose is obvious from their names:
 
-    // using these two objects we maintain synchronisation state with the database
-    private final Set<MappedRelationship> mappedRelationships = new HashSet<>();
-    private final ObjectMemo objectMemo = new ObjectMemo();
+    // NodeEntityRegister               register of domain entities whose properties are to be stored on Nodes
+    // RelationshipEntityRegister       register of domain entities whose properties are to be stored on Relationships
+    // RelationshipRegister             register of relationships between NodeEntities (i.e. as they are in the graph)
+
+
+    private final ConcurrentMap<Long, Object> relationshipEntityRegister = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Object> nodeEntityRegister = new ConcurrentHashMap<>();
+    private final Set<MappedRelationship> relationshipRegister = new HashSet<>();
+
+    // in addition we need the following
+    // a typeRegister                   register of all entities of a specific type (including supertypes)
+    // a
+    private final ConcurrentMap<Class<?>, Set<Object>> typeRegister = new ConcurrentHashMap<>();
+    private final EntityMemo objectMemo = new EntityMemo();
 
     private final MetaData metaData;
 
@@ -29,95 +38,100 @@ public class MappingContext {
         this.metaData = metaData;
     }
 
+    // these methods belong on the nodeEntityRegister
     public Object get(Long id) {
-        return objectMap.get(id);
+        return nodeEntityRegister.get(id);
     }
 
-    public Object register(Object object, Long id) {
-        objectMap.putIfAbsent(id, object);
-        object = objectMap.get(id);
-        registerTypes(object.getClass(), object);
-        return object;
+    public Object registerNodeEntity(Object entity, Long id) {
+        nodeEntityRegister.putIfAbsent(id, entity);
+        entity = nodeEntityRegister.get(id);
+        registerTypes(entity.getClass(), entity);
+        return entity;
     }
 
-    private void registerTypes(Class type, Object object) {
+    private void registerTypes(Class type, Object entity) {
         //System.out.println("registering " + object + " as instance of " + type.getSimpleName());
-        getAll(type).add(object);
+        getAll(type).add(entity);
         if (type.getSuperclass() != null
                 && metaData != null
                 && metaData.classInfo(type.getSuperclass().getName()) != null
                 && !type.getSuperclass().getName().equals("java.lang.Object")) {
-            registerTypes(type.getSuperclass(), object);
+            registerTypes(type.getSuperclass(), entity);
         }
     }
 
-    private void deregisterTypes(Class type, Object object) {
+    private void deregisterTypes(Class type, Object entity) {
         //System.out.println("deregistering " + object.getClass().getSimpleName() + " as instance of " + type.getSimpleName());
-        getAll(type).remove(object);
+        getAll(type).remove(entity);
         if (type.getSuperclass() != null
                 && metaData != null
                 && metaData.classInfo(type.getSuperclass().getName()) != null
                 && !type.getSuperclass().getName().equals("java.lang.Object")) {
-            deregisterTypes(type.getSuperclass(), object);
+            deregisterTypes(type.getSuperclass(), entity);
         }
     }
 
     /**
      * Deregisters an object from the mapping context
-     * - removes the object instance from the typeMap(s)
-     * - removes the object id from the objectMap
+     * - removes the object instance from the typeRegister(s)
+     * - removes the object id from the nodeEntityRegister
      *
-     * @param object the object to deregister
+     * @param entity the object to deregister
      * @param id the id of the object in Neo4j
      */
-    public void deregister(Object object, Long id) {
-        deregisterTypes(object.getClass(), object);
-        objectMap.remove(id);
+    public void deregister(Object entity, Long id) {
+        deregisterTypes(entity.getClass(), entity);
+        nodeEntityRegister.remove(id);
     }
 
     public Set<Object> getAll(Class<?> type) {
-        Set<Object> objectList = typeMap.get(type);
+        Set<Object> objectList = typeRegister.get(type);
         if (objectList == null) {
-            typeMap.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
-            objectList = typeMap.get(type);
+            typeRegister.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
+            objectList = typeRegister.get(type);
         }
         return objectList;
     }
 
-    public void remember(Object object) {
-        objectMemo.remember(object, metaData.classInfo(object.getClass().getName()));
+    // object memoisations
+    public void remember(Object entity) {
+        objectMemo.remember(entity, metaData.classInfo(entity));
     }
 
-    public boolean isDirty(Object toPersist) {
-        return !objectMemo.remembered(toPersist, metaData.classInfo(toPersist.getClass().getName()));
+    public boolean isDirty(Object entity) {
+        return !objectMemo.remembered(entity, metaData.classInfo(entity));
     }
 
+    // these methods belong on the relationship registry
     public boolean isRegisteredRelationship(MappedRelationship relationship) {
-        return mappedRelationships.contains(relationship);
+        return relationshipRegister.contains(relationship);
     }
 
     public Set<MappedRelationship> mappedRelationships() {
-        return mappedRelationships;
+        return relationshipRegister;
     }
 
     public void remember(MappedRelationship relationship) {
-        mappedRelationships.add(relationship);
+        relationshipRegister.add(relationship);
     }
 
     public void clear() {
         objectMemo.clear();
-        mappedRelationships.clear();
-        objectMap.clear();
-        typeMap.clear();
-        relationshipEntityMap.clear();
+        relationshipRegister.clear();
+        nodeEntityRegister.clear();
+        typeRegister.clear();
+        relationshipEntityRegister.clear();
     }
 
+
+    // relationshipentity methods
     public Object getRelationshipEntity(Long relationshipId) {
-        return relationshipEntityMap.get(relationshipId);
+        return relationshipEntityRegister.get(relationshipId);
     }
 
-    public Object registerRelationship(Object relationshipEntity, Long id) {
-        relationshipEntityMap.putIfAbsent(id, relationshipEntity);
+    public Object registerRelationshipEntity(Object relationshipEntity, Long id) {
+        relationshipEntityRegister.putIfAbsent(id, relationshipEntity);
         return relationshipEntity;
     }
 

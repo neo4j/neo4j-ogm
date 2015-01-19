@@ -3,7 +3,7 @@ package org.neo4j.ogm.cypher.compiler;
 import java.util.Map;
 import java.util.Set;
 
-public class DeletedRelationshipBuilder implements CypherEmitter {
+public class DeletedRelationshipBuilder implements CypherEmitter, Comparable<DeletedRelationshipBuilder> {
 
     private final String type;
     private final String src;
@@ -84,5 +84,10 @@ public class DeletedRelationshipBuilder implements CypherEmitter {
         result = 31 * result + tgt.hashCode();
         result = 31 * result + rid.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(DeletedRelationshipBuilder o) {
+        return hashCode()-o.hashCode();
     }
 }

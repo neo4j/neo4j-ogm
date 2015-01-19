@@ -6,9 +6,6 @@ import java.util.Set;
 
 class NewRelationshipBuilder extends RelationshipBuilder {
 
-    private String startNodeIdentifier;
-    private String endNodeIdentifier;
-
     public NewRelationshipBuilder(String reference) {
         super(reference);
     }
@@ -76,7 +73,13 @@ class NewRelationshipBuilder extends RelationshipBuilder {
         queryBuilder.append(endNodeIdentifier);
         queryBuilder.append(")");
 
+        varStack.add(this.reference);
+
         return true;
     }
+
+
+
+
 
 }

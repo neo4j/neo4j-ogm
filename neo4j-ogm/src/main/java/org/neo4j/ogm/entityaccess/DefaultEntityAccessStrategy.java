@@ -1,6 +1,7 @@
 package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -88,6 +89,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public EntityAccess getRelationalWriter(ClassInfo classInfo, String relationshipType, Object parameter) {
+
 
         // 1st, try to find a method annotated with the relationship type.
         MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType);
@@ -245,17 +247,24 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
+    @Override
+    public RelationalReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
+        for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
+            if (fieldInfo.getAnnotations().get(StartNode.CLASS) != null) {
+                return getRelationalReader(relationshipEntityClassInfo, fieldInfo.getName());
+            }
+        }
+        logger.warn("Failed to find an @StartNode on " + relationshipEntityClassInfo);
+        return null;
+    }
+
     private MethodInfo getIterableSetterMethodInfo(ClassInfo classInfo, Class<?> parameterType) {
         List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType);
         if (methodInfos.size() == 1) {
             return methodInfos.iterator().next();
         }
 
-        if (methodInfos.size() == 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}. No matching setter found.",
-                    parameterType, classInfo.name());
-        }
-        else {
+        if (methodInfos.size() > 0) {
             logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching setter found.",
                     parameterType, classInfo.name());
         }
@@ -269,8 +278,10 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             return methodInfos.iterator().next();
         }
 
-        logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
-                parameterType, classInfo.name());
+        if (methodInfos.size() > 0) {
+            logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
+                    parameterType, classInfo.name());
+        }
         return null;
     }
 
@@ -280,11 +291,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             return fieldInfos.iterator().next();
         }
 
-        if (fieldInfos.size() == 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}. No matching field found.",
-                    parameterType, classInfo.name());
-        }
-        else {
+        if (fieldInfos.size() > 0) {
             logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
                     parameterType, classInfo.name());
         }

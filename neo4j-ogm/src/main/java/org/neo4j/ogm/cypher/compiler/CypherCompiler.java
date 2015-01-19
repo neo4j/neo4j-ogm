@@ -74,4 +74,27 @@ public interface CypherCompiler {
      */
     List<ParameterisedStatement> getStatements();
 
+    /**
+     * Returns an unused relationship's reference to the ref pool
+     *
+     * This is to ensure that references are only created when needed
+     *
+     * @param relationshipBuilder
+     */
+    void release(RelationshipBuilder relationshipBuilder);
+
+    String nextIdentifier();
+
+    /**
+     * Returns this compiler's context
+     * @return the current compiler context
+     */
+    CypherContext context();
+
+    /**
+     * Compiles the current request and returns the compile context, which
+     * includes all the statements to be executed and related information
+     * @return the current compiler context
+     */
+    CypherContext compile();
 }

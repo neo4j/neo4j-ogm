@@ -54,4 +54,11 @@ public class Bike {
         return saddle;
     }
 
+    public void setColours(String[] colours) {
+        this.colours = colours;
+    }
+
+    public void setFrame(Frame frame) {
+        this.frame = frame;
+    }
 }

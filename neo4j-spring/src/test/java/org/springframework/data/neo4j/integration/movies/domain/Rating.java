@@ -15,10 +15,28 @@ public class Rating {
     private int stars;
     private String comment;
 
+    public Rating() {}
+
     public Rating(User user, TempMovie movie, int stars, String comment) {
         this.user = user;
         this.movie = movie;
         this.stars = stars;
+        this.comment = comment;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setMovie(TempMovie movie) {
+        this.movie = movie;
+    }
+
+    public void setStars(int stars) {
+        this.stars = stars;
+    }
+
+    public void setComment(String comment) {
         this.comment = comment;
     }
 

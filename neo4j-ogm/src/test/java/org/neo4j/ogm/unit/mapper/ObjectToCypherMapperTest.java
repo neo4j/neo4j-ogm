@@ -1,15 +1,6 @@
 package org.neo4j.ogm.unit.mapper;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
-import static org.junit.Assert.*;
-
-import java.util.*;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -23,16 +14,20 @@ import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.ObjectCypherMapper;
-import org.neo4j.ogm.mapper.ObjectToCypherMapper;
+import org.neo4j.ogm.mapper.*;
+import org.neo4j.ogm.mapper.EntityGraphMapper;
+import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
+import java.util.*;
+
+import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.junit.Assert.*;
+
 public class ObjectToCypherMapperTest {
 
-    private ObjectToCypherMapper mapper;
+    private EntityToGraphMapper mapper;
 
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
@@ -55,7 +50,7 @@ public class ObjectToCypherMapperTest {
 
     @Before
     public void setUpMapper() {
-        this.mapper = new ObjectCypherMapper(mappingMetadata, mappingContext);
+        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
     }
 
     @After
@@ -66,14 +61,14 @@ public class ObjectToCypherMapperTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
-        this.mapper.mapToCypher(null);
+        this.mapper.map(null);
     }
 
     @Test
     public void createObjectWithLabelsAndProperties() {
 
         Student newStudent = new Student("Gary");
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(newStudent).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(newStudent).getStatements());
 
         assertNull(newStudent.getId());
 
@@ -99,7 +94,7 @@ public class ObjectToCypherMapperTest {
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(sheila).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(sheila).getStatements());
 
         expect( "MATCH (" + sheilaNode + ") " +
                 "WHERE id(" + sheilaNode + ")=" + sid + " " +
@@ -120,7 +115,7 @@ public class ObjectToCypherMapperTest {
         mappingContext.remember(sheila);
 
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(sheila).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(sheila).getStatements());
 
         expect("", cypher);
     }
@@ -152,7 +147,7 @@ public class ObjectToCypherMapperTest {
         bscComputerScience.setStudents(Arrays.asList(lakshmipathy, gianFranco));
 
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(bscComputerScience).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(bscComputerScience).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
@@ -188,7 +183,7 @@ public class ObjectToCypherMapperTest {
         // ensure that the domain objects are mutually established by the code
         assertTrue(waller.getTeachers().contains(jim));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(jim).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(jim).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE " +
@@ -209,16 +204,14 @@ public class ObjectToCypherMapperTest {
         School school = new School("Hilly Fields");
         school.setTeachers(Arrays.asList(missJones, mrWhite));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(school).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(school).getStatements());
 
-//        // todo optimisation: too many with clauses. only one is necessary, and the merge clauses can be collected together
-//        expect("CREATE (_0:`School`:`DomainObject`{_0_props}), (_1:`Teacher`{_1_props}), (_2:`Teacher`{_2_props}) " +
-//                "WITH _0,_1,_2 MERGE (_0)-[:TEACHERS]->(_1) " +
-//                "WITH _0,_1,_2 MERGE (_0)-[:TEACHERS]->(_2) " +
-//                "RETURN id(_0) AS _0, id(_1) AS _1, id(_2) AS _2", cypher);
-
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (j:Teacher {name:'Miss Jones'}), (w:Teacher {name:'Mr White'})," +
-                " (s:School:DomainObject {name:'Hilly Fields'}), (s)-[:TEACHERS]->(j), (s)-[:TEACHERS]->(w)");
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (j:Teacher {name:'Miss Jones'}), " +
+                        "(w:Teacher {name:'Mr White'}), " +
+                        "(s:School:DomainObject {name:'Hilly Fields'}), " +
+                        "(s)-[:TEACHERS]->(j)-[:SCHOOL]->(s), " +
+                        "(s)-[:TEACHERS]->(w)-[:SCHOOL]->(s)");
     }
 
     @Test
@@ -241,7 +234,7 @@ public class ObjectToCypherMapperTest {
         teacher.setName("Mrs Kapoor");
         teacher.setCourses(Arrays.asList(physics, maths));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(teacher).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(teacher).getStatements());
 
 //        // todo: too many with clauses for merge statements
 //        // todo: we can build larger merge paths from single-hop merge fragments (but check behaviour of partial paths?)
@@ -311,7 +304,7 @@ public class ObjectToCypherMapperTest {
         // now, update the domain model, setting yvonne as the only music student (i.e remove zack and xavier)
         music.setStudents(Arrays.asList(yvonne));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(music).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(music).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Xavier'}), "
                 + "(:Student:DomainObject {name:'Zack'}), "
@@ -363,7 +356,7 @@ public class ObjectToCypherMapperTest {
         businessStudies.setStudents(Collections.<Student>emptyList());
         designTech.setStudents(Arrays.asList(shivani));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(msThompson).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(msThompson).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
@@ -398,19 +391,19 @@ public class ObjectToCypherMapperTest {
         // need to ensure teachers list is mutable
         hillsRoad.setTeachers(new ArrayList<>(Arrays.asList(missJones, mrWhite)));
 
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
-
         mappingContext.remember(hillsRoad);
         mappingContext.remember(mrWhite);
         mappingContext.remember(missJones);
 
+        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
+        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
+        mappingContext.remember(new MappedRelationship(whiteId, "SCHOOL", schoolId));
+        mappingContext.remember(new MappedRelationship(jonesId, "SCHOOL", schoolId));
+
         // Fire Mr White:
         mrWhite.setSchool(null);
 
-        // at the moment, we can't handle the deleted relationship between school->mrWhite from the mrWhite side
-        // so we must persist from the collection (school) side.
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(hillsRoad).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(hillsRoad).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (w:Teacher {name:'Mr White'}), (s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
@@ -426,7 +419,7 @@ public class ObjectToCypherMapperTest {
 
         coalHillSchool.setTeachers(Arrays.asList(claraOswald, dannyPink));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(coalHillSchool, 0).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(coalHillSchool, 0).getStatements());
 
         // we don't expect the teachers to be persisted when persisting the school to depth 0
         executeStatementsAndAssertSameGraph(cypher, "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
@@ -439,12 +432,30 @@ public class ObjectToCypherMapperTest {
         individual.setAge(41);
         individual.setPrimitiveIntArray(new int[] {1, 6, 4, 7, 2});
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(individual).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(individual).getStatements());
+
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {name:'Jeff', age:41, primitiveIntArray:[1,6,4,7,2]})");
 
         ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveIntArray AS ints");
         for (Map<String, Object> result : executionResult) {
             assertEquals("The array wasn't persisted as the correct type", 5, ((int[]) result.get("ints")).length);
+        }
+    }
+
+    @Test
+    @Ignore // FIXME - conversion test
+    public void shouldGenerateCypherToPersistByteArray() {
+
+        Individual individual = new Individual();
+        individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(individual).getStatements());
+
+        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {primitiveByteArray:[1,2,3,4,5]})");
+
+        ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
+        for (Map<String, Object> result : executionResult) {
+            assertEquals("The array wasn't persisted as the correct type", 5, ((byte[]) result.get("bytes")).length);
         }
     }
 
@@ -455,7 +466,7 @@ public class ObjectToCypherMapperTest {
         individual.setAge(36);
         individual.setFavouriteRadioStations(new Vector<Double>(Arrays.asList(97.4, 105.4, 98.2)));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(individual).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(individual).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Individual {name:'Gary', age:36, favouriteRadioStations:[97.4, 105.4, 98.2]})");
     }
@@ -478,7 +489,7 @@ public class ObjectToCypherMapperTest {
         claraOswald.setCourses(Arrays.asList(english));
         dannyPink.setCourses(Arrays.asList(maths));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(coalHillSchool, 1).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(coalHillSchool, 1).getStatements());
 
         // we ONLY expect the school and its teachers to be persisted when persisting the school to depth 1
         executeStatementsAndAssertSameGraph(cypher, "CREATE " +
@@ -508,7 +519,7 @@ public class ObjectToCypherMapperTest {
         claraOswald.setCourses(Arrays.asList(english));
         dannyPink.setCourses(Arrays.asList(maths));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(coalHillSchool, 2).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(coalHillSchool, 2).getStatements());
 
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
         executeStatementsAndAssertSameGraph(cypher, "CREATE " +
@@ -517,8 +528,8 @@ public class ObjectToCypherMapperTest {
                 "(danny:Teacher {name:'Danny Pink'}), " +
                 "(english:Course {name:'English'}), " +
                 "(maths:Course {name:'Maths'}), " +
-                "(school)-[:TEACHERS]->(clara), " +
-                "(school)-[:TEACHERS]->(danny), " +
+                "(school)-[:TEACHERS]->(clara)-[:SCHOOL]->(school), " +
+                "(school)-[:TEACHERS]->(danny)-[:SCHOOL]->(school), " +
                 "(danny)-[:COURSES]->(maths), " +
                 "(clara)-[:COURSES]->(english)");
     }
@@ -534,7 +545,7 @@ public class ObjectToCypherMapperTest {
         link.setTimestamp(1647209L);
         forum.setTopicsInForum(Arrays.asList(link));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(forum).getStatements());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
                 + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
     }
@@ -562,7 +573,7 @@ public class ObjectToCypherMapperTest {
         link.setTimestamp(327790L);
         forum.setTopicsInForum(Arrays.asList(link));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(forum).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(forum).getStatements());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
                 + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
     }
@@ -604,7 +615,7 @@ public class ObjectToCypherMapperTest {
         List<ForumTopicLink> linksToSave = Arrays.asList(firstRelationshipEntity, secondRelationshipEntity, thirdRelationshipEntity);
 
         // FIXME: currently fails straight away, but do we even support mapping collections in this way?
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.mapToCypher(linksToSave).getStatements());
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(linksToSave).getStatements());
         System.err.println(cypher.getStatements().get(0).getStatement());
         System.err.println(cypher.getStatements().get(0).getParameters());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "

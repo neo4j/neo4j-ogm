@@ -31,7 +31,6 @@ import static org.junit.Assert.*;
  * - empty or null labels must not be allowed
  * - classes / hierarchies that are not to be persisted must be annotated with @Transient
  */
-//@Ignore //todo many failures
 public class ClassHierarchiesIntegrationTest extends WrappingServerIntegrationTest {
 
     private Session session;

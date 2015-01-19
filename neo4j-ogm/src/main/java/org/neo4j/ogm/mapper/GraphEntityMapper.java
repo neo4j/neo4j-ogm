@@ -1,5 +1,6 @@
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
@@ -15,25 +16,25 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
+public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 
-    private final Logger logger = LoggerFactory.getLogger(GraphObjectMapper.class);
+    private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
     private final MappingContext mappingContext;
-    private final ObjectFactory objectFactory;
+    private final EntityFactory entityFactory;
     private final MetaData metadata;
     private final EntityAccessStrategy entityAccessStrategy;
 
-    public GraphObjectMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
-        this.objectFactory = new ObjectFactory(metadata);
+        this.entityFactory = new EntityFactory(metadata);
         this.mappingContext = mappingContext;
         this.entityAccessStrategy = new DefaultEntityAccessStrategy();
     }
 
     @Override
-    public <T> Set<T> load(Class<T> type, GraphModel graphModel) {
-        map(type, graphModel);
+    public <T> Set<T> map(Class<T> type, GraphModel graphModel) {
+        mapEntities(type, graphModel);
         try {
             Set<T> set = new HashSet<>();
             for (Object o : mappingContext.getAll(type)) {
@@ -45,7 +46,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         }
     }
 
-    private <T> void map(Class<T> type, GraphModel graphModel) {
+    private <T> void mapEntities(Class<T> type, GraphModel graphModel) {
         try {
             mapNodes(graphModel);
             mapRelationships(graphModel);
@@ -56,25 +57,25 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void mapNodes(GraphModel graphModel) {
         for (NodeModel node : graphModel.getNodes()) {
-            Object object = mappingContext.get(node.getId());
-            if (object == null) {
-                object = mappingContext.register(objectFactory.newObject(node), node.getId());
+            Object entity = mappingContext.get(node.getId());
+            if (entity == null) {
+                entity = mappingContext.registerNodeEntity(entityFactory.newObject(node), node.getId());
             }
-            setIdentity(object, node.getId());
-            setProperties(node, object);
-            mappingContext.remember(object);
+            setIdentity(entity, node.getId());
+            setProperties(node, entity);
+            mappingContext.remember(entity);
         }
     }
 
     private void setIdentity(Object instance, Long id) {
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
         FieldInfo fieldInfo = classInfo.identityField();
         FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
     }
 
     private void setProperties(NodeModel nodeModel, Object instance) {
         // cache this.
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
         for (Property property : nodeModel.getPropertyList()) {
             writeProperty(classInfo, instance, property);
         }
@@ -82,7 +83,7 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
 
     private void setProperties(RelationshipModel relationshipModel, Object instance) {
         // cache this.
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
         if (relationshipModel.getProperties() != null) {
         for (Entry<String, Object> property : relationshipModel.getProperties().entrySet()) {
             writeProperty(classInfo, instance, Property.with(property.getKey(), property.getValue()));
@@ -116,11 +117,11 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
     private boolean mapOneToOne(Object source, Object parameter, RelationshipModel edge) {
 
         String edgeLabel = edge.getType();
-        ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
+        ClassInfo sourceInfo = metadata.classInfo(source);
 
-        RelationalWriter objectAccess = entityAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, parameter);
-        if (objectAccess != null) {
-            objectAccess.write(source, parameter);
+        RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, parameter);
+        if (writer != null) {
+            writer.write(source, parameter);
             // FIXME: this doesn't remember the right relationship type when objectAccess sets a RelEntity
             // indeed, why do we use objectAccess.relationshipName instead of just edge.getType?
             mappingContext.remember(new MappedRelationship(edge.getStartNode(), edgeLabel, edge.getEndNode()));
@@ -135,61 +136,48 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         final Set<RelationshipModel> oneToMany = new HashSet<>();
 
         for (RelationshipModel edge : graphModel.getRelationships()) {
+
             Object source = mappingContext.get(edge.getStartNode());
             Object target = mappingContext.get(edge.getEndNode());
 
             // check whether this edge should in fact be handled as a relationship entity
+            // This works because a relationship in the graph that has properties must be represented
+            // by a domain entity annotated with @RelationshipEntity, and (if it exists) it will be found by
+            // metadata.resolve(...)
             ClassInfo relationshipEntityClassInfo = metadata.resolve(edge.getType());
 
             if (relationshipEntityClassInfo != null) {
                 logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(), relationshipEntityClassInfo.name());
 
+                // look to see if this relationship already exists in the mapping context.
                 Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
-                if (relationshipEntity == null) {
-                    relationshipEntity = objectFactory.newObject(edge);
-                    mappingContext.registerRelationship(relationshipEntity, edge.getId());
 
-                    setIdentity(relationshipEntity, edge.getId());
-                    setProperties(edge, relationshipEntity);
-
-                    // It's not really right semantically to call getRelationalWriter because we're not setting a relationship
-                    // - then again, we can't call the property one at all because our type isn't "simple"
-                    // now, we could just insist that you annotate start/end nodes and resolve these via EAS
-                    // Do even we want to have a "simple" strategy for this given anno's are a must for EA anyway?
-                    // - still should ask EAS if it's field/method, even if we do look for @StartNode rather than @Relationship
-                    ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity.getClass().getName());
-                    RelationalWriter startNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), source);
-                    if (startNodeAccess != null) {
-                        startNodeAccess.write(relationshipEntity, source);
-                    }
-                    RelationalWriter endNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), target);
-                    if (endNodeAccess != null) {
-                        endNodeAccess.write(relationshipEntity, target);
-                    }
-                    // TODO: consider throwing an exception here because the relationship type isn't usable?
+                // do we know about it?
+                if (relationshipEntity == null) { // no, create a new relationship entity
+                    relationshipEntity = createRelationshipEntity(edge, source, target);
                 }
 
-                // source.setRelationshipEntity
-                ClassInfo sourceInfo = metadata.classInfo(source.getClass().getName());
-                RelationalWriter sourceAccess = entityAccessStrategy.getRelationalWriter(sourceInfo, edge.getType(), relationshipEntity);
-                if (sourceAccess != null) {
-                    sourceAccess.write(source, relationshipEntity);
-                    mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
-                } else {
-                    // cannot set RE on source as one-to-one
-                    oneToMany.add(edge);
+                // source.setRelationshipEntity if OUTGOING/BOTH
+                if (!relationshipDirection(source, edge, relationshipEntity).equals(Relationship.INCOMING)) {
+                    // try and find a one-to-one writer
+                    ClassInfo sourceInfo = metadata.classInfo(source);
+                    RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edge.getType(), relationshipEntity);
+                    if (writer != null) {
+                        writer.write(source, relationshipEntity);
+                        mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
+                    } else {
+                        oneToMany.add(edge);
+                    }
                 }
-
-                // target.setRelationshipEntity
-                ClassInfo targetInfo = metadata.classInfo(target.getClass().getName());
-                RelationalWriter targetAccess = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), relationshipEntity);
-                if (targetAccess != null) {
-                    targetAccess.write(target, relationshipEntity);
-                    // NB: this is a different direction from the above, although I'm not sure that's the right thing to do :/
-                    mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
-                } else {
-                    // cannot set RE on target as one-to-one
-                    oneToMany.add(edge);
+                // target.setRelationshipEntity if INCOMING/BOTH
+                if (!relationshipDirection(target, edge, relationshipEntity).equals(Relationship.OUTGOING)) {
+                    ClassInfo targetInfo = metadata.classInfo(target);
+                    RelationalWriter writer = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), relationshipEntity);
+                    if (writer != null) {
+                        writer.write(target, relationshipEntity);
+                    } else {
+                        oneToMany.add(edge);
+                    }
                 }
             }
             else {
@@ -202,25 +190,54 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         mapOneToMany(oneToMany);
     }
 
+    private Object createRelationshipEntity(RelationshipModel edge, Object startEntity, Object endEntity) {
+
+        // create and hydrate the new RE
+        Object relationshipEntity = entityFactory.newObject(edge);
+        setIdentity(relationshipEntity, edge.getId());
+        setProperties(edge, relationshipEntity);
+
+        // register it in the mapping context
+        mappingContext.registerRelationshipEntity(relationshipEntity, edge.getId());
+
+        // set the start and end entities
+        ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
+        RelationalWriter startNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), startEntity);
+        if (startNodeAccess != null) {
+            startNodeAccess.write(relationshipEntity, startEntity);
+        } // todo : throw exception, though this is detectable during metadata load
+
+        RelationalWriter endNodeAccess = entityAccessStrategy.getRelationalWriter(relEntityInfo, edge.getType(), endEntity);
+        if (endNodeAccess != null) {
+            endNodeAccess.write(relationshipEntity, endEntity);
+        } // todo : throw exception, though this is detectable during metadata load
+
+        return relationshipEntity;
+    }
+
     public Set<Object> get(Class<?> clazz) {
         return mappingContext.getAll(clazz);
     }
 
     private void mapOneToMany(Set<RelationshipModel> oneToManyRelationships) {
 
-        ObjectCollector typeRelationships = new ObjectCollector();
+        EntityCollector typeRelationships = new EntityCollector();
 
-        // first, build the full set of related objects of each type for each source object in the relationship
+        // first, build the full set of related entities of each type for each source entity in the relationship
         for (RelationshipModel edge : oneToManyRelationships) {
 
             Object instance = mappingContext.get(edge.getStartNode());
             Object parameter = mappingContext.get(edge.getEndNode());
 
+            // is this a relationship entity we're trying to map?
             Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
             if (relationshipEntity != null) {
-                // process the relationship entity that was previously placed in the mapping context
-                typeRelationships.recordTypeRelationship(parameter, relationshipEntity);
-                typeRelationships.recordTypeRelationship(instance, relationshipEntity);
+                if (!relationshipDirection(instance, edge, relationshipEntity).equals(Relationship.INCOMING)) {
+                    typeRelationships.recordTypeRelationship(instance, relationshipEntity);
+                }
+                if (!relationshipDirection(parameter, edge, relationshipEntity).equals(Relationship.OUTGOING)) {
+                    typeRelationships.recordTypeRelationship(parameter, relationshipEntity);
+                }
             }
             else {
                 typeRelationships.recordTypeRelationship(instance, parameter);
@@ -231,15 +248,36 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
         for (Object instance : typeRelationships.getOwningTypes()) {
             Map<Class<?>, Set<Object>> handled = typeRelationships.getTypeCollectionMapping(instance);
             for (Class<?> type : handled.keySet()) {
-                Collection<?> objects = handled.get(type);
-                mapOneToMany(instance, type, objects, oneToManyRelationships);
+                Collection<?> entities = handled.get(type);
+                mapOneToMany(instance, type, entities, oneToManyRelationships);
             }
         }
     }
 
+    /**
+     * Returns the relationship direction between source and target of the specified type as specified
+     * by the source entity. This may be different from the direction registered in the graph.
+     *
+     * By default, if a direction is not specified through an annotation, the direction follows
+     * the graph's convention, (source)-[:R]->(target) or OUTGOING from source to target.
+     *
+     * @param source an entity representing the start of the relationship from the graph's perspective
+     * @param edge   {@link RelationshipModel} holding information about the relationship in the graph
+     * @param target en entity representing the end of the relationship from the graph's perspective
+     * @return  one of {@link Relationship.OUTGOING}, {@link Relationship.INCOMING}, {@link Relationship.BOTH}
+     */
+    private String relationshipDirection(Object source, RelationshipModel edge, Object target) {
+        ClassInfo classInfo = metadata.classInfo(source);
+        RelationalWriter writer = entityAccessStrategy.getRelationalWriter(classInfo, edge.getType(), target);
+        if (writer == null) {
+            writer = entityAccessStrategy.getIterableWriter(classInfo, target.getClass());
+        }
+        return writer.relationshipDirection();
+    }
+
     private boolean mapOneToMany(Object instance, Class<?> valueType, Object values, Set<RelationshipModel> edges) {
 
-        ClassInfo classInfo = metadata.classInfo(instance.getClass().getName());
+        ClassInfo classInfo = metadata.classInfo(instance);
 
         RelationalWriter writer = entityAccessStrategy.getIterableWriter(classInfo, valueType);
         if (writer != null) {
@@ -253,11 +291,10 @@ public class GraphObjectMapper implements GraphToObjectMapper<GraphModel> {
                         values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Iterable<?>) currentValues);
                     }
                 }
-                values = EntityAccess.merge(writer.type(), (Iterable<?>) values, new ArrayList<Object>());
+                values = EntityAccess.merge(writer.type(), (Iterable<?>) values, new ArrayList<>());
             }
             writer.write(instance, values);
 
-            String relType = writer.relationshipName(); // FIXME: doesn't work for a relationship entity
             for (RelationshipModel edge : edges) {
                 mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
             }

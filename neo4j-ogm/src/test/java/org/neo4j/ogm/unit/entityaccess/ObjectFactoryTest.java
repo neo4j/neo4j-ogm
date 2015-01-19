@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.entityaccess.ObjectFactory;
+import org.neo4j.ogm.entityaccess.EntityFactory;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.NodeModel;
@@ -14,11 +14,11 @@ import org.neo4j.ogm.model.RelationshipModel;
 
 public class ObjectFactoryTest {
 
-    private ObjectFactory objectCreator;
+    private EntityFactory objectCreator;
 
     @Before
     public void setUp() {
-        this.objectCreator = new ObjectFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
+        this.objectCreator = new EntityFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
     }
 
     @Test

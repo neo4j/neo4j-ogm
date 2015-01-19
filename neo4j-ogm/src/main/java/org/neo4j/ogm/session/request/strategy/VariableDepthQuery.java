@@ -53,7 +53,7 @@ public class VariableDepthQuery implements QueryStatements {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format("MATCH p=(n:%s)-[*%d..%d]-(m) WHERE n.%s = { %s } RETURN collect(distinct p)", label, min, max, property.getKey(), property.getKey(), min, max);
+            String qry = String.format("MATCH p=(n:%s)-[*%d..%d]-(m) WHERE n.%s = { %s } RETURN collect(distinct p)", label, min, max, property.getKey(), property.getKey());
             return new GraphModelQuery(qry, Utils.map(property.getKey(), property.asParameter()));
         } else {
             return DepthZeroReadStrategy.findByProperty(label, property);

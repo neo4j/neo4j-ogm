@@ -1,7 +1,6 @@
 package org.springframework.data.neo4j.integration.repositories;
 
 import com.graphaware.test.integration.WrappingServerIntegrationTest;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.data.neo4j.integration.repositories.domain.Movie;
@@ -13,7 +12,6 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
 import static org.junit.Assert.assertEquals;
 
-@Ignore //todo
 public class ProgrammaticRepositoryTest extends WrappingServerIntegrationTest {
 
     private MovieRepository movieRepository;
@@ -31,7 +29,7 @@ public class ProgrammaticRepositoryTest extends WrappingServerIntegrationTest {
         Movie movie = new Movie("PF");
         movieRepository.save(movie);
 
-        assertSameGraph(getDatabase(), "CREATE (m:Movie {name:'PF'})");
+        assertSameGraph(getDatabase(), "CREATE (m:Movie {title:'PF'})");
 
         assertEquals(1, IterableUtils.count(movieRepository.findAll()));
     }

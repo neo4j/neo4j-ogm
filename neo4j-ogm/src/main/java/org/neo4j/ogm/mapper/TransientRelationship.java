@@ -15,7 +15,7 @@ import java.util.Map;
  * If the save succeeds, the ids of the two ends of the actual relationship
  * will now be fully known in the response. The start and end nodes of the transient
  * relationship (which were previously place holders) can now be
- * replaced with the correct node ids, and the a new MappedRelationship
+ * replaced with the correct node ids, and the new MappedRelationship
  * established in the session's mappingContext.
  *
  */

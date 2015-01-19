@@ -7,8 +7,8 @@ import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -31,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -191,12 +189,14 @@ public class Neo4jSession implements Session {
         return results.iterator().next();
     }
 
+    // TODO: Move to a Util class.
     private static int size(Iterable<?> iterable) {
         return (iterable instanceof Collection)
                        ? ((Collection<?>) iterable).size()
                        : size(iterable.iterator());
     }
 
+    // TODO: Move to a Util class.
     private static int size(Iterator<?> iterator) {
         int count = 0;
         while (iterator.hasNext()) {
@@ -267,7 +267,6 @@ public class Neo4jSession implements Session {
 
                 Collection<T> result = new ArrayList<>();
                 RowModel rowModel;
-
                 while ((rowModel = response.next()) != null) {
                     Object[] results = rowModel.getValues();
                     for (int i = 0; i < variables.length; i++) {
@@ -344,10 +343,10 @@ public class Neo4jSession implements Session {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             saveAll(object, depth);
         } else {
-            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            ClassInfo classInfo = metaData.classInfo(object);
             if (classInfo != null) {
                 Transaction tx = getOrCreateTransaction();
-                CypherContext context = new ObjectCypherMapper(metaData, mappingContext).mapToCypher(object, depth);
+                CypherContext context = new EntityGraphMapper(metaData, mappingContext).map(object, depth);
                 try (Neo4jResponse<String> response = getRequestHandler().execute(context.getStatements(), tx.url())) {
                     getResponseHandler().updateObjects(context, response, mapper);
                     tx.append(context);
@@ -366,7 +365,7 @@ public class Neo4jSession implements Session {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             deleteAll(object);
         } else {
-            ClassInfo classInfo = metaData.classInfo(object.getClass().getName());
+            ClassInfo classInfo = metaData.classInfo(object);
             if (classInfo != null) {
                 Field identityField = classInfo.getField(classInfo.identityField());
                 Long identity = (Long) FieldWriter.read(identityField, object);

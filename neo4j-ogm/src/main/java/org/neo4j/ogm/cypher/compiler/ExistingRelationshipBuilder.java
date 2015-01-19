@@ -6,8 +6,6 @@ import java.util.Set;
 class ExistingRelationshipBuilder extends RelationshipBuilder {
 
     private final Long id;
-    private String startNodeIdentifier;
-    private String endNodeIdentifier;
 
     ExistingRelationshipBuilder(String variableName, Long relationshipId) {
         super(variableName);
@@ -18,6 +16,7 @@ class ExistingRelationshipBuilder extends RelationshipBuilder {
     public void relate(String startNodeIdentifier, String endNodeIdentifier) {
         this.startNodeIdentifier = startNodeIdentifier;
         this.endNodeIdentifier = endNodeIdentifier;
+        this.reference = reference;
     }
 
     @Override

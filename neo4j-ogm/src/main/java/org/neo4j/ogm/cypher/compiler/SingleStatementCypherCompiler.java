@@ -12,12 +12,14 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
 
     private final IdentifierManager identifiers = new IdentifierManager();
 
-    private final Set<CypherEmitter> newNodes = new HashSet<>();
-    private final Set<CypherEmitter> updatedNodes = new HashSet<>();
-    private final Set<CypherEmitter> newRelationships = new HashSet<>();
-    private final Set<CypherEmitter> updatedRelationships = new HashSet<>();
-    private final Set<CypherEmitter> deletedRelationships = new HashSet<>();
+    private final Set<CypherEmitter> newNodes = new TreeSet<>();
+    private final Set<CypherEmitter> updatedNodes = new TreeSet<>();
+    private final Set<CypherEmitter> newRelationships = new TreeSet<>();
+    private final Set<CypherEmitter> updatedRelationships = new TreeSet<>();
+    private final Set<CypherEmitter> deletedRelationships = new TreeSet<>();
+
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
+    private final CypherContext context = new CypherContext();
 
     @Deprecated
     @Override
@@ -52,7 +54,7 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
 
     @Override
     public RelationshipBuilder newRelationship() {
-        RelationshipBuilder builder = new NewRelationshipBuilder(this.identifiers.nextIdentifier());
+        RelationshipBuilder builder = new NewRelationshipBuilder(identifiers.nextIdentifier());
         this.newRelationships.add(builder);
         return builder;
     }
@@ -92,10 +94,12 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
             emitter.emit(queryBuilder, parameters, varStack);
         }
 
-        for (CypherEmitter emitter : newRelationships) {
-            emitter.emit(queryBuilder, parameters, varStack);
-            //TODO: if the above returns true we need to store the reference on newStack()
-            // WRITE A TEST FOR THIS FIRST
+
+        for (Iterator<CypherEmitter> it = this.newRelationships.iterator() ; it.hasNext() ; ) {
+            RelationshipBuilder relationshipBuilder = (RelationshipBuilder) it.next();
+            if (relationshipBuilder.emit(queryBuilder, parameters, varStack)) {
+                newStack.add(relationshipBuilder.reference);
+            }
         }
 
         for (CypherEmitter emitter : updatedRelationships) {
@@ -110,5 +114,26 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
 
         return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
     }
+
+    public CypherContext context() {
+        return context;
+    }
+
+    @Override
+    public CypherContext compile() {
+        context.setStatements(getStatements());
+        return context;
+    }
+
+    @Override
+    public void release(RelationshipBuilder relationshipBuilder) {
+        identifiers.releaseIdentifier();
+    }
+
+    @Override
+    public String nextIdentifier() {
+        return identifiers.nextIdentifier();
+    }
+
 
 }

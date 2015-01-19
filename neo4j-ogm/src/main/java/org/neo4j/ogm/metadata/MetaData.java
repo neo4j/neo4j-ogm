@@ -41,6 +41,17 @@ public class MetaData {
         return domainInfo.getClassSimpleName(name);
     }
 
+
+    /**
+     * Finds the ClassInfo for the supplied object by looking up its class name
+     *
+     * @param object the class name whose classInfo we want to find
+     * @return A ClassInfo matching the supplied object's class, or null if it doesn't exist
+     */
+    public ClassInfo classInfo(Object object) {
+        return classInfo(object.getClass().getName());
+    }
+
     private ClassInfo _classInfo(String name, String nodeEntityAnnotation, String annotationPropertyName) {
         List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
         if (labelledClasses != null) {

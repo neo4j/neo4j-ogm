@@ -43,7 +43,13 @@ public class EndToEndTest extends IntegrationTest {
         Saddle expected = new Saddle();
         expected.setPrice(29.95);
         expected.setMaterial("Leather");
-        session.save(expected);
+        Wheel frontWheel = new Wheel();
+        Wheel backWheel = new Wheel();
+        Bike bike = new Bike();
+        bike.setBrand("Huffy");
+        bike.setWheels(Arrays.asList(frontWheel, backWheel));
+        bike.setSaddle(expected);
+        session.save(bike);
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("material", "Leather");
@@ -51,7 +57,17 @@ public class EndToEndTest extends IntegrationTest {
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getMaterial(), actual.getMaterial());
+
+        HashMap<String, Object> parameters2 = new HashMap<>();
+        parameters2.put("brand", "Huffy");
+        Bike actual2 = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand: {brand}}) RETURN bike", parameters2);
+
+        assertEquals(bike.getId(), actual2.getId());
+        assertEquals(bike.getBrand(), actual2.getBrand());
+        assertEquals(bike.getSaddle(), actual2.getSaddle());
+        assertEquals(bike.getWheels().size(), actual2.getWheels().size());
     }
+
 
     @Test
     public void canSimpleScalarQueryDatabase() {

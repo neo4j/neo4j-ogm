@@ -74,7 +74,23 @@ public interface Session {
      *
      * @return A collection of domain objects or scalars as prescribed by the parametrized type.
      */
-    <T> Collection<T> query(Class<T> objectType, String cypher, Map<String, Object> parameters);
+    <T> Iterable<T> query(Class<T> objectType, String cypher, Map<String, Object> parameters);
+
+    /**
+     * Given a non modifying cypher statement this method will return a collection of Map's which represent Neo4j
+     * objects as properties.
+     *
+     * Each element is a map which you can access by the name of the returned field
+     *
+     * TODO: Decide if we want to keep this behaviour?
+     * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
+     *
+     * @param cypher  The parametrizable cypher to execute.
+     * @param parameters Any parameters to attach to the cypher.
+     *
+     * @return An iterable collection of Maps with each entry representing a neo4j object's properties.
+     */
+    Iterable<Map<String, Object>> query(String cypher, Map<String, Object> parameters);
 
     /**
      * This method allows a cypher statement with a modification statement to be executed.
@@ -89,9 +105,4 @@ public interface Session {
      *
      */
     void execute(String cypher, Map<String, Object> parameters);
-
-    //    <T> T queryForObject(QueryResultMapper<T> objectType, String cypher,  Map<String, Object> parameters);
-
-    //<T> Query<T> createQuery(T type, String cypher, Map<String, Object> parameters);
-
 }

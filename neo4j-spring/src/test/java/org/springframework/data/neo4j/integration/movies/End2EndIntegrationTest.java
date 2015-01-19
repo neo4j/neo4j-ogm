@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.integration.movies.context.PersistenceContext;
 import org.springframework.data.neo4j.integration.movies.domain.*;
 import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
@@ -125,7 +126,7 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     @Test
     public void shouldSaveMovie() {
         Movie movie = new Movie("Pulp Fiction");
-        movie.setTags(new String[]{"cool", "classic"});
+        movie.setTags(new String[] {"cool", "classic"});
         movie.setImage(new byte[]{1, 2, 3});
 
         abstractEntityRepository.save(movie);
@@ -160,8 +161,8 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         userRepository.save(list);
 
         assertSameGraph(getDatabase(), "CREATE (:User {name:'Michal'})," +
-                "(:User {name:'Vince'})," +
-                "(:User {name:'Adam'})");
+                                       "(:User {name:'Vince'})," +
+                                       "(:User {name:'Adam'})");
 
         assertEquals(3, userRepository.count());
     }
@@ -475,6 +476,53 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     }
 
     @Test
+    public void shouldUserIds() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        List<Integer> users = userRepository.getUserIds();
+        assertEquals(users.size(), 2);
+    }
+
+    @Test
+    public void shouldFindUsers() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        Collection<User> users = userRepository.getAllUsers();
+        assertEquals(users.size(), 2);
+    }
+
+    @Test
+    public void shouldFindUserByName() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        User user = userRepository.findUserByName("Michal");
+        assertEquals("Michal",user.getName());
+    }
+
+    @Test
+    public void shouldFindUserByNameWithNamedParam() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        User user = userRepository.findUserByNameWithNamedParam("Michal");
+        assertEquals("Michal",user.getName());
+    }
+
+    @Test
+    public void shouldFindUsersAsProperties() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        Iterable<Map<String, Object>> users = userRepository.getUsersAsProperties();
+        assertNotNull(users);
+        int i = 0;
+        for (Map<String,Object> properties: users) {
+            i++;
+            assertNotNull(properties);
+        }
+        assertEquals(2, i);
+    }
+
+
+    @Test
     public void shouldSaveNewUserAndNewMovieWithRatings() {
         User user = new User("Michal");
         TempMovie movie = new TempMovie("Pulp Fiction");
@@ -486,24 +534,6 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
     }
 
-    @Test
-    @Ignore // FIXME: although this works it brings back disconnected bundles of User properties, not User objects
-    public void shouldFindAllUsers() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
-
-        Collection<User> users = userRepository.getAllUsers();
-
-        assertEquals(users.size(), 2);
-        assertTrue(users.iterator().next() instanceof User);
-
-        for (User user : users) {
-            if (user.getName().equals("Adam")) {
-                assertEquals(1, user.getFriends().size());
-            }  else {
-                fail("Adam should have friend relationship");
-            }
-        }
-    }
 
     @Test
     @Ignore // FIXME we need to know the user is querying for a table-based structure. We're returning Collection<Object>
@@ -521,7 +551,13 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
                         "(bw)-[:ACTED_IN]->(fe)");
 
         List<Map<String, Object>> graph = userRepository.getGraph();
-
+        assertNotNull(graph);
+        int i = 0;
+        for (Map<String,Object> properties: graph) {
+            i++;
+            assertNotNull(properties);
+        }
+        assertEquals(2, i);
 //        for (Map<String, Object> row : graph) {
 //            System.out.println("row:");
 //            for (Map.Entry entry : row.entrySet()) {

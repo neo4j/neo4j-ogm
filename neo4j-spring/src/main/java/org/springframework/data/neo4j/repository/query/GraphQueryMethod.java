@@ -33,8 +33,8 @@ public class GraphQueryMethod extends QueryMethod
         return queryAnnotation.value();
     }
 
-    public Class<?> getReturnType() {
-        return method.getReturnType();
+    public Method getMethod() {
+        return method;
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.integration.movies.context.PersistenceContext;
 import org.springframework.data.neo4j.integration.movies.domain.*;
 import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
@@ -105,7 +106,7 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     //there are two problems here: 1) Movie is getting AbstractEntity label which it shouldn't, 2) byte[] isn't stored as array but as a String
     public void shouldSaveMovie() {
         Movie movie = new Movie("Pulp Fiction");
-        movie.setTags(new String[]{"cool", "classic"});
+        movie.setTags(new String[] {"cool", "classic"});
         movie.setImage(new byte[]{1, 2, 3});
 
         abstractEntityRepository.save(movie);
@@ -139,8 +140,8 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         userRepository.save(list);
 
         assertSameGraph(getDatabase(), "CREATE (:User {name:'Michal'})," +
-                "(:User {name:'Vince'})," +
-                "(:User {name:'Adam'})");
+                                       "(:User {name:'Vince'})," +
+                                       "(:User {name:'Adam'})");
 
         assertEquals(3, userRepository.count());
     }
@@ -452,6 +453,37 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
         int users = userRepository.findTotalUsers();
         assertEquals(users, 2);
     }
+
+    @Test
+    public void shouldUserIds() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        List<Integer> users = userRepository.getUserIds();
+        assertEquals(users.size(), 2);
+    }
+
+    @Test
+    public void shouldFindUsers() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        List<User> users = userRepository.getUsers();
+        assertEquals(users.size(), 2);
+    }
+
+    @Test
+    public void shouldFindUsersAsProperties() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
+
+        Iterable<Map<String, Object>> users = userRepository.getUsersAsProperties();
+        assertNotNull(users);
+        int i = 0;
+        for (Map<String,Object> properties: users) {
+            i++;
+            assertNotNull(properties);
+        }
+        assertEquals(2, i);
+    }
+
 
     @Test
     @Ignore //todo

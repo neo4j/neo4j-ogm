@@ -12,6 +12,7 @@ import org.neo4j.ogm.mapper.ObjectCypherMapper;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.NodeModel;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.Neo4jRequest;
@@ -30,10 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -171,9 +176,9 @@ public class Neo4jSession implements Session {
     @Override
     public <T> T queryForObject(Class<T> type, String cypher, Map<String, Object> parameters)
     {
-        Collection<T> results = query(type, cypher, parameters);
+        Iterable<T> results = query(type, cypher, parameters);
 
-        int resultSize = results.size();
+        int resultSize = size(results);
 
         if (resultSize < 1 ) {
             return null;
@@ -186,9 +191,55 @@ public class Neo4jSession implements Session {
         return results.iterator().next();
     }
 
+    private static int size(Iterable<?> iterable) {
+        return (iterable instanceof Collection)
+                       ? ((Collection<?>) iterable).size()
+                       : size(iterable.iterator());
+    }
+
+    private static int size(Iterator<?> iterator) {
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
+        }
+        return count;
+    }
 
     @Override
-    public <T> Collection<T> query(Class<T> type, String cypher, Map<String, Object> parameters)
+    public Iterable<Map<String, Object>> query(String cypher, Map<String, Object> parameters)
+    {
+        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
+
+        if (matcher.find()) {
+            throw new RuntimeException("query() only allows read only cypher. To make modifications use execute()");
+        }
+
+        String url = getOrCreateTransaction().url();
+        RowModelQuery qry = new RowModelQuery(cypher, parameters);
+        try (Neo4jResponse<RowModel> response = getRequestHandler().execute(qry, url)) {
+
+            String[] variables = response.columns();
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            RowModel rowModel;
+
+            while ((rowModel = response.next()) != null) {
+                Object[] results = rowModel.getValues();
+                Map<String, Object> element = new HashMap<>();
+                for (int i = 0; i < variables.length; i++) {
+                    element.put(variables[i], results[i]);
+                }
+                result.add(element);
+            }
+
+            return result;
+        }
+    }
+
+
+    @Override
+    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, Object> parameters)
     {
         Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
 

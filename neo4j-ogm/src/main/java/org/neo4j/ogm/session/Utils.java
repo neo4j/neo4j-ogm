@@ -4,6 +4,7 @@ import org.neo4j.ogm.model.Property;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Utils {
@@ -35,4 +36,18 @@ public class Utils {
         };
     }
 
+    public static int size(Iterable<?> iterable) {
+        return (iterable instanceof Collection)
+                       ? ((Collection<?>) iterable).size()
+                       : size(iterable.iterator());
+    }
+
+    public static int size(Iterator<?> iterator) {
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
+        }
+        return count;
+    }
 }

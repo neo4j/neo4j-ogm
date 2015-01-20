@@ -1,6 +1,7 @@
 package org.neo4j.ogm.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
@@ -167,44 +168,31 @@ public class Neo4jSession implements Session {
     {
         Iterable<T> results = query(type, cypher, parameters);
 
-        int resultSize = size(results);
+        int resultSize = Utils.size(results);
 
         if (resultSize < 1 ) {
             return null;
         }
 
         if (resultSize < 1) {
-            throw new RuntimeException("Found more than 1 result");
+            throw new RuntimeException("Result not of expected size. Expected 1 row but found " + resultSize);
         }
 
         return results.iterator().next();
     }
 
-    // TODO: Move to a Util class.
-    private static int size(Iterable<?> iterable) {
-        return (iterable instanceof Collection)
-                       ? ((Collection<?>) iterable).size()
-                       : size(iterable.iterator());
-    }
-
-    // TODO: Move to a Util class.
-    private static int size(Iterator<?> iterator) {
-        int count = 0;
-        while (iterator.hasNext()) {
-            iterator.next();
-            count++;
-        }
-        return count;
-    }
-
     @Override
     public Iterable<Map<String, Object>> query(String cypher, Map<String, Object> parameters)
     {
-        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
-
-        if (matcher.find()) {
-            throw new RuntimeException("query() only allows read only cypher. To make modifications use execute()");
+        if (StringUtils.isEmpty(cypher)) {
+            throw new RuntimeException("Supplied cypher statement must not be null or empty.");
         }
+
+        if (parameters == null) {
+            throw new RuntimeException("Supplied Parameters cannot be null.");
+        }
+
+        assertReadOnly(cypher);
 
         String url = getOrCreateTransaction().url();
         RowModelQuery qry = new RowModelQuery(cypher, parameters);
@@ -232,11 +220,19 @@ public class Neo4jSession implements Session {
     @Override
     public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, Object> parameters)
     {
-        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
-
-        if (matcher.find()) {
-            throw new RuntimeException("query() only allows read only cypher. To make modifications use execute()");
+        if (type == null || type.equals(Void.class)) {
+            throw new RuntimeException("Supplied type must not be nul or void.");
         }
+
+        if (StringUtils.isEmpty(cypher)) {
+            throw new RuntimeException("Supplied cypher statement must not be null or empty.");
+        }
+
+        if (parameters == null) {
+            throw new RuntimeException("Supplied Parameters cannot be null.");
+        }
+
+        assertReadOnly(cypher);
 
         String url = getOrCreateTransaction().url();
 
@@ -253,7 +249,7 @@ public class Neo4jSession implements Session {
                 String[] variables = response.columns();
 
                 if (variables.length > 1) {
-                    throw new RuntimeException("Scalar response queries must only return one column.");
+                    throw new RuntimeException("Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
                 }
 
                 Collection<T> result = new ArrayList<>();
@@ -270,10 +266,27 @@ public class Neo4jSession implements Session {
         }
     }
 
+    private void assertReadOnly(String cypher)
+    {
+        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
+
+        if (matcher.find()) {
+            throw new RuntimeException("query() only allows read only cypher. To make modifications use execute()");
+        }
+    }
+
 
     @Override
     public void execute(String cypher, Map<String, Object> parameters)
     {
+        if (StringUtils.isEmpty(cypher)) {
+            throw new RuntimeException("Supplied cypher statement must not be null or empty.");
+        }
+
+        if (parameters == null) {
+            throw new RuntimeException("Supplied Parameters cannot be null.");
+        }
+
         String url  = getOrCreateTransaction().url();
         // NOTE: No need to check if domain objects are parameters and flatten them to json as this is done
         // for us using the existing execute() method.

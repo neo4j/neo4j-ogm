@@ -57,8 +57,10 @@ public class GraphRepositoryQuery implements RepositoryQuery
 
     private Map<String, Object> resolveParams(Object[] parameters)
     {
+        Map<String, Object> params = new HashMap<>();
         Parameters<?, ?> methodParameters = graphQueryMethod.getParameters();
-        Map<String, Object> params = new HashMap<>(); for (int i = 0; i < parameters.length; i++)
+
+        for (int i = 0; i < parameters.length; i++)
         {
             Parameter parameter = methodParameters.getParameter(i);
 
@@ -70,7 +72,6 @@ public class GraphRepositoryQuery implements RepositoryQuery
             {
                 params.put("" + i, parameters[i]);
             }
-
         }
         return params;
     }

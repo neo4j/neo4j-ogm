@@ -27,11 +27,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.graphaware.neo4j</groupId>
-            <artifactId>tests</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j</artifactId>
         </dependency>

@@ -246,7 +246,7 @@ public final class GraphTestUtils {
         return pc1KeyCount == pc2KeyCount;
     }
 
-    public static String print(Node node) {
+    private static String print(Node node) {
         StringBuilder string = new StringBuilder("(");
 
         List<String> labelNames = new LinkedList<>();
@@ -268,7 +268,7 @@ public final class GraphTestUtils {
         return string.toString();
     }
 
-    public static String print(Relationship relationship) {
+    private static String print(Relationship relationship) {
         StringBuilder string = new StringBuilder();
 
         string.append(print(relationship.getStartNode()));
@@ -297,14 +297,10 @@ public final class GraphTestUtils {
         }
         Collections.sort(propertyKeys);
 
-        boolean first = true;
         for (String key : propertyKeys) {
-            if (!first) {
-                string.append(", ");
-            }
-            first = false;
-            string.append(key).append(": ").append(String.valueOf(propertyContainer.getProperty(key)));
+            string.append(key).append(": ").append(propertyValueToString(propertyContainer.getProperty(key))).append(", ");
         }
+        string.setLength(string.length() - 2);
 
         string.append("}");
 

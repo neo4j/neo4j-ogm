@@ -1,6 +1,5 @@
 package org.neo4j.ogm.integration.hierarchy;
 
-import com.graphaware.test.integration.WrappingServerIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -11,25 +10,27 @@ import org.neo4j.ogm.integration.hierarchy.domain.plain.*;
 import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 import static org.junit.Assert.*;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
- * <p/>
+ *
  * The rules should be as follows:
- * <p/>
- * - any plain concrete class in the hierarchy generates a label by default
- * - plain abstract class does not generate a label by default
- * - any class annotated with @NodeEntity or @NodeEntity(label="something") generates a label
- * - empty or null labels must not be allowed
- * - classes / hierarchies that are not to be persisted must be annotated with @Transient
+ * <ul>
+ * <li>any plain concrete class in the hierarchy generates a label by default</li>
+ * <li>plain abstract class does not generate a label by default</li>
+ * <li>any class annotated with @NodeEntity or @NodeEntity(label="something") generates a label</li>
+ * <li>empty or null labels must not be allowed</li>
+ * <li>classes / hierarchies that are not to be persisted must be annotated with @Transient</li>
+ * </ul>
  */
 public class ClassHierarchiesIntegrationTest extends WrappingServerIntegrationTest {
 

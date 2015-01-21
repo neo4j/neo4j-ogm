@@ -1,15 +1,15 @@
 package org.springframework.data.neo4j.integration.repositories;
 
-import com.graphaware.test.integration.WrappingServerIntegrationTest;
 import org.junit.Test;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 import org.springframework.data.neo4j.integration.repositories.domain.Movie;
 import org.springframework.data.neo4j.integration.repositories.repo.MovieRepository;
 import org.springframework.data.neo4j.repository.support.GraphRepositoryFactory;
 import org.springframework.data.neo4j.util.IterableUtils;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 import static org.junit.Assert.assertEquals;
 
 public class ProgrammaticRepositoryTest extends WrappingServerIntegrationTest {

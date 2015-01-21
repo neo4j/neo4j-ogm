@@ -1,6 +1,6 @@
 package org.springframework.data.neo4j.integration.movies;
 
-import com.graphaware.test.integration.WrappingServerIntegrationTest;
+import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 import static org.junit.Assert.*;
 
 @ContextConfiguration(classes = {PersistenceContext.class})

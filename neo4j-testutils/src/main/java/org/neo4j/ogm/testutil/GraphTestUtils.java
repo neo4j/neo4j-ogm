@@ -316,21 +316,29 @@ public final class GraphTestUtils {
     private static String propertyValueToString(Object o) {
         if (o instanceof byte[]) {
             return Arrays.toString((byte[]) o);
-        } else if (o instanceof char[]) {
+        }
+        if (o instanceof char[]) {
             return Arrays.toString((char[]) o);
-        } else if (o instanceof boolean[]) {
+        }
+        if (o instanceof boolean[]) {
             return Arrays.toString((boolean[]) o);
-        } else if (o instanceof long[]) {
+        }
+        if (o instanceof long[]) {
             return Arrays.toString((long[]) o);
-        } else if (o instanceof double[]) {
+        }
+        if (o instanceof double[]) {
             return Arrays.toString((double[]) o);
-        } else if (o instanceof int[]) {
+        }
+        if (o instanceof int[]) {
             return Arrays.toString((int[]) o);
-        } else if (o instanceof short[]) {
+        }
+        if (o instanceof short[]) {
             return Arrays.toString((short[]) o);
-        } else if (o instanceof float[]) {
+        }
+        if (o instanceof float[]) {
             return Arrays.toString((float[]) o);
-        } else if (o instanceof String[]) {
+        }
+        if (o instanceof String[]) {
             return Arrays.toString((String[]) o);
         }
         return String.valueOf(o);

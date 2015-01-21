@@ -1,6 +1,6 @@
 package org.springframework.data.neo4j.integration.movies;
 
-import com.graphaware.test.integration.WrappingServerIntegrationTest;
+import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;

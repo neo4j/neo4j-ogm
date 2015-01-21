@@ -13,8 +13,7 @@ import org.neo4j.server.configuration.ServerConfigurator;
  * browser and potentially custom managed and unmanaged extensions available for testing.
  * <p>
  * This is generally useful for developers who use Neo4j in server mode and want to test their extensions, whilst being able to
- * access the {@link org.neo4j.graphdb.GraphDatabaseService} object using {@link #getDatabase()}, for example to run
- * {@link com.graphaware.test.unit.GraphUnit} test cases on it.
+ * access the {@link org.neo4j.graphdb.GraphDatabaseService} object using {@link #getDatabase()}.
  * </p>
  * By overriding {@link #neoServerPort()}, you can change the port number of which the server runs.
  */

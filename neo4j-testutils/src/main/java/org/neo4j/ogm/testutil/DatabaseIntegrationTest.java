@@ -3,6 +3,7 @@ package org.neo4j.ogm.testutil;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 /**
@@ -21,11 +22,22 @@ public abstract class DatabaseIntegrationTest {
     @Before
     public void setUp() throws Exception {
         database = createDatabase();
+        populateDatabaseInTransaction();
     }
 
     @After
     public void tearDown() throws Exception {
         database.shutdown();
+    }
+
+    /**
+     * Populate database in a transaction.
+     */
+    private void populateDatabaseInTransaction() {
+        try (Transaction tx = database.beginTx()) {
+            populateDatabase(database);
+            tx.success();
+        }
     }
 
     /**
@@ -42,6 +54,15 @@ public abstract class DatabaseIntegrationTest {
             }
         });
         return database;
+    }
+
+    /**
+     * Populate the database that will drive this test. A transaction is running when this method gets called.
+     *
+     * @param database to populate.
+     */
+    protected void populateDatabase(GraphDatabaseService database) {
+        //for subclasses
     }
 
     /**

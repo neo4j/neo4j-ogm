@@ -29,7 +29,7 @@ public class GraphQueryMethod extends QueryMethod
         this.queryAnnotation = method.getAnnotation(Query.class);
     }
 
-    public String getQueryString() {
+    public String getQuery() {
         return queryAnnotation.value();
     }
 

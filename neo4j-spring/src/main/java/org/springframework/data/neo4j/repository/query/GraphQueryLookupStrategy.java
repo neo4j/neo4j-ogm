@@ -1,6 +1,8 @@
 package org.springframework.data.neo4j.repository.query;
 
 import org.neo4j.ogm.session.Session;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.query.derived.DerivedGraphQueryMethod;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.EvaluationContextProvider;
@@ -29,7 +31,11 @@ public class GraphQueryLookupStrategy implements QueryLookupStrategy
 
     @Override
     public RepositoryQuery resolveQuery(Method method, RepositoryMetadata repositoryMetadata, NamedQueries namedQueries) {
-        final GraphQueryMethod queryMethod = new GraphQueryMethod(method,repositoryMetadata, session);
-        return queryMethod.createQuery();
+
+        if (method.getAnnotation(Query.class) != null) {
+            return new GraphQueryMethod(method, repositoryMetadata, session).createQuery();
+        }
+
+        return new DerivedGraphQueryMethod(method, repositoryMetadata, session).createQuery();
     }
 }

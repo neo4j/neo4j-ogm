@@ -59,7 +59,6 @@ public class QueryIntegrationTest extends WrappingServerIntegrationTest {
 
 
     @Test
-    @Ignore // FIXME when auto-parse query methods working in spring aop
     public void shouldFindUsersByName() {
         new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
 

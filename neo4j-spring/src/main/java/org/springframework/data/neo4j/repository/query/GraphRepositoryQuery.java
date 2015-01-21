@@ -36,7 +36,7 @@ public class GraphRepositoryQuery implements RepositoryQuery
 
         if (returnType.equals(Void.class))
         {
-            session.execute(graphQueryMethod.getQueryString(), params);
+            session.execute(graphQueryMethod.getQuery(), params);
             return null;
         }
         else if (Iterable.class.isAssignableFrom(returnType))
@@ -45,20 +45,22 @@ public class GraphRepositoryQuery implements RepositoryQuery
             // TODO: Do we really want this method in an OGM? It's a little too low level and/or doesn't really fit.
             if (Map.class.isAssignableFrom(concreteType))
             {
-                return session.query(graphQueryMethod.getQueryString(), params);
+                return session.query(graphQueryMethod.getQuery(), params);
             }
-            return session.query(concreteType, graphQueryMethod.getQueryString(), params);
+            return session.query(concreteType, graphQueryMethod.getQuery(), params);
         }
         else
         {
-            return session.queryForObject(returnType, graphQueryMethod.getQueryString(), params);
+            return session.queryForObject(returnType, graphQueryMethod.getQuery(), params);
         }
     }
 
     private Map<String, Object> resolveParams(Object[] parameters)
     {
+        Map<String, Object> params = new HashMap<>();
         Parameters<?, ?> methodParameters = graphQueryMethod.getParameters();
-        Map<String, Object> params = new HashMap<>(); for (int i = 0; i < parameters.length; i++)
+
+        for (int i = 0; i < parameters.length; i++)
         {
             Parameter parameter = methodParameters.getParameter(i);
 
@@ -70,7 +72,6 @@ public class GraphRepositoryQuery implements RepositoryQuery
             {
                 params.put("" + i, parameters[i]);
             }
-
         }
         return params;
     }

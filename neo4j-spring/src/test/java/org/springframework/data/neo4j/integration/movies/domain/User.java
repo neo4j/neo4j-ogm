@@ -10,6 +10,7 @@ public class User {
 
     private Long id;
     private String name;
+    private String middleName;
     private Collection<Genre> interested = new HashSet<>();
 
     @Relationship(type = "FRIEND_OF", direction = Relationship.BOTH)
@@ -61,5 +62,10 @@ public class User {
 
     public Collection<User> getFriends() {
         return friends;
+    }
+
+    public String getMiddleName()
+    {
+        return middleName;
     }
 }

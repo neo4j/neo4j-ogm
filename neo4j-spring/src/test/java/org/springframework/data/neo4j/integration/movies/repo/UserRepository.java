@@ -15,6 +15,8 @@ public interface UserRepository extends GraphRepository<User> {
 
     Collection<User> findByName(String name);
 
+    Collection<User> findByMiddleName(String middleName);
+
     @Query("MATCH (user:User) RETURN COUNT(user)")
     int findTotalUsers();
 

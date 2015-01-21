@@ -59,7 +59,6 @@ public class QueryIntegrationTest extends WrappingServerIntegrationTest {
 
 
     @Test
-    @Ignore // FIXME when auto-parse query methods working in spring aop
     public void shouldFindUsersByName() {
         new ExecutionEngine(getDatabase()).execute("CREATE (m:User {name:'Michal'})<-[:FRIEND_OF]-(a:User {name:'Adam'})");
 
@@ -67,6 +66,17 @@ public class QueryIntegrationTest extends WrappingServerIntegrationTest {
         Iterator<User> iterator = users.iterator();
         assertTrue(iterator.hasNext());
         assertEquals("Michal", iterator.next().getName());
+        assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void shouldFindUsersByMiddleName() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (m:User {middleName:'Joseph'})<-[:FRIEND_OF]-(a:User {middleName:'Mary'})");
+
+        Collection<User> users = userRepository.findByMiddleName("Joseph");
+        Iterator<User> iterator = users.iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals("Joseph", iterator.next().getMiddleName());
         assertFalse(iterator.hasNext());
     }
 

@@ -8,7 +8,6 @@ import org.neo4j.ogm.domain.policy.Policy;
 
 public class RelationshipMappingTest extends MappingTest {
 
-
     @BeforeClass
     public static void setUp() {
         MappingTest.setUp("org.neo4j.ogm.domain.policy");

@@ -22,7 +22,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.*;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 import static org.junit.Assert.*;
 
 public class ObjectToCypherMapperTest {

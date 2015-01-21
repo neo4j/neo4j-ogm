@@ -12,9 +12,9 @@ import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
-import static com.graphaware.test.unit.GraphUnit.assertSameGraph;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
@@ -26,7 +26,6 @@ public abstract class MappingTest
     private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
-
 
     public static void setUp(String... packages) {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
@@ -66,7 +65,7 @@ public abstract class MappingTest
             System.out.println("compiled: " + query.getStatement());
             executionEngine.execute(query.getStatement(), query.getParameters());
         }
-        assertSameGraph(graphDatabase, sameGraphCypher);
+        GraphTestUtils.assertSameGraph(graphDatabase, sameGraphCypher);
     }
 
 }

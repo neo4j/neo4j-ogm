@@ -46,8 +46,7 @@ public abstract class DatabaseIntegrationTest {
      * @return new database.
      */
     protected GraphDatabaseService createDatabase() {
-        GraphDatabaseService database = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        return database;
+        return new TestGraphDatabaseFactory().newImpermanentDatabase();
     }
 
     /**

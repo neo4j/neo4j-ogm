@@ -236,7 +236,7 @@ public final class GraphTestUtils {
             if (!pc2.hasProperty(key)) {
                 return false;
             }
-            if (!compare(pc1.getProperty(key), pc2.getProperty(key))) {
+            if (!stringRepresentationsMatch(pc1.getProperty(key), pc2.getProperty(key))) {
                 return false;
             }
         }
@@ -311,26 +311,13 @@ public final class GraphTestUtils {
         return string.toString();
     }
 
-    /* TODO move into equality utils or something instead of polluting this class */
-
-    private static boolean compare(Object one, Object tother) {
-        return valueToString(one).equals(valueToString(tother));
+    private static boolean stringRepresentationsMatch(Object one, Object other) {
+        String oneString = propertyValueToString(one);
+        String otherString = propertyValueToString(other);
+        return oneString.equals(otherString);
     }
 
-    private static String valueToString(Object value) {
-        return isPrimitiveOrStringArray(value)
-                ? primitiveOrStringArrayToString(value)
-                : String.valueOf(value);
-    }
-
-    /**
-     * Convert a primitive array or an array of Strings to string.
-     *
-     * @param o to convert.
-     * @return as string.
-     * @throws IllegalArgumentException if o isn't a primitive array or an array of Strings.
-     */
-    public static String primitiveOrStringArrayToString(Object o) {
+    private static String propertyValueToString(Object o) {
         if (o instanceof byte[]) {
             return Arrays.toString((byte[]) o);
         } else if (o instanceof char[]) {
@@ -350,40 +337,7 @@ public final class GraphTestUtils {
         } else if (o instanceof String[]) {
             return Arrays.toString((String[]) o);
         }
-        throw new IllegalArgumentException("Object must be a primitive array!");
+        return String.valueOf(o);
     }
-    /**
-     * Check if the given object is a primitive array or an array of Strings.
-     *
-     * @param o to check.
-     * @return true iff o is a primitive array or an array of Strings.
-     */
-    public static boolean isPrimitiveOrStringArray(Object o) {
-        if (isPrimitiveArray(o)) {
-            return true;
-        } else if (o instanceof String[]) {
-            return true;
-        }
-        return false;
-    }
-    private static boolean isPrimitiveArray(Object o) {
-        if (o instanceof byte[]) {
-            return true;
-        } else if (o instanceof char[]) {
-            return true;
-        } else if (o instanceof boolean[]) {
-            return true;
-        } else if (o instanceof long[]) {
-            return true;
-        } else if (o instanceof double[]) {
-            return true;
-        } else if (o instanceof int[]) {
-            return true;
-        } else if (o instanceof short[]) {
-            return true;
-        } else if (o instanceof float[]) {
-            return true;
-        }
-        return false;
-    }
+
 }

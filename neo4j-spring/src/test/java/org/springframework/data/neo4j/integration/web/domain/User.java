@@ -11,7 +11,7 @@ public class User {
     private String name;
     private Collection<Genre> interested = new HashSet<>();
 
-    @Relationship(type = "FRIEND_OF", direction = Relationship.BOTH)
+    @Relationship(type = "FRIEND_OF", direction = Relationship.UNDIRECTED)
     private Collection<User> friends = new HashSet<>();
 
     public User() {

@@ -157,7 +157,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                     relationshipEntity = createRelationshipEntity(edge, source, target);
                 }
 
-                // source.setRelationshipEntity if OUTGOING/BOTH
+                // source.setRelationshipEntity if OUTGOING/UNDIRECTED
                 if (!relationshipDirection(source, edge, relationshipEntity).equals(Relationship.INCOMING)) {
                     // try and find a one-to-one writer
                     ClassInfo sourceInfo = metadata.classInfo(source);
@@ -169,7 +169,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                         oneToMany.add(edge);
                     }
                 }
-                // target.setRelationshipEntity if INCOMING/BOTH
+                // target.setRelationshipEntity if INCOMING/UNDIRECTED
                 if (!relationshipDirection(target, edge, relationshipEntity).equals(Relationship.OUTGOING)) {
                     ClassInfo targetInfo = metadata.classInfo(target);
                     RelationalWriter writer = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), relationshipEntity);

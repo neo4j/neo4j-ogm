@@ -376,7 +376,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
     /**
      * Checks the relationship creation request to ensure it will be handled correctly. This includes
-     * ensuring the correct direction is observed, and that a relationship with direction BOTH is created only
+     * ensuring the correct direction is observed, and that a relationship with direction UNDIRECTED is created only
      * once from one of the participating nodes (rather than from both ends).
      *
      * @param context the current compiler {@link CypherContext}
@@ -385,7 +385,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param tgt the compiler's reference to the domain object representing the end node
      */
     private void maybeCreateRelationship(CypherContext context, String src, RelationshipBuilder relationshipBuilder, String tgt) {
-        if (relationshipBuilder.hasDirection(Relationship.BOTH)) {
+        if (relationshipBuilder.hasDirection(Relationship.UNDIRECTED)) {
             if (hasTransientRelationship(context, src, relationshipBuilder.getType(), tgt)) {
                 return;
             }

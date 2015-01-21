@@ -21,7 +21,7 @@ public class World {
     private int moons;
 
     //@Fetch
-    //@RelatedTo(type = REACHABLE_BY_ROCKET, direction = Direction.BOTH)
+    //@RelatedTo(type = REACHABLE_BY_ROCKET, direction = Direction.UNDIRECTED)
     //private Set<World> reachableByRocket;
 
     private Set<World> reachableByRocket = new HashSet<>();

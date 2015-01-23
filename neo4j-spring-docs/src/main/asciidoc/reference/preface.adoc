@@ -11,8 +11,7 @@ The Spring Data Neo4j project, as part of the Spring Data initiative, aims to si
 database. Like JPA, it uses annotations on simple POJO domain objects. Together with metadata, the annotations drive
 mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
 
-For version 4, Spring Data Neo4j has been rewritten from scratch to natively support Neo4j deployments in standalone server
-mode. It uses Cypher, the Neo4j query language, and the HTTP protocol to communicate with the database.
+For version 4, Spring Data Neo4j has been rewritten from scratch to natively support Neo4j deployments in standalone server mode. It uses Cypher, the Neo4j query language, and the HTTP protocol to communicate with the database.  It's therefore worth noting that there *may be some backward compatibility issues* when migrating to version 4, so be sure to check the <<reference_migration,migration guide>> to avoid any unwanted surprises.
 
 For integration of Neo4j and other languages, please see http://neo4j.com/developer/language-guides/[Language Guides].
 
@@ -33,15 +32,13 @@ data model is explained in the chapter about Neo4j, see <<neo4j>>.
 Relationships between entities are first class citizens in a graph database and therefore worth a separate chapter
 (<<reference_programming_model:relationships>>) describing their usage in Spring Data Neo4j.
 
-Being a Spring Data library, Spring Data Neo4j offers a comprehensive Neo4j-Template (<<reference_template>>) for
-interacting with the mapped entities and the Neo4j graph database. The operations provided by Spring Data Neo4j - Repositories
-per mapped entity class are based on the API offered by the Neo4j-Template.
-
 Spring Data Commons provides a very powerful repository infrastructure that is also leveraged in Spring Data Neo4j.
 Those repositories consist only of a composition of interfaces that declare the available functionality in each repository.
 The implementation details of commonly used persistence methods are handled by the library. At least for typical CRUD and
 query-operations that is very convenient. The repositories are extensible by annotated, named or derived finder methods.
 For custom implementations of repository methods you are free to add your own code. (<<reference_programming-model_repositories>>).
+
+Being a Spring Data library, Spring Data Neo4j offers a comprehensive `Neo4jTemplate` (<<reference_template>>) for interacting with the mapped entities and the Neo4j graph database.  As of version 4, `Neo4jTemplate` is based on an `org.neo4j.ogm.session.Session` object, which also provides the basis on which the Spring Data Neo4j Repositories are based. 
 
 Because Neo4j is a schema-free database, Spring Data Neo4j uses a sophisticated mechanism to map Java types to Neo4j nodes
 using labels. How that works is explained here: <<reference_programming-model_typerepresentationstrategy>>.
@@ -50,8 +47,7 @@ Using computed fields that are dynamically backed by graph operations is a bit m
 Cypher queries. Those are explained in <<neo4j>>. Then you can start using virtual, computed fields in your entities
 <<reference_programming-model_projection>> .
 
-Neo4j is a fully ACID, enterprise grade database. It uses transactions to guarantee the safety of your data. The
-implications of that are described in the chapter around transactions. (<<reference_programming-model_transactions>>)
+Neo4j uses transactions to guarantee the integrity of your data and Spring Data Neo4j supports this fully. The implications of this are described in the chapter around transactions. (<<reference_programming-model_transactions>>)
 
 The Spring configuration boils down to two lines of `<spring-neo4j>` namespace setup. (see <<setup>>)
 

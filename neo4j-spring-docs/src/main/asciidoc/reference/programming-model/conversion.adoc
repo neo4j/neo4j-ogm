@@ -1,6 +1,8 @@
 [[reference_programming-model_conversion]]
 = Conversion
 
+TODO: Get rid of all this stuff and talk about custom type conversion here instead, it's referenced elsewhere as this.
+
 `Neo4jTemplate` has a generic convert method which might also use projection underneath. The same conversion facilities that are used by default in the result handling DSL are offered here for individual use.
 
 Supported conversions are: Nodes to Paths and to Entities, Relationships to Paths and to Entities, Paths to Node (EndNode), Relationships (LastRelationship) and to EntityPaths. Entities to Nodes or Relationships.

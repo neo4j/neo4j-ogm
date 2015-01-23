@@ -5,7 +5,6 @@ This chapter covers the fundamentals of the programming model behind Spring Data
 
 :leveloffset: +1
 include::mapping.adoc[]
-include::aspectj.adoc[]
 include::simple_mapping.adoc[]
 include::node-entities.adoc[]
 include::relationships.adoc[]

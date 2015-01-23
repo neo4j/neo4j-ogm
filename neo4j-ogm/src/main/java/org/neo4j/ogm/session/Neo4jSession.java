@@ -72,7 +72,7 @@ public class Neo4jSession implements Session {
 
     @Override
     public <T> T load(Class<T> type, Long id) {
-        return load(type, id, 0);
+        return load(type, id, 1);
     }
 
     @Override

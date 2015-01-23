@@ -8,6 +8,8 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.tooling.GlobalGraphOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.integration.movies.context.PersistenceContext;
 import org.springframework.data.neo4j.integration.movies.domain.*;
@@ -21,9 +23,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 import static org.junit.Assert.*;
@@ -32,6 +34,8 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
+
+    private final Logger logger = LoggerFactory.getLogger(End2EndIntegrationTest.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -217,19 +221,14 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
     @Test
     public void shouldCreateUsersInMultipleThreads() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(100);
 
         for (int i = 0; i < 100; i++) {
-            final int j = i;
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    userRepository.save(new User("User" + j));
-                }
-            });
+            executor.submit(new UserSaver(latch, i));
         }
 
+        latch.await(); // pause until the count reaches 0
         executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
 
         assertEquals(100, userRepository.count());
 
@@ -237,6 +236,29 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest {
             assertEquals(100, Iterables.count(GlobalGraphOperations.at(getDatabase()).getAllNodes()));
             tx.success();
         }
+    }
+
+    private class UserSaver implements Runnable {
+
+        private final int userNumber;
+        private final CountDownLatch latch;
+
+        public UserSaver(CountDownLatch latch, int userNumber) {
+            this.latch = latch;
+            this.userNumber = userNumber;
+        }
+
+        @Override
+        public void run() {
+            try {
+                logger.info("Calling userRepository.save() for user #" + this.userNumber);
+                userRepository.save(new User("User" + this.userNumber));
+                logger.info("Saved user #" + this.userNumber);
+            } finally {
+                latch.countDown();
+            }
+        }
+
     }
 
     @Test

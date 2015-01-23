@@ -11,4 +11,6 @@
 * no longer necessary to enforceTargetType if you've got a relationship type shared between fields
 * no more query DSL with Neo4jTemplate
 * no graph traversal or node/relationship manipulation with Neo4jTemplate
+* no TypeRepresentationStrategy
+* only one CrudRepository implementation (not CRUDRepository, TraversalRepository, GeoRepository...)
 

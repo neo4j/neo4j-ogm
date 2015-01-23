@@ -1,6 +1,8 @@
 [[reference_programming-model_typerepresentationstrategy]]
 = Entity type representation
 
+TODO: update this because it's now super-simple!  Also mention type converters here because I said I would in `repositories.adoc`
+
 There are several ways to represent the Java type hierarchy of the data model in the graph. In general, for all node and relationship entities, type information is needed to perform certain repository operations (such as findAll()). This means that some of the type information hierarchy needs to be saved in the graph database, and SDN makes use of "Type Representation Strategies" in order to achieve this.
 
 Implementations of `TypeRepresentationStrategy` take care of persisting this information during entity instance creation. They are also used by certain repository methods to perform their operations, like `findAll` and `count`. The derived finderMethods also use the type information for graph global queries.

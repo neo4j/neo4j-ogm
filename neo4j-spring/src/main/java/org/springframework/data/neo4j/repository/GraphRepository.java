@@ -2,7 +2,6 @@ package org.springframework.data.neo4j.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.Repository;
 
 @NoRepositoryBean
 public interface GraphRepository<T> extends CrudRepository<T, Long> {

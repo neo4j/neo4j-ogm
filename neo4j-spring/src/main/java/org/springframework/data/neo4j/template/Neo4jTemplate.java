@@ -2,11 +2,10 @@ package org.springframework.data.neo4j.template;
 
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.util.IterableUtils;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static org.springframework.data.neo4j.util.IterableUtils.*;
 
@@ -96,4 +95,17 @@ public class Neo4jTemplate {
         session.save(object, depth);
         return object;
     }
+
+    public Iterable<Map<String, Object>> query(String cypher, Map<String, Object> parameters) {
+        return session.query(cypher, parameters);
+    }
+
+    public <T> Iterable<T> queryForObjects(Class<T> objectType, String cypher, Map<String, Object> parameters) {
+        return session.query(objectType, cypher, parameters);
+    }
+
+    public <T> T queryForObject(Class<T> objectType, String cypher, Map<String, Object> parameters) {
+        return session.queryForObject(objectType, cypher, parameters);
+    }
+
 }

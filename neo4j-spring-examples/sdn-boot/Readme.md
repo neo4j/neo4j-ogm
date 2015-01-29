@@ -59,9 +59,34 @@ Starting the application
     grunt build
     mvn spring-boot:run
 
-Now point your browser at localhost:8080 and explore.
+Loading the initial dataset
+---------------------------
+The application can load a set of base data, to get you started. Please be aware that this will destroy
+any existing data that may previously exist, so take a backup.
 
-Note that you can stop the application server at any time by pressing Ctrl-C in the console window from where you
-launched it.
+    http://localhost:8080/api/reload
+
+This will pre-load the Neo4j database with a handful of departments, a dozen or so subjects and teachers,
+and 200 students. You'll probably want to enrol them in classes...
+
+Exploring the API:
+-----------------
+The JSON resources from the server can be inspected from the /api/... URLs, e.g.
+
+    http://localhost:8080/api/departments/
+    http://localhost:8080/api/subjects/
+    http://localhost:8080/api/teachers/
+    http://localhost:8080/api/students/
+    http://localhost:8080/api/classes/
+
+Running the Hilly Fields web application
+----------------------------------------
+Simply point your browser at the root URL:
+
+    http://localhost:8080
+
+Stopping the application server
+-------------------------------
+You can stop the application server at any time by pressing Ctrl-C in the console window from where you launched it.
 
 

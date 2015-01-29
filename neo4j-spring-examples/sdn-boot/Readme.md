@@ -26,18 +26,8 @@ By default, the application will attempt to use a Neo4j instance running on the 
 on the standard port 7474. *IT WILL DESTROY ALL THE DATA IN THAT DATABASE AT STARTUP*. So if you don't want that to happen
 please back up any existing database first.
 
-Pre-requisites
---------------
-Before running this application you will need to install node.js if it is not already installed:
-
-- Node.js v0.10x+
-- npm (which comes bundled with Node) v2.1.0+
-
-Visit the node website for details of installing node for your particular operating system.
-
-Once node is installed you'll need to grab the following npm packages:
-
-    npm install --global bower grunt-cli
+Start Neo4j
+-----------
 
 Now start your Neo4j server instance, if its not already running. **You should back up any data you want to keep because
 the application will purge any existing data first**
@@ -88,5 +78,22 @@ Simply point your browser at the root URL:
 Stopping the application server
 -------------------------------
 You can stop the application server at any time by pressing Ctrl-C in the console window from where you launched it.
+
+Make it better!
+---------------
+If you'd like to develop this application further, you will need to install node.js if it is not already installed:
+
+- Node.js v0.10x+
+- npm (which comes bundled with Node) v2.1.0+
+
+Visit the node.js website for details of installing node.js for your particular operating system.
+
+Once node is installed you'll then need to grab the following npm packages:
+
+    npm install --global bower grunt-cli
+
+
+
+
 
 

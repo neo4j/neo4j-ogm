@@ -1,0 +1,66 @@
+package school.domain;
+
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class Subject extends Entity {
+
+    private String name;
+
+    @Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
+    private Department department;
+
+    @Relationship(type = "TAUGHT_BY")
+    private Set<Teacher> teachers;
+
+    public Subject(String name) {
+        this();
+        this.name = name;
+    }
+
+    public Subject() {
+        this.teachers = new HashSet<>();
+    }
+
+
+    //@Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
+    public Department getDepartment() {
+        return department;
+    }
+
+    //@Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    //@Relationship(type = "TAUGHT_BY", direction = Relationship.INCOMING)
+    public Set<Teacher> getTeachers() {
+        return teachers;
+    }
+
+    //@Relationship(type = "TAUGHT_BY", direction = Relationship.INCOMING)
+    public void setTeachers(Set<Teacher> teachers) {
+        this.teachers = teachers;
+    }
+
+    @Override
+    public String toString() {
+        return "Subject{" +
+                "id=" + getId() +
+                ", name='" + name + '\'' +
+                ", department=" + department +
+                ", teachers=" + teachers.size() +
+                '}';
+    }
+}

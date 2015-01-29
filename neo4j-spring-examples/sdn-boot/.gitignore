@@ -1,5 +1,5 @@
 target/
-bower_components/
+./bower_components/
 node_modules/
 notworkingyet/
 deploy/

@@ -7,7 +7,6 @@ library which provides convenient access to the [Neo4j](http://neo4j.org) graph 
 This tutorial is a fully functioning micro-service based web-application built using the following components
 
 - Spring Boot
-- Spring MVC
 - Spring Data Neo4j
 - Angular.js
 - Twitter Bootstrap UI
@@ -15,22 +14,18 @@ This tutorial is a fully functioning micro-service based web-application built u
 The application's domain is a fictitious educational institution - Hilly Fields Technical College - and the application
 allows you to manage the College's Departments, Teaching Staff, Subjects, Students and Classes.
 
-It leverages the power of Spring Data Neo4j/Spring MVC and in particular the new Neo4j Object Graph mapping technology
-to provide a RESTful interface with which the web client interacts. The application is entirely stateless: every
-interaction involves a call to a Neo4j server, hopefully demonstrating the speed of the new technology, even over the
-wire.
+It leverages the power of Spring Data Neo4j/Spring Boot and in particular the new Neo4j Object Graph mapping technology to provide a RESTful interface with which the web client interacts. The application is entirely stateless: every interaction involves a call to a Neo4j server, hopefully demonstrating the speed of the new technology, even over the wire.
 
 WARNING
 -------
-By default, the application will attempt to use a Neo4j instance running on the same machine as the application server, and
-on the standard port 7474. *IT WILL DESTROY ALL THE DATA IN THAT DATABASE AT STARTUP*. So if you don't want that to happen
-please back up any existing database first.
+By default, the application will attempt to use a Neo4j instance running on the same machine as the application server, and on the standard port 7474. *IT WILL DESTROY ALL THE DATA IN THAT DATABASE AT STARTUP*. So if you don't want that to happen please back up any existing database first.
 
 Start Neo4j
 -----------
 
-Now start your Neo4j server instance, if its not already running. **You should back up any data you want to keep because
-the application will purge any existing data first**
+Now start your Neo4j server instance, if its not already running. 
+
+**You should back up any data you want to keep because the application will purge any existing data first**
 
 Installing SDN
 --------------

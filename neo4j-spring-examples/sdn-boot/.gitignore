@@ -1,0 +1,14 @@
+target/
+.buildpath
+.project
+.settings
+.bin/
+.idea/
+.tmp/
+*.class
+*.iml
+*.iws
+*.ipr
+*.db
+.DS_Store
+.classpath

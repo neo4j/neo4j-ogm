@@ -1,5 +1,6 @@
-Hilly Fields
-============
+Hilly Fields Technical College
+==============================
+![Logo](https://github.com/neo4j/neo4j-ogm/blob/master/neo4j-spring-examples/sdn-boot/src/main/webapp/assets/images/engineering-dept.JPG)
 
 This project is a demo application for the [Spring Data Neo4j](https://github.com/SpringSource/spring-data-neo4j)
 library which provides convenient access to the [Neo4j](http://neo4j.org) graph database.

@@ -59,7 +59,7 @@ public class Neo4jTemplate {
     }
 
     public void purgeSession() {
-        session.purge();
+        session.purgeDatabase();
     }
 
     public <T> T save(T object) {

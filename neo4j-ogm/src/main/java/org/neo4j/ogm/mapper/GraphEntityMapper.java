@@ -114,7 +114,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         }
     }
 
-    private boolean mapOneToOne(Object source, Object parameter, RelationshipModel edge) {
+    private boolean tryMappingAsSingleton(Object source, Object parameter, RelationshipModel edge) {
 
         String edgeLabel = edge.getType();
         ClassInfo sourceInfo = metadata.classInfo(source);
@@ -122,9 +122,6 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, parameter);
         if (writer != null) {
             writer.write(source, parameter);
-            // FIXME: this doesn't remember the right relationship type when objectAccess sets a RelEntity
-            // indeed, why do we use objectAccess.relationshipName instead of just edge.getType?
-            mappingContext.remember(new MappedRelationship(edge.getStartNode(), edgeLabel, edge.getEndNode()));
             return true;
         }
 
@@ -181,10 +178,14 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                 }
             }
             else {
-                if (!mapOneToOne(source, target, edge)) {
+                boolean oneToOne = true;
+                oneToOne &= tryMappingAsSingleton(source, target, edge);
+                oneToOne &= tryMappingAsSingleton(target, source, edge);
+                if (!oneToOne) {
                     oneToMany.add(edge);
+                } else {
+                    mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
                 }
-                mapOneToOne(target, source, edge);  // try the inverse mapping
             }
         }
         mapOneToMany(oneToMany);
@@ -240,7 +241,8 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                 }
             }
             else {
-                typeRelationships.recordTypeRelationship(instance, parameter);
+                typeRelationships.recordTypeRelationship(instance, parameter);  //
+                typeRelationships.recordTypeRelationship(parameter, instance);   // try both directions?
             }
         }
 
@@ -249,8 +251,14 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
             Map<Class<?>, Set<Object>> handled = typeRelationships.getTypeCollectionMapping(instance);
             for (Class<?> type : handled.keySet()) {
                 Collection<?> entities = handled.get(type);
-                mapOneToMany(instance, type, entities, oneToManyRelationships);
+                mapOneToMany(instance, type, entities);
             }
+        }
+
+        // finally register all the relationships in the mapping context
+        for (RelationshipModel edge : oneToManyRelationships) {
+            MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode());
+            mappingContext.remember(mappedRelationship);
         }
     }
 
@@ -264,7 +272,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
      * @param source an entity representing the start of the relationship from the graph's perspective
      * @param edge   {@link RelationshipModel} holding information about the relationship in the graph
      * @param target en entity representing the end of the relationship from the graph's perspective
-     * @return  one of {@link Relationship.OUTGOING}, {@link Relationship.INCOMING}, {@link Relationship.BOTH}
+     * @return  one of {@link Relationship.OUTGOING}, {@link Relationship.INCOMING}, {@link Relationship.UNDIRECTED}
      */
     private String relationshipDirection(Object source, RelationshipModel edge, Object target) {
         ClassInfo classInfo = metadata.classInfo(source);
@@ -275,7 +283,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         return writer.relationshipDirection();
     }
 
-    private boolean mapOneToMany(Object instance, Class<?> valueType, Object values, Set<RelationshipModel> edges) {
+    private boolean mapOneToMany(Object instance, Class<?> valueType, Object values) {
 
         ClassInfo classInfo = metadata.classInfo(instance);
 
@@ -295,9 +303,6 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
             }
             writer.write(instance, values);
 
-            for (RelationshipModel edge : edges) {
-                mappingContext.remember(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode()));
-            }
             return true;
         }
 

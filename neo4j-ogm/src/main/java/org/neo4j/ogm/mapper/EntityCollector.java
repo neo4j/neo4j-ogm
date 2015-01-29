@@ -1,5 +1,8 @@
 package org.neo4j.ogm.mapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +14,7 @@ import java.util.Set;
  */
 class EntityCollector {
 
+    private final Logger logger = LoggerFactory.getLogger(EntityCollector.class);
     private final Map<Object, Map<Class<?>, Set<Object>>> typeRelationships = new HashMap<>();
 
     /**

@@ -31,8 +31,9 @@ public interface Session {
 
     void execute(String jsonStatements);
 
-    void purge();
+    void purgeDatabase();
 
+    void clear();
 
     <T> void save(T object);
 

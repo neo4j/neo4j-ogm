@@ -13,6 +13,8 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
+
 /**
  * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link MetaData}.
  */
@@ -79,15 +81,34 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      */
     private void deleteObsoleteRelationships(CypherCompiler compiler) {
         CypherContext context=compiler.context();
-        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.mappedRelationships().iterator();
+        while (mappedRelationshipIterator.hasNext()) {
+            MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
             logger.debug("delete-check relationship: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
             if (!context.isRegisteredRelationship(mappedRelationship)) {
-                logger.debug("not found in tx context! deleting: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                logger.info("not found in tx context! deleting: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                 compiler.unrelate("$" + mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), "$" + mappedRelationship.getEndNodeId());
+                // this may not be the best place to do this. if the transaction is rolled back, the
+                // mappingContext will be wrong. fixme
+
+                // clear all objects related to the object that has changed
+                clearRelatedObjects(mappedRelationship.getStartNodeId());
+                mappedRelationshipIterator.remove();
             }
         }
     }
 
+
+    private void clearRelatedObjects(Long startNode) {
+        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+            if (mappedRelationship.getStartNodeId() == startNode) {
+                Object dirty = mappingContext.get(mappedRelationship.getEndNodeId());
+                if (dirty != null) {
+                    mappingContext.deregister(dirty, mappedRelationship.getEndNodeId());
+                }
+            }
+        }
+    }
     /**
      * Builds Cypher to save the specified object and all its composite objects into the graph database.
      *
@@ -368,6 +389,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                     // it for us as it already exists, so we register it in the tx context. Because this relationship
                     // was previously deleted from the tx context, but not from the mapping context, this brings both
                     // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
+                    logger.info("registering existing relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(),mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     context.registerRelationship(mappedRelationship);
                 }
             }
@@ -429,7 +451,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      */
     private void createRelationship(CypherContext ctx, String src, RelationshipBuilder relBuilder, String tgt) {
-        logger.debug("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
+        logger.info("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
         relBuilder.relate(src, tgt);
         // TODO: probably needs refactoring, this is not exactly an intuitive design!
         ctx.log(new TransientRelationship(src, relBuilder.getType(), tgt)); // we log the new relationship as part of the transaction context.

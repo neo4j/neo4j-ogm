@@ -5,6 +5,8 @@ import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +28,7 @@ public class MappingContext {
     // RelationshipEntityRegister       register of domain entities whose properties are to be stored on Relationships
     // RelationshipRegister             register of relationships between NodeEntities (i.e. as they are in the graph)
 
+    private final Logger logger = LoggerFactory.getLogger(MappingContext.class);
 
     private final ConcurrentMap<Long, Object> relationshipEntityRegister = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Object> nodeEntityRegister = new ConcurrentHashMap<>();
@@ -90,8 +93,15 @@ public class MappingContext {
      * @param id the id of the object in Neo4j
      */
     public void deregister(Object entity, Long id) {
+        logger.info("de-registering potentially dirty object: " + entity);
         deregisterTypes(entity.getClass(), entity);
         nodeEntityRegister.remove(id);
+    }
+
+    public void replace(Object entity, Long id) {
+        nodeEntityRegister.remove(id);
+        registerNodeEntity(entity, id);
+        remember(entity);
     }
 
     public Set<Object> getAll(Class<?> type) {
@@ -105,6 +115,7 @@ public class MappingContext {
 
     // object memoisations
     public void remember(Object entity) {
+        logger.info("adding node : " + entity);
         objectMemo.remember(entity, metaData.classInfo(entity));
     }
 
@@ -122,6 +133,7 @@ public class MappingContext {
     }
 
     public void remember(MappedRelationship relationship) {
+        logger.info("adding edge : (${})-[:{}]->(${})", relationship.getStartNodeId(), relationship.getRelationshipType(), relationship.getEndNodeId());
         relationshipRegister.add(relationship);
     }
 

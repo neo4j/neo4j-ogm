@@ -46,7 +46,6 @@ Starting the application
 ------------------------
 
     cd neo4j-spring-examples/sdn-boot
-    grunt build
     mvn spring-boot:run
 
 Loading the initial dataset

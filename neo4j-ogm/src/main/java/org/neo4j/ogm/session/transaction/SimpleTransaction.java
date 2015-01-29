@@ -59,22 +59,22 @@ public class SimpleTransaction implements Transaction {
         logger.info("commit invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
             for (CypherContext cypherContext : contexts) {
-                logger.info("Synchronizing transaction context " + cypherContext + " with session context");
-                // todo : subclass these
+                logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
+                // todo : subclass these also : is this really necessary?
                 for (Object o : cypherContext.log())  {
-                    logger.info("checking cypher context object: " + o);
+                    logger.debug("checking cypher context object: " + o);
                     if (o instanceof MappedRelationship) {
                         mappingContext.remember((MappedRelationship) o);
                     } else if (!(o instanceof TransientRelationship)) {
                         mappingContext.remember(o);
                     }
                 }
-                logger.info("checked objects: " + cypherContext.log().size());
+                logger.debug("checked objects: " + cypherContext.log().size());
             }
-            logger.info("relationships registered active:");
-            for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
-                logger.info("(${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-            }
+//            logger.info("relationships registered active:");
+//            for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+//                logger.info("(${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+//            }
             contexts.clear();
             status = Status.COMMITTED;
         } else {

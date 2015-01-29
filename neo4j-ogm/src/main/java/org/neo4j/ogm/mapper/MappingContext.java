@@ -93,7 +93,7 @@ public class MappingContext {
      * @param id the id of the object in Neo4j
      */
     public void deregister(Object entity, Long id) {
-        logger.info("de-registering potentially dirty object: " + entity);
+        logger.debug("de-registering potentially dirty object: " + entity);
         deregisterTypes(entity.getClass(), entity);
         nodeEntityRegister.remove(id);
     }
@@ -115,7 +115,7 @@ public class MappingContext {
 
     // object memoisations
     public void remember(Object entity) {
-        logger.info("adding node : " + entity);
+        logger.debug("adding node : " + entity);
         objectMemo.remember(entity, metaData.classInfo(entity));
     }
 
@@ -133,7 +133,7 @@ public class MappingContext {
     }
 
     public void remember(MappedRelationship relationship) {
-        logger.info("adding edge : (${})-[:{}]->(${})", relationship.getStartNodeId(), relationship.getRelationshipType(), relationship.getEndNodeId());
+        logger.debug("adding edge : (${})-[:{}]->(${})", relationship.getStartNodeId(), relationship.getRelationshipType(), relationship.getEndNodeId());
         relationshipRegister.add(relationship);
     }
 

@@ -86,7 +86,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
             logger.debug("delete-check relationship: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
             if (!context.isRegisteredRelationship(mappedRelationship)) {
-                logger.info("not found in tx context! deleting: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                logger.debug("not found in tx context! deleting: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                 compiler.unrelate("$" + mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), "$" + mappedRelationship.getEndNodeId());
                 // this may not be the best place to do this. if the transaction is rolled back, the
                 // mappingContext will be wrong. fixme
@@ -389,7 +389,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                     // it for us as it already exists, so we register it in the tx context. Because this relationship
                     // was previously deleted from the tx context, but not from the mapping context, this brings both
                     // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
-                    logger.info("registering existing relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(),mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                    logger.debug("registering existing relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(),mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     context.registerRelationship(mappedRelationship);
                 }
             }
@@ -451,7 +451,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      */
     private void createRelationship(CypherContext ctx, String src, RelationshipBuilder relBuilder, String tgt) {
-        logger.info("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
+        logger.debug("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
         relBuilder.relate(src, tgt);
         // TODO: probably needs refactoring, this is not exactly an intuitive design!
         ctx.log(new TransientRelationship(src, relBuilder.getType(), tgt)); // we log the new relationship as part of the transaction context.

@@ -12,9 +12,6 @@ public class Department extends Entity {
     @Relationship(type = "DEPARTMENT_MEMBER")
     private Set<Teacher> teachers;
 
-//    @Relationship(type = "DEPARTMENT_HEAD")
-//    private Teacher departmentHead;
-
     @Relationship(type = "CURRICULUM")
     private Set<Subject> subjects;
 
@@ -36,22 +33,18 @@ public class Department extends Entity {
         this.name = name;
     }
 
-    @Relationship(type = "DEPARTMENT_MEMBER")
     public Set<Teacher> getTeachers() {
         return teachers;
     }
 
-    @Relationship(type = "DEPARTMENT_MEMBER")
     public void setTeachers(Set<Teacher> teachers) {
         this.teachers = teachers;
     }
 
-    @Relationship(type = "CURRICULUM")
     public Set<Subject> getSubjects() {
         return subjects;
     }
 
-    @Relationship(type = "CURRICULUM")
     public void setSubjects(Set<Subject> subjects) {
         this.subjects = subjects;
     }

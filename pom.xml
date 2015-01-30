@@ -28,6 +28,7 @@
             <id>include-examples</id>
             <modules>
                 <module>neo4j-spring-examples/cineasts</module>
+                <module>neo4j-spring-examples/sdn-boot</module>
             </modules>
         </profile>
     </profiles>

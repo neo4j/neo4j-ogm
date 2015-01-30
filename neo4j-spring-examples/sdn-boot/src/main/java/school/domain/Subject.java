@@ -15,6 +15,9 @@ public class Subject extends Entity {
     @Relationship(type = "TAUGHT_BY")
     private Set<Teacher> teachers;
 
+    @Relationship(type = "SUBJECT_TAUGHT")
+    private Set<ClassRegister> classRegisters;
+
     public Subject(String name) {
         this();
         this.name = name;
@@ -22,19 +25,16 @@ public class Subject extends Entity {
 
     public Subject() {
         this.teachers = new HashSet<>();
+        this.classRegisters = new HashSet<>();
     }
 
-
-    //@Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
     public Department getDepartment() {
         return department;
     }
 
-    //@Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
     public void setDepartment(Department department) {
         this.department = department;
     }
-
 
     public String getName() {
         return name;
@@ -44,12 +44,10 @@ public class Subject extends Entity {
         this.name = name;
     }
 
-    //@Relationship(type = "TAUGHT_BY", direction = Relationship.INCOMING)
     public Set<Teacher> getTeachers() {
         return teachers;
     }
 
-    //@Relationship(type = "TAUGHT_BY", direction = Relationship.INCOMING)
     public void setTeachers(Set<Teacher> teachers) {
         this.teachers = teachers;
     }

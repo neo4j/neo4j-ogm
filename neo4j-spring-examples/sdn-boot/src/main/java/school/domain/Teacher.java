@@ -9,7 +9,7 @@ public class Teacher extends Entity {
 
     private String name;
 
-    @Relationship(type="TEACHES", direction = Relationship.INCOMING)
+    @Relationship(type="TEACHES_CLASS")
     private Set<ClassRegister> classRegisters;
 
     @Relationship(type="DEPARTMENT_MEMBER", direction = Relationship.INCOMING)
@@ -35,33 +35,26 @@ public class Teacher extends Entity {
         this.name = name;
     }
 
-
-    //@Relationship(type="TEACHES", direction = Relationship.INCOMING)
     public Set<ClassRegister> getClassRegisters() {
         return classRegisters;
     }
 
-    //@Relationship(type="TEACHES", direction = Relationship.INCOMING)
     public void setClassRegisters(Set<ClassRegister> classRegisters) {
         this.classRegisters = classRegisters;
     }
 
-    //@Relationship(type="DEPARTMENT_MEMBER", direction = Relationship.INCOMING)
     public Department getDepartment() {
         return department;
     }
 
-    //@Relationship(type="DEPARTMENT_MEMBER", direction = Relationship.INCOMING)
     public void setDepartment(Department department) {
         this.department = department;
     }
 
-    //@Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
     public Set<Subject> getSubjects() {
         return subjects;
     }
 
-    //@Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
     public void setSubjects(Set<Subject> subjects) {
         this.subjects = subjects;
     }

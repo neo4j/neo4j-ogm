@@ -10,7 +10,7 @@ public class Student extends Entity {
 
     private String name;
 
-    @Relationship(type = "ENROLLED", direction=Relationship.INCOMING)
+    @Relationship(type = "ENROLLED")
     private Set<ClassRegister> classRegisters;
 
     @Relationship(type="STUDY_BUDDY", direction=Relationship.UNDIRECTED)

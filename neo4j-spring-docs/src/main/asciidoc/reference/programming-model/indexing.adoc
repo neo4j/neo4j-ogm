@@ -23,4 +23,5 @@ Neo4j allows to configure (legacy) http://neo4j.com/docs/stable/auto-indexing.ht
 
 == Spatial Indexes
 
-Spring Data Neo4j offers limited support for spatial queries using the `neo4j-spatial` library. See the separate chapter <<reference_spatial>> for details.
+Older versions of Spring Data Neo4j offered limited support for spatial queries using the `neo4j-spatial` library. However, as of SDN 4 milestone 1 at least, this is no longer supported.
+

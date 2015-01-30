@@ -13,4 +13,7 @@
 * no graph traversal or node/relationship manipulation with Neo4jTemplate
 * no TypeRepresentationStrategy
 * only one CrudRepository implementation (not CRUDRepository, TraversalRepository, GeoRepository...)
+* no AspectJ "magic" methods like entity.persist()
+* no support for geospatial queries
+* no support for arbitrary cypher projection onto alternative target types
 

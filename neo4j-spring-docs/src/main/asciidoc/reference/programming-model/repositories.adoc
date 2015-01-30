@@ -13,7 +13,7 @@ NOTE: `GraphRepository` no longer compines `IndexRepository` and `TraversalRepos
 
 As of SDN 4, this `GraphRepository<T>` should be the interface from which your entity repository interfaces inherit, with `T` being specified as the node entity type to persist.
 
-There is also no `TypeRepresentationStrategy` in the latest framework version.  Instead, the type representation strategy has been greatly simplified to use converters as described in more detail here: <<reference_programming-model_typerepresentationstrategy>> 
+There is also no `TypeRepresentationStrategy` in the latest framework version.  Instead, the type representation strategy has been greatly simplified to use a single label-base mechanism as described in more detail here: <<reference_programming-model_typerepresentationstrategy>> 
 
 Examples of methods you get for free out of `GraphRepository` are as follows.  For all of these examples the ID parameter is a `Long` that matches the graph ID:
 

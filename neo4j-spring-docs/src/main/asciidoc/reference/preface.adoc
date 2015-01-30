@@ -44,8 +44,7 @@ Because Neo4j is a schema-free database, Spring Data Neo4j uses a sophisticated 
 using labels. How that works is explained here: <<reference_programming-model_typerepresentationstrategy>>.
 
 Using computed fields that are dynamically backed by graph operations is a bit more involved. First you should know about
-Cypher queries. Those are explained in <<neo4j>>. Then you can start using virtual, computed fields in your entities
-<<reference_programming-model_projection>> .
+Cypher queries. Those are explained in <<neo4j>>. Then you can start using virtual, computed fields in your entities.
 
 Neo4j uses transactions to guarantee the integrity of your data and Spring Data Neo4j supports this fully. The implications of this are described in the chapter around transactions. (<<reference_programming-model_transactions>>)
 

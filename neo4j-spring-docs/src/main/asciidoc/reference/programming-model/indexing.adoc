@@ -13,7 +13,7 @@ Index creation and management is therefore now outside the scope of this documen
 
 == Index queries in Neo4jTemplate
 
-For querying on indexes, certainly as of SDN 4 milestone one, your best bet is to take advantage of the `Neo4jTemplate` load-by-property methods.  If you know that particular properties are indexed in the database then this will ensure that the indexes are utilised so you still take advantage of the performance benefits.
+For querying on indexes, certainly as of SDN 4 milestone one, your best bet is to take advantage of the `GraphRepository` load-by-property methods, or the corresponding ones on `Neo4jTemplate`.  If you know that particular properties are indexed in the database then this will ensure that the indexes are utilised so you still take advantage of the performance benefits.
 
 In the full release, the ability to do this through Spring repositories should also be fully implemented.
 

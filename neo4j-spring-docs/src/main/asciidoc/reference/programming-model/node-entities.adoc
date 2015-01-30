@@ -112,7 +112,7 @@ As we touched on earlier, it is not necessary to annotate property fields as the
 - `java.math.BigInteger` to a String property
 - `java.math.BigDecimal` to a String property
 - binary data (as byte[] or Byte[]) to base-64 String
-- `javal.lang.Enum` types using the enum's `name()` method and `Enum.valueOf()`
+- `java.lang.Enum` types using the enum's `name()` method and `Enum.valueOf()`
 
 Collections of primitive or convertible values are stored as well. They are converted to arrays of their type or strings respectively.  Custom converters are also specified by using `@Convert` - this is discussed in detail <<reference_programming-model_conversion,later on>>.
 

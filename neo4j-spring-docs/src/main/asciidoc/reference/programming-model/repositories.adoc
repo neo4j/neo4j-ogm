@@ -103,35 +103,29 @@ public interface MovieRepository extends GraphRepository<Movie> {
 ----
 ====
 
-TODO: carry on from here 
-
 === Queries derived from finder-method names
 
-As known from Rails or Grails it is possible to derive queries for domain entities from finder method names like `Iterable<Person> findByNameAndAgeGreaterThan(String name, int age)`. Using the infrastructure in Spring Data Commons that allows to collect the meta information about entities and their properties a finder method name can be split into its semantic parts and converted into a cypher query. `@Indexed` fields will be converted into index-lookups of the `start` clause, navigation along relationships will be reflected in the `match` clause properties with operators will end up as expressions in the `where` clause. Order and limiting of the query will by handled by provided `Pageable` or `Sort` parameters. The other parameters will be used in the order they appear in the method signature so they should align with the expressions stated in the method name.
+As known from Rails or Grails it is possible to derive queries for domain entities from finder method names like `Iterable<Person> findByNameAndAgeGreaterThan(String name, int age)`. Using the metadata infrastructure in the underlying object-graph mapper, a finder method name can be split into its semantic parts and converted into a cypher query.  Navigation along relationships will be reflected in the generated `MATCH` clause and properties with operators will end up as expressions in the `WHERE` clause.  Order and limiting of the query will by handled by provided `Pageable` or `Sort` parameters.  The other parameters will be used in the order they appear in the method signature so they should align with the expressions stated in the method name.
 
-.Some examples of methods and resulting Cypher queries of a PersonRepository
+NOTE: This feature is unsupported as of SDN 4 Milestone 1
+
+.Some examples of methods and corresponding Cypher queries of a PersonRepository
 ====
 [source,java]
 ----
-public interface PersonRepository 
-               extends GraphRepository<Person> {
+public interface PersonRepository extends GraphRepository<Person> {
 
-    // start person=node:Person(id={0}) return person
-    Person findById(String id)
+    // MATCH (person:Person {name={0}}) RETURN person
+    Person findByName(String name);
 
-    // start person=node:Person({0}) return person - {0} will be "id:"+name
+    // MATCH (person:Person) WHERE person.name =~ '.*{0}.*' RETURN person
     Iterable<Person> findByNameLike(String name)
 
-    // start person=node:__types__("className"="com...Person") 
-    // where person.age = {0} and person.married = {1}
-    // return person
+    // MATCH (person:Person) 
+    // WHERE person.age = {0} AND person.married = {1}
+    // RETURN person
     Iterable<Person> findByAgeAndMarried(int age, boolean married)
 
-    // start person=node:__types__("className"="com...Person")
-    // match person<-[:CHILD]-parent
-    // where parent.age > {0} and person.married = {1}
-    // return person
-    Iterable<Person> findByParentAgeAndMarried(int age, boolean married)
 }
 ----
 ====
@@ -139,6 +133,8 @@ public interface PersonRepository
 === Derived Finder Methods
 
 Use the meta information of your domain model classes to declare repository finders that navigate along relationships and compare properties. The path defined with the method name is used to create a Cypher query that is executed on the graph.
+
+NOTE: This feature is unsupported as of SDN 4 Milestone 1
 
 .Repository and usage of derived finder methods
 ====
@@ -161,11 +157,11 @@ public static class Group {
     @GraphId Long id;
     private String title;
     // incoming relationship for the person -> group
-    @RelatedTo(type = "group", direction = Direction.INCOMING)
-    private Set<Person> members=new HashSet<Person>();
+    @Relationship(type = "group", direction = Relationship.INCOMING)
+    private Set<Person> members = new HashSet<>();
 
     private Group(){}
-    public Group(String title, Person...people) {
+    public Group(String title, Person... people) {
         this.title = title;
         members.addAll(asList(people));
     }
@@ -185,203 +181,53 @@ assertThat(members.iterator().next().name, is(oliver.name));
 ----
 ====
 
-== Cypher-DSL repository
-
-Spring Data Neo4j supports the new Cypher-DSL to write Cypher queries in a statically typed way. Just by including `CypherDslRepository` to your repository you get the `Page<T> query(Execute query, params, Pageable page)`, `Page<T> query(Execute query, Execute countQuery, params, Pageable page)` and the `EndResult<T> query(Execute query, params);`. The result type of the Cypher-DSL builder is called `Execute`.
-
-.Examples for Cypher-DSL repository
-====
-[source,java]
-----
-import static org.neo4j.cypherdsl.CypherQuery.*;
-import static org.neo4j.cypherdsl.querydsl.CypherQueryDSL.*;
-
-public interface PersonRepository extends GraphRepository<Person>,
-  CypherDslRepository<Person> {}
-
-@Autowired PersonRepository repo;
-// START company=node:Company(name={name}) MATCH company<-[:WORKS_AT]->person RETURN person
-
-Execute query = start( lookup( "company", "Company", "name", param("name") ) ).
-                          match( path().from( "company" ).in( "WORKS_AT" ).to( "person" )).
-                          returns( identifier( "person" ))
-Page<Person> people = repo.query(query , map("name","Neo4j"), new PageRequest(1,10));
-
-QPerson person = QPerson.person;
-QCompany company = QCompany.company;
-Execute query = start( lookup( company, "Company", company.name, param("name") ) ).
-                          match( path().from( company ).in( "WORKS_AT" ).to( person ).
-                          .where(person.firstName.like("P*").and(person.age.gt(25))).
-                          returns( identifier(person) )
-EndResult<Person> people = repo.query(query , map("name","Neo4j"));
-----
-====
-
-== Cypher-DSL and QueryDSL
-
-To use Cypher-DSL with Query-DSL the Mysema dependencies have to be declared explicitly as they are optional in the Cypher-DSL project.
-
-[source,xml]
-----
-<dependency>
-    <groupId>com.mysema.querydsl</groupId>
-    <artifactId>querydsl-core</artifactId>
-    <version>2.2.3</version>
-    <optional>true</optional>
-</dependency>
-<dependency>
-    <groupId>com.mysema.querydsl</groupId>
-    <artifactId>querydsl-lucene</artifactId>
-    <version>2.2.3</version>
-    <optional>true</optional>
-    <exclusions>
-        <exclusion>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </exclusion>
-    </exclusions>
-</dependency>
-<dependency>
-    <groupId>com.mysema.querydsl</groupId>
-    <artifactId>querydsl-apt</artifactId>
-    <version>2.2.3</version>
-    <scope>provided</scope>
-</dependency>
-----
-
-It is possible to use the Cypher-DSL along with the predicates and code generation features of the QueryDSL project. This will allow you to use Java objects as part of the query, rather than strings, for the names of properties and such. In order to get this to work you first have to add a code processor to your Maven build, which will parse your domain entities marked with @NodeEntity, and from that generate QPerson-style classes, as shown in the previous section. Here is what you need to include in your Maven POM file.
-
-[source,xml]
-----
-<plugin>
-    <groupId>com.mysema.maven</groupId>
-    <artifactId>maven-apt-plugin</artifactId>
-    <version>1.0.2</version>
-    <configuration>
-        <processor>org.springframework.data.neo4j.querydsl.SDNAnnotationProcessor</processor>
-    </configuration>
-    <executions>
-        <execution>
-            <id>test-sources</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-                <goal>test-process</goal>
-            </goals>
-            <configuration>
-                <outputDirectory>target/generated-sources/test</outputDirectory>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
-----
-
-This custom QueryDSL AnnotationProcessor will generate the query classes that can be used when constructing Cypher-DSL queries, as in the previous section.
-
 == Creating repositories
 
-The `Repository` instances should normally be injected but can also be created manually via the `Neo4jTemplate`.
+The `Repository` instances are created through Spring and can be auto-wired into your Spring beans as required.  In previous versions, it was possible to create repositories using `Neo4jTemplate` but this is no longer possible as of SDN 4..
 
 .Using basic GraphRepository methods
 ====
 [source,java]
 ----
+@Repository
 public interface PersonRepository extends GraphRepository<Person> {}
 
-@Autowired PersonRepository repo;
-// OR
-GraphRepository<Person> repo = template
-                           .repositoryFor(Person.class);
+public class MySpringBean {
+   @Autowired 
+   private PersonRepository repo;
+   ...
+}
 
+// then you can use the repository as you would any other object
 Person michael = repo.save(new Person("Michael", 36));
 
 Person dave = repo.findOne(123);
 
 Long numberOfPeople = repo.count();
 
-EndResult<Person> devs = graphRepository.findAllByPropertyValue("occupation", "developer");
+EndResult<Person> devs = graphRepository.findAllByProperty("occupation", "developer");
 
-EndResult<Person> middleAgedPeople = graphRepository.findAllByRange("age", 20, 40);
-
-EndResult<Person> aTeam = graphRepository.findAllByQuery("name", "A*");
-
-Iterable<Person> aTeam = repo.findAllByQuery("name", "A*");
-
-Iterable<Person> davesFriends = repo.findAllByTraversal(dave,
-    Traversal.description().pruneAfterDepth(1)
-    .relationships(KNOWS).filter(returnAllButStartNode()));
 ----
 ====
 
-== Composing repositories
+The recommended way of providing repositories is to define a repository interface per domain class.  The undelying Spring repository infrastructure will automatically detect these repositories, along with additional implementation classes, and create an injectable repository implementation to be used in services or other spring beans.
 
-The recommended way of providing repositories is to define a repository interface per domain class. The mechanisms provided by the repository infrastructure will automatically detect them, along with additional implementation classes, and create an injectable repository implementation to be used in services or other spring beans.
-
-.Composing repositories
+.Example Spring configuration bean
 ====
 [source,java]
 ----
-public interface PersonRepository extends GraphRepository<Person>, PersonRepositoryExtension {}
+@Configuration
+@ComponentScan({"com.example.sdn"})
+@EnableNeo4jRepositories("com.example.sdn.repo")
+@EnableTransactionManagement
+public class PersistenceContext {
 
-// configure the repositories, preferably via the neo4j:repositories namespace
-// (template reference is optional)
-<neo4j:repositories base-package="org.example.repository"
-    graph-database-context-ref="template"/>
-
-// have it injected
-@Autowired
-PersonRepository personRepository;
-// or created via the template
-PersonRepository personRepository = template.repositoryFor(Person.class);
-
-
-Person michael = personRepository.save(new Person("Michael",36));
-
-Person dave=personRepository.findOne(123);
-
-Iterable<Person> devs = personRepository.findAllByPropertyValue("occupation","developer");
-
-Iterable<Person> aTeam = graphRepository.findAllByQuery( "name","A*");
-
-Iterable<Person> friends = personRepository.findFriends(dave);
-
-
-// alternatively select some of the required repositories individually
-public interface PersonRepository extends CRUDGraphRepository<Node,Person>,
-        IndexQueryExecutor<Node,Person>, TraversalQueryExecutor<Node,Person>,
-        PersonRepositoryExtension {}
-
-// provide a custom extension if needed
-public interface PersonRepositoryExtension {
-    Iterable<Person> findFriends(Person person);
+   @Bean
+   public SessionFactory getSessionFactory() {
+      return new SessionFactory("com.example.sdn.domain");
+   }
+   // more bean definition methods here
 }
-
-public class PersonRepositoryImpl implements PersonRepositoryExtension {
-    // optionally inject default repository, or use DirectGraphRepositoryFactory
-    @Autowired PersonRepository baseRepository;
-    public Iterable<Person> findFriends(Person person) {
-        return baseRepository.findAllByTraversal(person, friendsTraversal);
-    }
-}
-
-// configure the repositories, preferably via the datagraph:repositories namespace
-// (template reference is optional)
-<neo4j:repositories base-package="org.springframework.data.neo4j"
-    graph-database-context-ref="template"/>
-
-// have it injected
-@Autowired
-PersonRepository personRepository;
-
-Person michael = personRepository.save(new Person("Michael",36));
-
-Person dave=personRepository.findOne(123);
-
-EndResult<Person> devs = personRepository.findAllByPropertyValue("occupation","developer");
-
-EndResult<Person> aTeam = graphRepository.findAllByQuery( "name","A*");
-
-Iterable<Person> friends = personRepository.findFriends(dave);
 ----
 ====
 
-NOTE: If you use `<context:component-scan>` in your spring config, please make sure to put it behind `<neo4j:repositories>`, as the RepositoryFactoryBean adds new bean definitions for all the declared repositories, the context scan doesn't pick them up otherwise.

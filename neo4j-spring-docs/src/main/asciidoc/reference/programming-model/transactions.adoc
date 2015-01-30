@@ -3,26 +3,14 @@
 
 Neo4j is a transactional database, only allowing modifications to be performed within transaction boundaries. Reading data does however not require transactions. Spring Data Neo4j integrates nicely with both the declarative transaction support with `@Transactional` as well as the manual transaction handling with `TransactionTemplate`. It also supports the rollback mechanisms of the Spring Testing library.
 
-Spring Data Neo4j integrates with transaction managers configured using Spring. The simplest scenario of just running the graph database uses a `SpringTransactionManager` provided by the Neo4j kernel to be used with Spring's `JtaTransactionManager`. That is, configuring Spring to use Neo4j's transaction manager.
+As of version 4.0, the classes used to perform transaction management have been rewritten.  Instead of using `SpringTransactionManager` provided by the Neo4j kernel alongside Spring's `JtaTransactionManager`, the transaction management is performed by `Neo4jTransactionManager`, which implements Spring's `PlatformTransactionManager`.  
+This `Neo4jTransactionManager` is based on an OGM `Session`, on which the `beginTransaction()` method gets called, and this in turn delegates onto the underlying OGM's `TransactionManager` implementation.
 
-NOTE: To avoid name collisons the transaction manager configured by Spring Data Neo4j is called `neo4jTransactionManager` and is aliased to `transactionManager`. So defining a separate `transactionManager` bean should not interfere with Spring Data Neo4j operations.
+The `Neo4jConfiguration` Spring configuration bean will create an instance of this `Neo4jTransactionManager` for use in Spring Data Neo4j.  It is made available under the name "transactionManager" in the Spring application context.
 
-NOTE: The explicit XML configuration given below is encoded in the `Neo4jConfiguration` configuration bean that uses Spring's `@Configuration` feature. This greatly simplifies the configuration of Spring Data Neo4j.
+NOTE: Neither XML-based configuration nor multi-resource transactions are supported in SDN 4 M1
 
-.Simple transaction manager configuration
-====
-[source,xml]
-----
-<bean id="neo4jTransactionManager"
-        class="org.springframework.data.neo4j.config.JtaTransactionManagerFactoryBean">
-    <constructor-arg ref="graphDatabaseService"/>
-</bean>
-
-<tx:annotation-driven mode="aspectj" transaction-manager="neo4jTransactionManager"/>
-----
-====
-
-For scenarios with multiple transactional resources there are two options. The first option is to have Neo4j participate in the externally configured transaction manager using the Spring support in Neo4j by enabling the configuration parameter for your graph database. Neo4j will then use Spring's transaction manager instead of its own.
+For scenarios with multiple transactional resources there are two options. The first option is to have Neo4j participate in the externally-configured transaction manager using the Spring support in Neo4j by enabling the configuration parameter for your graph database. Neo4j will then use Spring's transaction manager instead of its own.
 
 .Neo4j Spring integration
 ====
@@ -52,7 +40,9 @@ For scenarios with multiple transactional resources there are two options. The f
 ----
 ====
 
-One can also configure a stock XA transaction manager (e.g. Atomikos, JOTM, App-Server-TM) to be used with Neo4j and the other resources. For a bit less secure but fast 1-phase-commit-best-effort, use `ChainedTransactionManager`, which comes bundled with Spring Data Neo4j. It takes a list of transaction managers as constructor params and will handle them in order for transaction start and commit (or rollback) in the reverse order.
+You can also configure a custom XA transaction manager (e.g. Atomikos, JOTM, App-Server-TM) to be used with Neo4j and the other resources. For a bit less secure but fast 1-phase-commit-best-effort, use `ChainedTransactionManager`, which comes bundled with Spring Data Neo4j. It takes a list of transaction managers as constructor params and will handle them in order for transaction start and commit (or rollback) in the reverse order.
+
+NOTE: As of Neo4j 2.2, there is no XA transaction participation support
 
 .ChainedTransactionManager example
 ====

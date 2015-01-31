@@ -3,10 +3,7 @@ package org.neo4j.ogm.mapper;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.PropertyReader;
-import org.neo4j.ogm.entityaccess.RelationalReader;
+import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -205,16 +202,18 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(srcInfo)) {
 
             Object relatedObject = reader.read(entity);
+
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
 
-            clearContextRelationships(context, srcIdentity, relationshipType);
+            clearContextRelationships(context, srcIdentity, relationshipType, relationshipDirection);
 
             if (relatedObject instanceof Iterable) {
                 for (Object tgtObject : (Iterable<?>) relatedObject) {
                     link(tgtObject, compiler, relationshipDirection, relationshipType, srcIdentity, nodeBuilder, entity, horizon);
                 }
             } else {
+
                 link(relatedObject, compiler, relationshipDirection, relationshipType, srcIdentity, nodeBuilder, entity, horizon);
             }
         }
@@ -224,12 +223,18 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * Clears the relationships in the compiler context for the object represented by srcIdentity
      *
      * @param context the {@link CypherContext} for the current compiler instance
-     * @param srcIdentity the id of the node at the the 'start' of the relationship
+     * @param identity the id of the node at the the 'start' of the relationship
      * @param relationshipType the type of relationship
      */
-    private void clearContextRelationships(CypherContext context, Long srcIdentity, String relationshipType) {
-        if (srcIdentity != null) {
-            context.deregisterRelationships(srcIdentity, relationshipType);
+    private void clearContextRelationships(CypherContext context, Long identity, String relationshipType, String relationshipDirection) {
+        if (identity != null) {
+            if (relationshipDirection.equals(Relationship.OUTGOING)) {
+                logger.debug("clearing context relationships: {}-[:{}]->(?)", identity,relationshipType);
+                context.deregisterOutgoingRelationships(identity, relationshipType);
+            } else {
+                logger.debug("clearing context relationships: (?)-[:{}]->{}", relationshipType, identity);
+                context.deregisterIncomingRelationships(identity, relationshipType);
+            }
         }
     }
 
@@ -389,7 +394,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                     // it for us as it already exists, so we register it in the tx context. Because this relationship
                     // was previously deleted from the tx context, but not from the mapping context, this brings both
                     // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
-                    logger.debug("registering existing relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(),mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                    logger.debug("restoring context relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     context.registerRelationship(mappedRelationship);
                 }
             }
@@ -413,9 +418,9 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             }
         }
         if (relationshipBuilder.hasDirection(Relationship.OUTGOING)) {
-            createRelationship(context, src, relationshipBuilder, tgt);
+            reallyCreateRelationship(context, src, relationshipBuilder, tgt);
         } else {
-            createRelationship(context, tgt, relationshipBuilder, src);
+            reallyCreateRelationship(context, tgt, relationshipBuilder, src);
         }
     }
 
@@ -450,7 +455,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param relBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      */
-    private void createRelationship(CypherContext ctx, String src, RelationshipBuilder relBuilder, String tgt) {
+    private void reallyCreateRelationship(CypherContext ctx, String src, RelationshipBuilder relBuilder, String tgt) {
         logger.debug("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
         relBuilder.relate(src, tgt);
         // TODO: probably needs refactoring, this is not exactly an intuitive design!

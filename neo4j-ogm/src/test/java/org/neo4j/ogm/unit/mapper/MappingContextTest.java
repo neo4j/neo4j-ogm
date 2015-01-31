@@ -38,7 +38,7 @@ public class MappingContextTest {
 
         collector.registerNodeEntity(jim, jim.getId());
         collector.registerNodeEntity(policy, policy.getId());
-        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
 
         assertEquals(jim, collector.get(jim.getId()));
         assertEquals(policy, collector.get(policy.getId()));
@@ -57,7 +57,7 @@ public class MappingContextTest {
 
         collector.registerNodeEntity(jim, jim.getId());
         collector.registerNodeEntity(policy, policy.getId());
-        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
         collector.clear(jim);
 
         assertEquals(null, collector.get(jim.getId()));
@@ -85,9 +85,9 @@ public class MappingContextTest {
         collector.registerNodeEntity(healthcare, healthcare.getId());
         collector.registerNodeEntity(immigration, immigration.getId());
 
-        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId()));
-        collector.remember(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId()));
-        collector.remember(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId()));
 
         collector.clear(Policy.class);
 

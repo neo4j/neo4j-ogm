@@ -12,9 +12,10 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
-import org.neo4j.ogm.mapper.*;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.mapper.MappedRelationship;
+import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class CypherCompilerTest {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social");
+        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social", "org.neo4j.domain.policy");
         mappingContext = new MappingContext(mappingMetadata);
     }
 
@@ -136,8 +137,8 @@ public class CypherCompilerTest {
         // set the mapping context accordingly
         mappingContext.remember(mary);
         mappingContext.remember(waller);
-        mappingContext.remember(new MappedRelationship(maryId, "SCHOOL", wallerId));
-        mappingContext.remember(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId));
+        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId));
 
         expectOnSave(waller, "");
         expectOnSave(mary, "");
@@ -169,8 +170,8 @@ public class CypherCompilerTest {
         // set the mapping context accordingly
         mappingContext.remember(mary);
         mappingContext.remember(waller);
-        mappingContext.remember(new MappedRelationship(maryId, "SCHOOL", wallerId));
-        mappingContext.remember(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId));
+        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId));
 
         Teacher jim = new Teacher("Jim");
         jim.setSchool(waller);
@@ -281,9 +282,9 @@ public class CypherCompilerTest {
 
         music.setStudents(Arrays.asList(yvonne, xavier, zack));
 
-        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", xid));
-        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", yid));
-        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", zid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid));
 
         mappingContext.remember(xavier);
         mappingContext.remember(yvonne);
@@ -330,9 +331,9 @@ public class CypherCompilerTest {
         mappingContext.remember(designTech);
         mappingContext.remember(shivani);
 
-        mappingContext.remember(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
-        mappingContext.remember(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
-        mappingContext.remember(new MappedRelationship(businessStudiesCourseId, "STUDENTS", shivaniId));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
+        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", shivaniId));
 
         // move shivani from one course to the other
         businessStudies.setStudents(Collections.<Student>emptyList());
@@ -386,10 +387,10 @@ public class CypherCompilerTest {
         mappingContext.remember(mrWhite);
         mappingContext.remember(missJones);
 
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
-        mappingContext.remember(new MappedRelationship(whiteId, "SCHOOL", schoolId));
-        mappingContext.remember(new MappedRelationship(jonesId, "SCHOOL", schoolId));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId));
+        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId));
+        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId));
 
 
         // Fire Mr White:
@@ -479,7 +480,7 @@ public class CypherCompilerTest {
         mappingContext.remember(forum);
         mappingContext.remember(topic);
         mappingContext.remember(link);
-        mappingContext.remember(new MappedRelationship(forumId, "HAS_TOPIC", topicId));
+        mappingContext.registerRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId));
 
         // change the timestamp
         link.setTimestamp(327790L);
@@ -517,7 +518,7 @@ public class CypherCompilerTest {
         mappingContext.remember(topic);
         mappingContext.remember(link);
         // the mapping context remembers the relationship between the forum and the topic in the graph
-        mappingContext.remember(new MappedRelationship(forumId, "HAS_TOPIC", topicId));
+        mappingContext.registerRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId));
 
         // unlink the objects manually
         forum.setTopicsInForum(null);

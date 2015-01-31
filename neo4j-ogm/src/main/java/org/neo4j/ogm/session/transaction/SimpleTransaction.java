@@ -64,7 +64,7 @@ public class SimpleTransaction implements Transaction {
                 for (Object o : cypherContext.log())  {
                     logger.debug("checking cypher context object: " + o);
                     if (o instanceof MappedRelationship) {
-                        mappingContext.remember((MappedRelationship) o);
+                        mappingContext.registerRelationship((MappedRelationship) o);
                     } else if (!(o instanceof TransientRelationship)) {
                         mappingContext.remember(o);
                     }

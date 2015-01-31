@@ -132,7 +132,7 @@ public class MappingContext {
         return relationshipRegister;
     }
 
-    public void remember(MappedRelationship relationship) {
+    public void registerRelationship(MappedRelationship relationship) {
         logger.debug("adding edge : (${})-[:{}]->(${})", relationship.getStartNodeId(), relationship.getRelationshipType(), relationship.getEndNodeId());
         relationshipRegister.add(relationship);
     }

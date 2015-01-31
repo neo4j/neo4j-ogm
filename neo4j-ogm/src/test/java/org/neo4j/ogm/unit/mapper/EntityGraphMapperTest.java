@@ -13,19 +13,22 @@ import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.domain.forum.Forum;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Topic;
+import org.neo4j.ogm.domain.policy.Person;
+import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.mapper.*;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.mapper.MappedRelationship;
+import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.*;
 
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
-public class ObjectToCypherMapperTest {
+public class EntityGraphMapperTest {
 
     private EntityToGraphMapper mapper;
 
@@ -38,7 +41,11 @@ public class ObjectToCypherMapperTest {
     public static void setUpTestDatabase() {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
         executionEngine = new ExecutionEngine(graphDatabase);
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.social");
+        mappingMetadata = new MetaData(
+                "org.neo4j.ogm.domain.education",
+                "org.neo4j.ogm.domain.forum",
+                "org.neo4j.ogm.domain.social",
+                "org.neo4j.ogm.domain.policy");
         mappingContext = new MappingContext(mappingMetadata);
 
     }
@@ -139,7 +146,7 @@ public class ObjectToCypherMapperTest {
 
         mappingContext.remember(gianFranco);
         mappingContext.remember(bscComputerScience);
-        mappingContext.remember(new MappedRelationship(courseId, "STUDENTS", studentId));
+        mappingContext.registerRelationship(new MappedRelationship(courseId, "STUDENTS", studentId));
 
         // create a new student and set both students on the course
         Student lakshmipathy = new Student("Lakshmipathy");
@@ -174,7 +181,7 @@ public class ObjectToCypherMapperTest {
 
         mappingContext.remember(mary);
         mappingContext.remember(waller);
-        mappingContext.remember(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId));
 
         // create a new teacher and add him to the school
         Teacher jim = new Teacher("Jim");
@@ -289,9 +296,9 @@ public class ObjectToCypherMapperTest {
         Student zack = new Student("Zack");
         zack.setId(zid);
 
-        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", xid));
-        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", yid));
-        mappingContext.remember(new MappedRelationship(mid, "STUDENTS", zid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid));
 
         mappingContext.remember(xavier);
         mappingContext.remember(yvonne);
@@ -343,9 +350,9 @@ public class ObjectToCypherMapperTest {
         shivani.setId(studentId);
 
         // NB: this simulates the graph not being fully hydrated, so Jeff's enrolment on GCSE D+T should remain untouched
-        mappingContext.remember(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
-        mappingContext.remember(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
-        mappingContext.remember(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
+        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId));
 
         mappingContext.remember(msThompson);
         mappingContext.remember(businessStudies);
@@ -395,10 +402,10 @@ public class ObjectToCypherMapperTest {
         mappingContext.remember(mrWhite);
         mappingContext.remember(missJones);
 
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mappingContext.remember(new MappedRelationship(schoolId, "TEACHERS", jonesId));
-        mappingContext.remember(new MappedRelationship(whiteId, "SCHOOL", schoolId));
-        mappingContext.remember(new MappedRelationship(jonesId, "SCHOOL", schoolId));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId));
+        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId));
+        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId));
 
         // Fire Mr White:
         mrWhite.setSchool(null);
@@ -623,6 +630,212 @@ public class ObjectToCypherMapperTest {
                 + "(f:Forum {name:'Neo4j Questions'})-[:HAS_TOPIC {timestamp:750}]->(y:Topic), "
                 + "(f)-[:HAS_TOPIC {timestamp:1000}]->(z:Topic)");
     }
+
+
+    @Test
+    public void testCreateFirstReferenceFromOutgoingSide() {
+
+        Person person1 = new Person("jim");
+        Policy policy1 = new Policy("health");
+
+        person1.getWritten().add(policy1);
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(person1).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
+
+    }
+
+    @Test
+    public void testCreateFirstReferenceFromIncomingSide() {
+
+        Person person1 = new Person("jim");
+        Policy policy1 = new Policy("health");
+
+
+        policy1.getWriters().add(person1);
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(policy1).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
+
+    }
+
+    @Test
+    public void testDeleteExistingReferenceFromOutgoingSide() {
+
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (j:Person:DomainObject { name :'jim' })" +
+                        "-[r:WRITES_POLICY]->" +
+                        "(h:Policy:DomainObject { name: 'health' }) " +
+                        "RETURN id(j) AS jid, id(r) AS rid, id(h) AS hid");
+
+        Map<String, Object> resultSet = executionResult.iterator().next();
+
+        Long jid = (Long) resultSet.get("jid");
+        Long hid = (Long) resultSet.get("hid");
+
+        Person person = new Person("jim");
+        person.setId(jid);
+
+        Policy policy = new Policy("health");
+        policy.setId(hid);
+
+        mappingContext.registerNodeEntity(policy, policy.getId());
+        mappingContext.registerNodeEntity(person, person.getId());
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+
+        // ensure domain model is set up
+        policy.getWriters().add(person);
+        person.getWritten().add(policy);
+
+        // now remove the relationship from the person side
+        person.getWritten().clear();
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(person).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (:Person:DomainObject { name :'jim' }) " +
+                "CREATE (:Policy:DomainObject { name: 'health' })");
+
+
+    }
+
+    @Test
+    public void testDeleteExistingReferenceFromIncomingSide() {
+
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (j:Person:DomainObject { name :'jim' })" +
+                        "-[r:WRITES_POLICY]->" +
+                        "(h:Policy:DomainObject { name: 'health' }) " +
+                        "RETURN id(j) AS jid, id(r) AS rid, id(h) AS hid");
+
+        Map<String, Object> resultSet = executionResult.iterator().next();
+
+        Long jid = (Long) resultSet.get("jid");
+        Long hid = (Long) resultSet.get("hid");
+
+        Person person = new Person("jim");
+        person.setId(jid);
+
+        Policy policy = new Policy("health");
+        policy.setId(hid);
+
+        mappingContext.registerNodeEntity(policy, policy.getId());
+        mappingContext.registerNodeEntity(person, person.getId());
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+
+        // ensure domain model is set up
+        policy.getWriters().add(person);
+        person.getWritten().add(policy);
+
+
+        // now remove the object from the policy
+        policy.getWriters().clear();
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(policy).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (:Person:DomainObject { name :'jim' }) " +
+                "CREATE (:Policy:DomainObject { name: 'health' })");
+
+
+    }
+
+    @Test
+    public void testAppendReferenceFromOutgoingSide() {
+
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (j:Person:DomainObject { name :'jim' })" +
+                "CREATE (h:Policy:DomainObject { name: 'health' }) " +
+                "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
+                "CREATE (j)-[r:WRITES_POLICY]->(h) " +
+                "RETURN id(j) AS jid, id(r) AS rid, id(h) AS hid, id(i) as iid");
+
+        Map<String, Object> resultSet = executionResult.iterator().next();
+
+        Long jid = (Long) resultSet.get("jid");
+        Long hid = (Long) resultSet.get("hid");
+        Long iid = (Long) resultSet.get("iid");
+
+        Person jim = new Person("jim");
+        jim.setId(jid);
+
+        Policy health = new Policy("health");
+        health.setId(hid);
+
+        Policy immigration = new Policy("immigration");
+        immigration.setId(iid);
+
+        mappingContext.registerNodeEntity(immigration, immigration.getId());
+        mappingContext.registerNodeEntity(health, health.getId());
+        mappingContext.registerNodeEntity(jim, jim.getId());
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+
+        // set jim as the writer of the health policy and expect the new relationship to be established
+        // alongside the existing one.
+        jim.getWritten().add(health);
+        jim.getWritten().add(immigration);
+
+
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(jim).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (j:Person:DomainObject { name :'jim' }) " +
+                "CREATE (h:Policy:DomainObject { name: 'health' }) " +
+                "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
+                "CREATE (j)-[:WRITES_POLICY]->(h) " +
+                "CREATE (j)-[:WRITES_POLICY]->(i) ");
+
+
+    }
+
+    @Test
+    public void testAppendReferenceFromIncomingSide() {
+
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE (j:Person:DomainObject { name :'jim' })" +
+                        "CREATE (h:Policy:DomainObject { name: 'health' }) " +
+                        "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
+                        "CREATE (j)-[r:WRITES_POLICY]->(h) " +
+                        "RETURN id(j) AS jid, id(r) AS rid, id(h) AS hid, id(i) as iid");
+
+        Map<String, Object> resultSet = executionResult.iterator().next();
+
+        Long jid = (Long) resultSet.get("jid");
+        Long hid = (Long) resultSet.get("hid");
+        Long iid = (Long) resultSet.get("iid");
+
+        Person jim = new Person("jim");
+        jim.setId(jid);
+
+        Policy health = new Policy("health");
+        health.setId(hid);
+
+        Policy immigration = new Policy("immigration");
+        immigration.setId(iid);
+
+        mappingContext.registerNodeEntity(immigration, immigration.getId());
+        mappingContext.registerNodeEntity(health, health.getId());
+        mappingContext.registerNodeEntity(jim, jim.getId());
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+
+        // ensure the graph reflects the mapping context
+        jim.getWritten().add(health);
+
+        // now add jim as a writer of the immigration policy and expect the existing
+        // relationship to be maintained, and a new one created
+        immigration.getWriters().add(jim);
+
+        // note that we save the graph to the same depth as we hydrate it.
+        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(immigration, 2).getStatements());
+        executeStatementsAndAssertSameGraph(cypher,
+                "CREATE (j:Person:DomainObject { name :'jim' }) " +
+                        "CREATE (h:Policy:DomainObject { name: 'health' }) " +
+                        "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
+                        "CREATE (j)-[:WRITES_POLICY]->(h) " +
+                        "CREATE (j)-[:WRITES_POLICY]->(i) ");
+
+
+    }
+
 
     private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
 

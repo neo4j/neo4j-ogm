@@ -67,13 +67,23 @@ public class CypherContext {
         return log;
     }
 
-    public void deregisterRelationships(Long src, String relationshipType) {
+    public void deregisterOutgoingRelationships(Long src, String relationshipType) {
         Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
         while (iterator.hasNext()) {
            MappedRelationship mappedRelationship = iterator.next();
            if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType)) {
                iterator.remove();
            }
+        }
+    }
+
+    public void deregisterIncomingRelationships(Long tgt, String relationshipType) {
+        Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
+        while (iterator.hasNext()) {
+            MappedRelationship mappedRelationship = iterator.next();
+            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType)) {
+                iterator.remove();
+            }
         }
     }
 }

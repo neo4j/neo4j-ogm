@@ -75,7 +75,6 @@ include::reference/cross-store.adoc[]
 include::reference/samples.adoc[]
 include::reference/heroku.adoc[]
 include::reference/performance.adoc[]
-include::reference/aspectj-details.adoc[]
 include::reference/neo4j-server.adoc[]
 :leveloffset: -1
 

@@ -12,6 +12,7 @@
                 "subject": "Subject",
                 "teacher": "Teacher",
                 "class": "Class",
+                "studyBuddy": "StudyBuddy",
                 "additionalEntity": "add additional entities"
             },
             "account": {

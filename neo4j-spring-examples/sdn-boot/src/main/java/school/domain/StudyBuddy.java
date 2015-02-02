@@ -1,42 +1,49 @@
 package school.domain;
 
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.NodeEntity;
 
-
-@RelationshipEntity(type="STUDY_BUDDY")
+@NodeEntity(label = "StudyBuddy")
 public class StudyBuddy extends Entity {
 
-    @StartNode
     private Student buddyOne;
-
-    @EndNode
     private Student buddyTwo;
+    private Course course;
 
-    private Subject subject;
+    public StudyBuddy(){}
 
-    public StudyBuddy(Student buddyOne, Student buddyTwo, Subject subject) {
+    public StudyBuddy(Student buddyOne, Student buddyTwo, Course course) {
         this.buddyOne = buddyOne;
         this.buddyTwo = buddyTwo;
-        this.subject = subject;
+        this.course = course;
     }
 
-    public Student getBuddy(Student student) {
-        return student == buddyOne ? buddyTwo : student == buddyTwo ? buddyOne : null;
+    public void setCourse( Course course )
+    {
+        this.course = course;
     }
 
-    public Subject getSubject() {
-        return subject;
+    public void setBuddyTwo( Student buddyTwo )
+    {
+        this.buddyTwo = buddyTwo;
     }
 
-    @Override
-    public String toString() {
-        return "StudyBuddy{" +
-                "id=" + getId() +
-                ", buddyOne=" + buddyOne +
-                ", buddyTwo=" + buddyTwo +
-                ", subject=" + subject +
-                '}';
+    public void setBuddyOne( Student buddyOne )
+    {
+        this.buddyOne = buddyOne;
+    }
+
+    public Course getCourse()
+    {
+        return course;
+    }
+
+    public Student getBuddyTwo()
+    {
+        return buddyTwo;
+    }
+
+    public Student getBuddyOne()
+    {
+        return buddyOne;
     }
 }

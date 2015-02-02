@@ -1,9 +1,9 @@
 package school.domain;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 
 public class Student extends Entity {
@@ -24,10 +24,6 @@ public class Student extends Entity {
     public Student(String name) {
         this();
         this.name = name;
-    }
-
-    public void addStudyBuddy(Student buddy, Subject subject) {
-        studyBuddies.add(new StudyBuddy(this, buddy, subject));
     }
 
     public String getName() {

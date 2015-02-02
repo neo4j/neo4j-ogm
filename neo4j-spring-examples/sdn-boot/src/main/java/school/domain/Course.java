@@ -10,7 +10,7 @@ import org.neo4j.ogm.annotation.Relationship;
  * The course object connects a teacher
  * with a subject and the pupils who are taught the subject by the teacher
  */
-@NodeEntity(label="CLASS")
+@NodeEntity(label="Class")
 public class Course extends Entity {
 
     private String name;

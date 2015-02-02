@@ -10,7 +10,7 @@ public class Teacher extends Entity {
     private String name;
 
     @Relationship(type="TEACHES_CLASS")
-    private Set<ClassRegister> classRegisters;
+    private Set<Course> courses;
 
     @Relationship(type="DEPARTMENT_MEMBER", direction = Relationship.INCOMING)
     private Department department;
@@ -24,7 +24,7 @@ public class Teacher extends Entity {
     }
 
     public Teacher() {
-        this.classRegisters = new HashSet<>();
+        this.courses = new HashSet<>();
     }
 
     public String getName() {
@@ -35,12 +35,12 @@ public class Teacher extends Entity {
         this.name = name;
     }
 
-    public Set<ClassRegister> getClassRegisters() {
-        return classRegisters;
+    public Set<Course> getCourses() {
+        return courses;
     }
 
-    public void setClassRegisters(Set<ClassRegister> classRegisters) {
-        this.classRegisters = classRegisters;
+    public void setCourses( Set<Course> courses ) {
+        this.courses = courses;
     }
 
     public Department getDepartment() {
@@ -64,7 +64,7 @@ public class Teacher extends Entity {
         return "Teacher{" +
                 "id=" + getId() +
                 ", name='" + name + '\'' +
-                ", classRegisters=" + classRegisters.size() +
+                ", classRegisters=" + courses.size() +
                 ", department=" + department +
                 '}';
     }

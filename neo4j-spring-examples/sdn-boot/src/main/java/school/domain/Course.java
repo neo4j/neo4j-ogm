@@ -1,17 +1,17 @@
 package school.domain;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+
 /**
- * The class register object connects a teacher
+ * The course object connects a teacher
  * with a subject and the pupils who are taught the subject by the teacher
  */
 @NodeEntity(label="CLASS")
-public class ClassRegister extends Entity {
+public class Course extends Entity {
 
     private String name;
 
@@ -58,7 +58,7 @@ public class ClassRegister extends Entity {
 
     @Override
     public String toString() {
-        return "ClassRegister{" +
+        return "Course{" +
                 "id=" + getId() +
                 ", name='" + name + '\'' +
                 ", teacher=" + teacher +

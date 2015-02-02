@@ -1,6 +1,6 @@
 package school.service;
 
-import school.domain.ClassRegister;
+import school.domain.Course;
 
-public interface ClassRegisterService extends Service<ClassRegister> {
+public interface ClassRegisterService extends Service<Course> {
 }

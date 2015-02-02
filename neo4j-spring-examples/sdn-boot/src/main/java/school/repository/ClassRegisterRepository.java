@@ -1,9 +1,9 @@
 package school.repository;
 
 import org.springframework.data.neo4j.repository.GraphRepository;
-import school.domain.ClassRegister;
+import school.domain.Course;
 
-public interface ClassRegisterRepository extends GraphRepository<ClassRegister> {
+public interface ClassRegisterRepository extends GraphRepository<Course> {
 
 }
 

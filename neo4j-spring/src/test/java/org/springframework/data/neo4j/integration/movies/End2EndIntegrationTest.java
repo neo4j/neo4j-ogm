@@ -34,7 +34,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 import org.neo4j.tooling.GlobalGraphOperations;
@@ -270,12 +269,6 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
         executor.shutdown();
 
         assertEquals( 100, userRepository.count() );
-
-        try ( Transaction tx = getDatabase().beginTx() )
-        {
-            assertEquals( 100, Iterables.count( GlobalGraphOperations.at( getDatabase() ).getAllNodes() ) );
-            tx.success();
-        }
     }
 
     private class UserSaver implements Runnable

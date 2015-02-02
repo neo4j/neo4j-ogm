@@ -11,14 +11,14 @@ public class Student extends Entity {
     private String name;
 
     @Relationship(type = "ENROLLED")
-    private Set<ClassRegister> classRegisters;
+    private Set<Course> courses;
 
     @Relationship(type="STUDY_BUDDY", direction=Relationship.UNDIRECTED)
     private Set<StudyBuddy> studyBuddies;
 
     public Student() {
         this.studyBuddies = new HashSet<>();
-        this.classRegisters = new HashSet<>();
+        this.courses = new HashSet<>();
     }
 
     public Student(String name) {
@@ -44,14 +44,14 @@ public class Student extends Entity {
 
     //@JsonIgnore
     //@Relationship(type = "ENROLLED", direction=Relationship.INCOMING)
-    public Set<ClassRegister> getClassRegisters() {
-        return classRegisters;
+    public Set<Course> getCourses() {
+        return courses;
     }
 
     //@JsonIgnore
     //@Relationship(type = "ENROLLED", direction=Relationship.INCOMING)
-    public void setClassRegisters(Set<ClassRegister> classRegisters) {
-        this.classRegisters = classRegisters;
+    public void setCourses( Set<Course> courses ) {
+        this.courses = courses;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class Student extends Entity {
         return "Student{" +
                 "id=" + getId() +
                 ", name='" + name + '\'' +
-                ", classRegisters=" + classRegisters.size() +
+                ", classRegisters=" + courses.size() +
                 ", studyBuddies=" + studyBuddies.size() +
                 '}';
     }

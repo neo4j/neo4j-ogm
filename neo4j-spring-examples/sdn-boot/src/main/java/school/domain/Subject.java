@@ -16,7 +16,7 @@ public class Subject extends Entity {
     private Set<Teacher> teachers;
 
     @Relationship(type = "SUBJECT_TAUGHT")
-    private Set<ClassRegister> classRegisters;
+    private Set<Course> courses;
 
     public Subject(String name) {
         this();
@@ -25,7 +25,7 @@ public class Subject extends Entity {
 
     public Subject() {
         this.teachers = new HashSet<>();
-        this.classRegisters = new HashSet<>();
+        this.courses = new HashSet<>();
     }
 
     public Department getDepartment() {

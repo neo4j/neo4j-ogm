@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.stereotype.Service;
 import school.domain.Course;
-import school.repository.ClassRegisterRepository;
+import school.repository.CourseRepository;
 
-@Service("classRegisterService")
-public class ClassRegisterServiceImpl extends GenericService<Course> implements ClassRegisterService {
+@Service("courseService")
+public class CourseServiceImpl extends GenericService<Course> implements ClassRegisterService {
 
     @Autowired
-    private ClassRegisterRepository repository;
+    private CourseRepository repository;
 
     @Override
     public GraphRepository<Course> getRepository() {

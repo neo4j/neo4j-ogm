@@ -41,7 +41,7 @@
                             <span>Specialist subjects</span>
                         </td>
                         <td>
-                            <div class="well">
+                            <div class="well view">
                                 <div ng-controller="SubjectController">
                                     <div ng-repeat="subject in subjects track by subject.id" >
                                         <label><input type="checkbox" class="form control pull-left" checklist-model="teacher.subjects" checklist-value="subject" />&nbsp;{{subject.name}}</label>

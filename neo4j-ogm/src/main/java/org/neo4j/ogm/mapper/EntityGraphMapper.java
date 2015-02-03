@@ -3,7 +3,10 @@ package org.neo4j.ogm.mapper;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
-import org.neo4j.ogm.entityaccess.*;
+import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.PropertyReader;
+import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -52,8 +55,16 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         CypherCompiler compiler = new SingleStatementCypherCompiler();
 
-        // add all the relationships we know about:
-        compiler.context().registeredRelationships().addAll(mappingContext.mappedRelationships());
+        // add all the relationships we know about. This includes the relationships that
+        // won't be modified by the mapping request.
+        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+            logger.info("context init: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+            compiler.context().registerRelationship(mappedRelationship);
+        }
+
+        logger.info("context initialised with " + mappingContext.mappedRelationships().size() + " relationships");
+
+        //compiler.context().registeredRelationships().addAll(mappingContext.mappedRelationships());
 
         // if the map request is rooted on a relationship entity, we re-root it on the start node
         if (isRelationshipEntity(entity)) {
@@ -81,31 +92,39 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.mappedRelationships().iterator();
         while (mappedRelationshipIterator.hasNext()) {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
-            logger.debug("delete-check relationship: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-            if (!context.isRegisteredRelationship(mappedRelationship)) {
-                logger.debug("not found in tx context! deleting: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                compiler.unrelate("$" + mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), "$" + mappedRelationship.getEndNodeId());
-                // this may not be the best place to do this. if the transaction is rolled back, the
-                // mappingContext will be wrong. fixme
+            logger.info("delete-check relationship: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
 
-                // clear all objects related to the object that has changed
-                clearRelatedObjects(mappedRelationship.getStartNodeId());
-                mappedRelationshipIterator.remove();
+            if (!context.isRegisteredRelationship(mappedRelationship)) {
+
+                logger.info("not found in tx context! deleting: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                compiler.unrelate("$" + mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), "$" + mappedRelationship.getEndNodeId());
+                mappedRelationship.deactivate();
+                //clearRelatedObjects(mappedRelationship.getStartNodeId());
+
             }
         }
     }
 
-
-    private void clearRelatedObjects(Long startNode) {
+    // needs some more work...
+    private void clearRelatedObjects(Long node) {
         for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
-            if (mappedRelationship.getStartNodeId() == startNode) {
+            if (mappedRelationship.getStartNodeId() == node || mappedRelationship.getEndNodeId() == node) {
                 Object dirty = mappingContext.get(mappedRelationship.getEndNodeId());
+                // forward
                 if (dirty != null) {
+                    logger.info("flushing end node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     mappingContext.deregister(dirty, mappedRelationship.getEndNodeId());
+                }
+                // reverse
+                dirty = mappingContext.get(mappedRelationship.getStartNodeId());
+                if (dirty != null) {
+                    logger.info("flushing start node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                    mappingContext.deregister(dirty,  mappedRelationship.getStartNodeId());
                 }
             }
         }
     }
+
     /**
      * Builds Cypher to save the specified object and all its composite objects into the graph database.
      *
@@ -229,10 +248,10 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     private void clearContextRelationships(CypherContext context, Long identity, String relationshipType, String relationshipDirection) {
         if (identity != null) {
             if (relationshipDirection.equals(Relationship.OUTGOING)) {
-                logger.debug("clearing context relationships: {}-[:{}]->(?)", identity,relationshipType);
+                logger.info("clearing context relationships: {}-[:{}]->(?)", identity, relationshipType);
                 context.deregisterOutgoingRelationships(identity, relationshipType);
             } else {
-                logger.debug("clearing context relationships: (?)-[:{}]->{}", relationshipType, identity);
+                logger.info("clearing context relationships: (?)-[:{}]->{}", relationshipType, identity);
                 context.deregisterIncomingRelationships(identity, relationshipType);
             }
         }
@@ -292,7 +311,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         relationshipBuilder.direction(relationshipDirection);
 
-        logger.debug("got relationship builder for " + entity + ": " + relationshipBuilder);
+        logger.info("got relationship builder for " + entity + ": " + relationshipBuilder);
         return relationshipBuilder;
     }
 
@@ -311,7 +330,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         ClassInfo relEntityClassInfo = metaData.classInfo(relationshipEntity);
 
-        logger.debug("mapping relationshipEntity " + relEntityClassInfo.name());
+        logger.info("mapping relationshipEntity " + relEntityClassInfo.name());
 
         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
         relationshipBuilder.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
@@ -337,10 +356,10 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             ClassInfo targetInfo = metaData.classInfo(targetEntity);
             Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
             if (tgtIdentity != null) {
-                logger.debug("RE in the database is stale");
+                logger.info("RE in the database is stale");
                 MappedRelationship mappedRelationship = new MappedRelationship(srcIdentity, relationshipBuilder.getType(), tgtIdentity);
                 if (mappingContext.mappedRelationships().remove(mappedRelationship)) {
-                    logger.debug("RE successfully marked for re-writing");
+                    logger.info("RE successfully marked for re-writing");
                 } else {
                     logger.warn("Could not find RE in mappingContext");
                 }
@@ -394,7 +413,9 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                     // it for us as it already exists, so we register it in the tx context. Because this relationship
                     // was previously deleted from the tx context, but not from the mapping context, this brings both
                     // mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
-                    logger.debug("restoring context relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                    logger.info("restoring context relationship {}-[:{}]->{}", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                    // it may have been deactivated by a previous delete, which has now been reversed.
+                    mappedRelationship.activate();
                     context.registerRelationship(mappedRelationship);
                 }
             }
@@ -456,7 +477,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      */
     private void reallyCreateRelationship(CypherContext ctx, String src, RelationshipBuilder relBuilder, String tgt) {
-        logger.debug("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
+        logger.info("creating new relationship {}-[:{}]->{}", src, relBuilder.getType(), tgt);
         relBuilder.relate(src, tgt);
         // TODO: probably needs refactoring, this is not exactly an intuitive design!
         ctx.log(new TransientRelationship(src, relBuilder.getType(), tgt)); // we log the new relationship as part of the transaction context.

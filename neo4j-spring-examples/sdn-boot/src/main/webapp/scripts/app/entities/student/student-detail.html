@@ -31,20 +31,14 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>
-                            <span translate="registrarApp.student.name">Name</span>
-                        </td>
-                        <td>
-                            <input type="text" class="input-sm form-control" ng-model="student.name" value="{{student.name}}">
-                        </td>
+                        <td><span>Name</span></td>
+                        <td><input type="text" class="input-sm form-control" ng-model="student.name" value="{{student.name}}"></td>
                     </tr>
 
                     <tr>
+                        <td><span>Enrolled classes</span></td>
                         <td>
-                            <span>Enrolled classes</span>
-                        </td>
-                        <td>
-                            <div class="well">
+                            <div class="well view">
                                 <div ng-controller="ClassController">
                                     <div ng-repeat="class in classes track by class.id" >
                                         <label><input type="checkbox" class="form control pull-left" checklist-model="student.classRegisters" checklist-value="class" />&nbsp;{{class.name}}</label>

@@ -10,6 +10,8 @@ public class MappedRelationship {
     private final String relationshipType;
     private final long endNodeId;
 
+    private boolean active = true;
+
     public MappedRelationship(long startNodeId, String relationshipType, long endNodeId) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
@@ -26,6 +28,30 @@ public class MappedRelationship {
 
     public long getEndNodeId() {
         return endNodeId;
+    }
+
+    /**
+     * The default state for an existing relationship
+     * is active, meaning that we don't expect to
+     * delete it when the transaction commits.
+     */
+    public void activate() {
+        active = true;
+    }
+
+    /**
+     * Deactivating a relationship marks it for
+     * deletion, meaning that, unless it is
+     * subsequently reactivated, it will be
+     * removed from the database when the
+     * transaction commits.
+     */
+    public void deactivate() {
+        active = false;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     @Override

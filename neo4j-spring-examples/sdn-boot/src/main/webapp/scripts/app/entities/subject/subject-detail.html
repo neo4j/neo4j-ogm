@@ -54,7 +54,7 @@
                     <tr>
                         <td>Teachers</td>
                         <td>
-                            <div class="well">
+                            <div class="well view">
                                 <div ng-controller="TeacherController">
                                     <div ng-repeat="teacher in teachers track by teacher.id" >
                                        <label><input type="checkbox" class="form control pull-left" checklist-model="subject.teachers" checklist-value="teacher" />&nbsp;{{teacher.name}}</label>

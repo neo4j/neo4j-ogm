@@ -73,7 +73,7 @@ angular.module('registrarApp', ['LocalStorageModule', 'tmh.dynamicLocale',
         $httpProvider.defaults.xsrfHeaderName= 'X-CSRF-TOKEN';
 
         //Cache everything except api requests
-        httpRequestInterceptorCacheBusterProvider.setMatchlist([/.*api.*/, /.*protected.*/, , /.*#.*/], true);
+        httpRequestInterceptorCacheBusterProvider.setMatchlist([/.*api.*/, /.*protected.*/], true);
 
         $urlRouterProvider.otherwise('/');
         $stateProvider.state('site', {

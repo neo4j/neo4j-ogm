@@ -71,6 +71,10 @@
         </div>
     </div>
 
+    <div>
+        <span>Find&nbsp;<label><input class="search" ng-model="searchText"></label></span>
+    </div>
+
     <div class="table-responsive view">
         <table class="table table-striped">
             <thead>
@@ -79,27 +83,7 @@
             <tbody>
                 <tr ng-repeat="school in schools | filter:searchText" >
                     <td><a ui-sref="schoolDetail({id:school.id})">{{school.name}}</a></td>
-                    <!--
-                    <td>
-                        <button type="submit"
-                                ui-sref="schoolDetail({id:school.id})"
-                                class="btn btn-info">
-                            <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span translate="entity.action.view"> View</span>
-                        </button>
-                        <button type="submit"
-                                ng-click="update(school.id)"
-                                class="btn btn-primary">
-                            <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span translate="entity.action.edit"> Edit</span>
-                        </button>
-                        <button type="submit"
-                                ng-click="delete(school.id)"
-                                class="btn btn-danger">
-                            <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span translate="entity.action.delete"> Delete</span>
-                        </button>
-                    </td>
-                    -->
                 </tr>
-
             </tbody>
         </table>
     </div>

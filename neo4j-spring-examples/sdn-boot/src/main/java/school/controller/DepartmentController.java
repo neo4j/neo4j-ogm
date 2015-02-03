@@ -20,31 +20,31 @@ public class DepartmentController extends Controller<Department> {
     }
     @RequestMapping(value = "/departments", method= RequestMethod.GET)
     public Iterable<Department> list(final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.list();
     }
 
     @RequestMapping(value = "/departments", method = RequestMethod.POST, consumes = "application/json")
     public  Department create (@RequestBody Department entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.create(entity);
     }
 
     @RequestMapping(value="/departments/{id}", method = RequestMethod.GET)
     public Department find(@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.find(id);
     }
 
     @RequestMapping(value="/departments/{id}", method = RequestMethod.DELETE)
     public void delete (@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         super.delete(id);
     }
 
     @RequestMapping(value="/departments/{id}", method = RequestMethod.PUT, consumes = "application/json")
     public  Department update (@PathVariable Long id, @RequestBody Department entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.update(id, entity);
     }
 

@@ -31,19 +31,22 @@
                     </tr>
                 </thead>
                 <tbody>
+
                     <tr>
                         <td>Name</td>
                         <td><input type="text" class="input-sm form-control" ng-model="department.name" value="{{department.name}}"></td>
                     </tr>
+
                     <tr>
+                        <td><span>Subjects</span></td>
                         <td>
-                            <span>Subjects</span>
-                        </td>
-                        <td>
-                            <div class="well">
-                                <div ng-controller="SubjectController">
-                                    <div ng-repeat="subject in subjects track by subject.name" >
-                                        <label><input type="checkbox" class="form control pull-left" checklist-model="department.subjects" checklist-value="subject" />&nbsp;{{subject.name}}</label>
+                            <div class="well view">
+                                <a class="pull-right caret" data-toggle="collapse" data-target="#subjects" />
+                                <div class="collapse in" id="subjects">
+                                    <div ng-controller="SubjectController">
+                                        <div ng-repeat="subject in subjects track by subject.name" >
+                                            <label><input type="checkbox" class="form control pull-left" checklist-model="department.subjects" checklist-value="subject" />&nbsp;{{subject.name}}</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -52,6 +55,7 @@
 
                 </tbody>
             </table>
+
         </form>
     </div>
 

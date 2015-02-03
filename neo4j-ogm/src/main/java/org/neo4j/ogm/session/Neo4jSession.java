@@ -361,7 +361,7 @@ public class Neo4jSession implements Session {
                     Field identityField = classInfo.getField(classInfo.identityField());
                     Long id = (Long) FieldWriter.read(identityField, object);
                     // ensure the mapping context has the latest version of this object
-                    mappingContext.replace(object, id);
+                    //mappingContext.replace(object, id);
                     tx.append(context);
                 }
             } else {

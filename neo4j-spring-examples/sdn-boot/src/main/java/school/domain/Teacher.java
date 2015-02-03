@@ -25,6 +25,7 @@ public class Teacher extends Entity {
 
     public Teacher() {
         this.courses = new HashSet<>();
+        this.subjects = new HashSet<>();
     }
 
     public String getName() {
@@ -66,6 +67,7 @@ public class Teacher extends Entity {
                 ", name='" + name + '\'' +
                 ", classRegisters=" + courses.size() +
                 ", department=" + department +
+                ", subjects=" + subjects.size() +
                 '}';
     }
 }

@@ -64,11 +64,12 @@
         </div>
     </div>
 
+    <div>
+        <span>Find&nbsp;<label><input class="search" ng-model="searchText"></label></span>
+    </div>
+
     <div class="table-responsive view">
         <table class="table table-striped">
-            <thead>
-                <tr>Name&nbsp;<label><input class="search" ng-model="searchText"></label></tr>
-            </thead>
             <tbody>
                 <tr ng-repeat="department in departments | filter:searchText track by department.id">
                     <td><a ui-sref="departmentDetail({id:department.id})"><span>{{department.id}}:{{department.name}}</span></a></td>

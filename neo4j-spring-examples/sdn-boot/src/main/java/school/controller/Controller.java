@@ -5,8 +5,16 @@ import school.controller.exception.NotFoundException;
 import school.domain.Entity;
 import school.service.Service;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RequestMapping(value = "/api")
 public abstract class Controller<T> {
+
+    public void setHeaders(HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Expires", "0");
+        response.setHeader("Pragma", "no-cache");
+    }
 
     public Iterable<T> list() {
         return getService().findAll();
@@ -19,6 +27,7 @@ public abstract class Controller<T> {
     public T find(Long id) {
         T entity = getService().find(id);
         if (entity != null) {
+            System.out.println("from OGM: " + entity);
             return entity;
         }
         throw new NotFoundException();

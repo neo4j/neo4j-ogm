@@ -22,31 +22,31 @@ public class TeacherController extends Controller<Teacher> {
 
     @RequestMapping(value = "/teachers", method= RequestMethod.GET)
     public Iterable<Teacher> list(final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.list();
     }
 
     @RequestMapping(value = "/teachers", method = RequestMethod.POST, consumes = "application/json")
     public  Teacher create (@RequestBody Teacher entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.create(entity);
     }
 
     @RequestMapping(value="/teachers/{id}", method = RequestMethod.GET)
     public Teacher find(@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.find(id);
     }
 
     @RequestMapping(value="/teachers/{id}", method = RequestMethod.DELETE)
     public void delete (@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         super.delete(id);
     }
 
     @RequestMapping(value="/teachers/{id}", method = RequestMethod.PUT, consumes = "application/json")
     public  Teacher update (@PathVariable Long id, @RequestBody Teacher entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.update(id, entity);
     }
 

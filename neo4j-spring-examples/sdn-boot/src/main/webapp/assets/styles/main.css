@@ -60,6 +60,7 @@ Browser Upgrade Prompt
 .view {
     max-height: 300px;
     overflow-y:scroll;
+    width:700px;
 }
 
 .wrap {

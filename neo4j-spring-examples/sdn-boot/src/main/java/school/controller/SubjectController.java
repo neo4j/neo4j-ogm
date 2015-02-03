@@ -21,31 +21,31 @@ public class SubjectController extends Controller<Subject> {
 
     @RequestMapping(value = "/subjects", method= RequestMethod.GET)
     public Iterable<Subject> list(final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.list();
     }
 
     @RequestMapping(value = "/subjects", method = RequestMethod.POST, consumes = "application/json")
     public  Subject create (@RequestBody Subject entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.create(entity);
     }
 
     @RequestMapping(value="/subjects/{id}", method = RequestMethod.GET)
     public Subject find(@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.find(id);
     }
 
     @RequestMapping(value="/subjects/{id}", method = RequestMethod.DELETE)
     public void delete (@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         super.delete(id);
     }
 
     @RequestMapping(value="/subjects/{id}", method = RequestMethod.PUT, consumes = "application/json")
     public  Subject update (@PathVariable Long id, @RequestBody Subject entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.update(id, entity);
     }
 }

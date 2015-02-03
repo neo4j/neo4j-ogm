@@ -68,12 +68,13 @@
         </div>
     </div>
 
+    <div>
+        <span>Find&nbsp;<label><input class="search" ng-model="searchText"></label></span>
+    </div>
+
     <!-- the list of teachers -->
     <div class="table-responsive view">
         <table class="table table-striped">
-            <thead>
-                <tr>Name&nbsp;<label><input class="search" ng-model="searchText"></label></tr>
-            </thead>
             <tbody>
                 <tr ng-repeat="teacher in teachers | filter:searchText track by teacher.name">
                     <td><a ng-model="teacher.name" ui-sref="teacherDetail({id:teacher.id})">{{teacher.id}}:{{teacher.name}}</a></td>

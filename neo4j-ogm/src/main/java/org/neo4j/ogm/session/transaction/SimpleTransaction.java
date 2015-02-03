@@ -58,24 +58,7 @@ public class SimpleTransaction implements Transaction {
     public void commit() {
         logger.info("commit invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
-            for (CypherContext cypherContext : contexts) {
-                logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
-                // todo : subclass these also : is this really necessary?
-                for (Object o : cypherContext.log())  {
-                    logger.debug("checking cypher context object: " + o);
-                    if (o instanceof MappedRelationship) {
-                        mappingContext.registerRelationship((MappedRelationship) o);
-                    } else if (!(o instanceof TransientRelationship)) {
-                        mappingContext.remember(o);
-                    }
-                }
-                logger.debug("checked objects: " + cypherContext.log().size());
-            }
-//            logger.info("relationships registered active:");
-//            for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
-//                logger.info("(${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-//            }
-            contexts.clear();
+            synchroniseSession();
             status = Status.COMMITTED;
         } else {
             throw new TransactionException("Transaction is no longer open. Cannot commit");
@@ -89,4 +72,38 @@ public class SimpleTransaction implements Transaction {
     public void close() {
         status = Status.CLOSED;
     }
+
+    private void synchroniseSession()  {
+
+        for (CypherContext cypherContext : contexts) {
+
+            logger.info("Synchronizing transaction context " + cypherContext + " with session context");
+
+            for (Object o : cypherContext.log())  {
+                logger.info("checking cypher context object: " + o);
+                if (o instanceof MappedRelationship) {
+                    MappedRelationship mappedRelationship = (MappedRelationship) o;
+                    if (mappedRelationship.isActive()) {
+                        mappingContext.registerRelationship((MappedRelationship) o);
+                    } else {
+                        //clearRelatedObjects(mappedRelationship.getStartNodeId());
+                        mappingContext.mappedRelationships().remove(mappedRelationship);
+                    }
+                } else if (!(o instanceof TransientRelationship)) {
+                    mappingContext.remember(o);
+                }
+            }
+            logger.info("checked objects: " + cypherContext.log().size());
+        }
+
+        logger.info("relationships registered active:");
+
+        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+            logger.info("(${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+        }
+
+        contexts.clear();
+    }
+
+
 }

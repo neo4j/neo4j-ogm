@@ -23,7 +23,6 @@ public class    CourseController extends Controller<Course> {
         response.setHeader("Cache-Control", "no-cache");
         return super.list();
     }
-
     @RequestMapping(value = "/classes", method = RequestMethod.POST, consumes = "application/json")
     public Course create (@RequestBody Course entity, final HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-cache");
@@ -38,13 +37,13 @@ public class    CourseController extends Controller<Course> {
 
     @RequestMapping(value="/classes/{id}", method = RequestMethod.DELETE)
     public void delete (@PathVariable Long id, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         super.delete(id);
     }
 
     @RequestMapping(value="/classes/{id}", method = RequestMethod.PUT, consumes = "application/json")
     public Course update (@PathVariable Long id, @RequestBody Course entity, final HttpServletResponse response) {
-        response.setHeader("Cache-Control", "no-cache");
+        setHeaders(response);
         return super.update(id, entity);
     }
 

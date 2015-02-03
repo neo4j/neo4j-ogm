@@ -11,9 +11,16 @@ angular.module('registrarApp')
         $scope.loadAll();
 
         $scope.objectifySubject = function() {
-            console.log("objectified");
+            console.log("objectified subject");
             $scope.class.subject = angular.fromJson($scope.class.subject);
         };
+
+        $scope.objectifyTeacher = function() {
+            console.log("objectified teacher");
+            // maybe JSOG?
+            $scope.class.teacher = angular.fromJson($scope.class.teacher);
+        };
+
 
         $scope.create = function () {
 

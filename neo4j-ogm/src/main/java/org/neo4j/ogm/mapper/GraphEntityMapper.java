@@ -291,15 +291,15 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         if (writer != null) {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
                 RelationalReader reader = entityAccessStrategy.getIterableReader(classInfo, valueType);
+                Object currentValues;
                 if (reader != null) {
-                    Object currentValues = reader.read(instance);
+                    currentValues = reader.read(instance);
                     if (writer.type().isArray()) {
                         values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues);
                     } else {
                         values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Iterable<?>) currentValues);
                     }
                 }
-                values = EntityAccess.merge(writer.type(), (Iterable<?>) values, new ArrayList<>());
             }
             writer.write(instance, values);
 

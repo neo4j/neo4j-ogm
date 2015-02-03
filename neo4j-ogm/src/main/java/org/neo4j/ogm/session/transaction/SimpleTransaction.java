@@ -80,26 +80,27 @@ public class SimpleTransaction implements Transaction {
             logger.info("Synchronizing transaction context " + cypherContext + " with session context");
 
             for (Object o : cypherContext.log())  {
-                logger.info("checking cypher context object: " + o);
+                logger.debug("checking cypher context object: " + o);
                 if (o instanceof MappedRelationship) {
                     MappedRelationship mappedRelationship = (MappedRelationship) o;
                     if (mappedRelationship.isActive()) {
+                        logger.debug("activating (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                         mappingContext.registerRelationship((MappedRelationship) o);
                     } else {
-                        //clearRelatedObjects(mappedRelationship.getStartNodeId());
+                        logger.debug("de-activating (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                         mappingContext.mappedRelationships().remove(mappedRelationship);
                     }
                 } else if (!(o instanceof TransientRelationship)) {
                     mappingContext.remember(o);
                 }
             }
-            logger.info("checked objects: " + cypherContext.log().size());
+            logger.debug("checked objects: " + cypherContext.log().size());
         }
 
-        logger.info("relationships registered active:");
+        logger.debug("relationships registered active:");
 
         for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
-            logger.info("(${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+            logger.debug("(${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
         }
 
         contexts.clear();

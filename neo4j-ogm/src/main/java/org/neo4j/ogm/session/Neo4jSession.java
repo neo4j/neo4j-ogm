@@ -414,6 +414,7 @@ public class Neo4jSession implements Session {
 
     private Transaction getOrCreateTransaction() {
 
+        logger.info("--------- new request ----------");
         logger.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
         logger.info("Session identity: " + this);
 

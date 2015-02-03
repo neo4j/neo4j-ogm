@@ -63,21 +63,21 @@ angular.module( 'registrarApp' )
             $scope.studyBuddy = {};
         };
 
-        $scope.objectifyStudentOne = function ()
+        $scope.objectifyBuddyOne = function ()
         {
-            console.log( "objectified" );
-            $scope.studyBuddy.studentOne = angular.fromJson( $scope.studyBuddy.studentOne );
+            console.log( "objectified buddy one" );
+            $scope.studyBuddy.buddyOne = angular.fromJson( $scope.studyBuddy.buddyOne );
         };
 
-        $scope.objectifyStudentTwo = function ()
+        $scope.objectifyBuddyTwo = function ()
         {
-            console.log( "objectified" );
-            $scope.studyBuddy.studentTwo = angular.fromJson( $scope.studyBuddy.studentTwo );
+            console.log( "objectified buddy two" );
+            $scope.studyBuddy.buddyTwo = angular.fromJson( $scope.studyBuddy.buddyTwo );
         };
 
-        $scope.objectifyClass = function ()
+        $scope.objectifyCourse = function ()
         {
-            console.log( "objectified" );
-            $scope.studyBuddy.class = angular.fromJson( $scope.studyBuddy.class );
+            console.log( "objectified course" );
+            $scope.studyBuddy.course = angular.fromJson( $scope.studyBuddy.course );
         };
     } );

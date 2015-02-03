@@ -2,6 +2,7 @@ target/
 ./bower_components/
 node_modules/
 notworkingyet/
+webapp/dist/
 deploy/
 .buildpath
 .project

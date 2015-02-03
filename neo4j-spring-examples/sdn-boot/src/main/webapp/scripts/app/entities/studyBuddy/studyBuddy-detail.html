@@ -27,12 +27,12 @@
       <table class="table table-striped">
         <tbody>
         <tr>
-          <td>StudentOne</td>
+          <td>Student One</td>
           <td>
             <div class="form-group">
               <div ng-controller="StudentController">
-                <select class="form-control input-sm" ng-model="student.name" ng-change="objectifyStudentOne()">
-                  <option ng-selected="student.name == studyBuddy.studentOne.name"
+                <select class="form-control input-sm" ng-model="studyBuddy.buddyOne" ng-change="objectifyBuddyOne()">
+                  <option ng-selected="student.name == studyBuddy.buddyOne.name"
                           ng-repeat="student in students track by student.id" value="{{student}}">
                     {{student.name}}
                   </option>
@@ -42,12 +42,12 @@
           </td>
         </tr>
         <tr>
-          <td>StudentTwo</td>
+          <td>Student Two</td>
           <td>
             <div class="form-group">
               <div ng-controller="StudentController">
-                <select class="form-control input-sm" ng-model="student.name" ng-change="objectifyStudentTwo()">
-                  <option ng-selected="student.name == studyBuddy.studentTwo.name"
+                <select class="form-control input-sm" ng-model="studyBuddy.buddyTwo" ng-change="objectifyBuddyTwo()">
+                  <option ng-selected="student.name == studyBuddy.buddyTwo.name"
                           ng-repeat="student in students track by student.id" value="{{student}}">
                     {{student.name}}
                   </option>
@@ -63,12 +63,13 @@
 
               <div ng-controller="ClassController">
 
-                <select class="form-control input-sm" ng-model="class.name" ng-change="objectifyClass()">
-                  <option ng-selected="class.name == studyBuddy.class.name"
+                <select class="form-control input-sm" ng-model="studyBuddy.course" ng-change="objectifyCourse()">
+                  <option ng-selected="class.name == studyBuddy.course.name"
                           ng-repeat="class in classes track by class.id" value="{{class}}">
                     {{class.name}}
                   </option>
                 </select>
+
               </div>
             </div>
           </td>

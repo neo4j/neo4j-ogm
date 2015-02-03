@@ -14,6 +14,7 @@ import org.springframework.data.neo4j.config.Neo4jConfiguration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.server.Neo4jServer;
 import org.springframework.data.neo4j.server.RemoteServer;
+import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
@@ -26,7 +27,7 @@ import java.util.Arrays;
 @EnableAutoConfiguration
 @ComponentScan
 
-@EnableNeo4jRepositories(basePackages = "school.repository")
+@EnableNeo4jRepositories(basePackages = "school.repository", queryLookupStrategy = QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND)
 @EnableTransactionManagement
 public class Application extends Neo4jConfiguration{
 

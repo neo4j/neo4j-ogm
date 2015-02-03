@@ -12,6 +12,7 @@ public class StudyBuddy extends Entity {
     @Relationship(type="BUDDY")
     private List<Student> buddies;
     private Course course;
+ //   private String description;
 
     public StudyBuddy(){
         buddies = new ArrayList<>();
@@ -62,4 +63,12 @@ public class StudyBuddy extends Entity {
                 ", course=" + course +
                 '}';
     }
+
+//    public String getDescription() {
+//        return course.getName() + ", " + getBuddyOne().getName() + ", " + getBuddyTwo().getName();
+//    }
+//
+//    public void setDescription(String description) {
+//        // here as a convenience for JsonMapper
+//    }
 }

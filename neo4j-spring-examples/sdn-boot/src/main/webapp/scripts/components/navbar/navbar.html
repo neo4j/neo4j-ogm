@@ -23,12 +23,25 @@
             <ul class="nav navbar-nav nav-pills navbar-right">
 
                 <!-- home icon -->
-
                 <li ui-sref-active="active">
                     <a ui-sref="home">
                         <span class="glyphicon glyphicon-home"></span>
                         <span translate="global.menu.home">Home</span>
                     </a>
+                </li>
+
+                <li ui-sref-active="active" class="dropdown pointer">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                        <span>
+                            <span class="glyphicon glyphicon-list"></span>
+                            <span class="hidden-tablet">Reports</span>
+                            <b class="caret"></b>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li ui-sref-active="active" ><a ui-sref="statistics"><span class="glyphicon glyphicon-asterisk"></span>
+                            &#xA0;<span>Popular Study Buddies</span></a></li>
+                    </ul>
                 </li>
 
                 <!-- entities menu -->

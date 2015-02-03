@@ -7,6 +7,7 @@ import school.service.Service;
 import school.service.StudyBuddyService;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 public class StudyBuddyController extends Controller<StudyBuddy> {
@@ -18,6 +19,13 @@ public class StudyBuddyController extends Controller<StudyBuddy> {
     public Service<StudyBuddy> getService() {
         return studyBuddyService;
     }
+
+    @RequestMapping("/popularStudyBuddies")
+    public Iterable<Map<String,Object>> popularStudyBuddies() {
+        return studyBuddyService.getStudyBuddiesByPopularity();
+    }
+
+
 
     @RequestMapping(value = "/studyBuddies", method= RequestMethod.GET)
     public Iterable<StudyBuddy> list(final HttpServletResponse response) {

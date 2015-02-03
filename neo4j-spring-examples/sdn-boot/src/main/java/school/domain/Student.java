@@ -13,7 +13,7 @@ public class Student extends Entity {
     @Relationship(type = "ENROLLED")
     private Set<Course> courses;
 
-    @Relationship(type="STUDY_BUDDY", direction=Relationship.UNDIRECTED)
+    @Relationship(type="BUDDY", direction=Relationship.INCOMING)
     private Set<StudyBuddy> studyBuddies;
 
     public Student() {

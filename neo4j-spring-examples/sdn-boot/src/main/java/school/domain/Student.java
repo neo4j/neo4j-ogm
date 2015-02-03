@@ -1,9 +1,9 @@
 package school.domain;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
 
 
 public class Student extends Entity {
@@ -38,14 +38,10 @@ public class Student extends Entity {
         this.name = name;
     }
 
-    //@JsonIgnore
-    //@Relationship(type = "ENROLLED", direction=Relationship.INCOMING)
     public Set<Course> getCourses() {
         return courses;
     }
 
-    //@JsonIgnore
-    //@Relationship(type = "ENROLLED", direction=Relationship.INCOMING)
     public void setCourses( Set<Course> courses ) {
         this.courses = courses;
     }
@@ -55,7 +51,7 @@ public class Student extends Entity {
         return "Student{" +
                 "id=" + getId() +
                 ", name='" + name + '\'' +
-                ", classRegisters=" + courses.size() +
+                ", courses=" + courses.size() +
                 ", studyBuddies=" + studyBuddies.size() +
                 '}';
     }

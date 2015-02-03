@@ -1,20 +1,20 @@
 package school.domain;
 
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeEntity(label = "StudyBuddy")
 public class StudyBuddy extends Entity {
 
-    private Student buddyOne;
-    private Student buddyTwo;
+    @Relationship(type="BUDDY")
+    private List<Student> buddies;
     private Course course;
 
-    public StudyBuddy(){}
-
-    public StudyBuddy(Student buddyOne, Student buddyTwo, Course course) {
-        this.buddyOne = buddyOne;
-        this.buddyTwo = buddyTwo;
-        this.course = course;
+    public StudyBuddy(){
+        buddies = new ArrayList<>();
     }
 
     public void setCourse( Course course )
@@ -24,12 +24,12 @@ public class StudyBuddy extends Entity {
 
     public void setBuddyTwo( Student buddyTwo )
     {
-        this.buddyTwo = buddyTwo;
+        buddies.add(buddyTwo);
     }
 
     public void setBuddyOne( Student buddyOne )
     {
-        this.buddyOne = buddyOne;
+        buddies.add(buddyOne);
     }
 
     public Course getCourse()
@@ -39,11 +39,27 @@ public class StudyBuddy extends Entity {
 
     public Student getBuddyTwo()
     {
-        return buddyTwo;
+        if (buddies.size() > 1) {
+            return buddies.get(1);
+        } else {
+            return null;
+        }
     }
 
     public Student getBuddyOne()
     {
-        return buddyOne;
+        if (buddies.size() > 0) {
+            return buddies.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "StudyBuddy{" +
+                "buddies= " + buddies.size() +
+                ", course=" + course +
+                '}';
     }
 }

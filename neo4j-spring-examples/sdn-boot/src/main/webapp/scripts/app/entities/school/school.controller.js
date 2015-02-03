@@ -18,10 +18,8 @@ angular.module('registrarApp')
 
             School.save($scope.school,
                 function () {
-                    $scope.loadAll();
-                    $scope.clear();
                     $('#saveSchoolModal').modal('hide');
-
+                    $scope.loadAll();
                 });
         };
 

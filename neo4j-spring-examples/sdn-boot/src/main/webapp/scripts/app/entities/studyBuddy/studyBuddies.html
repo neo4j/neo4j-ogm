@@ -80,11 +80,12 @@
         </div>
     </div>
 
+    <div>
+        <span>Find&nbsp;<label><input class="search" ng-model="searchText"></label></span>
+    </div>
+
     <div class="table-responsive view">
         <table class="table table-striped">
-            <thead>
-                <tr>Name&nbsp;<label><input class="search" ng-model="searchText"></label></tr>
-            </thead>
             <tbody>
                 <tr ng-repeat="studyBuddy in studyBuddies | filter:searchText track by studyBuddy.id">
                     <td><a ng-model="studyBuddy.id" ui-sref="studyBuddyDetail({id:studyBuddy.id})">{{studyBuddy.id}}</a></td>

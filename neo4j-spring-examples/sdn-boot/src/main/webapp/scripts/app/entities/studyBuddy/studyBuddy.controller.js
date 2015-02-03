@@ -24,9 +24,8 @@ angular.module( 'registrarApp' )
             StudyBuddy.save( $scope.studyBuddy,
                 function ()
                 {
-                    $scope.loadAll();
-                    $scope.clear();
                     $( '#saveStudyBuddyModal' ).modal( 'hide' );
+                    $scope.loadAll();
                 } );
         };
 

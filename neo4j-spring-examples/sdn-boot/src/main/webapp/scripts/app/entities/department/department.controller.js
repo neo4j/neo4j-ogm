@@ -24,11 +24,8 @@ angular.module('registrarApp')
 
             Department.save($scope.department,
                 function () {
-                    $scope.loadAll();
-                    $scope.clear();
-                    // may not exist
                     $('#saveDepartmentModal').modal('hide');
-                    //$state.go('department');
+                    $scope.loadAll();
                 });
         };
 

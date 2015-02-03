@@ -30,9 +30,8 @@ angular.module('registrarApp')
 
             Class.save($scope.class,
                 function () {
-                    $scope.loadAll();
-                    $scope.clear();
                     $('#saveClassModal').modal('hide');
+                    $scope.loadAll();
                 });
         };
 

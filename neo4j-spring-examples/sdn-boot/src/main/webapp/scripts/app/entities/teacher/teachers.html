@@ -75,7 +75,7 @@
     <!-- the list of teachers -->
     <div class="table-responsive view">
         <table class="table table-striped">
-            <tbody>
+           <tbody>
                 <tr ng-repeat="teacher in teachers | filter:searchText track by teacher.name">
                     <td><a ng-model="teacher.name" ui-sref="teacherDetail({id:teacher.id})">{{teacher.id}}:{{teacher.name}}</a></td>
                 </tr>

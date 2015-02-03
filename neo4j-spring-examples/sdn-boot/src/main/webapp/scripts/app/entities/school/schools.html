@@ -77,9 +77,6 @@
 
     <div class="table-responsive view">
         <table class="table table-striped">
-            <thead>
-                <tr>Name&nbsp;<label><input class="search" ng-model="searchText"></label></tr>
-            </thead>
             <tbody>
                 <tr ng-repeat="school in schools | filter:searchText" >
                     <td><a ui-sref="schoolDetail({id:school.id})">{{school.name}}</a></td>

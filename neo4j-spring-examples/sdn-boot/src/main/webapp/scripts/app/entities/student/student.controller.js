@@ -19,9 +19,8 @@ angular.module('registrarApp')
 
             Student.save($scope.student,
                 function () {
-                    $scope.loadAll();
-                    $scope.clear();
                     $('#saveStudentModal').modal('hide');
+                    $scope.loadAll();
                 });
         };
 

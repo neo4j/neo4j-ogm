@@ -19,9 +19,8 @@ angular.module('registrarApp')
 
             Subject.save($scope.subject,
                 function () {
-                    $scope.loadAll();
-                    $scope.clear();
                     $('#saveSubjectModal').modal('hide');
+                    $scope.loadAll();
                 });
         };
 

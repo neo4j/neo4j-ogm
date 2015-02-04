@@ -13,7 +13,7 @@ From version 4 onwards, the entity persistence is all performed through the `sav
 
 Under the bonnet, the implementation of `Session` has access to the `MappingContext` that keeps track of the data that has been loaded from Neo4j during the lifetime of the session.  Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.  The differences are used to construct a Cypher query that persists the deltas to Neo4j before repopulating it's state based on the response from the database server.
 
-One thing that hasn't changed in version 4 is the fact that all entities returned by library functions are initially in an attached state, and those created with the `new` keyword aren't.  However, there's no longer any attachment or detachment that goes on depending on where certain code is executred, because entities aren't managed with AspectJ enhancements.  Therefore calling `save()` is always required in order to persist your changes back to Neo4j.
+One thing that hasn't changed in version 4 is the fact that all entities returned by library functions are initially in an attached state, and those created with the `new` keyword aren't.  However, there's no longer any attachment or detachment that goes on depending on where certain code is executed, because entities aren't managed with AspectJ enhancements.  Therefore calling `save()` is always required in order to persist your changes back to Neo4j.
 
 
 .Persisting entities

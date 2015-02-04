@@ -25,8 +25,6 @@ public class StudyBuddyController extends Controller<StudyBuddy> {
         return studyBuddyService.getStudyBuddiesByPopularity();
     }
 
-
-
     @RequestMapping(value = "/studyBuddies", method= RequestMethod.GET)
     public Iterable<StudyBuddy> list(final HttpServletResponse response) {
         setHeaders(response);

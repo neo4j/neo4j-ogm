@@ -68,14 +68,13 @@ Whenever you look for the means to employ the full power of the Spring Data Neo4
 include::reference/preface.adoc[]
 
 :numbered:
-include::reference/neo4j.adoc[]
-include::reference/programming-model/programming-model.adoc[]
+include::neo4j/neo4j.adoc[]
 include::reference/setup.adoc[]
-include::reference/cross-store.adoc[]
-include::reference/samples.adoc[]
-include::reference/heroku.adoc[]
-include::reference/performance.adoc[]
-include::reference/neo4j-server.adoc[]
+include::reference/programming-model/programming-model.adoc[]
+include::examples/samples.adoc[]
+include::deployment/heroku.adoc[]
+include::performance.adoc[]
+include::neo4j/neo4j-server.adoc[]
 :leveloffset: -1
 
 [[appendix]]

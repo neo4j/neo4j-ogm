@@ -20,7 +20,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.neo4j>2.1.6</version.neo4j>
+        <version.neo4j>2.1.7</version.neo4j>
     </properties>
 
     <profiles>

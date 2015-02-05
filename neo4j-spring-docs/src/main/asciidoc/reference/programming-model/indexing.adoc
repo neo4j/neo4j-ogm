@@ -1,4 +1,4 @@
-[[reference_programming-model_indexing]]
+[[reference_programming_model_indexing]]
 = Indexing
 
 Indexing is used in Neo4j to quickly find nodes and relationships from which to start graph operations. Either for manually traversing the graph, using the traversal framework, cypher queries or for "global" graph operations. Indexes are also employed to ensure uniqueness of elements with certain labels and properties.

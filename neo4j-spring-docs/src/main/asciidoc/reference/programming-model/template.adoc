@@ -1,4 +1,4 @@
-[[reference_template]]
+[[reference_programming_model_template]]
 = Neo4jTemplate
 
 The `Neo4jTemplate` offers the convenient API of Spring templates for the Neo4j graph database.  As of version 4, the Spring Data Neo4j Template wraps the underlying object-graph mapping `Session`, but still provides the core functionality to persist objects to the graph and load them in a variety of ways.  Indeed, you can just use the `Session` directly in your code if you need greater control, but the `Neo4jTemplate` may well be easier for general use.

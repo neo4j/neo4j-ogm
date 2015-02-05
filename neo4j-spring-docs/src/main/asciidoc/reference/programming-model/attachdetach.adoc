@@ -1,4 +1,4 @@
-[[reference_programming-model_lifecycle]]
+[[reference_programming_model_lifecycle]]
 = Entity Attachment
 
 In previous versions of Spring Data Neo4j, entities could be "attached" or "detached" depending on whether or not they were enhanced by AspectJ and actively managed by the framework. As of SDN 4, this is no longer the case and the AspectJ involvement has completely gone away.

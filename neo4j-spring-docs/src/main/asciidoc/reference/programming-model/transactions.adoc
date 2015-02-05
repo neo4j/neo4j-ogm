@@ -1,4 +1,4 @@
-[[reference_programming-model_transactions]]
+[[reference_programming_model_transactions]]
 = Transactions
 
 Neo4j is a transactional database, only allowing modifications to be performed within transaction boundaries. Reading data does however not require transactions. Spring Data Neo4j integrates nicely with both the declarative transaction support with `@Transactional` as well as the manual transaction handling with `TransactionTemplate`. It also supports the rollback mechanisms of the Spring Testing library.

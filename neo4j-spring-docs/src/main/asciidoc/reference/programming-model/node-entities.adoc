@@ -1,4 +1,4 @@
-[[reference_programming-model_annotations]]
+[[reference_programming_model_annotations]]
 = Defining node entities
 
 Node entities are declared using the `@NodeEntity` annotation. Relationship entities use the `@RelationshipEntity` annotation.

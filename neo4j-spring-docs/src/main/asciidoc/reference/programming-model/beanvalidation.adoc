@@ -1,4 +1,4 @@
-[[reference_programming-model_validation]]
+[[reference_programming_model_validation]]
 = Bean Validation (JSR-303)
 
 NOTE: As of Spring Data Neo4j 4 milestone 1, Java standards validation is not supported 

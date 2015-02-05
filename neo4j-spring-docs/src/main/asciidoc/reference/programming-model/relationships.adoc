@@ -94,7 +94,8 @@ In previous versions of Spring Data Neo4j, a dynamic relationship type was suppo
 [[reference_programming_model_relationships_relationshiptypediscrimination]]
 == Discriminating Relationships Based on End Node Type
 
-In some cases, you want to model two different aspects of a conceptual relationship using the same relationship type. Here is a canonical example:
+In some cases, you want to model two different aspects of a conceptual relationship using the same relationship type.
+Here is a canonical example:
 
 .Clashing Relationship Types
 ====
@@ -112,7 +113,10 @@ class Person {
 ----
 ====
 
-In previous versions of Spring Data Neo4j, you would have to add an `enforceTargetType` attribute into every clashing `@Relationship` annotation for this to map correctly.  Thanks to changes in the underlying object-graph mapping mechanism, this is no longer necessary and the above will work just fine.
+In previous versions of Spring Data Neo4j, you would have to add an `enforceTargetType` attribute into every clashing
+`@Relationship` annotation for this to map correctly.  Thanks to changes in the underlying object-graph mapping mechanism,
+this is no longer necessary and the above will work just fine.
 
-However, please be aware that this will only work because the end node types (Car and Pet) are different types.  If you wanted a person to own two cars, for example, then you'd have to use a `Collection` of cars or use differently-named relationship types.
+However, please be aware that this will only work because the end node types (Car and Pet) are different types.
+If you wanted a person to own two cars, for example, then you'd have to use a `Collection` of cars or use differently-named relationship types.
 

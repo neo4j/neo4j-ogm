@@ -90,8 +90,9 @@ The best way for retrieving start nodes for traversals and queries is by using N
 Spring Data Neo4j takes the view that index maintenance should not be part of your application code. For that reason,
 it does not provide any explicit index-related functionality.
 
-However, it is very important that indices are in place for efficient node lookups. Please make sure you read http://neo4j.com/docs/stable/query-schema-index.html[Neo4j Documentation]
+However, it is very important that indices are in place for efficient node lookups.
+Please make sure you read http://neo4j.com/docs/stable/query-schema-index.html[Neo4j Documentation]
 on indices.
-====
+
 
 

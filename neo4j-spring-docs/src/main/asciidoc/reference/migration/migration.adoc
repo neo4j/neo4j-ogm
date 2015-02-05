@@ -82,7 +82,7 @@ These features cannot be supported by Cypher and have therefore been dropped fro
 SDN 4 replaces the existing TypeRepresentionStrategy configuration with a straightforwad convention based on simple class-names
 or entities using `@NodeEntity(label=...)`
 
-Refer to <<reference_programming-model_typerepresentationstrategy>> for more details.
+Please refer to <<reference_programming_model_typerepresentationstrategy>> for more details.
 
 === AspectJ support dropped
 Due to numerous problems reported by users in earlier versions of SDN, support for Aspect J based persistence has

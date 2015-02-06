@@ -12,7 +12,8 @@ import static org.springframework.data.neo4j.util.IterableUtils.*;
 /**
  *  todo discuss whether we should have this at all
  */
-public class Neo4jTemplate {
+public class Neo4jTemplate implements Neo4jOperations {
+
     private static final int DEFAULT_DEPTH = 1;
 
     private final Session session;

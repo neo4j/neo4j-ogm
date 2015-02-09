@@ -11,7 +11,7 @@ Although adding layers of abstraction is a common pattern in software developmen
 overhead and performance penalties. This chapter discusses the performance implications of using Spring Data Neo4j.
 
 == A little history
-Previous versions of Neo4j were not designed with a major focus on performance. being very much geared to applications
+Previous versions of Neo4j were not designed with a major focus on performance, being very much geared to applications
 using an embedded instance of Neo4j, or where the Neo4j server was available via a managed extension.
 
 Consequently they were not really suited to running with remote instances, and in fact, until the advent

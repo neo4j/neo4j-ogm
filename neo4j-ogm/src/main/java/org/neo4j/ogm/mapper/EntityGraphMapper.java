@@ -310,6 +310,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             relationshipBuilder = relId != null
                     ? cypherBuilder.existingRelationship(relId)
                     : cypherBuilder.newRelationship();
+            relationshipBuilder.type(relationshipType); //Should this be set only if relId==null?
         } else {
             relationshipBuilder = cypherBuilder.newRelationship().type(relationshipType);
         }
@@ -336,7 +337,9 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         logger.debug("mapping relationshipEntity {}", relEntityClassInfo.name());
 
         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
-        relationshipBuilder.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
+        if(relationshipBuilder.getType()==null) {
+            relationshipBuilder.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
+        }
 
         // if the RE is new, register it in the context so that we can
         // set its ID correctly when it is created,

@@ -9,9 +9,13 @@ public class Movie {
     Long id;
     String title;
     int year;
-    Set<Role> cast;
 
+    @Relationship(type="ACTS_IN", direction="INCOMING")
+    Set<Role> cast;
     Set<Rating> ratings;
+
+    Set<Nomination> nominations;
+
 
     public Long getId() {
         return id;
@@ -52,5 +56,13 @@ public class Movie {
     @Relationship(type="RATED", direction=Relationship.INCOMING)
     public void setRatings(Set<Rating> ratings) {
         this.ratings = ratings;
+    }
+
+    public Set<Nomination> getNominations() {
+        return nominations;
+    }
+
+    public void setNominations(Set<Nomination> nominations) {
+        this.nominations = nominations;
     }
 }

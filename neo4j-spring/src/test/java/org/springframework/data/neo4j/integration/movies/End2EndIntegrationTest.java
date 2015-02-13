@@ -521,7 +521,7 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
 
         userRepository.findByProperty( "name", "Michal" ).iterator().next();
 
-        assertSameGraph( getDatabase(), "CREATE (u:User {name:'Michal'})-[:Rating {stars:5, " +
+        assertSameGraph( getDatabase(), "CREATE (u:User {name:'Michal'})-[:RATED {stars:5, " +
                 "comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})" );
     }
 

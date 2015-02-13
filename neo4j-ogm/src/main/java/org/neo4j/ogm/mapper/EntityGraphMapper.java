@@ -361,7 +361,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         if (mappingContext.isDirty(relationshipEntity)) {
             ClassInfo targetInfo = metaData.classInfo(targetEntity);
             Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
-            if (tgtIdentity != null) {
+            if (tgtIdentity != null && srcIdentity!=null) {
                 logger.debug("RE in the database is stale");
                 MappedRelationship mappedRelationship = createMappedRelationship(srcIdentity, relationshipBuilder, tgtIdentity);
                 if (mappingContext.mappedRelationships().remove(mappedRelationship)) {

@@ -23,7 +23,11 @@ import org.springframework.data.neo4j.integration.movies.domain.Movie;
 import org.springframework.data.neo4j.integration.movies.domain.ReleasedMovie;
 import org.springframework.data.neo4j.integration.movies.domain.TempMovie;
 import org.springframework.data.neo4j.integration.movies.domain.User;
-import org.springframework.data.neo4j.integration.movies.repo.*;
+import org.springframework.data.neo4j.integration.movies.repo.AbstractAnnotatedEntityRepository;
+import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
+import org.springframework.data.neo4j.integration.movies.repo.CinemaRepository;
+import org.springframework.data.neo4j.integration.movies.repo.TempMovieRepository;
+import org.springframework.data.neo4j.integration.movies.repo.UserRepository;
 import org.springframework.data.neo4j.integration.movies.service.UserService;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,7 +39,10 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 @ContextConfiguration(classes = {PersistenceContext.class})

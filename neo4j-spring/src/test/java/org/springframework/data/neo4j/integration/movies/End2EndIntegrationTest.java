@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.integration.movies.context.PersistenceContext;
+import org.springframework.data.neo4j.integration.movies.domain.Actor;
 import org.springframework.data.neo4j.integration.movies.domain.Cinema;
 import org.springframework.data.neo4j.integration.movies.domain.Genre;
 import org.springframework.data.neo4j.integration.movies.domain.Movie;
@@ -25,6 +26,7 @@ import org.springframework.data.neo4j.integration.movies.domain.TempMovie;
 import org.springframework.data.neo4j.integration.movies.domain.User;
 import org.springframework.data.neo4j.integration.movies.repo.AbstractAnnotatedEntityRepository;
 import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
+import org.springframework.data.neo4j.integration.movies.repo.ActorRepository;
 import org.springframework.data.neo4j.integration.movies.repo.CinemaRepository;
 import org.springframework.data.neo4j.integration.movies.repo.TempMovieRepository;
 import org.springframework.data.neo4j.integration.movies.repo.UserRepository;
@@ -41,6 +43,7 @@ import org.neo4j.tooling.GlobalGraphOperations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
@@ -70,6 +73,9 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
 
     @Autowired
     private TempMovieRepository tempMovieRepository;
+
+    @Autowired
+    private ActorRepository actorRepository;
 
     @Override
     protected int neoServerPort()
@@ -217,6 +223,14 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
 
         assertTrue( loaded.equals( user ) );
         assertTrue( loaded == user );
+    }
+
+    @Test
+    public void shouldFindActorByNumericValueOfStringProperty() {
+        Actor actor = new Actor("1", "Tom Hanks");
+        actorRepository.save(actor);
+
+        assertNotNull(actorRepository.findByProperty( "id" , "1" ).iterator().next());
     }
 
     @Test
@@ -524,8 +538,8 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
 
         userRepository.findByProperty( "name", "Michal" ).iterator().next();
 
-        assertSameGraph( getDatabase(), "CREATE (u:User {name:'Michal'})-[:RATED {stars:5, " +
-                "comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})" );
+        assertSameGraph(getDatabase(), "CREATE (u:User {name:'Michal'})-[:RATED {stars:5, " +
+                "comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})");
     }
 
     @Test

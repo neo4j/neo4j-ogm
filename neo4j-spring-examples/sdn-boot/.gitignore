@@ -3,6 +3,7 @@ target/
 node_modules/
 notworkingyet/
 webapp/dist/
+dist/
 deploy/
 .buildpath
 .project

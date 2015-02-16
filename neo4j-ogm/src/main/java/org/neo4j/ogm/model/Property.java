@@ -47,6 +47,9 @@ public class Property<K, V> {
         if (value == null) {
             return null;
         }
+        if (value instanceof String) {
+            return value;
+        }
         try {
             return Long.parseLong(value.toString());
         } catch (Exception e1) {

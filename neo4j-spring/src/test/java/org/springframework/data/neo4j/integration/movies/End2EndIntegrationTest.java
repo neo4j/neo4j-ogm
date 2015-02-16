@@ -26,6 +26,7 @@ import org.springframework.data.neo4j.integration.movies.domain.User;
 import org.springframework.data.neo4j.integration.movies.repo.AbstractAnnotatedEntityRepository;
 import org.springframework.data.neo4j.integration.movies.repo.AbstractEntityRepository;
 import org.springframework.data.neo4j.integration.movies.repo.CinemaRepository;
+import org.springframework.data.neo4j.integration.movies.repo.TempMovieRepository;
 import org.springframework.data.neo4j.integration.movies.repo.UserRepository;
 import org.springframework.data.neo4j.integration.movies.service.UserService;
 import org.springframework.test.annotation.DirtiesContext;
@@ -42,7 +43,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 @ContextConfiguration(classes = {PersistenceContext.class})
@@ -67,6 +67,9 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
 
     @Autowired
     private AbstractEntityRepository abstractEntityRepository;
+
+    @Autowired
+    private TempMovieRepository tempMovieRepository;
 
     @Override
     protected int neoServerPort()
@@ -523,6 +526,22 @@ public class End2EndIntegrationTest extends WrappingServerIntegrationTest
 
         assertSameGraph( getDatabase(), "CREATE (u:User {name:'Michal'})-[:RATED {stars:5, " +
                 "comment:'Best movie ever'}]->(m:Movie {title:'Pulp Fiction'})" );
+    }
+
+    @Test
+    public void shouldSaveNewUserRatingsForAnExistingMovie()
+    {
+        TempMovie movie = new TempMovie( "Pulp Fiction" );
+        //Save the movie
+        movie = tempMovieRepository.save(movie);
+
+        //Create a new user and rate an existing movie
+        User user = new User( "Michal" );
+        user.rate( movie, 5, "Best movie ever" );
+        userRepository.save( user );
+
+        TempMovie tempMovie = tempMovieRepository.findByProperty("title", "Pulp Fiction").iterator().next();
+        assertEquals(1,tempMovie.getRatings().size());
     }
 
     private Calendar createDate( int y, int m, int d, String tz )

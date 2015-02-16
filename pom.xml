@@ -27,6 +27,13 @@
 
             <dependency>
                 <groupId>org.neo4j.ogm</groupId>
+                <artifactId>neo4j-ogm</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j.ogm</groupId>
                 <artifactId>neo4j-testutils</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <scope>test</scope>

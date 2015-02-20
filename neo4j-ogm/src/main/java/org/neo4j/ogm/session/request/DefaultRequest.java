@@ -51,7 +51,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
             LOGGER.info("POST " + url + ", request: " + cypherQuery);
 
             HttpPost request = new HttpPost(url);
-            HttpEntity entity = new StringEntity(cypherQuery);
+            HttpEntity entity = new StringEntity(cypherQuery,"UTF-8");
 
             request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));

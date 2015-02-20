@@ -2,9 +2,9 @@
  * Copyright (c) 2002-2015 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
- * This file is part of Neo4j-OGM.
+ * This file is part of Neo4j-OGM-Test.
  *
- * Neo4j-OGM is free software: you can redistribute it and/or modify
+ * Neo4j-OGM-Test is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -20,13 +20,13 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-
 import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.neo4j.server.configuration.Configurator;
 import org.neo4j.server.configuration.ServerConfigurator;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 /**
  * {@link DatabaseIntegrationTest} that starts the {@link WrappingNeoServerBootstrapper} as well, in order to make the Neo4j

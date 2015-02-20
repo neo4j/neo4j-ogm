@@ -20,19 +20,25 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collection;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.SecurityRole;
+import org.neo4j.ogm.domain.cineasts.annotated.Title;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.integration.IntegrationTest;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.session.SessionFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Simple integration test based on cineasts that exercises relationship entities.
@@ -101,6 +107,41 @@ public class CineastsIntegrationTest extends IntegrationTest {
             assertNotNull("The user start node should've been mapped", rating.getUser());
             assertSame("The wrong film was mapped to the rating", film, rating.getMovie());
         }
+    }
+
+    @Test
+    public void saveAndRetrieveUserWithSecurityRoles() {
+        User user = new User();
+        user.setLogin("daniela");
+        user.setName("Daniela");
+        user.setPassword("daniela");
+        user.setSecurityRoles(new SecurityRole[]{SecurityRole.USER});
+        session.save(user);
+
+        Collection<User> users = session.loadByProperty(User.class,new Property<String, Object>("login","daniela"));
+        assertEquals(1,users.size());
+        User daniela = users.iterator().next();
+        assertEquals("Daniela", daniela.getName());
+        assertEquals(1,daniela.getSecurityRoles().length);
+        assertEquals(SecurityRole.USER,daniela.getSecurityRoles()[0]);
+    }
+
+    @Test
+    public void saveAndRetrieveUserWithTitles() {
+        User user = new User();
+        user.setLogin("vince");
+        user.setName("Vince");
+        user.setPassword("vince");
+        user.setTitles(Arrays.asList(Title.MR));
+        session.save(user);
+
+        Collection<User> users = session.loadByProperty(User.class,new Property<String, Object>("login","vince"));
+        assertEquals(1,users.size());
+        User vince = users.iterator().next();
+        assertEquals("Vince", vince.getName());
+        assertEquals(1, vince.getTitles().size());
+        assertEquals(Title.MR,vince.getTitles().get(0));
+
     }
 
 }

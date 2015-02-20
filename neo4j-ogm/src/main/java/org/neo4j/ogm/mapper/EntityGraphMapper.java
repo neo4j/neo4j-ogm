@@ -111,6 +111,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     private void deleteObsoleteRelationships(CypherCompiler compiler) {
         CypherContext context=compiler.context();
         Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.mappedRelationships().iterator();
+
         while (mappedRelationshipIterator.hasNext()) {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
             if (!context.isRegisteredRelationship(mappedRelationship)) {

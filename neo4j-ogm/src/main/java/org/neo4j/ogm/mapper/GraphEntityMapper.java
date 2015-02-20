@@ -21,7 +21,15 @@
 package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.entityaccess.*;
+import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.EntityAccess;
+import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.entityaccess.EntityFactory;
+import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.entityaccess.PropertyReader;
+import org.neo4j.ogm.entityaccess.PropertyWriter;
+import org.neo4j.ogm.entityaccess.RelationalReader;
+import org.neo4j.ogm.entityaccess.RelationalWriter;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -33,8 +41,11 @@ import org.neo4j.ogm.model.RelationshipModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 
@@ -123,10 +134,13 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                 PropertyReader reader = entityAccessStrategy.getPropertyReader(classInfo, property.getKey().toString());
                 if (reader != null) {
                     Object currentValue = reader.read(instance);
-                    if (writer.type().isArray()) {
-                        value = EntityAccess.merge(writer.type(), (Iterable<?>) value, (Object[]) currentValue);
+
+                    //Determine the type of property to merge using the read type(possibly converted) instead of the declared field type
+                    Class paramType = currentValue==null ? writer.type():currentValue.getClass();
+                    if (paramType.isArray()) {
+                        value = EntityAccess.merge(paramType, (Iterable<?>) value, (Object[]) currentValue);
                     } else {
-                        value = EntityAccess.merge(writer.type(), (Iterable<?>) value, (Iterable<?>) currentValue);
+                        value = EntityAccess.merge(paramType, (Iterable<?>) value, (Iterable<?>) currentValue);
                     }
                 }
             }
@@ -253,6 +267,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
             // is this a relationship entity we're trying to map?
             Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
             if (relationshipEntity != null) {
+                // establish a relationship between
                 if (!relationshipDirection(instance, edge, relationshipEntity).equals(Relationship.INCOMING)) {
                     typeRelationships.recordTypeRelationship(instance, relationshipEntity);
                 }
@@ -299,6 +314,10 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         RelationalWriter writer = entityAccessStrategy.getRelationalWriter(classInfo, edge.getType(), target);
         if (writer == null) {
             writer = entityAccessStrategy.getIterableWriter(classInfo, target.getClass());
+            // will occur if there is no relationship specified on a relationship entity
+            if (writer == null) {
+                return Relationship.OUTGOING;  // the default
+            }
         }
         return writer.relationshipDirection();
     }

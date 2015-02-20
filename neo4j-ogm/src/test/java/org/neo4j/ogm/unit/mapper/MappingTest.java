@@ -76,6 +76,11 @@ public abstract class MappingTest
 
     public void saveAndVerify(Object domainObject, String sameGraphCypher) {
 
+        save(domainObject);
+        GraphTestUtils.assertSameGraph(graphDatabase, sameGraphCypher);
+    }
+
+    public void save(Object domainObject) {
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(domainObject).getStatements());
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
@@ -85,7 +90,8 @@ public abstract class MappingTest
             System.out.println("compiled: " + query.getStatement());
             executionEngine.execute(query.getStatement(), query.getParameters());
         }
-        GraphTestUtils.assertSameGraph(graphDatabase, sameGraphCypher);
     }
+
+
 
 }

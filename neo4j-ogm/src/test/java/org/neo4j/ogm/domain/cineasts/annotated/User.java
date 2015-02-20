@@ -20,6 +20,9 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+
+import java.util.List;
 import java.util.Set;
 
 public class User {
@@ -31,6 +34,11 @@ public class User {
 
     Set<Rating> ratings;
     Set<User> friends;
+
+    @Convert(SecurityRoleConverter.class)
+    SecurityRole[] securityRoles;
+    @Convert(TitleConverter.class)
+    List<Title> titles;
 
     Rating rate(Movie movie, int stars, String comment) {
         return null;
@@ -85,5 +93,21 @@ public class User {
 
     public void setFriends(Set<User> friends) {
         this.friends = friends;
+    }
+
+    public SecurityRole[] getSecurityRoles() {
+        return securityRoles;
+    }
+
+    public void setSecurityRoles(SecurityRole[] securityRoles) {
+        this.securityRoles = securityRoles;
+    }
+
+    public List<Title> getTitles() {
+        return titles;
+    }
+
+    public void setTitles(List<Title> titles) {
+        this.titles = titles;
     }
 }

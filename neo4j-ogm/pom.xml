@@ -18,6 +18,7 @@
 
     <dependencies>
 
+
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ogm-test</artifactId>

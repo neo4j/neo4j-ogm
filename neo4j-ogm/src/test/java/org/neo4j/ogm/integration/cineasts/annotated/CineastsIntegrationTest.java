@@ -142,4 +142,18 @@ public class CineastsIntegrationTest extends IntegrationTest {
 
     }
 
+    @Test
+    public void saveAndRetrieveUserWithDifferentCharset() {
+        User user = new User();
+        user.setLogin("aki");
+        user.setName("Aki Kaurismäki");
+        user.setPassword("aki");
+        session.save(user);
+
+        Collection<User> users = session.loadByProperty(User.class,new Property<String, Object>("login","aki"));
+        assertEquals(1,users.size());
+        User vince = users.iterator().next();
+        assertEquals("Aki Kaurismäki", vince.getName());
+
+    }
 }

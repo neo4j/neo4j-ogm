@@ -57,6 +57,7 @@ class ExistingRelationshipBuilder extends RelationshipBuilder {
         if (!this.props.isEmpty()) {
             queryBuilder.append(" SET ").append(this.reference).append("+={").append(this.reference).append("_props} ");
             parameters.put(this.reference + "_props", this.props);
+            varStack.add(this.reference);
         }
 
         return true;

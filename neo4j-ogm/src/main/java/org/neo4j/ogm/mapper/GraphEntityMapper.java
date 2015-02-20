@@ -253,6 +253,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
             // is this a relationship entity we're trying to map?
             Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
             if (relationshipEntity != null) {
+                // establish a relationship between
                 if (!relationshipDirection(instance, edge, relationshipEntity).equals(Relationship.INCOMING)) {
                     typeRelationships.recordTypeRelationship(instance, relationshipEntity);
                 }
@@ -299,6 +300,10 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
         RelationalWriter writer = entityAccessStrategy.getRelationalWriter(classInfo, edge.getType(), target);
         if (writer == null) {
             writer = entityAccessStrategy.getIterableWriter(classInfo, target.getClass());
+            // will occur if there is no relationship specified on a relationship entity
+            if (writer == null) {
+                return Relationship.OUTGOING;  // the default
+            }
         }
         return writer.relationshipDirection();
     }

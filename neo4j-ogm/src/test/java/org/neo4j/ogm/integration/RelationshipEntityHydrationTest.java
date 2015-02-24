@@ -37,7 +37,7 @@ public class RelationshipEntityHydrationTest extends IntegrationTest {
     @Before
     public void init() throws IOException {
         setUp();
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.friendship");
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.friendships");
         session = sessionFactory.openSession("http://localhost:" + neoPort);
     }
 

@@ -47,29 +47,14 @@ public class ClassPathScanner {
         String absolutePath = folder.getPath();
         String relativePath = prefixSize > absolutePath.length() ? "" : absolutePath.substring(prefixSize);
 
-        boolean scanFolders = false, scanFiles = false;
-
-        // TODO: use filter pattern
-        for (String pathToScan : classPaths) {
-            if (relativePath.startsWith(pathToScan) || (relativePath.length() == pathToScan.length() - 1 && pathToScan.startsWith(relativePath))) {
-                scanFolders = scanFiles = true;
-                break;
-            }
-            if (pathToScan.startsWith(relativePath)) {
-                scanFolders = true;
-            }
-        }
-
-        if (scanFolders || scanFiles) {
-            File[] subFiles = folder.listFiles();
-            if (subFiles != null) {
-                for (final File subFile : subFiles) {
-                    if (subFile.isDirectory()) {
-                        scanFolder(subFile, prefixSize);
-                    } else if (scanFiles && subFile.isFile()) {
-                        String leafSuffix = "/" + subFile.getName();
-                        scanFile(subFile, relativePath + leafSuffix);
-                    }
+        File[] subFiles = folder.listFiles();
+        if (subFiles != null) {
+            for (final File subFile : subFiles) {
+                if (subFile.isDirectory()) {
+                    scanFolder(subFile, prefixSize);
+                } else if (subFile.isFile()) {
+                    String leafSuffix = "/" + subFile.getName();
+                    scanFile(subFile, relativePath + leafSuffix);
                 }
             }
         }
@@ -103,7 +88,7 @@ public class ClassPathScanner {
         this.processor = processor;
 
         try {
-            for (File classPathElement : ClassUtils.getUniqueClasspathElements()) {
+            for (File classPathElement : ClassUtils.getUniqueClasspathElements(classPaths)) {
                 String path = classPathElement.getPath();
                 if (classPathElement.isDirectory()) {
                     scanFolder(classPathElement, path.length() + 1);

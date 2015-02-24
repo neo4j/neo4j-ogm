@@ -19,9 +19,13 @@
 package org.neo4j.ogm.metadata;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public abstract class ClassUtils {
@@ -69,17 +73,26 @@ public abstract class ClassUtils {
     /**
      * Get a list of unique elements on the classpath as File objects, preserving order.
      * Classpath elements that do not exist are not returned.
+     * @param classPaths classpaths to be included
      */
-    public static ArrayList<File> getUniqueClasspathElements() {
-        String[] pathElements = System.getProperty("java.class.path").split(File.pathSeparator);
-        HashSet<String> pathElementsSet = new HashSet<>();
+    public static ArrayList<File> getUniqueClasspathElements(List<String> classPaths) {
         ArrayList<File> pathFiles = new ArrayList<>();
-        for (String pathElement : pathElements) {
-            if (pathElementsSet.add(pathElement)) {
-                File file = new File(pathElement);
-                if (file.exists()) {
-                    pathFiles.add(file);
+        for(String classPath : classPaths) {
+            try {
+                Enumeration<URL> resources = ClassUtils.class.getClassLoader().getResources(classPath.replace(".","/"));
+                while(resources.hasMoreElements()) {
+                    URL resource = resources.nextElement();
+                    if(resource.getProtocol().equals("file")) {
+                        pathFiles.add(new File(resource.toURI()));
+                    }
+                    else if(resource.getProtocol().equals("jar")) {
+                        String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!"));  //Strip out the jar protocol
+                        pathFiles.add(new File(jarPath));
+
+                    }
                 }
+            } catch (IOException | URISyntaxException e) {
+                throw new RuntimeException(e);
             }
         }
         return pathFiles;

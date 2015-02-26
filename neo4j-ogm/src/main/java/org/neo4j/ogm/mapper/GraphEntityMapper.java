@@ -132,8 +132,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
                 PropertyReader reader = entityAccessStrategy.getPropertyReader(classInfo, property.getKey().toString());
                 if (reader != null) {
                     Object currentValue = reader.read(instance);
-                    Class paramType = determineParamType(classInfo, property, writer, currentValue);
-
+                    Class paramType = writer.type();
                     if (paramType.isArray()) {
                         value = EntityAccess.merge(paramType, (Iterable<?>) value, (Object[]) currentValue);
                     } else {
@@ -143,26 +142,6 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
             }
             writer.write(instance, value);
         }
-    }
-
-    /**
-     * Determine the param type of the attribute to merge.
-     * If the current value of the property (possibly converted) exists, use that type.
-     * Otherwise, if the property has a converter, use the return type of toGraphProperty.
-     */
-    private Class determineParamType(ClassInfo classInfo, Property property, PropertyWriter writer, Object currentValue) {
-        Class paramType = writer.type();
-        if (currentValue != null) {
-            paramType = currentValue.getClass(); //Determine the param type from the current value (possibly converted) of the property
-        } else if (classInfo.fieldsInfo().get(property.getKey().toString()).converter() != null) {
-            //If the field has a converter, then use the return type of toGraphProperty
-            try {
-                paramType = classInfo.fieldsInfo().get(property.getKey().toString()).converter().getClass().getDeclaredMethod("toGraphProperty", writer.type()).getReturnType();
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return paramType;
     }
 
     private boolean tryMappingAsSingleton(Object source, Object parameter, RelationshipModel edge) {

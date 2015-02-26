@@ -65,6 +65,13 @@ public class MethodWriter extends EntityAccess {
 
     @Override
     public Class<?> type() {
+        if (setterMethodInfo.hasConverter()) {
+            try {
+                return setterMethodInfo.converter().getClass().getDeclaredMethod("toGraphProperty", parameterType).getReturnType();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         return parameterType;
     }
 

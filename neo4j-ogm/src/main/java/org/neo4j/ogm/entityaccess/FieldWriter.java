@@ -63,6 +63,13 @@ public class FieldWriter extends EntityAccess {
 
     @Override
     public Class<?> type() {
+        if (fieldInfo.hasConverter()) {
+            try {
+                return fieldInfo.converter().getClass().getDeclaredMethod("toGraphProperty", fieldType).getReturnType();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         return fieldType;
     }
 

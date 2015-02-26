@@ -152,8 +152,8 @@ public class CineastsIntegrationTest extends IntegrationTest {
 
         Collection<User> users = session.loadByProperty(User.class,new Property<String, Object>("login","aki"));
         assertEquals(1,users.size());
-        User vince = users.iterator().next();
-        assertEquals("Aki Kaurismäki", vince.getName());
+        User aki = users.iterator().next();
+        assertEquals("Aki Kaurismäki", aki.getName());
 
     }
 }

@@ -22,10 +22,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
-import org.neo4j.ogm.domain.cineasts.annotated.Role;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.User;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
 
 public class RelationshipEntityMappingTest extends MappingTest {
 
@@ -55,7 +55,23 @@ public class RelationshipEntityMappingTest extends MappingTest {
         Actor daniel = new Actor("Daniel Radcliffe");
         daniel.nominatedFor(hp, "Saturn Award", 2005);
         saveAndVerify(daniel, "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
-        //Not quite sure if the relationship type should be the field name or the RelationshipEntity class name?
+    }
+
+    @Test
+    public void testThatRelationshipEntityRelationshipTypeIsCreatedCorrectly() {
+        Movie hp = new Movie();
+        hp.setTitle("Goblet of Fire");
+        hp.setYear(2005);
+
+        User user = new User();
+        user.setName("luanne");
+        Rating rating = new Rating();
+        rating.setMovie(hp);
+        rating.setUser(user);
+        rating.setStars(5);
+        user.setRatings(Collections.singleton(rating));
+
+        saveAndVerify(user, " CREATE (u:User {name:'luanne'}) CREATE (m:Movie {title : 'Goblet of Fire',year:2005}) create (u)-[:RATED {stars:5}]->(m)");
     }
 
 }

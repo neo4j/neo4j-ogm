@@ -42,5 +42,8 @@ public class UserTest {
         assertEquals("luanne", user.getLogin());
         assertNotNull(user.getSecurityRoles());
         assertEquals(2, user.getSecurityRoles().length);
+        assertNotNull(user.getRatings());
+        assertEquals(1,user.getRatings().size());
+
     }
 }

@@ -28,7 +28,12 @@ public class UserRequest extends RequestProxy {
     private static String[] jsonModel = {
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"15\",\"labels\" : [ \"User\"],    \"properties\" : {\"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}" +
-                    "]} }"
+                    "{\"id\" : \"15\",\"labels\" : [ \"User\"],    \"properties\" : {\"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}," +
+                    "{\"id\" : \"20\",\"labels\" : [ \"Movie\"],   \"properties\" : {\"title\" : \"Pulp Fiction\"}}" +
+                    "], " +
+                    "\"relationships\": [" +
+                    "{\"id\":\"141\",\"type\":\"RATED\",\"startNode\":\"15\",\"endNode\":\"20\",\"properties\":{ \"stars\" : 5, \"comment\" : \"Best Film Ever!\" }} " +
+                    "] " +
+                    "} }"
     };
 }

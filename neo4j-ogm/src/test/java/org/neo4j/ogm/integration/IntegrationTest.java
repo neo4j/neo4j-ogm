@@ -29,7 +29,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 
-public class IntegrationTest     {
+@SuppressWarnings("deprecation")
+public class IntegrationTest {
 
     private static NeoServer neoServer;
     protected static int neoPort;

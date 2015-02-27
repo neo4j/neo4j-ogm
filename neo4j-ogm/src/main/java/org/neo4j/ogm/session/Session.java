@@ -46,8 +46,7 @@ public interface Session {
 
     <T> Collection<T> loadByProperty(Class<T> type, Property<String, Object> property, int depth);
 
-
-    void execute(String jsonStatements);
+    void execute(String cypher);
 
     void purgeDatabase();
 
@@ -60,7 +59,6 @@ public interface Session {
     <T> void delete(T object);
 
     <T> void deleteAll(Class<T> type);
-
 
     Transaction beginTransaction();
 

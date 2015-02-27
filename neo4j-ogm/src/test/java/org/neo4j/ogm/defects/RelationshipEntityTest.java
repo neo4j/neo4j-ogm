@@ -119,7 +119,7 @@ public class RelationshipEntityTest extends WrappingServerIntegrationTest {
         //Verify that Michals rating still exists
         users = session.loadByProperty(User.class,new Property<String, Object>("name","Michal"));
         User foundMichal = users.iterator().next();
-        assertEquals(1,foundMichal.getRatings().size());
+        assertEquals(1,foundMichal.getRatings().size()); //Fail, Michals rating is gone
     }
 
 }

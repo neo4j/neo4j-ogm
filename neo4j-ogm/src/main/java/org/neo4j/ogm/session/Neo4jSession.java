@@ -183,8 +183,7 @@ public class Neo4jSession implements Session {
 
 
     @Override
-    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters)
-    {
+    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
         Iterable<T> results = query(type, cypher, parameters);
 
         int resultSize = Utils.size(results);
@@ -193,7 +192,7 @@ public class Neo4jSession implements Session {
             return null;
         }
 
-        if (resultSize < 1) {
+        if (resultSize > 1) {
             throw new RuntimeException("Result not of expected size. Expected 1 row but found " + resultSize);
         }
 
@@ -201,8 +200,7 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public Iterable<Map<String, Object>> query(String cypher, Map<String, Object> parameters)
-    {
+    public Iterable<Map<String, Object>> query(String cypher, Map<String, ?> parameters) {
         if (StringUtils.isEmpty(cypher)) {
             throw new RuntimeException("Supplied cypher statement must not be null or empty.");
         }
@@ -235,10 +233,8 @@ public class Neo4jSession implements Session {
         }
     }
 
-
     @Override
-    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters)
-    {
+    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be nul or void.");
         }
@@ -285,8 +281,7 @@ public class Neo4jSession implements Session {
         }
     }
 
-    private void assertReadOnly(String cypher)
-    {
+    private void assertReadOnly(String cypher) {
         Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
 
         if (matcher.find()) {
@@ -294,10 +289,8 @@ public class Neo4jSession implements Session {
         }
     }
 
-
     @Override
-    public void execute(String cypher, Map<String, Object> parameters)
-    {
+    public void execute(String cypher, Map<String, Object> parameters) {
         if (StringUtils.isEmpty(cypher)) {
             throw new RuntimeException("Supplied cypher statement must not be null or empty.");
         }

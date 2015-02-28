@@ -107,7 +107,7 @@ public interface Session {
      *
      * @return An {@link Iterable} of {@link Map}s with each entry representing a neo4j object's properties.
      */
-    Iterable<Map<String, Object>> query(String cypher, Map<String, Object> parameters);
+    Iterable<Map<String, Object>> query(String cypher, Map<String, ?> parameters);
 
     /**
      * This method allows a cypher statement with a modification statement to be executed.

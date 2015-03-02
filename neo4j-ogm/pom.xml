@@ -72,43 +72,19 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <executions>
+    <profiles>
+        <profile>
+            <id>2.2</id>
 
-                    <execution>
-                        <id>default-test</id>
-                        <configuration>
-                            <includes>
-                                <include>**/unit/**</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/integration/**</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-io</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
 
-                    <execution>
-                        <id>integration-test</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/integration/**</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/unit/**</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
+        </profile>
+    </profiles>
 
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

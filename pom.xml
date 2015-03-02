@@ -19,6 +19,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.neo4j>2.1.7</version.neo4j>
+        <skip.surefire.tests>false</skip.surefire.tests>
+        <skip.failsafe.tests>false</skip.failsafe.tests>
     </properties>
 
     <dependencyManagement>
@@ -97,6 +99,51 @@
 
     </dependencyManagement>
 
+    <profiles>
+        <profile>
+            <id>2.2</id>
+
+            <properties>
+                <version.neo4j>2.2.0-M04</version.neo4j>
+                <username>neo4j</username>
+                <password>password</password>
+            </properties>
+
+            <dependencyManagement>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-io</artifactId>
+                        <version>${version.neo4j}</version>
+                    </dependency>
+                </dependencies>
+
+            </dependencyManagement>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14</version>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <configuration>
+                                    <includes>
+                                        <include>**/server/**</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -109,7 +156,83 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.14</version>
+
+                <executions>
+
+                    <execution>
+                        <id>default-test</id>
+                        <phase>test</phase>
+                        <configuration>
+                            <includes>
+                                <include>**/unit/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/integration/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>integration</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/integration/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/unit/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+
+                </executions>
+
+            </plugin>
+
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-failsafe-plugin</artifactId>-->
+                <!--<version>2.14</version>-->
+
+                <!--<configuration>-->
+                    <!--<includes>-->
+                        <!--<include>**/integration/**</include>-->
+                    <!--</includes>-->
+                    <!--<excludes>-->
+                        <!--<exclude>**/unit/**</exclude>-->
+                    <!--</excludes>-->
+                <!--</configuration>-->
+                <!--&lt;!&ndash;-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>integration-test</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<includes>-->
+                                <!--<include>**/integration/**</include>-->
+                            <!--</includes>-->
+                            <!--<excludes>-->
+                                <!--<exclude>**/unit/**</exclude>-->
+                            <!--</excludes>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--&ndash;&gt;-->
+            <!--</plugin>-->
+
         </plugins>
     </build>
+
 
 </project>

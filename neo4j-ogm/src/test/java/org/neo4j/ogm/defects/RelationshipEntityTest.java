@@ -7,6 +7,7 @@ import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
@@ -175,6 +176,22 @@ public class RelationshipEntityTest extends WrappingServerIntegrationTest {
 
         User michal = session.loadByProperty(User.class, new Property<String, Object>("name", "Michal")).iterator().next();
         assertEquals(2,michal.getRatings().size());  //The Top Gear Rating is gone
+    }
+
+    @Test
+    public void shouldLoadActorsForAPersistedMovie() {
+        session.execute(
+                "CREATE " +
+                        "(dh:Movie {title:'Die Hard'}), " +
+                        "(bw:Actor {name: 'Bruce Willis'}), " +
+                        "(bw)-[:ACTS_IN {role : 'John'}]->(dh)");
+
+        Movie dieHard = IteratorUtil.firstOrNull(session.loadByProperty(Movie.class, new Property<String, Object>("title", "Die Hard"), 1));
+        /* This loads the movie but not actor.
+         */
+        assertNotNull(dieHard);
+        assertNotNull(dieHard.getCast());
+        assertEquals(1,dieHard.getCast().size());
     }
 
     /**

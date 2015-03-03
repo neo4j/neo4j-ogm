@@ -1,7 +1,6 @@
 About these tests
 -----------------
-The tests in the org.neo4j.ogm.integration.server package use a real Neo4j server instance running in
-a separate JVM on localhost:7474
+The tests in the org.neo4j.ogm.server package use a real Neo4j server instance running in a separate JVM on localhost:7474
 
 This is because some tests require an actual server instead of a in-memory instance - for example, the 2.2 auth tests.
 

@@ -198,39 +198,6 @@
 
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-failsafe-plugin</artifactId>-->
-                <!--<version>2.14</version>-->
-
-                <!--<configuration>-->
-                    <!--<includes>-->
-                        <!--<include>**/integration/**</include>-->
-                    <!--</includes>-->
-                    <!--<excludes>-->
-                        <!--<exclude>**/unit/**</exclude>-->
-                    <!--</excludes>-->
-                <!--</configuration>-->
-                <!--&lt;!&ndash;-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>integration-test</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<includes>-->
-                                <!--<include>**/integration/**</include>-->
-                            <!--</includes>-->
-                            <!--<excludes>-->
-                                <!--<exclude>**/unit/**</exclude>-->
-                            <!--</excludes>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--&ndash;&gt;-->
-            <!--</plugin>-->
-
         </plugins>
     </build>
 

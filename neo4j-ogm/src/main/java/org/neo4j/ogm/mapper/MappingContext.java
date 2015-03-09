@@ -52,9 +52,7 @@ public class MappingContext {
     private final ConcurrentMap<Long, Object> nodeEntityRegister = new ConcurrentHashMap<>();
     private final Set<MappedRelationship> relationshipRegister = new HashSet<>();
 
-    // in addition we need the following
-    // a typeRegister                   register of all entities of a specific type (including supertypes)
-    // a
+    /** register of all mapped entities of a specific type (including supertypes) */
     private final ConcurrentMap<Class<?>, Set<Object>> typeRegister = new ConcurrentHashMap<>();
     private final EntityMemo objectMemo = new EntityMemo();
 
@@ -79,7 +77,7 @@ public class MappingContext {
     }
 
     private void registerTypes(Class type, Object entity) {
-        //System.out.println("registering " + object + " as instance of " + type.getSimpleName());
+        //logger.debug("registering " + entity + " as instance of " + type.getSimpleName());
         getAll(type).add(entity);
         if (type.getSuperclass() != null
                 && metaData != null
@@ -90,15 +88,15 @@ public class MappingContext {
     }
 
     private void deregisterTypes(Class type, Object entity) {
-        //System.out.println("deregistering " + object.getClass().getSimpleName() + " as instance of " + type.getSimpleName());
+        //logger.debug("deregistering " + entity.getClass().getSimpleName() + " as instance of " + type.getSimpleName());
         //getAll(type).remove(entity);
         Set<Object> entities = typeRegister.get(type);
         if (entities != null) {
             if (type.getSuperclass() != null
-                && metaData != null
-                && metaData.classInfo(type.getSuperclass().getName()) != null
-                && !type.getSuperclass().getName().equals("java.lang.Object")) {
-            deregisterTypes(type.getSuperclass(), entity);
+                    && metaData != null
+                    && metaData.classInfo(type.getSuperclass().getName()) != null
+                    && !type.getSuperclass().getName().equals("java.lang.Object")) {
+                deregisterTypes(type.getSuperclass(), entity);
             }
         }
     }
@@ -132,7 +130,7 @@ public class MappingContext {
         return objectList;
     }
 
-    // object memoisations
+    // object memorisations
     public void remember(Object entity) {
         //logger.info("remembering node values: " + entity);
         objectMemo.remember(entity, metaData.classInfo(entity));

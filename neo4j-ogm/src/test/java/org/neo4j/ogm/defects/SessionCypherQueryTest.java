@@ -14,7 +14,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.WrappingServerIntegrationTest;
 
-@Ignore
 public class SessionCypherQueryTest extends WrappingServerIntegrationTest {
 
     private Session session;

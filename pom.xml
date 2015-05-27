@@ -15,7 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <neo4j>2.1.7</neo4j>
+    <neo4j>2.1.8</neo4j>
     <commonslang>2.6</commonslang>
     <jackson>2.5.1</jackson>
     <httpclient>4.3.6</httpclient>
@@ -155,7 +155,7 @@
       <id>2.2</id>
 
       <properties>
-        <neo4j>2.2.3-SNAPSHOT</neo4j>
+        <neo4j>2.2.2</neo4j>
         <username>neo4j</username>
         <password>password</password>
       </properties>

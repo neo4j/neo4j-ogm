@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.unit.mapper.direct.RelationshipTest;
+import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -26,7 +26,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Vince Bickers
  */
-public class ABBTest extends RelationshipTest {
+public class ABBTest extends RelationshipTrait
+{
 
 
     private A a;

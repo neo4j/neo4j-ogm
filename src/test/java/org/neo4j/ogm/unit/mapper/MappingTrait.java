@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Mark Angrish
  */
-public abstract class MappingTest
+public abstract class MappingTrait
 {
     protected EntityToGraphMapper mapper;
 

@@ -20,13 +20,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.unit.mapper.direct.RelationshipTest;
+import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class AABBTest extends RelationshipTest {
+public class AABBTest extends RelationshipTrait
+{
 
     private static SessionFactory sessionFactory;
 

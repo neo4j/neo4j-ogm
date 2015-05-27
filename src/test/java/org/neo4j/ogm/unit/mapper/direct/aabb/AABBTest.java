@@ -21,12 +21,13 @@ import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.unit.mapper.direct.RelationshipTest;
+import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
 /**
  * @author Vince Bickers
  */
-public class AABBTest extends RelationshipTest {
+public class AABBTest extends RelationshipTrait
+{
 
     private A a1, a2, a3;
     private B b1, b2, b3;

@@ -21,11 +21,12 @@ import org.neo4j.ogm.domain.policy.Policy;
 /**
  * @author Mark Angrish
  */
-public class RelationshipMappingTest extends MappingTest {
+public class RelationshipMappingTest extends MappingTrait
+{
 
     @BeforeClass
     public static void setUp() {
-        MappingTest.setUp("org.neo4j.ogm.domain.policy");
+        MappingTrait.setUp( "org.neo4j.ogm.domain.policy" );
     }
 
     @Test

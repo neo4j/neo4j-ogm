@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Vince Bickers
  */
-public class RelationshipTest extends InMemoryServerTrait
+public class RelationshipTrait extends InMemoryServerTrait
 {
 
     public void assertSameArray(Object[] as, Object[] bs) {

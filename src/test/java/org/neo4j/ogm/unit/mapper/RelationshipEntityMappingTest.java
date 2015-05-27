@@ -16,19 +16,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
-import org.neo4j.ogm.domain.cineasts.annotated.Role;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Vince Bickers
  */
-public class RelationshipEntityMappingTest extends MappingTest {
+public class RelationshipEntityMappingTest extends MappingTrait
+{
 
     @BeforeClass
     public static void setUp() {
-        MappingTest.setUp("org.neo4j.ogm.domain.cineasts.annotated");
+        MappingTrait.setUp( "org.neo4j.ogm.domain.cineasts.annotated" );
     }
 
     @Test

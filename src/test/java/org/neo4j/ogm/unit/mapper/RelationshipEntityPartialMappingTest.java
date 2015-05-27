@@ -24,11 +24,12 @@ import org.neo4j.ogm.domain.cineasts.partial.Movie;
  *
  * @author Vince Bickers
  */
-public class RelationshipEntityPartialMappingTest extends MappingTest {
+public class RelationshipEntityPartialMappingTest extends MappingTrait
+{
 
     @BeforeClass
     public static void setUp() {
-        MappingTest.setUp("org.neo4j.ogm.domain.cineasts.partial");
+        MappingTrait.setUp( "org.neo4j.ogm.domain.cineasts.partial" );
     }
 
     @Test

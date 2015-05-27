@@ -29,7 +29,8 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  *
  * @author Michal Bachman
  */
-public abstract class DatabaseIntegrationTest {
+public abstract class DatabaseIntegrationTrait
+{
 
     private GraphDatabaseService database;
 

@@ -12,14 +12,15 @@
 
 package org.neo4j.ogm.unit.mapper.direct;
 
-import org.neo4j.ogm.integration.InMemoryServerTest;
+import org.neo4j.ogm.integration.InMemoryServerTrait;
 
 import static org.junit.Assert.fail;
 
 /**
  * @author Vince Bickers
  */
-public class RelationshipTest extends InMemoryServerTest {
+public class RelationshipTest extends InMemoryServerTrait
+{
 
     public void assertSameArray(Object[] as, Object[] bs) {
 

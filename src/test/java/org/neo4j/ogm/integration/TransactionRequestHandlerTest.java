@@ -23,7 +23,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Michal Bachman
  */
-public class TransactionRequestHandlerTest extends InMemoryServerTest {
+public class TransactionRequestHandlerTest extends InMemoryServerTrait
+{
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
 

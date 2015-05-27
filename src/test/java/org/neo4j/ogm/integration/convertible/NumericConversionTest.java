@@ -22,13 +22,14 @@ import java.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.integration.InMemoryServerTest;
+import org.neo4j.ogm.integration.InMemoryServerTrait;
 import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Luanne Misquitta
  */
-public class NumericConversionTest extends InMemoryServerTest {
+public class NumericConversionTest extends InMemoryServerTrait
+{
 
 	@Before
 	public void init() throws IOException {

@@ -24,9 +24,10 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
  * @author Michal Bachman
  */
 @Deprecated
-@Category(IntegrationTest.class)
+@Category(Integration.class)
 //TODO: since we're not @RunningWith(Categories.class) anywhere, do we need this class at all?
-public abstract class InMemoryServerTest {
+public abstract class InMemoryServerTrait
+{
 
     @ClassRule
     public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();

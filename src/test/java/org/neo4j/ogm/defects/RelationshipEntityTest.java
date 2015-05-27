@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
@@ -28,6 +29,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Luanne Misquitta
  */
+@Ignore
 public class RelationshipEntityTest {
 
 	@Rule

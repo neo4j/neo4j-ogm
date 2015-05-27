@@ -27,13 +27,14 @@ import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
-import org.neo4j.ogm.integration.InMemoryServerTest;
+import org.neo4j.ogm.integration.InMemoryServerTrait;
 import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Luanne Misquitta
  */
-public class EducationIntegrationTest extends InMemoryServerTest {
+public class EducationIntegrationTest extends InMemoryServerTrait
+{
 
     @Before
     public void init() throws IOException {

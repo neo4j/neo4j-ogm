@@ -14,9 +14,11 @@ package org.neo4j.ogm.server;
 
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.neo4j.kernel.Version;
 import org.neo4j.ogm.domain.bike.Bike;
-import org.neo4j.ogm.integration.LocalhostServerTest;
+import org.neo4j.ogm.integration.LocalhostServerTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -24,12 +26,13 @@ import org.neo4j.ogm.session.transaction.Transaction;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Vince Bickers
  */
-public class AuthenticationTest extends LocalhostServerTest {
-
+public class AuthenticationTest extends LocalhostServerTrait
+{
     private Session session;
 
     private boolean AUTH = true;
@@ -37,8 +40,9 @@ public class AuthenticationTest extends LocalhostServerTest {
 
     @Test
     public void testUnauthorizedSession() {
+        assumeTrue(isRunningWithNeo4j2Dot2());
 
-        init(NO_AUTH, "org.neo4j.ogm.domain.bike");
+        init( NO_AUTH, "org.neo4j.ogm.domain.bike" );
 
         try ( Transaction tx = session.beginTransaction() ) {
             session.loadAll(Bike.class);
@@ -55,12 +59,19 @@ public class AuthenticationTest extends LocalhostServerTest {
 
     }
 
+    // good enough for now: ignore test if we are not on something better than 2.1
+    private boolean isRunningWithNeo4j2Dot2()
+    {
+        return Version.getKernelRevision().startsWith( "2.2" );
+    }
+
     @Test
     public void testAuthorizedSession() {
+        assumeTrue(isRunningWithNeo4j2Dot2());
 
         init(AUTH, "org.neo4j.ogm.domain.bike");
 
-        try ( Transaction tx = session.beginTransaction() ) {
+        try ( Transaction ignored = session.beginTransaction() ) {
             session.loadAll(Bike.class);
         } catch (ResultProcessingException rpe) {
             fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");

@@ -15,7 +15,7 @@ package org.neo4j.ogm.unit.mapper.transitive.ab;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.integration.InMemoryServerTest;
+import org.neo4j.ogm.integration.InMemoryServerTrait;
 import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
@@ -27,7 +27,8 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Vince Bickers
  */
-public class ABTest extends InMemoryServerTest {
+public class ABTest extends InMemoryServerTrait
+{
 
 
     private A a;

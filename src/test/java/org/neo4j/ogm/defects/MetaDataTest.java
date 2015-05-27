@@ -15,6 +15,7 @@ package org.neo4j.ogm.defects;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -25,6 +26,7 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 /**
  * @author Luanne Misquitta
  */
+@Ignore
 public class MetaDataTest {
 
 	private MetaData metaData;

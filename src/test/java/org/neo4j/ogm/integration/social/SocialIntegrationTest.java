@@ -25,13 +25,14 @@ import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.domain.social.Person;
 import org.neo4j.ogm.domain.social.User;
-import org.neo4j.ogm.integration.InMemoryServerTest;
+import org.neo4j.ogm.integration.InMemoryServerTrait;
 import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Luanne Misquitta
  */
-public class SocialIntegrationTest extends InMemoryServerTest {
+public class SocialIntegrationTest extends InMemoryServerTrait
+{
 
 	@Before
 	public void init() throws IOException {

@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
-import org.neo4j.ogm.integration.InMemoryServerTest;
+import org.neo4j.ogm.integration.InMemoryServerTrait;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
 
@@ -33,7 +33,8 @@ import static org.junit.Assert.fail;
  *
  * @author Vince Bickers
  */
-public class SatelliteIntegrationTest extends InMemoryServerTest {
+public class SatelliteIntegrationTest extends InMemoryServerTrait
+{
 
     @BeforeClass
     public static void init() throws IOException {

@@ -7,11 +7,14 @@
 
   <groupId>org.neo4j</groupId>
   <artifactId>neo4j-ogm</artifactId>
-  <version>1.1.0.BUILD-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <name>Neo4j Object Graph Mapper</name>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
     <neo4j>2.1.7</neo4j>
     <commonslang>2.6</commonslang>
     <jackson>2.5.1</jackson>
@@ -123,11 +126,6 @@
             <goals>
               <goal>test-jar</goal>
             </goals>
-            <configuration>
-              <includes>
-                <include>**/testutil/**</include>
-              </includes>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -141,6 +139,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.7</version>
         <configuration>
           <altDeploymentRepository>dummy-id::default::file://${project.build.directory}/repository
           </altDeploymentRepository>
@@ -156,7 +155,7 @@
       <id>2.2</id>
 
       <properties>
-        <neo4j>2.2.0-M04</neo4j>
+        <neo4j>2.2.3-SNAPSHOT</neo4j>
         <username>neo4j</username>
         <password>password</password>
       </properties>

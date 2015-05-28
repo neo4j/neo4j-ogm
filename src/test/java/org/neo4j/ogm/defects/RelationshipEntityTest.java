@@ -29,7 +29,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Luanne Misquitta
  */
-@Ignore
+@Ignore("needs fixing")
 public class RelationshipEntityTest {
 
 	@Rule

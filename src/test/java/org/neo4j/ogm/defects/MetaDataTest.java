@@ -26,7 +26,7 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 /**
  * @author Luanne Misquitta
  */
-@Ignore
+@Ignore("needs fixing")
 public class MetaDataTest {
 
 	private MetaData metaData;

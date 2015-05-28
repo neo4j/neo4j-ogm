@@ -51,14 +51,6 @@ public class EducationTest {
 
         Map<String, Teacher> teachers = loadTeachers();  // note: idempotent!
 
-        Teacher mrThomas = teachers.get("Mr Thomas");
-        Teacher mrsRoberts = teachers.get("Mrs Roberts");
-        Teacher missYoung = teachers.get("Miss Young");
-
-        checkCourseNames(mrThomas, "Maths", "English", "Physics");
-        checkCourseNames(mrsRoberts, "English", "History", "PE");
-        checkCourseNames(missYoung, "History", "Geography", "Philosophy and Ethics");
-
         // this response is for an imagined request: "match p = (c:COURSE)--(o) where id(c) in [....] RETURN p"
         // i.e. we have a set of partially loaded courses attached to our teachers which we now want to
         // hydrate by getting all their relationships
@@ -167,22 +159,19 @@ public class EducationTest {
         return teachers;
     }
 
-    // when we hydrate a set of things that are previously loaded we don't need to create them afresh
-    // - the object map of the existing objects is simply extended with new data.
-    // TODO: there is NO TEST asserting this.
     private void hydrateCourses(Collection<Teacher> teachers) throws Exception {
 
         // normally we'd use the default request handler, but for
         session.setRequest(new CourseRequest());
 
-        Set<Long> courses= new HashSet<>();
-        for (Teacher teacher : teachers) {
-            for (Course course: teacher.getCourses()) {
-                courses.add(course.getId());
-            }
-        }
+//        Set<Long> courses= new HashSet<>();
+//        for (Teacher teacher : teachers) {
+//            for (Course course: teacher.getCourses()) {
+//                courses.add(course.getId());
+//            }
+//        }
 
-        session.loadAll(Course.class, courses);
+        session.loadAll(Course.class);
     }
 
     private void checkCourseNames(Teacher teacher, String... courseNames) {

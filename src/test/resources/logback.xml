@@ -24,7 +24,7 @@
    -->
 
 
-  <root level="warn">
+  <root level="info">
 		<appender-ref ref="console" />
 	</root>
 

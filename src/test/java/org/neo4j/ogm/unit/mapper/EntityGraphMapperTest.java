@@ -12,11 +12,6 @@
 
 package org.neo4j.ogm.unit.mapper;
 
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.*;
-
-import java.util.*;
-
 import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
@@ -38,7 +33,12 @@ import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.test.TestGraphDatabaseFactory;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George
@@ -46,8 +46,11 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  */
 public class EntityGraphMapperTest {
 
+
     private EntityToGraphMapper mapper;
 
+    @ClassRule
+    public static Neo4jIntegrationTestRule testRule = new Neo4jIntegrationTestRule();
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;
@@ -55,7 +58,7 @@ public class EntityGraphMapperTest {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        graphDatabase = testRule.getGraphDatabaseService();
         executionEngine = new ExecutionEngine(graphDatabase);
         mappingMetadata = new MetaData(
                 "org.neo4j.ogm.domain.education",

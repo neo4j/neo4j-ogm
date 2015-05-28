@@ -12,10 +12,6 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Scanner;
-
 import org.junit.Assert;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -27,6 +23,10 @@ import org.neo4j.server.WrappingNeoServerBootstrapper;
 import org.neo4j.server.configuration.Configurator;
 import org.neo4j.server.configuration.ServerConfigurator;
 import org.neo4j.test.TestGraphDatabaseFactory;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.Scanner;
 
 /**
  * JUnit {@link TestRule} that provides a {@link GraphDatabaseService} to its enclosing test harness via both the object itself
@@ -98,6 +98,8 @@ public class Neo4jIntegrationTestRule implements TestRule {
     private WrappingNeoServerBootstrapper createServerWrapper() {
         ServerConfigurator configurator = new ServerConfigurator((GraphDatabaseAPI) this.database);
         configurator.configuration().addProperty(Configurator.WEBSERVER_PORT_PROPERTY_KEY, this.port);
+        configurator.configuration().setProperty("dbms.security.auth_enabled",false);
+
         return new WrappingNeoServerBootstrapper((GraphDatabaseAPI) this.database, configurator);
     }
 
@@ -125,6 +127,7 @@ public class Neo4jIntegrationTestRule implements TestRule {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public void stopBootstrapper() {
+
         this.bootstrapper.stop();
     }
 

@@ -12,8 +12,6 @@
 
 package org.neo4j.ogm.integration.ingredients;
 
-import java.io.IOException;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -22,6 +20,11 @@ import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luanne Misquitta
@@ -74,4 +77,50 @@ public class IngredientsIntegrationTest {
 		carrot.addPairing(pairing3);
 		session.save(carrot); //NullPointerException
 	}
+
+    @Test
+    public void shouldBeAbleToLoadIngredientsWithoutPairings() {
+
+        Ingredient chicken = new Ingredient("Chicken");
+        session.save(chicken);
+
+        Ingredient carrot = new Ingredient("Carrot");
+        session.save(carrot);
+
+        Ingredient butter = new Ingredient("Butter");
+        session.save(butter);
+
+        Pairing pairing = new Pairing();
+        pairing.setFirst(chicken);
+        pairing.setSecond(carrot);
+        pairing.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing);
+        session.save(chicken);
+
+        Pairing pairing2 = new Pairing();
+        pairing2.setFirst(chicken);
+        pairing2.setSecond(butter);
+        pairing2.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing2);
+        session.save(chicken);
+
+        Pairing pairing3 = new Pairing();
+        pairing3.setFirst(carrot);
+        pairing3.setSecond(butter);
+        pairing3.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing3);
+        session.save(carrot); //NullPointerException
+
+        // it is important to clear the session if you intend the depth of the
+        // the objects you want returned to not be the same as the depth currently
+        // held in the mapping context.
+        session.clear();
+
+        Iterator<Ingredient> it= session.loadAll(Ingredient.class,0).iterator();
+
+        while(it.hasNext()) {
+            Ingredient i = it.next();
+            assertEquals(i.getName(),0, i.getPairings().size());
+        }
+    }
 }

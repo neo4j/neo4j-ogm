@@ -28,6 +28,8 @@ public class Account {
     private BigDecimal[] deposits;
     private List<BigInteger> loans;
 
+    public Account() {}
+
     public Account(BigDecimal balance, BigInteger facility) {
         this.balance = balance;
         this.facility = facility;

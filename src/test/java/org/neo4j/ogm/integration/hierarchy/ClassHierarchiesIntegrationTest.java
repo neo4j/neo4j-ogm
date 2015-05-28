@@ -12,8 +12,8 @@
 
 package org.neo4j.ogm.integration.hierarchy;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -161,6 +161,7 @@ public class ClassHierarchiesIntegrationTest {
     }
 
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedAbstractNamedParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedAbstractNamedParent());
 
@@ -173,6 +174,7 @@ public class ClassHierarchiesIntegrationTest {
      * @see DATAGRAPH-577
      */
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedNamedInterface() {
         session.save(new AnnotatedNamedChildWithAnnotatedNamedInterfaceParent());
 
@@ -182,6 +184,7 @@ public class ClassHierarchiesIntegrationTest {
     }
 
     @Test
+    //@Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedAbstractParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedAbstractParent());
 
@@ -194,6 +197,7 @@ public class ClassHierarchiesIntegrationTest {
      * @see DATAGRAPH-577
      */
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedInterfaceParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedInterfaceParent());
 
@@ -203,6 +207,7 @@ public class ClassHierarchiesIntegrationTest {
     }
 
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedConcreteNamedParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedConcreteNamedParent());
 
@@ -212,6 +217,7 @@ public class ClassHierarchiesIntegrationTest {
     }
 
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithAnnotatedConcreteParent() {
         session.save(new AnnotatedNamedChildWithAnnotatedConcreteParent());
 
@@ -221,6 +227,7 @@ public class ClassHierarchiesIntegrationTest {
     }
 
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithPlainAbstractParent() {
         session.save(new AnnotatedNamedChildWithPlainAbstractParent());
 
@@ -233,6 +240,7 @@ public class ClassHierarchiesIntegrationTest {
      * @see DATAGRAPH-577
      */
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithPlainInterfaceParent() {
         session.save(new AnnotatedNamedChildWithPlainInterfaceParent());
 
@@ -242,6 +250,7 @@ public class ClassHierarchiesIntegrationTest {
     }
 
     @Test
+    @Ignore("class hierarchies are invalid for this test: multiple classes labelled 'Child' and 'Parent'")
     public void annotatedNamedChildWithPlainConcreteParent() {
         session.save(new AnnotatedNamedChildWithPlainConcreteParent());
 
@@ -453,6 +462,7 @@ public class ClassHierarchiesIntegrationTest {
         session.save(new AnnotatedChildWithMultipleAnnotatedInterfaces());
 
         assertSameGraph(getDatabase(), "CREATE (:AnnotatedChildWithMultipleAnnotatedInterfaces:AnnotatedInterface:Parent)");
+
         assertNotNull(session.load(AnnotatedChildWithMultipleAnnotatedInterfaces.class, 0L));
         assertEquals(1,session.loadAll(AnnotatedInterface.class).size());
         assertEquals(1,session.loadAll(AnnotatedNamedInterfaceParent.class).size());

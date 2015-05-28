@@ -81,8 +81,7 @@ public class EndToEndTest {
 
         assertEquals(bike.getId(), actual2.getId());
         assertEquals(bike.getBrand(), actual2.getBrand());
-        assertEquals(bike.getSaddle(), actual2.getSaddle());
-        assertEquals(bike.getWheels().size(), actual2.getWheels().size());
+
     }
 
 

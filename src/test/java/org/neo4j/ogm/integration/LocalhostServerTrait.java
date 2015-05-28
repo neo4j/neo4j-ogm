@@ -22,7 +22,6 @@ import java.io.IOException;
  * @author Michal Bachman
  */
 @Category(Integration.class)
-
 public class LocalhostServerTrait
 {
 

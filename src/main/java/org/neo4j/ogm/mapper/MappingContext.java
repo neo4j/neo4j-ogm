@@ -12,13 +12,6 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -27,6 +20,10 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -178,14 +175,33 @@ public class MappingContext {
 
     /**
      * purges all information about objects of the supplied type
-     * from the mapping context
+     * from the mapping context. If the type is an interface, purges all implementing classes
+     * in the interface hierarchy
      *
      * @param type the type whose object references and relationship mappings we want to purge
      */
     public void clear(Class<?> type) {
 
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+
+        if (classInfo.isInterface()) {
+            List<ClassInfo> implementingClasses = metaData.getImplementingClassInfos(classInfo.name());
+            for (ClassInfo implementingClass : implementingClasses) {
+                try {
+                    String implementingClassName = implementingClass.name();
+                    clear(Class.forName(implementingClassName));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        else {
+            PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+            clear(type, identityReader);
+        }
+    }
+
+    private void clear(Class<?> type, PropertyReader identityReader) {
         for (Object entity : getAll(type)) {
             purge(entity, identityReader);
         }

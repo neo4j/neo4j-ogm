@@ -155,6 +155,7 @@ public class SessionResponseHandler implements ResponseHandler {
     public <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> response) {
         List<T> objects = new ArrayList<>();
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
+
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
             objects.addAll(ogm.map(type, graphModel));

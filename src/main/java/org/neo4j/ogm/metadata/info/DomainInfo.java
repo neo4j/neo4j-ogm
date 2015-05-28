@@ -261,7 +261,7 @@ public class DomainInfo implements ClassFileProcessor {
 
     public ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
         ClassInfo classInfo = getClassSimpleName(fullOrPartialClassName);
-        if (classInfo.isInterface()) {
+        if (classInfo != null && classInfo.isInterface()) {
             return classInfo;
         }
         return null;
@@ -449,6 +449,10 @@ public class DomainInfo implements ClassFileProcessor {
     // leaky for spring
     public Map<String, ClassInfo> getClassInfoMap() {
         return classNameToClassInfo;
+    }
+
+    public List<ClassInfo> getClassInfos(String interfaceName) {
+        return interfaceNameToClassInfo.get(interfaceName);
     }
 
 }

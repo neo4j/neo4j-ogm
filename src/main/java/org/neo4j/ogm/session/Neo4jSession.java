@@ -422,12 +422,7 @@ public class Neo4jSession implements Session {
     }
 
     public String entityType(String name) {
-        ClassInfo classInfo = metaData.classInfo(name);
-        if(metaData.isRelationshipEntity(classInfo.name())) {
-            AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
-            return annotation.get(RelationshipEntity.TYPE, classInfo.name());
-        }
-        return classInfo.label();
+        return metaData.entityType(name);
     }
 
     public MappingContext context() {

@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Vince Bickers
  */
-@Ignore("doesn't work with 2.2.2")
 public class ABTest extends InMemoryServerTrait
 {
 
@@ -83,7 +82,7 @@ public class ABTest extends InMemoryServerTrait
     }
 
     @Test
-    @Ignore("doesn't work in 2.1.8")
+    @Ignore
     public void shouldReflectRemovalA() {
 
         session.save(a);

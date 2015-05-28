@@ -14,7 +14,6 @@ package org.neo4j.ogm.unit.mapper;
 
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
@@ -22,7 +21,6 @@ import org.neo4j.ogm.domain.policy.Policy;
 /**
  * @author Mark Angrish
  */
-@Ignore("doesn't work with 2.2.2")
 public class RelationshipMappingTest extends MappingTrait
 {
 

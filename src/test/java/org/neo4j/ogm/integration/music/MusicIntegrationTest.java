@@ -15,7 +15,6 @@ package org.neo4j.ogm.integration.music;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.ogm.cypher.Filter;
@@ -36,7 +35,6 @@ import static org.junit.Assert.*;
 /**
  * @author Luanne Misquitta
  */
-@Ignore("doesn't work with 2.2.2")
 public class MusicIntegrationTest {
 
     @ClassRule

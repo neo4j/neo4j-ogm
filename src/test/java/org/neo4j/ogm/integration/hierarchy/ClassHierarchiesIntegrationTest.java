@@ -14,7 +14,6 @@ package org.neo4j.ogm.integration.hierarchy;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -52,7 +51,6 @@ import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
  * @author Michal Bachman
  * @author Luanne Misquitta
  */
-@Ignore("doesn't work with 2.2.2")
 public class ClassHierarchiesIntegrationTest {
 
     @Rule

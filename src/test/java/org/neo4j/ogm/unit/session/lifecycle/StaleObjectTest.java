@@ -14,7 +14,6 @@ package org.neo4j.ogm.unit.session.lifecycle;
 
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
@@ -49,7 +48,6 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Vince Bickers
  */
-@Ignore("doesn't work with 2.2.2")
 public class StaleObjectTest {
 
     @ClassRule

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -27,7 +26,6 @@ import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 /**
  * @author Vince Bickers
  */
-@Ignore("doesn't work with 2.2.2")
 public class AABBTest extends RelationshipTrait
 {
 

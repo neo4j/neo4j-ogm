@@ -19,7 +19,6 @@ import java.util.*;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -33,7 +32,6 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-@Ignore("doesn't work with 2.2.2")
 public class CineastsRelationshipEntityTest{
 
 	@Rule

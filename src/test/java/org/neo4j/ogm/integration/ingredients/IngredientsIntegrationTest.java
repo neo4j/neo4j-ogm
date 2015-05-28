@@ -16,7 +16,6 @@ import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
@@ -27,7 +26,6 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Luanne Misquitta
  */
-@Ignore("doesn't work with 2.2.2")
 public class IngredientsIntegrationTest {
 
 	@ClassRule

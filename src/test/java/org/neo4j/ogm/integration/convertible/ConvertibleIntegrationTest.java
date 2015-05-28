@@ -22,7 +22,6 @@ import java.util.*;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.cypher.Filter;
@@ -38,7 +37,6 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Luanne Misquitta
  */
-@Ignore("doesn't work with 2.2.2")
 public class ConvertibleIntegrationTest {
 
     @ClassRule

@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Vector;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.integration.InMemoryServerTrait;
@@ -29,7 +28,6 @@ import org.neo4j.ogm.session.SessionFactory;
 /**
  * @author Luanne Misquitta
  */
-@Ignore("doesn't work with 2.2.2")
 public class NumericConversionTest extends InMemoryServerTrait
 {
 

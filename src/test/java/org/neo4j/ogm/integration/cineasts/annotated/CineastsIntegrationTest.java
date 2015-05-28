@@ -22,7 +22,6 @@ import java.util.Collections;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
@@ -36,7 +35,6 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
  * @author Michal Bachman
  * @author Adam George
  */
-@Ignore("doesn't work with 2.2.2")
 public class CineastsIntegrationTest {
 
     @ClassRule

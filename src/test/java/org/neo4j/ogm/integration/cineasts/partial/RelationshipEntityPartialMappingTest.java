@@ -13,7 +13,6 @@
 package org.neo4j.ogm.integration.cineasts.partial;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
@@ -34,7 +33,6 @@ import static junit.framework.Assert.assertEquals;
  *
  * @author Vince Bickers
  */
-@Ignore("doesn't work with 2.2.2")
 public class RelationshipEntityPartialMappingTest {
 
     @Rule

@@ -14,7 +14,6 @@ package org.neo4j.ogm.integration;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -24,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Michal Bachman
  */
-@Ignore("doesn't work with 2.2.2")
 public class TransactionRequestHandlerTest extends InMemoryServerTrait
 {
 

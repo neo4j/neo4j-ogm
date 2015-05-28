@@ -87,6 +87,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -99,6 +100,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -140,17 +142,16 @@
         <username>neo4j</username>
         <password>password</password>
       </properties>
-      <dependencyManagement>
         <dependencies>
           <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-io</artifactId>
+<!-- IntelliJ can't figure this out, but there actually exists a neo4j-io test jar in 2.2 -->
             <version>${neo4j.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
           </dependency>
         </dependencies>
-      </dependencyManagement>
     </profile>
   </profiles>
 

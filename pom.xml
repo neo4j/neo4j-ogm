@@ -15,7 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <neo4j>2.1.8</neo4j>
+    <neo4j.version>2.1.8</neo4j.version>
     <commonslang>2.6</commonslang>
     <jackson>2.5.1</jackson>
     <httpclient>4.3.6</httpclient>
@@ -23,100 +23,55 @@
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson}</version>
     </dependency>
-
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>${httpclient}</version>
     </dependency>
-
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j</artifactId>
-      <version>${neo4j}</version>
+      <version>${neo4j.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.neo4j.app</groupId>
       <artifactId>neo4j-server</artifactId>
-      <version>${neo4j}</version>
+      <version>${neo4j.version}</version>
     </dependency>
-
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${commonslang}</version>
     </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-kernel</artifactId>
-      <version>${neo4j}</version>
+      <version>${neo4j.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.neo4j.app</groupId>
       <artifactId>neo4j-server</artifactId>
-      <version>${neo4j}</version>
+      <version>${neo4j.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
     <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.18.1</version>
-        <executions>
-          <execution>
-            <id>default-test</id>
-            <configuration>
-              <forkMode>once</forkMode>
-              <includes>
-                <include>**/*.java</include>
-              </includes>
-              <excludes>
-                <!-- 2.2 auth tests -->
-                <exclude>**/server/**</exclude>
-                <!-- known defects -->
-                <exclude>**/defects/**</exclude>
-              </excludes>
-            </configuration>
-          </execution>
-
-        </executions>
-
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -129,13 +84,35 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.neo4j.build.plugins</groupId>
         <artifactId>ease-maven-plugin</artifactId>
         <version>1</version>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
@@ -145,78 +122,34 @@
           </altDeploymentRepository>
         </configuration>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <outputDirectory>${project.build.directory}/dependency/${neo4j.version}</outputDirectory>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <profiles>
-
     <profile>
       <id>2.2</id>
-
       <properties>
-        <neo4j>2.2.2</neo4j>
+        <neo4j.version>2.2.2</neo4j.version>
         <username>neo4j</username>
         <password>password</password>
       </properties>
-
       <dependencyManagement>
-
         <dependencies>
           <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-io</artifactId>
-            <version>${neo4j}</version>
+            <version>${neo4j.version}</version>
           </dependency>
         </dependencies>
-
       </dependencyManagement>
-
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.18.1</version>
-            <executions>
-              <execution>
-                <id>default-test</id>
-                <configuration>
-                  <includes>
-                    <include>**/server/**</include>
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-
     </profile>
-
-    <profile>
-      <id>defects</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.18.1</version>
-            <executions>
-              <execution>
-                <id>default-test</id>
-                <configuration>
-                  <includes>
-                    <include>**/defects/**</include>
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
   </profiles>
 
 </project>

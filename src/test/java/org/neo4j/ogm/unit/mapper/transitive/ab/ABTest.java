@@ -82,7 +82,7 @@ public class ABTest extends InMemoryServerTrait
     }
 
     @Test
-    @Ignore
+    @Ignore("fails in CI")
     public void shouldReflectRemovalA() {
 
         session.save(a);

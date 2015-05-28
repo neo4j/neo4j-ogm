@@ -13,6 +13,7 @@
 package org.neo4j.ogm.unit.mapper.transitive.ab;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.integration.InMemoryServerTrait;
@@ -81,6 +82,7 @@ public class ABTest extends InMemoryServerTrait
     }
 
     @Test
+    @Ignore
     public void shouldReflectRemovalA() {
 
         session.save(a);

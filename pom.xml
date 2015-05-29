@@ -173,11 +173,6 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/testutil/**</include>
-                            </includes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

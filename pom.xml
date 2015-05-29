@@ -186,7 +186,7 @@
             <id>2.2</id>
 
             <properties>
-                <neo4j>2.2.2</neo4j>
+                <neo4j.version>2.2.2</neo4j.version>
                 <username>neo4j</username>
                 <password>password</password>
             </properties>
@@ -195,8 +195,20 @@
 
                 <dependency>
                     <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j</artifactId>
+                    <version>${neo4j.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.neo4j.app</groupId>
+                    <artifactId>neo4j-server</artifactId>
+                    <version>${neo4j.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-kernel</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <type>test-jar</type>
                     <scope>test</scope>
                 </dependency>
@@ -205,7 +217,7 @@
                 <dependency>
                     <groupId>org.neo4j</groupId>
                     <artifactId>neo4j-io</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <type>test-jar</type>
                     <scope>test</scope>
                 </dependency>
@@ -213,7 +225,7 @@
                 <dependency>
                     <groupId>org.neo4j.app</groupId>
                     <artifactId>neo4j-server</artifactId>
-                    <version>${neo4j}</version>
+                    <version>${neo4j.version}</version>
                     <type>test-jar</type>
                     <scope>test</scope>
                 </dependency>

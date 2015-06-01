@@ -27,13 +27,13 @@ import org.neo4j.ogm.metadata.MappingException;
 /**
  * Maintains object to graph mapping details at the class (type) level
  *
- * The ClassInfo object is used to maintain mappings from Java Types->Neo4j Labels
+ * The ClassInfo object is used to maintain mappings from Java Types-&gt;Neo4j Labels
  * thereby allowing the correct labels to be applied to new nodes when they
  * are persisted.
  *
  * The ClassInfo object also maintains a map of FieldInfo and MethodInfo objects
  * that maintain the appropriate information for mapping Java class attributes to Neo4j
- * node properties / paths (node)-[:relationship]->(node), via field or method
+ * node properties / paths (node)-[:relationship]-&gt;(node), via field or method
  * accessors respectively.
  *
  * Given a type hierarchy, the ClassInfo object guarantees that for any type in that
@@ -104,7 +104,10 @@ public class ClassInfo {
 
     }
 
-    /** A class that was previously only seen as a temp superclass of another class can now be fully hydrated. */
+    /** A class that was previously only seen as a temp superclass of another class can now be fully hydrated.
+     *
+     * @param classInfoDetails  ClassInfo details
+     */
     public void hydrate(ClassInfo classInfoDetails) {
 
         if (!this.hydrated) {
@@ -133,14 +136,21 @@ public class ClassInfo {
         this.methodsInfo.append(classInfo.methodsInfo());
     }
 
-    /** This class was referenced as a superclass of the given subclass. */
+    /**
+     * This class was referenced as a superclass of the given subclass.
+     * @param name the name of the class
+     * @param subclass {@link ClassInfo} of the subclass
+     */
     public ClassInfo(String name, ClassInfo subclass) {
         this.className = name;
         this.hydrated = false;
         addSubclass(subclass);
     }
 
-    /** Connect this class to a subclass. */
+    /** Connect this class to a subclass.
+     *
+     * @param subclass the subclass
+     */
     public void addSubclass(ClassInfo subclass) {
         if (subclass.directSuperclass != null && subclass.directSuperclass != this) {
             throw new RuntimeException(subclass.className + " has two superclasses: " + subclass.directSuperclass.className + ", " + this.className);
@@ -589,11 +599,7 @@ public class ClassInfo {
         return null;
     }
 
-    /**
-     *
-     * @param fieldInfo
-     * @return
-     */
+
     public Field getField(FieldInfo fieldInfo) {
         try {
             return Class.forName(name()).getDeclaredField(fieldInfo.getName());
@@ -609,12 +615,7 @@ public class ClassInfo {
 
     }
 
-    /**
-     *
-     * @param methodInfo
-     * @param parameterTypes
-     * @return
-     */
+
     public Method getMethod(MethodInfo methodInfo, Class... parameterTypes) {
         try {
             return Class.forName(name()).getMethod(methodInfo.getName(), parameterTypes);
@@ -677,6 +678,8 @@ public class ClassInfo {
     /**
      * Retrieves a {@link List} of {@link FieldInfo} representing all of the fields that can be iterated over
      * using a "foreach" loop.
+     *
+     * @return {@link List} of {@link FieldInfo}
      */
     public List<FieldInfo> findIterableFields() {
         List<FieldInfo> fieldInfos = new ArrayList<>();
@@ -695,8 +698,11 @@ public class ClassInfo {
     }
 
     /**
-     * Finds all fields whose type is equivalent to Array<X> or assignable from Iterable<X>
+     * Finds all fields whose type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable
+     *
+     * @param iteratedType      the type of iterable
+     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
@@ -720,8 +726,12 @@ public class ClassInfo {
     }
 
     /**
-     * Finds all fields whose type is equivalent to Array<X> or assignable from Iterable<X>
+     * Finds all fields whose type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable and the relationship type backing this iterable is "relationshipType"
+     *
+     * @param iteratedType      the type of iterable
+     * @param relationshipType  the relationship type
+     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
@@ -735,8 +745,12 @@ public class ClassInfo {
 
 
     /**
-     * Finds all setter methods whose parameter signature is equivalent to Array<X> or assignable from Iterable<X>
+     * Finds all setter methods whose parameter signature is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable
+     *
+     * @param iteratedType  the type of iterable
+     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
+     *
      */
     public List<MethodInfo> findIterableSetters(Class iteratedType) {
         List<MethodInfo> methodInfos = new ArrayList<>();
@@ -774,9 +788,13 @@ public class ClassInfo {
     }
 
     /**
-     * Finds all setter methods whose parameter signature is equivalent to Array<X> or assignable from Iterable<X>
+     * Finds all setter methods whose parameter signature is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable and the relationship type this setter is annotated with is "relationshipType"
-     */
+     *
+     * @param iteratedType      the type of iterable
+     * @param relationshipType  the relationship type
+     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
+     * */
     public List<MethodInfo> findIterableSetters(Class iteratedType, String relationshipType) {
         List<MethodInfo> methodInfos = new ArrayList<>();
         for(MethodInfo methodInfo : findIterableSetters(iteratedType)) {
@@ -789,8 +807,11 @@ public class ClassInfo {
 
 
         /**
-		 * Finds all getter methods whose parameterised return type is equivalent to Array<X> or assignable from Iterable<X>
+		 * Finds all getter methods whose parameterised return type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
 		 * where X is the generic parameter type of the Array or Iterable
+         *
+         * @param iteratedType  the type of iterable
+         * @return {@link List} of {@link MethodInfo}, never <code>null</code>
 		 */
     public List<MethodInfo> findIterableGetters(Class iteratedType) {
         List<MethodInfo> methodInfos = new ArrayList<>();
@@ -828,8 +849,12 @@ public class ClassInfo {
     }
 
     /**
-     * Finds all getter methods whose parameterised return type is equivalent to Array<X> or assignable from Iterable<X>
+     * Finds all getter methods whose parameterised return type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable and the relationship type this getter is annotated with is "relationshipType"
+     *
+     * @param iteratedType      the type of iterable
+     * @param relationshipType  the relationship type
+     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<MethodInfo> findIterableGetters(Class iteratedType, String relationshipType) {
         List<MethodInfo> methodInfos = new ArrayList<>();

@@ -52,7 +52,7 @@ public class TransientRelationship {
      * Creates a MappedRelationship from a TransientRelationship
      * using the supplied refMap to lookup and replace the correct start and end node ids
      * @param refMap A Map containing refs to the src/tgt ids
-     * @return
+     * @return the MappedRelationship
      */
     public MappedRelationship convert(Map<String, Long> refMap) {
 

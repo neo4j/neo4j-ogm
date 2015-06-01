@@ -86,7 +86,7 @@ public class CypherContext {
     }
 
     /**
-     * Invoked when the mapper wishes to mark a set of outgoing relationships like (a)-[:T]->(*) as deleted, prior
+     * Invoked when the mapper wishes to mark a set of outgoing relationships like (a)-[:T]-&gt;(*) as deleted, prior
      * to possibly re-establishing them individually as it traverses the entity graph.
      *
      * There are two reasons why a set of relationships might not be be able to be marked deleted:
@@ -130,7 +130,7 @@ public class CypherContext {
     }
 
     /**
-     * Invoked when the mapper wishes to mark a set of incoming relationships like (a)<-[:T]-(*) as deleted, prior
+     * Invoked when the mapper wishes to mark a set of incoming relationships like (a)&lt;-[:T]-(*) as deleted, prior
      * to possibly re-establishing them individually as it traverses the entity graph.
      *
      * There are two reasons why a set of relationships might not be be able to be marked deleted:

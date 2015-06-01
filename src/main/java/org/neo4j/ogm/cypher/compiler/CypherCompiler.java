@@ -102,7 +102,7 @@ public interface CypherCompiler {
      *
      * This is to ensure that references are only created when needed
      *
-     * @param relationshipBuilder
+     * @param relationshipBuilder the {@link RelationshipBuilder}
      */
     void release(RelationshipBuilder relationshipBuilder);
 

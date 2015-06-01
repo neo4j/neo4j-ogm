@@ -38,6 +38,9 @@ public abstract class ClassUtils {
 
     /**
      * Return the reified class for the parameter of a parameterised setter or field from the parameter signature
+     *
+     * @param descriptor parameter descriptor
+     * @return reified class for the parameter
      */
     public static Class<?> getType(String descriptor) {
 
@@ -83,6 +86,7 @@ public abstract class ClassUtils {
      * Get a list of unique elements on the classpath as File objects, preserving order.
      * Classpath elements that do not exist are not returned.
      * @param classPaths classpaths to be included
+     * @return {@link List} of unique {@link File} objects on the classpath
      */
     public static ArrayList<File> getUniqueClasspathElements(List<String> classPaths) {
         ArrayList<File> pathFiles = new ArrayList<>();

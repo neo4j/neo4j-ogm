@@ -28,7 +28,7 @@ public interface Transaction extends AutoCloseable {
 
     /**
      * The endpoint for this transaction
-     * @return
+     * @return the endpoint for the transaction
      */
     String url();
 

@@ -13,12 +13,14 @@
 package org.neo4j.ogm.integration.satellite;
 
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
-import org.neo4j.ogm.integration.InMemoryServerTrait;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -33,12 +35,17 @@ import static org.junit.Assert.fail;
  *
  * @author Vince Bickers
  */
-public class SatelliteIntegrationTest extends InMemoryServerTrait
+public class SatelliteIntegrationTest
 {
+    @ClassRule
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+
+    private static Session session;
+
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession(neo4jRule.baseNeoUrl());
+        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession(neo4jRule.url());
         importSatellites();
     }
 

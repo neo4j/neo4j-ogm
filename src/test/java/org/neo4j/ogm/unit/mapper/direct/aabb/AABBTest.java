@@ -13,21 +13,28 @@
 
 package org.neo4j.ogm.unit.mapper.direct.aabb;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
+
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * @author Vince Bickers
  */
 public class AABBTest extends RelationshipTrait
 {
+    @ClassRule
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+
+    private Session session;
 
     private A a1, a2, a3;
     private B b1, b2, b3;
@@ -37,7 +44,7 @@ public class AABBTest extends RelationshipTrait
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.unit.mapper.direct.aabb");
-        session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+        session = sessionFactory.openSession(neo4jRule.url());
         setUpEntityModel();
 
     }

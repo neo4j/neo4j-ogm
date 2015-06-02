@@ -43,7 +43,7 @@ public class RelationshipEntityPartialMappingTest {
     @Before
     public void init() {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.partial");
-        session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+        session = sessionFactory.openSession(neo4jRule.url());
     }
 
     @Test

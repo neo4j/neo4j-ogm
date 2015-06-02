@@ -38,7 +38,7 @@ public class IngredientsIntegrationTest {
 
 	@BeforeClass
 	public static void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.ingredients").openSession(databaseServerRule.baseNeoUrl());
+		session = new SessionFactory("org.neo4j.ogm.domain.ingredients").openSession(databaseServerRule.url());
 	}
 
 	/**

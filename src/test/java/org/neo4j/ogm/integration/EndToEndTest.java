@@ -47,7 +47,7 @@ public class EndToEndTest {
     @Before
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession(databaseServerRule.baseNeoUrl());
+        session = sessionFactory.openSession(databaseServerRule.url());
     }
 
     @After

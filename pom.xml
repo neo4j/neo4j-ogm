@@ -15,7 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <neo4j>2.1.8</neo4j>
+        <neo4j>2.2.2</neo4j>
+        <neo4j-io>2.2.2</neo4j-io>
         <commonslang>2.6</commonslang>
         <jackson>2.5.1</jackson>
         <httpclient>4.3.6</httpclient>
@@ -75,6 +76,16 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-io</artifactId>
+            <version>${neo4j-io}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>
@@ -172,56 +183,12 @@
 
     <profiles>
 
+
         <profile>
-            <id>2.2</id>
-
+            <id>2.1</id>
             <properties>
-                <neo4j>2.2.2</neo4j>
-                <username>neo4j</username>
-                <password>password</password>
+                <neo4j>2.1.8</neo4j>
             </properties>
-
-            <dependencies>
-
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j</artifactId>
-                    <version>${neo4j}</version>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.neo4j.app</groupId>
-                    <artifactId>neo4j-server</artifactId>
-                    <version>${neo4j}</version>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-kernel</artifactId>
-                    <version>${neo4j}</version>
-                    <type>test-jar</type>
-                    <scope>test</scope>
-                </dependency>
-
-
-                <dependency>
-                    <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-io</artifactId>
-                    <version>${neo4j}</version>
-                    <type>test-jar</type>
-                    <scope>test</scope>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.neo4j.app</groupId>
-                    <artifactId>neo4j-server</artifactId>
-                    <version>${neo4j}</version>
-                    <type>test-jar</type>
-                    <scope>test</scope>
-                </dependency>
-
-            </dependencies>
-
         </profile>
 
         <profile>

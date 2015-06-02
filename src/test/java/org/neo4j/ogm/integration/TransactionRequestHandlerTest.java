@@ -14,24 +14,32 @@ package org.neo4j.ogm.integration;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Michal Bachman
  */
-public class TransactionRequestHandlerTest extends InMemoryServerTrait
+public class TransactionRequestHandlerTest
 {
+
+    @ClassRule
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+
+    private Session session;
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     @Test
     public void testCreateLongTransaction() {
 
-        TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.baseNeoUrl());
+        TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.url());
         try (Transaction tx = txRequestHandler.openTransaction(null)) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
@@ -40,7 +48,7 @@ public class TransactionRequestHandlerTest extends InMemoryServerTrait
     @Test
     public void testCreateConcurrentTransactions() {
 
-        TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.baseNeoUrl());
+        TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.url());
 
         // note that the try-with-resources implies these transactions are nested, but they are in fact independent
         try (Transaction tx1 = txRequestHandler.openTransaction(null)) {

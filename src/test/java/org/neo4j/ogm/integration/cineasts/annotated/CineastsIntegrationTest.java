@@ -44,7 +44,7 @@ public class CineastsIntegrationTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(databaseServerRule.baseNeoUrl());
+        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(databaseServerRule.url());
         importCineasts();
     }
 

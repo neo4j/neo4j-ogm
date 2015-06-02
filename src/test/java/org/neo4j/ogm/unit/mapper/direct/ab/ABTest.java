@@ -13,10 +13,13 @@
 package org.neo4j.ogm.unit.mapper.direct.ab;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
 import java.io.IOException;
@@ -31,6 +34,11 @@ import static org.junit.Assert.assertNull;
 public class ABTest extends RelationshipTrait
 {
 
+    @ClassRule
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+
+    private Session session;
+
     private A a;
     private B b;
 
@@ -39,7 +47,7 @@ public class ABTest extends RelationshipTrait
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.unit.mapper.direct.ab");
-        session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+        session = sessionFactory.openSession(neo4jRule.url());
         setUpEntityModel();
     }
 

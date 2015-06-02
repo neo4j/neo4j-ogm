@@ -43,7 +43,7 @@ public class SocialRelationshipsIntegrationTest {
 	@Before
 	public void init() throws IOException {
 		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
-		session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+		session = sessionFactory.openSession(neo4jRule.url());
 	}
 
     @After

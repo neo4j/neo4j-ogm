@@ -19,24 +19,31 @@ import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.domain.social.Person;
 import org.neo4j.ogm.domain.social.User;
-import org.neo4j.ogm.integration.InMemoryServerTrait;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 /**
  * @author Luanne Misquitta
  */
-public class SocialIntegrationTest extends InMemoryServerTrait
+public class SocialIntegrationTest
 {
+    @ClassRule
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
 
-	@Before
+    private Session session;
+
+
+    @Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(neo4jRule.baseNeoUrl());
+		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(neo4jRule.url());
 	}
 
 	@After

@@ -46,7 +46,7 @@ public class ConvertibleIntegrationTest {
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession(neo4jRule.baseNeoUrl());
+        session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession(neo4jRule.url());
     }
 
     /**

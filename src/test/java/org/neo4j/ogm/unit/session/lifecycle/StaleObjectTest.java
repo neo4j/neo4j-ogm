@@ -62,7 +62,7 @@ public class StaleObjectTest {
     @Before
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem");
-        session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+        session = sessionFactory.openSession(neo4jRule.url());
 
         a = new Document();
         a.setName("a");

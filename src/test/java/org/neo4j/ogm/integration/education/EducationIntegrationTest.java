@@ -13,32 +13,39 @@
 package org.neo4j.ogm.integration.education;
 
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
-import org.neo4j.ogm.integration.InMemoryServerTrait;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luanne Misquitta
  */
-public class EducationIntegrationTest extends InMemoryServerTrait
+public class EducationIntegrationTest
 {
+
+    @ClassRule
+    public static Neo4jIntegrationTestRule databaseServerRule = new Neo4jIntegrationTestRule();
+
+    private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.education").openSession(neo4jRule.baseNeoUrl());
+        session = new SessionFactory("org.neo4j.ogm.domain.education").openSession(databaseServerRule.url());
     }
 
     @Test

@@ -39,7 +39,7 @@ public class RelationshipEntityTest {
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(neo4jRule.baseNeoUrl());
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(neo4jRule.url());
 	}
 
 	/**

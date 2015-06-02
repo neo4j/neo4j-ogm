@@ -13,11 +13,13 @@
 package org.neo4j.ogm.unit.mapper.transitive.ab;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.integration.InMemoryServerTrait;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -28,9 +30,13 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Vince Bickers
  */
-public class ABTest extends InMemoryServerTrait
+public class ABTest
 {
 
+    @ClassRule
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+
+    private Session session;
 
     private A a;
     private B b;
@@ -41,7 +47,7 @@ public class ABTest extends InMemoryServerTrait
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.unit.mapper.transitive.ab");
-        session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+        session = sessionFactory.openSession(neo4jRule.url());
         setUpEntityModel();
     }
 

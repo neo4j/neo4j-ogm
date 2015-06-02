@@ -60,7 +60,7 @@ public class TxHandlerIntegrationTest {
                 return null;
             }
         });
-        session = sessionFactory.openSession(neo4jRule.baseNeoUrl());
+        session = sessionFactory.openSession(neo4jRule.url());
     }
 
     @Test

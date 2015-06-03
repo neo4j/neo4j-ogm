@@ -115,7 +115,7 @@ public final class GraphTestUtils {
             String firstDatabaseName) {
         Map<Long, Long[]> sameNodesMap = new HashMap<>(); //map of nodeID and IDs of nodes that match
 
-        for (Node node : at(otherDatabase).getAllNodes()) {
+        for (Node node : otherDatabase.getAllNodes()) {
             Iterable<Node> sameNodes = findSameNodes(database, node); //List of all nodes that match this
 
             //fail fast
@@ -169,6 +169,7 @@ public final class GraphTestUtils {
     private static void assertRelationshipsMappingExistsForSingleNodeMapping(GraphDatabaseService database,
             GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
         Set<Long> usedRelationships = new HashSet<>();
+
         for (Relationship relationship : at(otherDatabase).getAllRelationships()) {
             if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
                 Assert.fail("No corresponding relationship found to " + print(relationship) + " in " + firstDatabaseName);

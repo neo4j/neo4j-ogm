@@ -17,6 +17,9 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.kernel.Version;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.session.Session;
@@ -24,11 +27,11 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.TestUtils;
-import org.neo4j.server.NeoServer;
-import org.neo4j.server.helpers.CommunityServerBuilder;
+import org.neo4j.server.AbstractNeoServer;
 
 import java.io.FileWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +44,7 @@ import static org.junit.Assume.assumeTrue;
  */
 public class AuthenticationTest
 {
-    private static NeoServer neoServer;
+    private static AbstractNeoServer neoServer;
     private static int neoPort;
     private Session session;
 
@@ -50,6 +53,7 @@ public class AuthenticationTest
 
     @BeforeClass
     public static void setUp() throws Exception {
+
         Path authStore = Files.createTempFile( "neo4j", "credentials" );
         authStore.toFile().deleteOnExit();
         try (Writer authStoreWriter = new FileWriter( authStore.toFile() )) {
@@ -58,23 +62,26 @@ public class AuthenticationTest
         }
 
         neoPort = TestUtils.getAvailablePort();
+
         try {
-            neoServer = CommunityServerBuilder.server()
-                    .withProperty("dbms.security.auth_enabled", "true")
-                    .withProperty("dbms.security.auth_store.location", authStore.toAbsolutePath().toString() )
-                    .onPort(neoPort).build();
+            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+                    .withConfig("dbms.security.auth_enabled", "true")
+                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(neoPort))
+                    .withConfig("dbms.security.auth_store.location", "src/test/resources/neo4j.credentials")
+                    .newServer();
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    neoServer.stop();
-                }
-            });
-
-            neoServer.start();
+            initialise(controls);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error starting in-process server",e);
         }
+    }
+
+    private static void initialise(ServerControls controls) throws Exception {
+
+        Field field = InProcessServerControls.class.getDeclaredField("server");
+        field.setAccessible(true);
+        neoServer = (AbstractNeoServer) field.get(controls);
     }
 
     @Test

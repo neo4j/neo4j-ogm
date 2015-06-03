@@ -482,7 +482,7 @@ public class ClassHierarchiesIntegrationTest {
         session.save(new PlainChildOfTransientParent());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
             tx.success();
         }
     }
@@ -494,7 +494,7 @@ public class ClassHierarchiesIntegrationTest {
     public void plainChildOfTransientInterface() {
         session.save(new PlainChildOfTransientInterface());
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
             tx.success();
         }
     }
@@ -504,7 +504,7 @@ public class ClassHierarchiesIntegrationTest {
         session.save(new TransientChildWithPlainConcreteParent());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
             tx.success();
         }
     }
@@ -514,7 +514,7 @@ public class ClassHierarchiesIntegrationTest {
         session.save(new TransientSingleClass());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
             tx.success();
         }
     }
@@ -524,7 +524,7 @@ public class ClassHierarchiesIntegrationTest {
         session.save(new TransientSingleClassWithId());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(GlobalGraphOperations.at(getDatabase()).getAllNodes().iterator().hasNext());
+            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
             tx.success();
         }
     }

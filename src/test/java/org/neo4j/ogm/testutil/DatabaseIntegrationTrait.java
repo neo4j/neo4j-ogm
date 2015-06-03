@@ -71,6 +71,16 @@ public abstract class DatabaseIntegrationTrait
         return database;
     }
 
+    protected GraphDatabaseService createDatabase(String path) {
+        final GraphDatabaseService database = new TestGraphDatabaseFactory().newEmbeddedDatabase(path);
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                database.shutdown();
+            }
+        });
+        return database;
+    }
     /**
      * Populate the database that will drive this test. A transaction is running when this method gets called.
      *

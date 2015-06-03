@@ -12,6 +12,7 @@
 
 package org.neo4j.ogm.auth;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.BeforeClass;
@@ -26,7 +27,11 @@ import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.server.NeoServer;
 import org.neo4j.server.helpers.CommunityServerBuilder;
 
+import java.io.FileWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -44,13 +49,19 @@ public class AuthenticationTest
     private boolean NO_AUTH = false;
 
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws Exception {
+        Path authStore = Files.createTempFile( "neo4j", "credentials" );
+        authStore.toFile().deleteOnExit();
+        try (Writer authStoreWriter = new FileWriter( authStore.toFile() )) {
+            IOUtils.write( "neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A," +
+                    "819BDB957119F8DFFF65604C92980A91:", authStoreWriter );
+        }
 
         neoPort = TestUtils.getAvailablePort();
         try {
             neoServer = CommunityServerBuilder.server()
                     .withProperty("dbms.security.auth_enabled", "true")
-                    .withProperty("dbms.security.auth_store.location", "src/test/resources/neo4j.credentials")
+                    .withProperty("dbms.security.auth_store.location", authStore.toAbsolutePath().toString() )
                     .onPort(neoPort).build();
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -64,7 +75,6 @@ public class AuthenticationTest
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Test

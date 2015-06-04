@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -148,6 +150,33 @@ public class FriendshipsRelationshipEntityTest {
 		assertEquals("Dave", daveCopy.getName());
 		assertEquals("Mike", mikeCopy.getName());
 		assertEquals(5, friendshipCopy.getStrength());
+
+	}
+
+	/**
+	 * @see DATAGRAPH-644
+	 */
+	@Test
+	public void shouldRetrieveRelationshipEntitySetPropertyCorrecly() {
+
+		Person mike = new Person("Mike");
+		Person dave = new Person("Dave");
+
+		Set<String> hobbies = new HashSet<>();
+		hobbies.add("Swimming");
+		hobbies.add("Cooking");
+		dave.getFriends().add(new Friendship(dave, mike, 5, hobbies));
+
+		session.save(dave);
+
+		assertNotNull(dave.getId());
+		assertNotNull(mike.getId());
+		assertNotNull(dave.getFriends().get(0).getId());
+
+		session.clear();
+
+		mike = session.load(Person.class, mike.getId());
+		assertEquals(2, mike.getFriends().get(0).getSharedHobbies().size());
 
 	}
 }

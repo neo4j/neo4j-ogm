@@ -12,6 +12,8 @@
 
 package org.neo4j.ogm.domain.friendships;
 
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
@@ -32,12 +34,21 @@ public class Friendship {
 
     private int strength;
 
+    private Set<String> sharedHobbies;
+
     public Friendship() {}
 
     public Friendship(Person from, Person to, int strength) {
         this.person = from;
         this.friend = to;
         this.strength = strength;
+    }
+
+    public Friendship(Person person, Person friend, int strength, Set<String> sharedHobbies) {
+        this.person = person;
+        this.friend = friend;
+        this.strength = strength;
+        this.sharedHobbies = sharedHobbies;
     }
 
     public Person getPerson() {
@@ -54,5 +65,13 @@ public class Friendship {
 
     public Long getId() {
         return id;
+    }
+
+    public Set<String> getSharedHobbies() {
+        return sharedHobbies;
+    }
+
+    public void setSharedHobbies(Set<String> sharedHobbies) {
+        this.sharedHobbies = sharedHobbies;
     }
 }

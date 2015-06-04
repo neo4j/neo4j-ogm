@@ -19,6 +19,7 @@ import org.neo4j.ogm.session.Utils;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
@@ -79,7 +80,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             return new ArrayList<>(union(collection, hydrated));
         }
         if (Set.class.isAssignableFrom(parameterType)) {
-            return union(collection, hydrated);
+            return new HashSet<>(union(collection, hydrated));
         }
         return null;
     }

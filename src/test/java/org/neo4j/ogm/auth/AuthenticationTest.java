@@ -57,8 +57,7 @@ public class AuthenticationTest
         Path authStore = Files.createTempFile( "neo4j", "credentials" );
         authStore.toFile().deleteOnExit();
         try (Writer authStoreWriter = new FileWriter( authStore.toFile() )) {
-            IOUtils.write( "neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A," +
-                    "819BDB957119F8DFFF65604C92980A91:", authStoreWriter );
+            IOUtils.write( "neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:", authStoreWriter );
         }
 
         neoPort = TestUtils.getAvailablePort();
@@ -67,7 +66,7 @@ public class AuthenticationTest
             ServerControls controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "true")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(neoPort))
-                    .withConfig("dbms.security.auth_store.location", "src/test/resources/neo4j.credentials")
+                    .withConfig("dbms.security.auth_store.location", authStore.toAbsolutePath().toString())
                     .newServer();
 
             initialise(controls);
@@ -79,8 +78,8 @@ public class AuthenticationTest
 
     private static void initialise(ServerControls controls) throws Exception {
 
-        Field field = InProcessServerControls.class.getDeclaredField("server");
-        field.setAccessible(true);
+        Field field = InProcessServerControls.class.getDeclaredField( "server" );
+        field.setAccessible( true );
         neoServer = (AbstractNeoServer) field.get(controls);
     }
 

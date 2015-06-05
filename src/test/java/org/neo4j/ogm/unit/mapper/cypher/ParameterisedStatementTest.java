@@ -177,7 +177,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
         statement = new VariableDepthRelationshipQuery().findByProperties("HAS-ALBUM", new Filters().add(new Filter("fake-property", "none")), 1);
-        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` } WITH n,r MATCH p=(n)-[*0..1]-() RETURN collect(distinct p), ID(r)", statement.getStatement());
+        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` } WITH r,n MATCH p=(n)-[*0..1]-() RETURN collect(distinct p), ID(r)", statement.getStatement());
         assertEquals("{\"fake-property\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
 
     }

@@ -12,10 +12,10 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers
@@ -86,6 +86,10 @@ public class Actor {
         this.nominations = nominations;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,10 +107,6 @@ public class Actor {
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
     }
 
     public void setRoles(Set<Role> roles) {

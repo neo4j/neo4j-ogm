@@ -11,7 +11,7 @@
 
 <!-- Stuff Maven Central needs -->
     <name>Neo4j Object-Graph Mapper</name>
-    <description>Standalone OGM module; used by Spring Data Neo4j</description>
+    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support</description>
     <organization>
         <name>Neo Technology, Inc.</name>
         <url>http://neotechnology.com/</url>

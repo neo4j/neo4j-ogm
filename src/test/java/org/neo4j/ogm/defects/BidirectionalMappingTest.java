@@ -37,7 +37,6 @@ import static org.junit.Assert.assertNull;
  *
  * @author Vince Bickers
  */
-@Ignore
 public class BidirectionalMappingTest {
 
     @Rule

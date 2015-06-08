@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public class BlogTest {
 

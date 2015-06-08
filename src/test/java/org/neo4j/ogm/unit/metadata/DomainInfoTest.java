@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @see DATAGRAPH-590 - Metadata resolves to an abstract class for an interface
  *
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public class DomainInfoTest {
 

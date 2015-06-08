@@ -3,7 +3,7 @@ package org.neo4j.ogm.domain.linkedlist;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public class Item {
 

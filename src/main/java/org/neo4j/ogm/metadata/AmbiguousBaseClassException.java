@@ -12,7 +12,7 @@
 package org.neo4j.ogm.metadata;
 
 /**
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public class AmbiguousBaseClassException extends MappingException {
     public AmbiguousBaseClassException(String taxa, Exception cause) {

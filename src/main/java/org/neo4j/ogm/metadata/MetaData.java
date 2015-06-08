@@ -81,7 +81,7 @@ public class MetaData {
         if (labelledClasses != null) {
             for (ClassInfo labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
-                String value = annotationInfo.get(annotationPropertyName, labelledClass.label());
+                String value = annotationInfo.get(annotationPropertyName, labelledClass.neo4jName());
                 if (value.equals(name)) {
                     return labelledClass;
                 }
@@ -185,7 +185,7 @@ public class MetaData {
             AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
             return annotation.get(RelationshipEntity.TYPE, classInfo.name());
         }
-        return classInfo.label();
+        return classInfo.neo4jName();
 
     }
 

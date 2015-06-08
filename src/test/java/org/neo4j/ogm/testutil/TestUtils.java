@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 /**
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public final class TestUtils {
 

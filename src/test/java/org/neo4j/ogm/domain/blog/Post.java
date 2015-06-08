@@ -4,7 +4,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 
 /**
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public class Post {
 

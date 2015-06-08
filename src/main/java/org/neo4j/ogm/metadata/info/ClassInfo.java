@@ -101,7 +101,6 @@ public class ClassInfo {
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
 
-
     }
 
     /** A class that was previously only seen as a temp superclass of another class can now be fully hydrated.
@@ -186,14 +185,21 @@ public class ClassInfo {
         return collectLabels(new ArrayList<String>());
     }
 
-    public String label() {
+    public String neo4jName() {
         AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
-        return((annotationInfo != null) ? annotationInfo.get(NodeEntity.LABEL, simpleName()) : simpleName());
+        if (annotationInfo != null) {
+            return annotationInfo.get(NodeEntity.LABEL, simpleName());
+        }
+        annotationInfo = annotationsInfo.get(RelationshipEntity.CLASS);
+        if (annotationInfo != null) {
+            return annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
+        }
+        return simpleName();
     }
 
     private Collection<String> collectLabels(Collection<String> labelNames) {
         if (!isAbstract || annotationsInfo.get(NodeEntity.CLASS) != null) {
-            labelNames.add(label());
+            labelNames.add(neo4jName());
         }
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
             directSuperclass.collectLabels(labelNames);

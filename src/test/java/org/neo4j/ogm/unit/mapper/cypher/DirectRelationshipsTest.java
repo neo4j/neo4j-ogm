@@ -33,7 +33,7 @@ import org.neo4j.ogm.metadata.MetaData;
  *
  * @see DATAGRAPH-588 - Relationship deletion problems
  *
- * @author: Vince Bickers
+ * @author Vince Bickers
  */
 public class DirectRelationshipsTest {
 

@@ -317,7 +317,8 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             if (isRelationshipEntity(target)) {
                 if (!context.visitedRelationshipEntity(target)) {
                     mapRelationshipEntity(target, source, relationshipBuilder, context, nodeBuilder, cypherCompiler, horizon);
-                } else {
+                }
+                else {
                     logger.debug("RE already visited {}: ", target);
                 }
             } else {
@@ -358,6 +359,9 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         }
 
         relationshipBuilder.direction(relationshipDirection);
+        if (isRelationshipEntity(entity)) {
+            relationshipBuilder.setSingleton(false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
+        }
         return relationshipBuilder;
     }
 
@@ -594,7 +598,8 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      */
     private void maybeCreateRelationship(CypherContext context, String src, RelationshipBuilder relationshipBuilder, String tgt) {
 
-        if (hasTransientRelationship(context, src, relationshipBuilder.getType(), tgt)) {
+        //if (hasTransientRelationship(context, src, relationshipBuilder.getType(), tgt)) {
+        if (hasTransientRelationship(context, src, relationshipBuilder, tgt)) {
             logger.debug("new relationship is already registered");
             return;
         }
@@ -618,10 +623,10 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      * @return
      */
-    private boolean hasTransientRelationship(CypherContext ctx, String src, String type, String tgt) {
+    private boolean hasTransientRelationship(CypherContext ctx, String src, RelationshipBuilder relationshipBuilder, String tgt) {
         for (Object object : ctx.log()) {
             if (object instanceof TransientRelationship) {
-                if (((TransientRelationship) object).equalsIgnoreDirection(src, type, tgt)) {
+                if (((TransientRelationship) object).equalsIgnoreDirection(src, relationshipBuilder, tgt)) {
                     return true;
                 }
             }

@@ -13,6 +13,7 @@
 package org.neo4j.ogm.defects;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -29,7 +30,6 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Luanne Misquitta
  */
-@Ignore
 public class RelationshipEntityTest {
 
 	@Rule
@@ -62,5 +62,6 @@ public class RelationshipEntityTest {
 		assertNotNull(daniel);
 		assertEquals(1, daniel.getNominations().size()); //fails
 	}
+
 
 }

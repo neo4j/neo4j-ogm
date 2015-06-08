@@ -17,6 +17,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -66,23 +67,25 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
             request.setEntity(entity);
 
-            HttpResponse response = httpClient.execute(request);
+            CloseableHttpResponse response = httpClient.execute(request);
+            try {
+                StatusLine statusLine = response.getStatusLine();
+                HttpEntity responseEntity = response.getEntity();
 
-            StatusLine statusLine = response.getStatusLine();
-            HttpEntity responseEntity = response.getEntity();
+                if (statusLine.getStatusCode() >= 300) {
+                    throw new HttpResponseException(
+                            statusLine.getStatusCode(),
+                            statusLine.getReasonPhrase());
+                }
+                if (responseEntity == null) {
+                    throw new ClientProtocolException("Response contains no content");
+                }
 
-            if (statusLine.getStatusCode() >= 300) {
-                throw new HttpResponseException(
-                        statusLine.getStatusCode(),
-                        statusLine.getReasonPhrase());
+                LOGGER.info("response is OK, creating response handler");
+                return new JsonResponse(responseEntity.getContent());
+            } finally {
+                response.close();
             }
-            if (responseEntity == null) {
-                throw new ClientProtocolException("Response contains no content");
-            }
-
-            LOGGER.info("response is OK, creating response handler");
-            return new JsonResponse(responseEntity.getContent());
-
 
         }
         catch (Exception e) {

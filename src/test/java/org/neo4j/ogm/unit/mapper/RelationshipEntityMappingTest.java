@@ -52,4 +52,6 @@ public class RelationshipEntityMappingTest extends MappingTrait
         //Not quite sure if the relationship type should be the field name or the RelationshipEntity class name?
     }
 
+
+
 }

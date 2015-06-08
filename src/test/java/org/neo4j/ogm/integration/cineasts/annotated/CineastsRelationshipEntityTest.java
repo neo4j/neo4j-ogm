@@ -569,4 +569,28 @@ public class CineastsRelationshipEntityTest{
 
 	}
 
+    @Test
+    public void shouldSaveMultipleRoleRelationshipsBetweenTheSameTwoObjects() {
+
+        Movie movie3 = new Movie();
+        movie3.setTitle("The big John Travolta Party");
+
+
+        Actor actor = new Actor("John Travolta");
+
+        for(int i = 65; i <= 90; i++) {
+            String role = new String(new char[]{(char) i});
+            actor.playedIn(movie3, role);
+        }
+
+        assertEquals(26, actor.getRoles().size());
+        session.save(actor);
+
+        session.clear();
+        Actor loadedActor = session.load(Actor.class, actor.getId());
+
+        assertEquals(26, loadedActor.getRoles().size());
+
+    }
+
 }

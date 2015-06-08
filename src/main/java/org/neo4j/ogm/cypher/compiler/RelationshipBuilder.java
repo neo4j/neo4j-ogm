@@ -29,10 +29,18 @@ public abstract class RelationshipBuilder implements CypherEmitter, Comparable<R
     protected String startNodeIdentifier;
     protected String endNodeIdentifier;
     protected String reference;
-
+    private Boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
     private String direction;
+
     final Map<String, Object> props = new HashMap<>();
 
+    public Boolean isSingleton() {
+        return singleton;
+    }
+
+    public void setSingleton(Boolean singleton) {
+        this.singleton = singleton;
+    }
 
     protected RelationshipBuilder(String variableName) {
         this.reference = variableName;

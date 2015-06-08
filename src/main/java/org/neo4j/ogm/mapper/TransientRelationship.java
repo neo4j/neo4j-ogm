@@ -12,6 +12,8 @@
 
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
+
 import java.util.Map;
 
 /**
@@ -75,13 +77,16 @@ public class TransientRelationship {
         return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity);
     }
 
-    public boolean equalsIgnoreDirection(String src, String type, String tgt) {
-        if (this.rel.equals(type)) {
-            if (this.src.equals(src) && this.tgt.equals(tgt)) {
-                return true;
-            }
-            if (this.src.equals(tgt) && this.tgt.equals(src)) {
-                return true;
+    public boolean equalsIgnoreDirection(String src, RelationshipBuilder builder, String tgt) {
+        Boolean singleton = builder.isSingleton();
+        if (this.rel.equals(builder.getType())) {
+            if (singleton) {
+                if (this.src.equals(src) && this.tgt.equals(tgt)) {
+                    return true;
+                }
+                if (this.src.equals(tgt) && this.tgt.equals(src)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -74,6 +74,10 @@ public class Filter {
 	 */
 	private String relationshipDirection;
 
+	/**
+	 * Whether the nested property is backed by a relationship entity
+	 */
+	private boolean nestedRelationshipEntity;
 
 	public Filter() {
 	}
@@ -175,5 +179,11 @@ public class Filter {
 		this.nestedEntityTypeLabel = nestedEntityTypeLabel;
 	}
 
+	public boolean isNestedRelationshipEntity() {
+		return nestedRelationshipEntity;
+	}
 
+	public void setNestedRelationshipEntity(boolean nestedRelationshipEntity) {
+		this.nestedRelationshipEntity = nestedRelationshipEntity;
+	}
 }

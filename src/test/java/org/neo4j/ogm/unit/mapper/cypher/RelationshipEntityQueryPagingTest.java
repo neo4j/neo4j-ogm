@@ -46,7 +46,7 @@ public class RelationshipEntityQueryPagingTest {
 
     @Test
     public void testFindByProperty() throws Exception {
-        assertEquals("MATCH (n)-[r:`ORBITS`]->() WHERE r.`distance` = { `distance` } WITH n,r SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(new Filter("distance", 60.2)), 1).setPagination(new Pagination(0, 4)).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } WITH n,r SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(new Filter("distance", 60.2)), 1).setPagination(new Pagination(0, 4)).getStatement());
     }
 
 }

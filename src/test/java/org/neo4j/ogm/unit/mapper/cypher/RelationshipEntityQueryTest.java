@@ -16,6 +16,8 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.neo4j.ogm.cypher.BooleanOperator;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.InvalidDepthException;
@@ -24,6 +26,7 @@ import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class RelationshipEntityQueryTest {
     
@@ -51,7 +54,7 @@ public class RelationshipEntityQueryTest {
 
     @Test
     public void testFindByProperty() throws Exception {
-        assertEquals("MATCH (n)-[r:`ORBITS`]->() WHERE r.`distance` = { `distance` } WITH n,r MATCH p=(n)-[*0..4]-(m) RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(new Filter("distance", 60.2)), 4).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(new Filter("distance", 60.2)), 4).getStatement());
     }
 
     @Test(expected = InvalidDepthException.class)
@@ -94,4 +97,214 @@ public class RelationshipEntityQueryTest {
         query.findByProperties("ORBITS", new Filters().add(new Filter("period", 2103.776)), -1).getStatement();
     }
 
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByNestedPropertyOutgoing() throws Exception {
+        Filter planetFilter = new Filter();
+        planetFilter.setNestedPropertyName("world");
+        planetFilter.setNestedEntityTypeLabel("Planet");
+        planetFilter.setPropertyValue("Earth");
+        planetFilter.setPropertyName("name");
+        planetFilter.setRelationshipType("ORBITS");
+        planetFilter.setRelationshipDirection("OUTGOING");
+        planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `name` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByNestedPropertyIncoming() throws Exception {
+        Filter planetFilter = new Filter();
+        planetFilter.setNestedPropertyName("world");
+        planetFilter.setNestedEntityTypeLabel("Planet");
+        planetFilter.setPropertyValue("Earth");
+        planetFilter.setPropertyName("name");
+        planetFilter.setRelationshipType("ORBITS");
+        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `name` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByMultipleNestedProperties() throws Exception {
+        Filter planetNameFilter = new Filter();
+        planetNameFilter.setNestedPropertyName("world");
+        planetNameFilter.setNestedEntityTypeLabel("Planet");
+        planetNameFilter.setPropertyValue("Earth");
+        planetNameFilter.setPropertyName("name");
+        planetNameFilter.setRelationshipType("ORBITS");
+        planetNameFilter.setRelationshipDirection("OUTGOING");
+        planetNameFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        Filter planetMoonsFilter = new Filter();
+        planetMoonsFilter.setNestedPropertyName("moons");
+        planetMoonsFilter.setNestedEntityTypeLabel("Planet");
+        planetMoonsFilter.setPropertyValue("Earth");
+        planetMoonsFilter.setPropertyName("moons");
+        planetMoonsFilter.setRelationshipType("ORBITS");
+        planetMoonsFilter.setRelationshipDirection("OUTGOING");
+        planetMoonsFilter.setBooleanOperator(BooleanOperator.AND);
+        planetMoonsFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `name` } AND n.`moons` = { `moons` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetNameFilter,planetMoonsFilter), 4).getStatement());
+    }
+
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByMultipleNestedPropertiesOnBothEnds() throws Exception {
+        Filter moonFilter = new Filter();
+        moonFilter.setNestedPropertyName("world");
+        moonFilter.setNestedEntityTypeLabel("Moon");
+        moonFilter.setPropertyValue("Earth");
+        moonFilter.setPropertyName("name");
+        moonFilter.setRelationshipType("ORBITS");
+        moonFilter.setRelationshipDirection("OUTGOING");
+        moonFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        Filter planetFilter = new Filter();
+        planetFilter.setNestedPropertyName("colour");
+        planetFilter.setNestedEntityTypeLabel("Planet");
+        planetFilter.setPropertyValue("Red");
+        planetFilter.setPropertyName("colour");
+        planetFilter.setRelationshipType("ORBITS");
+        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByPropertiesAnded() throws Exception {
+        Filter distance = new Filter("distance", 60.2);
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.AND);
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } AND r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance,time), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByPropertiesOred() throws Exception {
+        Filter distance = new Filter("distance", 60.2);
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.OR);
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } OR r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByPropertiesWithDifferentComparisonOperatorsAnded() throws Exception {
+        Filter distance = new Filter("distance", 60.2);
+        distance.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.AND);
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` < { `distance` } AND r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance,time), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByPropertiesWithDifferentComparisonOperatorsOred() throws Exception {
+        Filter distance = new Filter("distance", 60.2);
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.OR);
+        time.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } OR r.`time` > { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByBaseAndNestedPropertyOutgoing() throws Exception {
+        Filter planetFilter = new Filter();
+        planetFilter.setNestedPropertyName("world");
+        planetFilter.setNestedEntityTypeLabel("Planet");
+        planetFilter.setPropertyValue("Earth");
+        planetFilter.setPropertyName("name");
+        planetFilter.setRelationshipType("ORBITS");
+        planetFilter.setRelationshipDirection("OUTGOING");
+        planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.AND);
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
+    }
+
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByBaseAndNestedPropertyIncoming() throws Exception {
+        Filter planetFilter = new Filter();
+        planetFilter.setNestedPropertyName("world");
+        planetFilter.setNestedEntityTypeLabel("Planet");
+        planetFilter.setPropertyValue("Earth");
+        planetFilter.setPropertyName("name");
+        planetFilter.setRelationshipType("ORBITS");
+        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.AND);
+        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
+    }
+
+
+    /**
+     * @see DATAGRAPH-632
+     * @throws Exception
+     */
+    @Test
+    public void testFindByBaseAndMultipleNestedPropertiesOnBothEnds() throws Exception {
+        Filter moonFilter = new Filter();
+        moonFilter.setNestedPropertyName("world");
+        moonFilter.setNestedEntityTypeLabel("Moon");
+        moonFilter.setPropertyValue("Earth");
+        moonFilter.setPropertyName("name");
+        moonFilter.setRelationshipType("ORBITS");
+        moonFilter.setRelationshipDirection("OUTGOING");
+        moonFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        Filter planetFilter = new Filter();
+        planetFilter.setNestedPropertyName("colour");
+        planetFilter.setNestedEntityTypeLabel("Planet");
+        planetFilter.setPropertyValue("Red");
+        planetFilter.setPropertyName("colour");
+        planetFilter.setRelationshipType("ORBITS");
+        planetFilter.setRelationshipDirection("INCOMING");
+        planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+
+        Filter time = new Filter("time",3600);
+        time.setBooleanOperator(BooleanOperator.AND);
+
+        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter,time), 4).getStatement());
+    }
 }

@@ -13,8 +13,10 @@ package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
 
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
@@ -34,6 +36,7 @@ import org.neo4j.ogm.session.result.GraphRowModel;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class LoadByTypeDelegate implements Capability.LoadByType {
 
@@ -208,6 +211,9 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                 resolveRelationshipType(filter);
                 ClassInfo nestedClassInfo = session.metaData().classInfo(filter.getNestedPropertyType().getName());
                 filter.setNestedEntityTypeLabel(session.entityType(nestedClassInfo.name()));
+                if(session.metaData().isRelationshipEntity(nestedClassInfo.name())) {
+                    filter.setNestedRelationshipEntity(true);
+                }
             }
         }
         return filters;
@@ -232,11 +238,17 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
         String defaultRelationshipType = RelationshipUtils.inferRelationshipType(parameter.getNestedPropertyName());
         parameter.setRelationshipType(defaultRelationshipType);
         parameter.setRelationshipDirection(Relationship.UNDIRECTED);
-        if(fieldInfo.getAnnotations() != null) {
+        if (fieldInfo.getAnnotations() != null) {
             AnnotationInfo annotation = fieldInfo.getAnnotations().get(Relationship.CLASS);
-            if(annotation != null) {
+            if (annotation != null) {
                 parameter.setRelationshipType(annotation.get(Relationship.TYPE, defaultRelationshipType));
                 parameter.setRelationshipDirection(annotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED));
+            }
+            if (fieldInfo.getAnnotations().get(StartNode.CLASS) != null) {
+                parameter.setRelationshipDirection(Relationship.OUTGOING);
+            }
+            if (fieldInfo.getAnnotations().get(EndNode.CLASS) != null) {
+                parameter.setRelationshipDirection(Relationship.INCOMING);
             }
         }
     }

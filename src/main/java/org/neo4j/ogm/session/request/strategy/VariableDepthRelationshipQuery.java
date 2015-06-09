@@ -12,6 +12,7 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -19,9 +20,7 @@ import org.neo4j.ogm.cypher.query.*;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Luanne Misquitta
@@ -75,20 +74,80 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
 		int min = min(max);
 		if (max > 0) {
 			Map<String, Object> properties = new HashMap<>();
-			StringBuilder query = new StringBuilder(String.format("MATCH (n)-[r:`%s`]->() WHERE", type));
-			for (Filter parameter : parameters) {
-				if (parameter.getBooleanOperator() != BooleanOperator.NONE) {
-					query.append(parameter.getBooleanOperator().getValue());
-				}
-				query.append(String.format(" r.`%s` %s { `%s` } ", parameter.getPropertyName(), parameter.getComparisonOperator().getValue(), parameter.getPropertyName()));
-				properties.put(parameter.getPropertyName(), parameter.getPropertyValue());
-			}
-			query.append(String.format("WITH n,r MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p), ID(r)", min, max));
+            StringBuilder query = constructQuery(type, parameters, properties);
+			query.append(String.format("WITH n,r MATCH p=(n)-[*%d..%d]-() RETURN collect(distinct p), ID(r)", min, max));
 			return new GraphRowModelQuery(query.toString(), properties);
 		} else {
 			throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
 		}
 	}
+
+    private static StringBuilder constructQuery(String type, Filters filters, Map<String, Object> properties) {
+        List<Filter> startNodeFilters = new ArrayList<>(); //All filters that apply to the start node
+        List<Filter> endNodeFilters = new ArrayList<>(); //All filters that apply to the end node
+        List<Filter> relationshipFilters = new ArrayList<>(); //All filters that apply to the relationship
+        String startNodeLabel = null;
+        String endNodeLabel = null;
+
+        for(Filter filter : filters) {
+            if(filter.isNested()) {
+                if(filter.getBooleanOperator().equals(BooleanOperator.OR)) {
+                    throw new UnsupportedOperationException("OR is not supported for nested properties on a relationship entity");
+                }
+                if(filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+                    if(startNodeLabel==null) {
+                        startNodeLabel = filter.getNestedEntityTypeLabel();
+                        filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the start node
+                    }
+                    startNodeFilters.add(filter);
+                }
+                else {
+                    if(endNodeLabel==null) {
+                        endNodeLabel = filter.getNestedEntityTypeLabel();
+                        filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the end node
+                    }
+                    endNodeFilters.add(filter);
+                }
+            }
+            else {
+                if(relationshipFilters.size()==0) {
+                    filter.setBooleanOperator(BooleanOperator.NONE); //TODO think about the importance of the first filter and stop using this as a condition to test against
+                }
+                relationshipFilters.add(filter);
+            }
+        }
+
+        StringBuilder query = new StringBuilder();
+        createNodeMatchSubquery(properties, startNodeFilters, startNodeLabel, query, "n");
+        createNodeMatchSubquery(properties, endNodeFilters, endNodeLabel, query, "m");
+        createRelationSubquery(type, properties, relationshipFilters, query);
+        return query;
+    }
+
+    private static void createRelationSubquery(String type, Map<String, Object> properties, List<Filter> relationshipFilters, StringBuilder query) {
+        query.append(String.format("MATCH (n)-[r:`%s`]->(m) ", type));
+        if(relationshipFilters.size() > 0) {
+            query.append("WHERE ");
+            appendFilters(relationshipFilters,"r",query, properties);
+        }
+    }
+
+    private static void createNodeMatchSubquery(Map<String, Object> properties, List<Filter> nodeFilters, String nodeLabel, StringBuilder query, String nodeIdentifier) {
+        if (nodeLabel != null) {
+            query.append(String.format("MATCH (%s:`%s`) WHERE ", nodeIdentifier,nodeLabel));
+            appendFilters(nodeFilters, nodeIdentifier, query, properties);
+        }
+    }
+
+    private static void appendFilters(List<Filter> filters, String nodeIdentifier, StringBuilder query,  Map<String, Object> properties) {
+        for(Filter filter : filters) {
+            if(!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+                query.append(filter.getBooleanOperator().getValue()).append(" ");
+            }
+			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), filter.getPropertyName()));
+            properties.put(filter.getPropertyName(),filter.getPropertyValue());
+		}
+    }
 
     private int min(int depth) {
         return Math.min(0, depth);

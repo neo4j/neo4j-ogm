@@ -31,6 +31,7 @@ public class Individual {
     private Integer numberOfPets;
     private Float distanceFromZoo;
     private Byte numberOfShoes;
+    private Double maxTemp;
 
     private List<Individual> friends;
     private int[] primitiveIntArray;
@@ -154,5 +155,13 @@ public class Individual {
 
     public void setByteCollection(List<Byte> byteCollection) {
         this.byteCollection = byteCollection;
+    }
+
+    public Double getMaxTemp() {
+        return maxTemp;
+    }
+
+    public void setMaxTemp(Double maxTemp) {
+        this.maxTemp = maxTemp;
     }
 }

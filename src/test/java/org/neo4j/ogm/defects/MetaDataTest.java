@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.MetaData;
@@ -26,6 +27,7 @@ import org.neo4j.ogm.metadata.info.MethodInfo;
 /**
  * @author Luanne Misquitta
  */
+@Ignore
 public class MetaDataTest {
 
 	private MetaData metaData;

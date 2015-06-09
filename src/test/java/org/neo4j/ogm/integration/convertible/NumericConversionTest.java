@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -41,6 +42,11 @@ public class NumericConversionTest
     @Before
 	public void init() throws IOException {
 		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(neo4jRule.url());
+	}
+
+	@After
+	public void destroy() {
+		session.purgeDatabase();
 	}
 
 	/**
@@ -150,6 +156,16 @@ public class NumericConversionTest
 	public void shouldFailForByteAsFloat() {
 		session.execute("CREATE (i:Individual {name: 'Gary', numberOfShoes: 3.5})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
+	}
+
+	/**
+	 * @see DATAGRAPH-658
+	 */
+	@Test
+	public void shouldLoadDoubleWhenDecimalIsMissing() {
+		session.execute("CREATE (i:Individual {name: 'Gary', maxTemp: 31})", Collections.EMPTY_MAP);
+		Individual i = session.loadAll(Individual.class).iterator().next();
+		assertEquals(new Double(31),i.getMaxTemp());
 	}
 
 }

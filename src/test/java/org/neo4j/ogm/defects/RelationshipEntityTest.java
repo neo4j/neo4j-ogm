@@ -30,6 +30,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Luanne Misquitta
  */
+@Ignore
 public class RelationshipEntityTest {
 
 	@Rule

@@ -21,6 +21,7 @@ import org.neo4j.ogm.model.Property;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class Utils {
 
@@ -100,6 +101,15 @@ public class Utils {
                     throw new IllegalArgumentException(intValue + " cannot be cast to byte without an overflow.");
                 }
                 return intValue.byteValue();
+            }
+        }
+        if("double".equals(clazz.getName()) || Double.class.equals(clazz)) {
+            if(value.getClass().equals(Integer.class)) {
+                Integer intValue = (Integer) value;
+                if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
+                    throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
+                }
+                return (double) intValue;
             }
         }
         return value;

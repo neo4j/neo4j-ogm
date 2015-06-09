@@ -50,6 +50,8 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
     public Neo4jResponse<String> execute(String url, String cypherQuery) {
 
+        JsonResponse jsonResponse = null;
+
         try {
 
             LOGGER.info("POST " + url + ", request: " + cypherQuery);
@@ -68,28 +70,30 @@ public class DefaultRequest implements Neo4jRequest<String> {
             request.setEntity(entity);
 
             CloseableHttpResponse response = httpClient.execute(request);
-            try {
-                StatusLine statusLine = response.getStatusLine();
-                HttpEntity responseEntity = response.getEntity();
 
-                if (statusLine.getStatusCode() >= 300) {
-                    throw new HttpResponseException(
-                            statusLine.getStatusCode(),
-                            statusLine.getReasonPhrase());
-                }
-                if (responseEntity == null) {
-                    throw new ClientProtocolException("Response contains no content");
-                }
+            StatusLine statusLine = response.getStatusLine();
+            HttpEntity responseEntity = response.getEntity();
 
-                LOGGER.info("response is OK, creating response handler");
-                return new JsonResponse(responseEntity.getContent());
-            } finally {
-                response.close();
+            if (statusLine.getStatusCode() >= 300) {
+                throw new HttpResponseException(
+                        statusLine.getStatusCode(),
+                        statusLine.getReasonPhrase());
+            }
+            if (responseEntity == null) {
+                throw new ClientProtocolException("Response contains no content");
             }
 
+            LOGGER.info("Response is OK, creating response handler");
+            jsonResponse = new JsonResponse(response);
+            return jsonResponse;
+
         }
+        // the primary exception handler, will ensure all resources are properly closed
         catch (Exception e) {
-            System.out.println("caught response exception: " + e.getLocalizedMessage());
+            LOGGER.warn("Caught response exception: " + e.getLocalizedMessage());
+            if (jsonResponse != null) {
+                jsonResponse.close();
+            }
             throw new ResultProcessingException("Failed to execute request: " + cypherQuery, e);
         }
     }

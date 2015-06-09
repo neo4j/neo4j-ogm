@@ -12,8 +12,12 @@
 
 package org.neo4j.ogm.session.response;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
@@ -34,16 +38,24 @@ public class JsonResponse implements Neo4jResponse<String> {
     private static final String RESULTS_TOKEN = "\"results";
     private static final String STATS_TOKEN = "\"stats";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonResponse.class);
 
     private final InputStream results;
     private final Scanner scanner;
+    private final CloseableHttpResponse response;
     private String scanToken = null;
     private String[] columns;
     private int currentRow = -1;
 
-    public JsonResponse(InputStream results) {
-        this.results = results;
-        this.scanner = new Scanner(results, "UTF-8");
+
+    public JsonResponse(CloseableHttpResponse response) {
+        try {
+            this.response = response;
+            this.results = response.getEntity().getContent();
+            this.scanner = new Scanner(results, "UTF-8");
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
     }
 
     public void initialiseScan(ResponseRecord record) {
@@ -87,6 +99,10 @@ public class JsonResponse implements Neo4jResponse<String> {
     public void close() {
         try {
             results.close();
+            if (response != null) {
+                LOGGER.info("Closing HttpResponse");
+                response.close();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

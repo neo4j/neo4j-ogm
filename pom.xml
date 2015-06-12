@@ -9,30 +9,6 @@
     <artifactId>neo4j-ogm</artifactId>
     <version>1.1.0-SNAPSHOT</version>
 
-<!-- Stuff Maven Central needs -->
-    <name>Neo4j Object-Graph Mapper</name>
-    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support</description>
-    <organization>
-        <name>Neo Technology, Inc.</name>
-        <url>http://neotechnology.com/</url>
-    </organization>
-    <developers>
-        <developer>
-            <id>neo-technology</id>
-        </developer>
-    </developers>
-    <url>http://github.com/neo4j/neo4j-ogm/</url>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>http://github.com/neo4j/neo4j-ogm/</url>
-    </scm>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -137,6 +113,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
                 <configuration>
                     <outputDirectory>${project.build.directory}/dependency/${neo4j}</outputDirectory>
                 </configuration>
@@ -187,7 +164,6 @@
 
     <profiles>
 
-
         <profile>
             <id>2.1</id>
             <properties>
@@ -219,4 +195,29 @@
         </profile>
 
     </profiles>
+
+    <!-- Stuff Maven Central needs -->
+    <name>Neo4j Object-Graph Mapper</name>
+    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support</description>
+    <organization>
+        <name>Neo Technology, Inc.</name>
+        <url>http://neotechnology.com/</url>
+    </organization>
+    <developers>
+        <developer>
+            <id>neo-technology</id>
+        </developer>
+    </developers>
+    <url>http://github.com/neo4j/neo4j-ogm/</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>http://github.com/neo4j/neo4j-ogm/</url>
+    </scm>
+
 </project>

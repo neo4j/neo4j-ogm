@@ -57,4 +57,4 @@ In general, the scope of a `Session` should correspond to a "unit of work" in yo
 
 If you make sure you load fresh data at the beginning of each unit of work then data integrity shouldn't be a problem.
 
-The `Session` requires a URL with which to access the remote Neo4j database. For test environments, `Neo4jIntegrationTestRule.url()` can be used instead. TODO See the section on testing.
+The `Session` requires a URL with which to access the remote Neo4j database. For test environments, `Neo4jIntegrationTestRule.url()` can be used instead. See the section on <<reference_programming-model_testing,Testing>>.

@@ -26,5 +26,7 @@ include::attachdetach.adoc[]
 
 include::typerepresentationstrategy.adoc[]
 
+include::testing.adoc[]
+
 :leveloffset: -1
 

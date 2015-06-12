@@ -13,11 +13,11 @@ import java.util.Scanner;
 /**
  * @author Vince Bickers
  */
+@SuppressWarnings("deprecation")
 public class TestServer {
 
     private AbstractNeoServer server;
     private GraphDatabaseService database;
-
 
     public TestServer() {
 

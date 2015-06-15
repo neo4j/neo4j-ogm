@@ -46,7 +46,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
  *
  * @author Adam George
  */
-@SuppressWarnings("deprecation")
 public class Neo4jIntegrationTestRule extends TestServer implements TestRule {
 
     public Neo4jIntegrationTestRule() {

@@ -3,3 +3,6 @@
 *target
 data
 out
+.classpath
+.project
+.settings

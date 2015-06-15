@@ -1,16 +1,7 @@
 [[reference_programming-model_transactions]]
 = Transactions
 
-TODO
+Neo4j is a transactional database, only allowing operations to be performed within transaction boundaries.
+Auto commit transactions are provided implicitly for `Session` methods such as `save`, `load`, `delete`, `execute` and so on.
 
-Neo4j is a transactional database, only allowing operations to be performed within transaction boundaries. 
-Spring Data Neo4j integrates nicely with both the declarative transaction support with `@Transactional` as well as the manual transaction handling with `TransactionTemplate`. 
-It also supports the rollback mechanisms of the Spring Testing library.
-
-As of version 4.0, the classes used to perform transaction management have been rewritten.  
-Instead of using `SpringTransactionManager` provided by the Neo4j kernel alongside Spring's `JtaTransactionManager`, the transaction management is performed by `Neo4jTransactionManager`, which implements Spring's `PlatformTransactionManager`. 
- 
-This `Neo4jTransactionManager` is based on an OGM `Session`, on which the `beginTransaction()` method gets called, and this in turn delegates onto the underlying OGM's `TransactionManager` implementation.
-
-The `Neo4jConfiguration` Spring configuration bean will create an instance of this `Neo4jTransactionManager` for use in Spring Data Neo4j.  
-It is made available under the name "transactionManager" in the Spring application context.
+Transactions can also be managed explicitly by calling the `beginTransaction()` method on the `Session` followed by a `commit()` or `rollback()` as required.

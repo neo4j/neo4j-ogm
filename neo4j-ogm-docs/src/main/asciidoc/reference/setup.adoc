@@ -3,7 +3,6 @@
 
 Neo4j OGM dramatically simplifies development, but some setup is required.
 For building the application, Maven needs to be configured to include the Neo4j OGM dependencies and after the build setup is complete, the application needs to be configured to make use of Neo4j OGM.
-*TODO* Examples for these different setups can be found in the http://github.com/neo4j-examples[Spring Data Neo4j examples].
 
 Neo4j OGM projects can be built using Maven, Gradle or Ant/Ivy.
 

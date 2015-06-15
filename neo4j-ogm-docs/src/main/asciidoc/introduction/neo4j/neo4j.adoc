@@ -3,15 +3,15 @@
 
 == What is a graph database?
 
-A graph database is a storage engine that is specialized in storing and retrieving vast networks of information.
+A graph database is a storage engine that is specialised in storing and retrieving vast networks of information.
 It efficiently stores data as nodes and relationships and allows high performance retrieval and querying of those structures.
 Properties can be added to both nodes and relationships. 
 Nodes can be labelled by zero or more labels, relationships are always directed and named.
 
 Graph databases are well suited for storing most kinds of domain models. 
 In almost all domains, there are certain things connected to other things. 
-In most other modeling approaches, the relationships between things are reduced to a single link without identity and attributes. 
-Graph databases allow to keep the rich relationships that originate from the domain equally well-represented in the database without resorting to also modeling the relationships as "things". 
+In most other modelling approaches, the relationships between things are reduced to a single link without identity and attributes.
+Graph databases allow to keep the rich relationships that originate from the domain equally well-represented in the database without resorting to also modelling the relationships as "things".
 There is very little "impedance mismatch" when putting real-life domains into a graph database.
 
 == About Neo4j
@@ -24,8 +24,8 @@ Neo4j is very well-established.
 It has been in commercial development for 15 years and in production for over 12 years. 
 Most importantly, it has an active and contributing community surrounding it, but it also:
 
-* has an intuitive, rich graph-oriented model for data representation. Instead of tables, rows, and columns, you work with a graph consisting of http://neo4j.com/docs/stable/what-is-a-graphdb.html[nodes, relationships, and properties].
-* has a disk-based, native storage manager optimized for storing graph structures with maximum performance and scalability.
+* has an intuitive, rich graph-oriented model for data representation. Instead of tables, rows, and columns, you work with a graph consisting of http://neo4j.com/docs/stable/graphdb-neo4j.html[nodes, relationships, and properties].
+* has a disk-based, native storage manager optimised for storing graph structures with maximum performance and scalability.
 * is scalable. Neo4j can handle graphs with many billions of nodes/relationships/properties on a single machine, but can also be scaled out across multiple machines for high availability.
 * has a powerful graph query language called Cypher, which allows users to efficiently read/write data by expressing graph patterns.
 * has a powerful traversal framework and query languages for traversing the graph.
@@ -47,7 +47,7 @@ The `RETURN` clause defines which part of the query result will be available to 
 Aggregation also happens in the return clause by using aggregation functions on some of the returned values. 
 Sorting can happen in the `ORDER BY` clause and the `SKIP` and `LIMIT` parts restrict the result set to a certain window.
 
-Cypher are executed against Neo4j Server using an HTTP based protocol which is utilized by Neo4j OGM.
+Cypher are executed against Neo4j Server using an HTTP based protocol which is utilised by Neo4j OGM.
 
 .Cypher Examples on the Movies Dataset
 [source,cypher]

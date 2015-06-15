@@ -4,7 +4,7 @@
 Node entities are declared using the `@org.neo4j.ogm.annotation.NodeEntity` annotation. 
 Relationship entities use the `@org.neo4j.ogm.annotation.RelationshipEntity` annotation.
 
-== `@NodeEntity`: The basic building block
+== @NodeEntity: The basic building block
 
 The `@NodeEntity` annotation is used to declare that a POJO class is an entity backed by a node in the graph database. 
 Entities handled by the OGM must have one empty public constructor to allow the library to construct the objects.

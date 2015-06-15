@@ -31,6 +31,9 @@
                         <configuration>
                             <backend>html5</backend>
                             <sourceHighlighter>coderay</sourceHighlighter>
+                            <attributes>
+                                <version>${version}</version>
+                            </attributes>
                         </configuration>
                     </execution>
                 </executions>

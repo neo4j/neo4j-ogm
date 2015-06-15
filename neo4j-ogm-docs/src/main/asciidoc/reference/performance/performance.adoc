@@ -16,7 +16,7 @@ Neo4j provides the capability to do this now with its powerful Cypher language, 
 What we have attempted to do is to ensure that, as much as possible, we don't overload that communication channel.
 This is important for two reasons. 
 Firstly, every network interaction involves an overhead (both bandwidth but more so latency) which impacts the response times of your application. 
-Secondly, network requests containing redundant operations (such as updaing an object which hasn't changed) are unnecessary, and have similar impacts.
+Secondly, network requests containing redundant operations (such as updating an object which hasn't changed) are unnecessary, and have similar impacts.
 We have approached this problem in a number of ways:
 
 === Variable-depth persistence

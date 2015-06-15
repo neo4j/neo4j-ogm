@@ -34,11 +34,11 @@ Neo4j OGM offers a <<reference_programming-model_session,Session>> for interacti
 
 == Mapping Strategies
 Because Neo4j is a schema-free database, the OGM uses a simple mechanism to map Java types to Neo4j nodes using labels.
-How that works is explained here: <<reference_programming_model_typerepresentationstrategy,Entity Type Representation>>.
+How that works is explained here: <<reference_programming-model_typerepresentationstrategy,Entity Type Representation>>.
 
 == Transactional Support
 Neo4j uses transactions to guarantee the integrity of your data and Neo4j OGM supports this fully.
-The implications of this are described in the chapter around <<reference_programming_model_transactions,transactions>>.
+The implications of this are described in <<reference_programming-model_transactions>>.
 
 ////
 == Examples

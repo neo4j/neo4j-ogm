@@ -1,7 +1,7 @@
 [[reference_programming-model_testing]]
 = Testing
 
-=== Neo4jIntegrationTestRule
+== Neo4jIntegrationTestRule
 
 The `Neo4jIntegrationTestRule` provides a URL with which to access an in process database and can be included in your tests using `@Rule` or `@ClassRule`.
 

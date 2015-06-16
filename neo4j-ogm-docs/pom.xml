@@ -21,6 +21,9 @@
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
                 <version>1.5.2.1</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/generated-docs/${project.version}</outputDirectory>
+                </configuration>
                 <executions>
                     <execution>
                         <id>asciidoc-to-html</id> 
@@ -32,7 +35,7 @@
                             <backend>html5</backend>
                             <sourceHighlighter>coderay</sourceHighlighter>
                             <attributes>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                             </attributes>
                         </configuration>
                     </execution>

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.metadata.ClassPathScanner;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -69,6 +70,7 @@ public class ClassPathScannerTest {
 
 
 	@Test
+	@Ignore
 	public void zipFileWithDomainClassesShouldBeScanned() throws IOException {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
@@ -83,6 +85,7 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
+	@Ignore
 	public void domainClassesInNestedZipShouldBeScanned() {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
@@ -97,6 +100,7 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
+	@Ignore
 	public void domainClassesInDirectoryInNestedZipShouldBeScanned() {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();

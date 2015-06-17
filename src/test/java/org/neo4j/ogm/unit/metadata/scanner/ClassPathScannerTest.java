@@ -70,7 +70,6 @@ public class ClassPathScannerTest {
 
 
 	@Test
-	@Ignore
 	public void zipFileWithDomainClassesShouldBeScanned() throws IOException {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();

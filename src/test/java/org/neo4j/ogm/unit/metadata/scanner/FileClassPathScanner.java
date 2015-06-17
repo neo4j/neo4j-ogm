@@ -31,13 +31,28 @@ public class FileClassPathScanner extends ClassPathScanner {
 		URL concert =FileClassPathScanner.class.getClassLoader().getResource("concert.jar");
 		URL radio =FileClassPathScanner.class.getClassLoader().getResource("radio.jar");
 		URL event =FileClassPathScanner.class.getClassLoader().getResource("event.jar");
+
 		try {
-			jars.add(new File(concert.toURI()));
+			addFile(concert,jars);
+			addFile(radio,jars);
+			addFile(event,jars);
+			/*jars.add(new File(concert.toURI()));
 			jars.add(new File(radio.toURI()));
-			jars.add(new File(event.toURI()));
+			jars.add(new File(event.toURI()));*/
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Failed to read test jars", e);
 		}
 		return jars;
+	}
+
+	private void addFile(URL url, List<File> jars) throws URISyntaxException {
+		if(url.getProtocol().equals("file")) {
+			jars.add(new File(url.toURI()));
+		}
+		else if(url.getProtocol().equals("jar")) {
+			String jarPath = url.getPath().substring(5, url.getPath().indexOf("!"));  //Strip out the jar protocol
+			jars.add(new File(jarPath));
+
+		}
 	}
 }

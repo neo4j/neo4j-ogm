@@ -39,4 +39,42 @@ This is the recommended approach because it means you can persist all your chang
 The OGM is able to detect which objects and relationships require changing, so you won't flood Neo4j with a bunch of objects that don't require modification. 
 You can change the persistence depth to any value, but you should not make it less than the value used to load the corresponding data or you run the risk of not having changes you expect to be made actually being persisted in the graph.
 
+In the example below, `session.save(user,1)` will persist all modified objects reachable from `user` up to one level deep.
+This includes `posts` and `groups` but not entities related to them, namely `author`, `comments`, `members` or `location`.
+A persistence depth of 0 i.e. `session.save(user,0)` will save only the properties on the user, ignoring any related entities. In this case, `fullName` is persisted
+but not friends, posts or groups.
 
+
+.Persistence Depth
+[source,java]
+----
+public class User  {
+
+   private Long id;
+   private String fullName;
+   private List<Post> posts;
+   private List<Group> groups;
+
+}
+
+public class Post {
+
+   private Long id;
+   private String name;
+   private String content;
+   private User author;
+   private List<Comment> comments;
+
+}
+
+public class Group {
+
+   private Long id;
+   private String name;
+   private List<User> members;
+   private Location location;
+
+}
+
+
+----

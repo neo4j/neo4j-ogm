@@ -7,7 +7,7 @@ conversions, which allow you to configure how certain data types are mapped to n
 [[reference_programming-model_conversion-built_in]]
 == Built-In Type Conversions
 
-By default, Neo4j OGM will automatically perform the following type conversions:
+Neo4j OGM will automatically perform the following type conversions:
 
 - `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
 - `java.math.BigInteger` to a String property

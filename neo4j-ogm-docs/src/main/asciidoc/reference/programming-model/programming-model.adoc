@@ -8,6 +8,8 @@ It discusses the mapping mode, the annotations provided by the OGM and how to us
 
 include::mapping.adoc[]
 
+include::typerepresentationstrategy.adoc[]
+
 include::simple_mapping.adoc[]
 
 include::node-entities.adoc[]
@@ -23,8 +25,6 @@ include::conversion.adoc[]
 include::transactions.adoc[]
 
 include::attachdetach.adoc[]
-
-include::typerepresentationstrategy.adoc[]
 
 include::testing.adoc[]
 

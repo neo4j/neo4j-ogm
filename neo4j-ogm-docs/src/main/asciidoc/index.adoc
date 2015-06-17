@@ -48,9 +48,5 @@ include::reference/setup.adoc[]
 
 include::reference/programming-model/programming-model.adoc[]
 
-<<<
-
-include::reference/performance/performance.adoc[]
-
 :leveloffset: -1
 

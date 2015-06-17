@@ -11,7 +11,7 @@ Basic operations are limited to CRUD operations on entities and executing arbitr
 There is no way to manipulate relationship- and node-objects directly.
 
 Given that the Neo4j OGM framework is driven by Cypher queries alone, there's no way to work directly with `Node` and `Relationship` objects in remote server mode.
-Similarly, `traverse()` is not supported, again because the underlying query-driven model doesn't handle it in an efficient way.
+Similarly, Traversal Framework operations are not supported, again because the underlying query-driven model doesn't handle it in an efficient way.
 
 If you find yourself in trouble because of the omission of these features, then your best options are:
 
@@ -37,10 +37,3 @@ The keys in each `Map` correspond to the names listed in the return clause of th
 For the query methods that retrieve mapped objects, the recommended query format is to return a path, which should ensure that known types get mapped correctly and joined together with relationships as appropriate.
 
 For Cypher update operations, `Session` provides an `execute` method, to which an arbitrary Cypher update statement (such as CREATE, MERGE or DELETE) can be passed.
-
-== Transactions
-
-The `Session` provides implicit transactions for some of its methods.
-For instance `save` uses them. 
-TODO write some more
-

@@ -44,28 +44,59 @@ public class Actor {
 }
 ----
 
-For graph to object mapping, the automatic transitive loading of related entities depends on the depth of the horizon specified on the call to `Session.load()`.  
-By default, the _related_ node or relationship entities will just be loaded to minimum depth 0, which means their properties will be set but no further related entities will be populated.
+For graph to object mapping, the automatic transitive loading of related entities depends on the depth of the horizon specified on the call to `Session.load()`.
+The default depth of 1 implies that _related_ node or relationship entities will be loaded and have their properties set, but none of their related entities will be populated.
 
 If this `Set` of related entities is modified, the changes are reflected in the graph once the root object (`Actor`, in this case) is saved. 
 Relationships are added, removed or updated according to the differences between the root object that was loaded and the corresponding one that was saved..
 
 Neo4j OGM ensures by default that there is only one relationship of a given type between any two given entities.
-If you don't care about the direction then you can specify `direction=Relationship.UNDIRECTED` which will guarantee that the path between two node entities is navigable from either side.
 The exception to this rule is when a relationship is specified as either `OUTGOING` or `INCOMING` between two entities of the same type.
 In this case, it is possible to have two relationships of the given type between the two entities, one relationship in either direction.
+
+If you don't care about the direction then you can specify `direction=Relationship.UNDIRECTED` which will guarantee that the path between two node entities is navigable from either side.
+
+For example, consider the `PARTNER` relationship between two companies, where `(A)-[:PARTNER_OF]->(B)` implies `(B)-[:PARTNER_OF]->(A)`.
+The direction of the relationship does not matter; only the fact that a `PARTNER_OF` relationship exists between these two companies is of importance.
+Hence an `UNDIRECTED` relationship is the correct choice, ensuring that there is only one relationship of this type between two partners and navigating between them from either entity is possible.
+
+
+[[reference_programming_model_relationships_relationshiptypediscrimination]]
+== Using more than one Relationship of the same Type
+
+In some cases, you want to model two different aspects of a conceptual relationship using the same relationship type.
+Here is a canonical example:
+
+.Clashing Relationship Type
+[source,java]
+----
+@NodeEntity
+class Person {
+    private Long id;
+    @Relationship(type="OWNS")
+    private Car car;
+
+    @Relationship(type="OWNS")
+    private Pet pet;
+...
+}
+----
+
+This will work just fine, however, please be aware that this is only because the end node types (Car and Pet) are different types.
+If you wanted a person to own two cars, for example, then you'd have to use a `Collection` of cars or use differently-named relationship types.
 
 == @RelationshipEntity: Rich relationships
 
 To access the full data model of graph relationships, POJOs can also be annotated with `@RelationshipEntity`, making them relationship entities. 
-Just as node entities represent nodes in the graph, relationship entities represent relationships. Such POJOs allow you access and manage properties on the underlying relationships in the graph.
+Just as node entities represent nodes in the graph, relationship entities represent relationships.
+Such POJOs allow you to access and manage properties on the underlying relationships in the graph.
 
 Fields in relationship entities are similar to node entities, in that they're persisted as properties on the relationship. 
 For accessing the two endpoints of the relationship, two special annotations are available: `@StartNode` and `@EndNode`. 
 A field annotated with one of these annotations will provide access to the corresponding endpoint, depending on the chosen annotation.
 
 For controlling the relationship-type a `String` attribute called `type` is available on the `@RelationshipEntity` annotation.  
-Like the simple strategy for labelling node entities, if this is unset then the name of the class is used to derive the relationship type.  
+Like the simple strategy for labelling node entities, if this is not provided then the name of the class is used to derive the relationship type.
 
 [NOTE]
 ====
@@ -98,26 +129,3 @@ public class Movie {
 ----
 
 
-[[reference_programming_model_relationships_relationshiptypediscrimination]]
-== Discriminating Relationships Based on End Node Type
-
-In some cases, you want to model two different aspects of a conceptual relationship using the same relationship type.
-Here is a canonical example:
-
-.Clashing Relationship Type
-[source,java]
-----
-@NodeEntity
-class Person {
-    private Long id;
-    @Relationship(type="OWNS")
-    private Car car;
-
-    @Relationship(type="OWNS")
-    private Pet pet;
-...
-}
-----
-
-This will work just fine, however, please be aware that this is only because the end node types (Car and Pet) are different types.
-If you wanted a person to own two cars, for example, then you'd have to use a `Collection` of cars or use differently-named relationship types.

@@ -2,7 +2,8 @@
 = Getting started
 
 Neo4j OGM dramatically simplifies development, but some setup is required.
-For building the application, Maven needs to be configured to include the Neo4j OGM dependencies and after the build setup is complete, the application needs to be configured to make use of Neo4j OGM.
+For building the application, your build automation tool needs to be configured to include the Neo4j OGM dependencies and after the build setup is complete,
+the application needs to be configured to make use of Neo4j OGM.
 
 Neo4j OGM projects can be built using Maven, Gradle or Ant/Ivy.
 
@@ -16,6 +17,20 @@ Neo4j OGM projects can be built using Maven, Gradle or Ant/Ivy.
     <artifactId>neo4j-ogm</artifactId>
     <version>{version}</version>
 </dependency>
+----
+
+.Gradle dependencies for Neo4j OGM
+[source,xml]
+----
+dependencies {
+    compile 'org.neo4j:neo4j-ogm:{version}'
+}
+----
+
+.Ivy dependencies for Neo4j OGM
+[source,xml]
+----
+<dependency org="org.neo4j" name="neo4j-ogm" rev="{version}"/>
 ----
 
 == Session Configuration
@@ -32,15 +47,22 @@ Session session = sessionFactory.openSession("http://localhost:7474");
 
 ----
 
-=== SessionFactory Bean
+=== SessionFactory
 
 The `SessionFactory` is needed by OGM to create instances of `org.neo4j.ogm.session.Session` as required.
 This also sets up the object-graph mapping metadata when constructed, which is then used across all `Session` objects that it creates.
-As seen in the above example, the packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
+As seen in the example above, the packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
+Multiple packages may be provided as well.
+
+.Multiple packages
+[source,java]
+----
+SessionFactory sessionFactory = new SessionFactory("first.package.domain", "second.package.domain",...);
+----
 
 Note that the `SessionFactory` should typically be set up once during life of your application.
 
-=== Session Bean
+=== Session
 
 A `Session` is used to drive the object-graph mapping framework. It keeps track of the changes that have been made to entities and their relationships.
 The reason it does this is so that only entities and relationships that have changed get persisted on save, which is particularly efficient when working with large graphs.

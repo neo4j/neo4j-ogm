@@ -36,6 +36,7 @@
                             <sourceHighlighter>coderay</sourceHighlighter>
                             <attributes>
                                 <version>${project.version}</version>
+                                <linkcss>true</linkcss>
                             </attributes>
                         </configuration>
                     </execution>

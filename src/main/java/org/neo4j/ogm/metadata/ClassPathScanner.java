@@ -12,8 +12,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.metadata.info.ClassFileProcessor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,14 +20,23 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
+import org.neo4j.ogm.metadata.info.ClassFileProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class ClassPathScanner {
 
     private List<String> classPaths;
     private ClassFileProcessor processor;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassPathScanner.class);
+
 
     private void scanFile(File file, String relativePath) throws IOException {
         if (relativePath.endsWith(".class")) {
@@ -58,24 +65,49 @@ public class ClassPathScanner {
     }
 
     private void scanZipFile(final ZipFile zipFile) throws IOException {
-
+        LOGGER.debug("Scanning " + zipFile.getName());
         for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
             final ZipEntry entry = entries.nextElement();
-            if (!entry.isDirectory()) {
-                String path = entry.getName();
-                boolean scanFile = false;
-                for (String pathToScan : classPaths) {
-                    if (path.startsWith(pathToScan)) {
-                        scanFile = true;
-                        break;
-                    }
+            scanZipEntry(entry, zipFile, null);
+        }
+    }
+
+    private void scanZipEntry(ZipEntry zipEntry, ZipFile zipFile, ZipInputStream zipInputStream) throws IOException {
+        LOGGER.debug("Scanning entry " + zipEntry.getName());
+        if (!zipEntry.isDirectory()) {
+            String path = zipEntry.getName();
+            if (path.endsWith(".jar") || path.endsWith(".zip")) { //The zipFile contains a zip or jar
+                InputStream inputStream = zipFile.getInputStream(zipEntry); //Attempt to read the nested zip
+                if (inputStream != null) {
+                    zipInputStream = new ZipInputStream(inputStream);
                 }
-                if (scanFile && path.endsWith(".class")) {
-                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                        processor.process(inputStream);
-                    }
+                else {
+                    LOGGER.info("Unable to scan " + zipEntry.getName());
+                }
+                ZipEntry entry = zipInputStream.getNextEntry();
+                while (entry != null) { //Recursively scan each entry in the nested zip given its ZipInputStream
+                    scanZipEntry(entry, zipFile, zipInputStream);
+                    entry = zipInputStream.getNextEntry();
                 }
             }
+            boolean scanFile = false;
+            for (String pathToScan : classPaths) {
+                if (path.startsWith(pathToScan)) {
+                    scanFile = true;
+                    break;
+                }
+            }
+            if (scanFile && path.endsWith(".class")) {
+                if (zipInputStream == null) { //ZipEntry directly in the top level ZipFile
+                    try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+                        processor.process(inputStream);
+                    }
+                } else { //Nested ZipEntry, read from its ZipInputStream
+                    processor.process(zipInputStream);
+                    zipInputStream.closeEntry();
+                }
+            }
+
         }
     }
 
@@ -84,8 +116,9 @@ public class ClassPathScanner {
         this.classPaths = classPaths;
         this.processor = processor;
 
+        List<File> classPathElements = getUniqueClasspathElements(classPaths);
         try {
-            for (File classPathElement : ClassUtils.getUniqueClasspathElements(classPaths)) {
+            for (File classPathElement : classPathElements) {
                 String path = classPathElement.getPath();
                 if (classPathElement.isDirectory()) {
                     scanFolder(classPathElement, path.length() + 1);
@@ -102,6 +135,10 @@ public class ClassPathScanner {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected List<File> getUniqueClasspathElements(List<String> classPaths) {
+        return ClassUtils.getUniqueClasspathElements(classPaths);
     }
 
 }

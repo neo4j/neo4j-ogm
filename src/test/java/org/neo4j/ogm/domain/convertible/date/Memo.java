@@ -16,6 +16,7 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -30,6 +31,9 @@ public class Memo {
 
     // uses default ISO 8601 date format
     private Date recorded;
+
+    @Convert(LocalDateTimeConverter.class)
+    private LocalDateTime initiated;
 
     // declares a custom converter
     @Convert(DateNumericStringConverter.class)
@@ -115,5 +119,13 @@ public class Memo {
 
     public void setImplementations(Set<Date> implementations) {
         this.implementations = implementations;
+    }
+
+    public LocalDateTime getInitiated() {
+        return initiated;
+    }
+
+    public void setInitiated(LocalDateTime initiated) {
+        this.initiated = initiated;
     }
 }

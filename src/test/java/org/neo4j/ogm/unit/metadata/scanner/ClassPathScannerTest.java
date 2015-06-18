@@ -52,12 +52,13 @@ public class ClassPathScannerTest {
 		ClassScanProcessor processor = new ClassScanProcessor();
 
 		classPathScanner.scan(Collections.singletonList("org/neo4j/ogm/domain/convertible"), processor);
-		assertEquals(11, processor.domainClassInfos.size());
+		assertEquals(12, processor.domainClassInfos.size());
 
 		List<String> classNames = extractClassNames(processor.domainClassInfos);
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo"));
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper"));
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.date.DateNumericStringConverter"));
+		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.date.LocalDateTimeConverter"));
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.date.Memo"));
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Algebra"));
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Education"));

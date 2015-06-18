@@ -171,18 +171,6 @@ public class ConvertibleIntegrationTest {
 
     }
 
-    @Test
-    public void shouldConvertLocalDateTime() {
-        LocalDateTime localDateTime = LocalDateTime.of(2015,5,18,11,20);
-
-        Memo memo = new Memo();
-        memo.setInitiated(localDateTime);
-        session.save(memo);
-
-        Memo loadedMemo = session.load(Memo.class,memo.getId());
-        assertEquals(localDateTime,loadedMemo.getInitiated());
-    }
-
     public void assertSameArray(Object[] as, Object[] bs) {
 
         if (as == null || bs == null) fail("null arrays not allowed");

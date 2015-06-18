@@ -14,7 +14,6 @@ package org.neo4j.ogm.unit.typeconversion;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
-import org.neo4j.ogm.domain.convertible.date.LocalDateTimeConverter;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -289,19 +288,4 @@ public class TestDateConversion {
         AttributeConverter attributeConverter = methodInfo.converter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
-
-    @Test
-    public void assertLocalDateTimeConverterWorksCorrectly() {
-        FieldInfo fieldInfo = memoInfo.propertyField("initiated");
-        assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
-        assertTrue(attributeConverter.getClass().isAssignableFrom(LocalDateTimeConverter.class));
-        LocalDateTime localDateTime = LocalDateTime.of(2015,5,18,11,20);
-        String value = (String) attributeConverter.toGraphProperty(localDateTime);
-        assertEquals("2015-05-18T11:20:00", value);
-
-        assertEquals(localDateTime, attributeConverter.toEntityAttribute("2015-05-18T11:20:00"));
-    }
-
-
 }

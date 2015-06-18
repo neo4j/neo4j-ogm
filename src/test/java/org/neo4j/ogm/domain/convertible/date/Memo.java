@@ -32,9 +32,6 @@ public class Memo {
     // uses default ISO 8601 date format
     private Date recorded;
 
-    @Convert(LocalDateTimeConverter.class)
-    private LocalDateTime initiated;
-
     // declares a custom converter
     @Convert(DateNumericStringConverter.class)
     private Date approved;
@@ -121,11 +118,4 @@ public class Memo {
         this.implementations = implementations;
     }
 
-    public LocalDateTime getInitiated() {
-        return initiated;
-    }
-
-    public void setInitiated(LocalDateTime initiated) {
-        this.initiated = initiated;
-    }
 }

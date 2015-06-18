@@ -40,32 +40,32 @@ public class RelationshipEntityQuerySortingTest {
     @Test
     public void testFindAllCollection() throws Exception {
         sortOrder.add("distance");
-        assertEquals("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n,r ORDER BY r.distance MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", query.findAll(Arrays.asList(1L, 2L, 3L), 1).setSortOrder(sortOrder).getStatement());
+        assertEquals("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH r,n ORDER BY r.distance MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", query.findAll(Arrays.asList(1L, 2L, 3L), 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
     public void testFindByLabel() throws Exception {
         sortOrder.add("distance");
-        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() WITH p,r ORDER BY r.distance RETURN collect(distinct p)", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
+        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() WITH r,p ORDER BY r.distance RETURN collect(distinct p)", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
     public void testFindByProperty() throws Exception {
         filters.add("distance", 60.2);
         sortOrder.add("aphelion");
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } WITH n,r ORDER BY r.aphelion MATCH p=(n)-[*0..1]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } WITH r,n ORDER BY r.aphelion MATCH p=(n)-[*0..1]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
     public void testMultipleSortOrders() {
         sortOrder.add(SortOrder.Direction.DESC, "distance", "aphelion");
-        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() WITH p,r ORDER BY r.distance DESC,r.aphelion DESC RETURN collect(distinct p)", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
+        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() WITH r,p ORDER BY r.distance DESC,r.aphelion DESC RETURN collect(distinct p)", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
     public void testDifferentSortDirections() {
         sortOrder.add(SortOrder.Direction.DESC, "type").add("name");
-        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() WITH p,r ORDER BY r.type DESC,r.name RETURN collect(distinct p)", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
+        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() WITH r,p ORDER BY r.type DESC,r.name RETURN collect(distinct p)", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
     }
 
 }

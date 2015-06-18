@@ -12,11 +12,18 @@
 
 package org.neo4j.ogm.cypher.statement;
 
+import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.cypher.statement.parser.Clause;
+import org.neo4j.ogm.cypher.statement.parser.MatchClause;
+import org.neo4j.ogm.cypher.statement.parser.StatementParser;
+import org.neo4j.ogm.cypher.statement.parser.WithClause;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -27,19 +34,19 @@ import java.util.Map;
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Rene Richter
  */
 public class ParameterisedStatement {
 
     private String statement;
 
-    private int withIndex;
 
     private Map<String, Object> parameters = new HashMap<>();
     private String[] resultDataContents;
     private boolean includeStats = false;
 
     private Pagination paging;
-    private SortOrder sortOrder = new SortOrder();
+    private SortOrder sortOrder;
     private Filters filters = new Filters();
 
 
@@ -58,8 +65,6 @@ public class ParameterisedStatement {
         this.parameters.putAll(parameters);
         this.resultDataContents = resultDataContents;
 
-        parseStatement();
-
     }
 
     protected ParameterisedStatement(String cypher, Map<String, ?> parameters, boolean includeStats, String... resultDataContents) {
@@ -69,49 +74,64 @@ public class ParameterisedStatement {
         this.includeStats = includeStats;
     }
 
+    /**
+     * Returns the statement.
+     *
+     * If paging or sorting are available, the statement will be augmented.
+     * @return The statement.
+     */
     public String getStatement() {
-
         String stmt = statement.trim();
-        String sorting = sortOrder().toString();
+        if (this.sortOrder != null || this.paging != null) {
+            stmt = augmentStatementWithSortingAndPagination(stmt);
+        }
+        return stmt;
+    }
+
+    private String augmentStatementWithSortingAndPagination(String stmt) {
+        StatementParser parser = new StatementParser();
+        LinkedList<Clause> clauses = parser.parseStatement(stmt);
+        ListIterator<Clause> clausesIterator = clauses.listIterator(clauses.size()-1);
+
+        Clause returnClause = clauses.getLast();
+        Clause clauseBeforeReturn = clausesIterator.previous();
+
         String pagination = paging == null ? "" : page().toString();
+        //by default, sorting gets resolved by return-clause.
+        String sorting = resolveSortOrder(returnClause.getAliases().get(0));
 
-        // these transformations are entirely dependent on the form of our base queries and
-        // binding the sorting properties to the default query variables is a terrible hack. All this
-        // needs refactoring ASAP.
-        if (sorting.length() > 0 || pagination.length() > 0) {
-
-            if (withIndex > -1) {
-                int nextClauseIndex = stmt.indexOf(" MATCH", withIndex);
-                String withClause = stmt.substring(withIndex, nextClauseIndex);
-                String newWithClause = withClause;
-                if (stmt.contains(")-[r")) {
-                    sorting = sorting.replace("$", "r");
-                    if (!withClause.contains(",r")) {
-                        newWithClause = newWithClause + ",r";
-                    }
-                } else {
-                    sorting = sorting.replace("$", "n");
-                }
-                stmt = stmt.replace(withClause, newWithClause + sorting + pagination);
+        if(clauseBeforeReturn instanceof MatchClause
+                && ((MatchClause)clauseBeforeReturn).isPathMatch()) {
+            //so, if we are here, it is a match-clause for a path
+            if(clausesIterator.hasPrevious()) {
+                Clause previousWithClause = clausesIterator.previous();
+                //sorting gets now resolved by with-clause.
+                sorting = resolveSortOrder(previousWithClause.getAliases().get(0));
+                return stmt.replace(previousWithClause.getContent()
+                        ,previousWithClause.getContent()+sorting+pagination);
             } else {
-                if (stmt.startsWith("MATCH p=(")) {
-                    String withClause = "WITH p";
-                    if (stmt.contains(")-[r")) {
-                        withClause = withClause + ",r";
-                        sorting = sorting.replace("$", "r");
-                    } else {
-                        sorting = sorting.replace("$", "n");
-                    }
-                    stmt = stmt.replace("RETURN ", withClause + sorting + pagination + " RETURN ");
-                } else {
-                    sorting = sorting.replace("$", "n");
-                    stmt = stmt.replace("RETURN ", "WITH n" + sorting + pagination + " RETURN ");
-                }
+                //if no with-clause is present, sorting gets resolved by match-clause.
+                sorting = resolveSortOrder(clauseBeforeReturn.getAliases().get(0));
             }
         }
 
-        return stmt;
+        if(clauseBeforeReturn instanceof WithClause) {
+            String withClause = clauseBeforeReturn.getContent();
+            return stmt.replace(withClause,withClause+sorting+pagination);
+        }
+
+
+        String withAliases = StringUtils.join(clauseBeforeReturn.getAliases(),',');
+        return stmt.replace("RETURN "
+                ,"WITH "+withAliases+sorting+pagination+" RETURN ");
     }
+
+    private String resolveSortOrder(String substitute) {
+        return sortOrder == null
+                ? ""
+                : sortOrder().toString().replace("$", substitute);
+    }
+
 
     public Map<String, Object> getParameters() {
         return parameters;
@@ -145,9 +165,6 @@ public class ParameterisedStatement {
         this.filters = filters;
     }
 
-    private void parseStatement() {
-        this.withIndex = statement.indexOf("WITH n");
-    }
 
 }
 

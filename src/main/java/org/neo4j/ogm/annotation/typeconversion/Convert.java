@@ -35,7 +35,10 @@ public @interface Convert {
     static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.Convert";
     static final String CONVERTER = "value";
 
-    Class<? extends AttributeConverter<?, ?>> value();
+    Class<? extends AttributeConverter<?, ?>> value() default Unset.class;
+
+    /** Placeholder to allow the annotation to be applied without specifying an explicit converter implementation. */
+    static abstract class Unset implements AttributeConverter<Object, Object> {}
 
 }
 

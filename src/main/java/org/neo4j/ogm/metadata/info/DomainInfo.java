@@ -12,8 +12,13 @@
 
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.metadata.ClassPathScanner;
+import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.typeconversion.ConversionCallback;
+import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
+import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +31,8 @@ import java.util.*;
  * @author Luanne Misquitta
  */
 public class DomainInfo implements ClassFileProcessor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
 
     private static final String dateSignature = "java/util/Date";
     private static final String bigDecimalSignature = "java/math/BigDecimal";
@@ -43,7 +50,7 @@ public class DomainInfo implements ClassFileProcessor {
 
     private final Set<String> enumTypes = new HashSet<>();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
+    private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
     public DomainInfo(String... packages) {
         long now = -System.currentTimeMillis();
@@ -92,8 +99,11 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
+    public void registerConversionCallback(ConversionCallback conversionCallback) {
+        this.conversionCallbackRegistry.registerConversionCallback(conversionCallback);
+    }
 
-
+    @Override
     public void finish() {
 
         LOGGER.info("Starting Post-processing phase");
@@ -194,6 +204,7 @@ public class DomainInfo implements ClassFileProcessor {
 
     }
 
+    @Override
     public void process(final InputStream inputStream) throws IOException {
 
         ClassInfo classInfo = new ClassInfo(inputStream);
@@ -298,7 +309,6 @@ public class DomainInfo implements ClassFileProcessor {
                 }
                 else if (methodInfo.getDescriptor().contains(bigDecimalSignature)
                         || (methodInfo.getTypeParameterDescriptor()!=null && methodInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
-
                     setBigDecimalMethodConverter(methodInfo);
                 }
                 else if (methodInfo.getDescriptor().contains(byteArraySignature)) {
@@ -308,6 +318,24 @@ public class DomainInfo implements ClassFileProcessor {
                     methodInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
                 }
                 else {
+                    // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
+                    // FIXME: this won't really work unless I infer the source and target types from the descriptor here
+                    // well, I can't infer the thing that gets put in the graph until the moment it's given, can I!?
+                    // so this has to be done at real-time for reading from the graph, convert what you get
+                    // then, writing back to the graph, we just return whatever
+                    // the caveat, therefore, is that when writing to the graph you could get anything back!
+
+                    // anyway first things first, infer the entity attribute type
+                    // then we javadoc the above
+                    if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
+                        // no converter's been set but this method is annotated with @Convert so we need to proxy it
+                        Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
+                        methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, this.conversionCallbackRegistry));/*-{
+                            return converterCallbackRegistry.convert(valueFromGraph.getClass(), entityAttributeType, valueFromGraph);
+                        }-*/
+                    }
+
+                    // TODO: this needs improving because it won't recognise Java standard enums
                     for (String enumSignature : enumTypes) {
                         if (methodInfo.getDescriptor().contains(enumSignature) || (methodInfo.getTypeParameterDescriptor()!=null && methodInfo.getTypeParameterDescriptor().contains(enumSignature))) {
                             setEnumMethodConverter(methodInfo, enumSignature);
@@ -388,6 +416,13 @@ public class DomainInfo implements ClassFileProcessor {
                     fieldInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
                 }
                 else {
+                    if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
+                        // no converter's been set but this method is annotated with @Convert so we need to proxy it
+                        Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getDescriptor());
+                        fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, this.conversionCallbackRegistry));
+                    }
+
+                    // TODO: this needs improving because it won't recognise Java standard enums
                     for (String enumSignature : enumTypes) {
                         if (fieldInfo.getDescriptor().contains(enumSignature) || (fieldInfo.getTypeParameterDescriptor()!=null && fieldInfo.getTypeParameterDescriptor().contains(enumSignature))) {
                             setEnumFieldConverter(fieldInfo, enumSignature);

@@ -49,7 +49,7 @@ public class FieldInfo {
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
         if (!this.annotations.isEmpty()) {
-            setConverter(getAnnotatedTypeConverter());
+            setConverter(getAnnotations().getConverter());
         }
     }
 
@@ -105,7 +105,7 @@ public class FieldInfo {
         return converter;
     }
 
-    public void setConverter( AttributeConverter<?, ?> converter ) {
+    void setConverter( AttributeConverter<?, ?> converter ) {
         if (this.converter == null && converter != null) {
             this.converter = converter;
         } // we maybe set an annotated converter when object was constructed, so don't override with a default one
@@ -113,14 +113,6 @@ public class FieldInfo {
 
     public boolean hasConverter() {
         return converter != null;
-    }
-
-    private AttributeConverter<?, ?> getAnnotatedTypeConverter() {
-        if (typeParameterDescriptor == null) {
-            return getAnnotations().getConverter(descriptor);
-        } else {
-            return getAnnotations().getConverter(typeParameterDescriptor);
-        }
     }
 
     public String relationshipDirection() {

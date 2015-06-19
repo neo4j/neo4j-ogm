@@ -51,7 +51,32 @@ public class MethodInfo {
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
         if (!this.getAnnotations().isEmpty()) {
-            setConverter(getAnnotatedTypeConverter());
+            // TODO would like to pass in the CustomAttributeConverterIndex here but I've got no idea where it should come from
+            /*
+             * I can't really do it here, this is called during classpath scanning and I don't want to pass converter-specific
+             * stuff into the classpath scanner code.
+             *
+             * maybe I go if converter is proxy then set index?
+             * so in DomainInfo '...else { methodInfo.getConverter() instanceof proxy then register this repository }
+             *  - also a bit shit, really
+             * I also don't really want to add public methods to MethodInfo if they're not called for meta-data use
+             * - i.e., don't like the idea of methodInfo.hasProxyConverter() or methodInfo.needsProxyConverter()
+             *
+             * would a static CustomAttributeConverterIndex really be that bad?
+             *
+             * hang on, what if we had no annotation and just handled it all in DomainInfo?
+             * - ...probably, it's a case of null vs non-null converters when we run through DomainInfo
+             * - have to remember that the converter makes it a simple field, which is important
+             *
+             * my reservation is that if we add a converter to everything then it's unnecessarily complicated
+             * - this is true, but it's probably less filthy than 'instanceof Proxy'
+             *   or 'method has no converter but is annotated with @Convert therefore give it a proxy'
+             * - it's not even an option because a non-null converter means everything's a "simple" attribute!
+             *
+             * Therefore, I genuinely don't think we have a choice other than to ask for @Convert in DomainInfo,
+             * since we cannot magically get the proxy in here any other way
+             */
+            setConverter(getAnnotations().getConverter());
         }
     }
 
@@ -122,14 +147,6 @@ public class MethodInfo {
 
     public boolean hasConverter() {
         return converter != null;
-    }
-
-    private AttributeConverter getAnnotatedTypeConverter() {
-        if (typeParameterDescriptor == null) {
-            return getAnnotations().getConverter(descriptor);
-        } else {
-            return getAnnotations().getConverter(typeParameterDescriptor);
-        }
     }
 
     public void setConverter(AttributeConverter<?, ?> converter) {

@@ -1,0 +1,245 @@
+[[tutorial_annotations]]
+= Annotations
+
+Neo4j OGM supports mapping annotated and non-annotated objects models. It’s possible to save any POJO with the exception of a Relationship Entity without annotations to the graph.
+The framework will then apply conventions to decide what to do.
+
+== Maven Dependency
+
+Before we can use any Neo4j OGM annotations, we need to add the maven dependency.
+
+.Maven dependencies for Neo4j OGM
+[source,xml]
+----
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm</artifactId>
+    <version>{version}</version>
+</dependency>
+----
+
+Refer to <<reference_setup>> for Gradle or Ivy dependencies.
+
+== Nodes
+POJOs annotated with `@NodeEntity` will be represented as nodes in the graph. The label assigned to this node can be specified via the `label` property on the annotation;
+if not specified, it will default to the simple class name of the entity. Each parent class in addition also contributes a label to the entity (with the exception of java.lang.Object).
+This is useful when we want to retrieve collections of super types.
+
+Let's go ahead and annotate all our node entities. Note that we're overriding the default label for a `Course` with `Class`
+
+```java
+@NodeEntity
+public class Department {
+    private String name;
+    private Set<Subject> subjects;
+}
+
+@NodeEntity
+public class Subject {
+    private String name;
+    private Department department;
+    private Set<Teacher> teachers;
+    private Set<Course> courses;
+}
+
+@NodeEntity
+public class Teacher {
+    private String name;
+    private Set<Course> courses;
+    private Set<Subject> subjects;
+}
+
+@NodeEntity(label="Class")
+public class Course {
+    private String name;
+    private Subject subject;
+    private Teacher teacher;
+    private Set<Enrollment> enrollments;
+}
+
+@NodeEntity
+public class Student {
+    private String name;
+    private Set<Enrollment> enrollments;
+    private Set<StudyBuddy> studyBuddies;
+}
+
+```
+
+== Relationships
+
+Next up, the relationships between the nodes. Every field in an entity that references another entity is backed by a relationship in the graph.
+The `@Relationship` annotation allows you to specify both the type of the relationship and the direction. By default, the direction is assumed to be `OUTGOING` and the type is the UPPER_SNAKE_CASE field name.
+We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later by not being dependent on the field name.
+
+```java
+@NodeEntity
+public class Department {
+    private String name;
+
+    @Relationship(type = "CURRICULUM")
+    private Set<Subject> subjects;
+}
+
+@NodeEntity
+public class Subject {
+    private String name;
+
+    @Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
+    private Department department;
+
+    @Relationship(type = "TAUGHT_BY")
+    private Set<Teacher> teachers;
+
+    @Relationship(type = "SUBJECT_TAUGHT", direction = "INCOMING")
+    private Set<Course> courses;
+}
+
+@NodeEntity
+public class Teacher {
+    private String name;
+
+     @Relationship(type="TEACHES_CLASS")
+     private Set<Course> courses;
+
+     @Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
+     private Set<Subject> subjects;
+}
+
+@NodeEntity(label="Class")
+public class Course {
+    private String name;
+
+     @Relationship(type= "SUBJECT_TAUGHT")
+     private Subject subject;
+
+     @Relationship(type= "TEACHES_CLASS", direction=Relationship.INCOMING)
+     private Teacher teacher;
+
+     @Relationship(type= "ENROLLED", direction=Relationship.INCOMING)
+     private Set<Enrollment> enrollments = new HashSet<>();
+}
+
+@NodeEntity
+public class Student {
+    private String name;
+
+    @Relationship(type = "ENROLLED")
+    private Set<Enrollment> enrollments;
+
+    @Relationship(type = "BUDDY", direction = Relationship.INCOMING)
+    private Set<StudyBuddy> studyBuddies;
+}
+
+```
+== Relationship Entities
+
+We have one more entity, and that is the `Enrollment`. As discussed earlier, this is a relationship entity since it manages the underlying `ENROLLED` relation between a student and course.
+It isn't a simple relation because it has a relationship property called `enrolledDate`.
+
+A relationship entity must be annotated with `@RelationshipEntity` and also the type of relationship.
+In this case, the type of relationship is `ENROLLED` as specified in both the `Student` and `Course` entities. We are also going to indicate to the OGM the start and end node of this relationship.
+
+```java
+@RelationshipEntity(type = "ENROLLED")
+public class Enrollment {
+
+	private Long id;
+
+	@StartNode
+	private Student student;
+
+	@EndNode
+	private Course course;
+
+	private Date enrolledDate;
+
+}
+```
+
+== @GraphId
+
+Every node and relationship persisted to the graph has an id. Neo4j OGM uses this to identify and re-connect the entity to the graph.
+Specifying a Long id field is required. If such a field exists on the entity, then Neo4j OGM will use it automatically. Otherwise, a Long field must be annotated with `@GraphId`.
+
+Since every entity requires an id, we're going to create an `Entity` superclass. This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
+
+Also observe the null checks for the `id` field in the `equals` and `hashCode`. This is required because the `id` is null till the entity is persisted to the graph.
+
+```java
+
+public abstract class Entity {
+
+    @JsonProperty("id")
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || id == null || getClass() != o.getClass()) return false;
+
+        Entity entity = (Entity) o;
+
+        if (!id.equals(entity.id)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (id == null) ? -1 : id.hashCode();
+    }
+}
+
+```
+Our entities will now extend this class, for example
+
+```java
+@NodeEntity
+public class Department extends Entity {
+    private String name;
+
+    @Relationship(type = "CURRICULUM")
+    private Set<Subject> subjects;
+
+    public Department() {
+
+    }
+}
+
+```
+
+The OGM also requires an public no-args constructor to be able to construct objects, we'll make sure all our entities have one.
+
+== Converters
+
+Neo4j supports numerics, Strings, booleans and arrays of these as property values.
+How do we handle the `enrolledDate` since `Date` is not a valid data type? Luckily for us, Neo4j OGM provides many converters out of the box, one of which is a Date to Long converter.
+We simply annotate the field with `@DateLong` and the conversion of the Date to it's Long representation and back is handled by the OGM when persisting and loading from the graph.
+
+```java
+@RelationshipEntity(type = "ENROLLED")
+public class Enrollment {
+
+    private Long id;
+
+    @StartNode
+    private Student student;
+
+    @EndNode
+    private Course course;
+
+    @DateLong
+    private Date enrolledDate;
+
+}
+```

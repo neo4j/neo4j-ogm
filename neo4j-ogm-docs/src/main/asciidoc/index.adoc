@@ -24,6 +24,42 @@ include::introduction/neo4j/neo4j.adoc[]
 :leveloffset: -1
 
 <<<
+[[tutorial]]
+= Tutorial
+
+The first part of this guide is a tutorial that takes the reader through steps necessary to get started with the  Neo4j OGM.
+Neo4j OGM will power a web application that allows you to manage a College's Departments, Teaching Staff, Subjects, Students and Classes.
+
+The complete source code for the application is available on https://github.com/neo4j-examples/neo4j-ogm-university[Github].
+
+:leveloffset: +1
+
+include::tutorial/intro.adoc[]
+
+<<<
+
+include::tutorial/model.adoc[]
+
+<<<
+
+include::tutorial/ogm.adoc[]
+
+<<<
+
+include::tutorial/annotations.adoc[]
+
+<<<
+
+include::tutorial/session.adoc[]
+
+<<<
+
+include::tutorial/conclusion.adoc[]
+
+:leveloffset: -1
+
+
+<<<
 
 [[reference]]
 = Reference Documentation

@@ -27,7 +27,7 @@ public class Gentleman extends Person {
    ...
 }
 
-// creates a node with labels Gentleman:Person:DomainObject
+// creates a node with labels Gentleman:Person
 session.save(new Gentleman());
 
 // retrieve all ladies and gentlemen

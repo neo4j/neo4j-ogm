@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,13 +9,24 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.mapper;
 
+import java.util.Iterator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.cypher.compiler.*;
+import org.neo4j.ogm.cypher.compiler.CypherCompiler;
+import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.cypher.compiler.NewBiDirectionalRelationshipBuilder;
+import org.neo4j.ogm.cypher.compiler.NodeBuilder;
+import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
+import org.neo4j.ogm.cypher.compiler.SingleStatementCypherCompiler;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -22,10 +34,6 @@ import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
 
 /**
  * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link MetaData}.

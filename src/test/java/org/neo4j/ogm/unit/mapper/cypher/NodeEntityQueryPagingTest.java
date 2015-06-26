@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,18 +9,20 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 package org.neo4j.ogm.unit.mapper.cypher;
-
-import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
 import org.junit.Test;
+
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers

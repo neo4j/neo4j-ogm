@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,15 +9,24 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.auth;
+
+import java.io.FileWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
@@ -29,14 +39,9 @@ import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.server.AbstractNeoServer;
 
-import java.io.FileWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 /**

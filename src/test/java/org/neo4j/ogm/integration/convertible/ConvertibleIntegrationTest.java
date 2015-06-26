@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,21 +9,29 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 package org.neo4j.ogm.integration.convertible;
-
-import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.convertible.date.Memo;
@@ -33,6 +42,10 @@ import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Luanne Misquitta

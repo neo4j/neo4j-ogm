@@ -14,17 +14,14 @@
 
 package org.neo4j.ogm.unit.entityaccess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.junit.Assert.*;
 
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
@@ -36,22 +33,9 @@ import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.satellites.Location;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccess;
-import org.neo4j.ogm.entityaccess.FieldReader;
-import org.neo4j.ogm.entityaccess.MethodReader;
-import org.neo4j.ogm.entityaccess.MethodWriter;
-import org.neo4j.ogm.entityaccess.PropertyReader;
-import org.neo4j.ogm.entityaccess.RelationalReader;
+import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Adam George
@@ -59,10 +43,15 @@ import static org.junit.Assert.assertTrue;
  */
 public class DefaultEntityAccessStrategyTest {
 
-    private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-    private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.unit.entityaccess",
-            "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.satellites");
+    private DefaultEntityAccessStrategy entityAccessStrategy;
+    private DomainInfo domainInfo;
 
+    @Before
+    public void setup() {
+        entityAccessStrategy = new DefaultEntityAccessStrategy();
+        domainInfo = new DomainInfo("org.neo4j.ogm.unit.entityaccess",
+                "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.satellites");
+    }
     @Test
     public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenFindingPropertyToSet() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
@@ -88,6 +77,23 @@ public class DefaultEntityAccessStrategyTest {
         objectAccess.write(domainObject, "TEST");
         assertEquals("TEST", domainObject.annotatedTestProperty);
     }
+
+    /**
+     * @see DATAGRAPH-674
+     */
+    @Test
+    public void shouldPreferAnnotatedFieldToMethodNotAnnotatedWithPropertyWhenFindingPropertyToSet() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        DummyDomainObject domainObject = new DummyDomainObject();
+
+        EntityAccess objectAccess = this.entityAccessStrategy.getPropertyWriter(classInfo, "testIgnored");
+        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
+        assertTrue(objectAccess instanceof FieldWriter);
+        assertEquals(String.class, objectAccess.type());
+        objectAccess.write(domainObject, "TEST");
+        assertEquals("TEST", domainObject.propertyMethodsIgnored);
+    }
+
 
     @Test
     public void shouldReturnAccessorMethodInPreferenceToFieldIfNoAnnotationsArePresent() {
@@ -261,6 +267,26 @@ public class DefaultEntityAccessStrategyTest {
         PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.annotatedTestProperty, objectAccess.read(domainObject));
+    }
+
+    @Test
+    public void shouldPreferAnnotatedFieldToGetterWhenReadingFromAnObject() {
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+
+        DummyDomainObject domainObject = new DummyDomainObject();
+        domainObject.propertyWithDifferentAnnotatedGetter = "more arbitrary text";
+        Collection<PropertyReader> readers = this.entityAccessStrategy.getPropertyReaders(classInfo);
+
+
+        PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "differentAnnotationOnGetter");
+        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
+        assertEquals(domainObject.propertyWithDifferentAnnotatedGetter, objectAccess.read(domainObject));
+
+        for(PropertyReader reader : readers) {
+            if(reader.propertyName().equals("differentAnnotationOnGetter")) {
+                assertTrue(reader instanceof FieldReader);
+            }
+        }
     }
 
     @Test
@@ -458,6 +484,13 @@ public class DefaultEntityAccessStrategyTest {
 
         @Property(name = "testAnnoProp")
         String fullyAnnotatedProperty;
+
+        @Property(name = "testIgnored")
+        String propertyMethodsIgnored;
+
+        @Property(name = "differentAnnotationOnGetter")
+        String propertyWithDifferentAnnotatedGetter;
+
         boolean fullyAnnotatedPropertyAccessorWasCalled;
 
         int propertyWithoutAccessorMethods;
@@ -550,6 +583,23 @@ public class DefaultEntityAccessStrategyTest {
             return this.readOnlyComment;
         }
 
+        public String getPropertyMethodsIgnored() {
+            return propertyMethodsIgnored;
+        }
+
+        public void setPropertyMethodsIgnored(String propertyMethodsIgnored) {
+            this.propertyMethodsIgnored = propertyMethodsIgnored;
+        }
+
+        @JsonIgnore //we've used @JsonIgnore but it could be any other annotation
+        public String getDifferentAnnotationOnGetter() {
+            return propertyWithDifferentAnnotatedGetter;
+        }
+
+        @JsonIgnore
+        public void setDifferentAnnotationOnGetter(String propertyWithDifferentAnnotatedGetter) {
+            this.propertyWithDifferentAnnotatedGetter = propertyWithDifferentAnnotatedGetter;
+        }
     }
 
 }

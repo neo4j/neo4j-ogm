@@ -17,10 +17,12 @@ package org.neo4j.ogm.domain.policy;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Mark Angrish
+ * @author Luanne Misquitta
  */
 public class Policy extends DomainObject {
 
@@ -28,6 +30,9 @@ public class Policy extends DomainObject {
 
     @Relationship(type="WRITES_POLICY", direction="INCOMING")
     private Set<Person> writers = new HashSet<>();
+
+    @Relationship(type = "AUTHORIZED_POLICY", direction = Relationship.INCOMING)
+    private Person authorized;
 
     public Policy(String name) {
         setName(name);
@@ -47,5 +52,15 @@ public class Policy extends DomainObject {
 
     public void setWriters(Set<Person> writers) {
         this.writers = writers;
+    }
+
+    @JsonIgnore
+    public Person getAuthorized() {
+        return authorized;
+    }
+
+    @JsonIgnore
+    public void setAuthorized(Person authorized) {
+        this.authorized = authorized;
     }
 }

@@ -205,4 +205,8 @@ public class FieldInfo {
     public boolean isArray() {
         return descriptor.startsWith("[");
     }
+
+    public boolean hasAnnotation(String annotationName) {
+        return getAnnotations().get(annotationName) != null;
+    }
 }

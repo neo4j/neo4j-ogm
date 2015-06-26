@@ -220,4 +220,8 @@ public class MethodInfo {
         return true;
     }
 
+    public boolean hasAnnotation(String annotationName) {
+        return getAnnotations().get(annotationName) != null;
+    }
+
 }

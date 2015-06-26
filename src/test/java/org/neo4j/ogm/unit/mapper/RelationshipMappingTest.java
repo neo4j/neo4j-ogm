@@ -17,12 +17,12 @@ package org.neo4j.ogm.unit.mapper;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 
 /**
  * @author Mark Angrish
+ * @author Luanne Misquitta
  */
 public class RelationshipMappingTest extends MappingTrait
 {
@@ -87,6 +87,19 @@ public class RelationshipMappingTest extends MappingTrait
 
     }
 
+    /**
+     * @see DATAGRAPH-674
+     */
+    @Test
+    public void testAnnotatedRelationshipTypeWhenMethodsAreJsonIgnored() {
+        Person jim = new Person("Jim");
+        Policy policy = new Policy("Health");
+
+        policy.setAuthorized(jim);
+        jim.setAuthorized(policy);
+
+        saveAndVerify(jim, "CREATE (n:Policy:DomainObject {name:'Health'})<-[:AUTHORIZED_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+    }
 
 
 }

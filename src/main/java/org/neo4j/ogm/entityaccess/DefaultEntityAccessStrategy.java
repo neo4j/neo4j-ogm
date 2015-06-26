@@ -18,14 +18,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link EntityAccessStrategy} that looks up information from {@link ClassInfo} in the following order.
@@ -86,7 +87,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     private <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, MethodInfo accessorMethodInfo,
             AccessorFactory<T> factory) {
         if (accessorMethodInfo != null) {
-            if (accessorMethodInfo.getAnnotations().isEmpty()) {
+            if (!accessorMethodInfo.hasAnnotation(Property.CLASS)) {
                 // if there's an annotated field then we should prefer that over the non-annotated method
                 FieldInfo fieldInfo = classInfo.propertyField(propertyName);
                 if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
@@ -196,17 +197,16 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     @Override
     public Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
         // do we care about "implicit" fields?  i.e., setX/getX with no matching X field
-
         Collection<PropertyReader> readers = new ArrayList<>();
         for (FieldInfo fieldInfo : classInfo.propertyFields()) {
             MethodInfo getterInfo = classInfo.propertyGetter(fieldInfo.property());
-            if (getterInfo != null) {
-                if (!getterInfo.getAnnotations().isEmpty() || fieldInfo.getAnnotations().isEmpty()) {
-                    readers.add(new MethodReader(classInfo, getterInfo));
+            if (getterInfo != null) { //if we have a getter
+                if (getterInfo.hasAnnotation(Property.CLASS) || fieldInfo.getAnnotations().isEmpty()) { //and the getter is annotated with @Property OR the field is not annotated
+                    readers.add(new MethodReader(classInfo, getterInfo)); //use the getter
                     continue;
                 }
             }
-            readers.add(new FieldReader(classInfo, fieldInfo));
+            readers.add(new FieldReader(classInfo, fieldInfo)); //otherwise use the field
         }
         return readers;
     }
@@ -216,14 +216,10 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
         Collection<RelationalReader> readers = new ArrayList<>();
 
-
-
         for (FieldInfo fieldInfo : classInfo.relationshipFields()) {
-
             MethodInfo getterInfo = classInfo.methodsInfo().get(inferGetterName(fieldInfo));
-
             if (getterInfo != null) {
-                if (!getterInfo.getAnnotations().isEmpty() || fieldInfo.getAnnotations().isEmpty()) {
+                if (getterInfo.hasAnnotation(Relationship.CLASS) || !fieldInfo.hasAnnotation(Relationship.CLASS)) {
                     readers.add(new MethodReader(classInfo, getterInfo));
                     continue;
                 }

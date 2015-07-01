@@ -117,7 +117,7 @@ for(Actor actor : matrix.getActors()) {
 
 ## Getting Help
 
-The reference guide is the best place to get started (link here).
+The [reference guide](http://neo4j.com/docs/ogm/java/stable/) is the best place to get started.
 
 [Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j OGM library.
 

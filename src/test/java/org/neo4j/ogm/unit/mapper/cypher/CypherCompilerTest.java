@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.unit.mapper.cypher;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
@@ -40,11 +41,6 @@ import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Vince Bickers
@@ -327,7 +323,13 @@ public class CypherCompilerTest {
                 "WITH $0,$1 MATCH ($0)-[_1:`STUDENTS`]->($3) WHERE id($3)=3 " +
                 "DELETE _1";
 
-        expectOnSave(music, cypher);
+        String altCypher=
+                "MATCH ($0)-[_1:`STUDENTS`]->($1) WHERE id($0)=0 AND id($1)=1 " +
+                        "DELETE _1 " +
+                        "WITH $0,$1 MATCH ($0)-[_2:`STUDENTS`]->($3) WHERE id($3)=3 " +
+                        "DELETE _2";
+
+        expectOnSave(music, cypher, altCypher);
     }
 
     @Test

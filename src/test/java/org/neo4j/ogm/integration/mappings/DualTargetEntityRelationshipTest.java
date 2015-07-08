@@ -50,10 +50,10 @@ public class DualTargetEntityRelationshipTest
     @Before
     public void init() throws IOException {
         TestServer testServer = new TestServer();
-       session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(testServer.url());
+        session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(testServer.url());
     }
 
-//    @Test
+    @Test
     public void mappingShouldConsiderClasses() {
 
         Category category = new Category("cat1");

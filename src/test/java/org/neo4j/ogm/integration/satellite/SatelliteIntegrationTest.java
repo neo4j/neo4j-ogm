@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.integration.satellite;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -21,16 +23,12 @@ import java.util.Date;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * This is a full integration test that requires a running neo4j
@@ -69,12 +67,9 @@ public class SatelliteIntegrationTest
 
                 for (Satellite satellite : program.getSatellites()) {
                     // 1-side of many->1 is auto-hydrated
-                    assertEquals(satellite.getProgram(), program);
+                    assertNull(satellite.getProgram());
 
                     System.out.println("\tsatellite:" + satellite.getName());
-                    System.out.println("\t\tprogram:" + satellite.getProgram().getName());
-                    System.out.println("\t\t\tnum-satellites:" + satellite.getProgram().getSatellites().size());
-
                 }
             }
         } else {
@@ -100,7 +95,7 @@ public class SatelliteIntegrationTest
 
                 System.out.println("\tlocation:" + satellite.getLocation().getRef());
                 System.out.println("\torbit:" + satellite.getOrbit().getName());
-                System.out.println("\tprogram: " + satellite.getProgram().getName());
+                System.out.println("\tprogram: " + satellite.getProgram());
                 assertEquals(satellite.getRef(), satellite.getName());
 
             }

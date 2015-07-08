@@ -84,6 +84,17 @@ public class FieldInfo {
         return null;
     }
 
+    public String relationshipTypeAnnotation() {
+        if (!isSimple()) {
+            try {
+                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, null);
+            } catch (NullPointerException npe) {
+                //TODO log
+            }
+        }
+        return null;
+    }
+
     public String getDescriptor() {
         return descriptor;
     }
@@ -125,13 +136,13 @@ public class FieldInfo {
         }
     }
 
-    public String relationshipDirection() {
+    public String relationshipDirection(String defaultDirection) {
         if (relationship() != null) {
             AnnotationInfo annotationInfo = getAnnotations().get(Relationship.CLASS);
             if (annotationInfo == null) {
-                return Relationship.UNDIRECTED;
+                return defaultDirection;
             }
-            return annotationInfo.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+            return annotationInfo.get(Relationship.DIRECTION, defaultDirection);
         }
         throw new RuntimeException("relationship direction call invalid");
     }

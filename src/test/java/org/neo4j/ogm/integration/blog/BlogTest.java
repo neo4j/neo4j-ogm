@@ -14,19 +14,17 @@
 
 package org.neo4j.ogm.integration.blog;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -64,6 +62,7 @@ public class BlogTest {
         assertEquals(p3, p4.getPrevious());
 
         assertEquals(p4, p3.getNext());
+        assertNull(p4.getNext());
 
 
         session.save(p1);

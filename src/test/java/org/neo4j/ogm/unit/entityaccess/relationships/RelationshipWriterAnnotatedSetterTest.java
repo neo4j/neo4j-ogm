@@ -15,20 +15,17 @@
 package org.neo4j.ogm.unit.entityaccess.relationships;
 
 
+import static org.junit.Assert.*;
+
 import java.util.List;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccess;
 import org.neo4j.ogm.entityaccess.MethodWriter;
+import org.neo4j.ogm.entityaccess.RelationalWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vince Bickers
@@ -43,7 +40,7 @@ public class RelationshipWriterAnnotatedSetterTest {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LIST", new T());
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the method", objectAccess instanceof MethodWriter);
         assertEquals("LIST", objectAccess.relationshipName());
@@ -56,7 +53,7 @@ public class RelationshipWriterAnnotatedSetterTest {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SCALAR", new T());
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the method", objectAccess instanceof MethodWriter);
         assertEquals("SCALAR", objectAccess.relationshipName());
@@ -70,7 +67,7 @@ public class RelationshipWriterAnnotatedSetterTest {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "ARRAY", new T());
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the method", objectAccess instanceof MethodWriter);
         assertEquals("ARRAY", objectAccess.relationshipName());

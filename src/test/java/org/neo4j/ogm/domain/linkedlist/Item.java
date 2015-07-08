@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
 public class Item {
 
     private Long id;
+    private String name;
 
     @Relationship(type = "NEXT", direction=Relationship.OUTGOING)
     public Item next;
@@ -29,7 +30,18 @@ public class Item {
     @Relationship(type = "NEXT", direction=Relationship.INCOMING)
     public Item previous;
 
+    public Item() {
+    }
+
     public Long getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

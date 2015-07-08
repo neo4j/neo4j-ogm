@@ -66,6 +66,7 @@ public class Movie {
         return roles;
     }
 
+    @Relationship(type="RATED", direction=Relationship.INCOMING)
     public Set<Rating> getRatings() {
         return ratings;
     }

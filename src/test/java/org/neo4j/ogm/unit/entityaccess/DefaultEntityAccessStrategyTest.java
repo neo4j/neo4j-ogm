@@ -131,7 +131,7 @@ public class DefaultEntityAccessStrategyTest {
     public void shouldRetrieveObjectAccessForWritingIterableObject() {
         ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
-        EntityAccess iterableAccess = this.entityAccessStrategy.getIterableWriter(classInfo, Satellite.class, "satellites");
+        RelationalWriter iterableAccess = this.entityAccessStrategy.getIterableWriter(classInfo, Satellite.class, "satellites", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", iterableAccess);
         Program spaceProgramme = new Program();
         iterableAccess.write(spaceProgramme, Arrays.asList(new Satellite()));
@@ -147,7 +147,7 @@ public class DefaultEntityAccessStrategyTest {
         Satellite singleSatellite = new Satellite();
 
         // the SATELLITES type matches the setter that takes an Iterable argument
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SATELLITES", singleSatellite);
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SATELLITES", Relationship.OUTGOING, singleSatellite);
         assertNull("A compatible object accessor shouldn't have been found", objectAccess);
     }
 
@@ -157,7 +157,7 @@ public class DefaultEntityAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
         List<? extends Activity> parameter = Arrays.asList(new Comment());
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "HAS_ACTIVITY", new Comment());
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "HAS_ACTIVITY", Relationship.OUTGOING, new Comment());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodWriter);
         Member member = new Member();
@@ -172,14 +172,14 @@ public class DefaultEntityAccessStrategyTest {
 
         Member parameter = new Member();
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "CONTAINS", parameter);
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "CONTAINS", Relationship.OUTGOING, parameter);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, parameter);
         assertEquals(domainObject.member, parameter);
 
         Member otherMember = new Member();
-        objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REGISTERED", otherMember);
+        objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REGISTERED", Relationship.OUTGOING, otherMember);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, otherMember);
@@ -194,7 +194,7 @@ public class DefaultEntityAccessStrategyTest {
         Location satelliteLocation = new Location();
         satelliteLocation.setName("Outer Space");
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LOCATION", satelliteLocation);
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LOCATION", Relationship.OUTGOING, satelliteLocation);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodWriter);
         Satellite satellite = new Satellite();
@@ -209,7 +209,7 @@ public class DefaultEntityAccessStrategyTest {
         Topic favouriteTopic = new Topic();
 
         // NB: the setter is called setTopic here, so a relationship type of just "TOPIC" would choose the setter
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", favouriteTopic);
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", Relationship.OUTGOING, favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -223,7 +223,7 @@ public class DefaultEntityAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Topic favouriteTopic = new Topic();
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "DOES_NOT_MATCH", favouriteTopic);
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "DOES_NOT_MATCH", Relationship.OUTGOING, favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -237,7 +237,7 @@ public class DefaultEntityAccessStrategyTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Post forumPost = new Post();
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "UTTER_RUBBISH", forumPost);
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "UTTER_RUBBISH", Relationship.OUTGOING, forumPost);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, forumPost);
@@ -307,7 +307,7 @@ public class DefaultEntityAccessStrategyTest {
         Member member = new Member();
         member.setActivityList(Arrays.<Activity>asList(new Comment()));
 
-        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
         assertSame(member.getActivityList(), reader.read(member));
@@ -322,12 +322,12 @@ public class DefaultEntityAccessStrategyTest {
         domainObject.member = new Member();
         domainObject.registeredMember = new Member();
 
-        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "CONTAINS");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertSame(domainObject.member, reader.read(domainObject));
         assertEquals("CONTAINS", reader.relationshipType());
 
-        reader = this.entityAccessStrategy.getRelationalReader(classInfo, "REGISTERED");
+        reader = this.entityAccessStrategy.getRelationalReader(classInfo, "REGISTERED", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertSame(domainObject.registeredMember, reader.read(domainObject));
         assertEquals("REGISTERED", reader.relationshipType());
@@ -343,7 +343,7 @@ public class DefaultEntityAccessStrategyTest {
         satelliteLocation.setName("Outer Space");
         satellite.setLocation(satelliteLocation);
 
-        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "LOCATION");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "LOCATION", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
         assertSame(satellite.getLocation(), reader.read(satellite));
@@ -357,7 +357,7 @@ public class DefaultEntityAccessStrategyTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.postWithoutAccessorMethods = new Post();
 
-        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS");
+        RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
@@ -440,7 +440,7 @@ public class DefaultEntityAccessStrategyTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        EntityAccess objectAccess = this.entityAccessStrategy.getIterableWriter(classInfo, Satellite.class, "NATURAL");
+        RelationalWriter objectAccess = this.entityAccessStrategy.getIterableWriter(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, natural);
@@ -459,7 +459,7 @@ public class DefaultEntityAccessStrategyTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        RelationalReader relationalReader = this.entityAccessStrategy.getIterableReader(classInfo, Satellite.class, "NATURAL");
+        RelationalReader relationalReader = this.entityAccessStrategy.getIterableReader(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", relationalReader);
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.naturalSatellites = natural;

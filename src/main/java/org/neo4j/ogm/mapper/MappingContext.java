@@ -14,16 +14,9 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
@@ -31,6 +24,8 @@ import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -52,7 +47,7 @@ public class MappingContext {
 
     private final ConcurrentMap<Long, Object> relationshipEntityRegister = new ConcurrentHashMap<>();
     private final ConcurrentMap<Long, Object> nodeEntityRegister = new ConcurrentHashMap<>();
-    private final Set<MappedRelationship> relationshipRegister = new HashSet<>();
+    private final Set<MappedRelationship> relationshipRegister =  Collections.newSetFromMap(new ConcurrentHashMap<MappedRelationship, Boolean>());
 
     /** register of all mapped entities of a specific type (including supertypes) */
     private final ConcurrentMap<Class<?>, Set<Object>> typeRegister = new ConcurrentHashMap<>();

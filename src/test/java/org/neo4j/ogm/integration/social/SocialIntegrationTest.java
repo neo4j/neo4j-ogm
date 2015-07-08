@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.integration.social;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -21,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
@@ -30,9 +31,6 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
@@ -84,7 +82,7 @@ public class SocialIntegrationTest
 
 		Individual individualA = session.loadAll(Individual.class, new Filter("name", "A")).iterator().next();
 		assertNotNull(individualA);
-		assertEquals(3, individualA.getFriends().size());
+		assertEquals(2, individualA.getFriends().size());
 
 	}
 

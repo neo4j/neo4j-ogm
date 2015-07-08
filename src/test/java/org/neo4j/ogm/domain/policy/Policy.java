@@ -55,11 +55,13 @@ public class Policy extends DomainObject {
     }
 
     @JsonIgnore
+    @Relationship(type = "AUTHORIZED_POLICY", direction = Relationship.INCOMING)
     public Person getAuthorized() {
         return authorized;
     }
 
     @JsonIgnore
+    @Relationship(type = "AUTHORIZED_POLICY", direction = Relationship.INCOMING)
     public void setAuthorized(Person authorized) {
         this.authorized = authorized;
     }

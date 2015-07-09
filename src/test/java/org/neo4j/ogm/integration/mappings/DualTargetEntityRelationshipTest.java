@@ -14,13 +14,20 @@
 
 package org.neo4j.ogm.integration.mappings;
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.mappings.Category;
-import org.neo4j.ogm.domain.mappings.Entity;
 import org.neo4j.ogm.domain.mappings.Event;
 import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
@@ -28,18 +35,10 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 import org.neo4j.ogm.testutil.TestServer;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-
 /**
  * @author Nils Dröge
  */
+@Ignore
 public class DualTargetEntityRelationshipTest
 {
     @Rule
@@ -53,6 +52,9 @@ public class DualTargetEntityRelationshipTest
         session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(testServer.url());
     }
 
+    /**
+     * @see DATAGRAPH-690
+     */
     @Test
     public void mappingShouldConsiderClasses() {
 
@@ -80,6 +82,9 @@ public class DualTargetEntityRelationshipTest
         assertEquals(tags, event.getTags());
     }
 
+    /**
+     * @see DATAGRAPH-690
+     */
     @Test
     public void shouldKeepAllRelations() {
 

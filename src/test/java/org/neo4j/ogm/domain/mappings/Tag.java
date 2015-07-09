@@ -21,6 +21,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Nils Dröge
+ * @author Luanne Misquitta
  */
 public class Tag extends Entity
 {
@@ -46,11 +47,14 @@ public class Tag extends Entity
         this.name = name;
     }
 
+
+    @Relationship(type = "HAS", direction = Relationship.INCOMING)
     public Set<Entity> getEntities()
     {
         return entities;
     }
 
+    @Relationship(type = "HAS", direction = Relationship.INCOMING)
     public void setEntities(Set<Entity> entities)
     {
         this.entities = entities;

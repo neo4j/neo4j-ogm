@@ -17,7 +17,9 @@ package org.neo4j.ogm.integration.social;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -231,5 +233,47 @@ public class SocialIntegrationTest
 		assertNotNull(mortalD);
 		assertEquals(1, mortalD.getKnownBy().size());
 		assertEquals("A", mortalD.getKnownBy().iterator().next().getName());
+	}
+
+
+	@Test
+	public void shouldFetchFriendsUndirected() {
+
+		User adam = new User("Adam");
+		User daniela = new User("Daniela");
+		User michal = new User("Michal");
+		User vince = new User("Vince");
+
+		adam.befriend(daniela);
+		daniela.befriend(michal);
+		michal.befriend(vince);
+
+		session.save(adam);
+
+		session.clear();
+
+		daniela = session.load(User.class, daniela.getId());
+		assertEquals(2, daniela.getFriends().size());
+		List<String> friendNames = new ArrayList<>();
+		for(User friend : daniela.getFriends()) {
+			friendNames.add(friend.getName());
+		}
+		assertTrue(friendNames.contains("Adam"));
+		assertTrue(friendNames.contains("Michal"));
+
+		session.clear();
+
+		michal = session.load(User.class, michal.getId());
+		assertEquals(2, michal.getFriends().size());
+
+		session.clear();
+
+		vince = session.load(User.class, vince.getId());
+		assertEquals(1, vince.getFriends().size());
+
+		session.clear();
+
+		adam = session.load(User.class, adam.getId());
+		assertEquals(1, adam.getFriends().size());
 	}
 }

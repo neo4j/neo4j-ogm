@@ -49,7 +49,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     //TODO make these LRU caches with configurable size
     private static Map<ClassInfo,Map<DirectedRelationship,RelationalReader>> relationalReaderCache = new HashMap<>();
-    private static Map<ClassInfo,Map<DirectedRelationship,RelationalWriter>> relationalWriterCache = new HashMap<>();
+    private static Map<ClassInfo,Map<DirectedRelationshipForType,RelationalWriter>> relationalWriterCache = new HashMap<>();
     private static Map<ClassInfo,Map<DirectedRelationshipForType,RelationalWriter>> iterableWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType,RelationalReader>> iterableReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, EntityAccess>> propertyWriterCache = new HashMap<>();
@@ -142,9 +142,9 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     @Override
     public RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
         if(!relationalWriterCache.containsKey(classInfo)) {
-            relationalWriterCache.put(classInfo, new HashMap<DirectedRelationship, RelationalWriter>());
+            relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
         }
-        DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
+        DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType,relationshipDirection, scalarValue.getClass());
         if(relationalWriterCache.get(classInfo).containsKey(directedRelationship)) {
             return relationalWriterCache.get(classInfo).get(directedRelationship);
         }

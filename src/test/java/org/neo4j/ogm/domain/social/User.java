@@ -55,4 +55,8 @@ public class User {
 		return name;
 	}
 
+	public void befriend(User user) {
+		friends.add(user);
+		user.friends.add(this);
+	}
 }

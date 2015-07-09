@@ -33,12 +33,11 @@ import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-import org.neo4j.ogm.testutil.TestServer;
 
 /**
  * @author Nils Dröge
+ * @author Luanne Misquitta
  */
-@Ignore
 public class DualTargetEntityRelationshipTest
 {
     @Rule
@@ -48,12 +47,11 @@ public class DualTargetEntityRelationshipTest
 
     @Before
     public void init() throws IOException {
-        TestServer testServer = new TestServer();
-        session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(testServer.url());
+        session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(neo4jRule.url());
     }
 
     /**
-     * @see DATAGRAPH-690
+     * @see DATAGRAPH-636
      */
     @Test
     public void mappingShouldConsiderClasses() {
@@ -77,15 +75,16 @@ public class DualTargetEntityRelationshipTest
         session.clear();
         event = session.load(Event.class, event.getNodeId(), 1);
 
-        assertNotNull(event.getNodeId());
+        assertNotNull(event);
         assertEquals(category, event.getCategory());
-        assertEquals(tags, event.getTags());
+        assertEquals(tag1, event.getTags().iterator().next());
     }
 
     /**
      * @see DATAGRAPH-690
      */
     @Test
+    @Ignore
     public void shouldKeepAllRelations() {
 
         Category category = new Category("cat1");
@@ -106,9 +105,14 @@ public class DualTargetEntityRelationshipTest
 
         session.clear();
         Collection<Tag> tagsFound = session.loadAll(Tag.class, new Filter("name", "tag1"));
+        assertEquals(1, tagsFound.size());
         event.setTags(new HashSet<>(tagsFound));
         Collection<Category> categoriesFound = session.loadAll(Category.class, new Filter("name", "cat1"));
+        assertEquals(1, categoriesFound.size());
         event.setCategory(categoriesFound.iterator().next());
+        assertEquals(tag1, event.getTags().iterator().next());
+        assertEquals(category, event.getCategory());
+
         session.save(event);
 
         session.clear();

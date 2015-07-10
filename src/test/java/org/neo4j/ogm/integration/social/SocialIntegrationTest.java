@@ -251,6 +251,8 @@ public class SocialIntegrationTest
 		session.save(adam);
 
 		session.clear();
+		adam = session.load(User.class, adam.getId());
+		assertEquals(1, adam.getFriends().size());
 
 		daniela = session.load(User.class, daniela.getId());
 		assertEquals(2, daniela.getFriends().size());
@@ -267,13 +269,8 @@ public class SocialIntegrationTest
 		assertEquals(2, michal.getFriends().size());
 
 		session.clear();
-
 		vince = session.load(User.class, vince.getId());
 		assertEquals(1, vince.getFriends().size());
 
-		session.clear();
-
-		adam = session.load(User.class, adam.getId());
-		assertEquals(1, adam.getFriends().size());
 	}
 }

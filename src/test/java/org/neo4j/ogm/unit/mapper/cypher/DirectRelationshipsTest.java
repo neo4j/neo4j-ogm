@@ -13,11 +13,12 @@
  */
 package org.neo4j.ogm.unit.mapper.cypher;
 
+import static org.junit.Assert.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
@@ -26,9 +27,6 @@ import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * This test suite contains tests of the cypher compiler output regarding
@@ -322,7 +320,7 @@ public class DirectRelationshipsTest {
 
         // when
         folder.getDocuments().remove(doc1);
-
+        doc1.setFolder(null);
         // then
         assertEquals(0, folder.getDocuments().size());
         assertEquals(1, folder.getArchived().size());
@@ -333,12 +331,8 @@ public class DirectRelationshipsTest {
                 // or
                 "MATCH ($0)-[_1:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _1");
 
-        // TODO:
-        // this is wrong. the CONTAINS rel between the document and the folder is requested to be created,
-        // but it ought to be requested to be deleted.
-        // the moral of the story is, wherever possible, persist from the container.
-        expectOnSave(doc1,
-                "MATCH ($0) WHERE id($0)=0 MATCH ($1) WHERE id($1)=1 MERGE ($0)-[_0:`CONTAINS`]->($1) RETURN id(_0) AS _0");
+        //There are no more changes to the graph
+        expectOnSave(doc1, "");
 
     }
 

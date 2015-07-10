@@ -19,7 +19,10 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.entityMapping.Movie;
 import org.neo4j.ogm.domain.entityMapping.Person;
@@ -111,10 +114,8 @@ public class MultipleRelationshipsTest {
 
 	/**
 	 * @see DATAGRAPH-690
-	 * //TODO Fix this.
 	 */
 	@Test
-	@Ignore
 	public void shouldCreateGraphProperly() {
 		Person jim = new Person();
 		Person mary = new Person();

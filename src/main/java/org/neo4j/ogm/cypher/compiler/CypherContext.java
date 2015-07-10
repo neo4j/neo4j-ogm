@@ -14,13 +14,7 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.mapper.MappedRelationship;
@@ -113,28 +107,33 @@ public class CypherContext {
      */
     public boolean deregisterOutgoingRelationships(Long src, String relationshipType) {
         Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
-        boolean found = false;
+        boolean nothingToDelete = true;
+        List<MappedRelationship> cleared = new ArrayList<>();
         while (iterator.hasNext()) {
            MappedRelationship mappedRelationship = iterator.next();
            if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType)) {
+               cleared.add(mappedRelationship);
                iterator.remove();
-               deletedRelationships.add(mappedRelationship);
-               found = true;
-               //return true;
+               nothingToDelete = false;
            }
         }
-        if (found) return true;
-
-        iterator = deletedRelationships.iterator();
-        while (iterator.hasNext()) {
-            MappedRelationship mappedRelationship = iterator.next();
-            if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType)) {
-                return false; // request already made!
-            }
+        if (nothingToDelete) {
+            return true; //relationships not in the graph, okay, we can return
         }
 
-        return true; // not deleted, but not in graph, so ok
-
+        //Check to see if the relationships were previously deleted, if so, restore them
+        iterator = cleared.iterator();
+        while(iterator.hasNext()) {
+            MappedRelationship mappedRelationship = iterator.next();
+            if(isMappedRelationshipAlreadyDeleted(mappedRelationship)) {
+                registerRelationship(mappedRelationship);
+                iterator.remove();
+            }
+            else {
+                deletedRelationships.add(mappedRelationship);
+            }
+        }
+        return cleared.size()>0;
     }
 
     /**
@@ -157,29 +156,36 @@ public class CypherContext {
      */
     public boolean deregisterIncomingRelationships(Long tgt, String relationshipType) {
         Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
-        boolean found = false;
+        List<MappedRelationship> cleared = new ArrayList<>();
+        boolean nothingToDelete = true;
         while (iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
             if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType)) {
+                cleared.add(mappedRelationship);
                 iterator.remove();
-                deletedRelationships.add(mappedRelationship);
-                found=true;
-                //return true;
+                nothingToDelete=false;
             }
         }
 
-        if (found) return true;
+        if (nothingToDelete) {
+            return true; //relationships not in the graph, okay, we can return
+        }
 
-        iterator = deletedRelationships.iterator();
-        while (iterator.hasNext()) {
+        //Check to see if the relationships were previously deleted, if so, restore them
+        iterator = cleared.iterator();
+        while(iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
-            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType)) {
-                return false; // request already made!
+            if(isMappedRelationshipAlreadyDeleted(mappedRelationship)) {
+                registerRelationship(mappedRelationship);
+                iterator.remove();
+            }
+            else {
+                deletedRelationships.add(mappedRelationship);
             }
         }
-
-        return true; // not deleted, but not in graph, so ok
+        return cleared.size()>0;
     }
+
 
     public void visitRelationshipEntity(Object relationshipEntity) {
         visitedRelationshipEntities.add(relationshipEntity);
@@ -188,5 +194,14 @@ public class CypherContext {
 
     public boolean visitedRelationshipEntity(Object relationshipEntity) {
         return visitedRelationshipEntities.contains(relationshipEntity);
+    }
+
+    private boolean isMappedRelationshipAlreadyDeleted(MappedRelationship mappedRelationship) {
+        for (MappedRelationship deletedRelationship : deletedRelationships) {
+            if (deletedRelationship.getEndNodeId() == mappedRelationship.getEndNodeId() && deletedRelationship.getStartNodeId() == mappedRelationship.getStartNodeId() && deletedRelationship.getRelationshipType().equals(mappedRelationship.getRelationshipType())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

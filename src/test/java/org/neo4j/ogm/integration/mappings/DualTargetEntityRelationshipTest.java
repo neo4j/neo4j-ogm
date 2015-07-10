@@ -104,15 +104,18 @@ public class DualTargetEntityRelationshipTest
         assertNotNull(tag1.getNodeId());
 
         session.clear();
+
         Collection<Tag> tagsFound = session.loadAll(Tag.class, new Filter("name", "tag1"));
         assertEquals(1, tagsFound.size());
         event.setTags(new HashSet<>(tagsFound));
+
         Collection<Category> categoriesFound = session.loadAll(Category.class, new Filter("name", "cat1"));
         assertEquals(1, categoriesFound.size());
         event.setCategory(categoriesFound.iterator().next());
+
         assertEquals(tag1, event.getTags().iterator().next());
         assertEquals(category, event.getCategory());
-
+        //session.clear(); //fails without this
         session.save(event);
 
         session.clear();
@@ -120,6 +123,6 @@ public class DualTargetEntityRelationshipTest
 
         assertNotNull(eventFound.getNodeId());
         assertEquals(category, eventFound.getCategory());
-        assertEquals(tags, eventFound.getTags());
+        assertEquals(tag1, eventFound.getTags().iterator().next());
     }
 }

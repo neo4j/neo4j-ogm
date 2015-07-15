@@ -220,4 +220,15 @@ public class FieldInfo {
     public boolean hasAnnotation(String annotationName) {
         return getAnnotations().get(annotationName) != null;
     }
+
+    /**
+     * Get the type descriptor
+     * @return the descriptor if the field is scalar or an array, otherwise the type parameter descriptor.
+     */
+    public String getTypeDescriptor() {
+        if(isScalar() || isArray()) {
+            return descriptor;
+        }
+        return typeParameterDescriptor;
+    }
 }

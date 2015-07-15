@@ -24,6 +24,7 @@ import org.neo4j.ogm.mapper.MappedRelationship;
  *
  * @author Mark Angrish
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class CypherContext {
 
@@ -88,7 +89,7 @@ public class CypherContext {
     }
 
     /**
-     * Invoked when the mapper wishes to mark a set of outgoing relationships like (a)-[:T]-&gt;(*) as deleted, prior
+     * Invoked when the mapper wishes to mark a set of outgoing relationships to a specific type like (a)-[:T]-&gt;(*) as deleted, prior
      * to possibly re-establishing them individually as it traverses the entity graph.
      *
      * There are two reasons why a set of relationships might not be be able to be marked deleted:
@@ -98,20 +99,21 @@ public class CypherContext {
      *
      * Only case 1) is considered to be a failed request, because this context is only concerned about
      * pre-existing relationships in the graph. In order to distinguish between the two cases, we
-     * also maintain a list of successfully deleted relationships, so that uf we try to delete an already-deleted
-     * set of relationships we can signal the error.
+     * also maintain a list of successfully deleted relationships, so that if we try to delete an already-deleted
+     * set of relationships we can signal the error and undelete it.
      *
      * @param src the identity of the node at the start of the relationship
      * @param relationshipType the type of the relationship
+     * @param endNodeType the class type of the entity at the end of the relationship
      * @return true if the relationship was deleted or doesn't exist in the graph, false otherwise
      */
-    public boolean deregisterOutgoingRelationships(Long src, String relationshipType) {
+    public boolean deregisterOutgoingRelationships(Long src, String relationshipType, Class endNodeType) {
         Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
         boolean nothingToDelete = true;
         List<MappedRelationship> cleared = new ArrayList<>();
         while (iterator.hasNext()) {
            MappedRelationship mappedRelationship = iterator.next();
-           if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType)) {
+           if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(mappedRelationship.getEndNodeType())) {
                cleared.add(mappedRelationship);
                iterator.remove();
                nothingToDelete = false;
@@ -137,7 +139,7 @@ public class CypherContext {
     }
 
     /**
-     * Invoked when the mapper wishes to mark a set of incoming relationships like (a)&lt;-[:T]-(*) as deleted, prior
+     * Invoked when the mapper wishes to mark a set of incoming relationships to a specific type like (a)&lt;-[:T]-(*) as deleted, prior
      * to possibly re-establishing them individually as it traverses the entity graph.
      *
      * There are two reasons why a set of relationships might not be be able to be marked deleted:
@@ -147,20 +149,21 @@ public class CypherContext {
      *
      * Only case 1) is considered to be a failed request, because this context is only concerned about
      * pre-existing relationships in the graph. In order to distinguish between the two cases, we
-     * also maintain a list of successfully deleted relationships, so that uf we try to delete an already-deleted
-     * set of relationships we can signal the error.
+     * also maintain a list of successfully deleted relationships, so that ff we try to delete an already-deleted
+     * set of relationships we can signal the error and undelete it.
      *
      * @param tgt the identity of the node at the pointy end of the relationship
      * @param relationshipType the type of the relationship
+     * @param endNodeType the class type of the entity at the other end of the relationship
      * @return true if the relationship was deleted or doesn't exist in the graph, false otherwise
      */
-    public boolean deregisterIncomingRelationships(Long tgt, String relationshipType) {
+    public boolean deregisterIncomingRelationships(Long tgt, String relationshipType, Class endNodeType, boolean relationshipEntity) {
         Iterator<MappedRelationship> iterator = registeredRelationships.iterator();
         List<MappedRelationship> cleared = new ArrayList<>();
         boolean nothingToDelete = true;
         while (iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
-            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType)) {
+            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(relationshipEntity?mappedRelationship.getEndNodeType():mappedRelationship.getStartNodeType())) {
                 cleared.add(mappedRelationship);
                 iterator.remove();
                 nothingToDelete=false;

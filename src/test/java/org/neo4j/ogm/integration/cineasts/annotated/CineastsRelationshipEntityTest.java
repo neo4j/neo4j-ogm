@@ -14,32 +14,18 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
+import org.junit.*;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.domain.cineasts.annotated.Knows;
-import org.neo4j.ogm.domain.cineasts.annotated.Movie;
-import org.neo4j.ogm.domain.cineasts.annotated.Rating;
-import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -119,8 +105,14 @@ public class CineastsRelationshipEntityTest{
 		Movie movie = films.iterator().next();
 		assertEquals(2,movie.getRatings().size());
 
-		User michal = session.loadAll(User.class, new Filter("name", "Michal")).iterator().next();
-
+		User michal=null;
+		for (Rating rating : movie.getRatings()) {
+			if(rating.getUser().getName().equals("Michal")) {
+				michal = rating.getUser();
+				break;
+			}
+		}
+		assertNotNull(michal);
 		Set<Rating> ratings = new HashSet<>();
 		Rating awesome = new Rating();
 		awesome.setComment("Awesome");
@@ -605,5 +597,19 @@ public class CineastsRelationshipEntityTest{
         assertEquals(26, loadedActor.getRoles().size());
 
     }
+
+	@Test
+	@Ignore
+	public void shouldRetainREsWhenAStartOrEndNodeIsLoaded() {
+		neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
+
+		Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", "Top Gear"));
+		Movie movie = films.iterator().next();
+		assertEquals(2, movie.getRatings().size());
+
+		session.loadAll(User.class, new Filter("name", "Michal")).iterator().next();
+
+		assertEquals(2, movie.getRatings().size()); //should not lose one rating because Michal is loaded
+	}
 
 }

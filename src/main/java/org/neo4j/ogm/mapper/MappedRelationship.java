@@ -27,20 +27,26 @@ public class MappedRelationship {
     private final String relationshipType;
     private final long endNodeId;
     private Long relationshipId;
+    private Class startNodeType;
+    private Class endNodeType;
 
     private boolean active = true;
 
-    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId) {
+    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class startNodeType, Class endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
         this.endNodeId = endNodeId;
+        this.startNodeType = startNodeType;
+        this.endNodeType = endNodeType;
     }
 
-    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId) {
+    public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Long relationshipId, Class startNodeType, Class endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
         this.endNodeId = endNodeId;
         this.relationshipId = relationshipId;
+        this.startNodeType = startNodeType;
+        this.endNodeType = endNodeType;
     }
 
     public long getStartNodeId() {
@@ -85,6 +91,14 @@ public class MappedRelationship {
 
     public boolean isActive() {
         return active;
+    }
+
+    public Class getEndNodeType() {
+        return endNodeType;
+    }
+
+    public Class getStartNodeType() {
+        return startNodeType;
     }
 
     @Override

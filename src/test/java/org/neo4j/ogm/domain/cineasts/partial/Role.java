@@ -21,7 +21,7 @@ import org.neo4j.ogm.annotation.StartNode;
 /**
  * @author Vince Bickers
  */
-@RelationshipEntity
+@RelationshipEntity(type = "ACTS_IN")
 public class Role {
 
     Long id;

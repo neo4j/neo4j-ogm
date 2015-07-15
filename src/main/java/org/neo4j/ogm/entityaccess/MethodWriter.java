@@ -107,5 +107,8 @@ public class MethodWriter extends EntityAccess {
         return true;
     }
 
-
+    @Override
+    public String typeParameterDescriptor() {
+        return setterMethodInfo.getTypeDescriptor();
+    }
 }

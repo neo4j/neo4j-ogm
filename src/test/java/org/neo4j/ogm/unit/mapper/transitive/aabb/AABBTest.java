@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.unit.mapper.transitive.aabb;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -21,12 +23,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -111,6 +108,9 @@ public class AABBTest extends RelationshipTrait
         b2 = session.load(B.class, b2.id);
         b3 = session.load(B.class, b3.id);
 
+        assertEquals(2, b1.r.length);
+        assertEquals(2, b2.r.length);
+        assertEquals(2, b3.r.length);
         assertSameArray(new A[] {b1.r[0].a, b1.r[1].a}, new A[] { a1, a2 });
         assertSameArray(new A[] {b2.r[0].a, b2.r[1].a}, new A[] { a1, a3 });
         assertSameArray(new A[] {b3.r[0].a, b3.r[1].a}, new A[] { a2, a3 });
@@ -126,13 +126,14 @@ public class AABBTest extends RelationshipTrait
         // it is programmer's responsibility to keep the domain entities synchronized
         b2.r = null;
         a1.r = new R[] { r1 };
-        a3.r = new R[] { r3 };
+        a3.r = new R[] { r6 };
 
         session.save(b2);
 
         // when we reload a1
         a1 = session.load(A.class, a1.id);
         // expect the b2 relationship to have gone.
+        assertEquals(1, a1.r.length);
         assertSameArray(new B[] { b1 }, new B[] { a1.r[0].b });
 
 

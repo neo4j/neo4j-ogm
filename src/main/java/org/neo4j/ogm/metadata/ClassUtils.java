@@ -18,11 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -75,6 +71,10 @@ public abstract class ClassUtils {
         }
         if(descriptor.length()==1) { //handles descriptors of the format I
                 q=1;
+        }
+        if(q == p+1) { //handles descriptors of the format ()Lpackage/Class;
+            p = q + 1;
+            q = descriptor.length() - 1;
         }
         String typeName = descriptor.substring(p + 1, q).replace("/", ".");
         if (typeName.length() == 1) {

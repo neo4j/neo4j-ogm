@@ -60,4 +60,8 @@ public class FieldReader implements RelationalReader, PropertyReader {
         }
     }
 
+    @Override
+    public String typeParameterDescriptor() {
+       return fieldInfo.getTypeDescriptor();
+    }
 }

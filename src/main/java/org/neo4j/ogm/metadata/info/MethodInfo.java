@@ -235,4 +235,19 @@ public class MethodInfo {
         return getAnnotations().get(annotationName) != null;
     }
 
+    public boolean isArray() {
+        return descriptor.startsWith("[");
+    }
+
+    /**
+     * Get the type descriptor
+     * @return the descriptor if the field is scalar or an array, otherwise the type parameter descriptor.
+     */
+    public String getTypeDescriptor() {
+        if(isScalar() || isArray()) {
+            return descriptor;
+        }
+        return typeParameterDescriptor;
+    }
+
 }

@@ -14,15 +14,13 @@
 
 package org.neo4j.ogm.unit.mapper;
 
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -36,11 +34,6 @@ import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * These tests are to establish the behaviour of degenerate entity models
@@ -127,8 +120,10 @@ public class DegenerateEntityModelTests {
         mappingContext.registerNodeEntity(f, f.getId());
         mappingContext.registerNodeEntity(a, a.getId());
         mappingContext.registerNodeEntity(b, b.getId());
-        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", a.getId()));
-        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", b.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", a.getId(), Folder.class, Document.class));
+        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", b.getId(), Folder.class, Document.class));
+       // mappingContext.registerRelationship(new MappedRelationship(a.getId(), "CONTAINS", b.getId(), Document.class, Folder.class));
+      //  mappingContext.registerRelationship(new MappedRelationship(b.getId(), "CONTAINS", b.getId(), Document.class, Folder.class));
 
     }
 

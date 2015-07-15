@@ -159,8 +159,8 @@ public class CypherCompilerTest {
         // set the mapping context accordingly
         mappingContext.remember(mary);
         mappingContext.remember(waller);
-        mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId));
-        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
+        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
         expectOnSave(waller, "");
         expectOnSave(mary, "");
@@ -192,11 +192,15 @@ public class CypherCompilerTest {
         // set the mapping context accordingly
         mappingContext.remember(mary);
         mappingContext.remember(waller);
-        mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId));
-        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
+        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
         Teacher jim = new Teacher("Jim");
         jim.setSchool(waller);
+
+        assertTrue(waller.getTeachers().contains(jim));
+        assertTrue(waller.getTeachers().size() == 2);
+        assertTrue(jim.getSchool().equals(waller));
 
         // we expect 1 new node and 2 new outgoing relationships: jim-[:SCHOOL]->school and school-[:TEACHERS]->jim
 
@@ -304,9 +308,9 @@ public class CypherCompilerTest {
 
         music.setStudents(Arrays.asList(yvonne, xavier, zack));
 
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid));
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid));
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid, Course.class, Student.class));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid, Course.class, Student.class));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid, Course.class, Student.class));
 
         mappingContext.remember(xavier);
         mappingContext.remember(yvonne);
@@ -359,9 +363,9 @@ public class CypherCompilerTest {
         mappingContext.remember(designTech);
         mappingContext.remember(shivani);
 
-        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
-        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
-        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", shivaniId));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, Teacher.class, Course.class));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, Teacher.class, Course.class));
+        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", shivaniId, Teacher.class,Student.class));
 
         // move shivani from one course to the other
         businessStudies.setStudents(Collections.<Student>emptyList());
@@ -409,17 +413,20 @@ public class CypherCompilerTest {
 
         // need to ensure teachers list is mutable
         hillsRoad.setTeachers(new ArrayList<>(Arrays.asList(missJones, mrWhite)));
+        assertTrue(hillsRoad.getTeachers().contains(mrWhite));
+        assertTrue(hillsRoad.getTeachers().contains(missJones));
+        assertEquals(hillsRoad, mrWhite.getSchool());
+        assertEquals(hillsRoad, missJones.getSchool());
 
 
         mappingContext.remember(hillsRoad);
         mappingContext.remember(mrWhite);
         mappingContext.remember(missJones);
 
-        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId));
-        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId));
-        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId));
-
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, School.class, Teacher.class));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, School.class, Teacher.class));
+        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId, Teacher.class, School.class));
+        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId, Teacher.class, School.class));
 
         // Fire Mr White:
         mrWhite.setSchool(null);
@@ -509,7 +516,7 @@ public class CypherCompilerTest {
         mappingContext.remember(topic);
         mappingContext.remember(link);
         mappingContext.registerRelationshipEntity(link, relationshipId);
-        MappedRelationship mappedRelationship = new MappedRelationship(forumId, "HAS_TOPIC", topicId, relationshipId);
+        MappedRelationship mappedRelationship = new MappedRelationship(forumId, "HAS_TOPIC", topicId, relationshipId, Forum.class,ForumTopicLink.class);
         mappingContext.registerRelationship(mappedRelationship);
 
         // change the timestamp
@@ -548,7 +555,7 @@ public class CypherCompilerTest {
         mappingContext.remember(topic);
         mappingContext.remember(link);
         // the mapping context remembers the relationship between the forum and the topic in the graph
-        mappingContext.registerRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId));
+        mappingContext.registerRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId, Forum.class,ForumTopicLink.class));
 
         // unlink the objects manually
         forum.setTopicsInForum(null);

@@ -14,17 +14,18 @@
 
 package org.neo4j.ogm.unit.metadata;
 
+import static org.junit.Assert.*;
+
 import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
-
+import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.metadata.ClassUtils;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Adam George
+ * @author Luanne Misquitta
  */
 public class ClassUtilsTest {
 
@@ -40,6 +41,7 @@ public class ClassUtilsTest {
         assertEquals(int.class, ClassUtils.getType("(I)V"));
         assertEquals(long.class, ClassUtils.getType("(J)V"));
         assertEquals(short.class, ClassUtils.getType("(S)V"));
+        assertEquals(School.class, ClassUtils.getType("()Lorg/neo4j/ogm/domain/education/School;"));
     }
 
 }

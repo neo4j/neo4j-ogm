@@ -69,7 +69,7 @@ class EntityCollector {
     public Iterable<String> getOwningRelationshipTypes(Object owningObject) {
         Set<String> relTypes = new HashSet<>();
         for(DirectedRelationship rel : this.relationshipCollectibles.get(owningObject).keySet()) {
-            relTypes.add(rel.relationshipType);
+            relTypes.add(rel.type());
         }
         return relTypes;
     }
@@ -77,8 +77,8 @@ class EntityCollector {
     public Iterable<String> getRelationshipDirectionsForOwningTypeAndRelationshipType(Object owningObject, String relationshipType) {
         Set<String> relDirections = new HashSet<>();
         for(DirectedRelationship rel : this.relationshipCollectibles.get(owningObject).keySet()) {
-            if(rel.relationshipType.equals(relationshipType)) {
-                relDirections.add(rel.relationshipDirection);
+            if(rel.type().equals(relationshipType)) {
+                relDirections.add(rel.direction());
             }
         }
         return relDirections;

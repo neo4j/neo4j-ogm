@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.integration.music;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.Collection;
 
@@ -21,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -32,10 +33,6 @@ import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Luanne Misquitta
@@ -157,13 +154,13 @@ public class MusicIntegrationTest {
 
 
 		session.clear();
-		Album white = new Album("The Beatles");
-		Recording pleaseRecording = new Recording(white, emi, 1968);
-		white.setRecording(pleaseRecording);
-		theBeatles.getAlbums().add(white);
-		white.setArtist(theBeatles);
-		white.setGuestArtist(eric);
-		session.save(white);
+		Album theBeatlesAlbum = new Album("The Beatles");
+		Recording pleaseRecording = new Recording(theBeatlesAlbum, emi, 1968);
+		theBeatlesAlbum.setRecording(pleaseRecording);
+		theBeatles.getAlbums().add(theBeatlesAlbum);
+		theBeatlesAlbum.setArtist(theBeatles);
+		theBeatlesAlbum.setGuestArtist(eric);
+		session.save(theBeatlesAlbum);
 
 		theBeatles = session.loadAll(Artist.class, new Filters().add("name", "The Beatles")).iterator().next();
 		assertEquals("The Beatles", theBeatles.getName());

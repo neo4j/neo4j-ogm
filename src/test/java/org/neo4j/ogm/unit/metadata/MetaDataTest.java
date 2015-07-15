@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.unit.metadata;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -21,21 +23,19 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.domain.cineasts.annotated.Knows;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.Role;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
+import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.metadata.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vince Bickers
@@ -635,6 +635,38 @@ public class MetaDataTest {
     public void testDefaultLabelOfRelationshipEntities() {
         ClassInfo classInfo = metaData.classInfo("Nomination");
         assertEquals("NOMINATION", classInfo.neo4jName());
+    }
+
+    /**
+     * @see DATAGRAPH-690
+     */
+    @Test
+    public void testTypeParameterDescriptorForRelationships() {
+        ClassInfo classInfo = metaData.classInfo("Topic");
+        assertEquals(Post.class, classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Relationship.OUTGOING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("HAS_POSTS", Relationship.INCOMING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("DOES_NOT_EXIST", Relationship.OUTGOING));
+
+        classInfo = metaData.classInfo("Member");
+        assertEquals(Activity.class, classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", Relationship.OUTGOING));
+        assertEquals(Member.class, classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", Relationship.OUTGOING));
+        assertEquals(Member.class, classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", Relationship.OUTGOING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("HAS_ACTIVITY", Relationship.INCOMING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWERS", Relationship.INCOMING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("FOLLOWEES", Relationship.INCOMING));
+
+        classInfo = metaData.classInfo("Actor");
+        assertEquals(Role.class, classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.OUTGOING));
+        assertEquals(Knows.class, classInfo.getTypeParameterDescriptorForRelationship("KNOWS", Relationship.OUTGOING));
+
+        classInfo = metaData.classInfo("Movie");
+        assertEquals(Role.class, classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.INCOMING));
+        assertEquals(Rating.class, classInfo.getTypeParameterDescriptorForRelationship("RATED", Relationship.INCOMING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.OUTGOING));
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("ACTS_IN", Relationship.OUTGOING));
+
+        assertNull(classInfo.getTypeParameterDescriptorForRelationship("HAS", Relationship.OUTGOING));
+
     }
 
 }

@@ -44,12 +44,16 @@ public class TransientRelationship {
     private final String tgt;
     private final String ref;
     private final String rel;
+    private final Class srcClass;
+    private final Class tgtClass;
 
-    public TransientRelationship(String src, String ref, String rel, String tgt) {
+    public TransientRelationship(String src, String ref, String rel, String tgt, Class srcClass, Class tgtClass) {
         this.src = src;
         this.tgt = tgt;
         this.ref = ref;
         this.rel = rel;
+        this.srcClass = srcClass;
+        this.tgtClass = tgtClass;
     }
 
     /**
@@ -76,7 +80,7 @@ public class TransientRelationship {
             throw new RuntimeException("Couldn't get identity for " + ref);
         }
 
-        return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity);
+        return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity, srcClass, tgtClass);
     }
 
     public boolean equalsIgnoreDirection(String src, RelationshipBuilder builder, String tgt) {

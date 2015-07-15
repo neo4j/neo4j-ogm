@@ -25,6 +25,8 @@ import java.util.*;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.MappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -74,6 +76,8 @@ public class ClassInfo {
     private Map<Class, List<MethodInfo>> iterableGettersForType = new HashMap<>();
     private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
     private Map<Class,List<FieldInfo>> iterableFieldsForType = new HashMap<>();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
 
     // todo move this to a factory class
@@ -983,5 +987,64 @@ public class ClassInfo {
     public Class<?> getType(String typeParameterDescriptor) {
         return ClassUtils.getType(typeParameterDescriptor);
     }
+
+    /**
+     * Get the underlying class represented by this ClassInfo
+     * @return the underlying class or null if it cannot be determined
+     */
+    public Class getUnderlyingClass() {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+           LOGGER.error("Could not get underlying class for {}", className);
+        }
+        return null;
+    }
+
+    /** Gets the class of the type parameter description of the entity related to this.
+     *  The match is done based on the following-
+     * 1. Look for a setter explicitly annotated with @Relationship for a type and implied direction
+     * 2. Look for a field explicitly annotated with @Relationship for a type and implied direction
+     * 3. Look for a setter with name derived from the relationship type for the given direction
+     * 4. Look for a field with name derived from the relationship type for the given direction
+     *
+     * @param relationshipType      the relationship type
+     * @param relationshipDirection the relationship direction
+     * @return class of the type parameter descriptor or null if it could not be determined
+    */
+    public Class getTypeParameterDescriptorForRelationship(String relationshipType, String relationshipDirection) {
+        final boolean STRICT_MODE = true; //strict mode for matching methods and fields, will only look for explicit annotations
+        final boolean INFERRED_MODE = false; //inferred mode for matching methods and fields, will infer the relationship type from the getter/setter/property
+
+        try {
+            MethodInfo methodInfo = relationshipSetter(relationshipType, relationshipDirection, STRICT_MODE);
+            if (methodInfo != null && methodInfo.getTypeDescriptor() != null) {
+                return ClassUtils.getType(methodInfo.getTypeDescriptor());
+            }
+
+            FieldInfo fieldInfo = relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
+            if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
+                return ClassUtils.getType(fieldInfo.getTypeDescriptor());
+            }
+
+            if (!relationshipDirection.equals(Relationship.INCOMING)) { //we always expect an annotation for INCOMING
+                methodInfo = relationshipSetter(relationshipType, relationshipDirection, INFERRED_MODE);
+                if (methodInfo != null && methodInfo.getTypeDescriptor() != null) {
+                    return ClassUtils.getType(methodInfo.getTypeDescriptor());
+                }
+                fieldInfo = relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
+                if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
+                    return ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                }
+            }
+        }
+        catch (RuntimeException e) {
+            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", new Object[]{className,relationshipType,relationshipDirection});
+        }
+        return null;
+
+    }
+
+
 }
 

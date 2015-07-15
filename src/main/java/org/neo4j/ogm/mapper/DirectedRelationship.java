@@ -20,14 +20,21 @@ package org.neo4j.ogm.mapper;
  */
 public class DirectedRelationship {
 
-	String relationshipType;
-	String relationshipDirection;
+	private String relationshipType;
+	private String relationshipDirection;
 
 	public DirectedRelationship(String relationshipType, String relationshipDirection) {
 		this.relationshipType = relationshipType;
 		this.relationshipDirection = relationshipDirection;
 	}
 
+	public String type() {
+		return relationshipType;
+	}
+
+	public String direction() {
+		return relationshipDirection;
+	}
 
 	@Override
 	public boolean equals(Object o) {

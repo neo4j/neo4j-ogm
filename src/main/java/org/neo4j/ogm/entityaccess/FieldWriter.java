@@ -108,4 +108,8 @@ public class FieldWriter extends EntityAccess {
         return true;
     }
 
+    @Override
+    public String typeParameterDescriptor() {
+        return fieldInfo.getTypeDescriptor();
+    }
 }

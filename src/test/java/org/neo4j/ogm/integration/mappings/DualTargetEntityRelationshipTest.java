@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
@@ -84,7 +83,6 @@ public class DualTargetEntityRelationshipTest
      * @see DATAGRAPH-690
      */
     @Test
-    @Ignore
     public void shouldKeepAllRelations() {
 
         Category category = new Category("cat1");
@@ -115,7 +113,6 @@ public class DualTargetEntityRelationshipTest
 
         assertEquals(tag1, event.getTags().iterator().next());
         assertEquals(category, event.getCategory());
-        //session.clear(); //fails without this
         session.save(event);
 
         session.clear();

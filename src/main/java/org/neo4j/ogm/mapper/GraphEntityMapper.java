@@ -310,8 +310,6 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 			Object instance = mappingContext.getNodeEntity(edge.getStartNode());
 			Object parameter = mappingContext.getNodeEntity(edge.getEndNode());
 
-			ClassInfo instanceClassInfo = metadata.classInfo(instance);
-			ClassInfo parameterClassInfo = metadata.classInfo(parameter);
 			// is this a relationship entity we're trying to map?
 			Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
 			if (relationshipEntity != null) {

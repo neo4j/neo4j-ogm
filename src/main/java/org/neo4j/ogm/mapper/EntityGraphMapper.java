@@ -234,12 +234,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             String relationshipDirection = reader.relationshipDirection();
             Class startNodeType = srcInfo.getUnderlyingClass();
             Class endNodeType = ClassUtils.getType(reader.typeParameterDescriptor());
-           /* if(relationshipDirection.equals(Relationship.INCOMING)) {
-                if (metaData.isRelationshipEntity(endNodeType.getName())) {
-                    String start = entityAccessStrategy.getStartNodeReader(metaData.classInfo(endNodeType.getName())).typeParameterDescriptor();
-                    startNodeType = ClassUtils.getType(start);
-                }
-            }*/
+
             DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
 
             CypherContext context=compiler.context();
@@ -257,20 +252,24 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
             Object relatedObject = reader.read(entity);
             if (relatedObject != null) {
+                RelationshipNodes relNodes = new RelationshipNodes(entity,relatedObject,startNodeType,endNodeType);
+                relNodes.sourceId = srcIdentity;
 
                 if (relatedObject instanceof Iterable) {
                     for (Object tgtObject : (Iterable<?>) relatedObject) {
                         boolean mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
-                        link(tgtObject, compiler, directedRelationship, srcIdentity, nodeBuilder, entity, horizon, mapBothWays, startNodeType, endNodeType);
+                        relNodes.target = tgtObject;
+                        link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                     }
                 } else if (relatedObject.getClass().isArray()) {
                     for (Object tgtObject : (Object[]) relatedObject) {
                         boolean mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
-                        link(tgtObject, compiler, directedRelationship, srcIdentity, nodeBuilder, entity, horizon, mapBothWays, startNodeType, endNodeType);
+                        relNodes.target = tgtObject;
+                        link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                     }
                 } else {
                     boolean mapBothWays = bothWayMappingRequired(entity, relationshipType, relatedObject);
-                    link(relatedObject, compiler, directedRelationship, srcIdentity, nodeBuilder, entity, horizon, mapBothWays, startNodeType, endNodeType);
+                    link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                 }
             }
         }
@@ -282,7 +281,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param context the {@link CypherContext} for the current compiler instance
      * @param identity the id of the node at the the 'start' of the relationship
      * @param endNodeType the class of the entity on the end of the relationship
-     * @param directedRelationship
+     * @param directedRelationship {@link DirectedRelationship} representing the relationships to be cleared
      */
     private boolean clearContextRelationships(CypherContext context, Long identity, Class endNodeType, DirectedRelationship directedRelationship) {
         if (directedRelationship.direction().equals(Relationship.INCOMING)) {
@@ -305,36 +304,34 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * In the event that the relationship being managed is represented by an instance of RelationshipEntity
      * then the target will always be a RelationshipEntity, and the actual relationship will be
      * established between the relevant start and end nodes.
-     * @param target         represents the node at the end of the relationship that is not represented by source
      * @param cypherCompiler     the {@link CypherCompiler}
      * @param directedRelationship  the {@link DirectedRelationship} representing the relationship type and direction
-     * @param srcIdentity        a string representing the identity of the start node in the cypher context
      * @param nodeBuilder        a {@link NodeBuilder} that knows how to create cypher node phrases
-     * @param source          represents the node at the end of the relationship that is not represented by source
      * @param horizon            the current depth we have mapped the domain model to.
      * @param mapBothDirections  whether the nodes should be linked in both directions
+     * @param relNodes          {@link org.neo4j.ogm.mapper.EntityGraphMapper.RelationshipNodes} representing the nodes to be linked
      */
-    private void link(Object target, CypherCompiler cypherCompiler, DirectedRelationship directedRelationship, Long srcIdentity, NodeBuilder nodeBuilder, Object source, int horizon, boolean mapBothDirections, Class startNodeType, Class endNodeType) {
+    private void link(CypherCompiler cypherCompiler, DirectedRelationship directedRelationship, NodeBuilder nodeBuilder, int horizon, boolean mapBothDirections, RelationshipNodes relNodes) {
 
-        logger.debug("linking to entity {} in {} direction", target, mapBothDirections ? "both" : "one");
+        logger.debug("linking to entity {} in {} direction", relNodes.target, mapBothDirections ? "both" : "one");
 
-        if (target != null) {
+        if (relNodes.target != null) {
             CypherContext context = cypherCompiler.context();
 
-            RelationshipBuilder relationshipBuilder = getRelationshipBuilder(cypherCompiler, target, directedRelationship, mapBothDirections);
+            RelationshipBuilder relationshipBuilder = getRelationshipBuilder(cypherCompiler, relNodes.target, directedRelationship, mapBothDirections);
 
-            if (isRelationshipEntity(target)) {
-                if (!context.visitedRelationshipEntity(target)) {
-                    mapRelationshipEntity(target, source, relationshipBuilder, context, nodeBuilder, cypherCompiler, horizon, startNodeType, endNodeType);
+            if (isRelationshipEntity(relNodes.target)) {
+                if (!context.visitedRelationshipEntity(relNodes.target)) {
+                    mapRelationshipEntity(relNodes.target, relNodes.source, relationshipBuilder, context, nodeBuilder, cypherCompiler, horizon, relNodes.sourceType, relNodes.targetType);
                 }
                 else {
-                    logger.debug("RE already visited {}: ", target);
+                    logger.debug("RE already visited {}: ", relNodes.target);
                 }
             } else {
-                mapRelatedEntity(cypherCompiler, nodeBuilder, source, srcIdentity, relationshipBuilder, target, horizon, startNodeType, endNodeType);
+                mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
         } else {
-            logger.debug("cannot create relationship: ({})-[:{}]->(null)", srcIdentity, directedRelationship.type());
+            logger.debug("cannot create relationship: ({})-[:{}]->(null)", relNodes.sourceId, directedRelationship.type());
         }
     }
 
@@ -401,7 +398,8 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         if (mappingContext.isDirty(relationshipEntity)) {
             context.log(relationshipEntity);
             if (tgtIdentity != null && srcIdentity!=null) {
-                MappedRelationship mappedRelationship = createMappedRelationship(srcIdentity, relationshipBuilder, tgtIdentity, startNodeType, endNodeType);
+                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
+                MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
                 if (mappingContext.mappedRelationships().remove(mappedRelationship)) {
                     logger.debug("RE successfully marked for re-writing");
                 } else {
@@ -414,20 +412,29 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         NodeBuilder srcNodeBuilder = context.nodeBuilder(startEntity);
         NodeBuilder tgtNodeBuilder = context.nodeBuilder(targetEntity);
+
         if (parent == targetEntity) {
             if(!context.visited(startEntity)) {
-                mapRelatedEntity(cypherCompiler, nodeBuilder, targetEntity, tgtIdentity, relationshipBuilder, startEntity, horizon, startNodeType, endNodeType);
+                RelationshipNodes relNodes = new RelationshipNodes(tgtIdentity, srcIdentity, startNodeType, endNodeType);
+                relNodes.source = targetEntity;
+                relNodes.target = startEntity;
+                mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
             else {
-                updateRelationship(tgtIdentity, srcIdentity, context, tgtNodeBuilder, srcNodeBuilder, relationshipBuilder, startNodeType, endNodeType);
+                RelationshipNodes relNodes = new RelationshipNodes(tgtIdentity, srcIdentity, startNodeType, endNodeType);
+                updateRelationship(context, tgtNodeBuilder, srcNodeBuilder, relationshipBuilder, relNodes);
             }
         }
         else { //parent=startEntity
             if(!context.visited(targetEntity)) {
-                mapRelatedEntity(cypherCompiler, nodeBuilder, startEntity, srcIdentity, relationshipBuilder, targetEntity, horizon, startNodeType, endNodeType);
+                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
+                relNodes.source = startEntity;
+                relNodes.target = targetEntity;
+                mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
             else {
-                updateRelationship(srcIdentity, tgtIdentity, context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, startNodeType, endNodeType);
+                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
+                updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
             }
         }
     }
@@ -483,17 +490,14 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * possibly deleted relationships will fail. If the UNDIRECTED relationship is new however, this is not important,
      * so the default is to always return an OUTGOING relationship: a->b
      *
-     * @param aNode one of the nodes in the relationship
      * @param relationshipBuilder describes the relationship, type, direction, etc.
-     * @param bNode the other node in the relationship
-     * @param startNodeType the class of the start entity
-     * @param endNodeType   the class of the end entity
+     * @param relNodes  {@link org.neo4j.ogm.mapper.EntityGraphMapper.RelationshipNodes} representing the nodes at the end of the relationship
      * @return a mappingContext representing a new or existing relationship between aNode and bNode
      */
-    private MappedRelationship createMappedRelationship(Long aNode, RelationshipBuilder relationshipBuilder, Long bNode, Class startNodeType, Class endNodeType) {
+    private MappedRelationship createMappedRelationship(RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
-        MappedRelationship mappedRelationshipOutgoing = new MappedRelationship(aNode, relationshipBuilder.getType(), bNode, relationshipBuilder.getId(), startNodeType, endNodeType);
-        MappedRelationship mappedRelationshipIncoming = new MappedRelationship(bNode, relationshipBuilder.getType(), aNode, relationshipBuilder.getId(), startNodeType, endNodeType);
+        MappedRelationship mappedRelationshipOutgoing = new MappedRelationship(relNodes.sourceId, relationshipBuilder.getType(), relNodes.targetId, relationshipBuilder.getId(), relNodes.sourceType, relNodes.targetType);
+        MappedRelationship mappedRelationshipIncoming = new MappedRelationship(relNodes.targetId, relationshipBuilder.getType(), relNodes.sourceId, relationshipBuilder.getId(), relNodes.sourceType, relNodes.targetType);
 
         if (relationshipBuilder.hasDirection(Relationship.UNDIRECTED)) {
             if (mappingContext.isRegisteredRelationship(mappedRelationshipIncoming)) {
@@ -518,31 +522,28 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * first.
      *
      * Note that if the srcObject and tgtObject are the same, the relationship will not be created.
-     *  @param compiler the {@link CypherCompiler}
+     * @param compiler the {@link CypherCompiler}
      * @param srcNodeBuilder  a {@link NodeBuilder} that knows how to create cypher phrases about nodes
-     * @param srcEntity   the domain object representing the start node of the relationship
-     * @param srcIdentity  the cypher reference to the start on the object
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param tgtEntity the domain object representing the end node of the relationship
      * @param horizon  a value representing how deep we are mapping
-     * @param startNodeType the class of the start entity
-     * @param endNodeType   the class of the end entity
+     * @param relNodes  {@link org.neo4j.ogm.mapper.EntityGraphMapper.RelationshipNodes} representing the nodes at the end of this relationship
      */
-    private void mapRelatedEntity(CypherCompiler compiler, NodeBuilder srcNodeBuilder, Object srcEntity, Long srcIdentity, RelationshipBuilder relationshipBuilder, Object tgtEntity, int horizon, Class startNodeType, Class endNodeType) {
+    private void mapRelatedEntity(CypherCompiler compiler, NodeBuilder srcNodeBuilder, RelationshipBuilder relationshipBuilder, int horizon, RelationshipNodes relNodes) {
 
-        if (srcEntity == tgtEntity) {
-            logger.debug("refusing to map an entity to itself! {} ", srcEntity);
+        if (relNodes.source == relNodes.target) {
+            logger.debug("refusing to map an entity to itself! {} ", relNodes.source);
             return;
         }
 
-        NodeBuilder tgtNodeBuilder = mapEntity(tgtEntity, horizon, compiler);
+        NodeBuilder tgtNodeBuilder = mapEntity(relNodes.target, horizon, compiler);
 
         // tgtNodeBuilder will be null if tgtObject is a transient class, or a subclass of a transient class
         if (tgtNodeBuilder != null) {
-            logger.debug("trying to map relationship between {} and {}", srcEntity, tgtEntity);
-            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(tgtEntity)).read(tgtEntity);
+            logger.debug("trying to map relationship between {} and {}", relNodes.source, relNodes.target);
+            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(relNodes.target)).read(relNodes.target);
             CypherContext context = compiler.context();
-            updateRelationship(srcIdentity, tgtIdentity, context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, startNodeType, endNodeType);
+            relNodes.targetId = tgtIdentity;
+            updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
         }
     }
 
@@ -563,23 +564,20 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * it for us as it already exists, so we re-register it in the compile context. Because this relationship
      * was previously deleted from the compile context, but not from the mapping context, this brings both
      * mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
-     *  @param srcIdentity the cypher reference to the start node of the relationship
-     * @param tgtIdentity  the cypher reference to the end node of the relationship
      * @param context  the {@link CypherContext} for the current statement compiler
      * @param srcNodeBuilder  a {@link NodeBuilder} that knows how to create cypher phrases about nodes
      * @param tgtNodeBuilder   a {@link NodeBuilder} that knows how to create cypher phrases about nodes
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param startNodeType the class of the start entity
-     * @param endNodeType   the class of the end entity
+     * @param relNodes             {@link org.neo4j.ogm.mapper.EntityGraphMapper.RelationshipNodes} representing the nodes at the ends of this relationship
      */
-    private void updateRelationship(Long srcIdentity, Long tgtIdentity, CypherContext context, NodeBuilder srcNodeBuilder, NodeBuilder tgtNodeBuilder, RelationshipBuilder relationshipBuilder, Class startNodeType, Class endNodeType) {
+    private void updateRelationship(CypherContext context, NodeBuilder srcNodeBuilder, NodeBuilder tgtNodeBuilder, RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
-        if (tgtIdentity == null || srcIdentity == null) {
-            maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), startNodeType, endNodeType);
+        if (relNodes.targetId == null || relNodes.sourceId == null) {
+            maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
         } else {
-            MappedRelationship mappedRelationship = createMappedRelationship(srcIdentity, relationshipBuilder, tgtIdentity, startNodeType, endNodeType);
+            MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
             if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
-                maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), startNodeType, endNodeType);
+                maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
             } else {
                 logger.debug("context-add: ({})-[{}:{}]->({})", mappedRelationship.getStartNodeId(), relationshipBuilder.getReference(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                 mappedRelationship.activate();
@@ -730,6 +728,29 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             }
         }
         return mapBothWays;
+    }
+
+    class RelationshipNodes {
+        Long sourceId;
+        Long targetId;
+        Class sourceType;
+        Class targetType;
+        Object source;
+        Object target;
+
+        public RelationshipNodes(Long sourceId, Long targetId, Class sourceType, Class targetType) {
+            this.sourceId = sourceId;
+            this.targetId = targetId;
+            this.sourceType = sourceType;
+            this.targetType = targetType;
+        }
+
+        public RelationshipNodes(Object source, Object target, Class sourceType, Class targetType) {
+            this.sourceType = sourceType;
+            this.targetType = targetType;
+            this.source = source;
+            this.target = target;
+        }
     }
 
 }

@@ -114,6 +114,19 @@ public class Utils {
                 return (double) intValue;
             }
         }
+        if("long".equals(clazz.getName()) || Long.class.equals(clazz)) {
+            if(value.getClass().equals(Integer.class)) {
+                Integer intValue = (Integer) value;
+                return (long) intValue;
+            }
+        }
+
+        if("double".equals(clazz.getName()) || (Double.class.equals(clazz))) {
+            if(value.getClass().equals(Float.class)) {
+                Float floatValue = (Float) value;
+                return (double) floatValue;
+            }
+        }
         return value;
     }
 }

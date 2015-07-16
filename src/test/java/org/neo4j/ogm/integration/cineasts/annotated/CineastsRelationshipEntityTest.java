@@ -19,7 +19,10 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
@@ -598,8 +601,10 @@ public class CineastsRelationshipEntityTest{
 
     }
 
+	/**
+	 * @see DATAGRAPH-704
+	 */
 	@Test
-	@Ignore
 	public void shouldRetainREsWhenAStartOrEndNodeIsLoaded() {
 		neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
 
@@ -609,7 +614,7 @@ public class CineastsRelationshipEntityTest{
 
 		session.loadAll(User.class, new Filter("name", "Michal")).iterator().next();
 
-		assertEquals(2, movie.getRatings().size()); //should not lose one rating because Michal is loaded
+		assertEquals(2, movie.getRatings().size()); //should not lose one rating because Michal is loaded; ratings should me merged and not overwritten
 	}
 
 }

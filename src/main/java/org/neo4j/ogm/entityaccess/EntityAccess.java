@@ -15,13 +15,7 @@
 package org.neo4j.ogm.entityaccess;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 import org.neo4j.ogm.session.Utils;
 
@@ -66,16 +60,17 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             return array;
         }
 
-        // hydrated is unusable at this point so we can just set the other collection if it's compatible
-        if (parameterType.isAssignableFrom(newValues.getClass())) {
-            return newValues;
-        }
-
         // create the desired type of collection and use it for the merge
         Collection newCollection = createCollection(parameterType, newValues, currentValues);
         if (newCollection != null) {
             return newCollection;
         }
+
+        // hydrated is unusable at this point so we can just set the other collection if it's compatible
+        if (parameterType.isAssignableFrom(newValues.getClass())) {
+            return newValues;
+        }
+
 
         throw new RuntimeException("Unsupported: " + parameterType.getName());
     }

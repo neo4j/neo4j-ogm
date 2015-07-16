@@ -18,6 +18,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.neo4j.ogm.metadata.MetaData;
 
 /**
+ * Used to create {@link Session} instances for interacting with Neo4j.
+ *
  * @author Vince Bickers
  */
 public class SessionFactory {
@@ -26,14 +28,36 @@ public class SessionFactory {
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final MetaData metaData;
 
+    /**
+     * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
+     * object packages.
+     * <p>
+     * The package names passed to this constructor should not contain wildcards or trailing full stops, for example,
+     * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
+     * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
+     * </p>
+     *
+     * @param packages The packages to scan for domain objects
+     */
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);
     }
 
+    /**
+     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database.
+     *
+     * @param url The base URL of the Neo4j database with which to communicate
+     * @return A new {@link Session}
+     */
     public Session openSession(String url) {
         return new Neo4jSession(metaData, url, httpClient, objectMapper);
     }
 
+    /**
+     * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.
+     *
+     * @return The underlying {@link MetaData}
+     */
     public MetaData metaData() {
         return metaData;
     }

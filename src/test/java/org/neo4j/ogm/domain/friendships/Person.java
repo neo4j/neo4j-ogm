@@ -50,4 +50,11 @@ public class Person {
     public Long getId() {
         return id;
     }
+
+    public Friendship addFriend(Person newFriend) {
+        Friendship friendship = new Friendship(this, newFriend,5);
+        this.friends.add(friendship);
+        return friendship;
+    }
+
 }

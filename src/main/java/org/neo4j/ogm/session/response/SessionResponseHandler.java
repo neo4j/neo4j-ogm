@@ -15,14 +15,9 @@
 package org.neo4j.ogm.session.response;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.entityaccess.FieldWriter;
@@ -115,6 +110,8 @@ public class SessionResponseHandler implements ResponseHandler {
                     } else {
                         mappingContext.registerRelationshipEntity(persisted, identity);
                     }
+                    mappingContext.remember(persisted); //remember the persisted entity so it isn't marked for rewrite just after it's been retrieved and had it's id set
+
                 }
             }
         }

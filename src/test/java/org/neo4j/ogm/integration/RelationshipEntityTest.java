@@ -14,26 +14,20 @@
 
 package org.neo4j.ogm.integration;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -188,6 +182,26 @@ public class RelationshipEntityTest {
         assertEquals(0,u.rset.size());
     }
 
+    /**
+     * @see DATAGRAPH-706
+     */
+    @Test
+    @Ignore
+    public void shouldReplaceOneEndOfR() {
+        session.save(u);
+
+        M m2 = new M("Lost");
+        session.save(m2); //without this there's an NPE in TransientRelationship
+        r1.m = m2;
+
+        session.save(r1);
+        assertEquals(m2, u.rset.iterator().next().m);
+
+        session.clear();
+        u = session.load(U.class, u.id);
+        assertEquals(1, u.rset.size()); //we've lost all R's from u
+        assertEquals(m2.title, u.rset.iterator().next().m.title);
+    }
 
     @NodeEntity(label = "U")
     public static class U {

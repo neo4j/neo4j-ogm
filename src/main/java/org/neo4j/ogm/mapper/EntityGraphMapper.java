@@ -355,9 +355,14 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         if (isRelationshipEntity(entity)) {
             Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
 
-            relationshipBuilder = relId != null
-                    ? cypherBuilder.existingRelationship(relId)
-                    : cypherBuilder.newRelationship();
+            boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
+
+            if(relId == null || relationshipEndsChanged) { //if the RE itself is new, or it exists but has one of it's end nodes changed
+                relationshipBuilder = cypherBuilder.newRelationship();
+            }
+            else {
+                relationshipBuilder = cypherBuilder.existingRelationship(relId);
+            }
             relationshipBuilder.type(directedRelationship.type());
         } else {
             relationshipBuilder = mapBothDirections ? cypherBuilder.newBiDirectionalRelationship().type(directedRelationship.type()) : cypherBuilder.newRelationship().type(directedRelationship.type());
@@ -368,6 +373,32 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             relationshipBuilder.setSingleton(false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
         }
         return relationshipBuilder;
+    }
+
+    /**
+     * Check if any of the end nodes of the relationship have changed or are new
+     * @param entity the relationship entity
+     * @param relId the id of the relationship entity
+     * @return true if either end is new or changed
+     */
+    private boolean haveRelationEndsChanged(Object entity, Long relId) {
+        Object startEntity = getStartEntity(metaData.classInfo(entity), entity);
+        Object targetEntity = getTargetEntity(metaData.classInfo(entity), entity);
+        ClassInfo targetInfo = metaData.classInfo(targetEntity);
+        ClassInfo startInfo = metaData.classInfo(startEntity);
+        Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
+        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startEntity);
+
+        boolean relationshipEndsChanged= false;
+
+        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+			if (mappedRelationship.getRelationshipId()!=null && relId!=null && mappedRelationship.getRelationshipId().equals(relId)) {
+				if (srcIdentity==null || tgtIdentity==null || mappedRelationship.getStartNodeId() != srcIdentity || mappedRelationship.getEndNodeId() != tgtIdentity) {
+					relationshipEndsChanged=true;
+				}
+			}
+		}
+        return relationshipEndsChanged;
     }
 
     /**
@@ -750,6 +781,18 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             this.targetType = targetType;
             this.source = source;
             this.target = target;
+        }
+
+        @Override
+        public String toString() {
+            return "RelationshipNodes{" +
+                    "sourceId=" + sourceId +
+                    ", targetId=" + targetId +
+                    ", sourceType=" + sourceType +
+                    ", targetType=" + targetType +
+                    ", source=" + source +
+                    ", target=" + target +
+                    '}';
         }
     }
 

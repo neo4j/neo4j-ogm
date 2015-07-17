@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
@@ -186,12 +185,10 @@ public class RelationshipEntityTest {
      * @see DATAGRAPH-706
      */
     @Test
-    @Ignore
     public void shouldReplaceOneEndOfR() {
         session.save(u);
 
         M m2 = new M("Lost");
-        session.save(m2); //without this there's an NPE in TransientRelationship
         r1.m = m2;
 
         session.save(r1);

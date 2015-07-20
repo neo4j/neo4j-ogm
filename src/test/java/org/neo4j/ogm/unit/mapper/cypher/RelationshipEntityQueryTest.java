@@ -13,10 +13,11 @@
  */
 package org.neo4j.ogm.unit.mapper.cypher;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -24,8 +25,6 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -53,6 +52,15 @@ public class RelationshipEntityQueryTest {
     @Test
     public void testFindByLabel() throws Exception {
         assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() RETURN collect(distinct p)", query.findByType("ORBITS", 3).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-707
+     * @throws Exception
+     */
+    @Test
+    public void testFindAllByTypeCollection() throws Exception {
+        assertEquals("MATCH (n)-[r:`ORBITS`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", query.findAllByType("ORBITS",Arrays.asList(1L, 2L, 3L), 1).getStatement());
     }
 
     @Test

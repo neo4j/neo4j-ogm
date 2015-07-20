@@ -15,12 +15,7 @@
 package org.neo4j.ogm.session.request.strategy;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -64,6 +59,21 @@ public class VariableDepthQuery implements QueryStatements {
             return new GraphModelQuery(qry, Utils.map("ids", ids));
         } else {
             return DepthZeroReadStrategy.findAll(ids);
+        }
+    }
+
+    @Override
+    public Query findAllByType(String label, Collection<Long> ids, int depth) {
+        int max = max(depth);
+        int min = min(max);
+        if (depth < 0) {
+            return InfiniteDepthReadStrategy.findAllByLabel(label, ids);
+        }
+        if (max > 0) {
+            String qry=String.format("MATCH (n:`%s`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p)", label, min, max);
+            return new GraphModelQuery(qry, Utils.map("ids", ids));
+        } else {
+            return DepthZeroReadStrategy.findAllByLabel(label, ids);
         }
     }
 
@@ -245,6 +255,11 @@ public class VariableDepthQuery implements QueryStatements {
             return new GraphModelQuery("MATCH (n) WHERE id(n) in { ids } RETURN n", Utils.map("ids", ids));
         }
 
+        public static GraphModelQuery findAllByLabel(String label, Collection<Long> ids) {
+            return new GraphModelQuery(String.format("MATCH (n:`%s`) WHERE id(n) in { ids } RETURN n",label), Utils.map("ids", ids));
+        }
+
+
         public static GraphModelQuery findByLabel(String label) {
             return new GraphModelQuery(String.format("MATCH (n:`%s`) RETURN n", label), Utils.map());
         }
@@ -266,6 +281,10 @@ public class VariableDepthQuery implements QueryStatements {
 
         public static GraphModelQuery findAll(Collection<Long> ids) {
             return new GraphModelQuery("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN collect(distinct p)", Utils.map("ids", ids));
+        }
+
+        public static GraphModelQuery findAllByLabel(String label, Collection<Long> ids) {
+            return new GraphModelQuery(String.format("MATCH (n:`%s`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN collect(distinct p)",label), Utils.map("ids", ids));
         }
 
         public static GraphModelQuery findByLabel(String label) {

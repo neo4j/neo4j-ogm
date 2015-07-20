@@ -65,4 +65,8 @@ public class Recording {
 	public void setYear(int year) {
 		this.year = year;
 	}
+
+	public Long getId() {
+		return id;
+	}
 }

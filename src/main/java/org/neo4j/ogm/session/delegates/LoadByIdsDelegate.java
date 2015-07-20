@@ -40,9 +40,10 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
         String url = session.ensureTransaction().url();
+        String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
-        Query qry = queryStatements.findAll(ids, depth)
+        Query qry = queryStatements.findAllByType(entityType, ids, depth)
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 

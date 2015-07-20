@@ -14,6 +14,9 @@
 
 package org.neo4j.ogm.integration.hierarchy;
 
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,74 +25,16 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedAbstractNamedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedAbstractParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedConcreteNamedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedNamedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithMultipleAnnotatedInterfaces;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithPlainAbstractParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithPlainConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithPlainInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedInterface;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedInterfaceWithSingleImpl;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedAbstractNamedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedAbstractParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedConcreteNamedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithAnnotatedNamedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithPlainAbstractParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithPlainConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedChildWithPlainInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedNamedSingleClass;
-import org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedSingleClass;
-import org.neo4j.ogm.integration.hierarchy.domain.people.Bloke;
-import org.neo4j.ogm.integration.hierarchy.domain.people.Entity;
-import org.neo4j.ogm.integration.hierarchy.domain.people.Female;
-import org.neo4j.ogm.integration.hierarchy.domain.people.Male;
-import org.neo4j.ogm.integration.hierarchy.domain.people.Person;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainAbstractWithAnnotatedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAbstractParentAndAnnotatedSuperclass;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedAbstractNamedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedAbstractParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteNamedParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteSuperclass;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedNamedInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithAnnotatedSuperInterface;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithPlainAbstractParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithPlainConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithPlainConcreteParentImplementingInterface;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithPlainInterfaceChild;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainChildWithPlainInterfaceParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.plain.PlainSingleClass;
-import org.neo4j.ogm.integration.hierarchy.domain.trans.PlainChildOfTransientInterface;
-import org.neo4j.ogm.integration.hierarchy.domain.trans.PlainChildOfTransientParent;
-import org.neo4j.ogm.integration.hierarchy.domain.trans.PlainClassWithTransientFields;
-import org.neo4j.ogm.integration.hierarchy.domain.trans.TransientChildWithPlainConcreteParent;
-import org.neo4j.ogm.integration.hierarchy.domain.trans.TransientSingleClass;
-import org.neo4j.ogm.integration.hierarchy.domain.trans.TransientSingleClassWithId;
+import org.neo4j.ogm.integration.hierarchy.domain.annotated.*;
+import org.neo4j.ogm.integration.hierarchy.domain.people.*;
+import org.neo4j.ogm.integration.hierarchy.domain.plain.*;
+import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
@@ -601,7 +546,7 @@ public class ClassHierarchiesIntegrationTest {
         assertNotNull(session.load(PlainClassWithTransientFields.class, 0L));
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test
     public void shouldNotBeAbleToLoadClassOfWrongType() {
         session.save(new AnnotatedNamedSingleClass());
         session.load(PlainSingleClass.class, 0L);

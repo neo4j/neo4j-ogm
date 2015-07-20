@@ -14,18 +14,17 @@
 
 package org.neo4j.ogm.unit.mapper.cypher;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -53,6 +52,33 @@ public class NodeEntityQueryTest {
     @Test
     public void testFindByLabel() throws Exception {
         assertEquals("MATCH (n:`Orbit`) WITH n MATCH p=(n)-[*0..3]-(m) RETURN collect(distinct p)", query.findByType("Orbit", 3).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-707
+     * @throws Exception
+     */
+    @Test
+    public void testFindAllByLabel() throws Exception {
+        assertEquals("MATCH (n:`Orbit`) WHERE id(n) in { ids } RETURN n", query.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), 0).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-707
+     * @throws Exception
+     */
+    @Test
+    public void testFindAllByLabelDepthOne() throws Exception {
+        assertEquals("MATCH (n:`Orbit`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", query.findAllByType("Orbit",Arrays.asList(1L, 2L, 3L),1).getStatement());
+    }
+
+    /**
+     * @see DATAGRAPH-707
+     * @throws Exception
+     */
+    @Test
+    public void testFindAllByLabelDepthInfinity() throws Exception {
+        assertEquals("MATCH (n:`Orbit`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN collect(distinct p)", query.findAllByType("Orbit",Arrays.asList(1L, 2L, 3L),-1).getStatement());
     }
 
     @Test

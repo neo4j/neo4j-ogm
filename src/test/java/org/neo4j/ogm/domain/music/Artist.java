@@ -72,4 +72,8 @@ public class Artist {
             album.setGuestArtist(this);
         }
     }
+
+    public Long getId() {
+        return id;
+    }
 }

@@ -14,11 +14,7 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -53,6 +49,18 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
         int min = min(max);
         if (max > 0) {
             String qry=String.format("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p)", min, max);
+            return new GraphModelQuery(qry, Utils.map("ids", ids));
+        } else {
+            throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
+        }
+    }
+
+    @Override
+    public Query findAllByType(String type, Collection<Long> ids, int depth) {
+        int max = max(depth);
+        int min = min(max);
+        if (max > 0) {
+            String qry=String.format("MATCH (n)-[r:`%s`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p)", type, min, max);
             return new GraphModelQuery(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");

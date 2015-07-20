@@ -152,7 +152,13 @@ public class SessionResponseHandler implements ResponseHandler {
         } else {
             ref = mappingContext.getRelationshipEntity(id);
         }
-        return type.cast(ref);
+        try {
+            return type.cast(ref);
+        }
+        catch (ClassCastException cce) {
+            return null;
+        }
+
     }
 
     @Override

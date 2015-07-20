@@ -74,4 +74,8 @@ public class Album {
 	public void setGuestArtist(Artist guestArtist) {
 		this.guestArtist = guestArtist;
 	}
+
+	public Long getId() {
+		return id;
+	}
 }

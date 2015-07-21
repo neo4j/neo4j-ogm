@@ -160,8 +160,13 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
             if(!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                 query.append(filter.getBooleanOperator().getValue()).append(" ");
             }
-			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), filter.getPropertyName()));
-            properties.put(filter.getPropertyName(),filter.getPropertyValue());
+            String uniquePropertyName = filter.getPropertyName();
+            if(filter.isNested()) {
+                //Nested entities may have the same property name, so we make them unique by qualifying them with the nested property name on the owning entity
+                uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
+            }
+			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
+            properties.put(uniquePropertyName,filter.getPropertyValue());
 		}
     }
 

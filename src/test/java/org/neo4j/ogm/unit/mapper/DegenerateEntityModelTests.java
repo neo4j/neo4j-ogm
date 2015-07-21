@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,9 +9,16 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.unit.mapper;
+
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+
+import java.util.HashSet;
+import java.util.Map;
 
 import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -26,13 +34,6 @@ import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.test.TestGraphDatabaseFactory;
-
-import java.util.HashSet;
-import java.util.Map;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * These tests are to establish the behaviour of degenerate entity models
@@ -119,8 +120,10 @@ public class DegenerateEntityModelTests {
         mappingContext.registerNodeEntity(f, f.getId());
         mappingContext.registerNodeEntity(a, a.getId());
         mappingContext.registerNodeEntity(b, b.getId());
-        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", a.getId()));
-        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", b.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", a.getId(), Folder.class, Document.class));
+        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", b.getId(), Folder.class, Document.class));
+       // mappingContext.registerRelationship(new MappedRelationship(a.getId(), "CONTAINS", b.getId(), Document.class, Folder.class));
+      //  mappingContext.registerRelationship(new MappedRelationship(b.getId(), "CONTAINS", b.getId(), Document.class, Folder.class));
 
     }
 

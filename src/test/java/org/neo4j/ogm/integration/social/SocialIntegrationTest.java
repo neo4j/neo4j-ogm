@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.integration.social;
@@ -15,7 +17,9 @@ package org.neo4j.ogm.integration.social;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +84,7 @@ public class SocialIntegrationTest
 
 		Individual individualA = session.loadAll(Individual.class, new Filter("name", "A")).iterator().next();
 		assertNotNull(individualA);
-		assertEquals(3, individualA.getFriends().size());
+		assertEquals(2, individualA.getFriends().size());
 
 	}
 
@@ -229,5 +233,44 @@ public class SocialIntegrationTest
 		assertNotNull(mortalD);
 		assertEquals(1, mortalD.getKnownBy().size());
 		assertEquals("A", mortalD.getKnownBy().iterator().next().getName());
+	}
+
+
+	@Test
+	public void shouldFetchFriendsUndirected() {
+
+		User adam = new User("Adam");
+		User daniela = new User("Daniela");
+		User michal = new User("Michal");
+		User vince = new User("Vince");
+
+		adam.befriend(daniela);
+		daniela.befriend(michal);
+		michal.befriend(vince);
+
+		session.save(adam);
+
+		session.clear();
+		adam = session.load(User.class, adam.getId());
+		assertEquals(1, adam.getFriends().size());
+
+		daniela = session.load(User.class, daniela.getId());
+		assertEquals(2, daniela.getFriends().size());
+		List<String> friendNames = new ArrayList<>();
+		for(User friend : daniela.getFriends()) {
+			friendNames.add(friend.getName());
+		}
+		assertTrue(friendNames.contains("Adam"));
+		assertTrue(friendNames.contains("Michal"));
+
+		session.clear();
+
+		michal = session.load(User.class, michal.getId());
+		assertEquals(2, michal.getFriends().size());
+
+		session.clear();
+		vince = session.load(User.class, vince.getId());
+		assertEquals(1, vince.getFriends().size());
+
 	}
 }

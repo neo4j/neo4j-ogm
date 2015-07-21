@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,19 +9,22 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.session.request.strategy;
+
+import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.*;
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
+import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
+import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
-
-import java.util.*;
 
 /**
  * @author Luanne Misquitta
@@ -45,6 +49,18 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
         int min = min(max);
         if (max > 0) {
             String qry=String.format("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p)", min, max);
+            return new GraphModelQuery(qry, Utils.map("ids", ids));
+        } else {
+            throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
+        }
+    }
+
+    @Override
+    public Query findAllByType(String type, Collection<Long> ids, int depth) {
+        int max = max(depth);
+        int min = min(max);
+        if (max > 0) {
+            String qry=String.format("MATCH (n)-[r:`%s`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p)", type, min, max);
             return new GraphModelQuery(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -144,8 +160,13 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
             if(!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
                 query.append(filter.getBooleanOperator().getValue()).append(" ");
             }
-			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), filter.getPropertyName()));
-            properties.put(filter.getPropertyName(),filter.getPropertyValue());
+            String uniquePropertyName = filter.getPropertyName();
+            if(filter.isNested()) {
+                //Nested entities may have the same property name, so we make them unique by qualifying them with the nested property name on the owning entity
+                uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
+            }
+			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
+            properties.put(uniquePropertyName,filter.getPropertyValue());
 		}
     }
 

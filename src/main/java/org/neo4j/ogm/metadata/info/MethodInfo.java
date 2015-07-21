@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,16 +9,17 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.metadata.info;
+
+import java.util.Collection;
 
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
-
-import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -112,6 +114,17 @@ public class MethodInfo {
         return null;
     }
 
+    public String relationshipTypeAnnotation() {
+        if (!isSimpleSetter() && !isSimpleGetter()) {
+            try {
+                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, null);
+            } catch (NullPointerException npe) {
+                //TODO log
+            }
+        }
+        return null;
+    }
+
     public String getDescriptor() {
         return descriptor;
     }
@@ -155,13 +168,13 @@ public class MethodInfo {
         }
     }
 
-    public String relationshipDirection() {
+    public String relationshipDirection(String defaultDirection) {
         if (relationship() != null) {
             AnnotationInfo annotationInfo = getAnnotations().get(Relationship.CLASS);
             if (annotationInfo == null) {
-                return Relationship.UNDIRECTED;
+                return defaultDirection;
             }
-            return annotationInfo.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+            return annotationInfo.get(Relationship.DIRECTION, defaultDirection);
         }
         throw new RuntimeException("relationship direction call invalid");
     }
@@ -233,6 +246,25 @@ public class MethodInfo {
         if (descriptor.contains("[")) return false;
 
         return true;
+    }
+
+    public boolean hasAnnotation(String annotationName) {
+        return getAnnotations().get(annotationName) != null;
+    }
+
+    public boolean isArray() {
+        return descriptor.startsWith("[");
+    }
+
+    /**
+     * Get the type descriptor
+     * @return the descriptor if the field is scalar or an array, otherwise the type parameter descriptor.
+     */
+    public String getTypeDescriptor() {
+        if(isScalar() || isArray()) {
+            return descriptor;
+        }
+        return typeParameterDescriptor;
     }
 
 }

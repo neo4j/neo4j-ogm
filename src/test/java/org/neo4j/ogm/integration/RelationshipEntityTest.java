@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.integration;
@@ -179,6 +181,24 @@ public class RelationshipEntityTest {
         assertEquals(0,u.rset.size());
     }
 
+    /**
+     * @see DATAGRAPH-706
+     */
+    @Test
+    public void shouldReplaceOneEndOfR() {
+        session.save(u);
+
+        M m2 = new M("Lost");
+        r1.m = m2;
+
+        session.save(r1);
+        assertEquals(m2, u.rset.iterator().next().m);
+
+        session.clear();
+        u = session.load(U.class, u.id);
+        assertEquals(1, u.rset.size()); //we've lost all R's from u
+        assertEquals(m2.title, u.rset.iterator().next().m.title);
+    }
 
     @NodeEntity(label = "U")
     public static class U {

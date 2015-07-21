@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,9 +9,12 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.unit.mapper.transitive.aabb;
+
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -104,6 +108,9 @@ public class AABBTest extends RelationshipTrait
         b2 = session.load(B.class, b2.id);
         b3 = session.load(B.class, b3.id);
 
+        assertEquals(2, b1.r.length);
+        assertEquals(2, b2.r.length);
+        assertEquals(2, b3.r.length);
         assertSameArray(new A[] {b1.r[0].a, b1.r[1].a}, new A[] { a1, a2 });
         assertSameArray(new A[] {b2.r[0].a, b2.r[1].a}, new A[] { a1, a3 });
         assertSameArray(new A[] {b3.r[0].a, b3.r[1].a}, new A[] { a2, a3 });
@@ -119,13 +126,14 @@ public class AABBTest extends RelationshipTrait
         // it is programmer's responsibility to keep the domain entities synchronized
         b2.r = null;
         a1.r = new R[] { r1 };
-        a3.r = new R[] { r3 };
+        a3.r = new R[] { r6 };
 
         session.save(b2);
 
         // when we reload a1
         a1 = session.load(A.class, a1.id);
         // expect the b2 relationship to have gone.
+        assertEquals(1, a1.r.length);
         assertSameArray(new B[] { b1 }, new B[] { a1.r[0].b });
 
 

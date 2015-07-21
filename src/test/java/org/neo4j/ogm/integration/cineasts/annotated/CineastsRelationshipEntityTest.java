@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.integration.cineasts.annotated;
@@ -106,8 +108,14 @@ public class CineastsRelationshipEntityTest{
 		Movie movie = films.iterator().next();
 		assertEquals(2,movie.getRatings().size());
 
-		User michal = session.loadAll(User.class, new Filter("name", "Michal")).iterator().next();
-
+		User michal=null;
+		for (Rating rating : movie.getRatings()) {
+			if(rating.getUser().getName().equals("Michal")) {
+				michal = rating.getUser();
+				break;
+			}
+		}
+		assertNotNull(michal);
 		Set<Rating> ratings = new HashSet<>();
 		Rating awesome = new Rating();
 		awesome.setComment("Awesome");
@@ -592,5 +600,21 @@ public class CineastsRelationshipEntityTest{
         assertEquals(26, loadedActor.getRoles().size());
 
     }
+
+	/**
+	 * @see DATAGRAPH-704
+	 */
+	@Test
+	public void shouldRetainREsWhenAStartOrEndNodeIsLoaded() {
+		neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
+
+		Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", "Top Gear"));
+		Movie movie = films.iterator().next();
+		assertEquals(2, movie.getRatings().size());
+
+		session.loadAll(User.class, new Filter("name", "Michal")).iterator().next();
+
+		assertEquals(2, movie.getRatings().size()); //should not lose one rating because Michal is loaded; ratings should me merged and not overwritten
+	}
 
 }

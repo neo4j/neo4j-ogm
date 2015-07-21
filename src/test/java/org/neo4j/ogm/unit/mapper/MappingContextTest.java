@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,9 +9,16 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.unit.mapper;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,14 +27,6 @@ import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vince Bickers
@@ -53,11 +53,11 @@ public class MappingContextTest {
 
         collector.registerNodeEntity(jim, jim.getId());
         collector.registerNodeEntity(policy, policy.getId());
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
 
         assertEquals(jim, collector.getNodeEntity(jim.getId()));
         assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertTrue(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId())));
+        assertTrue(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
 
     }
 
@@ -72,12 +72,12 @@ public class MappingContextTest {
 
         collector.registerNodeEntity(jim, jim.getId());
         collector.registerNodeEntity(policy, policy.getId());
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
         collector.clear(jim);
 
         assertEquals(null, collector.getNodeEntity(jim.getId()));
         assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId())));
+        assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
 
     }
 
@@ -100,9 +100,9 @@ public class MappingContextTest {
         collector.registerNodeEntity(healthcare, healthcare.getId());
         collector.registerNodeEntity(immigration, immigration.getId());
 
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId()));
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId()));
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId()));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), Person.class, Person.class));
 
         collector.clear(Policy.class);
 

@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.metadata.info;
@@ -19,12 +21,21 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import org.neo4j.ogm.metadata.ClassPathScanner;
+import org.neo4j.ogm.metadata.MappingException;
 
 /**
  * @author Vince Bickers
@@ -324,15 +335,11 @@ public class DomainInfo implements ClassFileProcessor {
                     // so this has to be done at real-time for reading from the graph, convert what you get
                     // then, writing back to the graph, we just return whatever
                     // the caveat, therefore, is that when writing to the graph you could get anything back!
-
-                    // anyway first things first, infer the entity attribute type
-                    // then we javadoc the above
+                    // ... and to look up the correct converter from Spring you always need the target type :(
                     if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
                         // no converter's been set but this method is annotated with @Convert so we need to proxy it
                         Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
-                        methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, this.conversionCallbackRegistry));/*-{
-                            return converterCallbackRegistry.convert(valueFromGraph.getClass(), entityAttributeType, valueFromGraph);
-                        }-*/
+                        methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, this.conversionCallbackRegistry));
                     }
 
                     // TODO: this needs improving because it won't recognise Java standard enums

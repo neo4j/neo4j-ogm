@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,22 +9,34 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.session;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.info.AnnotationInfo;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.session.delegates.*;
+import org.neo4j.ogm.session.delegates.DeleteDelegate;
+import org.neo4j.ogm.session.delegates.ExecuteQueriesDelegate;
+import org.neo4j.ogm.session.delegates.ExecuteStatementsDelegate;
+import org.neo4j.ogm.session.delegates.LoadByIdsDelegate;
+import org.neo4j.ogm.session.delegates.LoadByInstancesDelegate;
+import org.neo4j.ogm.session.delegates.LoadByTypeDelegate;
+import org.neo4j.ogm.session.delegates.LoadOneDelegate;
+import org.neo4j.ogm.session.delegates.SaveDelegate;
+import org.neo4j.ogm.session.delegates.TransactionsDelegate;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.Neo4jRequest;
 import org.neo4j.ogm.session.request.RequestHandler;
@@ -36,11 +49,6 @@ import org.neo4j.ogm.session.response.SessionResponseHandler;
 import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author Vince Bickers

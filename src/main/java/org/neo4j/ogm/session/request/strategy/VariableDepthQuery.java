@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.session.request.strategy;
@@ -57,6 +59,21 @@ public class VariableDepthQuery implements QueryStatements {
             return new GraphModelQuery(qry, Utils.map("ids", ids));
         } else {
             return DepthZeroReadStrategy.findAll(ids);
+        }
+    }
+
+    @Override
+    public Query findAllByType(String label, Collection<Long> ids, int depth) {
+        int max = max(depth);
+        int min = min(max);
+        if (depth < 0) {
+            return InfiniteDepthReadStrategy.findAllByLabel(label, ids);
+        }
+        if (max > 0) {
+            String qry=String.format("MATCH (n:`%s`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN collect(distinct p)", label, min, max);
+            return new GraphModelQuery(qry, Utils.map("ids", ids));
+        } else {
+            return DepthZeroReadStrategy.findAllByLabel(label, ids);
         }
     }
 
@@ -238,6 +255,11 @@ public class VariableDepthQuery implements QueryStatements {
             return new GraphModelQuery("MATCH (n) WHERE id(n) in { ids } RETURN n", Utils.map("ids", ids));
         }
 
+        public static GraphModelQuery findAllByLabel(String label, Collection<Long> ids) {
+            return new GraphModelQuery(String.format("MATCH (n:`%s`) WHERE id(n) in { ids } RETURN n",label), Utils.map("ids", ids));
+        }
+
+
         public static GraphModelQuery findByLabel(String label) {
             return new GraphModelQuery(String.format("MATCH (n:`%s`) RETURN n", label), Utils.map());
         }
@@ -259,6 +281,10 @@ public class VariableDepthQuery implements QueryStatements {
 
         public static GraphModelQuery findAll(Collection<Long> ids) {
             return new GraphModelQuery("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN collect(distinct p)", Utils.map("ids", ids));
+        }
+
+        public static GraphModelQuery findAllByLabel(String label, Collection<Long> ids) {
+            return new GraphModelQuery(String.format("MATCH (n:`%s`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN collect(distinct p)",label), Utils.map("ids", ids));
         }
 
         public static GraphModelQuery findByLabel(String label) {

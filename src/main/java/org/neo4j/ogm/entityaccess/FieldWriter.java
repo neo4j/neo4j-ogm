@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.entityaccess;
@@ -15,6 +17,7 @@ package org.neo4j.ogm.entityaccess;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
@@ -91,7 +94,7 @@ public class FieldWriter extends EntityAccess {
 
     @Override
     public String relationshipDirection() {
-        return fieldInfo.relationshipDirection();
+        return fieldInfo.relationshipDirection(Relationship.UNDIRECTED);
     }
 
     @Override
@@ -105,4 +108,8 @@ public class FieldWriter extends EntityAccess {
         return true;
     }
 
+    @Override
+    public String typeParameterDescriptor() {
+        return fieldInfo.getTypeDescriptor();
+    }
 }

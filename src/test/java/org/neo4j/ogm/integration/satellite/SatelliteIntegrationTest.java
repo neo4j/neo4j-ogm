@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,9 +9,16 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.integration.satellite;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -21,13 +29,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * This is a full integration test that requires a running neo4j
@@ -66,12 +67,9 @@ public class SatelliteIntegrationTest
 
                 for (Satellite satellite : program.getSatellites()) {
                     // 1-side of many->1 is auto-hydrated
-                    assertEquals(satellite.getProgram(), program);
+                    assertNull(satellite.getProgram());
 
                     System.out.println("\tsatellite:" + satellite.getName());
-                    System.out.println("\t\tprogram:" + satellite.getProgram().getName());
-                    System.out.println("\t\t\tnum-satellites:" + satellite.getProgram().getSatellites().size());
-
                 }
             }
         } else {
@@ -97,7 +95,7 @@ public class SatelliteIntegrationTest
 
                 System.out.println("\tlocation:" + satellite.getLocation().getRef());
                 System.out.println("\torbit:" + satellite.getOrbit().getName());
-                System.out.println("\tprogram: " + satellite.getProgram().getName());
+                System.out.println("\tprogram: " + satellite.getProgram());
                 assertEquals(satellite.getRef(), satellite.getName());
 
             }

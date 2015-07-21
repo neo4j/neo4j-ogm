@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,13 +9,14 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
-
 import java.util.Map;
+
+import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 
 /**
  * A TransientRelationship represents a relationship that is not yet
@@ -42,12 +44,16 @@ public class TransientRelationship {
     private final String tgt;
     private final String ref;
     private final String rel;
+    private final Class srcClass;
+    private final Class tgtClass;
 
-    public TransientRelationship(String src, String ref, String rel, String tgt) {
+    public TransientRelationship(String src, String ref, String rel, String tgt, Class srcClass, Class tgtClass) {
         this.src = src;
         this.tgt = tgt;
         this.ref = ref;
         this.rel = rel;
+        this.srcClass = srcClass;
+        this.tgtClass = tgtClass;
     }
 
     /**
@@ -74,7 +80,7 @@ public class TransientRelationship {
             throw new RuntimeException("Couldn't get identity for " + ref);
         }
 
-        return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity);
+        return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity, srcClass, tgtClass);
     }
 
     public boolean equalsIgnoreDirection(String src, RelationshipBuilder builder, String tgt) {

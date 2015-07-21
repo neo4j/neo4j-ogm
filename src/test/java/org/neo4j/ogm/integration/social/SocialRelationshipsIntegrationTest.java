@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -12,20 +13,20 @@
 
 package org.neo4j.ogm.integration.social;
 
+import static org.junit.Assert.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.domain.social.Mortal;
-import org.neo4j.ogm.domain.social.Person;
-import org.neo4j.ogm.domain.social.User;
+import org.neo4j.ogm.domain.social.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -183,6 +184,45 @@ public class SocialRelationshipsIntegrationTest {
 		assertSameGraph(getDatabase(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) CREATE (d:Person {name:'D'})" +
 				"CREATE (a)-[:LIKES]->(b) CREATE (a)-[:LIKES]->(c) CREATE (b)-[:LIKES]->(a) CREATE (d)-[:LIKES]->(a)");
 
+	}
+
+	/**
+	 * @see DATAGRAPH-636
+	 */
+	@Test
+	public void shouldManageRelationshipsToTheSameNodeType() {
+		SocialUser userA = new SocialUser("A");
+		SocialUser userB = new SocialUser("B");
+		SocialUser userC = new SocialUser("C");
+		SocialUser userD = new SocialUser("D");
+		SocialUser userE = new SocialUser("E");
+		SocialUser userF = new SocialUser("F");
+		SocialUser userG = new SocialUser("G");
+
+		Set<SocialUser> friends = new HashSet<>();
+		friends.add(userB);
+		friends.add(userE);
+
+		Set<SocialUser> following = new HashSet<>();
+		following.add(userB);
+		following.add(userE);
+
+		Set<SocialUser> followers = new HashSet<>();
+		followers.add(userB);
+		followers.add(userE);
+
+		userA.setFollowers(followers);
+		userA.setFriends(friends);
+		userA.setFollowing(following);
+
+		session.save(userA);
+
+		session.clear();
+
+		userA = session.load(SocialUser.class, userA.getId());
+		assertEquals(2, userA.getFriends().size());
+		assertEquals(2, userA.getFollowers().size());
+		assertEquals(2, userA.getFollowing().size());
 	}
 
 

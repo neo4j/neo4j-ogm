@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.entityaccess;
@@ -58,16 +60,17 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             return array;
         }
 
-        // hydrated is unusable at this point so we can just set the other collection if it's compatible
-        if (parameterType.isAssignableFrom(newValues.getClass())) {
-            return newValues;
-        }
-
         // create the desired type of collection and use it for the merge
         Collection newCollection = createCollection(parameterType, newValues, currentValues);
         if (newCollection != null) {
             return newCollection;
         }
+
+        // hydrated is unusable at this point so we can just set the other collection if it's compatible
+        if (parameterType.isAssignableFrom(newValues.getClass())) {
+            return newValues;
+        }
+
 
         throw new RuntimeException("Unsupported: " + parameterType.getName());
     }

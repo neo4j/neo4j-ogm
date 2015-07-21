@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 package org.neo4j.ogm.unit.mapper.cypher;
 
@@ -224,7 +226,7 @@ public class DirectRelationshipsTest {
 
         mappingContext.registerNodeEntity(folder, folder.getId());
         mappingContext.registerNodeEntity(document, document.getId());
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
 
         mappingContext.remember(document);
         mappingContext.remember(folder);
@@ -236,7 +238,7 @@ public class DirectRelationshipsTest {
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
         expectOnSave(document, "MATCH ($0)-[_0:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _0");
 
     }
@@ -261,8 +263,8 @@ public class DirectRelationshipsTest {
         mappingContext.registerNodeEntity(folder, folder.getId());
         mappingContext.registerNodeEntity(doc1, doc1.getId());
         mappingContext.registerNodeEntity(doc2, doc2.getId());
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId()));
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
 
         mappingContext.remember(doc1);
         mappingContext.remember(doc2);
@@ -284,12 +286,12 @@ public class DirectRelationshipsTest {
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
         expectOnSave(doc1, "MATCH ($0)-[_2:`CONTAINS`]->($2) WHERE id($0)=0 AND id($2)=2 DELETE _2");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
         expectOnSave(doc2, "MATCH ($0)-[_0:`CONTAINS`]->($2) WHERE id($0)=0 AND id($2)=2 DELETE _0");
 
     }
@@ -310,15 +312,15 @@ public class DirectRelationshipsTest {
 
         mappingContext.registerNodeEntity(folder, folder.getId());
         mappingContext.registerNodeEntity(doc1, doc1.getId());
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId()));
-        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId()));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
+        mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), Folder.class, Document.class));
 
         mappingContext.remember(doc1);
         mappingContext.remember(folder);
 
         // when
         folder.getDocuments().remove(doc1);
-
+        doc1.setFolder(null);
         // then
         assertEquals(0, folder.getDocuments().size());
         assertEquals(1, folder.getArchived().size());
@@ -329,12 +331,8 @@ public class DirectRelationshipsTest {
                 // or
                 "MATCH ($0)-[_1:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _1");
 
-        // TODO:
-        // this is wrong. the CONTAINS rel between the document and the folder is requested to be created,
-        // but it ought to be requested to be deleted.
-        // the moral of the story is, wherever possible, persist from the container.
-        expectOnSave(doc1,
-                "MATCH ($0) WHERE id($0)=0 MATCH ($1) WHERE id($1)=1 MERGE ($0)-[_0:`CONTAINS`]->($1) RETURN id(_0) AS _0");
+        //There are no more changes to the graph
+        expectOnSave(doc1, "");
 
     }
 

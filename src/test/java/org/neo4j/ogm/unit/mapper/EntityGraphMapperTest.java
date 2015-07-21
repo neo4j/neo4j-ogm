@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,9 +9,15 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.unit.mapper;
+
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+
+import java.util.*;
 
 import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -34,11 +41,6 @@ import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George
@@ -165,7 +167,7 @@ public class EntityGraphMapperTest {
 
         mappingContext.remember(gianFranco);
         mappingContext.remember(bscComputerScience);
-        mappingContext.registerRelationship(new MappedRelationship(courseId, "STUDENTS", studentId));
+        mappingContext.registerRelationship(new MappedRelationship(courseId, "STUDENTS", studentId, Course.class, Student.class));
 
         // create a new student and set both students on the course
         Student lakshmipathy = new Student("Lakshmipathy");
@@ -200,7 +202,7 @@ public class EntityGraphMapperTest {
 
         mappingContext.remember(mary);
         mappingContext.remember(waller);
-        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId));
+        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
         // create a new teacher and add him to the school
         Teacher jim = new Teacher("Jim");
@@ -315,9 +317,9 @@ public class EntityGraphMapperTest {
         Student zack = new Student("Zack");
         zack.setId(zid);
 
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid));
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid));
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid, Course.class, Student.class));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid, Course.class, Student.class));
+        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid, Course.class, Student.class));
 
         mappingContext.remember(xavier);
         mappingContext.remember(yvonne);
@@ -369,9 +371,9 @@ public class EntityGraphMapperTest {
         shivani.setId(studentId);
 
         // NB: this simulates the graph not being fully hydrated, so Jeff's enrolment on GCSE D+T should remain untouched
-        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId));
-        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId));
-        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, Teacher.class, Course.class));
+        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, Teacher.class, Course.class));
+        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId, Course.class, Student.class));
 
         mappingContext.remember(msThompson);
         mappingContext.remember(businessStudies);
@@ -421,10 +423,10 @@ public class EntityGraphMapperTest {
         mappingContext.remember(mrWhite);
         mappingContext.remember(missJones);
 
-        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId));
-        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId));
-        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId));
-        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, School.class, Teacher.class));
+        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, School.class, Teacher.class));
+        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId, School.class, School.class));
+        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId, School.class, School.class));
 
         // Fire Mr White:
         mrWhite.setSchool(null);
@@ -705,7 +707,7 @@ public class EntityGraphMapperTest {
 
         mappingContext.registerNodeEntity(policy, policy.getId());
         mappingContext.registerNodeEntity(person, person.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
 
         // ensure domain model is set up
         policy.getWriters().add(person);
@@ -742,18 +744,23 @@ public class EntityGraphMapperTest {
         Policy policy = new Policy("health");
         policy.setId(hid);
 
-        mappingContext.registerNodeEntity(policy, policy.getId());
-        mappingContext.registerNodeEntity(person, person.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
-
         // ensure domain model is set up
         policy.getWriters().add(person);
         person.getWritten().add(policy);
 
+        mappingContext.registerNodeEntity(policy, policy.getId());
+        mappingContext.registerNodeEntity(person, person.getId());
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
+
+
+
 
         // now remove the object from the policy
         policy.getWriters().clear();
+        //we have to make sure the domain model is consistent and remove the policy from the person too
+        person.getWritten().clear();
 
+        //No relations are
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(policy).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
@@ -790,7 +797,7 @@ public class EntityGraphMapperTest {
         mappingContext.registerNodeEntity(immigration, immigration.getId());
         mappingContext.registerNodeEntity(health, health.getId());
         mappingContext.registerNodeEntity(jim, jim.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
 
         // set jim as the writer of the health policy and expect the new relationship to be established
         // alongside the existing one.
@@ -837,7 +844,7 @@ public class EntityGraphMapperTest {
         mappingContext.registerNodeEntity(immigration, immigration.getId());
         mappingContext.registerNodeEntity(health, health.getId());
         mappingContext.registerNodeEntity(jim, jim.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid));
+        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
 
         // ensure the graph reflects the mapping context
         jim.getWritten().add(health);

@@ -1,0 +1,60 @@
+[[tutorial_model]]
+= Domain Model
+
+Before we get to any code, we want to whiteboard our graph model.
+
+Our College will contain Departments, each of which offer various subjects taught by a teacher.
+Students enroll for courses or classes that teach a subject.
+
+We're also going to model a Study Buddy which represents a group of students that get together to help one another study for a class.
+
+Here's what we came up with.
+
+
+image:model.png[Graph Model]
+
+In Java, this is straightforward-
+
+```java
+public class Department {
+    private String name;
+    private Set<Subject> subjects;
+}
+
+public class Subject {
+    private String name;
+    private Department department;
+    private Set<Teacher> teachers;
+    private Set<Course> courses;
+}
+
+public class Teacher {
+    private String name;
+    private Set<Course> courses;
+    private Set<Subject> subjects;
+}
+
+public class Course {
+    private String name;
+    private Subject subject;
+    private Teacher teacher;
+    private Set<Enrollment> enrollments;
+}
+
+public class Student {
+    private String name;
+    private Set<Enrollment> enrollments;
+    private Set<StudyBuddy> studyBuddies;
+}
+
+public class Enrollment {
+    private Student student;
+    private Course course;
+    private Date enrolledDate;
+}
+
+```
+
+Note that when a student enrolls for a course, we're going to keep track of the enrollment date.
+In the graph, this will be stored as a property on the ENROLLED relationship between a student and a course.
+This kind of rich relationship is managed by the class `Enrollment` and is known as a relationship entity.

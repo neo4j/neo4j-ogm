@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -8,6 +9,7 @@
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
  * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
  */
 
 package org.neo4j.ogm.session;
@@ -110,6 +112,19 @@ public class Utils {
                     throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
                 }
                 return (double) intValue;
+            }
+        }
+        if("long".equals(clazz.getName()) || Long.class.equals(clazz)) {
+            if(value.getClass().equals(Integer.class)) {
+                Integer intValue = (Integer) value;
+                return (long) intValue;
+            }
+        }
+
+        if("double".equals(clazz.getName()) || (Double.class.equals(clazz))) {
+            if(value.getClass().equals(Float.class)) {
+                Float floatValue = (Float) value;
+                return (double) floatValue;
             }
         }
         return value;

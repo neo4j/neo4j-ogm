@@ -129,11 +129,7 @@ public class FieldInfo {
     }
 
     private AttributeConverter<?, ?> getAnnotatedTypeConverter() {
-        if (typeParameterDescriptor == null) {
-            return getAnnotations().getConverter(descriptor);
-        } else {
-            return getAnnotations().getConverter(typeParameterDescriptor);
-        }
+        return getAnnotations().getConverter();
     }
 
     public String relationshipDirection(String defaultDirection) {

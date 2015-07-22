@@ -25,6 +25,7 @@ import org.neo4j.ogm.session.transaction.Transaction;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public interface Capability {
 
@@ -212,5 +213,15 @@ public interface Capability {
          */
         long countEntitiesOfType(Class<?> entity);
 
+    }
+
+    interface GraphId {
+
+        /**
+         * Resolve the graph id for a possible entity
+         * @param possibleEntity the possible entity
+         * @return the value of the {@link GraphId} or null if either the object is not an entity or the id is null.
+         */
+        Long resolveGraphIdFor(Object possibleEntity);
     }
 }

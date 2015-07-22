@@ -19,9 +19,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
@@ -30,15 +27,12 @@ import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.response.EmptyResponse;
-import org.neo4j.ogm.session.response.GraphModelResponse;
-import org.neo4j.ogm.session.response.GraphRowModelResponse;
-import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.response.RowModelResponse;
-import org.neo4j.ogm.session.response.StatisticsResponse;
+import org.neo4j.ogm.session.response.*;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -106,7 +100,7 @@ public class SessionRequestHandler implements RequestHandler {
             }
             return new EmptyResponse();
         } catch (JsonProcessingException jpe) {
-            throw new MappingException(jpe.getLocalizedMessage());
+            throw new MappingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
         }
     }
 

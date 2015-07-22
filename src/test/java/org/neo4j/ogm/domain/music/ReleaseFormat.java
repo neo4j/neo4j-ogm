@@ -12,22 +12,16 @@
  *
  */
 
-package org.neo4j.ogm.session;
+package org.neo4j.ogm.domain.music;
 
 /**
- * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public interface Session extends
+public enum ReleaseFormat {
 
-        Capability.LoadOne,
-        Capability.LoadByIds,
-        Capability.LoadByInstances,
-        Capability.LoadByType,
-        Capability.Save,
-        Capability.Delete,
-        Capability.Transactions,
-        Capability.ExecuteStatements,
-        Capability.ExecuteQueries,
-        Capability.GraphId {
+	VINYL,
+	TAPE_8_TRACK,
+	TAPE_CASSETTE,
+	CD,
+	DIGITAL
 }

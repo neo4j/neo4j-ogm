@@ -19,24 +19,13 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.delegates.DeleteDelegate;
-import org.neo4j.ogm.session.delegates.ExecuteQueriesDelegate;
-import org.neo4j.ogm.session.delegates.ExecuteStatementsDelegate;
-import org.neo4j.ogm.session.delegates.LoadByIdsDelegate;
-import org.neo4j.ogm.session.delegates.LoadByInstancesDelegate;
-import org.neo4j.ogm.session.delegates.LoadByTypeDelegate;
-import org.neo4j.ogm.session.delegates.LoadOneDelegate;
-import org.neo4j.ogm.session.delegates.SaveDelegate;
-import org.neo4j.ogm.session.delegates.TransactionsDelegate;
+import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.Neo4jRequest;
 import org.neo4j.ogm.session.request.RequestHandler;
@@ -49,6 +38,8 @@ import org.neo4j.ogm.session.response.SessionResponseHandler;
 import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -72,6 +63,7 @@ public class Neo4jSession implements Session {
     private final ExecuteQueriesDelegate executeQueriesDelegate = new ExecuteQueriesDelegate(this);
     private final ExecuteStatementsDelegate executeStatementsDelegate = new ExecuteStatementsDelegate(this);
     private final TransactionsDelegate transactionsDelegate = new TransactionsDelegate(this);
+    private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
     private Neo4jRequest<String> request;
 
@@ -417,6 +409,16 @@ public class Neo4jSession implements Session {
     @Override
     public Transaction getTransaction() {
         return transactionsDelegate.getTransaction();
+    }
+
+    /*
+     *----------------------------------------------------------------------------------------------------------
+	 * GraphIdDelegate
+	 *----------------------------------------------------------------------------------------------------------
+	*/
+    @Override
+    public Long resolveGraphIdFor(Object possibleEntity) {
+        return graphIdDelegate.resolveGraphIdFor(possibleEntity);
     }
 
     //

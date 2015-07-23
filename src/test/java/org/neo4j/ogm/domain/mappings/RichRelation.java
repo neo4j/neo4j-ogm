@@ -10,6 +10,8 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "RELATED_TO")
 public class RichRelation
 {
+    Long id;
+
     @StartNode
     public Person person;
 

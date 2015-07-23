@@ -30,10 +30,20 @@ public class RichRelationTest {
     public void shouldCreateARichRelation()
     {
         Person person = new Person();
-        Article article = new Article();
-        RichRelation relation = new RichRelation();
-        person.addRelation(article, relation);
+        session.save(person);
 
-        session.save(person); // TODO: should not throw a RuntimeException
+        Article article1 = new Article();
+        session.save(article1);
+        Article article2 = new Article();
+        session.save(article2);
+
+        RichRelation relation1 = new RichRelation();
+        person.addRelation(article1, relation1);
+        session.save(person, 1);
+        session.clear();
+
+        RichRelation relation2 = new RichRelation();
+        person.addRelation(article2, relation2);
+        session.save(person, 1); // TODO: should not throw a RuntimeException("Couldn't get identity for _1")
     }
 }

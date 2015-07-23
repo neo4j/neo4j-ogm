@@ -14,21 +14,23 @@
 
 package org.neo4j.ogm.domain.mappings;
 
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Nils Dröge
  */
 public class Person extends Entity
 {
-    private String name;
+    @Relationship(type = "RELATED_TO")
+    public Set<RichRelation> relations = new HashSet<>();
 
-    public Person() {}
-
-    public Person(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
+    public void addRelation(Article article, RichRelation relation) {
+        relation.person = this;
+        relation.article = article;
+        relations.add(relation);
+        article.relations.add(relation);
     }
 }

@@ -24,29 +24,6 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Article extends Entity
 {
-    private String title;
-
-    @Relationship(type = "LIKE", direction = Relationship.INCOMING)
-    private Set<Person> likes = new HashSet<Person>();
-
-    public Article() {}
-
-    public Set<Person> getLikes()
-    {
-        return likes;
-    }
-
-    public void setLikes(Set<Person> likes)
-    {
-        this.likes = likes;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Article{" +
-            "id:" + getNodeId() +
-            ", title:'" + title + "'" +
-            '}';
-    }
+    @Relationship(type = "RELATED_TO")
+    public Set<RichRelation> relations = new HashSet<>();
 }

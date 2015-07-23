@@ -64,9 +64,9 @@ public class TransientRelationship {
      */
     public MappedRelationship convert(Map<String, Long> refMap) {
 
-        Long srcIdentity = src.startsWith("_") ? refMap.get(src) : Long.parseLong(src.substring(1));
-        Long tgtIdentity = tgt.startsWith("_") ? refMap.get(tgt) : Long.parseLong(tgt.substring(1));
-        Long relIdentity = ref.startsWith("_") ? refMap.get(ref) : Long.parseLong(ref.substring(1));
+        Long srcIdentity = src.startsWith("_") ? refMap.get(src) : (Long)Long.parseLong(src.substring(1));
+        Long tgtIdentity = tgt.startsWith("_") ? refMap.get(tgt) : (Long)Long.parseLong(tgt.substring(1));
+        Long relIdentity = ref.startsWith("_") ? refMap.get(ref) : (Long)Long.parseLong(ref.substring(1));
 
         if (srcIdentity == null) {
             throw new RuntimeException("Couldn't get identity for " + src);

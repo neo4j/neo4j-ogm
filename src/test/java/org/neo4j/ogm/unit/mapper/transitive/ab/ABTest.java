@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.unit.mapper.transitive.ab;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -21,21 +23,14 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class ABTest
 {
@@ -115,6 +110,74 @@ public class ABTest
 
     }
 
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingA() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = r3;
+        b3.r = r3;
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(a1);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r.number);
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingB() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = r3;
+        b3.r = r3;
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(b3);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r.number);
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingR() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = r3;
+        b3.r = r3;
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(r3);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r.number);
+    }
 
     @NodeEntity(label="A")
     public static class A extends E {
@@ -137,6 +200,8 @@ public class ABTest
         A a;
         @EndNode
         B b;
+
+        int number;
 
         @Override
         public String toString() {

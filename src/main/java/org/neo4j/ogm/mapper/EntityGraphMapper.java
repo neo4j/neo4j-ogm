@@ -426,10 +426,17 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
         Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startEntity);
 
+        RelationshipNodes relNodes;
+        if(parent == targetEntity) { //We always created a mapped relationship from the true start node to the end node.
+            relNodes = new RelationshipNodes(tgtIdentity, srcIdentity, startNodeType, endNodeType);
+        }
+        else {
+            relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
+        }
+
         if (mappingContext.isDirty(relationshipEntity)) {
             context.log(relationshipEntity);
             if (tgtIdentity != null && srcIdentity!=null) {
-                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
                 MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
                 if (mappingContext.mappedRelationships().remove(mappedRelationship)) {
                     logger.debug("RE successfully marked for re-writing");
@@ -446,25 +453,21 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         if (parent == targetEntity) {
             if(!context.visited(startEntity)) {
-                RelationshipNodes relNodes = new RelationshipNodes(tgtIdentity, srcIdentity, startNodeType, endNodeType);
                 relNodes.source = targetEntity;
                 relNodes.target = startEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
             else {
-                RelationshipNodes relNodes = new RelationshipNodes(tgtIdentity, srcIdentity, startNodeType, endNodeType);
                 updateRelationship(context, tgtNodeBuilder, srcNodeBuilder, relationshipBuilder, relNodes);
             }
         }
         else { //parent=startEntity
             if(!context.visited(targetEntity)) {
-                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
                 relNodes.source = startEntity;
                 relNodes.target = targetEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
             else {
-                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
                 updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
             }
         }

@@ -14,27 +14,23 @@
 
 package org.neo4j.ogm.unit.mapper.transitive.abb;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class ABBTest extends RelationshipTrait
 {
@@ -123,7 +119,7 @@ public class ABBTest extends RelationshipTrait
 
         // expect the b1 relationship to have gone.
         assertEquals(1, a.r.length);
-        assertSameArray(new B[] {b2}, new B[] { a.r[0].b } );
+        assertSameArray(new B[]{b2}, new B[]{a.r[0].b});
 
     }
 
@@ -169,10 +165,79 @@ public class ABBTest extends RelationshipTrait
 
         b3 = session.load(B.class, b3.id);
 
-        assertSameArray(new A[] { a }, new A[] { b3.r.a });
+        assertSameArray(new A[]{a}, new A[]{b3.r.a});
         assertSameArray(new R[] { r1, r2, r3 }, a.r);
         assertSameArray(new B[] { b1, b2, b3 }, new B[] { a.r[0].b, a.r[1].b, a.r[2].b });
 
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingA() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = new R[] {r3};
+        b3.r = r3;
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(a1);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r.number);
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingB() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = new R[] {r3};
+        b3.r = r3;
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(b3);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r.number);
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingR() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = new R[] {r3};
+        b3.r = r3;
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(r3);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r.number);
     }
 
     @NodeEntity(label="A")
@@ -239,6 +304,8 @@ public class ABBTest extends RelationshipTrait
         A a;
         @EndNode
         B b;
+
+        int number;
 
         @Override
         public String toString() {

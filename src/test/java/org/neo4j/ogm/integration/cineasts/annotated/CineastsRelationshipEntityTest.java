@@ -19,7 +19,10 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
@@ -170,7 +173,6 @@ public class CineastsRelationshipEntityTest{
 	 * @see DATAGRAPH-714
 	 */
 	@Test
-	@Ignore
 	public void shouldBeAbleToModifyRating() {
 		Movie movie = new Movie();
 		movie.setTitle("Harry Potter and the Philosophers Stone");
@@ -192,15 +194,36 @@ public class CineastsRelationshipEntityTest{
 
 		Collection<Movie> movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Philosophers Stone"));
 		movie = movies.iterator().next();
-		assertEquals(1,movie.getRatings().size());
+		assertEquals(1, movie.getRatings().size());
 		Rating rating =  movie.getRatings().iterator().next();
 		assertEquals("Vince", rating.getUser().getName());
-		assertEquals(5,rating.getStars());
+		assertEquals(5, rating.getStars());
 
-		//Modify the rating stars
-		ratings.iterator().next().setStars(2);
-		vince.setRatings(ratings);
-		movie.setRatings(ratings);
+		//Modify the rating stars and save the rating directly
+		rating.setStars(3);
+		session.save(rating);
+		session.clear();
+
+		movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Philosophers Stone"));
+		movie = movies.iterator().next();
+		assertEquals(1, movie.getRatings().size());
+		rating =  movie.getRatings().iterator().next();
+		assertEquals("Vince", rating.getUser().getName());
+		assertEquals(3, rating.getStars());
+		vince = rating.getUser();
+
+		//Modify the rating stars and save the user (start node)
+		movie.getRatings().iterator().next().setStars(2);
+		session.save(vince);
+		session.clear();
+		movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Philosophers Stone"));
+		movie = movies.iterator().next();
+		assertEquals(1, movie.getRatings().size());
+		rating =  movie.getRatings().iterator().next();
+		assertEquals("Vince", rating.getUser().getName());
+		assertEquals(2, rating.getStars());
+		//Modify the rating stars and save the movie (end node)
+		movie.getRatings().iterator().next().setStars(1);
 		session.save(movie);
 		session.clear();
 
@@ -209,8 +232,7 @@ public class CineastsRelationshipEntityTest{
 		assertEquals(1,movie.getRatings().size());
 		rating =  movie.getRatings().iterator().next();
 		assertEquals("Vince", rating.getUser().getName());
-		assertEquals(2,rating.getStars());
-
+		assertEquals(1,rating.getStars());
 	}
 
 	/**

@@ -134,7 +134,7 @@ public class AABBTest extends RelationshipTrait
         a1 = session.load(A.class, a1.id);
         // expect the b2 relationship to have gone.
         assertEquals(1, a1.r.length);
-        assertSameArray(new B[] { b1 }, new B[] { a1.r[0].b });
+        assertSameArray(new B[]{b1}, new B[]{a1.r[0].b});
 
 
         // when we reload a3
@@ -249,6 +249,76 @@ public class AABBTest extends RelationshipTrait
         assertSameArray(new R[] { r4, r6}, b3.r);
     }
 
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingA() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = new R[] {r3};
+        b3.r = new R[] {r3};
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(a1);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r[0].number);
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingB() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = new R[] {r3};
+        b3.r = new R[] {r3};
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(b3);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r[0].number);
+    }
+
+    /**
+     * @see DATAGRAPH-714
+     */
+    @Test
+    public void shouldBeAbleToUpdateRBySavingR() {
+        A a1 = new A();
+        B b3 = new B();
+        R r3 = new R();
+        r3.a = a1;
+        r3.b = b3;
+        r3.number = 1;
+        a1.r = new R[] {r3};
+        b3.r = new R[] {r3};
+
+        session.save(a1);
+        r3.number = 2;
+        session.save(r3);
+
+        session.clear();
+        b3 = session.load(B.class, b3.id);
+        assertEquals(2, b3.r[0].number);
+    }
+
+
     @NodeEntity(label="A")
     public static class A extends E {
 
@@ -274,6 +344,8 @@ public class AABBTest extends RelationshipTrait
         A a;
         @EndNode
         B b;
+
+        int number;
 
         public R(A a, B b) {
             this.a = a;

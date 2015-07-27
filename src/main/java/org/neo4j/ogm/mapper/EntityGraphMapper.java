@@ -555,7 +555,6 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * is traversed in depth-first order, and the relationships between the leaf nodes are created
      * first.
      *
-     * Note that if the srcObject and tgtObject are the same, the relationship will not be created.
      * @param compiler the {@link CypherCompiler}
      * @param srcNodeBuilder  a {@link NodeBuilder} that knows how to create cypher phrases about nodes
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
@@ -563,11 +562,6 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param relNodes  {@link org.neo4j.ogm.mapper.EntityGraphMapper.RelationshipNodes} representing the nodes at the end of this relationship
      */
     private void mapRelatedEntity(CypherCompiler compiler, NodeBuilder srcNodeBuilder, RelationshipBuilder relationshipBuilder, int horizon, RelationshipNodes relNodes) {
-
-        if (relNodes.source == relNodes.target) {
-            logger.debug("refusing to map an entity to itself! {} ", relNodes.source);
-            return;
-        }
 
         NodeBuilder tgtNodeBuilder = mapEntity(relNodes.target, horizon, compiler);
 

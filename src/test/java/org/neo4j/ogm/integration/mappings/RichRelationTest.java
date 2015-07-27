@@ -1,9 +1,21 @@
+/*
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ */
 package org.neo4j.ogm.integration.mappings;
 
 import java.io.IOException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.mappings.Article;
@@ -16,7 +28,6 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 /**
  * @author Nils Dröge
  */
-@Ignore
 public class RichRelationTest {
     @Rule
     public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
@@ -28,6 +39,9 @@ public class RichRelationTest {
         session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(neo4jRule.url());
     }
 
+    /**
+     * @see DATAGRAPH-715
+     */
     @Test
     public void shouldCreateARichRelation()
     {
@@ -46,6 +60,6 @@ public class RichRelationTest {
 
         RichRelation relation2 = new RichRelation();
         person.addRelation(article2, relation2);
-        session.save(person, 1); // TODO: should not throw a RuntimeException("Couldn't get identity for _1")
+        session.save(person, 1);
     }
 }

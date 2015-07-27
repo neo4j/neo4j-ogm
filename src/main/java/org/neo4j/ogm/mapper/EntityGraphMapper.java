@@ -692,10 +692,11 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         relBuilder.relate(src, tgt);
         logger.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.getReference(), relBuilder.getType(), tgt);
 
-        // TODO: probably needs refactoring, this is not exactly an intuitive design!
-        ctx.log(new TransientRelationship(src, relBuilder.getReference(), relBuilder.getType(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
-        if(relBuilder instanceof NewBiDirectionalRelationshipBuilder) {
-            ctx.log(new TransientRelationship(tgt, relBuilder.getReference(), relBuilder.getType(), src, tgtClass, srcClass)); // we log the new relationship in the opposite direction as part of the transaction context.
+        if(relBuilder.isNew()) {  //We only want to create or log new relationships
+            ctx.log(new TransientRelationship(src, relBuilder.getReference(), relBuilder.getType(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
+            if (relBuilder instanceof NewBiDirectionalRelationshipBuilder) {
+                ctx.log(new TransientRelationship(tgt, relBuilder.getReference(), relBuilder.getType(), src, tgtClass, srcClass)); // we log the new relationship in the opposite direction as part of the transaction context.
+            }
         }
     }
 

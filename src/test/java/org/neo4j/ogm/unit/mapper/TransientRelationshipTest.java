@@ -1,11 +1,11 @@
 package org.neo4j.ogm.unit.mapper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.mapper.TransientRelationship;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author nils.droege@c3.co

@@ -24,6 +24,6 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Article extends Entity
 {
-    @Relationship(type = "RELATED_TO")
+    @Relationship(type = "RELATED_TO", direction = "INCOMING")
     public Set<RichRelation> relations = new HashSet<>();
 }

@@ -19,10 +19,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
@@ -169,8 +166,11 @@ public class CineastsRelationshipEntityTest{
 	}
 
 
-
+	/**
+	 * @see DATAGRAPH-714
+	 */
 	@Test
+	@Ignore
 	public void shouldBeAbleToModifyRating() {
 		Movie movie = new Movie();
 		movie.setTitle("Harry Potter and the Philosophers Stone");
@@ -202,6 +202,8 @@ public class CineastsRelationshipEntityTest{
 		vince.setRatings(ratings);
 		movie.setRatings(ratings);
 		session.save(movie);
+		session.clear();
+
 		movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Philosophers Stone"));
 		movie = movies.iterator().next();
 		assertEquals(1,movie.getRatings().size());

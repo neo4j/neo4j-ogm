@@ -90,7 +90,6 @@ public class ABTest
     }
 
     @Test
-    @Ignore("fails in CI")
     public void shouldReflectRemovalA() {
 
         session.save(a);
@@ -114,7 +113,6 @@ public class ABTest
      * @see DATAGRAPH-714
      */
     @Test
-    @Ignore("fails in CI for java 7")
     public void shouldBeAbleToUpdateRBySavingA() {
         A a1 = new A();
         B b3 = new B();
@@ -138,7 +136,6 @@ public class ABTest
      * @see DATAGRAPH-714
      */
     @Test
-    @Ignore("fails in CI for java 7")
     public void shouldBeAbleToUpdateRBySavingB() {
         A a1 = new A();
         B b3 = new B();
@@ -162,7 +159,6 @@ public class ABTest
      * @see DATAGRAPH-714
      */
     @Test
-    @Ignore("fails in CI for java 7")
     public void shouldBeAbleToUpdateRBySavingR() {
         A a1 = new A();
         B b3 = new B();

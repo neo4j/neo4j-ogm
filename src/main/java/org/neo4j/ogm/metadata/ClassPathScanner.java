@@ -69,23 +69,25 @@ public class ClassPathScanner {
 
     private void scanZipFile(final ZipFile zipFile) throws IOException {
         LOGGER.debug("Scanning " + zipFile.getName());
-        String path = null;
         for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
             final ZipEntry entry = entries.nextElement();
-            if (entry.isDirectory()) {
-                path = entry.getName();
-            } else {
-                scanZipEntry(path, entry, zipFile, null);
-            }
+            scanZipEntry(entry, zipFile, null);
         }
     }
 
-    private void scanZipEntry(String path, ZipEntry zipEntry, ZipFile zipFile, ZipInputStream zipInputStream) throws IOException {
+    private void scanZipEntry(ZipEntry zipEntry, ZipFile zipFile, ZipInputStream zipInputStream) throws IOException {
+        
+        if (zipEntry.isDirectory()) {
+           return;
+        }
+
+        LOGGER.debug("Scanning entry " + zipEntry.getName());
+        
         String zipEntryName = zipEntry.getName();
 
-        LOGGER.debug("Scanning entry " + zipEntryName);
-
-
+        int i = zipEntryName.lastIndexOf("/");
+        
+        String path = (i == -1) ? "" : zipEntryName.substring(0, i);
 
         if (zipEntryName.endsWith(".jar") || zipEntryName.endsWith(".zip")) { //The zipFile contains a zip or jar
             InputStream inputStream = zipFile.getInputStream(zipEntry); //Attempt to read the nested zip
@@ -98,12 +100,7 @@ public class ClassPathScanner {
             ZipEntry entry = zipInputStream.getNextEntry();
             String nestedPath = null;
             while (entry != null) { //Recursively scan each entry in the nested zip given its ZipInputStream
-                if (entry.isDirectory()) {
-                    nestedPath = entry.getName();
-                }
-                else {
-                    scanZipEntry(nestedPath, entry, zipFile, zipInputStream);
-                }
+                scanZipEntry(entry, zipFile, zipInputStream);
                 entry = zipInputStream.getNextEntry();
             }
         }
@@ -111,7 +108,7 @@ public class ClassPathScanner {
         boolean scanFile = false;
 
         for (String pathToScan : classPaths) {
-            if (path.startsWith(pathToScan)) {
+            if (path.equals(pathToScan)) {
                 scanFile = true;
                 break;
             }

@@ -74,7 +74,6 @@ public class ClassPathScannerTest {
 
 
 	@Test
-	@Ignore
 	public void zipFileWithDomainClassesShouldBeScanned() throws IOException {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
@@ -89,7 +88,6 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
-	@Ignore
 	public void domainClassesInNestedZipShouldBeScanned() {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
@@ -104,7 +102,6 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
-	@Ignore
 	public void domainClassesInDirectoryInNestedZipShouldBeScanned() {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();

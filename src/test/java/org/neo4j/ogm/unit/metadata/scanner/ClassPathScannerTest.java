@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class ClassPathScannerTest {
 
 	@Test
-	public void directoryShouldBeScanned() {
+        public void directoryShouldBeScanned() {
 		ClassPathScanner classPathScanner = new ClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
 
@@ -51,7 +51,7 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
-	public void nestedDirectoryShouldBeScanned() {
+        public void nestedDirectoryShouldBeScanned() {
 		ClassPathScanner classPathScanner = new ClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
 
@@ -74,7 +74,6 @@ public class ClassPathScannerTest {
 
 
 	@Test
-	@Ignore("fails when zip is nested inside another one")
         public void zipFileWithDomainClassesShouldBeScanned() throws IOException {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
@@ -89,7 +88,6 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
-	@Ignore("fails when zip is nested inside another one")
         public void domainClassesInNestedZipShouldBeScanned() {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();
@@ -104,7 +102,6 @@ public class ClassPathScannerTest {
 	}
 
 	@Test
-        @Ignore("fails when zip is nested inside another one")
 	public void domainClassesInDirectoryInNestedZipShouldBeScanned() {
 		ClassPathScanner classPathScanner = new FileClassPathScanner();
 		ClassScanProcessor processor = new ClassScanProcessor();

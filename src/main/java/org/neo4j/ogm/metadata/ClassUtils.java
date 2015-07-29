@@ -95,8 +95,8 @@ public abstract class ClassUtils {
      * @param classPaths classpaths to be included
      * @return {@link List} of unique {@link File} objects on the classpath
      */
-    public static ArrayList<File> getUniqueClasspathElements(List<String> classPaths) {
-        ArrayList<File> pathFiles = new ArrayList<>();
+    public static Set<File> getUniqueClasspathElements(List<String> classPaths) {
+        Set<File> pathFiles = new HashSet<>();
         for(String classPath : classPaths) {
             try {
                 Enumeration<URL> resources = ClassUtils.class.getClassLoader().getResources(classPath.replace(".","/"));

@@ -40,14 +40,13 @@ public final class ProxyAttributeConverter implements AttributeConverter<Object,
     @Override
     public Object toEntityAttribute(Object valueFromGraph) {
         ConversionCallback conversionCallback = this.converterCallbackRegistry.lookUpConverter();
-        Class<?> sourceType = this.targetGraphType != null ? this.targetGraphType : valueFromGraph.getClass();
-        return conversionCallback.convert(sourceType, this.entityAttributeType, valueFromGraph);
+        return conversionCallback.convert(this.entityAttributeType, valueFromGraph);
     }
 
     @Override
     public Object toGraphProperty(Object valueFromEntity) {
         ConversionCallback conversionCallback = this.converterCallbackRegistry.lookUpConverter();
-        return conversionCallback.convert(this.entityAttributeType, this.targetGraphType, valueFromEntity);
+        return conversionCallback.convert(this.targetGraphType, valueFromEntity);
     }
 
 }

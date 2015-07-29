@@ -108,7 +108,7 @@ public class ClassPathScanner {
         boolean scanFile = false;
 
         for (String pathToScan : classPaths) {
-            if (path.equals(pathToScan)) {
+            if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
                 scanFile = true;
                 break;
             }

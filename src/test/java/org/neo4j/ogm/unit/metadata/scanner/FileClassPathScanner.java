@@ -18,7 +18,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Set;
+import java.util.HashSet;
 import org.neo4j.ogm.metadata.ClassPathScanner;
 
 /**
@@ -28,8 +29,8 @@ import org.neo4j.ogm.metadata.ClassPathScanner;
 public class FileClassPathScanner extends ClassPathScanner {
 
 	@Override
-	protected List<File> getUniqueClasspathElements(List<String> classPaths)  {
-		List<File> jars = new ArrayList<>();
+	protected Set<File> getUniqueClasspathElements(List<String> classPaths)  {
+		Set<File> jars = new HashSet<>();
 		URL concert =FileClassPathScanner.class.getClassLoader().getResource("concert.jar");
 		URL radio =FileClassPathScanner.class.getClassLoader().getResource("radio.jar");
 		URL event =FileClassPathScanner.class.getClassLoader().getResource("event.jar");
@@ -47,7 +48,7 @@ public class FileClassPathScanner extends ClassPathScanner {
 		return jars;
 	}
 
-	private void addFile(URL url, List<File> jars) throws URISyntaxException {
+	private void addFile(URL url, Set<File> jars) throws URISyntaxException {
 		if(url.getProtocol().equals("file")) {
 			jars.add(new File(url.toURI()));
 		}

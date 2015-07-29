@@ -22,11 +22,16 @@ import java.util.List;
 import org.neo4j.ogm.metadata.info.ClassFileProcessor;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A {@link ClassFileProcessor} that exists solely to record information about classes scanned for test purposes.
  * @author Luanne Misquitta
  */
 public class ClassScanProcessor implements ClassFileProcessor {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(ClassScanProcessor.class);
 
 	List<ClassInfo> domainClassInfos = new ArrayList<>();
 
@@ -34,10 +39,14 @@ public class ClassScanProcessor implements ClassFileProcessor {
 	public void process(InputStream inputStream) throws IOException {
 		ClassInfo classInfo = new ClassInfo(inputStream);
 		domainClassInfos.add(classInfo);
+                LOGGER.debug("ClassScanProcessor added: " + classInfo.name());
 	}
 
 	@Override
 	public void finish() {
-
+            LOGGER.debug("ClassScanProcessor loaded:");
+            for (ClassInfo classInfo : domainClassInfos) {
+               LOGGER.debug(classInfo.name());
+            }   
 	}
 }

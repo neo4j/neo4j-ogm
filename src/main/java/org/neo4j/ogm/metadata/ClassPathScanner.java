@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -67,71 +68,149 @@ public class ClassPathScanner {
         }
     }
 
+
     private void scanZipFile(final ZipFile zipFile) throws IOException {
-        LOGGER.debug("Scanning " + zipFile.getName());
+        LOGGER.debug("Scanning zipFile " + zipFile.getName());
         for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
             final ZipEntry entry = entries.nextElement();
-            scanZipEntry(entry, zipFile, null);
+            if (!entry.isDirectory()) {
+                InputStream inputStream = zipFile.getInputStream(entry);
+                if (entry.getName().endsWith(".class")) {
+                    scanClassFileEntry(inputStream, entry);
+                } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip")) {
+                    scanZippedEntry(inputStream, entry);
+                }
+            }
         }
     }
 
-    private void scanZipEntry(ZipEntry zipEntry, ZipFile zipFile, ZipInputStream zipInputStream) throws IOException {
-        
-        if (zipEntry.isDirectory()) {
-           return;
-        }
+    private void scanClassFileEntry(InputStream inputStream, ZipEntry entry) throws IOException {
 
-        LOGGER.debug("Scanning entry " + zipEntry.getName());
-        
-        String zipEntryName = zipEntry.getName();
+        String name = entry.getName();
 
-        int i = zipEntryName.lastIndexOf("/");
-        
-        String path = (i == -1) ? "" : zipEntryName.substring(0, i);
-
-        if (zipEntryName.endsWith(".jar") || zipEntryName.endsWith(".zip")) { //The zipFile contains a zip or jar
-            InputStream inputStream = zipFile.getInputStream(zipEntry); //Attempt to read the nested zip
-            if (inputStream != null) {
-                zipInputStream = new ZipInputStream(inputStream);
-            }
-            else {
-                LOGGER.info("Unable to scan " + zipEntry.getName());
-            }
-            ZipEntry entry = zipInputStream.getNextEntry();
-            String nestedPath = null;
-            while (entry != null) { //Recursively scan each entry in the nested zip given its ZipInputStream
-                scanZipEntry(entry, zipFile, zipInputStream);
-                entry = zipInputStream.getNextEntry();
-            }
-        }
-
-        boolean scanFile = false;
+        LOGGER.debug("Scanning class entry: " + name);
+        int i = name.lastIndexOf("/");
+        String path = (i == -1) ? "" : name.substring(0, i);
 
         for (String pathToScan : classPaths) {
             if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
-                scanFile = true;
+                LOGGER.debug(pathToScan + " admits '" + path + "' for entry: " + name);
+                processor.process(inputStream);
                 break;
             }
         }
+    }
 
-        if (scanFile && zipEntryName.endsWith(".class")) {
-            if (zipInputStream == null) { //ZipEntry directly in the top level ZipFile
-                try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
-                    processor.process(inputStream);
+    private void scanZippedEntry(InputStream inputStream, ZipEntry entry) throws IOException {
+
+        String name = entry.getName();
+
+        LOGGER.debug("Scanning zipped entry: " + name);
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+
+        ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+        while (zipEntry != null) {
+            if (!zipEntry.isDirectory()) {
+                if (zipEntry.getName().endsWith(".class")) {
+                    scanClassFileEntry(zipInputStream, zipEntry);
+                } else if (zipEntry.getName().endsWith(".jar") || zipEntry.getName().endsWith(".zip")) {
+                    scanZippedEntry(zipInputStream, zipEntry);
                 }
-            } else { //Nested ZipEntry, read from its ZipInputStream
-                processor.process(zipInputStream);
-                zipInputStream.closeEntry();
             }
+            zipEntry = zipInputStream.getNextEntry();
         }
     }
+//
+
+//    private void scanZipFile(final ZipFile zipFile) throws IOException {
+//        LOGGER.debug("Scanning " + zipFile.getName());
+//        for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
+//            final ZipEntry entry = entries.nextElement();
+//            scanZipEntry(entry, zipFile, null);
+//        }
+//    }
+
+//  /  private void scanZipEntry(ZipEntry zipEntry, ZipFile zipFile, ZipInputStream zipInputStream) throws IOException {
+        
+//        if (zipEntry.isDirectory()) {
+//           return;
+//        }
+
+//        LOGGER.debug("Scanning entry " + zipEntry.getName());
+        
+//        String zipEntryName = zipEntry.getName();
+
+//        int i = zipEntryName.lastIndexOf("/");
+        
+//        String path = (i == -1) ? "" : zipEntryName.substring(0, i);
+
+//        if (zipEntryName.endsWith(".jar") || zipEntryName.endsWith(".zip")) { //The zipFile contains a zip or jar
+//            InputStream inputStream = zipFile.getInputStream(zipEntry); //Attempt to read the nested zip
+//            if (inputStream != null) {
+//                ZipInputStream embeddedZipInputStream = new ZipInputStream(inputStream);
+//                ZipEntry entry = embeddedZipInputStream.getNextEntry();
+//                while (entry != null) { //Recursively scan each entry in the nested zip given its ZipInputStream
+//                    scanZipEntry(entry, zipFile, embeddedZipInputStream);
+//                    entry = embeddedZipInputStream.getNextEntry();
+//                }
+//            }
+//            else {
+//                LOGGER.info("Unable to scan " + zipEntry.getName());
+//            }
+//            return;
+//        }
+
+//        if (zipEntryName.endsWith(".jar") || zipEntryName.endsWith(".zip")) { //The zipFile contains a zip or jar
+//            InputStream inputStream = zipFile.getInputStream(zipEntry); //Attempt to read the nested zip
+//            if (inputStream != null) {
+//                zipInputStream = new ZipInputStream(inputStream);
+//            }
+//            else {
+//                LOGGER.info("Unable to scan " + zipEntry.getName());
+//            }
+//            ZipEntry entry = zipInputStream.getNextEntry();
+//            String nestedPath = null;
+//            while (entry != null) { //Recursively scan each entry in the nested zip given its ZipInputStream
+//                scanZipEntry(entry, zipFile, zipInputStream);
+//                entry = zipInputStream.getNextEntry();
+//            }
+//        }
+
+//        boolean scanFile = false;
+
+//        for (String pathToScan : classPaths) {
+//            if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
+//                LOGGER.debug(pathToScan + " admits '" + path + "' for entry: " + zipEntryName);
+//                scanFile = true;
+//                break;
+//            }
+//        }
+
+//        if (scanFile && zipEntryName.endsWith(".class")) {
+//            if (zipInputStream == null) { //ZipEntry directly in the top level ZipFile
+//                try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+//                    processor.process(inputStream);
+//                }
+//            } else { //Nested ZipEntry, read from its ZipInputStream
+//                processor.process(zipInputStream);
+//                zipInputStream.closeEntry();
+//            }
+//        }
+//    }
 
     public void scan(List<String> classPaths, ClassFileProcessor processor) {
 
         this.classPaths = classPaths;
         this.processor = processor;
 
-        List<File> classPathElements = getUniqueClasspathElements(classPaths);
+        Set<File> classPathElements = getUniqueClasspathElements(classPaths);
+
+        LOGGER.debug("Classpath elements:");
+        for (File classPathElement : classPathElements) {
+            LOGGER.debug(classPathElement.getPath());
+        }
+
         try {
             for (File classPathElement : classPathElements) {
                 String path = classPathElement.getPath();
@@ -152,7 +231,7 @@ public class ClassPathScanner {
         }
     }
 
-    protected List<File> getUniqueClasspathElements(List<String> classPaths) {
+    protected Set<File> getUniqueClasspathElements(List<String> classPaths) {
         return ClassUtils.getUniqueClasspathElements(classPaths);
     }
 

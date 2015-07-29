@@ -28,6 +28,8 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+import org.neo4j.ogm.typeconversion.ConversionCallback;
+
 
 /**
  * @author Vince Bickers
@@ -198,6 +200,10 @@ public class MetaData {
 
     public List<ClassInfo> getImplementingClassInfos(String interfaceName) {
         return domainInfo.getClassInfos(interfaceName);
+    }
+
+    public void registerConversionCallback(ConversionCallback conversionCallback) {
+        this.domainInfo.registerConversionCallback(conversionCallback);
     }
 
 }

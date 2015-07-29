@@ -14,16 +14,17 @@
 
 package org.neo4j.ogm.defects;
 
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luanne Misquitta
@@ -56,6 +57,14 @@ public class MetaDataTest {
         MethodInfo relationshipEntitySetter = classInfo.relationshipSetter(relationshipType);
         assertNotNull(relationshipEntitySetter);
         assertEquals(relationshipType, relationshipEntitySetter.relationship());
+    }
+
+    @Test
+    public void testThatJavaDotLangDotEnumIsAnEnum() {
+        ClassInfo classInfo = metaData.classInfo("Enum");
+        assertNotNull("I was expecting java.lang.Enum to be in the meta-data", classInfo);
+        assertEquals("java.lang.Enum", classInfo.name());
+        assertTrue("Surely java.lang.Enum should be considered an enum", classInfo.isEnum());
     }
 
 }

@@ -56,15 +56,19 @@ public class ObjectAnnotations {
         return annotations.isEmpty();
     }
 
-    public AttributeConverter<?, ?> getConverter(String typeDescriptor) {
+    AttributeConverter<?, ?> getConverter() {
 
         // try to get a custom type converter
         AnnotationInfo customType = get(Convert.CLASS);
         if (customType != null) {
+            String classDescriptor = customType.get(Convert.CONVERTER, null);
+            if (classDescriptor == null) {
+                return null; // will have a default proxy converter applied later on
+            }
+
             try {
-                String classDescriptor = customType.get(Convert.CONVERTER, null);
                 String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
-                Class clazz = Class.forName(className);
+                Class<?> clazz = Class.forName(className);
                 return (AttributeConverter<?, ?>) clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -97,7 +101,7 @@ public class ObjectAnnotations {
 
         AnnotationInfo numberStringConverterInfo = get(NumberString.CLASS);
         if (numberStringConverterInfo != null) {
-            String classDescriptor = enumStringConverterInfo.get(NumberString.TYPE, null);
+            String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
                 Class clazz = Class.forName(className);

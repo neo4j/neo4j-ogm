@@ -1,5 +1,6 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
@@ -14,28 +15,39 @@ package org.neo4j.ogm.typeconversion;
 /**
  * Proxy implementation of {@link AttributeConverter} backed by an index to which custom generic converters
  * can be added after the object-graph mapping framework has been initialised.
+ *
+ * @author Adam George
  */
 public final class ProxyAttributeConverter implements AttributeConverter<Object, Object> {
 
     private final ConversionCallbackRegistry converterCallbackRegistry;
     private final Class<?> entityAttributeType;
+    private final Class<?> targetGraphType;
 
-    public ProxyAttributeConverter(Class<?> entityAttributeType, ConversionCallbackRegistry converterCallbackRegistry) {
+    /**
+     * Constructs a new {@link ProxyAttributeConverter} based on the given arguments.
+     *
+     * @param entityAttributeType The type of the attribute in the entity to convert
+     * @param targetGraphType The target type to which the value from the entity should be converted for saving into the graph
+     * @param converterCallbackRegistry The {@link ConversionCallbackRegistry} from which to look up the converters
+     */
+    public ProxyAttributeConverter(Class<?> entityAttributeType, Class<?> targetGraphType, ConversionCallbackRegistry converterCallbackRegistry) {
         this.entityAttributeType = entityAttributeType;
+        this.targetGraphType = targetGraphType;
         this.converterCallbackRegistry = converterCallbackRegistry;
     }
 
     @Override
     public Object toEntityAttribute(Object valueFromGraph) {
-        ConversionCallback conversionCallback = converterCallbackRegistry.lookUpConverter();
-        return conversionCallback.convert(valueFromGraph.getClass(), entityAttributeType, valueFromGraph);
+        ConversionCallback conversionCallback = this.converterCallbackRegistry.lookUpConverter();
+        Class<?> sourceType = this.targetGraphType != null ? this.targetGraphType : valueFromGraph.getClass();
+        return conversionCallback.convert(sourceType, this.entityAttributeType, valueFromGraph);
     }
 
     @Override
     public Object toGraphProperty(Object valueFromEntity) {
-        ConversionCallback conversionCallback = converterCallbackRegistry.lookUpConverter();
-        // FIXME: we need to determine the correct graph property target type for this to work
-        return conversionCallback.convert(entityAttributeType, Number.class, valueFromEntity);
+        ConversionCallback conversionCallback = this.converterCallbackRegistry.lookUpConverter();
+        return conversionCallback.convert(this.entityAttributeType, this.targetGraphType, valueFromEntity);
     }
 
 }

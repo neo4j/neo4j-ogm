@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
+
 /**
  * Annotation to be applied to fields and accessor methods of entity properties to specify the AttributeConverter to use for
  * writing or reading its value in the graph database.
@@ -36,8 +37,22 @@ public @interface Convert {
 
     static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.Convert";
     static final String CONVERTER = "value";
+    static final String GRAPH_TYPE = "graphPropertyType";
 
+    /**
+     * The type of {@link AttributeConverter} implementation to use on this property.
+     */
     Class<? extends AttributeConverter<?, ?>> value() default Unset.class;
+
+    /**
+     * The type to which the value of the annotated member should be converted before saving as a property in the graph
+     * database.
+     * <p>
+     * This is an optional attribute that should only be needed if {@link #value()} hasn't been set to an explicit
+     * converter, as it only gets used to look up converters that can do the job at runtime.
+     * </p>
+     */
+    Class<?> graphPropertyType() default Unset.class;
 
     /** Placeholder to allow the annotation to be applied without specifying an explicit converter implementation. */
     static abstract class Unset implements AttributeConverter<Object, Object> {}

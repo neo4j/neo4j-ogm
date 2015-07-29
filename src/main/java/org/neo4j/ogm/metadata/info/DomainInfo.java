@@ -21,6 +21,7 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,9 +34,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.metadata.ClassPathScanner;
-import org.neo4j.ogm.metadata.MappingException;
 
 /**
  * @author Vince Bickers
@@ -339,7 +337,13 @@ public class DomainInfo implements ClassFileProcessor {
                     if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
                         // no converter's been set but this method is annotated with @Convert so we need to proxy it
                         Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
-                        methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, this.conversionCallbackRegistry));
+                        String graphTypeDescriptor = methodInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
+                        if (graphTypeDescriptor == null) {
+                            throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
+                                    + " on " + classInfo.name() + '.' + methodInfo.getName()
+                                    + " but no target graph property type or specific AttributeConverter have been specified.");
+                        }
+                        methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                     }
 
                     // TODO: this needs improving because it won't recognise Java standard enums
@@ -426,7 +430,13 @@ public class DomainInfo implements ClassFileProcessor {
                     if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
                         // no converter's been set but this method is annotated with @Convert so we need to proxy it
                         Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getDescriptor());
-                        fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, this.conversionCallbackRegistry));
+                        String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
+                        if (graphTypeDescriptor == null) {
+                            throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
+                                    + " on " + classInfo.name() + '.' + fieldInfo.getName()
+                                    + " but no target graph property type or specific AttributeConverter have been specified.");
+                        }
+                        fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                     }
 
                     // TODO: this needs improving because it won't recognise Java standard enums

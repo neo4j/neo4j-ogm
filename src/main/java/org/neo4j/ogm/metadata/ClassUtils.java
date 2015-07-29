@@ -43,6 +43,7 @@ public abstract class ClassUtils {
      *
      * @param descriptor parameter descriptor
      * @return reified class for the parameter
+     * @throws NullPointerException if invoked with <code>null</code>
      */
     public static Class<?> getType(String descriptor) {
 

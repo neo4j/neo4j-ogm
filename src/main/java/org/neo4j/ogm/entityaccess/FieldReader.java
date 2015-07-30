@@ -15,8 +15,10 @@
 package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
+import org.neo4j.ogm.metadata.info.ObjectAnnotations;
 
 /**
  * @author Adam George
@@ -53,11 +55,14 @@ public class FieldReader implements RelationalReader, PropertyReader {
 
     @Override
     public String relationshipDirection() {
-        try {
-            return fieldInfo.getAnnotations().get(Relationship.CLASS).get(Relationship.DIRECTION, Relationship.UNDIRECTED);
-        } catch (NullPointerException npe) {
-            return Relationship.UNDIRECTED;
+        ObjectAnnotations annotations = fieldInfo.getAnnotations();
+        if(annotations != null) {
+            AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+            if(relationshipAnnotation != null) {
+                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+            }
         }
+        return Relationship.UNDIRECTED;
     }
 
     @Override

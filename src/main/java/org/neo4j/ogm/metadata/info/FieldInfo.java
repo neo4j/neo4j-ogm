@@ -64,32 +64,37 @@ public class FieldInfo {
     // should these two methods be on PropertyReader, RelationshipReader respectively?
     public String property() {
         if (isSimple()) {
-            try {
-                return getAnnotations().get(Property.CLASS).get(Property.NAME, getName());
-            } catch (NullPointerException npe) {
-                return getName();
+            if(annotations != null) {
+                AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
+                if(propertyAnnotation != null) {
+                    return propertyAnnotation.get(Property.NAME, getName());
+                }
             }
+            return getName();
         }
         return null;
     }
 
     public String relationship() {
         if (!isSimple()) {
-            try {
-                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
-            } catch (NullPointerException npe) {
-                return RelationshipUtils.inferRelationshipType(getName());
+            if(annotations != null) {
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                if(relationshipAnnotation != null) {
+                    return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
+                }
             }
+            return RelationshipUtils.inferRelationshipType(getName());
         }
         return null;
     }
 
     public String relationshipTypeAnnotation() {
         if (!isSimple()) {
-            try {
-                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, null);
-            } catch (NullPointerException npe) {
-                //TODO log
+            if(annotations != null) {
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                if(relationshipAnnotation != null) {
+                    return relationshipAnnotation.get(Relationship.TYPE, null);
+                }
             }
         }
         return null;

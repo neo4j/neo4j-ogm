@@ -88,38 +88,42 @@ public class MethodInfo {
 
     public String property() {
        if (isSimpleSetter() || isSimpleGetter()) {
-            try {
-                return getAnnotations().get(Property.CLASS).get(Property.NAME, getName());
-            } catch (NullPointerException npe) {
-                if (name.startsWith("get") || name.startsWith("set")) {
-                    StringBuilder sb = new StringBuilder(name.substring(3));
-                    sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-                    return sb.toString();
-                }
-                return getName();
-            }
+           if(annotations!=null) {
+               AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
+               if(propertyAnnotation!=null) {
+                   return propertyAnnotation.get(Property.NAME, getName());
+               }
+           }
+           if (name.startsWith("get") || name.startsWith("set")) {
+               StringBuilder sb = new StringBuilder(name.substring(3));
+               sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+               return sb.toString();
+           }
+           return getName();
         }
         return null;
     }
 
     public String relationship() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
-            try {
-                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
-            } catch (NullPointerException npe) {
-                // TODO: consider whether to check parameter/return type here for an @RelationshipEntity annotation
-                return RelationshipUtils.inferRelationshipType(getName());
+            if(annotations!=null) {
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                if(relationshipAnnotation!=null) {
+                    return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
+                }
             }
+            return RelationshipUtils.inferRelationshipType(getName());
         }
         return null;
     }
 
     public String relationshipTypeAnnotation() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
-            try {
-                return getAnnotations().get(Relationship.CLASS).get(Relationship.TYPE, null);
-            } catch (NullPointerException npe) {
-                //TODO log
+            if(annotations!=null) {
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                if(relationshipAnnotation!=null) {
+                    return relationshipAnnotation.get(Relationship.TYPE, null);
+                }
             }
         }
         return null;

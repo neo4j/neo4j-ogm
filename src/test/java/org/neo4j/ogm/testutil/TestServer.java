@@ -114,14 +114,14 @@ public class TestServer {
             }
         }
 
-        this.database.execute(cypher.toString());
+        new ExecutionEngine(this.database).execute(cypher.toString());
     }
 
     /**
      * Deletes all the nodes and relationships in the test database.
      */
     public void clearDatabase() {
-        this.database.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
+        new ExecutionEngine(this.database).execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
     }
 
     /**

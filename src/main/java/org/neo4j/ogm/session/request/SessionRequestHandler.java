@@ -29,8 +29,8 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.response.*;
 import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,11 +81,11 @@ public class SessionRequestHandler implements RequestHandler {
     }
 
     @Override
-    public Neo4jResponse<QueryStatistics> execute(RowModelQueryWithStatistics query, String url) {
+    public Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query, String url) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
         Neo4jResponse<String> response = execute(list, url);
-        return new StatisticsResponse(response, mapper);
+        return new RowStatisticsResponse(response, mapper);
     }
 
 

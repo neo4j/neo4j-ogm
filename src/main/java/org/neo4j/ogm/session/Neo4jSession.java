@@ -36,6 +36,7 @@ import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 import org.neo4j.ogm.session.response.ResponseHandler;
 import org.neo4j.ogm.session.response.SessionResponseHandler;
 import org.neo4j.ogm.session.result.QueryStatistics;
+import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -320,8 +321,13 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public Iterable<Map<String, Object>> query(String cypher, Map<String, ?> parameters) {
+    public Result query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
+    }
+
+    @Override
+    public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+        return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 
     @Override

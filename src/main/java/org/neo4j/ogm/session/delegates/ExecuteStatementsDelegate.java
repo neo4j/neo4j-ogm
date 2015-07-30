@@ -16,16 +16,17 @@ package org.neo4j.ogm.session.delegates;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.QueryStatistics;
+import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
 
@@ -49,8 +50,9 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
         // NOTE: No need to check if domain objects are parameters and flatten them to json as this is done
         // for us using the existing execute() method.
         RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
-        try (Neo4jResponse<QueryStatistics> response = session.requestHandler().execute(parameterisedStatement, url)) {
-            return response.next();
+        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, url)) {
+            RowQueryStatisticsResult result = response.next();
+            return result == null ? null : result.getStats();
         }
     }
 
@@ -62,8 +64,9 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
         assertNothingReturned(statement);
         RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(statement, Utils.map());
         String url = session.ensureTransaction().url();
-        try (Neo4jResponse<QueryStatistics> response = session.requestHandler().execute(parameterisedStatement, url)) {
-            return response.next();
+        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, url)) {
+            RowQueryStatisticsResult result = response.next();
+            return result == null ? null : result.getStats();
         }
     }
 

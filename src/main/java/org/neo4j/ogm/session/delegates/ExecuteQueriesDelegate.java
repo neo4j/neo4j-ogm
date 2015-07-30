@@ -13,28 +13,24 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
+import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.Capability;
-import org.neo4j.ogm.session.EntityRowModelMapper;
-import org.neo4j.ogm.session.MapRowModelMapper;
-import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.RowModelMapper;
-import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.*;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.result.QueryResult;
+import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 
 /**
  * @author Vince Bickers
@@ -67,18 +63,44 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public Iterable<Map<String, Object>> query(String cypher, Map<String, ?> parameters) {
-        return executeAndMap(null, cypher, parameters, new MapRowModelMapper());
+    public Result query(String cypher, Map<String, ?> parameters) {
+        return query(cypher, parameters, isReadOnly(cypher));
     }
 
     @Override
     public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
+        validateQuery(cypher, parameters, false); //we'll allow modifying statements
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
         return executeAndMap(type, cypher, parameters, new EntityRowModelMapper<T>());
     }
 
+    @Override
+    public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+        validateQuery(cypher, parameters, readOnly);
+
+        //If readOnly=true, just execute the query. If false, execute the query and return stats as well
+        if(readOnly) {
+            return new QueryResult(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
+        }
+        else {
+            String url  = session.ensureTransaction().url();
+            RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
+            try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, url)) {
+                RowQueryStatisticsResult result = response.next();
+                RowModelMapper rowModelMapper = new MapRowModelMapper();
+                Collection rowResult = new LinkedHashSet();
+                for (Iterator<Object> iterator = result.getRows().iterator(); iterator.hasNext(); ) {
+                    List next =  (List) iterator.next();
+                    rowModelMapper.mapIntoResult(rowResult, next.toArray(), response.columns());
+                }
+                return new QueryResult(rowResult, result.getStats());
+
+            }
+        }
+
+    }
 
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, RowModelMapper<T> rowModelMapper) {
         if (StringUtils.isEmpty(cypher)) {
@@ -88,8 +110,6 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         if (parameters == null) {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
-
-        assertReadOnly(cypher);
 
         String url = session.ensureTransaction().url();
 
@@ -130,10 +150,22 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
     }
 
-    private void assertReadOnly(String cypher) {
+    private boolean isReadOnly(String cypher) {
         Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
-        if (matcher.find()) {
-            throw new RuntimeException("query() only allows read only cypher. To make modifications use execute()");
+        return !matcher.find();
+    }
+
+    private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
+        if(readOnly && !isReadOnly(cypher)) {
+            throw new RuntimeException("Cypher query must not modify the graph if readOnly=true");
+        }
+
+        if (StringUtils.isEmpty(cypher)) {
+            throw new RuntimeException("Supplied cypher statement must not be null or empty.");
+        }
+
+        if (parameters == null) {
+            throw new RuntimeException("Supplied Parameters cannot be null.");
         }
     }
 

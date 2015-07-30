@@ -14,15 +14,30 @@
 
 package org.neo4j.ogm.session.result;
 
+import java.util.Collection;
+
 /**
+ * Encapsulates {@link QueryStatistics} and row data returned by a query.
  * @author Luanne Misquitta
  */
-public class QueryStatisticsResult {
+public class RowQueryStatisticsResult {
 
+	private Collection<Object> rows;
 	private QueryStatistics stats;
 
 	public QueryStatistics getStats() {
 		return stats;
 	}
 
+	public void setRows(Collection<Object> rows) {
+		this.rows = rows;
+	}
+
+	public void setStats(QueryStatistics stats) {
+		this.stats = stats;
+	}
+
+	public Collection<Object> getRows() {
+		return rows;
+	}
 }

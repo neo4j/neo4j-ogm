@@ -25,8 +25,8 @@ import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 
 /**
  * @author Vince Bickers
@@ -40,5 +40,5 @@ public interface RequestHandler {
     Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query, String url);
     Neo4jResponse<String> execute(ParameterisedStatement statement, String url);
     Neo4jResponse<String> execute(List<ParameterisedStatement> statementList, String url);
-    Neo4jResponse<QueryStatistics> execute(RowModelQueryWithStatistics query, String url);
+    Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query, String url);
 }

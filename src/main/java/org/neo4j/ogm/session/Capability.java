@@ -21,6 +21,7 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.session.result.QueryStatistics;
+import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.transaction.Transaction;
 
 /**
@@ -144,7 +145,7 @@ public interface Capability {
          * This method allows a cypher statement with a modification statement to be executed.
          *
          * <p>Parameters may be scalars or domain objects themselves.</p>
-         *
+         * @deprecated Use {@link org.neo4j.ogm.session.Capability.ExecuteQueries}.query() to return both results as well as query statistics.
          * @param cypher The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher. These may be domain objects or scalars. Note that
          *                   if a complex domain object is provided only the properties of that object will be set.
@@ -152,7 +153,10 @@ public interface Capability {
          *                   and further domain object parameters provided.
          * @return {@link QueryStatistics} representing statistics about graph modifications as a result of the cypher execution.
          */
+        @Deprecated
         QueryStatistics execute(String cypher, Map<String, Object> parameters);
+
+        @Deprecated
         QueryStatistics execute(String jsonStatements);
 
     }
@@ -201,9 +205,26 @@ public interface Capability {
          * @param cypher  The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher.
          *
-         * @return An {@link Iterable} of {@link Map}s with each entry representing a neo4j object's properties.
+         * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link QueryStatistics} if applicable.
          */
-        Iterable<Map<String, Object>> query(String cypher, Map<String, ?> parameters);
+        Result query(String cypher, Map<String, ?> parameters);
+
+        /**
+         * Given a non modifying cypher statement this method will return a collection of Map's which represent Neo4j
+         * objects as properties.
+         *
+         * Each element is a map which you can access by the name of the returned field
+         *
+         * TODO: Decide if we want to keep this behaviour?
+         * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
+         *
+         * @param cypher  The parametrisable cypher to execute.
+         * @param parameters Any parameters to attach to the cypher.
+         * @param readOnly true if the query is readOnly, false otherwise
+         *
+         * @return A {@link Result} of {@link Iterable}s with each entry representing a neo4j object's properties.
+         */
+        Result query(String cypher, Map<String, ?> parameters, boolean readOnly);
 
         /**
          * Counts all the <em>node</em> entities of the specified type.

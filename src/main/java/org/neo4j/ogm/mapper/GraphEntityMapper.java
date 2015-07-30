@@ -240,7 +240,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		ClassInfo sourceInfo = metadata.classInfo(source);
 		RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edge.getType(), Relationship.OUTGOING, relationshipEntity);
 		if (writer == null) {
-			logger.info("No writer for {}", target);
+			logger.debug("No writer for {}", target);
 		} else {
 			if (writer.forScalar()) {
 				writer.write(source, relationshipEntity);
@@ -255,7 +255,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		writer = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), Relationship.INCOMING, relationshipEntity);
 
 		if (writer == null) {
-			logger.info("No writer for {}", target);
+			logger.debug("No writer for {}", target);
 		} else {
 			if (writer.forScalar()) {
 				writer.write(target, relationshipEntity);

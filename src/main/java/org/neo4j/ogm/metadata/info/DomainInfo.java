@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.metadata.info;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.metadata.ClassPathScanner;
 import org.neo4j.ogm.metadata.ClassUtils;
@@ -21,17 +25,6 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,7 +162,7 @@ public class DomainInfo implements ClassFileProcessor {
 
     private void removeTransientClass(ClassInfo transientClass) {
         if (transientClass != null && !transientClass.name().equals("java.lang.Object")) {
-            LOGGER.info("Removing @Transient class: " + transientClass.name());
+            LOGGER.debug("Removing @Transient class: " + transientClass.name());
             classNameToClassInfo.remove(transientClass.name());
             for (ClassInfo transientChild : transientClass.directSubclasses()) {
                 removeTransientClass(transientChild);
@@ -246,7 +239,7 @@ public class DomainInfo implements ClassFileProcessor {
 
             if (thisClassInfo.isEnum()) {
                 String enumSignature = thisClassInfo.name().replace(".", "/");
-                LOGGER.info("Registering enum class: " + enumSignature);
+                LOGGER.debug("Registering enum class: " + enumSignature);
                 enumTypes.add(enumSignature);
             }
         }

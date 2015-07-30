@@ -14,14 +14,7 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -29,6 +22,8 @@ import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -141,8 +136,6 @@ public class MetaData {
                 } // not found, try again
             }
             if (baseClasses.size() > 1) {
-                //LOGGER.info("Multiple leaf classes found in type hierarchy for specified taxa: " + Arrays.toString(taxa) + ". leaf classes are: " + baseClasses);
-                //return null;
                 throw new AmbiguousBaseClassException(Arrays.toString(taxa));
             }
             if (baseClasses.iterator().hasNext()) {
@@ -160,7 +153,7 @@ public class MetaData {
             return fqn;
         }
         if (classInfoList.size() > 1) {
-            LOGGER.info("More than one class subclasses " + fqn);
+            LOGGER.debug("More than one class subclasses " + fqn);
             return null;
         }
         ClassInfo classInfo = classInfoList.iterator().next();

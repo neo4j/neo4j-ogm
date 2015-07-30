@@ -17,13 +17,12 @@ package org.neo4j.ogm.session.transaction;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -64,7 +63,7 @@ public class SimpleTransaction implements Transaction {
     }
 
     public void rollback() {
-        logger.info("rollback invoked");
+        logger.debug("rollback invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
             contexts.clear();
             status = Status.ROLLEDBACK;
@@ -74,7 +73,7 @@ public class SimpleTransaction implements Transaction {
     }
 
     public void commit() {
-        logger.info("commit invoked");
+        logger.debug("commit invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
             synchroniseSession();
             status = Status.COMMITTED;
@@ -95,7 +94,7 @@ public class SimpleTransaction implements Transaction {
 
         for (CypherContext cypherContext : contexts) {
 
-            logger.info("Synchronizing transaction context " + cypherContext + " with session context");
+            logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
 
             for (Object o : cypherContext.log())  {
                 logger.debug("checking cypher context object: " + o);

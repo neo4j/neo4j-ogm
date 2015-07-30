@@ -24,15 +24,14 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.session.response.JsonResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -56,7 +55,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
         try {
 
-            LOGGER.info("POST " + url + ", request: " + cypherQuery);
+            LOGGER.debug("POST " + url + ", request: " + cypherQuery);
 
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypherQuery,"UTF-8");
@@ -85,7 +84,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
                 throw new ClientProtocolException("Response contains no content");
             }
 
-            LOGGER.info("Response is OK, creating response handler");
+            LOGGER.debug("Response is OK, creating response handler");
             jsonResponse = new JsonResponse(response);
             return jsonResponse;
 

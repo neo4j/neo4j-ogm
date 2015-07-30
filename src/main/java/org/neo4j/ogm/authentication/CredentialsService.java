@@ -45,7 +45,7 @@ public class CredentialsService {
 
         if (userName != null) {
             if (password != null) {
-                LOGGER.info("Using credentials supplied");
+                LOGGER.debug("Using credentials supplied");
                 return new UsernamePasswordCredentials(userName, password);
             }
             else {

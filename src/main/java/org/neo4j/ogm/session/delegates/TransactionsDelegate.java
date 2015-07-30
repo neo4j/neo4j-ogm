@@ -40,12 +40,12 @@ public class TransactionsDelegate implements Capability.Transactions {
     @Override
     public Transaction beginTransaction() {
 
-        session.info("beginTransaction() being called on thread: " + Thread.currentThread().getId());
-        session.info("Neo4jSession identity: " + this);
+        session.debug("beginTransaction() being called on thread: " + Thread.currentThread().getId());
+        session.debug("Neo4jSession identity: " + this);
 
         Transaction tx = session.transactionManager().openTransaction(session.context());
 
-        session.info("Obtained new transaction: " + tx.url() + ", tx id: " + tx);
+        session.debug("Obtained new transaction: " + tx.url() + ", tx id: " + tx);
         return tx;
     }
 
@@ -62,20 +62,20 @@ public class TransactionsDelegate implements Capability.Transactions {
 
     public Transaction getCurrentOrAutocommitTransaction() {
 
-        session.info("--------- new request ----------");
-        session.info("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
-        session.info("Session identity: " + this);
+        session.debug("--------- new request ----------");
+        session.debug("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
+        session.debug("Session identity: " + this);
 
         Transaction tx = session.transactionManager().getCurrentTransaction();
         if (tx == null
                 || tx.status().equals(Transaction.Status.CLOSED)
                 || tx.status().equals(Transaction.Status.COMMITTED)
                 || tx.status().equals(Transaction.Status.ROLLEDBACK)) {
-            session.info("There is no existing transaction, creating a transient one");
+            session.debug("There is no existing transaction, creating a transient one");
             return new SimpleTransaction(session.context(), autoCommitUrl);
         }
 
-        session.info("Current transaction: " + tx.url() + ", tx id: " + tx);
+        session.debug("Current transaction: " + tx.url() + ", tx id: " + tx);
         return tx;
 
     }

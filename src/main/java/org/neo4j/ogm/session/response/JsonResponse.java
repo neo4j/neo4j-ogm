@@ -19,10 +19,9 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.session.result.ResultProcessingException;
 
 /**
  * @author Vince Bickers
@@ -103,7 +102,7 @@ public class JsonResponse implements Neo4jResponse<String> {
         try {
             results.close();
             if (response != null) {
-                LOGGER.info("Closing HttpResponse");
+                LOGGER.debug("Closing HttpResponse");
                 response.close();
             }
         } catch (Exception e) {

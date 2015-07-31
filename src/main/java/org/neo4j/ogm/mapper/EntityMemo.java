@@ -15,8 +15,8 @@
 package org.neo4j.ogm.mapper;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -27,7 +27,7 @@ import org.neo4j.ogm.metadata.info.FieldInfo;
  */
 public class EntityMemo {
 
-    private final Map<Object, Long> objectHash = new HashMap<>();
+    private final Map<Object, Long> objectHash = new ConcurrentHashMap<>();
 
     // objects with no properties will always hash to this value.
     private static final long seed = 0xDEADBEEF / (11 * 257);

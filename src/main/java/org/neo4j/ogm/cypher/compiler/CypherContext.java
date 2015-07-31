@@ -52,6 +52,10 @@ public class CypherContext {
         this.registeredRelationships.add(mappedRelationship);
     }
 
+    public boolean removeRegisteredRelationship(MappedRelationship mappedRelationship) {
+        return this.registeredRelationships.remove(mappedRelationship);
+    }
+
     public NodeBuilder nodeBuilder(Object obj) {
         return this.visitedObjects.get(obj);
     }

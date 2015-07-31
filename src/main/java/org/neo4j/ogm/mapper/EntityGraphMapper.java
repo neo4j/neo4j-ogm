@@ -106,7 +106,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         while (mappedRelationshipIterator.hasNext()) {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
-            if (!context.isRegisteredRelationship(mappedRelationship)) {
+            if (!context.removeRegisteredRelationship(mappedRelationship)) {
                 logger.debug("context-del: (${})-[{}:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                 compiler.unrelate("$" + mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), "$" + mappedRelationship.getEndNodeId(), mappedRelationship.getRelationshipId());
                 clearRelatedObjects(mappedRelationship.getStartNodeId());
@@ -254,21 +254,25 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             if (relatedObject != null) {
                 RelationshipNodes relNodes = new RelationshipNodes(entity,relatedObject,startNodeType,endNodeType);
                 relNodes.sourceId = srcIdentity;
-
+                Boolean mapBothWays = null;
                 if (relatedObject instanceof Iterable) {
                     for (Object tgtObject : (Iterable<?>) relatedObject) {
-                        boolean mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
+                        if(mapBothWays == null) {
+                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
+                        }
                         relNodes.target = tgtObject;
                         link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                     }
                 } else if (relatedObject.getClass().isArray()) {
                     for (Object tgtObject : (Object[]) relatedObject) {
-                        boolean mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
+                        if(mapBothWays == null) {
+                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
+                        }
                         relNodes.target = tgtObject;
                         link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                     }
                 } else {
-                    boolean mapBothWays = bothWayMappingRequired(entity, relationshipType, relatedObject);
+                    mapBothWays = bothWayMappingRequired(entity, relationshipType, relatedObject);
                     link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                 }
             }

@@ -36,8 +36,8 @@ package org.neo4j.ogm.cypher.compiler;
  */
 class IdentifierManager {
 
-    private static final String NEW_FORMAT = "_%d";
-    private static final String EXISTING_FORMAT = "$%d";
+    private static final String NEW_FORMAT = "_";
+    private static final String EXISTING_FORMAT = "$";
 
     private int idCounter;
 
@@ -47,7 +47,7 @@ class IdentifierManager {
      * @return The next variable name to use of the form _id, never <code>null</code>
      */
     public synchronized String nextIdentifier() {
-        return String.format(NEW_FORMAT, this.idCounter++);
+        return NEW_FORMAT + this.idCounter++;
     }
 
     /**
@@ -56,7 +56,7 @@ class IdentifierManager {
      * @return The variable name to use of the form $id, never <code>null</code>
      */
     public String identifier(Long value) {
-        return String.format(EXISTING_FORMAT, value);
+        return EXISTING_FORMAT + value;
     }
 
     public synchronized void releaseIdentifier() {

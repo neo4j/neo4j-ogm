@@ -77,6 +77,8 @@ public class ClassInfo {
     private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
     private Map<Class,List<FieldInfo>> iterableFieldsForType = new HashMap<>();
 
+    private FieldInfo identityField = null;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
 
@@ -285,10 +287,14 @@ public class ClassInfo {
      * @throws MappingException if no identity field can be found
      */
     public FieldInfo identityField() {
+        if(identityField != null) {
+            return identityField;
+        }
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
                 if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
+                    identityField = fieldInfo;
                     return fieldInfo;
                 }
             }
@@ -296,6 +302,7 @@ public class ClassInfo {
         FieldInfo fieldInfo = fieldsInfo().get("id");
         if (fieldInfo != null) {
             if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
+                identityField = fieldInfo;
                 return fieldInfo;
             }
         }

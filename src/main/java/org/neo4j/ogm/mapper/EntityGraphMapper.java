@@ -399,6 +399,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 			if (mappedRelationship.getRelationshipId()!=null && relId!=null && mappedRelationship.getRelationshipId().equals(relId)) {
 				if (srcIdentity==null || tgtIdentity==null || mappedRelationship.getStartNodeId() != srcIdentity || mappedRelationship.getEndNodeId() != tgtIdentity) {
 					relationshipEndsChanged=true;
+                    break;
 				}
 			}
 		}

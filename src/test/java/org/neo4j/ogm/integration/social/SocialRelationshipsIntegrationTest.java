@@ -187,7 +187,7 @@ public class SocialRelationshipsIntegrationTest {
 	}
 
 	/**
-	 * @see DATAGRAPH-636
+	 * @see DATAGRAPH-636, DATAGRAPH-665 (equals() on SocialUser includes every field)
 	 */
 	@Test
 	public void shouldManageRelationshipsToTheSameNodeType() {

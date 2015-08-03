@@ -53,7 +53,8 @@ class ExistingRelationshipBuilder extends RelationshipBuilder {
         }
 
         queryBuilder.append(" MATCH ()-[").append(this.reference).append("]->() WHERE id(")
-                .append(this.reference).append(")=").append(this.getId());
+                .append(this.reference).append(")={").append(this.reference).append("}");
+        parameters.put(this.reference, this.getId());
 
         if (!this.props.isEmpty()) {
             queryBuilder.append(" SET ").append(this.reference).append("+={").append(this.reference).append("_props} ");

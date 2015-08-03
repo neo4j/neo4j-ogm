@@ -234,12 +234,12 @@ public class DirectRelationshipsTest {
         document.setFolder(null);
         folder.getDocuments().clear();
 
-        expectOnSave(folder, "MATCH ($0)-[_0:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _0");
+        expectOnSave(folder, "MATCH ($0)-[_0:`CONTAINS`]->($1) WHERE id($0)={$0} AND id($1)={$1} DELETE _0");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
-        expectOnSave(document, "MATCH ($0)-[_0:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _0");
+        expectOnSave(document, "MATCH ($0)-[_0:`CONTAINS`]->($1) WHERE id($0)={$0} AND id($1)={$1} DELETE _0");
 
     }
 
@@ -280,19 +280,19 @@ public class DirectRelationshipsTest {
 
         expectOnSave(folder,
                 // either  (depending which doc is traversed first)
-                "MATCH ($0)-[_2:`CONTAINS`]->($2) WHERE id($0)=0 AND id($2)=2 DELETE _2",
+                "MATCH ($0)-[_2:`CONTAINS`]->($2) WHERE id($0)={$0} AND id($2)={$2} DELETE _2",
                 // or
-                "MATCH ($0)-[_1:`CONTAINS`]->($2) WHERE id($0)=0 AND id($2)=2 DELETE _1");
+                "MATCH ($0)-[_1:`CONTAINS`]->($2) WHERE id($0)={$0} AND id($2)={$2} DELETE _1");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
-        expectOnSave(doc1, "MATCH ($0)-[_2:`CONTAINS`]->($2) WHERE id($0)=0 AND id($2)=2 DELETE _2");
+        expectOnSave(doc1, "MATCH ($0)-[_2:`CONTAINS`]->($2) WHERE id($0)={$0} AND id($2)={$2} DELETE _2");
 
         // we need to re-establish the relationship in the mapping context for this expectation, otherwise
         // the previous save will have de-registered the relationship.
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
-        expectOnSave(doc2, "MATCH ($0)-[_0:`CONTAINS`]->($2) WHERE id($0)=0 AND id($2)=2 DELETE _0");
+        expectOnSave(doc2, "MATCH ($0)-[_0:`CONTAINS`]->($2) WHERE id($0)={$0} AND id($2)={$2} DELETE _0");
 
     }
 
@@ -327,9 +327,9 @@ public class DirectRelationshipsTest {
 
         expectOnSave(folder,
                 // either
-                "MATCH ($0)-[_2:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _2",
+                "MATCH ($0)-[_2:`CONTAINS`]->($1) WHERE id($0)={$0} AND id($1)={$1} DELETE _2",
                 // or
-                "MATCH ($0)-[_1:`CONTAINS`]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _1");
+                "MATCH ($0)-[_1:`CONTAINS`]->($1) WHERE id($0)={$0} AND id($1)={$1} DELETE _1");
 
         //There are no more changes to the graph
         expectOnSave(doc1, "");

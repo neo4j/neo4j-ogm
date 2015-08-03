@@ -125,7 +125,7 @@ public class EntityGraphMapperTest {
         ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(sheila).getStatements());
 
         expect( "MATCH (" + sheilaNode + ") " +
-                "WHERE id(" + sheilaNode + ")=" + sid + " " +
+                "WHERE id(" + sheilaNode + ")={" +sheilaNode + "} " +
                 "SET " + sheilaNode + ":`Student`:`DomainObject`, " + sheilaNode + "+={" + sheilaNode + "_props}", cypher);
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (s:DomainObject:Student {name:'Sheila Smythe-Jones'})");

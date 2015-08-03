@@ -58,8 +58,10 @@ public class DeletedRelationshipBuilder implements CypherEmitter, Comparable<Del
         if (!varStack.contains(src)) {
             queryBuilder.append(" WHERE id(");
             queryBuilder.append(src);
-            queryBuilder.append(")=");
-            queryBuilder.append(src.substring(1)); // existing nodes have an id. we pass it in as $id
+            queryBuilder.append(")={");
+            queryBuilder.append(src); // existing nodes have an id. we pass it in as $id
+            queryBuilder.append("}");
+            parameters.put(src, Long.parseLong(src.substring(1)));
             varStack.add(src);
             where = true;
         }
@@ -71,9 +73,11 @@ public class DeletedRelationshipBuilder implements CypherEmitter, Comparable<Del
                 queryBuilder.append(" WHERE id(");
             }
             queryBuilder.append(tgt);
-            queryBuilder.append(")=");
-            queryBuilder.append(tgt.substring(1)); // existing nodes have an id. we pass it in as $id
+            queryBuilder.append(")={");
+            queryBuilder.append(tgt); // existing nodes have an id. we pass it in as $id
+            queryBuilder.append("}");
             varStack.add(tgt);
+            parameters.put(tgt, Long.parseLong(tgt.substring(1)));
             where = true;
         }
 
@@ -84,8 +88,10 @@ public class DeletedRelationshipBuilder implements CypherEmitter, Comparable<Del
                 queryBuilder.append(" WHERE id(");
             }
             queryBuilder.append(rid);
-            queryBuilder.append(")=");
-            queryBuilder.append(relId); // existing relationships have an id. we pass it in as $id
+            queryBuilder.append(")={");
+            queryBuilder.append(rid); // existing relationships have an id. we pass it in as $id
+            queryBuilder.append("}");
+            parameters.put(rid, relId);
             varStack.add(rid);
         }
 

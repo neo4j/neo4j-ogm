@@ -92,10 +92,8 @@ public class MappingContext {
     private void deregisterTypes(Class type, Object entity) {
         Set<Object> entities = typeRegister.get(type);
         if (entities != null) {
-            if (type.getSuperclass() != null
-                    && metaData != null
-                    && metaData.classInfo(type.getSuperclass().getName()) != null
-                    && !type.getSuperclass().getName().equals("java.lang.Object")) {
+            if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
+                entities.remove(entity);
                 deregisterTypes(type.getSuperclass(), entity);
             }
         }

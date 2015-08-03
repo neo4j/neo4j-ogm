@@ -55,8 +55,10 @@ public class NewBiDirectionalRelationshipBuilder extends RelationshipBuilder {
 			queryBuilder.append(startNodeIdentifier);
 			queryBuilder.append(") WHERE id(");
 			queryBuilder.append(startNodeIdentifier);
-			queryBuilder.append(")=");
-			queryBuilder.append(startNodeIdentifier.substring(1)); // existing nodes have an id. we pass it in as $id
+			queryBuilder.append(")={");
+			queryBuilder.append(startNodeIdentifier); // existing nodes have an id. we pass it in as $id
+            queryBuilder.append("}");
+            parameters.put(startNodeIdentifier, Long.parseLong(startNodeIdentifier.substring(1)));
 			varStack.add(startNodeIdentifier);
 		}
 
@@ -65,8 +67,10 @@ public class NewBiDirectionalRelationshipBuilder extends RelationshipBuilder {
 			queryBuilder.append(endNodeIdentifier);
 			queryBuilder.append(") WHERE id(");
 			queryBuilder.append(endNodeIdentifier);
-			queryBuilder.append(")=");
-			queryBuilder.append(endNodeIdentifier.substring(1)); // existing nodes have an id. we pass it in as $id
+			queryBuilder.append(")={");
+			queryBuilder.append(endNodeIdentifier); // existing nodes have an id. we pass it in as $id
+            queryBuilder.append("}");
+            parameters.put(endNodeIdentifier, Long.parseLong(endNodeIdentifier.substring(1)));
 			varStack.add(endNodeIdentifier);
 		}
 

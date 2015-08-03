@@ -124,7 +124,7 @@ public class DomainInfo implements ClassFileProcessor {
             LOGGER.debug("Post-processing: " + classInfo.name());
 
             if (classInfo.isTransient()) {
-                LOGGER.info(" - Registering @Transient baseclass: " + classInfo.name());
+                LOGGER.debug(" - Registering @Transient baseclass: " + classInfo.name());
                 transientClasses.add(classInfo);
                 continue;
             }
@@ -145,7 +145,7 @@ public class DomainInfo implements ClassFileProcessor {
         for (ArrayList<ClassInfo> classInfos : interfaceInfos) {
             for (ClassInfo classInfo : classInfos) {
                 if(classInfo.isTransient()) {
-                    LOGGER.info("Registering @Transient baseclass: " + classInfo.name());
+                    LOGGER.debug("Registering @Transient baseclass: " + classInfo.name());
                     transientClasses.add(classInfo);
                 }
             }
@@ -201,7 +201,7 @@ public class DomainInfo implements ClassFileProcessor {
             }
 
         } else {
-            LOGGER.warn(" - No ClassInfo found for interface class: " + interfaceInfo.name());
+            LOGGER.debug(" - No ClassInfo found for interface class: " + interfaceInfo.name());
         }
 
     }

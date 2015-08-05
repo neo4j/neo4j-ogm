@@ -13,10 +13,10 @@
  */
 package org.neo4j.ogm.cypher.query;
 
-import java.util.Map;
-
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+
+import java.util.Map;
 
 /**
  * @author Vince Bickers
@@ -40,6 +40,7 @@ public class Query extends ParameterisedStatement implements FilteringPagingAndS
         return this;
     }
 
+    // TODO: this method is never called. Filters get applied elsewhere
     public Query setFilters(Filters filters) {
         super.addFilters(filters);
         return this;

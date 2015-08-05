@@ -14,12 +14,12 @@
 
 package org.neo4j.ogm.cypher.statement;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Simple encapsulation of a Cypher query and its parameters and other optional parts (paging/sort).
@@ -59,7 +59,6 @@ public class ParameterisedStatement {
         this.statement = cypher;
         this.parameters.putAll(parameters);
         this.resultDataContents = resultDataContents;
-
         parseStatement();
 
     }

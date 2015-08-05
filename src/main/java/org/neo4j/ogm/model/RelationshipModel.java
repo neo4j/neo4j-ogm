@@ -77,12 +77,18 @@ public class RelationshipModel  {
     public void setProperties(Map<String, Object> properties) {
         this.properties = new ArrayList<>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            this.properties.add(new Property<String, Object>(entry.getKey(), entry.getValue()));
+            this.properties.add(new Property<>(entry.getKey(), entry.getValue()));
         }
     }
 
     public void setPropertyList(List<Property<String, Object>> properties) {
         this.properties = properties;
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format("(%d)-[%s]->(%d)", this.startNode, this.type, this.endNode);
     }
 
     @Override
@@ -92,24 +98,13 @@ public class RelationshipModel  {
 
         RelationshipModel that = (RelationshipModel) o;
 
-        if (!endNode.equals(that.endNode)) return false;
-        if (!startNode.equals(that.startNode)) return false;
-        if (!type.equals(that.type)) return false;
+        if (!id.equals(that.id)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + startNode.hashCode();
-        result = 31 * result + endNode.hashCode();
-        return result;
+        return id.hashCode();
     }
-
-    @Override
-    public String toString() {
-        return String.format("(%d)-[%s]->(%d)", this.startNode, this.type, this.endNode);
-    }
-
 }

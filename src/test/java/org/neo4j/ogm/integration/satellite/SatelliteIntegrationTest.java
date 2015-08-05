@@ -14,21 +14,24 @@
 
 package org.neo4j.ogm.integration.satellite;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
 
 /**
  * This is a full integration test that requires a running neo4j
@@ -55,7 +58,7 @@ public class SatelliteIntegrationTest
     }
 
     @Test
-    public void loadPrograms() {
+    public void shouldLoadPrograms() {
 
         Collection<Program> programs = session.loadAll(Program.class);
 
@@ -78,7 +81,7 @@ public class SatelliteIntegrationTest
     }
 
     @Test
-    public void loadSatellites() {
+    public void shouldLoadSatellites() {
 
 
         Collection<Satellite> satellites = session.loadAll(Satellite.class);
@@ -105,7 +108,7 @@ public class SatelliteIntegrationTest
     }
 
     @Test
-    public void updateSatellite() {
+    public void shouldUpdateSatellite() {
 
         Collection<Satellite> satellites = session.loadAll(Satellite.class);
 
@@ -131,7 +134,7 @@ public class SatelliteIntegrationTest
     }
 
     @Test
-    public void useLongTransaction() {
+    public void shouldUseLongTransaction() {
 
 
         try (Transaction tx = session.beginTransaction()) {
@@ -157,7 +160,7 @@ public class SatelliteIntegrationTest
 
 
     @Test
-    public void rollbackLongTransaction() {
+    public void shouldRollbackLongTransaction() {
 
         try (Transaction tx = session.beginTransaction()) {
 
@@ -190,7 +193,7 @@ public class SatelliteIntegrationTest
     }
 
     @Test
-    public void commitLongTransaction() {
+    public void shouldCommitLongTransaction() {
 
         try (Transaction tx = session.beginTransaction()) {
 
@@ -219,4 +222,52 @@ public class SatelliteIntegrationTest
         }
     }
 
+    @Test
+    public void shouldReturnSatellitesSortedByRefAsc() {
+
+        Collection<Satellite> satellites = session.loadAll(Satellite.class, new SortOrder().add("ref"));
+
+        Iterator<Satellite> iter = satellites.iterator();
+        Satellite first = iter.next();
+        System.out.println(first.getId() + ":" + first.getRef());
+        while (iter.hasNext()) {
+            Satellite next = iter.next();
+            System.out.println(next.getId() + ":" + next.getRef());
+            assertTrue(first.getRef().compareTo(next.getRef()) < 0);
+            first = next;
+        }
+    }
+
+    @Test
+    public void shouldReturnProgramsSortedByRefDesc() {
+
+        Collection<Program> objects = session.loadAll(Program.class, new SortOrder().add(SortOrder.Direction.DESC, "ref"));
+
+        Iterator<Program> iter = objects.iterator();
+        Program first = iter.next();
+        System.out.println(first.getId() + ":" + first.getRef());
+        while (iter.hasNext()) {
+            Program next = iter.next();
+            System.out.println(next.getId() + ":" + next.getRef());
+            assertTrue(first.getRef().compareTo(next.getRef()) > 0);
+            first = next;
+        }
+    }
+
+    @Test
+    public void shouldLoadActiveSatellitesByPropertySorted() {
+
+        Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", "Y"), new SortOrder().add("ref"));
+
+        Iterator<Satellite> iter = satellites.iterator();
+        Satellite first = iter.next();
+        System.out.println(first.getId() + ":" + first.getRef());
+        while (iter.hasNext()) {
+            Satellite next = iter.next();
+            System.out.println(next.getId() + ":" + next.getRef());
+            assertTrue(first.getRef().compareTo(next.getRef()) < 0);
+            first = next;
+        }
+
+    }
 }

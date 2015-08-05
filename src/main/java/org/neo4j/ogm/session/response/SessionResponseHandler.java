@@ -14,9 +14,6 @@
 
 package org.neo4j.ogm.session.response;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
@@ -31,6 +28,9 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.GraphRowResult;
 import org.neo4j.ogm.session.result.RowModel;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  *  @author Vince Bickers
@@ -47,10 +47,13 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> List<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> response) {
-        List<T> result = new ArrayList<>();
+    public <T> Collection<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> response) {
+
+        Set<T> result = new LinkedHashSet<>();
+
         ClassInfo classInfo = metaData.classInfo(type.getName());
         GraphRowModel graphRowModel = response.next();
+
         for(GraphRowResult graphRowResult : graphRowModel.getGraphRowResults()) {
             //Load the GraphModel into the ogm
             GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
@@ -163,7 +166,9 @@ public class SessionResponseHandler implements ResponseHandler {
 
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> response) {
-        List<T> objects = new ArrayList<>();
+
+        Set<T> objects = new LinkedHashSet<>();
+
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
 
         GraphModel graphModel;

@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import java.util.Map;
-
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+
+import java.util.Map;
 
 /**
  * A {@link ParameterisedStatement} which returns data in both row and graph formats.

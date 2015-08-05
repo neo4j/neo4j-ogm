@@ -14,8 +14,7 @@
 
 package org.neo4j.ogm.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Michal Bachman
@@ -25,27 +24,32 @@ public class GraphModel  {
     private final Map<Long, NodeModel> nodeMap = new HashMap<>();
     private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
 
-    private NodeModel[] nodes = new NodeModel[]{};
-    private RelationshipModel[] relationships = new RelationshipModel[]{};
+    //private NodeModel[] nodes = new NodeModel[]{};
+    //private RelationshipModel[] relationships = new RelationshipModel[]{};
 
-    public NodeModel[] getNodes() {
+    private Set<NodeModel> nodes = new LinkedHashSet<>();
+    private Set<RelationshipModel> relationships = new LinkedHashSet<>();
+
+    public Set<NodeModel> getNodes() {
         return nodes;
     }
 
     public void setNodes(NodeModel[] nodes) {
-        this.nodes = nodes;
+        //this.nodes = nodes;
         for (NodeModel node : nodes) {
+            this.nodes.add(node);
             nodeMap.put(node.getId(), node);
         }
     }
 
-    public RelationshipModel[] getRelationships() {
+    public Set<RelationshipModel> getRelationships() {
         return relationships;
     }
 
     public void setRelationships(RelationshipModel[] relationships) {
-        this.relationships = relationships;
+        //this.relationships = relationships;
         for (RelationshipModel relationship : relationships) {
+            this.relationships.add(relationship);
             relationshipMap.put(relationship.getId(), relationship);
         }
     }

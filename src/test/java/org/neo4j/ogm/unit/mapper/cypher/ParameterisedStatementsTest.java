@@ -41,7 +41,7 @@ public class ParameterisedStatementsTest {
 
         String cypher = mapper.writeValueAsString(new ParameterisedStatements(statements));
 
-        assertEquals("{\"statements\":[{\"statement\":\"MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}", cypher);
+        assertEquals("{\"statements\":[{\"statement\":\"MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}", cypher);
 
     }
 

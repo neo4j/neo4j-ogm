@@ -13,10 +13,6 @@
  */
 package org.neo4j.ogm.unit.mapper.cypher;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -25,6 +21,10 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -36,12 +36,12 @@ public class RelationshipEntityQueryTest {
 
     @Test
     public void testFindOne() throws Exception {
-        assertEquals("MATCH (n)-[r]->() WHERE ID(r) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN collect(distinct p)", query.findOne(0L, 2).getStatement());
+        assertEquals("MATCH (n)-[r]->() WHERE ID(r) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", query.findOne(0L, 2).getStatement());
     }
 
     @Test
     public void testFindAllCollection() throws Exception {
-        assertEquals("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
+        assertEquals("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class RelationshipEntityQueryTest {
 
     @Test
     public void testFindByLabel() throws Exception {
-        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() RETURN collect(distinct p)", query.findByType("ORBITS", 3).getStatement());
+        assertEquals("MATCH p=()-[r:`ORBITS`*..3]-() RETURN p", query.findByType("ORBITS", 3).getStatement());
     }
 
     /**
@@ -60,12 +60,12 @@ public class RelationshipEntityQueryTest {
      */
     @Test
     public void testFindAllByTypeCollection() throws Exception {
-        assertEquals("MATCH (n)-[r:`ORBITS`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", query.findAllByType("ORBITS",Arrays.asList(1L, 2L, 3L), 1).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", query.findAllByType("ORBITS",Arrays.asList(1L, 2L, 3L), 1).getStatement());
     }
 
     @Test
     public void testFindByProperty() throws Exception {
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(new Filter("distance", 60.2)), 4).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(new Filter("distance", 60.2)), 4).getStatement());
     }
 
     @Test(expected = InvalidDepthException.class)
@@ -122,7 +122,7 @@ public class RelationshipEntityQueryTest {
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("OUTGOING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
-        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter), 4).getStatement());
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter), 4).getStatement());
     }
 
     /**
@@ -139,7 +139,7 @@ public class RelationshipEntityQueryTest {
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("INCOMING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
-        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter), 4).getStatement());
+        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter), 4).getStatement());
     }
 
     /**
@@ -167,7 +167,7 @@ public class RelationshipEntityQueryTest {
         planetMoonsFilter.setBooleanOperator(BooleanOperator.AND);
         planetMoonsFilter.setComparisonOperator(ComparisonOperator.EQUALS);
 
-        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name` } AND n.`moons` = { `moons_moons` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetNameFilter,planetMoonsFilter), 4).getStatement());
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name` } AND n.`moons` = { `moons_moons` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(planetNameFilter,planetMoonsFilter), 4).getStatement());
     }
 
 
@@ -195,7 +195,7 @@ public class RelationshipEntityQueryTest {
         planetFilter.setRelationshipDirection("INCOMING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
 
-        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter), 4).getStatement());
+        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour` } MATCH (n)-[r:`ORBITS`]->(m) WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter), 4).getStatement());
     }
 
     /**
@@ -207,7 +207,7 @@ public class RelationshipEntityQueryTest {
         Filter distance = new Filter("distance", 60.2);
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } AND r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance,time), 4).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } AND r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(distance,time), 4).getStatement());
     }
 
     /**
@@ -219,7 +219,7 @@ public class RelationshipEntityQueryTest {
         Filter distance = new Filter("distance", 60.2);
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.OR);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } OR r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } OR r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement());
     }
 
     /**
@@ -232,7 +232,7 @@ public class RelationshipEntityQueryTest {
         distance.setComparisonOperator(ComparisonOperator.LESS_THAN);
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` < { `distance` } AND r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance,time), 4).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` < { `distance` } AND r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(distance,time), 4).getStatement());
     }
 
     /**
@@ -245,7 +245,7 @@ public class RelationshipEntityQueryTest {
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.OR);
         time.setComparisonOperator(ComparisonOperator.GREATER_THAN);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } OR r.`time` > { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` } OR r.`time` > { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement());
     }
 
     /**
@@ -264,7 +264,7 @@ public class RelationshipEntityQueryTest {
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
     }
 
 
@@ -284,7 +284,7 @@ public class RelationshipEntityQueryTest {
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
+        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
     }
 
 
@@ -316,6 +316,6 @@ public class RelationshipEntityQueryTest {
         Filter time = new Filter("time",3600);
         time.setBooleanOperator(BooleanOperator.AND);
 
-        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN collect(distinct p), ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter,time), 4).getStatement());
+        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter,time), 4).getStatement());
     }
 }

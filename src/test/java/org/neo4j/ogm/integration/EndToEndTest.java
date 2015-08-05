@@ -14,17 +14,10 @@
 
 package org.neo4j.ogm.integration;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
@@ -33,9 +26,11 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Michal Bachman
@@ -186,79 +181,124 @@ public class EndToEndTest {
 
     }
 
-    @Test
-    public void tourDeFrance() {
+//    @Test
+//    public void tourDeFrance() throws InterruptedException {
+//
+//        long now = -System.currentTimeMillis();
+//
+//        create1000bikes(1);
+//
+//        now += System.currentTimeMillis();
+//
+//        System.out.println("Number of separate requests: 1000");
+//        System.out.println("Number of threads: 1");
+//        System.out.println("Number of new objects to create per request: 5");
+//        System.out.println("Number of relationships to create per request: 2");
+//        System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
+//    }
+//
+//    @Test
+//    public void multiThreadedTourDeFrance() throws InterruptedException {
+//
+//        final int NUM_THREADS=4;
+//
+//        long now = -System.currentTimeMillis();
+//
+//        create1000bikes(NUM_THREADS);
+//
+//        now += System.currentTimeMillis();
+//
+//        System.out.println("Number of separate requests: 1000");
+//        System.out.println("Number of threads: " + NUM_THREADS);
+//        System.out.println("Number of new objects to create per request: 5");
+//        System.out.println("Number of relationships to create per request: 2");
+//        System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
+//
+//    }
+//
+//    @Test
+//    public void testLoadCollectDistinct() throws InterruptedException {
+//        create1000bikes(4);
+//
+//        long now = -System.currentTimeMillis();
+//        session.clear();
+//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN collect(distinct p)", Utils.map());
+//        now += System.currentTimeMillis();
+//
+//        System.out.println("time taken to load 1000 bikes using collect: " + now);
+//    }
+//
+//    @Test
+//    public void testLoadDistinct() throws InterruptedException {
+//        create1000bikes(4);
+//
+//        long now = -System.currentTimeMillis();
+//        session.clear();
+//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN distinct p", Utils.map());
+//        now += System.currentTimeMillis();
+//
+//        System.out.println("time taken to load 1000 bikes not using collect: " + now);
+//    }
+//
+//    @Test
+//    public void testLoad() throws InterruptedException {
+//        create1000bikes(4);
+//
+//        long now = -System.currentTimeMillis();
+//        session.clear();
+//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", Utils.map());
+//        now += System.currentTimeMillis();
+//
+//        System.out.println("time taken to load 1000 bikes not using collect or distinct: " + now);
+//    }
+//
+//
+//    @Test
+//    public void testLoadNotUsingCollectWithoutDistinct() throws InterruptedException {
+//        create1000bikes(4);
+//
+//        long now = -System.currentTimeMillis();
+//        session.clear();
+//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN collect(p)", Utils.map());
+//        now += System.currentTimeMillis();
+//
+//        System.out.println("time taken to load 1000 bikes not using collect or distinct: " + now);
+//    }
+//
+//    private void create1000bikes(final int NUM_THREADS) throws InterruptedException {
+//        List<Thread> threads = new ArrayList<>();
+//        final int NUM_INSERTS = 1000 / NUM_THREADS;
+//        for (int i = 0; i < NUM_THREADS; i++) {
+//            Thread thread = new Thread( new Runnable() {
+//
+//                @Override
+//                public void run() {
+//                    Wheel frontWheel = new Wheel();
+//                    Wheel backWheel = new Wheel();
+//                    Bike bike = new Bike();
+//
+//                    bike.setFrame(new Frame());
+//                    bike.setSaddle(new Saddle());
+//                    bike.setWheels(Arrays.asList(frontWheel, backWheel));
+//
+//                    for (int i = 0; i < NUM_INSERTS; i++) {
+//                        frontWheel.setId(null);
+//                        backWheel.setId(null);
+//                        bike.setId(null);
+//                        bike.getFrame().setId(null);
+//                        bike.getSaddle().setId(null);
+//                        session.save(bike);
+//                    }
+//                }
+//            });
+//            threads.add(thread);
+//            thread.start();
+//        }
+//
+//        for (int i = 0; i < NUM_THREADS; i++) {
+//            threads.get(i).join();
+//        }
+//
+//    }
 
-        long now = -System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
-
-            Wheel frontWheel = new Wheel();
-            Wheel backWheel = new Wheel();
-            Bike bike = new Bike();
-
-            bike.setFrame(new Frame());
-            bike.setSaddle(new Saddle());
-            bike.setWheels(Arrays.asList(frontWheel, backWheel));
-
-            session.save(bike);
-        }
-        now += System.currentTimeMillis();
-
-        System.out.println("Number of separate requests: 1000");
-        System.out.println("Number of threads: 1");
-        System.out.println("Number of new objects to create per request: 5");
-        System.out.println("Number of relationships to create per request: 2");
-        System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
-    }
-
-    @Test
-    public void multiThreadedTourDeFrance() throws InterruptedException {
-
-        final int NUM_THREADS=4;
-        final int NUM_INSERTS = 1000 / NUM_THREADS;
-
-        List<Thread> threads = new ArrayList<>();
-
-        long now = -System.currentTimeMillis();
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            Thread thread = new Thread( new Runnable() {
-
-                @Override
-                public void run() {
-                    for (int i = 0; i < NUM_INSERTS; i++) {
-
-                        Wheel frontWheel = new Wheel();
-                        Wheel backWheel = new Wheel();
-                        Bike bike = new Bike();
-
-                        bike.setFrame(new Frame());
-                        bike.setSaddle(new Saddle());
-                        bike.setWheels(Arrays.asList(frontWheel, backWheel));
-
-                        session.save(bike);
-                    }
-                }
-            });
-            threads.add(thread);
-            thread.start();
-        }
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            threads.get(i).join();
-        }
-        now += System.currentTimeMillis();
-
-        System.out.println("Number of separate requests: 1000");
-        System.out.println("Number of threads: " + NUM_THREADS);
-        System.out.println("Number of new objects to create per request: 5");
-        System.out.println("Number of relationships to create per request: 2");
-        System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
-
-    }
-
-    @Test
-    public void testRelationshipEntityHydration() {
-
-    }
 }

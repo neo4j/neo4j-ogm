@@ -14,21 +14,14 @@
 
 package org.neo4j.ogm.unit.mapper.model.education;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
+
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 

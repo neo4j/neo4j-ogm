@@ -42,7 +42,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindOne() throws Exception {
         statement = new VariableDepthQuery().findOne(123L, 1);
-        assertEquals("MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", statement.getStatement());
+        assertEquals("MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{\"id\":123}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -50,14 +50,14 @@ public class ParameterisedStatementTest {
     public void testFindAllWithIds() throws Exception {
         List<Long> ids = Arrays.asList(new Long[] { 123L, 234L, 345L });
         statement = new VariableDepthQuery().findAll(ids, 1);
-        assertEquals("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", statement.getStatement());
+        assertEquals("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void testFindByLabel() throws Exception {
         statement = new VariableDepthQuery().findByType("NODE", 1);
-        assertEquals("MATCH (n:`NODE`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p)", statement.getStatement());
+        assertEquals("MATCH (n:`NODE`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -67,7 +67,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByTypeWithIllegalCharacter() throws Exception {
         statement = new VariableDepthRelationshipQuery().findByType("HAS-ALBUM", 1);
-        assertEquals("MATCH p=()-[r:`HAS-ALBUM`*..1]-() RETURN collect(distinct p)", statement.getStatement());
+        assertEquals("MATCH p=()-[r:`HAS-ALBUM`*..1]-() RETURN p", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -81,35 +81,35 @@ public class ParameterisedStatementTest {
     @Test
     public void findByPropertyStringValue() throws Exception {
         statement = new VariableDepthQuery().findByProperties("Asteroid", new Filters().add(new Filter("ref", "45 Eugenia")), 1);
-        assertEquals("MATCH (n:`Asteroid`) WHERE n.`ref` = { `ref` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p), ID(n)", statement.getStatement());
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`ref` = { `ref` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"ref\":\"45 Eugenia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyIntegralValue() throws Exception {
         statement =  new VariableDepthQuery().findByProperties("Asteroid", new Filters().add(new Filter("index", 77)), 1);
-        assertEquals("MATCH (n:`Asteroid`) WHERE n.`index` = { `index` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p), ID(n)",statement.getStatement());
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`index` = { `index` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",statement.getStatement());
         assertEquals("{\"index\":77}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyStandardForm() throws Exception {
         statement = new VariableDepthQuery().findByProperties("Asteroid", new Filters().add(new Filter("diameter", 6.02E1)), 1);
-        assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p), ID(n)", statement.getStatement());
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyDecimal() throws Exception {
         statement = new VariableDepthQuery().findByProperties("Asteroid", new Filters().add(new Filter("diameter", 60.2)), 1);
-        assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p), ID(n)", statement.getStatement());
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyEmbeddedDelimiter() throws Exception {
         statement = new VariableDepthQuery().findByProperties("Cookbooks", new Filters().add(new Filter("title", "Mrs Beeton's Household Recipes")), 1);
-        assertEquals("MATCH (n:`Cookbooks`) WHERE n.`title` = { `title` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN collect(distinct p), ID(n)", statement.getStatement());
+        assertEquals("MATCH (n:`Cookbooks`) WHERE n.`title` = { `title` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"title\":\"Mrs Beeton's Household Recipes\"}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -180,7 +180,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
         statement = new VariableDepthRelationshipQuery().findByProperties("HAS-ALBUM", new Filters().add(new Filter("fake-property", "none")), 1);
-        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` } WITH n,r MATCH p=(n)-[*0..1]-() RETURN collect(distinct p), ID(r)", statement.getStatement());
+        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` } WITH n,r MATCH p=(n)-[*0..1]-() RETURN p, ID(r)", statement.getStatement());
         assertEquals("{\"fake-property\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
 
     }

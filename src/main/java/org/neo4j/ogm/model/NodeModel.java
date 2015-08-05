@@ -43,7 +43,7 @@ public class NodeModel {
     public void setProperties(Map<String, Object> properties) {
         this.properties = new ArrayList<>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            this.properties.add(new Property<String, Object>(entry.getKey(), entry.getValue()));
+            this.properties.add(new Property<>(entry.getKey(), entry.getValue()));
         }
     }
 
@@ -74,4 +74,20 @@ public class NodeModel {
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NodeModel nodeModel = (NodeModel) o;
+
+        if (!id.equals(nodeModel.id)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

@@ -50,7 +50,7 @@ public class DomainInfo implements ClassFileProcessor {
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
-    private final Set<String> enumTypes = new HashSet<>();
+    private final Set<Class> enumTypes = new HashSet<>();
 
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
@@ -238,9 +238,8 @@ public class DomainInfo implements ClassFileProcessor {
             }
 
             if (thisClassInfo.isEnum()) {
-                String enumSignature = thisClassInfo.name().replace(".", "/");
-                LOGGER.debug("Registering enum class: " + enumSignature);
-                enumTypes.add(enumSignature);
+                LOGGER.debug("Registering enum class: " + thisClassInfo.name());
+                enumTypes.add(thisClassInfo.getUnderlyingClass());
             }
         }
     }
@@ -340,9 +339,11 @@ public class DomainInfo implements ClassFileProcessor {
                     }
 
                     // TODO: this needs improving because it won't recognise Java standard enums
-                    for (String enumSignature : enumTypes) {
-                        if (methodInfo.getDescriptor().contains(enumSignature) || (methodInfo.getTypeParameterDescriptor()!=null && methodInfo.getTypeParameterDescriptor().contains(enumSignature))) {
-                            setEnumMethodConverter(methodInfo, enumSignature);
+                    Class descriptorClass = getDescriptorClass(methodInfo.getDescriptor());
+                    Class typeParamDescriptorClass = getDescriptorClass(methodInfo.getTypeParameterDescriptor());
+                    for (Class enumClass : enumTypes) {
+                        if (descriptorClass!=null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass!=null && typeParamDescriptorClass.equals(enumClass))) {
+                            setEnumMethodConverter(methodInfo, enumClass);
                         }
                     }
                 }
@@ -350,15 +351,15 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void setEnumMethodConverter(MethodInfo methodInfo, String enumSignature) {
+    private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
-            methodInfo.setConverter(ConvertibleTypes.getEnumArrayConverter(enumSignature));
+            methodInfo.setConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
         else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
-            methodInfo.setConverter(ConvertibleTypes.getEnumCollectionConverter(enumSignature,methodInfo.getCollectionClassname()));
+            methodInfo.setConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, methodInfo.getCollectionClassname()));
         }
         else {
-            methodInfo.setConverter(ConvertibleTypes.getEnumConverter(enumSignature));
+            methodInfo.setConverter(ConvertibleTypes.getEnumConverter(enumClass));
         }
     }
 
@@ -433,9 +434,11 @@ public class DomainInfo implements ClassFileProcessor {
                     }
 
                     // TODO: this needs improving because it won't recognise Java standard enums
-                    for (String enumSignature : enumTypes) {
-                        if (fieldInfo.getDescriptor().contains(enumSignature) || (fieldInfo.getTypeParameterDescriptor()!=null && fieldInfo.getTypeParameterDescriptor().contains(enumSignature))) {
-                            setEnumFieldConverter(fieldInfo, enumSignature);
+                    Class descriptorClass = getDescriptorClass(fieldInfo.getDescriptor());
+                    Class typeParamDescriptorClass = getDescriptorClass(fieldInfo.getTypeParameterDescriptor());
+                    for (Class enumClass : enumTypes) {
+                        if (descriptorClass!=null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass!=null && typeParamDescriptorClass.equals(enumClass))) {
+                            setEnumFieldConverter(fieldInfo, enumClass);
                         }
                     }
                 }
@@ -443,15 +446,15 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void setEnumFieldConverter(FieldInfo fieldInfo, String enumSignature) {
+    private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
-            fieldInfo.setConverter(ConvertibleTypes.getEnumArrayConverter(enumSignature));
+            fieldInfo.setConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
         else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
-            fieldInfo.setConverter(ConvertibleTypes.getEnumCollectionConverter(enumSignature,fieldInfo.getCollectionClassname()));
+            fieldInfo.setConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
         }
         else {
-            fieldInfo.setConverter(ConvertibleTypes.getEnumConverter(enumSignature));
+            fieldInfo.setConverter(ConvertibleTypes.getEnumConverter(enumClass));
         }
     }
 
@@ -498,6 +501,21 @@ public class DomainInfo implements ClassFileProcessor {
 
     public List<ClassInfo> getClassInfos(String interfaceName) {
         return interfaceNameToClassInfo.get(interfaceName);
+    }
+
+    private Class getDescriptorClass(String descriptor) {
+        Class descriptorClass = null;
+        if(descriptor!=null) {
+            try {
+                descriptorClass = ClassUtils.getType(descriptor);
+                if (descriptorClass.isArray()) {
+                    descriptorClass = descriptorClass.getComponentType();
+                }
+            } catch (RuntimeException e) {
+                LOGGER.debug("Could not load class for descriptor {}", descriptor);
+            }
+        }
+        return descriptorClass;
     }
 
 }

@@ -14,27 +14,19 @@
 
 package org.neo4j.ogm.unit.typeconversion;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-
-import org.neo4j.ogm.domain.convertible.enums.Algebra;
-import org.neo4j.ogm.domain.convertible.enums.Education;
-import org.neo4j.ogm.domain.convertible.enums.Gender;
-import org.neo4j.ogm.domain.convertible.enums.NumberSystem;
-import org.neo4j.ogm.domain.convertible.enums.NumberSystemDomainConverter;
-import org.neo4j.ogm.domain.convertible.enums.Person;
+import org.neo4j.ogm.domain.convertible.enums.*;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vince Bickers
@@ -45,6 +37,7 @@ public class TestEnumConversion {
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.enums");
     private static final ClassInfo algebraInfo = metaData.classInfo("Algebra");
     private static final ClassInfo personInfo = metaData.classInfo("Person");
+    private static final ClassInfo tagEntityInfo = metaData.classInfo("TagEntity");
 
     @Test
     public void testSaveFieldWithAnnotatedConverter() {
@@ -164,7 +157,7 @@ public class TestEnumConversion {
         Education[] inProgress = new Education[] {Education.MASTERS,Education.PHD};
         MethodInfo methodInfo = personInfo.propertySetter("inProgressEducation");
         assertTrue(methodInfo.hasConverter());
-        bob.setInProgressEducation((Education[]) methodInfo.converter().toEntityAttribute(new String[]{"MASTERS","PHD"}));
+        bob.setInProgressEducation((Education[]) methodInfo.converter().toEntityAttribute(new String[]{"MASTERS", "PHD"}));
         assertArrayEquals(inProgress, bob.getInProgressEducation());
 
     }
@@ -245,7 +238,7 @@ public class TestEnumConversion {
     @Test
     public void testGenderCollectionGetterWithAutoDetectedConverter() {
         Person bob = new Person();
-        List<Education> completed = Arrays.asList(Education.HIGHSCHOOL,Education.BACHELORS);
+        List<Education> completed = Arrays.asList(Education.HIGHSCHOOL, Education.BACHELORS);
         bob.setCompletedEducation(completed);
         MethodInfo methodInfo = personInfo.propertySetter("completedEducation");
         assertTrue(methodInfo.hasConverter());
@@ -274,5 +267,14 @@ public class TestEnumConversion {
         assertTrue(methodInfo.hasConverter());
         AttributeConverter attributeConverter = methodInfo.converter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
+    }
+
+    /**
+     * @see DATAGRAPH-720
+     */
+    @Test
+    public void shouldNotRegisterEnumWhenTypeContainsEnumType() {
+        FieldInfo fieldInfo = tagEntityInfo.relationshipFieldByName("tags");
+        assertFalse(fieldInfo.hasConverter());
     }
 }

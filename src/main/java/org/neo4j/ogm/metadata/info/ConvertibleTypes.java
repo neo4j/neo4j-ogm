@@ -18,18 +18,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.neo4j.ogm.annotation.typeconversion.DateString;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
-import org.neo4j.ogm.typeconversion.ByteArrayBase64Converter;
-import org.neo4j.ogm.typeconversion.ByteArrayWrapperBase64Converter;
-import org.neo4j.ogm.typeconversion.DateArrayStringConverter;
-import org.neo4j.ogm.typeconversion.DateCollectionStringConverter;
-import org.neo4j.ogm.typeconversion.DateStringConverter;
-import org.neo4j.ogm.typeconversion.EnumArrayStringConverter;
-import org.neo4j.ogm.typeconversion.EnumCollectionStringConverter;
-import org.neo4j.ogm.typeconversion.EnumStringConverter;
-import org.neo4j.ogm.typeconversion.NumberArrayStringConverter;
-import org.neo4j.ogm.typeconversion.NumberCollectionStringConverter;
-import org.neo4j.ogm.typeconversion.NumberStringConverter;
+import org.neo4j.ogm.typeconversion.*;
 
 /**
  * @author Vince Bickers
@@ -54,32 +43,18 @@ public abstract class ConvertibleTypes {
         }
     }
 
-    public static AttributeConverter<?, ?> getEnumConverter(String enumDescriptor) {
-        String className = enumDescriptor.replace("/", ".");
-        try {
-            Class clazz = Class.forName(className);
-            return new EnumStringConverter(clazz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static AttributeConverter<?, ?> getEnumConverter(Class enumClass) {
+            return new EnumStringConverter(enumClass);
     }
 
-    public static AttributeConverter<?, ?> getEnumArrayConverter(String enumDescriptor) {
-        String className = enumDescriptor.replace("/", ".");
-        try {
-            Class clazz = Class.forName(className);
-            return new EnumArrayStringConverter(clazz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static AttributeConverter<?, ?> getEnumArrayConverter(Class enumClass) {
+            return new EnumArrayStringConverter(enumClass);
     }
 
-    public static AttributeConverter<?, ?> getEnumCollectionConverter(String enumDescriptor, String collectionType) {
-        String className = enumDescriptor.replace("/", ".");
+    public static AttributeConverter<?, ?> getEnumCollectionConverter(Class enumClass, String collectionType) {
         try {
-            Class clazz = Class.forName(className);
             Class collectionClazz = Class.forName(collectionType);
-            return new EnumCollectionStringConverter(clazz,collectionClazz);
+            return new EnumCollectionStringConverter(enumClass,collectionClazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

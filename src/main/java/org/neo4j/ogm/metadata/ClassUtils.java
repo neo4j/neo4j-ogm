@@ -47,6 +47,10 @@ public abstract class ClassUtils {
      */
     public static Class<?> getType(String descriptor) {
 
+        if(descriptor.startsWith("()")) {
+            return getType(descriptor.substring(2));
+        }
+
         int p = descriptor.indexOf("(");
         int q = descriptor.indexOf(")");
 

@@ -20,6 +20,7 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.metadata.ClassUtils;
 
@@ -42,6 +43,11 @@ public class ClassUtilsTest {
         assertEquals(long.class, ClassUtils.getType("(J)V"));
         assertEquals(short.class, ClassUtils.getType("(S)V"));
         assertEquals(School.class, ClassUtils.getType("()Lorg/neo4j/ogm/domain/education/School;"));
+        assertEquals(Education.class, ClassUtils.getType("()[Lorg/neo4j/ogm/domain/convertible/enums/Education;"));
+        assertEquals(Education[].class, ClassUtils.getType("([Lorg/neo4j/ogm/domain/convertible/enums/Education;)V"));
+
+
+
     }
 
 }

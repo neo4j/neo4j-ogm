@@ -14,6 +14,9 @@
 
 package org.neo4j.ogm.session.response;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
@@ -28,9 +31,6 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.GraphRowResult;
 import org.neo4j.ogm.session.result.RowModel;
-
-import java.lang.reflect.Field;
-import java.util.*;
 
 /**
  *  @author Vince Bickers
@@ -50,7 +50,7 @@ public class SessionResponseHandler implements ResponseHandler {
     public <T> Collection<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> response) {
 
         Set<T> result = new LinkedHashSet<>();
-
+        Set<Long> resultEntityIds = new LinkedHashSet<>();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         GraphRowModel graphRowModel = response.next();
 
@@ -62,17 +62,22 @@ public class SessionResponseHandler implements ResponseHandler {
             Object[] rowData = graphRowResult.getRow();
             for (Object data : rowData) {
                 if (data instanceof Number) {
-                    if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-                        result.add((T) mappingContext.getNodeEntity(((Number) data).longValue()));
-
-                    }
-                    else {
-                        result.add((T) mappingContext.getRelationshipEntity(((Number) data).longValue()));
-                    }
+                    resultEntityIds.add(((Number) data).longValue());
                 }
             }
         }
         response.close();
+        if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+            for(Long resultEntityId : resultEntityIds) {
+                result.add((T) mappingContext.getNodeEntity(resultEntityId));
+            }
+
+        }
+        else {
+            for(Long resultEntityId : resultEntityIds) {
+                result.add((T) mappingContext.getRelationshipEntity(resultEntityId));
+            }
+        }
         return result;
     }
 

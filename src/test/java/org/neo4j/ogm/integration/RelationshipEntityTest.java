@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -199,6 +200,36 @@ public class RelationshipEntityTest {
         assertEquals(1, u.rset.size()); //we've lost all R's from u
         assertEquals(m2.title, u.rset.iterator().next().m.title);
     }
+
+    /**
+     * @see DATAGRAPH-732
+     */
+    @Test(expected = MappingException.class)
+    public void shouldThrowExceptionWhenTheStartNodeIsNull() {
+        R invalidR = new R(null, m,"exception",0);
+        m.rset.add(invalidR);
+        session.save(m);
+    }
+
+    /**
+     * @see DATAGRAPH-732
+     */
+    @Test(expected = MappingException.class)
+    public void shouldThrowExceptionWhenTheEndNodeIsNull() {
+        R invalidR = new R(u, null,"exception",0);
+        u.rset.add(invalidR);
+        session.save(u);
+    }
+
+    /**
+     * @see DATAGRAPH-732
+     */
+    @Test(expected = RuntimeException.class)
+    public void shouldThrowExceptionWhenRIsSavedWithMissingEndNodes() {
+        R invalidR = new R(null, null,"exception",0);
+        session.save(invalidR);
+    }
+
 
     @NodeEntity(label = "U")
     public static class U {

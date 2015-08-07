@@ -24,6 +24,7 @@ import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -388,6 +389,10 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     private boolean haveRelationEndsChanged(Object entity, Long relId) {
         Object startEntity = getStartEntity(metaData.classInfo(entity), entity);
         Object targetEntity = getTargetEntity(metaData.classInfo(entity), entity);
+
+        if(startEntity==null || targetEntity==null) {
+            throw new MappingException("Relationship entity " + entity + " cannot have a missing start or end node");
+        }
         ClassInfo targetInfo = metaData.classInfo(targetEntity);
         ClassInfo startInfo = metaData.classInfo(startEntity);
         Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);

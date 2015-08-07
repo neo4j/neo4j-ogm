@@ -83,7 +83,8 @@ public class TreeIntegrationTest {
 	@Test
 	public void shouldLoadTreeProperly() {
 		String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
-		neo4jRule.getGraphDatabaseService().execute(cypher);
+		session.execute(cypher);
+		session.clear();
 		Entity parent = session.loadAll(Entity.class, new Filter("name","parent")).iterator().next();
 		assertNotNull(parent);
 		assertEquals(2, parent.getChildren().size());

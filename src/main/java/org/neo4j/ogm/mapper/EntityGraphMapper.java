@@ -258,7 +258,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                 if (relatedObject instanceof Iterable) {
                     for (Object tgtObject : (Iterable<?>) relatedObject) {
                         if(mapBothWays == null) {
-                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
+                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject, relationshipDirection);
                         }
                         relNodes.target = tgtObject;
                         link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
@@ -266,13 +266,13 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                 } else if (relatedObject.getClass().isArray()) {
                     for (Object tgtObject : (Object[]) relatedObject) {
                         if(mapBothWays == null) {
-                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject);
+                            mapBothWays = bothWayMappingRequired(entity, relationshipType, tgtObject, relationshipDirection);
                         }
                         relNodes.target = tgtObject;
                         link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                     }
                 } else {
-                    mapBothWays = bothWayMappingRequired(entity, relationshipType, relatedObject);
+                    mapBothWays = bothWayMappingRequired(entity, relationshipType, relatedObject, relationshipDirection);
                     link(compiler, directedRelationship, nodeBuilder, horizon, mapBothWays, relNodes);
                 }
             }
@@ -722,39 +722,48 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
     /**
      * Determines whether or not a two way mapping is required for the relationship.
-     * Relationships annotated with either {@link Relationship} direction INCOMING or OUTGOING and defined between two entities of the same type will be mapped both ways.
+     * Relationships annotated with either {@link Relationship} direction INCOMING or OUTGOING and defined between two entities of the same type
+     * will be considered for a dual mapping.
+     * Specifically, if the source and target entity are of the same type, and the related object from the source for relationship type R in direction D
+     * is the same as the related object from the target for relationship type R in direction D, then the relationship is mapped both ways.
+     *
      *
      * @param srcObject the domain object representing the start node of the relationship
-     * @param relationshipType the type of the relationship
+     * @param relationshipType the type of the relationship from the srcObject
      * @param tgtObject the domain object representing the end node of the relationship
+     * @param relationshipDirection the direction of the relationship from the srcObject
      * @return true if the relationship should be mapped both ways, false otherwise
      */
-    private boolean bothWayMappingRequired(Object srcObject, String relationshipType, Object tgtObject) {
+    private boolean bothWayMappingRequired(Object srcObject, String relationshipType, Object tgtObject, String relationshipDirection) {
         boolean mapBothWays = false;
 
         if(tgtObject.getClass().equals(srcObject.getClass())) { //Make sure the source and target objects are of the same type
             ClassInfo tgtInfo = metaData.classInfo(tgtObject);
             for (RelationalReader tgtRelReader : entityAccessStrategy.getRelationalReaders(tgtInfo)) {
-                String relationshipDirection = tgtRelReader.relationshipDirection();
-                if ((relationshipDirection.equals(Relationship.OUTGOING) || relationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
+                String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
+                if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
                         && tgtRelReader.relationshipType().equals(relationshipType)) { //The source must have the same relationship type to the target as the target to the source
-                    Object target = tgtRelReader.read(tgtObject);
-                    if(target!=null) {
-                        if (target instanceof Iterable) {
-                            for (Object relatedObject : (Iterable<?>) target) {
-                                if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
+                    //Moreover, the source must be related to the target and vice versa in the SAME direction
+                    if (relationshipDirection.equals(tgtRelationshipDirection)) {
+
+                        Object target = tgtRelReader.read(tgtObject);
+                        if (target != null) {
+                            if (target instanceof Iterable) {
+                                for (Object relatedObject : (Iterable<?>) target) {
+                                    if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
+                                        mapBothWays = true;
+                                    }
+                                }
+                            } else if (target.getClass().isArray()) {
+                                for (Object relatedObject : (Object[]) target) {
+                                    if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
+                                        mapBothWays = true;
+                                    }
+                                }
+                            } else {
+                                if (target.equals(srcObject)) { //the target is mapped to the source as well
                                     mapBothWays = true;
                                 }
-                            }
-                        } else if (target.getClass().isArray()) {
-                            for (Object relatedObject : (Object[]) target) {
-                                if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
-                                    mapBothWays = true;
-                                }
-                            }
-                        } else {
-                            if (target.equals(srcObject)) { //the target is mapped to the source as well
-                                mapBothWays = true;
                             }
                         }
                     }

@@ -14,14 +14,14 @@
 
 package org.neo4j.ogm.session.response;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -58,6 +58,12 @@ public class JsonResponse implements Neo4jResponse<String> {
         } catch (IOException ioException) {
             throw new RuntimeException(ioException);
         }
+    }
+
+    public JsonResponse(InputStream inputStream)  {
+        this.response = null;
+        this.results = inputStream;
+        this.scanner = new Scanner(results, "UTF-8");
     }
 
     public void initialiseScan(ResponseRecord record) {

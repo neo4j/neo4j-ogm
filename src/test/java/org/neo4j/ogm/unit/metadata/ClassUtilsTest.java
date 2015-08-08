@@ -45,9 +45,11 @@ public class ClassUtilsTest {
         assertEquals(School.class, ClassUtils.getType("()Lorg/neo4j/ogm/domain/education/School;"));
         assertEquals(Education.class, ClassUtils.getType("()[Lorg/neo4j/ogm/domain/convertible/enums/Education;"));
         assertEquals(Education[].class, ClassUtils.getType("([Lorg/neo4j/ogm/domain/convertible/enums/Education;)V"));
+    }
 
-
-
+    @Test(expected = RuntimeException.class)
+    public void shouldThrowRuntimeExceptionWhenClassCannotBeLoaded() {
+        ClassUtils.getType("Lorg/mozilla/javascript/xml/impl/xmlbeans/XML$XScriptAnnotation;");
     }
 
 }

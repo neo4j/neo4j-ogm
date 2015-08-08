@@ -88,7 +88,7 @@ public abstract class ClassUtils {
 
         try {
             return Class.forName(typeName);
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }

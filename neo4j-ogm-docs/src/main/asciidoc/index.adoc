@@ -30,12 +30,14 @@ Neo4j OGM will power a web application that allows you to manage a College's Dep
 The complete source code for the application is available on https://github.com/neo4j-examples/neo4j-ogm-university[Github].
 
 :leveloffset: +1
+
 include::tutorial/intro.adoc[]
 include::tutorial/model.adoc[]
 include::tutorial/ogm.adoc[]
 include::tutorial/annotations.adoc[]
 include::tutorial/session.adoc[]
 include::tutorial/conclusion.adoc[]
+
 :leveloffset: -1
 
 
@@ -55,5 +57,7 @@ your answers in this reference section. If you don't, please inform us about mis
 include::reference/preface.adoc[]
 include::reference/setup.adoc[]
 include::reference/programming-model/programming-model.adoc[]
+include::reference/configuration/ha.adoc[]
+
 :leveloffset: -1
 

@@ -4,7 +4,7 @@
 :revnumber: {version}
 :revdate: {localdate}
 
-Neo4j OGM Version 1.1.0 (June 2015)
+Neo4j OGM Version 1.1.1 (August 2015)
 
 (C) 2010-2015 Graph Aware Ltd - Neo Technology, Inc.
 
@@ -12,8 +12,6 @@ NOTE: Copies of this document may be made for your own use and for distribution 
 for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
 
 toc::[]
-
-:leveloffset: +1
 
 [[preface]]
 = Preface
@@ -23,7 +21,6 @@ include::introduction/neo4j/neo4j.adoc[]
 
 :leveloffset: -1
 
-<<<
 [[tutorial]]
 = Tutorial
 
@@ -33,33 +30,14 @@ Neo4j OGM will power a web application that allows you to manage a College's Dep
 The complete source code for the application is available on https://github.com/neo4j-examples/neo4j-ogm-university[Github].
 
 :leveloffset: +1
-
 include::tutorial/intro.adoc[]
-
-<<<
-
 include::tutorial/model.adoc[]
-
-<<<
-
 include::tutorial/ogm.adoc[]
-
-<<<
-
 include::tutorial/annotations.adoc[]
-
-<<<
-
 include::tutorial/session.adoc[]
-
-<<<
-
 include::tutorial/conclusion.adoc[]
-
 :leveloffset: -1
 
-
-<<<
 
 [[reference]]
 = Reference Documentation
@@ -75,14 +53,7 @@ your answers in this reference section. If you don't, please inform us about mis
 :leveloffset: +1
 
 include::reference/preface.adoc[]
-
-<<<
-
 include::reference/setup.adoc[]
-
-<<<
-
 include::reference/programming-model/programming-model.adoc[]
-
 :leveloffset: -1
 

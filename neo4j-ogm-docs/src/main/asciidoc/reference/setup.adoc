@@ -79,3 +79,17 @@ In general, the scope of a `Session` should correspond to a "unit of work" in yo
 If you make sure you load fresh data at the beginning of each unit of work then data integrity shouldn't be a problem.
 
 The `Session` requires a URL with which to access the remote Neo4j database. For test environments, `Neo4jIntegrationTestRule.url()` can be used instead. See the section on <<reference_programming-model_testing,Testing>>.
+
+=== Authentication
+If you're running against Neo4j 2.2 or later and authentication is enabled, you will need to supply connection credentials.
+Spring Data Neo4j 4 reads System properties `username` and `password` and supplies them with each request to the Neo4j database.
+
+.Setting System properties
+[source,java]
+----
+System.setProperty("username", user);
+System.setProperty("password", pass);
+
+SessionFactory sessionFactory = new SessionFactory("org.neo4j.example.domain");
+Session session = sessionFactory.openSession("http://localhost:7474");
+----

@@ -163,8 +163,8 @@ public interface Capability {
 
     interface ExecuteQueries {
         /**
-         * Given a non modifying cypher statement this method will return a domain object that is hydrated to the
-         * level specified in the given cypher query or a scalar (depending on the parametrized type).
+         * Given a cypher statement this method will return a domain object that is hydrated to the
+         * default level or a scalar (depending on the parametrized type).
          *
          * @param objectType The type that should be returned from the query.
          * @param cypher The parametrizable cypher to execute.
@@ -180,8 +180,8 @@ public interface Capability {
         <T> T queryForObject(Class<T> objectType, String cypher,  Map<String, ?> parameters);
 
         /**
-         * Given a non modifying cypher statement this method will return a collection of domain objects that is hydrated to
-         * the level specified in the given cypher query or a collection of scalars (depending on the parametrized type).
+         * Given a cypher statement this method will return a collection of domain objects that is hydrated to
+         * the default level or a collection of scalars (depending on the parametrized type).
          *
          * @param objectType The type that should be returned from the query.
          * @param cypher The parametrizable cypher to execute.
@@ -194,12 +194,11 @@ public interface Capability {
         <T> Iterable<T> query(Class<T> objectType, String cypher, Map<String, ?> parameters);
 
         /**
-         * Given a non modifying cypher statement this method will return a collection of Map's which represent Neo4j
-         * objects as properties.
+         * Given a cypher statement this method will return a Result object containing a collection of Map's which represent Neo4j
+         * objects as properties, along with query statistics if applicable.
          *
-         * Each element is a map which you can access by the name of the returned field
+         * Each element of the query result is a map which you can access by the name of the returned field
          *
-         * TODO: Decide if we want to keep this behaviour?
          * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
          *
          * @param cypher  The parametrisable cypher to execute.
@@ -210,12 +209,11 @@ public interface Capability {
         Result query(String cypher, Map<String, ?> parameters);
 
         /**
-         * Given a non modifying cypher statement this method will return a collection of Map's which represent Neo4j
-         * objects as properties.
+         * Given a cypher statement this method will return a Result object containing a collection of Map's which represent Neo4j
+         * objects as properties, along with query statistics if applicable.
          *
-         * Each element is a map which you can access by the name of the returned field
+         * Each element of the query result is a map which you can access by the name of the returned field
          *
-         * TODO: Decide if we want to keep this behaviour?
          * TODO: Are we going to use the neo4jOperations conversion method to cast the value object to its proper class?
          *
          * @param cypher  The parametrisable cypher to execute.

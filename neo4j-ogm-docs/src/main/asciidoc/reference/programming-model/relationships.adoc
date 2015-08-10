@@ -60,6 +60,10 @@ For example, consider the `PARTNER` relationship between two companies, where `(
 The direction of the relationship does not matter; only the fact that a `PARTNER_OF` relationship exists between these two companies is of importance.
 Hence an `UNDIRECTED` relationship is the correct choice, ensuring that there is only one relationship of this type between two partners and navigating between them from either entity is possible.
 
+[NOTE]
+====
+The direction attribute on a `@Relationship` defaults to `OUTGOING`. Any fields or methods backed by an `INCOMING` relationship must be explicitly annotated with an `INCOMING` direction.
+====
 
 [[reference_programming_model_relationships_relationshiptypediscrimination]]
 == Using more than one Relationship of the same Type
@@ -97,6 +101,7 @@ A field annotated with one of these annotations will provide access to the corre
 
 For controlling the relationship-type a `String` attribute called `type` is available on the `@RelationshipEntity` annotation.  
 Like the simple strategy for labelling node entities, if this is not provided then the name of the class is used to derive the relationship type.
+However, if the relationship type is overridden in participating node entities, the `type` *must* be specified on the `@RelationshipEntity`.
 
 [NOTE]
 ====

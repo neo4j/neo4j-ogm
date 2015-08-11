@@ -1,0 +1,23 @@
+1.1.1
+--------------
+o Support for self relationships (loops)
+o Fixes around mapping of relationships and relationship entities when the relationship type is the same
+o Fixed NullPointerException thrown from TransientRelationship.convert
+o Fixed relationships being lost upon re-save
+o Performance improvements
+o Deprecated Session.execute() in favour of Session.query() allowing both queries and modifying statements,
+with the ability to return query results as well as query statistics.
+
+
+1.1.0
+---------
+o Plain Object Graph Mapper
+    - support for CRUD persistence of Node- and Relationship-Entities
+    - new set of mapping annotations
+    - configurable fetch and store - depth
+    - fast class scanner for metadata
+    - annotation free mapping
+    - property conversion handling
+    - high_performance_cache_min_log_interval
+o Label based type representation
+o Query sorting and paging support

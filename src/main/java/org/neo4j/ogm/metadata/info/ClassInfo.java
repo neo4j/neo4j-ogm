@@ -801,10 +801,10 @@ public class ClassInfo {
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
                 if (fieldInfo.getTypeParameterDescriptor() != null) {
-                    if (fieldInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                    if (fieldInfo.getTypeParameterDescriptor().equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType)) {
                         fieldInfos.add(fieldInfo);
                     }
-                } else if (fieldInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                } else if (fieldInfo.getDescriptor().equals(arrayOfTypeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType)) {
                     fieldInfos.add(fieldInfo);
                 }
             }
@@ -859,11 +859,11 @@ public class ClassInfo {
         try {
             for (MethodInfo methodInfo : propertySetters()) {
                 if (methodInfo.getTypeParameterDescriptor() != null) {
-                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
                         methodInfos.add(methodInfo);
                     }
                 } else {
-                    if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                    if (methodInfo.getDescriptor().equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
                         methodInfos.add(methodInfo);
                     }
                 }
@@ -871,10 +871,10 @@ public class ClassInfo {
 
             for (MethodInfo methodInfo : relationshipSetters()) {
                 if (methodInfo.getTypeParameterDescriptor() != null) {
-                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
+                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
                         methodInfos.add(methodInfo);
                     } else {
-                        if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
+                        if (methodInfo.getDescriptor().equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
                             methodInfos.add(methodInfo);
                         }
                     }

@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.mapper.DirectedRelationship;
 import org.neo4j.ogm.mapper.DirectedRelationshipForType;
+import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -381,7 +382,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         MethodInfo methodInfo = getIterableSetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
         if (methodInfo != null) {
             MethodWriter methodWriter =  new MethodWriter(classInfo, methodInfo);
-            iterableWriterCache.get(classInfo).put(directedRelationshipForType, methodWriter);
+            cacheIterableMethodWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, methodInfo, methodWriter);
             return methodWriter;
         }
 
@@ -389,7 +390,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
         if (fieldInfo != null) {
             FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-            iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldWriter);
+            cacheIterableFieldWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldWriter);
             return fieldWriter;
         }
 
@@ -400,7 +401,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             methodInfo = getIterableSetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
             if (methodInfo != null) {
                 MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                iterableWriterCache.get(classInfo).put(directedRelationshipForType, methodWriter);
+                cacheIterableMethodWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, methodInfo, methodWriter);
                 return methodWriter;
             }
 
@@ -408,13 +409,15 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
             fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
             if (fieldInfo != null) {
                 FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-                iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldWriter);
+                cacheIterableFieldWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldWriter);
                 return fieldWriter;
             }
         }
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, null);
         return null;
     }
+
+
 
     @Override
     public RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
@@ -604,6 +607,22 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
 
         return null;
+    }
+
+    private void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo, FieldWriter fieldWriter) {
+        if(fieldInfo.isParameterisedTypeOf(parameterType)) {
+            //Cache the writer for the superclass used in the type param
+            directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, ClassUtils.getType(fieldInfo.getTypeParameterDescriptor()));
+        }
+        iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldWriter);
+    }
+
+    private void cacheIterableMethodWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, MethodInfo methodInfo, MethodWriter methodWriter) {
+        if(methodInfo.isParameterisedTypeOf(parameterType)) {
+            //Cache the writer for the superclass used in the type param
+            directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, ClassUtils.getType(methodInfo.getTypeParameterDescriptor()));
+        }
+        iterableWriterCache.get(classInfo).put(directedRelationshipForType, methodWriter);
     }
 
 }

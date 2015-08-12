@@ -745,4 +745,21 @@ public class ClassHierarchiesIntegrationTest {
 
         assertEquals(0, session.loadAll(Female.class).size());
     }
+
+    /**
+     * @see DATAGRAPH-735
+     */
+    @Test
+    public void shouldLoadRelatedSuperclasses() {
+        new ExecutionEngine(getDatabase()).execute("CREATE (f1:Female:Person {name:'f1'})," +
+                "(m1:Male:Person {name:'m1'})," +
+                "(c1:Female:Person {name:'c1'})," +
+                "(b1:Bloke:Male:Person {name:'b1'})," +
+                "(m1)-[:CHILD]->(c1)");
+
+        Male m1 = session.loadAll(Male.class).iterator().next();
+        assertNotNull(m1);
+        assertEquals("m1", m1.getName());
+        assertEquals("c1",m1.getChildren().iterator().next().getName());
+    }
 }

@@ -14,15 +14,31 @@
 
 package org.neo4j.ogm.integration.hierarchy.domain.people;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
+
 /**
  * @author Michal Bachman
  */
 public class Male extends Person {
+
+    @Relationship(type = "CHILD")
+    private Set<Person> children=new HashSet<>();
 
     public Male() {
     }
 
     public Male(String name) {
         super(name);
+    }
+
+    public Set<Person> getChildren() {
+        return children;
+    }
+
+    public void setChildren(Set<Person> children) {
+        this.children = children;
     }
 }

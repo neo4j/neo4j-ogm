@@ -92,13 +92,12 @@ Renaming any of these fields will cause parts of the graph to map incorrectly, h
 
 == @GraphId: Neo4j id field
 
-This is a required field which must be of type `Long`. 
+This is a required field which must be of type `java.lang.Long`.
 It is used by Neo4j OGM to store the node or relationship-id to re-connect the entity to the graph.
 
 [NOTE]
 ====
 It must not be a primitive type because then an object in a transient state cannot be represented, as the default value 0 would point to the reference node.  
-Please also make sure that an `equals()` and `hashCode()` method have to be provided which take the `id` field into account (and also handle the "non-attached", null case).
 ====
 
 If the field is simply named 'id' then it is not necessary to annotate it with `@GraphId` as the OGM will use it automatically.

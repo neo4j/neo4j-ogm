@@ -123,4 +123,4 @@ public class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements
 }
 ```
 
-The `query` provided by the `Session` can return a domain object, a collection of them, or an Collection of Maps where each Map corresponds to a row of result data.
+The `query` provided by the `Session` can return a domain object, a collection of them, or a `org.neo4j.ogm.session.result.Result`.

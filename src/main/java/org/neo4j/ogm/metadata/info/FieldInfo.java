@@ -14,12 +14,13 @@
 
 package org.neo4j.ogm.metadata.info;
 
-import java.util.Collection;
-
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.RelationshipUtils;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
+
+import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -162,7 +163,7 @@ public class FieldInfo {
     public boolean isCollection() {
         String descriptorClass = getCollectionClassname();
         try {
-            Class descriptorClazz = Class.forName(descriptorClass);
+            Class descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);//Class.forName(descriptorClass);
             if (Collection.class.isAssignableFrom(descriptorClazz)) {
                 return true;
             }

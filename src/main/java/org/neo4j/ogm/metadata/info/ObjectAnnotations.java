@@ -14,19 +14,12 @@
 
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.typeconversion.*;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.typeconversion.*;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.neo4j.ogm.annotation.typeconversion.Convert;
-import org.neo4j.ogm.annotation.typeconversion.DateLong;
-import org.neo4j.ogm.annotation.typeconversion.DateString;
-import org.neo4j.ogm.annotation.typeconversion.EnumString;
-import org.neo4j.ogm.annotation.typeconversion.NumberString;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
-import org.neo4j.ogm.typeconversion.DateLongConverter;
-import org.neo4j.ogm.typeconversion.DateStringConverter;
-import org.neo4j.ogm.typeconversion.EnumStringConverter;
-import org.neo4j.ogm.typeconversion.NumberStringConverter;
 
 /**
  * @author Vince Bickers
@@ -68,7 +61,7 @@ public class ObjectAnnotations {
 
             try {
                 String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
-                Class<?> clazz = Class.forName(className);
+                Class<?> clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
                 return (AttributeConverter<?, ?>) clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -92,7 +85,7 @@ public class ObjectAnnotations {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
-                Class clazz = Class.forName(className);
+                Class clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
                 return new EnumStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -104,7 +97,7 @@ public class ObjectAnnotations {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
-                Class clazz = Class.forName(className);
+                Class clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
                 return new NumberStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);

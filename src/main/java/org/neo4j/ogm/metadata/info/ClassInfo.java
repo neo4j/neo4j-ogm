@@ -14,6 +14,13 @@
 
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -21,12 +28,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-
-import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.metadata.ClassUtils;
-import org.neo4j.ogm.metadata.MappingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -689,7 +690,8 @@ public class ClassInfo {
 
     public Field getField(FieldInfo fieldInfo) {
         try {
-            return Class.forName(name()).getDeclaredField(fieldInfo.getName());
+            //return Class.forName(name()).getDeclaredField(fieldInfo.getName());
+            return MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
         } catch (NoSuchFieldException e) {
             if (directSuperclass() != null) {
                 return directSuperclass().getField(fieldInfo);
@@ -705,7 +707,8 @@ public class ClassInfo {
 
     public Method getMethod(MethodInfo methodInfo, Class... parameterTypes) {
         try {
-            return Class.forName(name()).getMethod(methodInfo.getName(), parameterTypes);
+            //return Class.forName(name()).getMethod(methodInfo.getName(), parameterTypes);
+            return MetaDataClassLoader.loadClass(name()).getMethod(methodInfo.getName(), parameterTypes);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -1001,7 +1004,7 @@ public class ClassInfo {
      */
     public Class getUnderlyingClass() {
         try {
-            return Class.forName(className);
+            return MetaDataClassLoader.loadClass(className);//Class.forName(className);
         } catch (ClassNotFoundException e) {
            LOGGER.error("Could not get underlying class for {}", className);
         }

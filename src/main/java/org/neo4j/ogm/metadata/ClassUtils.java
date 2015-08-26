@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.metadata;
 
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -87,7 +89,7 @@ public abstract class ClassUtils {
         }
 
         try {
-            return Class.forName(typeName);
+            return MetaDataClassLoader.loadClass(typeName);//Class.forName(typeName);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

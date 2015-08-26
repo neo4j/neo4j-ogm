@@ -14,17 +14,18 @@
 
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.metadata.BaseClassNotFoundException;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.model.NodeModel;
+import org.neo4j.ogm.model.RelationshipModel;
+
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.neo4j.ogm.metadata.BaseClassNotFoundException;
-import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.model.NodeModel;
-import org.neo4j.ogm.model.RelationshipModel;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
@@ -90,7 +91,7 @@ public class EntityFactory {
 
         try {
             @SuppressWarnings("unchecked")
-            Class<T> loadedClass = (Class<T>) Class.forName(fqn);
+            Class<T> loadedClass = (Class<T>) MetaDataClassLoader.loadClass(fqn); //Class.forName(fqn);
             return instantiate(loadedClass);
         } catch (ClassNotFoundException e) {
             throw new MappingException("Unable to load class with FQN: " + fqn, e);

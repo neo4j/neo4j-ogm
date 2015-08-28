@@ -21,7 +21,7 @@ package org.neo4j.ogm.metadata.classloader;
  * all such calls with MetaDataClassLoader.loadClass()
  *
  * The principles behind this class loading technique are due to Vladimir Roubtsov,
- * as documented here: <a href="http://www.javaworld.com/columns/jw-qna-index.shtml">
+ * as documented here: &lt;a href="http://www.javaworld.com/columns/jw-qna-index.shtml"&gt;
  *
  * If needed we can extend this class to load other types of resources apart from class files
  *

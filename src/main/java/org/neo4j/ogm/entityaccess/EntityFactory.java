@@ -14,6 +14,11 @@
 
 package org.neo4j.ogm.entityaccess;
 
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.neo4j.ogm.metadata.BaseClassNotFoundException;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
@@ -21,11 +26,6 @@ import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.NodeModel;
 import org.neo4j.ogm.model.RelationshipModel;
-
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
@@ -69,6 +69,17 @@ public class EntityFactory {
      */
     public <T> T newObject(RelationshipModel edgeModel) {
         return instantiateObjectFromTaxa(edgeModel.getType());
+    }
+
+    /**
+     * Constructs a new object based on the {@link ClassInfo}.
+     *
+     * @param classInfo The {@link ClassInfo} from which to determine the type
+     * @return A new instance of the class that corresponds to the classinfo type, never <code>null</code>
+     * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
+     */
+    public <T> T newObject(ClassInfo classInfo) {
+        return (T) instantiate(classInfo.getUnderlyingClass());
     }
 
     /**

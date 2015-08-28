@@ -558,4 +558,98 @@ public class RelationalReaderWriterTest {
 
 	}
 
+	/**
+	 * @see issue #36
+	 */
+	@Test
+	public void testUserV20() {
+
+		ClassInfo classInfo = this.domainInfo.getClass(UserV20.class.getName());
+		UserV20 instance = new UserV20();
+		UserV20 relatedObject = new UserV20();
+		PlainUser otherRelatedObject = new PlainUser();
+
+		assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
+		assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
+
+		RelationalWriter relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+
+		assertTrue(relationalWriter instanceof FieldWriter);
+
+		relationalWriter.write(instance, relatedObject);
+		assertEquals(relatedObject, instance.getUser());
+
+		assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject));
+
+		relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject);
+
+		assertTrue(relationalWriter instanceof FieldWriter);
+
+		relationalWriter.write(instance, otherRelatedObject);
+		assertEquals(otherRelatedObject, instance.getPlainUser());
+	}
+
+	/**
+	 * @see issue #36
+	 */
+	@Test
+	public void testUserV21() {
+
+		ClassInfo classInfo = this.domainInfo.getClass(UserV21.class.getName());
+		UserV21 instance = new UserV21();
+		UserV21 relatedObject = new UserV21();
+		PlainUser otherRelatedObject = new PlainUser();
+
+		assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+		assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+
+		RelationalWriter relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+
+		assertTrue(relationalWriter instanceof FieldWriter);
+
+		relationalWriter.write(instance, relatedObject);
+		assertEquals(relatedObject, instance.getUser());
+
+		assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject));
+
+		relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
+
+		assertTrue(relationalWriter instanceof FieldWriter);
+
+		relationalWriter.write(instance, otherRelatedObject);
+		assertEquals(otherRelatedObject, instance.getPlainUser());
+	}
+
+
+	/**
+	 * @see issue #36
+	 */
+	@Test
+	public void testUserV22() {
+
+		ClassInfo classInfo = this.domainInfo.getClass(UserV22.class.getName());
+		UserV22 instance = new UserV22();
+		UserV22 relatedObject = new UserV22();
+		PlainUser otherRelatedObject = new PlainUser();
+
+		assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+		assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+
+		RelationalWriter relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
+
+		assertTrue(relationalWriter instanceof MethodWriter);
+
+		relationalWriter.write(instance, relatedObject);
+		assertEquals(relatedObject, instance.getUser());
+
+		assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject));
+
+		relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
+
+		assertTrue(relationalWriter instanceof MethodWriter);
+
+		relationalWriter.write(instance, otherRelatedObject);
+		assertEquals(otherRelatedObject, instance.getPlainUser());
+	}
+
 }

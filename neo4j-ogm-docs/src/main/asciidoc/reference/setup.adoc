@@ -82,7 +82,24 @@ The `Session` requires a URL with which to access the remote Neo4j database. For
 
 === Authentication
 If you're running against Neo4j 2.2 or later and authentication is enabled, you will need to supply connection credentials.
-Spring Data Neo4j 4 reads System properties `username` and `password` and supplies them with each request to the Neo4j database.
+This can be accomplished by supplying the username and password as parameters to the `SessionFactory.openSession` method,
+or by embedded them into the URL such as `http://username:password@localhost:7474`.
+
+.Passing connection credentials when opening the session
+[source,java]
+----
+SessionFactory sessionFactory = new SessionFactory("org.neo4j.example.domain");
+Session session = sessionFactory.openSession("http://localhost:7474", username, password);
+----
+
+.Embedding connection credentials in the URL
+[source,java]
+----
+SessionFactory sessionFactory = new SessionFactory("org.neo4j.example.domain");
+Session session = sessionFactory.openSession("http://username:password@localhost:7474");
+----
+
+Otherwise, Spring Data Neo4j 4 will read System properties `username` and `password` and supply them with each request to the Neo4j database.
 
 .Setting System properties
 [source,java]

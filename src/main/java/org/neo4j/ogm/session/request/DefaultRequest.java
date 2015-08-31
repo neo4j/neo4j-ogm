@@ -27,6 +27,7 @@ import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
+import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.session.response.JsonResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class DefaultRequest implements Neo4jRequest<String> {
 
@@ -47,6 +49,11 @@ public class DefaultRequest implements Neo4jRequest<String> {
     public DefaultRequest(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
         this.credentials = CredentialsService.userNameAndPassword();
+    }
+
+    public DefaultRequest(CloseableHttpClient httpClient, UsernamePasswordCredentials usernamePasswordCredentials) {
+        this.httpClient = httpClient;
+        this.credentials = usernamePasswordCredentials;
     }
 
     public Neo4jResponse<String> execute(String url, String cypherQuery) {

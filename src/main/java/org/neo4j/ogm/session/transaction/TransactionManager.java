@@ -29,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
+import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class TransactionManager {
 
@@ -50,6 +52,13 @@ public class TransactionManager {
         this.url = transactionRequestEndpoint(server);
         this.httpClient = httpClient;
         this.credentials = CredentialsService.userNameAndPassword();
+        transaction.remove(); // ensures this thread does not have a current tx;
+    }
+
+    public TransactionManager(CloseableHttpClient httpClient, String server, UsernamePasswordCredentials credentials) {
+        this.url = transactionRequestEndpoint(server);
+        this.httpClient = httpClient;
+        this.credentials = credentials;
         transaction.remove(); // ensures this thread does not have a current tx;
     }
 

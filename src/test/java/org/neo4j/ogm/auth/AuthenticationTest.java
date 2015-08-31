@@ -14,10 +14,14 @@
 
 package org.neo4j.ogm.auth;
 
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
+
 import java.io.FileWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -26,7 +30,6 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
@@ -39,13 +42,9 @@ import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.server.AbstractNeoServer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class AuthenticationTest
 {
@@ -129,6 +128,88 @@ public class AuthenticationTest
 
     }
 
+    /**
+     * @see issue #35
+     */
+    @Test
+    public void testAuthorizedSessionWithSuppliedCredentials() {
+        assumeTrue(isRunningWithNeo4j2Dot2OrLater());
+
+        initWithSuppliedCredentials("neo4j", "password", "org.neo4j.ogm.domain.bike");
+
+        try ( Transaction ignored = session.beginTransaction() ) {
+            session.loadAll(Bike.class);
+        } catch (ResultProcessingException rpe) {
+            fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");
+        }
+
+    }
+
+    /**
+     * @see issue #35
+     */
+    @Test
+    public void testUnauthorizedSessionWithSuppliedCredentials() {
+        assumeTrue(isRunningWithNeo4j2Dot2OrLater());
+
+        initWithSuppliedCredentials("neo4j", "incorrectPassword", "org.neo4j.ogm.domain.bike");
+
+        try ( Transaction tx = session.beginTransaction() ) {
+            session.loadAll(Bike.class);
+            fail("A non-authenticating version of Neo4j is running. Please start Neo4j 2.2.0 or later to run these tests");
+        } catch (ResultProcessingException rpe) {
+            Throwable cause = rpe.getCause();
+            if (cause instanceof HttpHostConnectException) {
+                fail("Please start Neo4j 2.2.0 or later to run these tests");
+            } else {
+                assertTrue(cause instanceof HttpResponseException);
+                assertEquals("Unauthorized", cause.getMessage());
+            }
+        }
+
+    }
+
+    /**
+     * @see issue #35
+     */
+    @Test
+    public void testAuthorizedSessionWithURI() throws URISyntaxException {
+        assumeTrue(isRunningWithNeo4j2Dot2OrLater());
+
+        initWithEmbeddedCredentials("http://neo4j:password@" + neoServer.baseUri().getHost() + ":" + neoServer.baseUri().getPort(), "org.neo4j.ogm.domain.bike");
+
+        try ( Transaction ignored = session.beginTransaction() ) {
+            session.loadAll(Bike.class);
+        } catch (ResultProcessingException rpe) {
+            fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");
+        }
+
+    }
+
+    /**
+     * @see issue #35
+     */
+    @Test
+    public void testUnauthorizedSessionWithURI() {
+        assumeTrue(isRunningWithNeo4j2Dot2OrLater());
+
+        initWithEmbeddedCredentials(neoServer.baseUri().toString(), "org.neo4j.ogm.domain.bike");
+
+        try ( Transaction tx = session.beginTransaction() ) {
+            session.loadAll(Bike.class);
+            fail("A non-authenticating version of Neo4j is running. Please start Neo4j 2.2.0 or later to run these tests");
+        } catch (ResultProcessingException rpe) {
+            Throwable cause = rpe.getCause();
+            if (cause instanceof HttpHostConnectException) {
+                fail("Please start Neo4j 2.2.0 or later to run these tests");
+            } else {
+                assertTrue(cause instanceof HttpResponseException);
+                assertEquals("Unauthorized", cause.getMessage());
+            }
+        }
+
+    }
+
     private void init(boolean auth, String... packages) {
 
         if (auth) {
@@ -143,4 +224,17 @@ public class AuthenticationTest
 
     }
 
+    private void initWithSuppliedCredentials(String username, String password, String... packages) {
+        System.getProperties().remove("username");
+        System.getProperties().remove("password");
+
+        session = new SessionFactory(packages).openSession(neoServer.baseUri().toString(),username,password);
+    }
+
+    private void initWithEmbeddedCredentials(String url, String... packages) {
+        System.getProperties().remove("username");
+        System.getProperties().remove("password");
+
+        session = new SessionFactory(packages).openSession(url);
+    }
 }

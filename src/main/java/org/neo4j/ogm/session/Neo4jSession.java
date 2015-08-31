@@ -19,6 +19,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -76,7 +77,16 @@ public class Neo4jSession implements Session {
         this.request = new DefaultRequest(client);
 
         transactionsDelegate.autoCommit(url);
+    }
 
+    public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper, UsernamePasswordCredentials credentials) {
+        this.metaData = metaData;
+        this.mapper = mapper;
+        this.mappingContext = new MappingContext(metaData);
+        this.txManager = new TransactionManager(client, url, credentials);
+        this.request = new DefaultRequest(client,credentials);
+
+        transactionsDelegate.autoCommit(url);
     }
 
     /*

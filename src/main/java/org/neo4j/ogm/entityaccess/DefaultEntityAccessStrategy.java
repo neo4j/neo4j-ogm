@@ -140,120 +140,123 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
-    @Override
-    public RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
-        if(!relationalWriterCache.containsKey(classInfo)) {
-            relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
-        }
-        DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType,relationshipDirection, scalarValue.getClass());
-        if(relationalWriterCache.get(classInfo).containsKey(directedRelationship)) {
-            return relationalWriterCache.get(classInfo).get(directedRelationship);
-        }
-        // 1st, try to find a scalar method which is explicitly annotated with the relationship type and direction
-        MethodInfo methodInfo = classInfo.relationshipSetter(relationshipType, relationshipDirection, STRICT_MODE);
-        if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
+	@Override
+	public RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
+		if (!relationalWriterCache.containsKey(classInfo)) {
+			relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
+		}
+		DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType, relationshipDirection, scalarValue.getClass());
+		if (relationalWriterCache.get(classInfo).containsKey(directedRelationship)) {
+			return relationalWriterCache.get(classInfo).get(directedRelationship);
+		}
+		// 1st, try to find a scalar method which is explicitly annotated with the relationship type and direction
+		for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, STRICT_MODE)) {
+			if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
 
-            if (methodInfo.isTypeOf(scalarValue.getClass()) ||
-                methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                methodInfo.isArrayOf(scalarValue.getClass())) {
-                    MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
-                    return methodWriter;
+				if (methodInfo.isTypeOf(scalarValue.getClass()) ||
+						methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
+						methodInfo.isArrayOf(scalarValue.getClass())) {
+					MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
+					relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
+					return methodWriter;
+				}
+			}
+		}
 
-            }
-        }
+		// 2nd, try to find a scalar or vector field explicitly annotated as the neo4j relationship type and direction
+		for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, STRICT_MODE)) {
+			if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+				if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
+						fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
+						fieldInfo.isArrayOf(scalarValue.getClass())) {
+					FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
+					relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
+					return fieldWriter;
+				}
+			}
+		}
 
-        // 2nd, try to find a scalar or vector field explicitly annotated as the neo4j relationship type and direction
-        FieldInfo fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
-        if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-            if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
-                fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                fieldInfo.isArrayOf(scalarValue.getClass())) {
-                    FieldWriter fieldWriter =  new FieldWriter(classInfo, fieldInfo);
-                relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
-                    return fieldWriter;
-            }
-        }
+		//If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
+		//If it's outgoing, then proceed to find other matches
+		if (!relationshipDirection.equals(Relationship.INCOMING)) {
+			// 3rd, try to find a scalar method annotated with the relationship type and direction, allowing for implied relationships
+			for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, INFERRED_MODE)) {
+				if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
 
-        //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
-        //If it's outgoing, then proceed to find other matches
-        if(!relationshipDirection.equals(Relationship.INCOMING)) {
-            // 3rd, try to find a scalar method annotated with the relationship type and direction, allowing for implied relationships
-            methodInfo = classInfo.relationshipSetter(relationshipType, relationshipDirection, INFERRED_MODE);
-            if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
+					if (methodInfo.isTypeOf(scalarValue.getClass()) ||
+							methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
+							methodInfo.isArrayOf(scalarValue.getClass())) {
+						MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
+						relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
+						return methodWriter;
+					}
+				}
+			}
 
-                if (methodInfo.isTypeOf(scalarValue.getClass()) ||
-                        methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                        methodInfo.isArrayOf(scalarValue.getClass())) {
-                        MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
-                        return methodWriter;
+			// 4th, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
+			for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+				if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+					if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
+							fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
+							fieldInfo.isArrayOf(scalarValue.getClass())) {
+						FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
+						relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
+						return fieldWriter;
+					}
+				}
+			}
 
-                }
-            }
+			// 5th, try to find a "setXYZ" method where XYZ is derived from the relationship type
+			for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, INFERRED_MODE)) {
+				if (methodInfo != null) {
+					if (methodInfo.isTypeOf(scalarValue.getClass()) ||
+							methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
+							methodInfo.isArrayOf(scalarValue.getClass())) {
+						MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
+						relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
+						return methodWriter;
+					}
+				}
+			}
 
-            // 4th, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
-            fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
-            if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
-                        fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                        fieldInfo.isArrayOf(scalarValue.getClass())) {
-                        FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
-                        return fieldWriter;
-                }
-            }
+			// 6th, try to find a "XYZ" field name where XYZ is derived from the relationship type
+			for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+				if (fieldInfo != null) {
+					if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
+							fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
+							fieldInfo.isArrayOf(scalarValue.getClass())) {
+						FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
+						relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
+						return fieldWriter;
+					}
+				}
+			}
 
-            // 5th, try to find a "setXYZ" method where XYZ is derived from the relationship type
-            methodInfo = classInfo.relationshipSetter(relationshipType, relationshipDirection, INFERRED_MODE);
-            if (methodInfo != null) {
-                if (methodInfo.isTypeOf(scalarValue.getClass()) ||
-                        methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                        methodInfo.isArrayOf(scalarValue.getClass())) {
-                        MethodWriter methodWriter =  new MethodWriter(classInfo, methodInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
-                        return methodWriter;
-                }
-            }
+			// 7th, try to find a unique setter method that takes the parameter
+			List<MethodInfo> methodInfos = classInfo.findSetters(scalarValue.getClass());
+			if (methodInfos.size() == 1) {
+				MethodInfo candidateMethodInfo = methodInfos.iterator().next();
+				if (!candidateMethodInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
+					MethodWriter methodWriter = new MethodWriter(classInfo, candidateMethodInfo);
+					relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
+					return methodWriter;
+				}
+			}
 
-            // 6th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-            fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
-            if (fieldInfo != null) {
-                if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
-                        fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                        fieldInfo.isArrayOf(scalarValue.getClass())) {
-                        FieldWriter fieldWriter =  new FieldWriter(classInfo, fieldInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
-                        return fieldWriter;
-                }
-            }
-
-            //Find unique setters that take the parameter or unique fields of the same type of the parameter only if relationshipDirection is not INCOMING
-            // 7th, try to find a unique setter method that takes the parameter
-            List<MethodInfo> methodInfos = classInfo.findSetters(scalarValue.getClass());
-            if (methodInfos.size() == 1) {
-                MethodInfo candidateMethodInfo = methodInfos.iterator().next();
-                if(!candidateMethodInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
-                    MethodWriter methodWriter =  new MethodWriter(classInfo, candidateMethodInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
-                    return methodWriter;
-                }
-            }
-
-            // 8th, try to find a unique field that has the same type as the parameter
-            List<FieldInfo> fieldInfos = classInfo.findFields(scalarValue.getClass());
-            if (fieldInfos.size() == 1) {
-                FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
-                if(!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
-                    FieldWriter fieldWriter =  new FieldWriter(classInfo, candidateFieldInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
-                    return fieldWriter;
-                }
-            }
-        }
-        relationalWriterCache.get(classInfo).put(directedRelationship, null);
-        return null;
-    }
+			// 8th, try to find a unique field that has the same type as the parameter
+			List<FieldInfo> fieldInfos = classInfo.findFields(scalarValue.getClass());
+			if (fieldInfos.size() == 1) {
+				FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
+				if (!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
+					FieldWriter fieldWriter = new FieldWriter(classInfo, candidateFieldInfo);
+					relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
+					return fieldWriter;
+				}
+			}
+		}
+		relationalWriterCache.get(classInfo).put(directedRelationship, null);
+		return null;
+	}
 
     @Override
     public RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {

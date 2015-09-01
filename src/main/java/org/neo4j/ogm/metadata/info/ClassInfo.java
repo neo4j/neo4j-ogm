@@ -14,13 +14,6 @@
 
 package org.neo4j.ogm.metadata.info;
 
-import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.metadata.ClassUtils;
-import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -28,6 +21,13 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -425,6 +425,28 @@ public class ClassInfo {
     }
 
     /**
+     * Finds all relationship fields with a specific name and direction from the ClassInfo's relationship fields
+     *
+     * @param relationshipName      the relationshipName of the field to find
+     * @param relationshipDirection the direction of the relationship
+     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @return Set of  FieldInfo objects describing the required relationship field, or empty set if it doesn't exist.
+     */
+    public Set<FieldInfo> candidateRelationshipFields(String relationshipName, String relationshipDirection, boolean strict) {
+        Set<FieldInfo> candidateFields = new HashSet<>();
+        for (FieldInfo fieldInfo : relationshipFields()) {
+            String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
+            if (relationshipName.equalsIgnoreCase(relationship)) {
+                if(((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))&& (relationshipDirection.equals(Relationship.INCOMING)))
+                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                    candidateFields.add(fieldInfo);
+                }
+            }
+        }
+        return candidateFields;
+    }
+
+    /**
      * Finds the relationship field with a specific property name from the ClassInfo's relationship fields
      *
      * @param fieldName the name of the field
@@ -656,6 +678,28 @@ public class ClassInfo {
     }
 
     /**
+     * Finds all relationship setters with a specific name and direction from the specified ClassInfo's relationship setters.
+     *
+     * @param relationshipName      the relationshipName of the setter to find
+     * @param relationshipDirection the relationship direction
+     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
+     * @return A Set of MethodInfo object describing the required relationship setter, or empty set if it doesn't exist.
+     */
+    public Set<MethodInfo> candidateRelationshipSetters(String relationshipName, String relationshipDirection, boolean strict) {
+        Set<MethodInfo> candidateSetters = new HashSet<>();
+        for (MethodInfo methodInfo : relationshipSetters()) {
+            String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
+            if (relationshipName.equalsIgnoreCase(relationship)) {
+                if(((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
+                    candidateSetters.add(methodInfo);
+                }
+            }
+        }
+        return candidateSetters;
+    }
+
+    /**
      * Finds the property setter with a specific name from the specified ClassInfo's property setters
      *
      * @param propertyName the propertyName of the setter to find
@@ -759,6 +803,22 @@ public class ClassInfo {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
             if (fieldInfo.getDescriptor().equals(fieldSignature)) {
+                fieldInfos.add(fieldInfo);
+            }
+        }
+        return fieldInfos;
+    }
+
+    /**
+     * Find all FieldInfos for the specified ClassInfo which have the specified annotation
+     *
+     * @param annotation The annotation
+     * @return A {@link List} of {@link FieldInfo} objects that are of the given type, never <code>null</code>
+     */
+    public List<FieldInfo> findFields(String annotation) {
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
+            if (fieldInfo.hasAnnotation(annotation)) {
                 fieldInfos.add(fieldInfo);
             }
         }

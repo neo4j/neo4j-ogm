@@ -94,6 +94,21 @@ public class MetaData {
         return null;
     }
 
+    private Set<ClassInfo> _classInfos(String name, String nodeEntityAnnotation, String annotationPropertyName) {
+        Set<ClassInfo> classInfos = new HashSet<>();
+        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
+        if (labelledClasses != null) {
+            for (ClassInfo labelledClass : labelledClasses) {
+                AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
+                String value = annotationInfo.get(annotationPropertyName, labelledClass.neo4jName());
+                if (value.equals(name)) {
+                    classInfos.add(labelledClass);
+                }
+            }
+        }
+        return classInfos;
+    }
+
     /**
      * Given an set of names (simple or fully-qualified) that are possibly within a type hierarchy, this function returns the
      * base class from among them.
@@ -144,6 +159,36 @@ public class MetaData {
         }
         return null;
     }
+
+    /**
+     * Finds ClassInfos for the supplied partial class name or label.
+     *
+     * @param name the simple class name or label for a class we want to find
+     * @return A Set of ClassInfo matching the supplied name, or empty if it doesn't exist
+     */
+    public Set<ClassInfo> classInfoByLabelOrType(String name) {
+
+        Set<ClassInfo> classInfos = new HashSet<>();
+
+        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
+        if (classInfo != null) {
+            classInfos.add(classInfo);
+        }
+
+        //Potentially many relationship entities annotated with the same type
+        for(ClassInfo info : _classInfos(name, RelationshipEntity.class.getName(), "type")) {
+            classInfos.add(info);
+        }
+
+        classInfo = domainInfo.getClassSimpleName(name);
+        if (classInfo != null) {
+            classInfos.add(classInfo);
+        }
+
+        // not found
+        return classInfos;
+    }
+
 
     private ClassInfo findSingleBaseClass(ClassInfo fqn, List<ClassInfo> classInfoList) {
         if (classInfoList.isEmpty()) {

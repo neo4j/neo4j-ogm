@@ -191,12 +191,9 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 
 			if (source != null && target != null) {
 				// check whether this edge should in fact be handled as a relationship entity
-				// This works because a relationship in the graph that has properties must be represented
-				// by a domain entity annotated with @RelationshipEntity, and (if it exists) it will be found by
-				// metadata.resolve(...)
-				ClassInfo relationshipEntityClassInfo = metadata.resolve(edge.getType());
+				ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge);
 
-				if (relationshipEntityClassInfo != null) {
+				if (relationshipEntityClassInfo!=null) {
 					mapRelationshipEntity(oneToMany, edge, source, target, relationshipEntityClassInfo);
 				} else {
 					mapRelationship(oneToMany, edge, source, target);
@@ -268,7 +265,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 	private Object createRelationshipEntity(RelationshipModel edge, Object startEntity, Object endEntity) {
 
 		// create and hydrate the new RE
-		Object relationshipEntity = entityFactory.newObject(edge);
+		Object relationshipEntity = entityFactory.newObject(getRelationshipEntity(edge));
 		setIdentity(relationshipEntity, edge.getId());
 
 		// REs also have properties
@@ -404,5 +401,38 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		}
 		// this is not necessarily an error. but we can't tell.
 		logger.debug("Unable to map iterable of type: {} onto property of {}", valueType, classInfo.name());
+	}
+
+	private ClassInfo getRelationshipEntity(RelationshipModel edge) {
+		for (ClassInfo classInfo : metadata.classInfoByLabelOrType(edge.getType())) {
+			if (classInfo != null) {
+				//verify the start and end node types because there might be more than one RE defined with the same type and direction but different start/end nodes
+				Object source = mappingContext.getNodeEntity(edge.getStartNode());
+				Object target = mappingContext.getNodeEntity(edge.getEndNode());
+				if (nodeTypeMatches(classInfo, source, StartNode.class.getName()) &&
+						nodeTypeMatches(classInfo, target, EndNode.class.getName())) {
+					return classInfo;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Checks that the class of the node matches the class defined in the class info for a given annotation
+	 * @param classInfo the ClassInfo
+	 * @param node the node object
+	 * @param annotation the annotation to match
+	 * @return true if the class of the node matches field annotated
+	 */
+	private boolean nodeTypeMatches(ClassInfo classInfo, Object node, String annotation) {
+		List<FieldInfo> fields = classInfo.findFields(annotation);
+		if(fields.size() == 1) {
+			FieldInfo field = fields.get(0);
+			if(field.isTypeOf(node.getClass())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

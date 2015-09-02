@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -92,14 +93,18 @@ public class JsonResponse implements Neo4jResponse<String> {
                 json = json.substring(0, json.length() - NEXT_RECORD_TOKEN.length());
             } else if (json.contains(ERRORS_TOKEN)) {
 
-                json = json.substring(0, json.indexOf(ERRORS_TOKEN));
-                // todo: should check errors? they will usually not exist if we have data
+                int errorsPosition = json.indexOf(ERRORS_TOKEN);
+                if (json.substring(errorsPosition).contains("[]")) {
+                    json = json.substring(0, errorsPosition);
+                } else {
+                    parseErrors(json);
+                }
             }
             String record = START_RECORD_TOKEN + scanToken + json;
             currentRow++;
             return record;
 
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             return null;
         }
     }

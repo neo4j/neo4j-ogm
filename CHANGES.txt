@@ -1,3 +1,9 @@
+1.1.2
+--------------
+o Improvements to class loading mechanism to support Play framework
+o Fixes mapping issue when an entity contains relationships as well as relationship entities of the same type
+o Support for Neo4j 2.2.5
+
 1.1.1
 --------------
 o Support for self relationships (loops)

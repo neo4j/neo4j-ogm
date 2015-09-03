@@ -34,6 +34,7 @@ public class JsonResponse implements Neo4jResponse<String> {
     private static final String NEXT_RECORD_TOKEN  = COMMA + START_RECORD_TOKEN;
 
     private static final String ERRORS_TOKEN = "],\"errors";
+    private static final String COMMIT_ERRORS_TOKEN = "},\"errors";
     private static final String COLUMNS_TOKEN = "{\"columns";
 
     private static final String GRAPH_TOKEN = "\"graph";
@@ -144,6 +145,9 @@ public class JsonResponse implements Neo4jResponse<String> {
 
     private void parseErrors(String header) {
         int cp = header.indexOf(ERRORS_TOKEN);
+        if (cp == -1) {
+            cp = header.indexOf(COMMIT_ERRORS_TOKEN);
+        }
         if (cp == -1) {
             throw new RuntimeException("Unexpected problem! Cypher response starts: " + header + "...");
         }

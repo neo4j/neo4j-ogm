@@ -31,6 +31,7 @@ import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,7 @@ public class TransactionManager {
     }
 
     private HttpResponse executeRequest(HttpRequestBase request) {
+
         try {
 
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
@@ -105,24 +107,23 @@ public class TransactionManager {
                         statusLine.getStatusCode(),
                         statusLine.getReasonPhrase());
             }
-            // we're not interested in the content, but we must always close the content stream/release the connection
-            try {
-                HttpEntity responseEntity = response.getEntity();
+            // close the content stream/release the connection
+            HttpEntity responseEntity = response.getEntity();
 
-                if (responseEntity != null) {
-                    String responseText = EntityUtils.toString(responseEntity);
-                    logger.debug(responseText);
-                    EntityUtils.consume(responseEntity);
+            if (responseEntity != null) {
+                String responseText = EntityUtils.toString(responseEntity);
+                logger.debug(responseText);
+                EntityUtils.consume(responseEntity);
+                if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
+                    throw new ErrorsException(responseText);
                 }
-                else {
-                    request.releaseConnection();
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
-
+            else {
+                request.releaseConnection();
+            }
             return response;
         }
+
         catch (Exception e) {
             throw new ResultProcessingException("Failed to execute request: ", e);
         }

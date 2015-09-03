@@ -18,8 +18,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.session.transaction.LongTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -61,5 +64,23 @@ public class TransactionRequestHandlerTest
             }
         }
     }
+
+
+    @Test(expected = ResultProcessingException.class)
+    public void shouldDetectErrorsOnCommitOfLongRunningTransaction() {
+        SessionFactory sessionFactory = new SessionFactory("");
+        session = sessionFactory.openSession(neo4jRule.url());
+        Transaction tx = session.beginTransaction();
+        session.query("GARBAGE", Utils.map());
+        tx.commit();
+    }
+
+    @Test(expected = ResultProcessingException.class)
+    public void shouldDetectErrorsOnCommitOfNonExistentTransaction() {
+        TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.url());
+        Transaction tx = new LongTransaction(null, neo4jRule.url(), txRequestHandler);
+        tx.commit();
+    }
+
 
 }

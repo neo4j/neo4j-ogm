@@ -16,7 +16,6 @@ package org.neo4j.ogm.unit.session.transaction;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
@@ -25,9 +24,7 @@ import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -119,5 +116,6 @@ public class TransactionTest {
         assertFalse(mappingContext.isDirty(teacher));
 
     }
+
 
 }

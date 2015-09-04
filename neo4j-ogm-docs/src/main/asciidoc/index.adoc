@@ -4,9 +4,7 @@
 :revnumber: {version}
 :revdate: {localdate}
 
-Neo4j OGM Version 1.1.1 (August 2015)
-
-(C) 2010-2015 Graph Aware Ltd - Neo Technology, Inc.
+(C) 2010-2015 Neo Technology
 
 NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee
 for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.

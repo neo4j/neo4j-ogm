@@ -62,4 +62,23 @@ public class RichRelationTest {
         person.addRelation(article2, relation2);
         session.save(person, 1);
     }
+
+    @Test
+    public void shouldUpdateEndNodeEntityWithoutException()
+    {
+        Person person = new Person();
+        session.save(person);
+
+        Article article1 = new Article();
+        session.save(article1);
+        RichRelation relation1 = new RichRelation();
+        person.addRelation(article1, relation1);
+        session.save(person, 1);
+        session.clear();
+
+        Article updateArticle = new Article();
+        updateArticle.setNodeId(article1.getNodeId());
+        updateArticle.relations = article1.relations;
+        session.save(updateArticle, 1);
+    }
 }

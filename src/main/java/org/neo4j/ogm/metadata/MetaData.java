@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.util.*;
-
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
@@ -24,6 +22,8 @@ import org.neo4j.ogm.metadata.info.DomainInfo;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 
 /**
@@ -119,42 +119,53 @@ public class MetaData {
     public ClassInfo resolve(String... taxa) {
 
         if (taxa.length > 0) {
-            Set<ClassInfo> baseClasses = new HashSet<>();
+
+            Set<ClassInfo> resolved = new HashSet<>();
+
             for (String taxon : taxa) {
+
                 ClassInfo taxonClassInfo = classInfo(taxon);
+
+                // ignore any foreign labels
+                if (taxonClassInfo == null) {
+                    continue;
+                }
+
+                // if classInfo is an interface or abstract there must be a single concrete implementing class/subclass
+                // if there is, use that, otherwise this label cannot be resolved
+                if (taxonClassInfo.isInterface()) {
+                    taxonClassInfo = findSingleImplementor(taxon);
+                } else if (taxonClassInfo.isAbstract()) {
+                    taxonClassInfo = findSingleBaseClass(taxonClassInfo, taxonClassInfo.directSubclasses());
+                }
+
+                // given we have a qualifying concrete class, check if its a subclass or superclass of one found previously
+                // if its a superclass, we discard it.
+                // if its a subclass, we replace the previously found class with this one.
                 if (taxonClassInfo != null) {
-                    ClassInfo superclassInfo = classInfo(taxonClassInfo.superclassName());
-                    // if this class's superclass has already been registered, simply replace
-                    // the superclass entry with the subclass entry. this is safe to do
-                    // because by definition, the superclass must have a single-inheritance
-                    // subclass-chain in order to have been registered.
-                    if (baseClasses.contains(superclassInfo)) {
-                        baseClasses.remove(superclassInfo);
-                        baseClasses.add(taxonClassInfo);
-                    } else {
-                        // ensure this class has either no subclasses or is the superclass of a single-inheritance subclass-chain
-                        ClassInfo baseClassInfo = findSingleBaseClass(taxonClassInfo, taxonClassInfo.directSubclasses());
-                        //We might have already registered this baseClassInfo, if so, we don't care about the taxonClassInfo
-                        if (baseClassInfo != null && !baseClasses.contains(baseClassInfo)) {
-                            // we don't care what the base class at the end of the chain is, we register the
-                            // taxon class now.
-                            baseClasses.add(taxonClassInfo);
+                    List<ClassInfo> taxonClassInfoSubclasses = taxonClassInfo.directSubclasses();
+                    for (ClassInfo found : resolved) {
+                        if (found.directSubclasses().contains(taxonClassInfo)) {
+                            resolved.remove(found);
+                            break; // there will only be one
                         }
-                        else {
-                            //try to find a single implementing class if this is an interface
-                            ClassInfo singleImplementor = findSingleImplementor(taxon);
-                            if(singleImplementor!=null) {
-                                baseClasses.add(singleImplementor);
-                            }
+                        if (taxonClassInfoSubclasses.contains(found)) {
+                            taxonClassInfo = null;  // discard it
+                            break; // no need to look further, already discarded
                         }
                     }
-                } // not found, try again
+                }
+
+                // finally, we can add the taxonClassInfo - if it is still valid
+                if (taxonClassInfo != null) {
+                    resolved.add(taxonClassInfo);
+                }
             }
-            if (baseClasses.size() > 1) {
+            if (resolved.size() > 1) {
                 throw new AmbiguousBaseClassException(Arrays.toString(taxa));
             }
-            if (baseClasses.iterator().hasNext()) {
-                return baseClasses.iterator().next();
+            if (resolved.iterator().hasNext()) {
+                return resolved.iterator().next();
             }
         }
         return null;

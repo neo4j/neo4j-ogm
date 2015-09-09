@@ -14,6 +14,13 @@
 
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -21,13 +28,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-
-import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.metadata.ClassUtils;
-import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -1054,6 +1054,10 @@ public class ClassInfo {
         return annotationsInfo.get(Transient.CLASS) != null;
     }
 
+    public boolean isAbstract() {
+        return isAbstract;
+    }
+
     public Class<?> getType(String typeParameterDescriptor) {
         return ClassUtils.getType(typeParameterDescriptor);
     }
@@ -1114,7 +1118,6 @@ public class ClassInfo {
         return null;
 
     }
-
 
 }
 

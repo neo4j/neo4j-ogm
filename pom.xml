@@ -33,6 +33,8 @@
         <jackson>2.5.1</jackson>
         <httpclient>4.3.6</httpclient>
         <junit>4.12</junit>
+        <slf4j>1.7.5</slf4j>
+        <logback>1.1.3</logback>
     </properties>
 
     <dependencies>
@@ -49,15 +51,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>${neo4j}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.neo4j.app</groupId>
-            <artifactId>neo4j-server</artifactId>
-            <version>${neo4j}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback}</version>
         </dependency>
 
         <dependency>

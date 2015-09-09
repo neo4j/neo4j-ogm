@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.shell.util.json.JSONArray;
-import org.neo4j.shell.util.json.JSONException;
-import org.neo4j.shell.util.json.JSONObject;
+import org.neo4j.ogm.json.JSONArray;
+import org.neo4j.ogm.json.JSONException;
+import org.neo4j.ogm.json.JSONObject;
 
 /**
  * The {@link Neo4jResponse} that contains data in both graph and row formats.

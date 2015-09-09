@@ -14,17 +14,17 @@
 
 package org.neo4j.ogm.session.response;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.json.JSONArray;
+import org.neo4j.ogm.json.JSONException;
+import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
-import org.neo4j.shell.util.json.JSONArray;
-import org.neo4j.shell.util.json.JSONException;
-import org.neo4j.shell.util.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Luanne Misquitta

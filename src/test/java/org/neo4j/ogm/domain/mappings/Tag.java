@@ -20,7 +20,7 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
- * @author Nils Dröge
+ * @author Nils Dr\u00F6ge
  * @author Luanne Misquitta
  */
 public class Tag extends Entity

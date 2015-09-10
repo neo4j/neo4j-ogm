@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -23,24 +25,11 @@ import java.util.Collections;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.domain.cineasts.annotated.Movie;
-import org.neo4j.ogm.domain.cineasts.annotated.Rating;
-import org.neo4j.ogm.domain.cineasts.annotated.SecurityRole;
-import org.neo4j.ogm.domain.cineasts.annotated.Title;
-import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Simple integration test based on cineasts that exercises relationship entities.
@@ -156,15 +145,14 @@ public class CineastsIntegrationTest {
     public void saveAndRetrieveUserWithDifferentCharset() {
         User user = new User();
         user.setLogin("aki");
-        user.setName("Aki Kaurismäki");
+        user.setName("Aki Kaurism\u00E4ki");
         user.setPassword("aki");
         session.save(user);
-
         Collection<User> users = session.loadAll(User.class, new Filter("login", "aki"));
         assertEquals(1,users.size());
         User aki = users.iterator().next();
         try {
-            assertArrayEquals("Aki Kaurismäki".getBytes("UTF-8"), aki.getName().getBytes("UTF-8"));
+            assertArrayEquals("Aki Kaurism\u00E4ki".getBytes("UTF-8"), aki.getName().getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             fail("UTF-8 encoding not supported on this platform");
         }

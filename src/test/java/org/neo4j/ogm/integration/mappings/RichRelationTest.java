@@ -26,7 +26,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 /**
- * @author Nils Dröge
+ * @author Nils Dr\u00F6ge
  */
 public class RichRelationTest {
     @Rule

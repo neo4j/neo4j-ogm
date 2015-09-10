@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
- * @author Nils Dröge
+ * @author Nils Dr\u00F6ge
  */
 public class Event extends Entity
 {

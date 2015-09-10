@@ -17,7 +17,7 @@ package org.neo4j.ogm.domain.mappings;
 import org.neo4j.ogm.annotation.GraphId;
 
 /**
- * @author Nils Dröge
+ * @author Nils Dr\u00F6ge
  */
 public abstract class Entity
 {

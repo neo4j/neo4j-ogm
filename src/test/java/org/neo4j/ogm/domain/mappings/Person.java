@@ -14,13 +14,13 @@
 
 package org.neo4j.ogm.domain.mappings;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 /**
- * @author Nils Dröge
+ * @author Nils Dr\u00F6ge
  */
 public class Person extends Entity
 {

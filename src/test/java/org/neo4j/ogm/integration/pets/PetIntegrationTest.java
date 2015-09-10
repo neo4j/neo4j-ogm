@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.junit.*;
 import org.neo4j.ogm.domain.pets.Dog;
+import org.neo4j.ogm.domain.pets.DomesticDog;
 import org.neo4j.ogm.domain.pets.Kid;
 import org.neo4j.ogm.domain.pets.Mammal;
 import org.neo4j.ogm.metadata.MetaData;
@@ -53,11 +54,13 @@ public class PetIntegrationTest {
 	 * @see issue #40
 	 */
 	@Test
+	@Ignore
 	public void shouldResolveMetadataCorrectly() {
 		MetaData metaData = new MetaData("org.neo4j.ogm.domain.pets");
 		assertEquals("org.neo4j.ogm.domain.pets.Animal",metaData.resolve("Animal").name());
 		assertEquals("org.neo4j.ogm.domain.pets.Mammal", metaData.resolve("Mammal", "Animal").name());
 		assertEquals("org.neo4j.ogm.domain.pets.Dog", metaData.resolve("Mammal", "Animal", "Dog").name());
+		assertEquals("org.neo4j.ogm.domain.pets.Dog", metaData.resolve("Dog", "Mammal", "Animal").name());
 	}
 
 	/**
@@ -92,4 +95,37 @@ public class PetIntegrationTest {
 		assertEquals(1, charlie.getPets().size());
 		assertEquals(dog.getName(), charlie.getPets().iterator().next().getName());
 	}
+
+	/**
+	 * @see issue #40
+	 */
+	@Test
+	@Ignore
+	public void shouldBeAbleToSaveAndLoadDogsDirectly() {
+		Dog dog = new Dog("Snoopy");
+		session.save(dog);
+
+		session.clear();
+
+		Dog snoopy = session.loadAll(Dog.class).iterator().next();
+		assertNotNull(snoopy);
+		assertEquals(dog.getName(),snoopy.getName());
+	}
+
+	/**
+	 * @see issue #40
+	 */
+	@Test
+	@Ignore
+	public void shouldBeAbleToSaveAndLoadDomesticDogsDirectly() {
+		DomesticDog dog = new DomesticDog("Snoopy");
+		session.save(dog);
+
+		session.clear();
+
+		DomesticDog snoopy = session.loadAll(DomesticDog.class).iterator().next();
+		assertNotNull(snoopy);
+		assertEquals(dog.getName(),snoopy.getName());
+	}
+
 }

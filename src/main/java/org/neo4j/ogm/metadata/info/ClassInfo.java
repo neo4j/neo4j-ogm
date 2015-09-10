@@ -1058,6 +1058,30 @@ public class ClassInfo {
         return isAbstract;
     }
 
+    /**
+     * Returns true if this classInfo is in the subclass hierarchy of b, or if this classInfo is the same as b, false otherwise
+     *
+     * @param classInfo the classInfo at the toplevel of a type hierarchy to search through
+     * @return
+     */
+    public boolean isSubclassOf(ClassInfo classInfo) {
+
+        if (this == classInfo) {
+            return true;
+        }
+
+        boolean found = false;
+
+        for (ClassInfo subclass : classInfo.directSubclasses()) {
+            found = isSubclassOf(subclass);
+            if (found) {
+                break;
+            }
+        }
+
+        return found;
+
+    }
     public Class<?> getType(String typeParameterDescriptor) {
         return ClassUtils.getType(typeParameterDescriptor);
     }

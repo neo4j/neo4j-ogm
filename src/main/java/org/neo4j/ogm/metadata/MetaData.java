@@ -136,20 +136,19 @@ public class MetaData {
                 if (taxonClassInfo.isInterface()) {
                     taxonClassInfo = findSingleImplementor(taxon);
                 } else if (taxonClassInfo.isAbstract()) {
-                    taxonClassInfo = findSingleBaseClass(taxonClassInfo, taxonClassInfo.directSubclasses());
+                    taxonClassInfo = findFirstSingleConcreteClass(taxonClassInfo, taxonClassInfo.directSubclasses());
                 }
 
                 // given we have a qualifying concrete class, check if its a subclass or superclass of one found previously
                 // if its a superclass, we discard it.
                 // if its a subclass, we replace the previously found class with this one.
                 if (taxonClassInfo != null) {
-                    List<ClassInfo> taxonClassInfoSubclasses = taxonClassInfo.directSubclasses();
                     for (ClassInfo found : resolved) {
-                        if (found.directSubclasses().contains(taxonClassInfo)) {
+                        if (taxonClassInfo.isSubclassOf(found)) {
                             resolved.remove(found);
                             break; // there will only be one
                         }
-                        if (taxonClassInfoSubclasses.contains(found)) {
+                        if (found.isSubclassOf(taxonClassInfo)) {
                             taxonClassInfo = null;  // discard it
                             break; // no need to look further, already discarded
                         }
@@ -201,19 +200,33 @@ public class MetaData {
     }
 
 
-    private ClassInfo findSingleBaseClass(ClassInfo fqn, List<ClassInfo> classInfoList) {
-        if (classInfoList.isEmpty()) {
-            if(fqn.isInterface()) {
-                return null;
-            }
-            return fqn;
+    private ClassInfo findFirstSingleConcreteClass(ClassInfo root, List<ClassInfo> classInfoList) {
+
+        // if the root class is concrete, return it.
+        if (!root.isInterface() && !root.isAbstract()) {
+            return root;
         }
-        if (classInfoList.size() > 1) {
-            LOGGER.debug("More than one class subclasses " + fqn);
+
+        // if there are no subclasses, we can't look any further. No concrete class exists
+        if (classInfoList.isEmpty()) {
             return null;
         }
+
+        // if there are more than one direct subclasses, we won't know which to use
+        if (classInfoList.size() > 1) {
+            LOGGER.debug("More than one class subclasses " + root);
+            return null;
+        }
+
+        // nothing found yet, but exactly one subclass exists. If its an interface,
+        // replace with its single implementing class - iff exactly one implementing class exists
         ClassInfo classInfo = classInfoList.iterator().next();
-        return findSingleBaseClass(classInfo, classInfo.directSubclasses());
+        if (classInfo.isInterface()) {
+            classInfo = findSingleImplementor(classInfo.name());
+        }
+
+        // if we have a potential concrete class, keep going!
+        return (classInfo == null ? null : findFirstSingleConcreteClass(classInfo, classInfo.directSubclasses()));
 
     }
 

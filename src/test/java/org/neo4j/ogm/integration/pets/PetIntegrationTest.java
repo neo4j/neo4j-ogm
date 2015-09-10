@@ -54,7 +54,6 @@ public class PetIntegrationTest {
 	 * @see issue #40
 	 */
 	@Test
-	@Ignore
 	public void shouldResolveMetadataCorrectly() {
 		MetaData metaData = new MetaData("org.neo4j.ogm.domain.pets");
 		assertEquals("org.neo4j.ogm.domain.pets.Animal",metaData.resolve("Animal").name());
@@ -100,7 +99,6 @@ public class PetIntegrationTest {
 	 * @see issue #40
 	 */
 	@Test
-	@Ignore
 	public void shouldBeAbleToSaveAndLoadDogsDirectly() {
 		Dog dog = new Dog("Snoopy");
 		session.save(dog);
@@ -116,7 +114,6 @@ public class PetIntegrationTest {
 	 * @see issue #40
 	 */
 	@Test
-	@Ignore
 	public void shouldBeAbleToSaveAndLoadDomesticDogsDirectly() {
 		DomesticDog dog = new DomesticDog("Snoopy");
 		session.save(dog);

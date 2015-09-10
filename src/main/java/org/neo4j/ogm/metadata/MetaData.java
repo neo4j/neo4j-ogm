@@ -123,19 +123,22 @@ public class MetaData {
             Set<ClassInfo> resolved = new HashSet<>();
 
             for (String taxon : taxa) {
-
+                LOGGER.debug("looking for concrete class to resolve label: " + taxon);
                 ClassInfo taxonClassInfo = classInfo(taxon);
 
                 // ignore any foreign labels
                 if (taxonClassInfo == null) {
+                    LOGGER.debug("This label is not known in the mapping context. Moving on...");
                     continue;
                 }
 
                 // if classInfo is an interface or abstract there must be a single concrete implementing class/subclass
                 // if there is, use that, otherwise this label cannot be resolved
                 if (taxonClassInfo.isInterface()) {
+                    LOGGER.debug("label is on an interface. Looking for a single implementing class...");
                     taxonClassInfo = findSingleImplementor(taxon);
                 } else if (taxonClassInfo.isAbstract()) {
+                    LOGGER.debug("label is on an abstract class. Looking for a single concrete subclass...");
                     taxonClassInfo = findFirstSingleConcreteClass(taxonClassInfo, taxonClassInfo.directSubclasses());
                 }
 
@@ -143,20 +146,26 @@ public class MetaData {
                 // if its a superclass, we discard it.
                 // if its a subclass, we replace the previously found class with this one.
                 if (taxonClassInfo != null) {
+                    LOGGER.debug("concrete class found: " + taxonClassInfo + ". comparing with what's already been found previously...");
                     for (ClassInfo found : resolved) {
                         if (taxonClassInfo.isSubclassOf(found)) {
+                            LOGGER.debug(taxonClassInfo + " is a subclass of " + found + " and will replace it.");
                             resolved.remove(found);
                             break; // there will only be one
                         }
                         if (found.isSubclassOf(taxonClassInfo)) {
+                            LOGGER.debug(taxonClassInfo + " is a superclass of " + found + " and will be ignored.");
                             taxonClassInfo = null;  // discard it
                             break; // no need to look further, already discarded
                         }
                     }
+                } else {
+                    LOGGER.debug("no implementing class or concrete subclass found!");
                 }
 
                 // finally, we can add the taxonClassInfo - if it is still valid
                 if (taxonClassInfo != null) {
+                    LOGGER.debug(taxon + " resolving class: " + taxonClassInfo);
                     resolved.add(taxonClassInfo);
                 }
             }
@@ -167,6 +176,7 @@ public class MetaData {
                 return resolved.iterator().next();
             }
         }
+        LOGGER.debug("No resolving class found!!");
         return null;
     }
 

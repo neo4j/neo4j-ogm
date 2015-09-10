@@ -190,6 +190,13 @@ public class MethodInfo {
             if (descriptor != null && descriptor.equals(typeSignature)) {
                 return true;
             }
+            // #issue 42: check interfaces when types are defined using generics as interface extensions
+            for (Class<?> iface : type.getInterfaces()) {
+                typeSignature = "L" + iface.getName().replace(".", "/") + ";";
+                if (descriptor != null && descriptor.equals(typeSignature)) {
+                    return true;
+                }
+            }
             type = type.getSuperclass();
         }
         return false;
@@ -201,6 +208,13 @@ public class MethodInfo {
             if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
                 return true;
             }
+            // #issue 42: check interfaces when types are defined using generics as interface extensions
+            for (Class<?> iface : type.getInterfaces()) {
+                typeSignature = "L" + iface.getName().replace(".", "/") + ";";
+                if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
+                    return true;
+                }
+            }
             type = type.getSuperclass();
         }
         return false;
@@ -211,6 +225,13 @@ public class MethodInfo {
             String typeSignature = "([L" + type.getName().replace(".", "/") + ";)V";
             if (descriptor != null && descriptor.equals(typeSignature)) {
                 return true;
+            }
+            // #issue 42: check interfaces when types are defined using generics as interface extensions
+            for (Class<?> iface : type.getInterfaces()) {
+                typeSignature = "([L" + iface.getName().replace(".", "/") + ";)V";
+                if (descriptor != null && descriptor.equals(typeSignature)) {
+                    return true;
+                }
             }
             type = type.getSuperclass();
         }

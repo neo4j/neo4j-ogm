@@ -14,15 +14,15 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.lang.reflect.Field;
-import java.util.Scanner;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.server.AbstractNeoServer;
+
+import java.lang.reflect.Field;
+import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -32,6 +32,7 @@ public class TestServer {
 
     private AbstractNeoServer server;
     private GraphDatabaseService database;
+    private ServerControls controls;
 
     public TestServer() {
 
@@ -51,7 +52,7 @@ public class TestServer {
     public TestServer(int port) {
 
         try {
-            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+            controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
                     .newServer();
@@ -79,7 +80,7 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
-        server.stop();
+        controls.close();
     }
 
     /**

@@ -151,7 +151,7 @@ public class EducationTest {
 
         Map<String, Teacher> teachers = new HashMap<>();
 
-        session.setRequest(new TeacherRequest());
+        session.setDriver(new TeacherRequest());
         Collection<Teacher> teacherList = session.loadAll(Teacher.class);
 
         for (Teacher teacher : teacherList ) {
@@ -163,15 +163,8 @@ public class EducationTest {
 
     private void hydrateCourses(Collection<Teacher> teachers) throws Exception {
 
-        // normally we'd use the default request handler, but for
-        session.setRequest(new CourseRequest());
-
-//        Set<Long> courses= new HashSet<>();
-//        for (Teacher teacher : teachers) {
-//            for (Course course: teacher.getCourses()) {
-//                courses.add(course.getId());
-//            }
-//        }
+        session.setDriver(new TeacherRequest());
+        session.setDriver(new CoursesRequest());
 
         session.loadAll(Course.class);
     }

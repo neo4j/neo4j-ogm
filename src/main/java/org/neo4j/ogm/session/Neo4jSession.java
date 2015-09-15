@@ -14,21 +14,16 @@
 
 package org.neo4j.ogm.session;
 
-import java.util.Collection;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
+import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.delegates.*;
-import org.neo4j.ogm.session.request.DefaultRequest;
-import org.neo4j.ogm.session.request.Neo4jRequest;
 import org.neo4j.ogm.session.request.RequestHandler;
 import org.neo4j.ogm.session.request.SessionRequestHandler;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
@@ -42,6 +37,9 @@ import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Vince Bickers
@@ -67,24 +65,28 @@ public class Neo4jSession implements Session {
     private final TransactionsDelegate transactionsDelegate = new TransactionsDelegate(this);
     private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
-    private Neo4jRequest<String> request;
+    private Driver driver;
 
-    public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper) {
+    public Neo4jSession(MetaData metaData, String url, Driver driver, ObjectMapper mapper) {
         this.metaData = metaData;
         this.mapper = mapper;
+        this.driver = driver;
+
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new TransactionManager(client, url);
-        this.request = new DefaultRequest(client);
+
+        this.txManager = new TransactionManager(driver, url);
 
         transactionsDelegate.autoCommit(url);
     }
 
-    public Neo4jSession(MetaData metaData, String url, CloseableHttpClient client, ObjectMapper mapper, UsernamePasswordCredentials credentials) {
+    public Neo4jSession(MetaData metaData, String url, Driver driver, ObjectMapper mapper, Neo4jCredentials credentials) {
         this.metaData = metaData;
         this.mapper = mapper;
+        this.driver = driver;
+
+
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new TransactionManager(client, url, credentials);
-        this.request = new DefaultRequest(client,credentials);
+        this.txManager = new TransactionManager(driver, url, credentials);
 
         transactionsDelegate.autoCommit(url);
     }
@@ -463,12 +465,13 @@ public class Neo4jSession implements Session {
         return mapper;
     }
 
-    public void setRequest(Neo4jRequest<String> neo4jRequest) {
-        this.request=neo4jRequest;
+    // inject a custom driver
+    public void setDriver(Driver driver) {
+        this.driver = driver;
     }
 
     public RequestHandler requestHandler() {
-        return new SessionRequestHandler(mapper, request);
+        return new SessionRequestHandler(mapper, driver);
     }
 
     public Transaction ensureTransaction() {

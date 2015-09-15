@@ -18,6 +18,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Person;
+import org.neo4j.ogm.driver.Drivers;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -34,15 +35,12 @@ public class FriendsInLongTransactionTest {
 
 	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(neo4jRule.url());
 
-
-	private static final CloseableHttpClient httpClient = HttpClients.createDefault();
-
 	/**
 	 * @see DATAGRAPH-703
 	 */
 	@Test
 	public void createPersonAndFriendsInLongTransaction() {
-		TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.url());
+		TransactionManager txRequestHandler = new TransactionManager(Drivers.HTTP, neo4jRule.url());
 		try (Transaction tx = txRequestHandler.openTransaction(null)) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
 			Person john = new Person("John");

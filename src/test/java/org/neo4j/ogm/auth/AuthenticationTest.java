@@ -104,6 +104,8 @@ public class AuthenticationTest
                 assertTrue(cause instanceof HttpResponseException);
                 assertEquals("Unauthorized", cause.getMessage());
             }
+        } finally {
+
         }
 
     }

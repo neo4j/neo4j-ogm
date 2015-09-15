@@ -20,7 +20,7 @@ import org.neo4j.ogm.RequestProxy;
 /**
  * @author Vince Bickers
  */
-public class CourseRequest extends RequestProxy {
+public class CoursesRequest extends RequestProxy {
 
     public String[] getResponse() {
         return jsonModel;

@@ -14,9 +14,6 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
@@ -25,6 +22,7 @@ import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.response.*;
@@ -34,6 +32,9 @@ import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -41,11 +42,11 @@ import org.slf4j.LoggerFactory;
 public class SessionRequestHandler implements RequestHandler {
 
     private final ObjectMapper mapper;
-    private final Neo4jRequest<String> request;
+    private final Driver driver;
     private final Logger logger = LoggerFactory.getLogger(SessionRequestHandler.class);
 
-    public SessionRequestHandler(ObjectMapper mapper, Neo4jRequest<String> request) {
-        this.request = request;
+    public SessionRequestHandler(ObjectMapper mapper, Driver driver) {
+        this.driver = driver;
         this.mapper = mapper;
     }
 
@@ -96,7 +97,7 @@ public class SessionRequestHandler implements RequestHandler {
             // ugh.
             if (!json.contains("statement\":\"\"")) {    // not an empty statement
                 logger.debug(json);
-                return request.execute(url, json);
+                return driver.execute(url, json);
             }
             return new EmptyResponse();
         } catch (JsonProcessingException jpe) {

@@ -14,13 +14,15 @@
 
 package org.neo4j.ogm;
 
-import org.neo4j.ogm.session.request.Neo4jRequest;
+import org.neo4j.ogm.authentication.Neo4jCredentials;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.transaction.Transaction;
 
 /**
  * @author Vince Bickers
  */
-public abstract class RequestProxy implements Neo4jRequest<String> {
+public abstract class RequestProxy implements Driver<String> {
 
     protected abstract String[] getResponse();
 
@@ -67,4 +69,36 @@ public abstract class RequestProxy implements Neo4jRequest<String> {
         }
     }
 
+
+
+
+    @Override
+    public void rollback(Transaction tx) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void commit(Transaction tx) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public String newTransactionUrl(String host) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void authorize(Neo4jCredentials credentials) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Object execute(Object request) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void close() {
+
+    }
 }

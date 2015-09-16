@@ -19,7 +19,7 @@ package org.neo4j.ogm.metadata.classloader;
  * @author vince
  *
  */
-abstract class Resolver {
+public abstract class ClassLoaderResolver {
 
     private static Strategy strategy;
     private static final CallerResolver CALLER_RESOLVER;
@@ -33,7 +33,7 @@ abstract class Resolver {
         }
     }
 
-    static synchronized ClassLoader resolve() {
+    public static synchronized ClassLoader resolve() {
         return strategy.classLoader(callingClass());
     }
 

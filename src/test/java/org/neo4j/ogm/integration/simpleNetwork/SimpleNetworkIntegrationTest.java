@@ -18,13 +18,13 @@ import java.util.Set;
 public class SimpleNetworkIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.simpleNetwork").openSession(neo4jRule.url());
+        session = new SessionFactory("org.neo4j.ogm.domain.simpleNetwork").openSession(testServer.driver());
     }
 
     @After

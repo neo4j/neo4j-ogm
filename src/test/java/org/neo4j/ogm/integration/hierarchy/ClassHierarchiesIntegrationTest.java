@@ -55,7 +55,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class ClassHierarchiesIntegrationTest {
 
     @Rule
-    public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.hierarchy.domain");
 
@@ -63,11 +63,11 @@ public class ClassHierarchiesIntegrationTest {
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
     }
 
     private GraphDatabaseService getDatabase() {
-        return neo4jRule.getGraphDatabaseService();
+        return testServer.getGraphDatabaseService();
     }
 
     @Test
@@ -741,7 +741,7 @@ public class ClassHierarchiesIntegrationTest {
         new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})");
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.integration.hierarchy.conflicting");
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
 
         assertEquals(0, session.loadAll(Female.class).size());
     }

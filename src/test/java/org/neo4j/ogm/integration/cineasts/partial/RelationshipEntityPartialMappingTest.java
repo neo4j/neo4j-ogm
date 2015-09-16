@@ -39,14 +39,14 @@ import static junit.framework.Assert.assertEquals;
 public class RelationshipEntityPartialMappingTest {
 
     @Rule
-    public final Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public final Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
     @Before
     public void init() {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.partial");
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
     }
 
     @Test

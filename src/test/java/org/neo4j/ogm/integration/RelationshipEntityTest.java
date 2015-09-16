@@ -36,7 +36,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class RelationshipEntityTest {
 
     @Rule
-    public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private U u;
     private M m;
@@ -47,7 +47,7 @@ public class RelationshipEntityTest {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.integration").openSession(neo4jRule.url());
+        session = new SessionFactory("org.neo4j.ogm.integration").openSession(testServer.driver());
         u = new U("Luanne");
         m = new M("Taken");
         r1 = new R(u, m, "great!", 4);

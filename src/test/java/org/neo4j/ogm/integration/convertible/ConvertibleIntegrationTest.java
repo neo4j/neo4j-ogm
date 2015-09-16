@@ -53,13 +53,13 @@ import static org.junit.Assert.fail;
 public class ConvertibleIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private static Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession(neo4jRule.url());
+        session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession(testServer.driver());
     }
 
     /**

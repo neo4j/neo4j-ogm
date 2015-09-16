@@ -42,19 +42,19 @@ import static org.junit.Assert.*;
 public class SatelliteIntegrationTest
 {
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private static Session session;
 
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession(neo4jRule.url());
+        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession(testServer.driver());
         importSatellites();
     }
 
     private static void importSatellites() {
-        neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/satellites.cql");
+        testServer.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/satellites.cql");
     }
 
     @Test

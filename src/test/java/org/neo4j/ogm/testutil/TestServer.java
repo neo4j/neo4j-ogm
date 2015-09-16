@@ -113,7 +113,7 @@ public class TestServer {
      *
      * @return The URL of the Neo4j test server
      */
-    public String url() {
+    private String url() {
         return server.baseUri().toString();
     }
 

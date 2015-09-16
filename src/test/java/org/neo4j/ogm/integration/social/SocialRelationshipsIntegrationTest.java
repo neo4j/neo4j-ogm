@@ -37,23 +37,23 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class SocialRelationshipsIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
 		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
-		session = sessionFactory.openSession(neo4jRule.url());
+		session = sessionFactory.openSession(testServer.driver());
 	}
 
     @After
     public void clearDatabase() {
-        neo4jRule.clearDatabase();
+        testServer.clearDatabase();
     }
 
 	private static GraphDatabaseService getDatabase() {
-	    return neo4jRule.getGraphDatabaseService();
+	    return testServer.getGraphDatabaseService();
 	}
 
 	/**

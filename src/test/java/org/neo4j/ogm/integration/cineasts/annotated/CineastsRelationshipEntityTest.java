@@ -37,13 +37,13 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class CineastsRelationshipEntityTest{
 
 	@Rule
-	public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+	public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(neo4jRule.url());
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(testServer.driver());
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class CineastsRelationshipEntityTest{
 
 	@Test
 	public void shouldCreateREWithExistingStartAndEndNodes() {
-		neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
+		testServer.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
 
 		Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", "Top Gear"));
 		Movie movie = films.iterator().next();
@@ -137,7 +137,7 @@ public class CineastsRelationshipEntityTest{
 
 	@Test
 	public void shouldNotLoseRelationshipEntitiesWhenALoadedEntityIsPersisted() {
-		neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
+		testServer.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
 
 		Movie topGear = session.loadAll(Movie.class, new Filter("title", "Top Gear")).iterator().next();
 		assertEquals(2,topGear.getRatings().size());  //2 ratings
@@ -630,7 +630,7 @@ public class CineastsRelationshipEntityTest{
 	 */
 	@Test
 	public void shouldRetainREsWhenAStartOrEndNodeIsLoaded() {
-		neo4jRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
+		testServer.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
 
 		Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", "Top Gear"));
 		Movie movie = films.iterator().next();

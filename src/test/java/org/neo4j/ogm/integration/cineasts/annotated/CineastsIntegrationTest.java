@@ -40,18 +40,18 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class CineastsIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule databaseServerRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private static Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(databaseServerRule.url());
+        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(testServer.driver());
         importCineasts();
     }
 
     private static void importCineasts() {
-        databaseServerRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
+        testServer.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
     }
 
     @Test

@@ -38,7 +38,7 @@ public class AA extends RelationshipTrait
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
@@ -50,7 +50,7 @@ public class AA extends RelationshipTrait
 	@Before
 	public void init() throws IOException {
 		sessionFactory = new SessionFactory("org.neo4j.ogm.unit.mapper.direct.aa");
-		session = sessionFactory.openSession(neo4jRule.url());
+		session = sessionFactory.openSession(testServer.driver());
 		setUpEntityModel();
 
 	}

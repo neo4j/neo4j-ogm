@@ -54,7 +54,7 @@ import static org.junit.Assert.assertEquals;
 public class StaleObjectTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Folder f;
     private Document a;
@@ -65,7 +65,7 @@ public class StaleObjectTest {
     @Before
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem");
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
 
         a = new Document();
         a.setName("a");

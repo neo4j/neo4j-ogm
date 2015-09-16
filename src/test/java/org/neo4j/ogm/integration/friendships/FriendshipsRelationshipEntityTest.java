@@ -39,13 +39,13 @@ import static org.junit.Assert.assertEquals;
 public class FriendshipsRelationshipEntityTest {
 
 	@Rule
-	public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+	public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(neo4jRule.url());
+		session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(testServer.driver());
 	}
 
 	@Test

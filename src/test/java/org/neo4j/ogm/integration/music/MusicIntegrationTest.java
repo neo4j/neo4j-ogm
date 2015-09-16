@@ -40,13 +40,13 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class MusicIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private static Session session;
 
     @Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.music").openSession(neo4jRule.url());
+		session = new SessionFactory("org.neo4j.ogm.domain.music").openSession(testServer.driver());
 	}
 
 	@After
@@ -100,7 +100,7 @@ public class MusicIntegrationTest {
 	 */
 	@Test
 	public void shouldLoadStudioWithLocationMissingInDomainModel() {
-		new ExecutionEngine(neo4jRule.getGraphDatabaseService()).execute("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})");
+		new ExecutionEngine(testServer.getGraphDatabaseService()).execute("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})");
 		Studio studio = session.loadAll(Studio.class, new Filter("name", "Abbey Road Studios")).iterator().next();
 		assertNotNull(studio);
 

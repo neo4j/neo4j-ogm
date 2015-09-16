@@ -36,7 +36,7 @@ public class ABTest
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
@@ -49,7 +49,7 @@ public class ABTest
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.unit.mapper.transitive.ab");
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
         setUpEntityModel();
     }
 

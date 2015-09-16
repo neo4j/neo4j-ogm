@@ -35,7 +35,7 @@ public class GraphIdCapabilityTest {
 
 
 	@ClassRule
-	public static Neo4jIntegrationTestRule databaseServerRule = new Neo4jIntegrationTestRule();
+	public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
 	private Session session;
 	private Long pleaseId;
@@ -48,7 +48,7 @@ public class GraphIdCapabilityTest {
 	@Before
 	public void init() throws IOException {
 		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
-		session = sessionFactory.openSession(databaseServerRule.url());
+		session = sessionFactory.openSession(testServer.driver());
 
 		//Create some data
 		theBeatles = new Artist("The Beatles");
@@ -69,7 +69,7 @@ public class GraphIdCapabilityTest {
 
 	@After
 	public void clearDatabase() {
-		databaseServerRule.clearDatabase();
+		testServer.clearDatabase();
 	}
 
 	/**

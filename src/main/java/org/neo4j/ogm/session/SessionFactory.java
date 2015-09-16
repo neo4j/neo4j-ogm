@@ -77,6 +77,18 @@ public class SessionFactory {
     }
 
     /**
+     * Opens a new Neo4j mapping {@link Session} using the specified Driver
+     * The driver should be configured to connect to the database using the appropriate
+     * DriverConfig
+     *
+     * @param driver The driver to use to connect to Neo4j
+     * @return A new {@link Session}
+     */
+    public Session openSession(Driver driver) {
+        return new Neo4jSession(metaData, objectMapper, driver);
+    }
+
+    /**
      * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database.
      *
      * The connection is opened using the Http driver protocol.

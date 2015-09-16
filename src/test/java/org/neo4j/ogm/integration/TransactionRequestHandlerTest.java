@@ -34,7 +34,7 @@ public class TransactionRequestHandlerTest
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
@@ -43,7 +43,7 @@ public class TransactionRequestHandlerTest
     public void testCreateLongTransaction() {
 
 
-        TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
+        TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
         try (Transaction tx = txRequestHandler.openTransaction(null)) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
@@ -52,7 +52,7 @@ public class TransactionRequestHandlerTest
     @Test
     public void testCreateConcurrentTransactions() {
 
-        TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
+        TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
 
         // note that the try-with-resources implies these transactions are nested, but they are in fact independent
         try (Transaction tx1 = txRequestHandler.openTransaction(null)) {
@@ -67,7 +67,7 @@ public class TransactionRequestHandlerTest
     @Test(expected = ResultProcessingException.class)
     public void shouldDetectErrorsOnCommitOfLongRunningTransaction() {
         SessionFactory sessionFactory = new SessionFactory("");
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
         Transaction tx = session.beginTransaction();
         session.query("GARBAGE", Utils.map());
         tx.commit();
@@ -75,8 +75,8 @@ public class TransactionRequestHandlerTest
 
     @Test(expected = ResultProcessingException.class)
     public void shouldDetectErrorsOnCommitOfNonExistentTransaction() {
-        TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
-        Transaction tx = new LongTransaction(null, neo4jRule.url(), txRequestHandler);
+        TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
+        Transaction tx = new LongTransaction(null, null, txRequestHandler);
         tx.commit();
     }
 

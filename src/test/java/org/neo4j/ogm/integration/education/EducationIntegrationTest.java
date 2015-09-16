@@ -42,13 +42,13 @@ public class EducationIntegrationTest
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule databaseServerRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.education").openSession(databaseServerRule.url());
+        session = new SessionFactory("org.neo4j.ogm.domain.education").openSession(testServer.driver());
     }
 
     @Test

@@ -40,19 +40,19 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class SocialIntegrationTest
 {
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private Session session;
 
 
     @Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(neo4jRule.url());
+		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(testServer.driver());
 	}
 
 	@After
 	public void clearDatabase() {
-	    neo4jRule.clearDatabase();
+	    testServer.clearDatabase();
 	}
 
 	/**

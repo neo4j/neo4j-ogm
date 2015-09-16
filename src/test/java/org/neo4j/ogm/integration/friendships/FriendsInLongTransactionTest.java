@@ -31,16 +31,16 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class FriendsInLongTransactionTest {
 
 	@ClassRule
-	public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+	public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
-	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(neo4jRule.url());
+	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(testServer.driver());
 
 	/**
 	 * @see DATAGRAPH-703
 	 */
 	@Test
 	public void createPersonAndFriendsInLongTransaction() {
-		TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
+		TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
 		try (Transaction tx = txRequestHandler.openTransaction(null)) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
 			Person john = new Person("John");

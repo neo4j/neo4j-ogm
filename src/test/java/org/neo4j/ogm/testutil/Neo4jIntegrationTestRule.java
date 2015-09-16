@@ -31,7 +31,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
  * public class MyJUnitTest {
  *
  *     &#064;ClassRule
- *     public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+ *     public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
  *
  * }
  * </pre>
@@ -40,7 +40,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
  * public class MyOtherJUnitTest {
  *
  *     &#064;Rule
- *     public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+ *     public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
  *
  * }
  * </pre>

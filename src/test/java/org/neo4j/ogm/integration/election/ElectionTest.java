@@ -26,7 +26,7 @@ import java.io.IOException;
 public class ElectionTest {
 
     @Rule
-    public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.election");
 
@@ -34,11 +34,11 @@ public class ElectionTest {
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
     }
 
     private GraphDatabaseService getDatabase() {
-        return neo4jRule.getGraphDatabaseService();
+        return testServer.getGraphDatabaseService();
     }
 
     @Test

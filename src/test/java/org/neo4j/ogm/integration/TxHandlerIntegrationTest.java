@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNotNull;
 public class TxHandlerIntegrationTest {
 
     @Rule
-    public Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule(7577);
+    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule(7577);
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -53,7 +53,7 @@ public class TxHandlerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        neo4jRule.getGraphDatabaseService().registerTransactionEventHandler(new TransactionEventHandler.Adapter<Object>() {
+        testServer.getGraphDatabaseService().registerTransactionEventHandler(new TransactionEventHandler.Adapter<Object>() {
             @Override
             public Object beforeCommit(TransactionData data) throws Exception {
                 for (Node createdNode : data.createdNodes()) {
@@ -63,7 +63,7 @@ public class TxHandlerIntegrationTest {
                 return null;
             }
         });
-        session = sessionFactory.openSession(neo4jRule.url());
+        session = sessionFactory.openSession(testServer.driver());
     }
 
     @Test
@@ -77,8 +77,8 @@ public class TxHandlerIntegrationTest {
         long id = wheel.getId();
 
         String uuid;
-        try (Transaction tx = neo4jRule.getGraphDatabaseService().beginTx()) {
-            uuid = neo4jRule.getGraphDatabaseService().getNodeById(id).getProperty("uuid", "unknown").toString();
+        try (Transaction tx = testServer.getGraphDatabaseService().beginTx()) {
+            uuid = testServer.getGraphDatabaseService().getNodeById(id).getProperty("uuid", "unknown").toString();
             tx.success();
         }
 

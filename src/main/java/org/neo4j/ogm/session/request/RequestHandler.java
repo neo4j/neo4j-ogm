@@ -15,8 +15,6 @@
 package org.neo4j.ogm.session.request;
 
 
-import java.util.List;
-
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
@@ -27,6 +25,9 @@ import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.transaction.Transaction;
+
+import java.util.List;
 
 /**
  * @author Vince Bickers
@@ -35,10 +36,10 @@ import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 public interface RequestHandler {
 
     // the default response type for Query is GraphModel
-    Neo4jResponse<GraphModel> execute(Query qry, String url);
-    Neo4jResponse<RowModel> execute(RowModelQuery query, String url);
-    Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query, String url);
-    Neo4jResponse<String> execute(ParameterisedStatement statement, String url);
-    Neo4jResponse<String> execute(List<ParameterisedStatement> statementList, String url);
-    Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query, String url);
+    Neo4jResponse<GraphModel> execute(Query qry, Transaction tx);
+    Neo4jResponse<RowModel> execute(RowModelQuery query, Transaction tx);
+    Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query, Transaction tx);
+    Neo4jResponse<String> execute(ParameterisedStatement statement, Transaction tx);
+    Neo4jResponse<String> execute(List<ParameterisedStatement> statementList, Transaction tx);
+    Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query, Transaction tx);
 }

@@ -16,6 +16,7 @@ package org.neo4j.ogm;
 
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.transaction.Transaction;
 
@@ -26,7 +27,7 @@ public abstract class RequestProxy implements Driver<String> {
 
     protected abstract String[] getResponse();
 
-    public Neo4jResponse<String> execute(String url, String request) {
+    public Neo4jResponse<String> execute(String request, Transaction tx) {
         return new Response(getResponse());
     }
 
@@ -93,12 +94,12 @@ public abstract class RequestProxy implements Driver<String> {
     }
 
     @Override
-    public Object execute(Object request) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public void close() {
+
     }
 
     @Override
-    public void close() {
+    public void configure(DriverConfig config) {
 
     }
 }

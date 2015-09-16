@@ -13,8 +13,6 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.Collection;
-
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -23,6 +21,9 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.transaction.Transaction;
+
+import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -39,7 +40,8 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        String url = session.ensureTransaction().url();
+        Transaction tx = session.ensureTransaction();
+
         String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
@@ -47,7 +49,7 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 
-        try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, url)) {
+        try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, tx)) {
             return session.responseHandler().loadAll(type, response);
         }
     }

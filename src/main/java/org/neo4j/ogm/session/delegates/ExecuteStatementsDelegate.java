@@ -13,8 +13,6 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
 import org.neo4j.ogm.session.Capability;
@@ -23,6 +21,9 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.transaction.Transaction;
+
+import java.util.Map;
 
 /**
  * @author Vince Bickers
@@ -46,11 +47,12 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
         assertNothingReturned(cypher);
-        String url  = session.ensureTransaction().url();
+        Transaction tx = session.ensureTransaction();
+
         // NOTE: No need to check if domain objects are parameters and flatten them to json as this is done
         // for us using the existing execute() method.
         RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
-        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, url)) {
+        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, tx)) {
             RowQueryStatisticsResult result = response.next();
             return result == null ? null : result.getStats();
         }
@@ -63,8 +65,8 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
         }
         assertNothingReturned(statement);
         RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(statement, Utils.map());
-        String url = session.ensureTransaction().url();
-        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, url)) {
+        Transaction tx = session.ensureTransaction();
+        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, tx)) {
             RowQueryStatisticsResult result = response.next();
             return result == null ? null : result.getStats();
         }

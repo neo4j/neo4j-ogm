@@ -33,6 +33,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.GraphRowModel;
+import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.Collection;
 
@@ -51,7 +52,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        String url = session.ensureTransaction().url();
+        Transaction tx = session.ensureTransaction();
         String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
@@ -65,7 +66,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, url)) {
+            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, tx)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
@@ -77,11 +78,11 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setPagination(pagination);
 
             if (depth != 0) {
-                try (Neo4jResponse<GraphRowModel> response = session.requestHandler().execute((GraphRowModelQuery) qry, url)) {
+                try (Neo4jResponse<GraphRowModel> response = session.requestHandler().execute((GraphRowModelQuery) qry, tx)) {
                     return session.responseHandler().loadByProperty(type, response);
                 }
             } else {
-                try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, url)) {
+                try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, tx)) {
                     return session.responseHandler().loadAll(type, response);
                 }
             }

@@ -11,7 +11,7 @@ The `Neo4jIntegrationTestRule` provides a URL with which to access an in process
 public class ActorTest{
 
   	@Rule
-  	public Neo4jIntegrationTestRule databaseServerRule = new Neo4jIntegrationTestRule();
+  	public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
 
   	private Session session;
 
@@ -19,12 +19,12 @@ public class ActorTest{
   	public void init()  {
   		SessionFactory sessionFactory =
   			new SessionFactory("org.neo4j.example.domain");
-  		session = sessionFactory.openSession(databaseServerRule.url());
+  		session = sessionFactory.openSession(testServer.driver());
   	}
 
   	@After
   	public void clearDatabase() {
-  		databaseServerRule.clearDatabase();
+  		testServer.clearDatabase();
   	}
 
   	@Test

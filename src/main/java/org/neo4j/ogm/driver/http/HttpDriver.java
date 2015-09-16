@@ -1,4 +1,4 @@
-package org.neo4j.ogm.driver;
+package org.neo4j.ogm.driver.http;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -18,6 +18,8 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.session.response.JsonResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ErrorsException;
@@ -29,23 +31,18 @@ import org.slf4j.LoggerFactory;
 /**
  * @author vince
  */
-public class HttpClientDriver implements Driver<String> {
-
+public class HttpDriver implements Driver<String> {
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
 
-    private final Logger logger = LoggerFactory.getLogger(HttpClientDriver.class);
+    private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
 
     private Neo4jCredentials credentials = null;
+    private DriverConfig driverConfig;
 
     @Override
     public void authorize(Neo4jCredentials credentials) {
         this.credentials = credentials;
-    }
-
-    @Override  // not needed
-    public Object execute(Object request) throws Exception {
-        return httpClient.execute((HttpRequestBase) request);
     }
 
     @Override
@@ -55,6 +52,11 @@ public class HttpClientDriver implements Driver<String> {
         } catch (Exception e) {
             logger.warn("Unexpected Exception when closing http client transport: ", e);
         }
+    }
+
+    @Override
+    public void configure(DriverConfig config) {
+        this.driverConfig = config;
     }
 
     @Override
@@ -85,11 +87,12 @@ public class HttpClientDriver implements Driver<String> {
     }
 
     @Override
-    public Neo4jResponse<String> execute(String url, String cypherQuery) {
+    public Neo4jResponse<String> execute(String cypherQuery, Transaction tx) {
 
         JsonResponse jsonResponse = null;
 
         try {
+            String url = tx.url();
 
             logger.debug("POST " + url + ", request: " + cypherQuery);
 

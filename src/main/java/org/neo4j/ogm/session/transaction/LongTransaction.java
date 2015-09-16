@@ -14,17 +14,12 @@
 
 package org.neo4j.ogm.session.transaction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.mapper.MappingContext;
 
 /**
  * @author Vince Bickers
  */
 public class LongTransaction extends SimpleTransaction {
-
-    private final Logger logger = LoggerFactory.getLogger(LongTransaction.class);
 
     private final TransactionManager transactionRequestHandler;
 

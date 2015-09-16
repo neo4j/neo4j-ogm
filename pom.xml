@@ -81,6 +81,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- this is only required to support the embedded driver -->
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>${neo4j}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.neo4j.test</groupId>
             <artifactId>neo4j-harness</artifactId>

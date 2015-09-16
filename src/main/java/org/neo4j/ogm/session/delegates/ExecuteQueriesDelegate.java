@@ -13,10 +13,6 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.Query;
@@ -31,6 +27,11 @@ import org.neo4j.ogm.session.result.QueryResult;
 import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.transaction.Transaction;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Vince Bickers
@@ -85,9 +86,10 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return new QueryResult(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
-            String url  = session.ensureTransaction().url();
+            Transaction tx = session.ensureTransaction();
+
             RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
-            try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, url)) {
+            try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, tx)) {
                 RowQueryStatisticsResult result = response.next();
                 RowModelMapper rowModelMapper = new MapRowModelMapper();
                 Collection rowResult = new LinkedHashSet();
@@ -111,16 +113,16 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
 
-        String url = session.ensureTransaction().url();
+        Transaction tx = session.ensureTransaction();
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
             Query qry = new GraphModelQuery(cypher, parameters);
-            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, url)) {
+            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, tx)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
             RowModelQuery qry = new RowModelQuery(cypher, parameters);
-            try (Neo4jResponse<RowModel> response = session.requestHandler().execute(qry, url)) {
+            try (Neo4jResponse<RowModel> response = session.requestHandler().execute(qry, tx)) {
 
                 String[] variables = response.columns();
 
@@ -143,8 +145,9 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
 
         RowModelQuery countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
-        String url  = session.ensureTransaction().url();
-        try (Neo4jResponse<RowModel> response = session.requestHandler().execute(countStatement, url)) {
+        Transaction tx = session.ensureTransaction();
+
+        try (Neo4jResponse<RowModel> response = session.requestHandler().execute(countStatement, tx)) {
             RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
         }

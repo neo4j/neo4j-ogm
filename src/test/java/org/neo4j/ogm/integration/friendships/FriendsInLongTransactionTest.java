@@ -40,7 +40,7 @@ public class FriendsInLongTransactionTest {
 	 */
 	@Test
 	public void createPersonAndFriendsInLongTransaction() {
-		TransactionManager txRequestHandler = new TransactionManager(Drivers.HTTP, neo4jRule.url());
+		TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
 		try (Transaction tx = txRequestHandler.openTransaction(null)) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
 			Person john = new Person("John");

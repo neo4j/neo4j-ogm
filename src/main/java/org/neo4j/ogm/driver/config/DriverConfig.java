@@ -8,13 +8,13 @@ import java.util.Map;
  */
 public class DriverConfig {
 
-    private Map<String, String> config = new HashMap();
+    private Map<String, Object> config = new HashMap();
 
-    public String getConfig(String key) {
-        return config.get(key);
+    public void setConfig(String key, Object value) {
+        config.put(key, value);
     }
 
-    public void setConfig(String key, String value) {
-        config.put(key, value);
+    public Object getConfig(String key) {
+        return config.get(key);
     }
 }

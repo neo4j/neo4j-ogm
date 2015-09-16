@@ -15,9 +15,11 @@
 package org.neo4j.ogm.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.Drivers;
+import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.metadata.MetaData;
 
 import java.net.URI;
@@ -49,99 +51,6 @@ public class SessionFactory {
         this.metaData = new MetaData(packages);
     }
 
-    /**
-     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database.
-     * The url may optionally contain the username and password to use while authenticating
-     * for example, http://username:password@neo-server:port
-     * Otherwise, if authentication is required, the username and password will be read from System properties.
-     *
-     * The connection is opened using the default driver protocol.
-     *
-     * @param url The base URL of the Neo4j database with which to communicate.
-     * @return A new {@link Session}
-     */
-    public Session openSession(String url) {
-        try {
-            URI uri = new URI(url);
-            String username = null;
-            String password = null;
-            String uriStr = uri.toString();
-            String auth = uri.getUserInfo();
-            if (auth != null && !auth.trim().isEmpty()) {
-                username=auth.split(":")[0];
-                password=auth.split(":")[1];
-
-                uriStr = uri.getScheme() + "://" + uri.toString().substring(uri.toString().indexOf(auth) + auth.length()+1);
-            }
-
-            if(username!=null && password!=null) {
-                return new Neo4jSession(metaData, uriStr, Drivers.DEFAULT, objectMapper, new UsernamePasswordCredentials(username, password));
-
-            }
-            return new Neo4jSession(metaData, uriStr, Drivers.DEFAULT, objectMapper);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database.
-     *
-     * The connection is opened using the default driver protocol.
-     *
-     * @param url The base URL of the Neo4j database with which to communicate
-     * @param username The username to authenticate with
-     * @param password The password to authenticate with
-     * @return A new {@link Session}
-     */
-    public Session openSession(String url, String username, String password) {
-        return new Neo4jSession(metaData, url, Drivers.DEFAULT, objectMapper, new UsernamePasswordCredentials(username, password));
-    }
-
-    /**
-     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database using the specified driver.
-     *
-     * @param url The base URL of the Neo4j database with which to communicate
-     * @param driver the driver to use to connect to neo4k
-     * @return A new {@link Session}
-     */
-
-    public Session openSession(String url, Driver driver) {
-        try {
-            URI uri = new URI(url);
-            String username = null;
-            String password = null;
-            String uriStr = uri.toString();
-            String auth = uri.getUserInfo();
-            if (auth != null && !auth.trim().isEmpty()) {
-                username=auth.split(":")[0];
-                password=auth.split(":")[1];
-
-                uriStr = uri.getScheme() + "://" + uri.toString().substring(uri.toString().indexOf(auth) + auth.length()+1);
-            }
-
-            if(username!=null && password!=null) {
-                return new Neo4jSession(metaData, uriStr, driver, objectMapper, new UsernamePasswordCredentials(username, password));
-
-            }
-            return new Neo4jSession(metaData, uriStr, driver, objectMapper);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database using the specified driver.
-     *
-     * @param url The base URL of the Neo4j database with which to communicate
-     * @param driver the driver to use to connect to neo4k
-     * @param username The username to authenticate with
-     * @param password The password to authenticate with
-     * @return A new {@link Session}
-     */
-    public Session openSession(String url, String username, String password, Driver driver) {
-        return new Neo4jSession(metaData, url, driver, objectMapper, new UsernamePasswordCredentials(username, password));
-    }
 
     /**
      * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.
@@ -150,6 +59,81 @@ public class SessionFactory {
      */
     public MetaData metaData() {
         return metaData;
+    }
+
+    /**
+     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database.
+     * The url may optionally contain the username and password to use while authenticating
+     * for example, http://username:password@neo-server:port
+     * Otherwise, if authentication is required, the username and password will be read from System properties.
+     *
+     * The connection is opened using the Http driver protocol.
+     *
+     * @param url The base URL of the Neo4j database with which to communicate.
+     * @return A new {@link Session}
+     */
+    public Session openSession(String url) {
+        return openSession(url, Drivers.HTTP);
+    }
+
+    /**
+     * Opens a new Neo4j mapping {@link Session} against the specified Neo4j database.
+     *
+     * The connection is opened using the Http driver protocol.
+     *
+     * @param url The base URL of the Neo4j database with which to communicate
+     * @param username The username to authenticate with
+     * @param password The password to authenticate with
+     * @return A new {@link Session}
+     */
+    public Session openSession(String url, String username, String password) {
+        return openSession(url, username, password, Drivers.HTTP);
+    }
+
+    private Session openSession(String url, Driver driver) {
+
+        DriverConfig driverConfig = new DriverConfig();
+        driver.configure(driverConfig);
+
+        try {
+            URI uri = new URI(url);
+            String username = null;
+            String password = null;
+            String uriStr = uri.toString();
+            String auth = uri.getUserInfo();
+            if (auth != null && !auth.trim().isEmpty()) {
+                username=auth.split(":")[0];
+                password=auth.split(":")[1];
+
+                uriStr = uri.getScheme() + "://" + uri.toString().substring(uri.toString().indexOf(auth) + auth.length()+1);
+            }
+
+            driverConfig.setConfig("server", uriStr);
+
+            // todo: fix this mess with credentials
+            if (username != null && password != null) {
+                driverConfig.setConfig("credentials", new UsernamePasswordCredentials(username, password));
+            }
+            else {
+                driverConfig.setConfig("credentials", CredentialsService.userNameAndPassword());
+            }
+
+            return new Neo4jSession(metaData, objectMapper, driver);
+
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Session openSession(String url, String username, String password, Driver driver) {
+
+        DriverConfig driverConfig = new DriverConfig();
+        driver.configure(driverConfig);
+
+        driverConfig.setConfig("server", url);
+        driverConfig.setConfig("credentials", new UsernamePasswordCredentials(username, password));
+
+        return new Neo4jSession(metaData, objectMapper, driver);
     }
 
 }

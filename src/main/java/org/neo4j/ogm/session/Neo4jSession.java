@@ -15,7 +15,6 @@
 package org.neo4j.ogm.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -67,28 +66,14 @@ public class Neo4jSession implements Session {
 
     private Driver driver;
 
-    public Neo4jSession(MetaData metaData, String url, Driver driver, ObjectMapper mapper) {
+    public Neo4jSession(MetaData metaData, ObjectMapper mapper, Driver driver) {
+
         this.metaData = metaData;
         this.mapper = mapper;
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
-
-        this.txManager = new TransactionManager(driver, url);
-
-        transactionsDelegate.autoCommit(url);
-    }
-
-    public Neo4jSession(MetaData metaData, String url, Driver driver, ObjectMapper mapper, Neo4jCredentials credentials) {
-        this.metaData = metaData;
-        this.mapper = mapper;
-        this.driver = driver;
-
-
-        this.mappingContext = new MappingContext(metaData);
-        this.txManager = new TransactionManager(driver, url, credentials);
-
-        transactionsDelegate.autoCommit(url);
+        this.txManager = new TransactionManager(driver);
     }
 
     /*
@@ -475,7 +460,7 @@ public class Neo4jSession implements Session {
     }
 
     public Transaction ensureTransaction() {
-        return transactionsDelegate.getCurrentOrAutocommitTransaction();
+        return transactionsDelegate.getCurrentOrTransientTransaction();
     }
 
     public ResponseHandler responseHandler() {

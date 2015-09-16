@@ -16,7 +16,6 @@ package org.neo4j.ogm.integration;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.neo4j.ogm.driver.Drivers;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -43,7 +42,8 @@ public class TransactionRequestHandlerTest
     @Test
     public void testCreateLongTransaction() {
 
-        TransactionManager txRequestHandler = new TransactionManager(Drivers.HTTP, neo4jRule.url());
+
+        TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
         try (Transaction tx = txRequestHandler.openTransaction(null)) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
@@ -52,7 +52,7 @@ public class TransactionRequestHandlerTest
     @Test
     public void testCreateConcurrentTransactions() {
 
-        TransactionManager txRequestHandler = new TransactionManager(Drivers.HTTP, neo4jRule.url());
+        TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
 
         // note that the try-with-resources implies these transactions are nested, but they are in fact independent
         try (Transaction tx1 = txRequestHandler.openTransaction(null)) {
@@ -75,7 +75,7 @@ public class TransactionRequestHandlerTest
 
     @Test(expected = ResultProcessingException.class)
     public void shouldDetectErrorsOnCommitOfNonExistentTransaction() {
-        TransactionManager txRequestHandler = new TransactionManager(Drivers.HTTP, neo4jRule.url());
+        TransactionManager txRequestHandler = new TransactionManager(neo4jRule.driver());
         Transaction tx = new LongTransaction(null, neo4jRule.url(), txRequestHandler);
         tx.commit();
     }

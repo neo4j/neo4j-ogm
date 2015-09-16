@@ -2,7 +2,6 @@ package org.neo4j.ogm.driver.embedded;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
@@ -20,8 +19,11 @@ public class EmbeddedDriver implements Driver<String> {
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
     private GraphDatabaseService graphDb = null;
-    private Neo4jCredentials credentials;
     private DriverConfig driverConfig;
+
+    public EmbeddedDriver() {
+        this.driverConfig = new DriverConfig("driver.properties.embedded");
+    }
 
     /**
      * Registers a shutdown hook for the Neo4j instance so that it
@@ -55,7 +57,7 @@ public class EmbeddedDriver implements Driver<String> {
 
         graphDb = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder( storeDir )
-                .loadPropertiesFromFile("neo4j.properties" )
+                .loadPropertiesFromFile("neo4j.properties" )   // don't do this. use the autoconfig mechanism
                 .newGraphDatabase();
     }
 
@@ -88,6 +90,11 @@ public class EmbeddedDriver implements Driver<String> {
     @Override
     public Neo4jResponse<String> execute(String jsonStatements, Transaction tx) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Object getConfig(String key) {
+        return driverConfig.getConfig(key);
     }
 
 }

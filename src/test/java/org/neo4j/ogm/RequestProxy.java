@@ -98,4 +98,9 @@ public abstract class RequestProxy implements Driver<String> {
     public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
         return null;
     }
+
+    @Override
+    public Object getConfig(String key) {
+        return null;
+    }
 }

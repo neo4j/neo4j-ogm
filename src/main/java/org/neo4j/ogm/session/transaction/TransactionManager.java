@@ -17,9 +17,8 @@ package org.neo4j.ogm.session.transaction;
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -27,38 +26,40 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionManager {
 
-    private final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
     private final Driver driver;
-    private final String transactionEndpoint;
     private final Neo4jCredentials credentials;
 
     private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
     public TransactionManager(Driver driver, String server) {
-
-        this.transactionEndpoint = transactionEndpoint(server);
-        this.driver = driver;
-        this.credentials = CredentialsService.userNameAndPassword();
-
-        this.driver.authorize(credentials);
-        transaction.remove();
+        this(driver, server, CredentialsService.userNameAndPassword());
     }
-
 
     public TransactionManager(Driver driver, String server, Neo4jCredentials credentials) {
 
-        this.transactionEndpoint = transactionEndpoint(server);
-        this.driver = driver;
         this.credentials = credentials;
+        this.driver = driver;
+
+        // todo: hack to get this working for now
+        DriverConfig driverConfig = new DriverConfig();
+        driverConfig.setConfig("server", server);
 
         this.driver.authorize(credentials);
+        this.driver.configure(driverConfig);
+
         transaction.remove();
     }
 
+    /**
+     * Opens a new transaction against a database instance.
+     *
+     * Instantiation of the transaction is left to the driver
+     *
+     * @param mappingContext
+     * @return
+     */
     public Transaction openTransaction(MappingContext mappingContext) {
-        String transactionEndpoint = driver.newTransactionUrl(this.transactionEndpoint);
-        logger.debug("Creating new transaction with endpoint " + transactionEndpoint);
-        transaction.set(new LongTransaction(mappingContext, transactionEndpoint, this));
+        transaction.set(driver.openTransaction(mappingContext, this));
         return transaction.get();
     }
 
@@ -80,16 +81,5 @@ public class TransactionManager {
         return credentials;
     }
 
-    private String transactionEndpoint(String server) {
-        if (server == null) {
-            return server;
-        }
-        String url = server;
-
-        if (!server.endsWith("/")) {
-            url += "/";
-        }
-        return url + "db/data/transaction";
-    }
 
 }

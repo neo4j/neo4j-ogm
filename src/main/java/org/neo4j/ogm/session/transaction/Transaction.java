@@ -57,4 +57,10 @@ public interface Transaction extends AutoCloseable {
     }
 
     void close();
+
+    /**
+     * indicates whether this transaction should auto-commit or not
+     * @return true if the transaction should autocommit (i.e. SimpleTransaction), false otherwise
+     */
+    boolean autoCommit();
 }

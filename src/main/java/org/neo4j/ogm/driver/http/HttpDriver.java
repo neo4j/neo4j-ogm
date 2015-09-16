@@ -20,11 +20,14 @@ import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.response.JsonResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.session.transaction.LongTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +80,14 @@ public class HttpDriver implements Driver<String> {
     }
 
     @Override
-    public String newTransactionUrl(String server) {
-        logger.debug("POST " + server);
-        HttpPost request = new HttpPost(server);
+    public Transaction openTransaction(MappingContext context, TransactionManager tx) {
+        return new LongTransaction(context, newTransactionUrl(), tx);
+    }
+
+    private String newTransactionUrl() {
+        String url = transactionEndpoint(driverConfig.getConfig("server"));
+        logger.debug("POST " + url);
+        HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
         HttpResponse response = executeRequest(request);
         Header location = response.getHeaders("Location")[0];
@@ -179,6 +187,19 @@ public class HttpDriver implements Driver<String> {
         finally {
             request.releaseConnection();
         }
+    }
+
+
+    private String transactionEndpoint(String server) {
+        if (server == null) {
+            return server;
+        }
+        String url = server;
+
+        if (!server.endsWith("/")) {
+            url += "/";
+        }
+        return url + "db/data/transaction";
     }
 
 }

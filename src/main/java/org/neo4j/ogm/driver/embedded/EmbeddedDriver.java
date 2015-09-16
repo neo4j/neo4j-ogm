@@ -5,8 +5,10 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +19,7 @@ public class EmbeddedDriver implements Driver<String> {
 
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
-    private GraphDatabaseService graphDb = null; //= new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+    private GraphDatabaseService graphDb = null;
     private Neo4jCredentials credentials;
     private DriverConfig driverConfig;
 
@@ -59,6 +61,9 @@ public class EmbeddedDriver implements Driver<String> {
 
     @Override
     public void rollback(Transaction tx) {
+
+        //Transaction tx = graphDb.beginTx();
+
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -68,9 +73,10 @@ public class EmbeddedDriver implements Driver<String> {
     }
 
     @Override
-    public String newTransactionUrl(String host) {
+    public Transaction openTransaction(MappingContext context, TransactionManager tx) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
 
     // should be configure. Then we can set up a config for each driver appropriately
     @Override

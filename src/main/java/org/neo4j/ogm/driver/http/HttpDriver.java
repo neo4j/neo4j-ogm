@@ -35,11 +35,15 @@ import org.slf4j.LoggerFactory;
 /**
  * @author vince
  */
-public class HttpDriver implements Driver<String> {
+public final class HttpDriver implements Driver<String> {
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
     private DriverConfig driverConfig;
+
+    public HttpDriver() {
+        this.driverConfig = new DriverConfig("driver.properties.http");
+    }
 
     @Override
     public void close() {
@@ -53,6 +57,11 @@ public class HttpDriver implements Driver<String> {
     @Override
     public void configure(DriverConfig config) {
         this.driverConfig = config;
+    }
+
+    @Override
+    public Object getConfig(String key) {
+        return driverConfig.getConfig(key);
     }
 
     @Override

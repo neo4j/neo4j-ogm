@@ -3,7 +3,7 @@
 
 == Neo4jIntegrationTestRule
 
-The `Neo4jIntegrationTestRule` provides a URL with which to access an in process database and can be included in your tests using `@Rule` or `@ClassRule`.
+The `Neo4jIntegrationTestRule` provides a URL with which to access an in-process Neo4j server and can be included in your tests using `@Rule` or `@ClassRule`.
 
 .Using Neo4jIntegrationTestRule
 [source,java]

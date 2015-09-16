@@ -15,6 +15,11 @@ public class BoltDriver implements Driver<String> {
 
     private DriverConfig driverConfig;
 
+    public BoltDriver() {
+        this.driverConfig = new DriverConfig("driver.properties.bolt");
+    }
+
+
     @Override
     public void configure(DriverConfig config) {
         this.driverConfig = config;
@@ -43,5 +48,10 @@ public class BoltDriver implements Driver<String> {
     @Override
     public Neo4jResponse<String> execute(String jsonStatements, Transaction tx) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Object getConfig(String key) {
+        return driverConfig.getConfig(key);
     }
 }

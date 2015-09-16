@@ -14,10 +14,8 @@
 
 package org.neo4j.ogm.session.transaction;
 
-import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
 
 /**
@@ -31,23 +29,11 @@ public class TransactionManager {
 
     private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
-    public TransactionManager(Driver driver, String server) {
-        this(driver, server, CredentialsService.userNameAndPassword());
-    }
-
-    public TransactionManager(Driver driver, String server, Neo4jCredentials credentials) {
-
-        this.credentials = credentials;
+    public TransactionManager(Driver driver) {
         this.driver = driver;
-
-        // todo: hack to get this working for now
-        DriverConfig driverConfig = new DriverConfig();
-        driverConfig.setConfig("server", server);
-
-        this.driver.authorize(credentials);
-        this.driver.configure(driverConfig);
-
         transaction.remove();
+        // todo : why this??
+        this.credentials = null;
     }
 
     /**
@@ -59,7 +45,12 @@ public class TransactionManager {
      * @return
      */
     public Transaction openTransaction(MappingContext mappingContext) {
-        transaction.set(driver.openTransaction(mappingContext, this));
+        transaction.set(driver.openTransaction(mappingContext, this, false));
+        return transaction.get();
+    }
+
+    public Transaction openTransientTransaction(MappingContext mappingContext) {
+        transaction.set(driver.openTransaction(mappingContext, this, true));
         return transaction.get();
     }
 
@@ -80,6 +71,5 @@ public class TransactionManager {
     public Neo4jCredentials credentials() {
         return credentials;
     }
-
 
 }

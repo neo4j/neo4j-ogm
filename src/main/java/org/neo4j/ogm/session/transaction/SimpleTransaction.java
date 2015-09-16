@@ -38,7 +38,7 @@ public class SimpleTransaction extends AbstractTransaction {
 
     @Override
     public boolean autoCommit() {
-        return url.endsWith("/commit");
+        return true;
     }
 
 }

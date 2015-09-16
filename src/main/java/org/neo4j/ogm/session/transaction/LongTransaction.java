@@ -45,4 +45,9 @@ public class LongTransaction extends SimpleTransaction {
         }
         super.close();
     }
+
+    @Override
+    public boolean autoCommit() {
+        return false;
+    }
 }

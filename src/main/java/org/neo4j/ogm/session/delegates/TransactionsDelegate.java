@@ -16,7 +16,6 @@ package org.neo4j.ogm.session.delegates;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.GraphCallback;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 
 /**
@@ -25,16 +24,9 @@ import org.neo4j.ogm.session.transaction.Transaction;
 public class TransactionsDelegate implements Capability.Transactions {
 
     private final Neo4jSession session;
-    private String autoCommitUrl;
 
     public TransactionsDelegate(Neo4jSession neo4jSession) {
         this.session = neo4jSession;
-    }
-
-    public void autoCommit(String url) {
-        if (url == null) return;
-        if (!url.endsWith("/")) url = url + "/";
-        autoCommitUrl = url + "db/data/transaction/commit";
     }
 
     @Override
@@ -51,7 +43,7 @@ public class TransactionsDelegate implements Capability.Transactions {
 
     @Override
     public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-        return graphCallback.apply(session.requestHandler(), getCurrentOrAutocommitTransaction(), session.metaData());
+        return graphCallback.apply(session.requestHandler(), getCurrentOrTransientTransaction(), session.metaData());
     }
 
 
@@ -60,19 +52,22 @@ public class TransactionsDelegate implements Capability.Transactions {
         return session.transactionManager().getCurrentTransaction();
     }
 
-    public Transaction getCurrentOrAutocommitTransaction() {
+    public Transaction getCurrentOrTransientTransaction() {
 
         session.debug("--------- new request ----------");
         session.debug("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
         session.debug("Session identity: " + this);
 
         Transaction tx = session.transactionManager().getCurrentTransaction();
+
         if (tx == null
                 || tx.status().equals(Transaction.Status.CLOSED)
                 || tx.status().equals(Transaction.Status.COMMITTED)
                 || tx.status().equals(Transaction.Status.ROLLEDBACK)) {
+
             session.debug("There is no existing transaction, creating a transient one");
-            return new SimpleTransaction(session.context(), autoCommitUrl);
+            return session.transactionManager().openTransientTransaction(session.context());
+
         }
 
         session.debug("Current transaction: " + tx.url() + ", tx id: " + tx);

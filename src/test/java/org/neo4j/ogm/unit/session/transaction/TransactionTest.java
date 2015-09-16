@@ -48,12 +48,10 @@ public class TransactionTest {
 
     @Test public void assertCommitOperation() {
         tx.append(new CypherContext());
-        tx.commit();
         assertEquals(Transaction.Status.COMMITTED, tx.status());
     }
 
     @Test public void assertRollbackOperation() {
-        tx.append(new CypherContext());
         tx.rollback();
         assertEquals(Transaction.Status.ROLLEDBACK, tx.status());
 
@@ -61,12 +59,10 @@ public class TransactionTest {
 
     @Test(expected = TransactionException.class) public void failRollbackIfCommitted() {
         tx.append(new CypherContext());
-        tx.commit();
         tx.rollback();
     }
 
     @Test(expected = TransactionException.class) public void failRollbackIfRolledBack() {
-        tx.append(new CypherContext());
         tx.rollback();
         tx.rollback();
     }
@@ -74,24 +70,20 @@ public class TransactionTest {
     @Test(expected = TransactionException.class) public void failCommitIfCommitted() {
         tx.append(new CypherContext());
         tx.commit();
-        tx.commit();
     }
 
     @Test(expected = TransactionException.class) public void failCommitIfRolledBack() {
-        tx.append(new CypherContext());
         tx.rollback();
         tx.commit();
     }
 
     @Test(expected = TransactionException.class) public void failNewOperationIfRolledBack() {
-        tx.append(new CypherContext());
         tx.rollback();
         tx.append(new CypherContext());
     }
 
     @Test(expected = TransactionException.class) public void failNewOperationIfCommitted() {
         tx.append(new CypherContext());
-        tx.commit();
         tx.append(new CypherContext());
     }
 
@@ -110,7 +102,7 @@ public class TransactionTest {
         cypherContext.log(teacher);
 
         tx.append(cypherContext);
-        tx.commit();
+
 
         // the mapping context should now be in sync with the persistent state
         assertFalse(mappingContext.isDirty(teacher));

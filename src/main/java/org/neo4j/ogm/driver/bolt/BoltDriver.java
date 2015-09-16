@@ -1,6 +1,5 @@
 package org.neo4j.ogm.driver.bolt;
 
-import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
@@ -32,14 +31,8 @@ public class BoltDriver implements Driver<String> {
     }
 
     @Override
-    public Transaction openTransaction(MappingContext context, TransactionManager tx) {
+    public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-
-    @Override
-    public void authorize(Neo4jCredentials credentials) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

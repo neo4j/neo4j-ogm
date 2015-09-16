@@ -14,15 +14,18 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.lang.reflect.Field;
-import java.util.Scanner;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.Drivers;
+import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.server.AbstractNeoServer;
+
+import java.lang.reflect.Field;
+import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -32,6 +35,7 @@ public class TestServer {
 
     private AbstractNeoServer server;
     private GraphDatabaseService database;
+    private Driver driver;
 
     public TestServer() {
 
@@ -69,6 +73,19 @@ public class TestServer {
         field.setAccessible(true);
         server = (AbstractNeoServer) field.get(controls);
         database = server.getDatabase().getGraph();
+
+
+        driver = Drivers.HTTP;
+
+        DriverConfig driverConfig = new DriverConfig();
+        driverConfig.setConfig("server", url());
+        driver.configure(driverConfig);
+
+
+    }
+
+    public Driver driver() {
+        return driver;
     }
 
     public synchronized void start() throws InterruptedException {

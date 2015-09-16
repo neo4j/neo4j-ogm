@@ -49,7 +49,7 @@ public class EmbeddedDriver implements Driver<String> {
             graphDb.shutdown();
         }
 
-        String storeDir = config.getConfig("neo4j.store");
+        String storeDir = (String) config.getConfig("neo4j.store");
 
         // TODO: String ha = config.getConfig("ha");
 
@@ -73,16 +73,10 @@ public class EmbeddedDriver implements Driver<String> {
     }
 
     @Override
-    public Transaction openTransaction(MappingContext context, TransactionManager tx) {
+    public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-
-    // should be configure. Then we can set up a config for each driver appropriately
-    @Override
-    public void authorize(Neo4jCredentials credentials) {
-        this.credentials = credentials;
-    }
 
     @Override
     public void close() {

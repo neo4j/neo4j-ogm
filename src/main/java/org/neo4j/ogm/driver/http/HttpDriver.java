@@ -26,6 +26,7 @@ import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.LongTransaction;
+import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -39,14 +40,7 @@ public class HttpDriver implements Driver<String> {
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
 
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
-
-    private Neo4jCredentials credentials = null;
     private DriverConfig driverConfig;
-
-    @Override
-    public void authorize(Neo4jCredentials credentials) {
-        this.credentials = credentials;
-    }
 
     @Override
     public void close() {
@@ -64,6 +58,9 @@ public class HttpDriver implements Driver<String> {
 
     @Override
     public void rollback(Transaction tx) {
+
+        assert(tx != null);
+
         String url = tx.url();
         logger.debug("DELETE " + url);
         HttpDelete request = new HttpDelete(url);
@@ -72,6 +69,9 @@ public class HttpDriver implements Driver<String> {
 
     @Override
     public void commit(Transaction tx) {
+
+        assert(tx != null);
+
         String url = tx.url() + "/commit";
         logger.debug("POST " + url);
         HttpPost request = new HttpPost(url);
@@ -80,12 +80,15 @@ public class HttpDriver implements Driver<String> {
     }
 
     @Override
-    public Transaction openTransaction(MappingContext context, TransactionManager tx) {
+    public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
+        if (autoCommit) {
+            return new SimpleTransaction(context, autoCommitUrl());
+        }
         return new LongTransaction(context, newTransactionUrl(), tx);
     }
 
     private String newTransactionUrl() {
-        String url = transactionEndpoint(driverConfig.getConfig("server"));
+        String url = transactionEndpoint((String) driverConfig.getConfig("server"));
         logger.debug("POST " + url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
@@ -94,13 +97,21 @@ public class HttpDriver implements Driver<String> {
         return location.getValue();
     }
 
+    private String autoCommitUrl() {
+        return transactionEndpoint((String) driverConfig.getConfig("server")).concat("/commit");
+    }
+
     @Override
     public Neo4jResponse<String> execute(String cypherQuery, Transaction tx) {
+
+        assert(tx != null);
 
         JsonResponse jsonResponse = null;
 
         try {
             String url = tx.url();
+
+            assert(url != null);
 
             logger.debug("POST " + url + ", request: " + cypherQuery);
 
@@ -113,7 +124,7 @@ public class HttpDriver implements Driver<String> {
             // http://tools.ietf.org/html/rfc7231#section-5.5.3
             request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
 
-            HttpRequestAuthorization.authorize(request, credentials);
+            HttpRequestAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
 
             request.setEntity(entity);
 
@@ -148,14 +159,12 @@ public class HttpDriver implements Driver<String> {
 
     private CloseableHttpResponse executeRequest(HttpRequestBase request) {
 
-        //assert(credentials != null);
-
         try {
 
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
 
 
-            HttpRequestAuthorization.authorize(request, credentials);
+            HttpRequestAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
 
             CloseableHttpResponse response = httpClient.execute(request);
             StatusLine statusLine = response.getStatusLine();

@@ -25,6 +25,7 @@ public class DriverConfigTest {
     @Test
     public void shouldAutoConfigureDriver() {
 
+
         Driver driver = new HttpDriver();
 
         assertEquals("http://localhost:7474", driver.getConfig("server"));

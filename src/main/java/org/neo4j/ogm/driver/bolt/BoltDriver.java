@@ -46,7 +46,7 @@ public class BoltDriver implements Driver<String> {
     }
 
     @Override
-    public Neo4jResponse<String> execute(String jsonStatements, Transaction tx) {
+    public Neo4jResponse<String> execute(String cypher) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

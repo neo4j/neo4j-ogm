@@ -41,7 +41,7 @@ public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsRe
 		this.response = response;
 		this.objectMapper = mapper;
 		try {
-			initialiseScan(ResponseRecord.RESULTS);
+			expect(ResponseRecord.RESULTS);
 		} catch (Exception e) {
 			//Ignore this exception since we're reading the JSON manually in next()
 			//TODO look into enhancing the JSONResponse parsing
@@ -82,8 +82,8 @@ public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsRe
 	}
 
 	@Override
-	public void initialiseScan(ResponseRecord record) {
-		response.initialiseScan(record);
+	public void expect(ResponseRecord record) {
+		response.expect(record);
 	}
 
 	@Override

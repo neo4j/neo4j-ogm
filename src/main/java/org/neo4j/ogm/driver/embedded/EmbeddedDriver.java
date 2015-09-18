@@ -6,6 +6,7 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public class EmbeddedDriver implements Driver<String> {
     private DriverConfig driverConfig;
 
     public EmbeddedDriver() {
-        this.driverConfig = new DriverConfig("driver.properties.embedded");
+        configure(new DriverConfig("driver.properties.embedded"));
     }
 
     /**
@@ -57,39 +58,47 @@ public class EmbeddedDriver implements Driver<String> {
 
         graphDb = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder( storeDir )
-                .loadPropertiesFromFile("neo4j.properties" )   // don't do this. use the autoconfig mechanism
+                //
+                //.loadPropertiesFromFile("neo4j.properties" )   // don't do this. use the autoconfig mechanism
                 .newGraphDatabase();
+
+        System.out.println("Started new database!");
+
+        config.setConfig("graphDb", graphDb);
     }
 
     @Override
     public void rollback(Transaction tx) {
 
-        //Transaction tx = graphDb.beginTx();
+        System.out.println("rolling back tx");
 
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void commit(Transaction tx) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
+        System.out.println("committing tx");
+
     }
 
     @Override
     public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new EmbeddedTransaction(context, tx, autoCommit, graphDb);
     }
 
 
     @Override
     public void close() {
+        System.out.println("closing database...");
         if (graphDb != null) {
             graphDb.shutdown();
         }
+        System.out.println("database successfully closed!");
     }
 
     @Override
-    public Neo4jResponse<String> execute(String jsonStatements, Transaction tx) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public Neo4jResponse<String> execute(String jsonStatements) {
+        return new EmbeddedDriverResponse(graphDb.execute(jsonStatements));
     }
 
     @Override

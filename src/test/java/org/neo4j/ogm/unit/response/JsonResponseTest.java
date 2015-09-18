@@ -56,7 +56,7 @@ public class JsonResponseTest {
     }
 
     private void parseResponse(JsonResponse rsp) {
-        rsp.initialiseScan(Neo4jResponse.ResponseRecord.ROW);
+        rsp.expect(Neo4jResponse.ResponseRecord.ROW);
         while (rsp.next() != null);
     }
 

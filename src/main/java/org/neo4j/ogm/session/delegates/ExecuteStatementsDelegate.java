@@ -47,12 +47,12 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
         assertNothingReturned(cypher);
-        Transaction tx = session.ensureTransaction();
+        session.ensureTransaction();
 
         // NOTE: No need to check if domain objects are parameters and flatten them to json as this is done
         // for us using the existing execute() method.
         RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
-        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, tx)) {
+        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement)) {
             RowQueryStatisticsResult result = response.next();
             return result == null ? null : result.getStats();
         }
@@ -66,7 +66,7 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
         assertNothingReturned(statement);
         RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(statement, Utils.map());
         Transaction tx = session.ensureTransaction();
-        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, tx)) {
+        try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement)) {
             RowQueryStatisticsResult result = response.next();
             return result == null ? null : result.getStats();
         }

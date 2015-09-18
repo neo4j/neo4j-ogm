@@ -19,7 +19,6 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.transaction.Transaction;
 
 /**
  * @author Vince Bickers
@@ -39,10 +38,10 @@ public class LoadOneDelegate implements Capability.LoadOne {
 
     @Override
     public <T> T load(Class<T> type, Long id, int depth) {
-        Transaction tx = session.ensureTransaction();
+        session.ensureTransaction();
         QueryStatements queryStatements = session.queryStatementsFor(type);
         Query qry = queryStatements.findOne(id,depth);
-        try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, tx)) {
+        try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry)) {
             return session.responseHandler().loadById(type, response, id);
         }
     }

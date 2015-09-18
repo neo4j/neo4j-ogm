@@ -15,13 +15,12 @@
 package org.neo4j.ogm.session.request;
 
 import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.transaction.Transaction;
 
 /**
  * @author Vince Bickers
  */
 public interface Neo4jRequest<T> {
 
-    Neo4jResponse<T> execute(String jsonStatements, Transaction tx);
+    Neo4jResponse<T> execute(String cypher);
 
 }

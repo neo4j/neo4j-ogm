@@ -27,7 +27,6 @@ import org.neo4j.ogm.session.result.QueryResult;
 import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
-import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -86,10 +85,11 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return new QueryResult(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
-            Transaction tx = session.ensureTransaction();
+
+            session.ensureTransaction();
 
             RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
-            try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement, tx)) {
+            try (Neo4jResponse<RowQueryStatisticsResult> response = session.requestHandler().execute(parameterisedStatement)) {
                 RowQueryStatisticsResult result = response.next();
                 RowModelMapper rowModelMapper = new MapRowModelMapper();
                 Collection rowResult = new LinkedHashSet();
@@ -113,16 +113,16 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
 
-        Transaction tx = session.ensureTransaction();
+        session.ensureTransaction();
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
             Query qry = new GraphModelQuery(cypher, parameters);
-            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, tx)) {
+            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
             RowModelQuery qry = new RowModelQuery(cypher, parameters);
-            try (Neo4jResponse<RowModel> response = session.requestHandler().execute(qry, tx)) {
+            try (Neo4jResponse<RowModel> response = session.requestHandler().execute(qry)) {
 
                 String[] variables = response.columns();
 
@@ -145,9 +145,9 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
 
         RowModelQuery countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
-        Transaction tx = session.ensureTransaction();
+        session.ensureTransaction();
 
-        try (Neo4jResponse<RowModel> response = session.requestHandler().execute(countStatement, tx)) {
+        try (Neo4jResponse<RowModel> response = session.requestHandler().execute(countStatement)) {
             RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
         }

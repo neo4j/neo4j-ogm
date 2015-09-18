@@ -25,7 +25,6 @@ import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
-import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.util.List;
 
@@ -36,10 +35,10 @@ import java.util.List;
 public interface RequestHandler {
 
     // the default response type for Query is GraphModel
-    Neo4jResponse<GraphModel> execute(Query qry, Transaction tx);
-    Neo4jResponse<RowModel> execute(RowModelQuery query, Transaction tx);
-    Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query, Transaction tx);
-    Neo4jResponse<String> execute(ParameterisedStatement statement, Transaction tx);
-    Neo4jResponse<String> execute(List<ParameterisedStatement> statementList, Transaction tx);
-    Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query, Transaction tx);
+    Neo4jResponse<GraphModel> execute(Query qry);
+    Neo4jResponse<RowModel> execute(RowModelQuery query);
+    Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query);
+    Neo4jResponse<String> execute(ParameterisedStatement statement);
+    Neo4jResponse<String> execute(List<ParameterisedStatement> statementList);
+    Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query);
 }

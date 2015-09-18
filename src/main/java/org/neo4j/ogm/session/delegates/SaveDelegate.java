@@ -65,7 +65,7 @@ public class SaveDelegate implements Capability.Save {
             if (classInfo != null) {
                 Transaction tx = session.ensureTransaction();
                 CypherContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
-                try (Neo4jResponse<String> response = session.requestHandler().execute(context.getStatements(), tx)) {
+                try (Neo4jResponse<String> response = session.requestHandler().execute(context.getStatements())) {
                     session.responseHandler().updateObjects(context, response, session.mapper());
                     tx.append(context);
                 }

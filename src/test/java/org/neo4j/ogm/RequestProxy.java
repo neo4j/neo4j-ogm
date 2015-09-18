@@ -28,7 +28,7 @@ public abstract class RequestProxy implements Driver<String> {
 
     protected abstract String[] getResponse();
 
-    public Neo4jResponse<String> execute(String request, Transaction tx) {
+    public Neo4jResponse<String> execute(String request) {
         return new Response(getResponse());
     }
 
@@ -56,7 +56,7 @@ public abstract class RequestProxy implements Driver<String> {
         }
 
         @Override
-        public void initialiseScan(ResponseRecord record) {
+        public void expect(ResponseRecord record) {
             // nothing to do
         }
 

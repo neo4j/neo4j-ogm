@@ -2,7 +2,7 @@
 .idea
 *.iml
 *target
-neo4j
+/neo4j
 data
 out
 .classpath

@@ -18,7 +18,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Person;
-import org.neo4j.ogm.driver.Drivers;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;

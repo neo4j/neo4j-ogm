@@ -43,7 +43,7 @@ public final class HttpDriver implements Driver<String> {
     private String url;
 
     public HttpDriver() {
-        this.driverConfig = new DriverConfig("driver.properties.http");
+        configure(new DriverConfig("driver.properties.http"));
     }
 
     @Override

@@ -22,7 +22,6 @@ import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.transaction.Transaction;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -69,9 +68,9 @@ public class DeleteDelegate implements Capability.Delete {
                 Field identityField = classInfo.getField(classInfo.identityField());
                 Long identity = (Long) FieldWriter.read(identityField, object);
                 if (identity != null) {
-                    Transaction tx = session.ensureTransaction();
                     ParameterisedStatement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
-                    try (Neo4jResponse<String> response = session.requestHandler().execute(request, tx)) {
+                    session.ensureTransaction();
+                    try (Neo4jResponse<String> response = session.requestHandler().execute(request)) {
                         session.context().clear(object);
                     }
                 }
@@ -85,10 +84,9 @@ public class DeleteDelegate implements Capability.Delete {
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
-            Transaction tx = session.ensureTransaction();
-
             ParameterisedStatement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
-            try (Neo4jResponse<String> response = session.requestHandler().execute(request, tx)) {
+            session.ensureTransaction();
+            try (Neo4jResponse<String> response = session.requestHandler().execute(request)) {
                 session.context().clear(type);
             }
         } else {
@@ -99,8 +97,8 @@ public class DeleteDelegate implements Capability.Delete {
 
     @Override
     public void purgeDatabase() {
-        Transaction tx = session.ensureTransaction();
-        session.requestHandler().execute(new DeleteNodeStatements().purge(), tx).close();
+        session.ensureTransaction();
+        session.requestHandler().execute(new DeleteNodeStatements().purge()).close();
         session.context().clear();
     }
 

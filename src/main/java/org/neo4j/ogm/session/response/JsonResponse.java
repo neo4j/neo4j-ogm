@@ -68,7 +68,7 @@ public class JsonResponse implements Neo4jResponse<String> {
         this.scanner = new Scanner(results, "UTF-8");
     }
 
-    public void initialiseScan(ResponseRecord record) {
+    public void expect(ResponseRecord record) {
         this.scanToken = extractToken(record);
         this.scanner.useDelimiter(scanToken);
         // TODO: this currently assumes only ONE data[] element in the response stream.

@@ -36,7 +36,7 @@ public class GraphModelResponse implements Neo4jResponse<GraphModel> {
         this.response = response;
         this.objectMapper = mapper;
         try {
-            initialiseScan(ResponseRecord.GRAPH);
+            expect(ResponseRecord.GRAPH);
         } catch (Exception e) {
             throw new ResultProcessingException("Could not initialise response", e);
         }
@@ -65,8 +65,8 @@ public class GraphModelResponse implements Neo4jResponse<GraphModel> {
     }
 
     @Override
-    public void initialiseScan(ResponseRecord record) {
-        response.initialiseScan(record);
+    public void expect(ResponseRecord record) {
+        response.expect(record);
     }
 
     @Override

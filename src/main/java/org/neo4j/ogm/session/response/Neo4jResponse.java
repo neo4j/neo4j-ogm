@@ -25,7 +25,7 @@ public interface Neo4jResponse<T> extends AutoCloseable {
 
     T next();
     void close();
-    void initialiseScan(ResponseRecord record);
+    void expect(ResponseRecord record);
     String[] columns();
     int rowId();
 }

@@ -40,6 +40,7 @@ public final class HttpDriver implements Driver<String> {
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
     private DriverConfig driverConfig;
+    private String url;
 
     public HttpDriver() {
         this.driverConfig = new DriverConfig("driver.properties.http");
@@ -88,30 +89,32 @@ public final class HttpDriver implements Driver<String> {
     }
 
     @Override
-    public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
+    public Transaction openTransaction(MappingContext context, TransactionManager txManager, boolean autoCommit) {
+        Transaction tx = null;
         if (autoCommit) {
-            return new SimpleTransaction(context, autoCommitUrl());
+            tx = new SimpleTransaction(context, autoCommitUrl());
+        } else {
+            tx = new LongTransaction(context, newTransactionUrl(), txManager);
         }
-        return new LongTransaction(context, newTransactionUrl(), tx);
+        this.url = tx.url();
+        return tx;
     }
 
 
     @Override
-    public Neo4jResponse<String> execute(String cypherQuery, Transaction tx) {
-
-        assert(tx != null);
+    public Neo4jResponse<String> execute(String cypher) {
 
         JsonResponse jsonResponse = null;
 
         try {
-            String url = tx.url();
+            String url = this.url;
 
             assert(url != null);
 
-            logger.debug("POST " + url + ", request: " + cypherQuery);
+            logger.debug("POST " + url + ", request: " + cypher);
 
             HttpPost request = new HttpPost(url);
-            HttpEntity entity = new StringEntity(cypherQuery,"UTF-8");
+            HttpEntity entity = new StringEntity(cypher,"UTF-8");
 
             request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
@@ -148,7 +151,7 @@ public final class HttpDriver implements Driver<String> {
             if (jsonResponse != null) {
                 jsonResponse.close();
             }
-            throw new ResultProcessingException("Failed to execute request: " + cypherQuery, e);
+            throw new ResultProcessingException("Failed to execute request: " + cypher, e);
         }
     }
 

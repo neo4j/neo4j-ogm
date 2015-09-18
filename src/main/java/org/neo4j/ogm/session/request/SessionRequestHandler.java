@@ -29,7 +29,6 @@ import org.neo4j.ogm.session.response.*;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
-import org.neo4j.ogm.session.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,53 +51,53 @@ public class SessionRequestHandler implements RequestHandler {
     }
 
     @Override
-    public Neo4jResponse<GraphModel> execute(Query query, Transaction tx) {
+    public Neo4jResponse<GraphModel> execute(Query query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
-        Neo4jResponse<String> response = execute(list, tx);
+        Neo4jResponse<String> response = execute(list);
         return new GraphModelResponse(response, mapper);
     }
 
     @Override
-    public Neo4jResponse<RowModel> execute(RowModelQuery query, Transaction tx) {
+    public Neo4jResponse<RowModel> execute(RowModelQuery query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
-        Neo4jResponse<String> response = execute(list, tx);
+        Neo4jResponse<String> response = execute(list);
         return new RowModelResponse(response, mapper);
     }
 
     @Override
-    public Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query, Transaction tx) {
+    public Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
-        Neo4jResponse<String> response = execute(list, tx);
+        Neo4jResponse<String> response = execute(list);
         return new GraphRowModelResponse(response, mapper);
     }
 
     @Override
-    public Neo4jResponse<String> execute(ParameterisedStatement statement, Transaction tx) {
+    public Neo4jResponse<String> execute(ParameterisedStatement statement) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(statement);
-        return execute(list, tx);
+        return execute(list);
     }
 
     @Override
-    public Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query, Transaction tx) {
+    public Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
-        Neo4jResponse<String> response = execute(list, tx);
+        Neo4jResponse<String> response = execute(list);
         return new RowStatisticsResponse(response, mapper);
     }
 
 
     @Override
-    public Neo4jResponse<String> execute(List<ParameterisedStatement> statementList, Transaction tx) {
+    public Neo4jResponse<String> execute(List<ParameterisedStatement> statementList) {
         try {
-            String json = mapper.writeValueAsString(new ParameterisedStatements(statementList));
-            // ugh.
-            if (!json.contains("statement\":\"\"")) {    // not an empty statement
-                logger.debug(json);
-                return driver.execute(json, tx);
+            String cypher = mapper.writeValueAsString(new ParameterisedStatements(statementList));
+            // check if we have a statement. This is not ideal
+            if (!cypher.contains("statement\":\"\"")) {    // not an empty statement
+                logger.debug(cypher);
+                return driver.execute(cypher);
             }
             return new EmptyResponse();
         } catch (JsonProcessingException jpe) {

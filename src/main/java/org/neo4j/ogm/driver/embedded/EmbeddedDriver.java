@@ -58,11 +58,7 @@ public class EmbeddedDriver implements Driver<String> {
 
         graphDb = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder( storeDir )
-                //
-                //.loadPropertiesFromFile("neo4j.properties" )   // don't do this. use the autoconfig mechanism
                 .newGraphDatabase();
-
-        System.out.println("Started new database!");
 
         config.setConfig("graphDb", graphDb);
     }
@@ -89,11 +85,9 @@ public class EmbeddedDriver implements Driver<String> {
 
     @Override
     public void close() {
-        System.out.println("closing database...");
         if (graphDb != null) {
             graphDb.shutdown();
         }
-        System.out.println("database successfully closed!");
     }
 
     @Override

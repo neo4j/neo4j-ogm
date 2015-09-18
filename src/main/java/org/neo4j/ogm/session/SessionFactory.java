@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.Drivers;
 import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.driver.http.HttpDriver;
 import org.neo4j.ogm.metadata.MetaData;
 
 import java.net.URI;
@@ -73,7 +73,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession(String url) {
-        return openSession(url, Drivers.HTTP);
+        return openSession(url, new HttpDriver());
     }
 
     /**
@@ -99,7 +99,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession(String url, String username, String password) {
-        return openSession(url, username, password, Drivers.HTTP);
+        return openSession(url, username, password, new HttpDriver());
     }
 
     private Session openSession(String url, Driver driver) {

@@ -18,11 +18,15 @@ public abstract class AbstractTransaction implements Transaction {
     private final Logger logger = LoggerFactory.getLogger(Transaction.class);
     private final MappingContext mappingContext;
     private final List<CypherContext> contexts;
+    private final boolean autoCommit;
+    private final TransactionManager transactionManager;
 
     protected Transaction.Status status = Transaction.Status.OPEN;
 
-    public AbstractTransaction(MappingContext mappingContext) {
+    public AbstractTransaction(MappingContext mappingContext, TransactionManager transactionManager, boolean autoCommit) {
         this.mappingContext = mappingContext;
+        this.transactionManager = transactionManager;
+        this.autoCommit = autoCommit;
         this.contexts = new ArrayList<>();
     }
 
@@ -42,6 +46,7 @@ public abstract class AbstractTransaction implements Transaction {
     public void rollback() {
         logger.debug("rollback invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
+            transactionManager.rollback(this);
             contexts.clear();
             status = Status.ROLLEDBACK;
         } else {
@@ -52,6 +57,7 @@ public abstract class AbstractTransaction implements Transaction {
     public void commit() {
         logger.debug("commit invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
+            transactionManager.commit(this);
             synchroniseSession();
             status = Status.COMMITTED;
         } else {
@@ -95,7 +101,9 @@ public abstract class AbstractTransaction implements Transaction {
         contexts.clear();
     }
 
-    public abstract boolean autoCommit();
+    public boolean autoCommit() {
+        return autoCommit;
+    }
 
     public abstract String url();
 

@@ -20,26 +20,31 @@ import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
+import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.testutil.TestServer;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
  */
-public class TransactionTest {
+
+public class AutoCommitHttpTransactionTest {
 
     private Transaction tx;
     private MappingContext mappingContext;
+    private TransactionManager transactionManager;
+    private static final TestServer testServer = new TestServer();
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.education");
 
     @Before
     public void setUp() {
         mappingContext = new MappingContext(metaData);
-        tx = new SimpleTransaction(mappingContext, "");
+        transactionManager = new TransactionManager(testServer.driver());
+        tx = transactionManager.openTransientTransaction(mappingContext);
     }
 
     @Test public void assertNewTransactionIsOpen() {

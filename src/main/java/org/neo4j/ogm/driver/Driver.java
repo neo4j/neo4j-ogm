@@ -12,8 +12,6 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
 public interface Driver<T> extends Neo4jRequest<T> {
 
     public void configure(DriverConfig config);
-    public void rollback(Transaction tx);
-    public void commit(Transaction tx);
     public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit);
     public void close();
     public Object getConfig(String key);

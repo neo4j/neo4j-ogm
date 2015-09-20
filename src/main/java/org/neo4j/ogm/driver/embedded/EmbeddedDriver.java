@@ -6,7 +6,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -60,21 +59,9 @@ public class EmbeddedDriver implements Driver<String> {
                 .newEmbeddedDatabaseBuilder( storeDir )
                 .newGraphDatabase();
 
+        registerShutdownHook(graphDb);
+
         config.setConfig("graphDb", graphDb);
-    }
-
-    @Override
-    public void rollback(Transaction tx) {
-
-        System.out.println("rolling back tx");
-
-    }
-
-    @Override
-    public void commit(Transaction tx) {
-
-        System.out.println("committing tx");
-
     }
 
     @Override

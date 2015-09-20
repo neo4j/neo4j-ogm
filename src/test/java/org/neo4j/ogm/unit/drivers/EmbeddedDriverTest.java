@@ -12,7 +12,7 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.response.GraphModelResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.transaction.EmbeddedTransaction;
+import org.neo4j.ogm.driver.embedded.EmbeddedTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 
@@ -66,7 +66,7 @@ public class EmbeddedDriverTest {
 
     @Test
     public void shouldObtainATransaction()  {
-        Transaction tx = driver.openTransaction(mappingContext, txManager, false);
+        Transaction tx = txManager.openTransaction(mappingContext);
         assertTrue(tx instanceof EmbeddedTransaction);
         tx.close();
     }
@@ -75,7 +75,7 @@ public class EmbeddedDriverTest {
     @Test
     public void shouldReturnANeo4jResponseFromAnInternalResult()  {
 
-        Transaction tx = driver.openTransaction(mappingContext, txManager, false);
+        Transaction tx = txManager.openTransaction(mappingContext);
 
         Neo4jResponse<String> response = driver.execute("CREATE p=(n:ITEM {name:'item 1'})-[r:LINK {weight:4}]->(m:ITEM {sizes: [1,5,11], colours: ['red', 'green', 'blue']}) RETURN p");
 
@@ -88,7 +88,7 @@ public class EmbeddedDriverTest {
     @Test
     public void shouldDefaultNeo4jResponseToGraphModelResponse() {
 
-        Transaction tx = driver.openTransaction(mappingContext, txManager, false);
+        Transaction tx = txManager.openTransaction(mappingContext);
 
         Neo4jResponse<String> response = driver.execute("CREATE p=(n:ITEM {name:'item 1'})-[r:LINK {weight:4}]->(m:ITEM {sizes: [1,5,11], colours: ['red', 'green', 'blue']}) RETURN p");
         GraphModelResponse gmr = new GraphModelResponse(response, new ObjectMapper());

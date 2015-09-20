@@ -7,7 +7,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
@@ -25,8 +24,6 @@ import org.neo4j.ogm.session.response.JsonResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.transaction.LongTransaction;
-import org.neo4j.ogm.session.transaction.SimpleTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -66,36 +63,11 @@ public final class HttpDriver implements Driver<String> {
     }
 
     @Override
-    public void rollback(Transaction tx) {
-
-        assert(tx != null);
-
-        String url = tx.url();
-        logger.debug("DELETE " + url);
-        HttpDelete request = new HttpDelete(url);
-        executeRequest(request);
-    }
-
-    @Override
-    public void commit(Transaction tx) {
-
-        assert(tx != null);
-
-        String url = tx.url() + "/commit";
-        logger.debug("POST " + url);
-        HttpPost request = new HttpPost(url);
-        request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
-        executeRequest(request);
-    }
-
-    @Override
     public Transaction openTransaction(MappingContext context, TransactionManager txManager, boolean autoCommit) {
-        Transaction tx = null;
-        if (autoCommit) {
-            tx = new SimpleTransaction(context, autoCommitUrl());
-        } else {
-            tx = new LongTransaction(context, newTransactionUrl(), txManager);
-        }
+
+        String url = autoCommit? autoCommitUrl() : newTransactionUrl();
+        Transaction tx = new HttpTransaction(context, txManager, autoCommit, this, url); // do we need URL?
+
         this.url = tx.url();
         return tx;
     }
@@ -155,7 +127,7 @@ public final class HttpDriver implements Driver<String> {
         }
     }
 
-    private CloseableHttpResponse executeRequest(HttpRequestBase request) {
+    CloseableHttpResponse executeRequest(HttpRequestBase request) {
 
         try {
 

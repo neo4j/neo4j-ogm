@@ -71,19 +71,6 @@ public abstract class RequestProxy implements Driver<String> {
         }
     }
 
-
-
-
-    @Override
-    public void rollback(Transaction tx) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void commit(Transaction tx) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     @Override
     public void close() {
 

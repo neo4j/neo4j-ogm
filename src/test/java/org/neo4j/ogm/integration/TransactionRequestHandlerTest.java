@@ -20,8 +20,9 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.transaction.LongTransaction;
+import org.neo4j.ogm.driver.http.HttpTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionException;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
@@ -73,10 +74,10 @@ public class TransactionRequestHandlerTest
         tx.commit();
     }
 
-    @Test(expected = ResultProcessingException.class)
+    @Test(expected = TransactionException.class)
     public void shouldDetectErrorsOnCommitOfNonExistentTransaction() {
         TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
-        Transaction tx = new LongTransaction(null, null, txRequestHandler);
+        Transaction tx = new HttpTransaction(null, txRequestHandler, false, null, null);
         tx.commit();
     }
 

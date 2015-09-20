@@ -26,16 +26,6 @@ public class BoltDriver implements Driver<String> {
     }
 
     @Override
-    public void rollback(Transaction tx) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void commit(Transaction tx) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }

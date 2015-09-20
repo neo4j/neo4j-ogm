@@ -14,7 +14,6 @@
 
 package org.neo4j.ogm.session.transaction;
 
-import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.mapper.MappingContext;
 
@@ -25,15 +24,12 @@ import org.neo4j.ogm.mapper.MappingContext;
 public class TransactionManager {
 
     private final Driver driver;
-    private final Neo4jCredentials credentials;
 
     private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
     public TransactionManager(Driver driver) {
         this.driver = driver;
         transaction.remove();
-        // todo : why this??
-        this.credentials = null;
     }
 
     /**
@@ -41,7 +37,7 @@ public class TransactionManager {
      *
      * Instantiation of the transaction is left to the driver
      *
-     * @param mappingContext
+     * @param mappingContext The session's mapping context. This may be required by the transaction?
      * @return
      */
     public Transaction openTransaction(MappingContext mappingContext) {
@@ -49,27 +45,65 @@ public class TransactionManager {
         return transaction.get();
     }
 
+    /**
+     * Opens an auto-commit transaction. An auto-commit transaction will immediately
+     * invoke commit as soon as any request is made on it. The mechanism for handling
+     * this is managed in @{link AbstractTransaction}
+     *
+     * Instantiation of the transaction is left to the driver.
+     *
+     * @param mappingContext The session's mapping context. This may be required by the transaction?
+     * @return
+     */
     public Transaction openTransientTransaction(MappingContext mappingContext) {
         transaction.set(driver.openTransaction(mappingContext, this, true));
         return transaction.get();
     }
 
+    /**
+     * Rolls back the specified transaction.
+     *
+     * The actual job of rolling back the transaction is left to the relevant driver. if
+     * this is successful, the transaction is detached from this thread.
+     *
+     * If the specified transaction is not the correct one for this thread, throws an exception
+     *
+     * @param tx the transaction to rollback
+     */
     public void rollback(Transaction tx) {
-        driver.rollback(tx);
+        if (tx != transaction.get()) {
+            throw new TransactionException("Transaction is not current for this thread");
+        }
+        //driver.rollback(tx);
         transaction.remove();
     }
 
+    /**
+     * Commits the specified transaction.
+     *
+     * The actual job of committing the transaction is left to the relevant driver. if
+     * this is successful, the transaction is detached from this thread.
+     *
+     * If the specified transaction is not the correct one for this thread, throws an exception
+     *
+     * @param tx the transaction to commit
+     */
     public void commit(Transaction tx) {
-        driver.commit(tx);
+        if (tx != transaction.get()) {
+            throw new TransactionException("Transaction is not current for this thread");
+        }
+        //driver.commit(tx);
         transaction.remove();
     }
 
+    /**
+     * Returns the current transaction for this thread, or null if none exists
+     *
+     * @return this thread's transaction
+     */
     public Transaction getCurrentTransaction() {
         return transaction.get();
     }
 
-    public Neo4jCredentials credentials() {
-        return credentials;
-    }
 
 }

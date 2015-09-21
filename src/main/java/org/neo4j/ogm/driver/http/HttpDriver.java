@@ -1,15 +1,12 @@
 package org.neo4j.ogm.driver.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
@@ -20,7 +17,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.RequestHandler;
-import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -28,16 +24,13 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 /**
  * @author vince
  */
-public final class HttpDriver implements Driver<String> {
+public final class HttpDriver implements Driver {
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
-    private final ObjectMapper mapper = new ObjectMapper();
 
     private DriverConfig driverConfig;
     private String url;
@@ -57,7 +50,7 @@ public final class HttpDriver implements Driver<String> {
 
     @Override
     public RequestHandler requestHandler() {
-        return new HttpRequest(mapper, this);
+        return new HttpRequest(httpClient, url, (Neo4jCredentials) driverConfig.getConfig("credentials"));
     }
 
     @Override
@@ -78,66 +71,6 @@ public final class HttpDriver implements Driver<String> {
 
         this.url = tx.url();
         return tx;
-    }
-
-    @Override
-    public Neo4jResponse<String> execute(String cypher, Map<String, Object> parameters) {
-        throw new RuntimeException("Not implemented");
-    }
-
-
-    @Override
-    public Neo4jResponse<String> execute(String cypher) {
-
-        HttpResponse jsonResponse = null;
-
-        try {
-            String url = this.url;
-
-            assert(url != null);
-
-            logger.debug("POST " + url + ", request: " + cypher);
-
-            HttpPost request = new HttpPost(url);
-            HttpEntity entity = new StringEntity(cypher,"UTF-8");
-
-            request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
-            request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
-
-            // http://tools.ietf.org/html/rfc7231#section-5.5.3
-            request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
-
-            HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
-
-            request.setEntity(entity);
-
-            CloseableHttpResponse response = httpClient.execute(request);
-
-            StatusLine statusLine = response.getStatusLine();
-            HttpEntity responseEntity = response.getEntity();
-
-            if (statusLine.getStatusCode() >= 300) {
-                throw new HttpResponseException(
-                        statusLine.getStatusCode(),
-                        statusLine.getReasonPhrase());
-            }
-            if (responseEntity == null) {
-                throw new ClientProtocolException("Response contains no content");
-            }
-
-            logger.debug("Response is OK, creating response handler");
-            jsonResponse = new HttpResponse(response);
-            return jsonResponse;
-
-        }
-        // the primary exception handler, will ensure all resources are properly closed
-        catch (Exception e) {
-            logger.warn("Caught response exception: " + e.getLocalizedMessage());
-            if (jsonResponse != null) {
-                jsonResponse.close();
-            }
-            throw new ResultProcessingException("Failed to execute request: " + cypher, e);
-        }
     }
 
     CloseableHttpResponse executeHttpRequest(HttpRequestBase request) {

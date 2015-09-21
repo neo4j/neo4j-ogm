@@ -14,7 +14,6 @@
 
 package org.neo4j.ogm.session.response;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.result.GraphRowModel;
@@ -31,5 +30,5 @@ public interface ResponseHandler {
     <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> stream);
     <T> Collection<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> stream);
 
-    void updateObjects(CypherContext context, Neo4jResponse<String> response, ObjectMapper mapper);
+    void updateObjects(CypherContext context, Neo4jResponse<String> response);
 }

@@ -14,9 +14,6 @@
 
 package org.neo4j.ogm.session.response;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
@@ -32,11 +29,16 @@ import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.GraphRowResult;
 import org.neo4j.ogm.session.result.RowModel;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 /**
  *  @author Vince Bickers
  *  @author Luanne Misquitta
  */
 public class SessionResponseHandler implements ResponseHandler {
+
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
@@ -82,7 +84,7 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public void updateObjects(CypherContext context, Neo4jResponse<String> response, ObjectMapper mapper) {
+    public void updateObjects(CypherContext context, Neo4jResponse<String> response) {
 
         RowModelResponse rowModelResponse = new RowModelResponse(response, mapper);
         String[] variables = rowModelResponse.columns();

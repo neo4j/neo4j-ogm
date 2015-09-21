@@ -14,7 +14,6 @@
 
 package org.neo4j.ogm.session;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -49,7 +48,6 @@ public class Neo4jSession implements Session {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
-    private final ObjectMapper mapper;
     private final TransactionManager txManager;
 
     private final LoadOneDelegate loadOneHandler = new LoadOneDelegate(this);
@@ -65,10 +63,9 @@ public class Neo4jSession implements Session {
 
     private Driver driver;
 
-    public Neo4jSession(MetaData metaData, ObjectMapper mapper, Driver driver) {
+    public Neo4jSession(MetaData metaData, Driver driver) {
 
         this.metaData = metaData;
-        this.mapper = mapper;
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
@@ -443,10 +440,6 @@ public class Neo4jSession implements Session {
 
     public MetaData metaData() {
         return metaData;
-    }
-
-    public ObjectMapper mapper() {
-        return mapper;
     }
 
     // inject a custom driver

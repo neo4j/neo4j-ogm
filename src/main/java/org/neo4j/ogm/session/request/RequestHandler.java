@@ -26,8 +26,6 @@ import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 
-import java.util.List;
-
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -38,6 +36,5 @@ public interface RequestHandler {
     Neo4jResponse<RowModel> execute(RowModelQuery query);
     Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query);
     Neo4jResponse<String> execute(ParameterisedStatement statement);
-    Neo4jResponse<String> execute(List<ParameterisedStatement> statementList);
     Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query);
 }

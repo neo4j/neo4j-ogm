@@ -6,18 +6,15 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.RequestHandler;
-import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 /**
  * @author vince
  */
-public class EmbeddedDriver implements Driver<String> {
+public class EmbeddedDriver implements Driver {
 
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
@@ -72,7 +69,6 @@ public class EmbeddedDriver implements Driver<String> {
         return new EmbeddedTransaction(context, tx, autoCommit, graphDb);
     }
 
-
     @Override
     public void close() {
         if (graphDb != null) {
@@ -82,18 +78,7 @@ public class EmbeddedDriver implements Driver<String> {
 
     @Override
     public RequestHandler requestHandler() {
-        //return null;  //To change body of implemented methods use File | Settings | File Templates.
-        throw new RuntimeException("Not implemented!");
-    }
-
-    @Override
-    public Neo4jResponse<String> execute(String jsonStatements) {
-        return new EmbeddedResponse(graphDb.execute(jsonStatements));
-    }
-
-    @Override
-    public Neo4jResponse<String> execute(String cypher, Map<String, Object> parameters) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new EmbeddedRequest(graphDb);
     }
 
     @Override

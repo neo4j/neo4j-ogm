@@ -14,7 +14,6 @@
 
 package org.neo4j.ogm.session;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.Driver;
@@ -33,7 +32,6 @@ import java.net.URISyntaxException;
  */
 public class SessionFactory {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final MetaData metaData;
 
     /**
@@ -85,7 +83,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession(Driver driver) {
-        return new Neo4jSession(metaData, objectMapper, driver);
+        return new Neo4jSession(metaData, driver);
     }
 
     /**
@@ -130,7 +128,7 @@ public class SessionFactory {
                 driverConfig.setConfig("credentials", CredentialsService.userNameAndPassword());
             }
 
-            return new Neo4jSession(metaData, objectMapper, driver);
+            return new Neo4jSession(metaData, driver);
 
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -145,7 +143,7 @@ public class SessionFactory {
         driverConfig.setConfig("server", url);
         driverConfig.setConfig("credentials", new UsernamePasswordCredentials(username, password));
 
-        return new Neo4jSession(metaData, objectMapper, driver);
+        return new Neo4jSession(metaData, driver);
     }
 
 }

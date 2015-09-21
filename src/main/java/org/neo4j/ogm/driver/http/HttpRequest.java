@@ -15,21 +15,28 @@
 package org.neo4j.ogm.driver.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.cypher.query.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
+import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.request.RequestHandler;
-import org.neo4j.ogm.session.response.*;
-import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.ogm.session.result.RowModel;
-import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.request.AbstractRequest;
+import org.neo4j.ogm.session.response.EmptyResponse;
+import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,39 +44,18 @@ import java.util.List;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class HttpRequest implements RequestHandler {
+public class HttpRequest extends AbstractRequest {
 
-    private final ObjectMapper mapper;
-    private final Driver driver;
+    private final String url;
+    private final CloseableHttpClient httpClient;
+    private final Neo4jCredentials credentials;
+
     private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(ObjectMapper mapper, Driver driver) {
-        this.driver = driver;
-        this.mapper = mapper;
-    }
-
-    @Override
-    public Neo4jResponse<GraphModel> execute(GraphModelQuery  query) {
-        List<ParameterisedStatement> list = new ArrayList<>();
-        list.add(query);
-        Neo4jResponse<String> response = execute(list);
-        return new GraphModelResponse(response, mapper);
-    }
-
-    @Override
-    public Neo4jResponse<RowModel> execute(RowModelQuery query) {
-        List<ParameterisedStatement> list = new ArrayList<>();
-        list.add(query);
-        Neo4jResponse<String> response = execute(list);
-        return new RowModelResponse(response, mapper);
-    }
-
-    @Override
-    public Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query) {
-        List<ParameterisedStatement> list = new ArrayList<>();
-        list.add(query);
-        Neo4jResponse<String> response = execute(list);
-        return new GraphRowModelResponse(response, mapper);
+    public HttpRequest(CloseableHttpClient httpClient, String url, Neo4jCredentials credentials) {
+        this.httpClient = httpClient;
+        this.url = url;
+        this.credentials = credentials;
     }
 
     @Override
@@ -79,23 +65,13 @@ public class HttpRequest implements RequestHandler {
         return execute(list);
     }
 
-    @Override
-    public Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query) {
-        List<ParameterisedStatement> list = new ArrayList<>();
-        list.add(query);
-        Neo4jResponse<String> response = execute(list);
-        return new RowStatisticsResponse(response, mapper);
-    }
-
-
-    @Override
-    public Neo4jResponse<String> execute(List<ParameterisedStatement> statementList) {
+    private Neo4jResponse<String> execute(List<ParameterisedStatement> statementList) {
         try {
             String cypher = mapper.writeValueAsString(new ParameterisedStatements(statementList));
             // check if we have a statement. This is not ideal
             if (!cypher.contains("statement\":\"\"")) {    // not an empty statement
                 logger.debug(cypher);
-                return driver.execute(cypher);
+                return new HttpResponse(execute(cypher));
             }
             return new EmptyResponse();
         } catch (JsonProcessingException jpe) {
@@ -103,58 +79,60 @@ public class HttpRequest implements RequestHandler {
         }
     }
 
-//    public Neo4jResponse<String> execute(String cypher) {
-//
-//        HttpResponse jsonResponse = null;
-//
-//        try {
-//            String url = this.url;
-//
-//            assert(url != null);
-//
-//            logger.debug("POST " + url + ", request: " + cypher);
-//
-//            HttpPost request = new HttpPost(url);
-//            HttpEntity entity = new StringEntity(cypher,"UTF-8");
-//
-//            request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
-//            request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
-//
-//            // http://tools.ietf.org/html/rfc7231#section-5.5.3
-//            request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
-//
-//            HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
-//
-//            request.setEntity(entity);
-//
-//            CloseableHttpResponse response = httpClient.execute(request);
-//
-//            StatusLine statusLine = response.getStatusLine();
-//            HttpEntity responseEntity = response.getEntity();
-//
-//            if (statusLine.getStatusCode() >= 300) {
-//                throw new HttpResponseException(
-//                        statusLine.getStatusCode(),
-//                        statusLine.getReasonPhrase());
-//            }
-//            if (responseEntity == null) {
-//                throw new ClientProtocolException("Response contains no content");
-//            }
-//
-//            logger.debug("Response is OK, creating response handler");
-//            jsonResponse = new HttpResponse(response);
-//            return jsonResponse;
-//
-//        }
-//        // the primary exception handler, will ensure all resources are properly closed
-//        catch (Exception e) {
-//            logger.warn("Caught response exception: " + e.getLocalizedMessage());
-//            if (jsonResponse != null) {
-//                jsonResponse.close();
-//            }
-//            throw new ResultProcessingException("Failed to execute request: " + cypher, e);
-//        }
-//    }
+    private CloseableHttpResponse execute(String cypher) {
+
+        CloseableHttpResponse response = null;
+
+        try {
+            String url = this.url;
+
+            assert(url != null);
+
+            logger.debug("POST " + url + ", request: " + cypher);
+
+            HttpPost request = new HttpPost(url);
+            HttpEntity entity = new StringEntity(cypher,"UTF-8");
+
+            request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
+            request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
+
+            // http://tools.ietf.org/html/rfc7231#section-5.5.3
+            request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
+
+            HttpAuthorization.authorize(request, credentials);
+
+            request.setEntity(entity);
+
+            response = httpClient.execute(request);
+
+            StatusLine statusLine = response.getStatusLine();
+            HttpEntity responseEntity = response.getEntity();
+
+            if (statusLine.getStatusCode() >= 300) {
+                throw new HttpResponseException(
+                        statusLine.getStatusCode(),
+                        statusLine.getReasonPhrase());
+            }
+            if (responseEntity == null) {
+                throw new ClientProtocolException("Response contains no content");
+            }
+
+            logger.debug("Response is OK");
+            return response;
+        }
+        // the primary exception handler, will ensure all resources are properly closed
+        catch (Exception e) {
+            logger.warn("Caught response exception: " + e.getLocalizedMessage());
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (IOException ioe) {
+                    throw new ResultProcessingException("Failed to close response: ", e);
+                }
+            }
+            throw new ResultProcessingException("Failed to execute request: " + cypher, e);
+        }
+    }
 
 
 }

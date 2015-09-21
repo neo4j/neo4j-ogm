@@ -1,8 +1,8 @@
 package org.neo4j.ogm.driver.http;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
@@ -15,12 +15,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.session.response.JsonResponse;
+import org.neo4j.ogm.session.request.RequestHandler;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
@@ -29,6 +28,8 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * @author vince
  */
@@ -36,6 +37,8 @@ public final class HttpDriver implements Driver<String> {
 
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
+    private final ObjectMapper mapper = new ObjectMapper();
+
     private DriverConfig driverConfig;
     private String url;
 
@@ -50,6 +53,11 @@ public final class HttpDriver implements Driver<String> {
         } catch (Exception e) {
             logger.warn("Unexpected Exception when closing http client transport: ", e);
         }
+    }
+
+    @Override
+    public RequestHandler requestHandler() {
+        return new HttpRequest(mapper, this);
     }
 
     @Override
@@ -72,11 +80,16 @@ public final class HttpDriver implements Driver<String> {
         return tx;
     }
 
+    @Override
+    public Neo4jResponse<String> execute(String cypher, Map<String, Object> parameters) {
+        throw new RuntimeException("Not implemented");
+    }
+
 
     @Override
     public Neo4jResponse<String> execute(String cypher) {
 
-        JsonResponse jsonResponse = null;
+        HttpResponse jsonResponse = null;
 
         try {
             String url = this.url;
@@ -94,7 +107,7 @@ public final class HttpDriver implements Driver<String> {
             // http://tools.ietf.org/html/rfc7231#section-5.5.3
             request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
 
-            HttpRequestAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
+            HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
 
             request.setEntity(entity);
 
@@ -113,7 +126,7 @@ public final class HttpDriver implements Driver<String> {
             }
 
             logger.debug("Response is OK, creating response handler");
-            jsonResponse = new JsonResponse(response);
+            jsonResponse = new HttpResponse(response);
             return jsonResponse;
 
         }
@@ -127,14 +140,14 @@ public final class HttpDriver implements Driver<String> {
         }
     }
 
-    CloseableHttpResponse executeRequest(HttpRequestBase request) {
+    CloseableHttpResponse executeHttpRequest(HttpRequestBase request) {
 
         try {
 
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
 
 
-            HttpRequestAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
+            HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
 
             CloseableHttpResponse response = httpClient.execute(request);
             StatusLine statusLine = response.getStatusLine();
@@ -173,7 +186,7 @@ public final class HttpDriver implements Driver<String> {
         logger.debug("POST " + url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
-        HttpResponse response = executeRequest(request);
+        org.apache.http.HttpResponse response = executeHttpRequest(request);
         Header location = response.getHeaders("Location")[0];
         return location.getValue();
     }

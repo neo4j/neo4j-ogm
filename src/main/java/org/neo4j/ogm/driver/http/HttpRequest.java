@@ -12,19 +12,17 @@
  *
  */
 
-package org.neo4j.ogm.session.request;
+package org.neo4j.ogm.driver.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
-import org.neo4j.ogm.cypher.query.Query;
-import org.neo4j.ogm.cypher.query.RowModelQuery;
-import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
+import org.neo4j.ogm.cypher.query.*;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.request.RequestHandler;
 import org.neo4j.ogm.session.response.*;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.session.result.RowModel;
@@ -39,13 +37,13 @@ import java.util.List;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class SessionRequestHandler implements RequestHandler {
+public class HttpRequest implements RequestHandler {
 
     private final ObjectMapper mapper;
     private final Driver driver;
-    private final Logger logger = LoggerFactory.getLogger(SessionRequestHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public SessionRequestHandler(ObjectMapper mapper, Driver driver) {
+    public HttpRequest(ObjectMapper mapper, Driver driver) {
         this.driver = driver;
         this.mapper = mapper;
     }
@@ -104,6 +102,59 @@ public class SessionRequestHandler implements RequestHandler {
             throw new MappingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
         }
     }
+
+//    public Neo4jResponse<String> execute(String cypher) {
+//
+//        HttpResponse jsonResponse = null;
+//
+//        try {
+//            String url = this.url;
+//
+//            assert(url != null);
+//
+//            logger.debug("POST " + url + ", request: " + cypher);
+//
+//            HttpPost request = new HttpPost(url);
+//            HttpEntity entity = new StringEntity(cypher,"UTF-8");
+//
+//            request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
+//            request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
+//
+//            // http://tools.ietf.org/html/rfc7231#section-5.5.3
+//            request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
+//
+//            HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
+//
+//            request.setEntity(entity);
+//
+//            CloseableHttpResponse response = httpClient.execute(request);
+//
+//            StatusLine statusLine = response.getStatusLine();
+//            HttpEntity responseEntity = response.getEntity();
+//
+//            if (statusLine.getStatusCode() >= 300) {
+//                throw new HttpResponseException(
+//                        statusLine.getStatusCode(),
+//                        statusLine.getReasonPhrase());
+//            }
+//            if (responseEntity == null) {
+//                throw new ClientProtocolException("Response contains no content");
+//            }
+//
+//            logger.debug("Response is OK, creating response handler");
+//            jsonResponse = new HttpResponse(response);
+//            return jsonResponse;
+//
+//        }
+//        // the primary exception handler, will ensure all resources are properly closed
+//        catch (Exception e) {
+//            logger.warn("Caught response exception: " + e.getLocalizedMessage());
+//            if (jsonResponse != null) {
+//                jsonResponse.close();
+//            }
+//            throw new ResultProcessingException("Failed to execute request: " + cypher, e);
+//        }
+//    }
 
 
 }

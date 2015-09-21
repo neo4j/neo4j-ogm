@@ -24,7 +24,6 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.request.RequestHandler;
-import org.neo4j.ogm.session.request.SessionRequestHandler;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
@@ -456,7 +455,7 @@ public class Neo4jSession implements Session {
     }
 
     public RequestHandler requestHandler() {
-        return new SessionRequestHandler(mapper, driver);
+        return driver.requestHandler();
     }
 
     public Transaction ensureTransaction() {

@@ -12,14 +12,15 @@
  *
  */
 
-package org.neo4j.ogm.authentication;
+package org.neo4j.ogm.driver.http;
 
 import org.apache.http.client.methods.HttpRequestBase;
+import org.neo4j.ogm.authentication.Neo4jCredentials;
 
 /**
  * @author Vince Bickers
  */
-public class HttpRequestAuthorization {
+public class HttpAuthorization {
 
     /**
      * Sets the authorization header on the request, if credentials are present.

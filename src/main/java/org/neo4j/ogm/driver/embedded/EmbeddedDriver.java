@@ -5,11 +5,14 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.session.request.RequestHandler;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author vince
@@ -78,13 +81,25 @@ public class EmbeddedDriver implements Driver<String> {
     }
 
     @Override
+    public RequestHandler requestHandler() {
+        //return null;  //To change body of implemented methods use File | Settings | File Templates.
+        throw new RuntimeException("Not implemented!");
+    }
+
+    @Override
     public Neo4jResponse<String> execute(String jsonStatements) {
-        return new EmbeddedDriverResponse(graphDb.execute(jsonStatements));
+        return new EmbeddedResponse(graphDb.execute(jsonStatements));
+    }
+
+    @Override
+    public Neo4jResponse<String> execute(String cypher, Map<String, Object> parameters) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public Object getConfig(String key) {
         return driverConfig.getConfig(key);
     }
+
 
 }

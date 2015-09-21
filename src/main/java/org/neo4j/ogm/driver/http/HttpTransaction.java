@@ -30,7 +30,7 @@ public class HttpTransaction extends AbstractTransaction {
             try {
                 String url = url();
                 HttpDelete request = new HttpDelete(url);
-                driver.executeRequest(request);
+                driver.executeHttpRequest(request);
             } catch (Exception e) {
                 throw new TransactionException(e.getLocalizedMessage());
             }
@@ -46,7 +46,7 @@ public class HttpTransaction extends AbstractTransaction {
             try {
                 HttpPost request = new HttpPost(url());
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
-                driver.executeRequest(request);
+                driver.executeHttpRequest(request);
             } catch (Exception e) {
                 throw new TransactionException(e.getLocalizedMessage());
             }

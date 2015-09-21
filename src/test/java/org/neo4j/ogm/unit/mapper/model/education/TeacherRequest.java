@@ -14,14 +14,14 @@
 
 package org.neo4j.ogm.unit.mapper.model.education;
 
-import org.neo4j.ogm.RequestProxy;
+import org.neo4j.ogm.StubHttpDriver;
 
 /**
  * MATCH p=(t:TEACHER)--(c) return p
  *
  * @author Vince Bickers
  */
-public class TeacherRequest extends RequestProxy {
+public class TeacherRequest extends StubHttpDriver {
 
     public String[] getResponse() {
         return jsonModel;

@@ -14,7 +14,7 @@
 package org.neo4j.ogm.unit.response;
 
 import org.junit.Test;
-import org.neo4j.ogm.session.response.JsonResponse;
+import org.neo4j.ogm.driver.http.HttpResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 
@@ -29,33 +29,33 @@ public class JsonResponseTest {
 
     @Test(expected = ResultProcessingException.class)
     public void shouldHandleNoResultsAndErrors() {
-        try( JsonResponse rsp = new JsonResponse(noResultsAndErrors()) ) {
+        try( HttpResponse rsp = new HttpResponse(noResultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test(expected = ResultProcessingException.class)
     public void shouldHandleResultsAndErrors() {
-        try( JsonResponse rsp = new JsonResponse(resultsAndErrors()) ) {
+        try( HttpResponse rsp = new HttpResponse(resultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test
     public void shouldHandleNoResultsAndNoErrors() {
-        try( JsonResponse rsp = new JsonResponse(noResultsAndNoErrors()) ) {
+        try( HttpResponse rsp = new HttpResponse(noResultsAndNoErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test
     public void shouldHandleResultsAndNoErrors() {
-        try( JsonResponse rsp = new JsonResponse(resultsAndNoErrors()) ) {
+        try( HttpResponse rsp = new HttpResponse(resultsAndNoErrors()) ) {
             parseResponse(rsp);
         }
     }
 
-    private void parseResponse(JsonResponse rsp) {
+    private void parseResponse(HttpResponse rsp) {
         rsp.expect(Neo4jResponse.ResponseRecord.ROW);
         while (rsp.next() != null);
     }

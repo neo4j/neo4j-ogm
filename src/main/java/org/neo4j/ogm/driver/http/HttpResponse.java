@@ -12,9 +12,10 @@
  *
  */
 
-package org.neo4j.ogm.session.response;
+package org.neo4j.ogm.driver.http;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import java.util.Scanner;
 /**
  * @author Vince Bickers
  */
-public class JsonResponse implements Neo4jResponse<String> {
+public class HttpResponse implements Neo4jResponse<String> {
 
     private static final String COMMA = ",";
     private static final String START_RECORD_TOKEN = "{";
@@ -42,7 +43,7 @@ public class JsonResponse implements Neo4jResponse<String> {
     private static final String RESULTS_TOKEN = "\"results";
     private static final String STATS_TOKEN = "\"stats";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonResponse.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponse.class);
 
     private final InputStream results;
     private final Scanner scanner;
@@ -52,7 +53,7 @@ public class JsonResponse implements Neo4jResponse<String> {
     private int currentRow = -1;
 
 
-    public JsonResponse(CloseableHttpResponse response) {
+    public HttpResponse(CloseableHttpResponse response) {
         try {
             this.response = response;
             this.results = response.getEntity().getContent();
@@ -62,7 +63,7 @@ public class JsonResponse implements Neo4jResponse<String> {
         }
     }
 
-    public JsonResponse(InputStream inputStream)  {
+    public HttpResponse(InputStream inputStream)  {
         this.response = null;
         this.results = inputStream;
         this.scanner = new Scanner(results, "UTF-8");

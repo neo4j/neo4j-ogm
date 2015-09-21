@@ -15,12 +15,12 @@
 package org.neo4j.ogm.unit.mapper.model.education;
 
 
-import org.neo4j.ogm.RequestProxy;
+import org.neo4j.ogm.StubHttpDriver;
 
 /**
  * @author Vince Bickers
  */
-public class CoursesRequest extends RequestProxy {
+public class CoursesRequest extends StubHttpDriver {
 
     public String[] getResponse() {
         return jsonModel;

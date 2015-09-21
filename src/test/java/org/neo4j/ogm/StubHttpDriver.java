@@ -14,17 +14,22 @@
 
 package org.neo4j.ogm;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.driver.http.HttpRequest;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.session.request.RequestHandler;
 import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 
+import java.util.Map;
+
 /**
  * @author Vince Bickers
  */
-public abstract class RequestProxy implements Driver<String> {
+public abstract class StubHttpDriver implements Driver<String> {
 
     protected abstract String[] getResponse();
 
@@ -89,5 +94,17 @@ public abstract class RequestProxy implements Driver<String> {
     @Override
     public Object getConfig(String key) {
         return null;
+    }
+
+    @Override
+    public RequestHandler requestHandler() {
+        // todo fix this crap
+        return new HttpRequest(new ObjectMapper(), this);
+    }
+
+
+    @Override
+    public Neo4jResponse<String> execute(String cypher, Map<String, Object> parameters) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

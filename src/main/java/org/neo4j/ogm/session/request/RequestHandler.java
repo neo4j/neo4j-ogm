@@ -15,8 +15,8 @@
 package org.neo4j.ogm.session.request;
 
 
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
-import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
@@ -34,8 +34,7 @@ import java.util.List;
  */
 public interface RequestHandler {
 
-    // the default response type for Query is GraphModel
-    Neo4jResponse<GraphModel> execute(Query qry);
+    Neo4jResponse<GraphModel> execute(GraphModelQuery qry);
     Neo4jResponse<RowModel> execute(RowModelQuery query);
     Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query);
     Neo4jResponse<String> execute(ParameterisedStatement statement);

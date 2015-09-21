@@ -117,7 +117,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
             Query qry = new GraphModelQuery(cypher, parameters);
-            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry)) {
+            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {

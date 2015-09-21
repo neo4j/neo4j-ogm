@@ -49,7 +49,7 @@ public class HttpRequest implements RequestHandler {
     }
 
     @Override
-    public Neo4jResponse<GraphModel> execute(Query query) {
+    public Neo4jResponse<GraphModel> execute(GraphModelQuery  query) {
         List<ParameterisedStatement> list = new ArrayList<>();
         list.add(query);
         Neo4jResponse<String> response = execute(list);

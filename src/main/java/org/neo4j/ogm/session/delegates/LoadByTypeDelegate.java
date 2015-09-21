@@ -19,10 +19,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
-import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.cypher.query.Query;
-import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.cypher.query.*;
 import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -65,7 +62,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry)) {
+            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
@@ -81,7 +78,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     return session.responseHandler().loadByProperty(type, response);
                 }
             } else {
-                try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry)) {
+                try (Neo4jResponse<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
                     return session.responseHandler().loadAll(type, response);
                 }
             }

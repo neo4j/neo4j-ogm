@@ -16,11 +16,14 @@ package org.neo4j.ogm.session.request;
 
 import org.neo4j.ogm.session.response.Neo4jResponse;
 
+import java.util.Map;
+
 /**
  * @author Vince Bickers
  */
 public interface Neo4jRequest<T> {
 
     Neo4jResponse<T> execute(String cypher);
+    Neo4jResponse<T> execute(String cypher, Map<String, Object> parameters);
 
 }

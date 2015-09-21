@@ -14,12 +14,15 @@
 
 package org.neo4j.ogm.unit.mapper.model.bike;
 
-import org.neo4j.ogm.RequestProxy;
+import org.neo4j.ogm.StubHttpDriver;
+import org.neo4j.ogm.session.response.Neo4jResponse;
+
+import java.util.Map;
 
 /**
  * @author Vince Bickers
  */
-public class BikeRequest extends RequestProxy {
+public class BikeRequest extends StubHttpDriver {
 
     public String[] getResponse() {
         return jsonModel;
@@ -42,4 +45,5 @@ public class BikeRequest extends RequestProxy {
                     "] " +
             "} }"
     };
+
 }

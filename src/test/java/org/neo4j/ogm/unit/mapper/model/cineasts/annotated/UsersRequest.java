@@ -14,12 +14,12 @@
 
 package org.neo4j.ogm.unit.mapper.model.cineasts.annotated;
 
-import org.neo4j.ogm.RequestProxy;
+import org.neo4j.ogm.StubHttpDriver;
 
 /**
  * @author Luanne Misquitta
  */
-public class UsersRequest extends RequestProxy {
+public class UsersRequest extends StubHttpDriver {
 
     public String[] getResponse() {
         return jsonModel;

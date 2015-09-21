@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author vince
  */
-public class EmbeddedDriverResponse implements Neo4jResponse<String> {
+public class EmbeddedResponse implements Neo4jResponse<String> {
 
     private final Result result;
     private final List<String> columns;
@@ -17,7 +17,7 @@ public class EmbeddedDriverResponse implements Neo4jResponse<String> {
 
     private ResponseAdapter responseAdapter;
 
-    public EmbeddedDriverResponse(Result result) {
+    public EmbeddedResponse(Result result) {
         this.columns = result.columns();
         this.result = result;
         this.expect(ResponseRecord.GRAPH);

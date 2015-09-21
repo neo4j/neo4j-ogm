@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This adapter will transform a result response into a json response
+ * This adapter will transform an embedded response into a json response
  *
  * @author vince
  */

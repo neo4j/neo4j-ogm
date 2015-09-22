@@ -37,7 +37,7 @@ public class TransactionsDelegate implements Capability.Transactions {
 
         Transaction tx = session.transactionManager().openTransaction(session.context());
 
-        session.debug("Obtained new transaction: " + tx.url() + ", tx id: " + tx);
+        session.debug("Obtained new transaction, tx id: " + tx);
         return tx;
     }
 
@@ -70,7 +70,7 @@ public class TransactionsDelegate implements Capability.Transactions {
 
         }
 
-        session.debug("Current transaction: " + tx.url() + ", tx id: " + tx);
+        session.debug("Current transaction: , tx id: " + tx);
         return tx;
 
     }

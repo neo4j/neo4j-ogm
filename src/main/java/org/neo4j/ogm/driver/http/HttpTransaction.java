@@ -28,7 +28,6 @@ public class HttpTransaction extends AbstractTransaction {
 
         if (!autoCommit()) {
             try {
-                String url = url();
                 HttpDelete request = new HttpDelete(url);
                 driver.executeHttpRequest(request);
             } catch (Exception e) {
@@ -44,7 +43,7 @@ public class HttpTransaction extends AbstractTransaction {
 
         if (!autoCommit()) {
             try {
-                HttpPost request = new HttpPost(url());
+                HttpPost request = new HttpPost(url);
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
                 driver.executeHttpRequest(request);
             } catch (Exception e) {
@@ -55,8 +54,4 @@ public class HttpTransaction extends AbstractTransaction {
         super.commit();
     }
 
-    @Override
-    public String url() {
-        return url;
-    }
 }

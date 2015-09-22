@@ -105,7 +105,5 @@ public abstract class AbstractTransaction implements Transaction {
         return autoCommit;
     }
 
-    public abstract String url();
-
 
 }

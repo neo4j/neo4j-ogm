@@ -66,11 +66,8 @@ public final class HttpDriver implements Driver {
     @Override
     public Transaction openTransaction(MappingContext context, TransactionManager txManager, boolean autoCommit) {
 
-        String url = autoCommit? autoCommitUrl() : newTransactionUrl();
-        Transaction tx = new HttpTransaction(context, txManager, autoCommit, this, url); // do we need URL?
-
-        this.url = tx.url();
-        return tx;
+        this.url = autoCommit? autoCommitUrl() : newTransactionUrl();
+        return new HttpTransaction(context, txManager, autoCommit, this, url);
     }
 
     CloseableHttpResponse executeHttpRequest(HttpRequestBase request) {

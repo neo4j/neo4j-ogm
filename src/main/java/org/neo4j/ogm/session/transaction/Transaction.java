@@ -28,12 +28,6 @@ public interface Transaction extends AutoCloseable {
      */
     void append(CypherContext context);
 
-    /**
-     * The endpoint for this transaction
-     * @return the endpoint for the transaction
-     */
-    String url();
-
     /*
      * rollback a transaction that has pending writes
      * calling rollback on a transaction with no pending read/writes is an error

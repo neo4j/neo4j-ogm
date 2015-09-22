@@ -1,7 +1,6 @@
 package org.neo4j.ogm.driver.embedded;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.transaction.AbstractTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -22,11 +21,6 @@ public class EmbeddedTransaction extends AbstractTransaction {
         super(mappingContext, txManager, autoCommit);
         this.graphDb = graphDb;
         this.wrappedTransaction = graphDb.beginTx();
-    }
-
-    @Override
-    public String url() {
-        return ((GraphDatabaseAPI) graphDb).getStoreDir();
     }
 
     @Override

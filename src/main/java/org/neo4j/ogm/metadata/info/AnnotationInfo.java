@@ -27,7 +27,29 @@ public class AnnotationInfo {
     private String annotationName;
     private final Map<String, String> elements = new HashMap<>();
 
-    AnnotationInfo() {}
+    public AnnotationInfo(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
+
+        String annotationFieldDescriptor = constantPool.lookup(dataInputStream.readUnsignedShort());
+        String annotationClassName;
+        if (annotationFieldDescriptor.charAt(0) == 'L'
+                && annotationFieldDescriptor.charAt(annotationFieldDescriptor.length() - 1) == ';') {
+            annotationClassName = annotationFieldDescriptor.substring(1,
+                    annotationFieldDescriptor.length() - 1).replace('/', '.');
+        } else {
+            annotationClassName = annotationFieldDescriptor;
+        }
+        setName(annotationClassName);
+
+        int numElementValuePairs = dataInputStream.readUnsignedShort();
+
+        for (int i = 0; i < numElementValuePairs; i++) {
+            String elementName = constantPool.lookup(dataInputStream.readUnsignedShort());
+            Object value = readAnnotationElementValue(dataInputStream, constantPool);
+            if (elementName != null && value != null) {
+                put(elementName, value.toString());
+            }
+        }
+    }
 
     public String getName() {
         return annotationName;
@@ -61,31 +83,10 @@ public class AnnotationInfo {
         return sb.toString();
     }
 
-    public AnnotationInfo(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
-        String annotationFieldDescriptor = constantPool.lookup(dataInputStream.readUnsignedShort());
-        String annotationClassName;
-        if (annotationFieldDescriptor.charAt(0) == 'L'
-                && annotationFieldDescriptor.charAt(annotationFieldDescriptor.length() - 1) == ';') {
-            annotationClassName = annotationFieldDescriptor.substring(1,
-                    annotationFieldDescriptor.length() - 1).replace('/', '.');
-        } else {
-            annotationClassName = annotationFieldDescriptor;
-        }
-        setName(annotationClassName);
-
-        int numElementValuePairs = dataInputStream.readUnsignedShort();
-
-        for (int i = 0; i < numElementValuePairs; i++) {
-            String elementName = constantPool.lookup(dataInputStream.readUnsignedShort());
-            Object value = readAnnotationElementValue(dataInputStream, constantPool);
-            if (elementName != null && value != null) {
-                put(elementName, value.toString());
-            }
-        }
-    }
-
     private Object readAnnotationElementValue(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
+
         int tag = dataInputStream.readUnsignedByte();
+
         switch (tag) {
             case 'B':
             case 'C':
@@ -102,21 +103,21 @@ public class AnnotationInfo {
                 // enum_const_value (NOT HANDLED)
                 dataInputStream.skipBytes(4);
                 return null;
+                //return constantPool.lookup(dataInputStream.);
             case 'c':
                 // class_info_index
                 return constantPool.lookup(dataInputStream.readUnsignedShort());
             case '@':
-                // Complex (nested) annotation
-                return constantPool.lookup(dataInputStream.readUnsignedShort());
+                // Nested annotation
+                return new AnnotationInfo(dataInputStream, constantPool);
             case '[':
-                // array_value (NOT HANDLED)
+                // array_value
                 final int count = dataInputStream.readUnsignedShort();
-                // create an object[] here...
+                Object[] values = new Object[count];
                 for (int l = 0; l < count; ++l) {
-                    // Nested annotation element value
-                    readAnnotationElementValue(dataInputStream, constantPool);
+                    values[l] = readAnnotationElementValue(dataInputStream, constantPool);
                 }
-                return null;
+                return values;
             default:
                 throw new ClassFormatError("Invalid annotation element type tag: 0x" + Integer.toHexString(tag));
         }

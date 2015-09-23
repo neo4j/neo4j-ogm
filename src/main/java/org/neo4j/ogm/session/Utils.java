@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.session.response.model.Property;
 
 /**
  * @author Vince Bickers

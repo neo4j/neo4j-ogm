@@ -12,11 +12,13 @@
  *
  */
 
-package org.neo4j.ogm.session.response;
+package org.neo4j.ogm.session.response.handler;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.result.GraphRowModel;
+import org.neo4j.ogm.session.response.model.GraphModel;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
+import org.neo4j.ogm.session.response.model.RowModel;
+import org.neo4j.ogm.session.response.Response;
 
 import java.util.Collection;
 
@@ -26,9 +28,9 @@ import java.util.Collection;
  */
 public interface ResponseHandler {
 
-    <T> T loadById(Class<T> type, Neo4jResponse<GraphModel> stream, Long id);
-    <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> stream);
-    <T> Collection<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> stream);
+    <T> T loadById(Class<T> type, Response<GraphModel> stream, Long id);
+    <T> Collection<T> loadAll(Class<T> type, Response<GraphModel> stream);
+    <T> Collection<T> loadByProperty(Class<T> type, Response<GraphRowModel> stream);
 
-    void updateObjects(CypherContext context, Neo4jResponse<String> response);
+    void updateObjects(CypherContext context, Response<RowModel> response);
 }

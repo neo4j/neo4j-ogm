@@ -19,22 +19,22 @@ import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
 import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.ogm.session.result.RowModel;
-import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphModel;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
+import org.neo4j.ogm.session.response.model.RowModel;
+import org.neo4j.ogm.session.response.model.RowStatisticsModel;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public interface RequestHandler {
+public interface Request {
 
-    Neo4jResponse<GraphModel> execute(GraphModelQuery qry);
-    Neo4jResponse<RowModel> execute(RowModelQuery query);
-    Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query);
-    Neo4jResponse<String> execute(ParameterisedStatement statement);
-    Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query);
+    Response<GraphModel> execute(GraphModelQuery query);
+    Response<RowModel> execute(RowModelQuery query);
+    Response<GraphRowModel> execute(GraphRowModelQuery query);
+    Response<RowStatisticsModel> execute(RowModelQueryWithStatistics query);
+
+    //Response<String> execute(ParameterisedStatement statement);
 }

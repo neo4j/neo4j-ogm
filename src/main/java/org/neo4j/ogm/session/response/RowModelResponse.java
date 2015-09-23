@@ -18,20 +18,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.neo4j.ogm.session.result.RowModel;
-import org.neo4j.ogm.session.result.RowModelResult;
+import org.neo4j.ogm.session.response.model.RowModel;
 
 /**
+ * A Response containing RowModel objects
+ *
+ * These responses should be identical which driver is providing them
+ *
  * @author Vince Bickers
  */
-public class RowModelResponse implements Neo4jResponse<RowModel> {
+public class RowModelResponse implements Response<RowModel> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RowModelResponse.class);
 
     private final ObjectMapper objectMapper;
-    private final Neo4jResponse<String> response;
+    private final Response<String> response;
 
-    public RowModelResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
+    public RowModelResponse(Response<String> response, ObjectMapper mapper) {
         this.response = response;
         this.objectMapper = mapper;
         expect(ResponseRecord.ROW);
@@ -71,5 +74,23 @@ public class RowModelResponse implements Neo4jResponse<RowModel> {
     @Override
     public int rowId() {
         return response.rowId();
+    }
+
+    /**
+     * @author Vince Bickers
+     */
+    public static class RowModelResult {
+
+        private Object[] row;
+
+        public Object[] getRow() {
+            return row;
+        }
+
+        @SuppressWarnings("UnusedDeclaration")
+        public void setRow(Object[] rowModel) {
+            this.row = rowModel;
+        }
+
     }
 }

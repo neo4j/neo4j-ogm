@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.session.response.model;
 
 /**
  * @author Michal Bachman

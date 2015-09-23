@@ -24,12 +24,12 @@ import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.result.GraphRowModel;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
 
 import java.util.Collection;
 
@@ -62,7 +62,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Neo4jResponse<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
@@ -74,11 +74,11 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setPagination(pagination);
 
             if (depth != 0) {
-                try (Neo4jResponse<GraphRowModel> response = session.requestHandler().execute((GraphRowModelQuery) qry)) {
+                try (Response<GraphRowModel> response = session.requestHandler().execute((GraphRowModelQuery) qry)) {
                     return session.responseHandler().loadByProperty(type, response);
                 }
             } else {
-                try (Neo4jResponse<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
                     return session.responseHandler().loadAll(type, response);
                 }
             }

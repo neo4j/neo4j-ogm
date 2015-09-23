@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.session.response.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,47 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  @author Michal Bachman
+ * @author Michal Bachman
  */
-public class RelationshipModel  {
+public class NodeModel {
 
-    private Long id;
-    private String type;
-    private Long startNode;
-    private Long endNode;
+    Long id;
+    String[] labels;
     List<Property<String, Object>> properties;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Long getStartNode() {
-        return startNode;
-    }
-
-    public void setStartNode(Long startNode) {
-        this.startNode = startNode;
-    }
-
-    public Long getEndNode() {
-        return endNode;
-    }
-
-    public void setEndNode(Long endNode) {
-        this.endNode = endNode;
-    }
 
     public List<Property<String, Object>> getPropertyList() {
         return properties;
@@ -85,10 +51,27 @@ public class RelationshipModel  {
         this.properties = properties;
     }
 
+    public Long getId() {
+        return id;
+    }
 
-    @Override
-    public String toString() {
-        return String.format("(%d)-[%s]->(%d)", this.startNode, this.type, this.endNode);
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String[] getLabels() {
+        return labels;
+    }
+
+    public void setLabels(String[] labels) {
+        this.labels = labels;
+    }
+
+    public Object property(String key) {
+        for (Property property : properties) {
+            if (property.getKey().equals(key)) return property.getValue();
+        }
+        return null;
     }
 
     @Override
@@ -96,9 +79,9 @@ public class RelationshipModel  {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        RelationshipModel that = (RelationshipModel) o;
+        NodeModel nodeModel = (NodeModel) o;
 
-        if (!id.equals(that.id)) return false;
+        if (!id.equals(nodeModel.id)) return false;
 
         return true;
     }

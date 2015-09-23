@@ -1,15 +1,15 @@
 package org.neo4j.ogm.driver.embedded;
 
 import org.neo4j.graphdb.Result;
-import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.response.ResponseAdapter;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.adapter.ResponseAdapter;
 
 import java.util.List;
 
 /**
  * @author vince
  */
-public class EmbeddedResponse implements Neo4jResponse<String> {
+public class EmbeddedResponse implements Response<String> {
 
     private final Result result;
     private final List<String> columns;
@@ -25,7 +25,7 @@ public class EmbeddedResponse implements Neo4jResponse<String> {
 
     @Override
     public String next() {
-        if (result.hasNext()) {
+        if (result.hasNext() || responseAdapter instanceof RowStatisticsAdapter) {
             currentRow++;
             return (String) responseAdapter.adapt(result);
         }
@@ -40,9 +40,16 @@ public class EmbeddedResponse implements Neo4jResponse<String> {
 
     @Override
     public void expect(ResponseRecord type) {
-        if (type.equals(Neo4jResponse.ResponseRecord.GRAPH)) {
-            this.responseAdapter = new GraphResponseAdapter();
-        } else {
+        if (type.equals(Response.ResponseRecord.GRAPH)) {
+            this.responseAdapter = new GraphModelAdapter();
+        }
+        else if (type.equals(Response.ResponseRecord.ROW)) {
+            this.responseAdapter = new RowModelAdapter();
+        }
+        else if (type.equals(ResponseRecord.STATS)) {
+            this.responseAdapter = new RowStatisticsAdapter();
+        }
+        else {
             throw new RuntimeException("Transform not implemented: " + type);
         }
     }

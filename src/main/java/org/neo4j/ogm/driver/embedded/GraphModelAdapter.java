@@ -1,12 +1,9 @@
 package org.neo4j.ogm.driver.embedded;
 
 import org.neo4j.graphdb.*;
-import org.neo4j.ogm.session.response.ResponseAdapter;
+import org.neo4j.ogm.session.response.adapter.ResponseAdapter;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,16 +11,7 @@ import java.util.Map;
  *
  * @author vince
  */
-public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
-
-    private static final String QUOTE = "\"";
-    private static final String OPEN_BRACE = "{";
-    private static final String CLOSE_BRACE = "}";
-    private static final String OPEN_BRACKET = "[";
-    private static final String CLOSE_BRACKET = "]";
-    private static final String COMMA = ",";
-    private static final String COLON = ":";
-    private static final String SPACE = " ";
+public class GraphModelAdapter extends ModelAdapter implements ResponseAdapter<Result, String> {
 
     /**
      * Reads the next row from the result object and transforms it into a JSON representation
@@ -43,13 +31,13 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
 
         for (Map.Entry mapEntry : data.entrySet()) {
             if (mapEntry.getValue() instanceof Path) {
-                graphTransform((Path) mapEntry.getValue(), sb);
+                build((Path) mapEntry.getValue(), sb);
             }
             else if (mapEntry.getValue() instanceof Node) {
-                graphTransform((Node) mapEntry.getValue(), sb);
+                buildNode((Node) mapEntry.getValue(), sb);
             }
             else if (mapEntry.getValue() instanceof Relationship) {
-                graphTransform((Relationship) mapEntry.getValue(), sb);
+                buildRelationship((Relationship) mapEntry.getValue(), sb);
             }
             else {
                 throw new RuntimeException("Not handled: " + mapEntry.getValue().getClass());
@@ -63,7 +51,7 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
         return sb.toString();
     }
 
-    private void graphTransform(Path path, StringBuilder sb) {
+    private void build(Path path, StringBuilder sb) {
 
         StringBuilder nodes = new StringBuilder();
         StringBuilder edges = new StringBuilder();
@@ -77,11 +65,11 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
 
             Relationship rel = relIterator.next();
 
-            graphTransform(rel.getStartNode(), nodes);
+            buildNode(rel.getStartNode(), nodes);
             nodes.append(COMMA);
-            graphTransform(rel.getEndNode(), nodes);
+            buildNode(rel.getEndNode(), nodes);
 
-            graphTransform(rel, edges);
+            buildRelationship(rel, edges);
 
             if (relIterator.hasNext()) {
                 nodes.append(COMMA);
@@ -97,7 +85,7 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
         sb.append(edges);
     }
 
-    private void graphTransform(Node node, StringBuilder sb) {
+    private void buildNode(Node node, StringBuilder sb) {
 
         sb.append(OPEN_BRACE);
 
@@ -107,13 +95,13 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
         sb.append(KEY_VALUES("labels", node.getLabels()));
         sb.append(COMMA);
 
-        graphTransformProperties(node, sb);
+        buildProperties(node, sb);
 
         sb.append(CLOSE_BRACE);
 
     }
 
-    private void graphTransform(Relationship relationship, StringBuilder sb) {
+    private void buildRelationship(Relationship relationship, StringBuilder sb) {
 
         sb.append(OPEN_BRACE);
 
@@ -129,13 +117,13 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
         sb.append(KEY_VALUE("endNode", String.valueOf(relationship.getEndNode().getId())));
         sb.append(COMMA);
 
-        graphTransformProperties(relationship, sb);
+        buildProperties(relationship, sb);
 
         sb.append(CLOSE_BRACE);
 
     }
 
-    private void graphTransformProperties(PropertyContainer container, StringBuilder sb) {
+    private void buildProperties(PropertyContainer container, StringBuilder sb) {
 
         OPEN_OBJECT("properties", sb);
 
@@ -154,75 +142,6 @@ public class GraphResponseAdapter implements ResponseAdapter<String, Result> {
         }
 
         CLOSE_OBJECT(sb);
-    }
-
-
-    private static void OPEN_OBJECT(StringBuilder sb) {
-        sb.append(OPEN_BRACE);
-    }
-
-    private static void OPEN_OBJECT(String name, StringBuilder sb) {
-        sb.append(KEY(name));
-        sb.append(OPEN_BRACE);
-    }
-
-    private static void CLOSE_OBJECT(StringBuilder sb) {
-        sb.append(CLOSE_BRACE);
-    }
-
-    private static void OPEN_ARRAY(String name, StringBuilder sb) {
-        sb.append(KEY(name));
-        sb.append(OPEN_BRACKET);
-    }
-
-    private static void CLOSE_ARRAY(StringBuilder sb) {
-        sb.append(CLOSE_BRACKET);
-    }
-
-    private static final String quoted(String s) {
-        return QUOTE.concat(s).concat(QUOTE);
-    }
-
-    private static final String KEY(String k) {
-        return quoted(k).concat(COLON).concat(SPACE);
-    }
-
-    private static final String VALUE(Object v) {
-        if (v instanceof String || v instanceof Label) {
-            return quoted(v.toString());
-        } else {
-            return v.toString();
-        }
-    }
-
-    private static final String KEY_VALUE(String k, Object v) {
-        return KEY(k).concat(VALUE(v));
-    }
-
-    private static final String KEY_VALUES(String k, Iterable i) {
-
-        String r = KEY(k).concat(OPEN_BRACKET);
-        Iterator iter = i.iterator();
-
-        while (iter.hasNext()) {
-            Object v = iter.next();
-            String s = VALUE(v);
-            r = r.concat(s);
-            if (iter.hasNext()) {
-                r = r.concat(COMMA);
-            }
-        }
-        r = r.concat(CLOSE_BRACKET);
-        return r;
-    }
-
-    private static Iterable<Object> convertToIterable(Object array) {
-        List ar = new ArrayList();
-        int length = Array.getLength(array);
-        for (int i = 0; i < length; i++) {
-            ar.add(Array.get(array, i));
-        }
-        return ar;
     }
 
 }

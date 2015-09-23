@@ -17,11 +17,11 @@ import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.response.Neo4jResponse;
 
 import java.util.Collection;
 
@@ -49,7 +49,7 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 
-        try (Neo4jResponse<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
             return session.responseHandler().loadAll(type, response);
         }
     }

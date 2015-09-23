@@ -18,25 +18,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.result.GraphRowModel;
+import org.neo4j.ogm.session.response.model.GraphModel;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
 
 /**
- * The {@link Neo4jResponse} that contains data in both graph and row formats.
+ * The {@link Response} that contains data in both graph and row formats.
+ *
+ * These responses should be identical, whichever driver is being used to provide them
+ *
  *
  * @author Luanne Misquitta
  */
-public class GraphRowModelResponse implements Neo4jResponse<GraphRowModel> {
+public class GraphRowModelResponse implements Response<GraphRowModel> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GraphRowModelResponse.class);
 
 	private final ObjectMapper objectMapper;
-	private final Neo4jResponse<String> response;
+	private final Response<String> response;
 
-	public GraphRowModelResponse(Neo4jResponse<String> response, ObjectMapper objectMapper) {
+	public GraphRowModelResponse(Response<String> response, ObjectMapper objectMapper) {
 		this.response = response;
 		this.objectMapper = objectMapper;
 		try {
@@ -101,4 +104,28 @@ public class GraphRowModelResponse implements Neo4jResponse<GraphRowModel> {
 		}
 		return outerObject;
 	}
+
+    /**
+     * Represents a single row in a query response which returns both graph and row data.
+     *
+     * @author Luanne Misquitta
+     */
+    public static class GraphRowResult {
+
+        private GraphModel graph;
+        private Object[] row;
+
+        public GraphRowResult(GraphModel graph, Object[] row) {
+            this.graph = graph;
+            this.row = row;
+        }
+
+        public GraphModel getGraph() {
+            return graph;
+        }
+
+        public Object[] getRow() {
+            return row;
+        }
+    }
 }

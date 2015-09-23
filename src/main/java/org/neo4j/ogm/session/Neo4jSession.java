@@ -22,13 +22,13 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.delegates.*;
-import org.neo4j.ogm.session.request.RequestHandler;
+import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
-import org.neo4j.ogm.session.response.ResponseHandler;
-import org.neo4j.ogm.session.response.SessionResponseHandler;
-import org.neo4j.ogm.session.result.QueryStatistics;
+import org.neo4j.ogm.session.response.handler.ResponseHandler;
+import org.neo4j.ogm.session.response.handler.SessionResponseHandler;
+import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
@@ -381,12 +381,12 @@ public class Neo4jSession implements Session {
     *----------------------------------------------------------------------------------------------------------
     */
     @Override
-    public QueryStatistics execute(String cypher, Map<String, Object> parameters) {
+    public QueryStatisticsModel execute(String cypher, Map<String, Object> parameters) {
         return executeStatementsDelegate.execute(cypher, parameters);
     }
 
     @Override
-    public QueryStatistics execute(String statement) {
+    public QueryStatisticsModel execute(String statement) {
         return executeStatementsDelegate.execute(statement);
     }
 
@@ -447,7 +447,7 @@ public class Neo4jSession implements Session {
         this.driver = driver;
     }
 
-    public RequestHandler requestHandler() {
+    public Request requestHandler() {
         return driver.requestHandler();
     }
 

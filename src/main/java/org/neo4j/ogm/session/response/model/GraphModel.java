@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.model;
+package org.neo4j.ogm.session.response.model;
 
 import java.util.*;
 
@@ -24,9 +24,6 @@ public class GraphModel  {
     private final Map<Long, NodeModel> nodeMap = new HashMap<>();
     private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
 
-    //private NodeModel[] nodes = new NodeModel[]{};
-    //private RelationshipModel[] relationships = new RelationshipModel[]{};
-
     private Set<NodeModel> nodes = new LinkedHashSet<>();
     private Set<RelationshipModel> relationships = new LinkedHashSet<>();
 
@@ -35,7 +32,6 @@ public class GraphModel  {
     }
 
     public void setNodes(NodeModel[] nodes) {
-        //this.nodes = nodes;
         for (NodeModel node : nodes) {
             this.nodes.add(node);
             nodeMap.put(node.getId(), node);
@@ -47,7 +43,6 @@ public class GraphModel  {
     }
 
     public void setRelationships(RelationshipModel[] relationships) {
-        //this.relationships = relationships;
         for (RelationshipModel relationship : relationships) {
             this.relationships.add(relationship);
             relationshipMap.put(relationship.getId(), relationship);

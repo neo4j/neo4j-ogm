@@ -29,10 +29,10 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.NodeModel;
-import org.neo4j.ogm.model.Property;
-import org.neo4j.ogm.model.RelationshipModel;
+import org.neo4j.ogm.session.response.model.GraphModel;
+import org.neo4j.ogm.session.response.model.NodeModel;
+import org.neo4j.ogm.session.response.model.Property;
+import org.neo4j.ogm.session.response.model.RelationshipModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

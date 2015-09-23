@@ -17,7 +17,7 @@ package org.neo4j.ogm.session.response;
 /**
  * @author Vince Bickers
  */
-public interface Neo4jResponse<T> extends AutoCloseable {
+public interface Response<T> extends AutoCloseable {
 
     public enum ResponseRecord {
         GRAPH, ROW, RESULTS, STATS

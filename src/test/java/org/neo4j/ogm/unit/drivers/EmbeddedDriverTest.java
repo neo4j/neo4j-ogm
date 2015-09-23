@@ -11,10 +11,10 @@ import org.neo4j.ogm.driver.embedded.EmbeddedDriver;
 import org.neo4j.ogm.driver.embedded.EmbeddedTransaction;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.response.GraphModelResponse;
-import org.neo4j.ogm.session.response.Neo4jResponse;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 
@@ -82,7 +82,7 @@ public class EmbeddedDriverTest {
         ParameterisedStatement stmt = new ParameterisedStatement("CREATE p=(n:ITEM {name:'item 1'})-[r:LINK {weight:4}]->(m:ITEM {sizes: [1,5,11], colours: ['red', 'green', 'blue']}) RETURN p", Utils.map());
 
 
-        Neo4jResponse<String> response = driver.requestHandler().execute(stmt);
+        Response<String> response = driver.requestHandler().execute(stmt);
         assertNotNull(response);
 
         tx.close();
@@ -97,7 +97,7 @@ public class EmbeddedDriverTest {
         ParameterisedStatement stmt = new ParameterisedStatement("CREATE p=(n:ITEM {name:'item 1'})-[r:LINK {weight:4}]->(m:ITEM {sizes: [1,5,11], colours: ['red', 'green', 'blue']}) RETURN p", Utils.map());
 
 
-        Neo4jResponse<String> response = driver.requestHandler().execute(stmt);
+        Response<String> response = driver.requestHandler().execute(stmt);
         GraphModelResponse gmr = new GraphModelResponse(response, new ObjectMapper());
 
         GraphModel graphModel = gmr.next();

@@ -12,32 +12,20 @@
  *
  */
 
-package org.neo4j.ogm.session.result;
-
-import java.util.Collection;
+package org.neo4j.ogm.session.response.model;
 
 /**
- * Encapsulates {@link QueryStatistics} and row data returned by a query.
- * @author Luanne Misquitta
+ * @author Vince Bickers
  */
-public class RowQueryStatisticsResult {
+public class RowModel {
 
-	private Collection<Object> rows;
-	private QueryStatistics stats;
+    private Object[] values;
 
-	public QueryStatistics getStats() {
-		return stats;
-	}
+    public RowModel(Object[] values) {
+        this.values = values;
+    }
 
-	public void setRows(Collection<Object> rows) {
-		this.rows = rows;
-	}
-
-	public void setStats(QueryStatistics stats) {
-		this.stats = stats;
-	}
-
-	public Collection<Object> getRows() {
-		return rows;
-	}
+    public Object[] getValues() {
+        return values;
+    }
 }

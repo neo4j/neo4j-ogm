@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.session.response;
+package org.neo4j.ogm.session.response.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -24,10 +24,11 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.ogm.session.result.GraphRowResult;
-import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphModel;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
+import org.neo4j.ogm.session.response.model.RowModel;
+import org.neo4j.ogm.session.response.GraphRowModelResponse;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -49,14 +50,14 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> Collection<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> response) {
+    public <T> Collection<T> loadByProperty(Class<T> type, Response<GraphRowModel> response) {
 
         Set<T> result = new LinkedHashSet<>();
         Set<Long> resultEntityIds = new LinkedHashSet<>();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         GraphRowModel graphRowModel = response.next();
 
-        for(GraphRowResult graphRowResult : graphRowModel.getGraphRowResults()) {
+        for(GraphRowModelResponse.GraphRowResult graphRowResult : graphRowModel.getGraphRowResults()) {
             //Load the GraphModel into the ogm
             GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
             ogm.map(type, graphRowResult.getGraph());
@@ -84,9 +85,9 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public void updateObjects(CypherContext context, Neo4jResponse<String> response) {
+    public void updateObjects(CypherContext context, Response<RowModel> rowModelResponse) { //Neo4jResponse<String> response) {
 
-        RowModelResponse rowModelResponse = new RowModelResponse(response, mapper);
+        //RowModelResponse rowModelResponse = new RowModelResponse(response, mapper);
         String[] variables = rowModelResponse.columns();
         RowModel rowModel;
 
@@ -143,7 +144,7 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> T loadById(Class<T> type, Neo4jResponse<GraphModel> response, Long id) {
+    public <T> T loadById(Class<T> type, Response<GraphModel> response, Long id) {
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
         GraphModel graphModel;
 
@@ -172,7 +173,7 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> response) {
+    public <T> Collection<T> loadAll(Class<T> type, Response<GraphModel> response) {
 
         Set<T> objects = new LinkedHashSet<>();
 

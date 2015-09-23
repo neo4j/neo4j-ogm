@@ -15,9 +15,6 @@
 package org.neo4j.ogm.unit.mapper.model.bike;
 
 import org.neo4j.ogm.StubHttpDriver;
-import org.neo4j.ogm.session.response.Neo4jResponse;
-
-import java.util.Map;
 
 /**
  * @author Vince Bickers

@@ -15,6 +15,7 @@
 package org.neo4j.ogm.driver.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
@@ -26,12 +27,19 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
+import org.neo4j.ogm.cypher.query.GraphModelQuery;
+import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
+import org.neo4j.ogm.cypher.query.RowModelQuery;
+import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.session.request.AbstractRequest;
-import org.neo4j.ogm.session.response.EmptyResponse;
-import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.request.Request;
+import org.neo4j.ogm.session.response.*;
+import org.neo4j.ogm.session.response.model.GraphModel;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
+import org.neo4j.ogm.session.response.model.RowModel;
+import org.neo4j.ogm.session.response.model.RowStatisticsModel;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +52,15 @@ import java.util.List;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class HttpRequest extends AbstractRequest {
+public class HttpRequest implements Request {
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+
 
     private final String url;
     private final CloseableHttpClient httpClient;
     private final Neo4jCredentials credentials;
+
 
     private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
@@ -59,15 +71,45 @@ public class HttpRequest extends AbstractRequest {
     }
 
     @Override
-    public Neo4jResponse<String> execute(ParameterisedStatement statement) {
-        List<ParameterisedStatement> list = new ArrayList<>();
-        list.add(statement);
-        return execute(list);
+    public Response<GraphModel> execute(GraphModelQuery query) {
+        // what should happen here?
+
+        // the actual driver should make a request.
+
+        // it should pass in the appropriate response adapter so that the
+        // response will return objects of the correct type.
+
+        // for example, the embedded adapter returns Result objects natively,
+        // so it should implement an adapter to transform a Result.next() to a GraphModel
+
+        // whereas, the http adapter returns a response in the way we request, so
+        // we must tell it what we want, "GraphModel", etc, execute the query,
+        // and simply parse the returned JSON accordingly
+        return new GraphModelResponse(execute((ParameterisedStatement) query), mapper);
     }
 
-    private Neo4jResponse<String> execute(List<ParameterisedStatement> statementList) {
+    @Override
+    public Response<RowModel> execute(RowModelQuery query) {
+        return new RowModelResponse(execute((ParameterisedStatement) query), mapper);
+    }
+
+    @Override
+    public Response<GraphRowModel> execute(GraphRowModelQuery query) {
+        return new GraphRowModelResponse(execute((ParameterisedStatement) query), mapper);
+    }
+
+    @Override
+    public Response<RowStatisticsModel> execute(RowModelQueryWithStatistics query) {
+        return new RowStatisticsResponse(execute((ParameterisedStatement) query), mapper);
+    }
+
+    private Response<String> execute(ParameterisedStatement statement) {
+
+        List<ParameterisedStatement> list = new ArrayList<>();
+        list.add(statement);
+
         try {
-            String cypher = mapper.writeValueAsString(new ParameterisedStatements(statementList));
+            String cypher = mapper.writeValueAsString(new ParameterisedStatements(list));
             // check if we have a statement. This is not ideal
             if (!cypher.contains("statement\":\"\"")) {    // not an empty statement
                 logger.debug(cypher);

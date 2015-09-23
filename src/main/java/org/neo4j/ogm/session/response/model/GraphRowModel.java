@@ -12,12 +12,12 @@
  *
  */
 
-package org.neo4j.ogm.session.result;
+package org.neo4j.ogm.session.response.model;
+
+import org.neo4j.ogm.session.response.GraphRowModelResponse;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.neo4j.ogm.model.GraphModel;
 
 /**
  * The results of a query which returns both graph and row data.
@@ -26,13 +26,13 @@ import org.neo4j.ogm.model.GraphModel;
  */
 public class GraphRowModel {
 
-	List<GraphRowResult> graphRowResults = new ArrayList<>();
+	List<GraphRowModelResponse.GraphRowResult> graphRowResults = new ArrayList<>();
 
-	public List<GraphRowResult> getGraphRowResults() {
+	public List<GraphRowModelResponse.GraphRowResult> getGraphRowResults() {
 		return graphRowResults;
 	}
 
 	public void addGraphRowResult(GraphModel graphModel, Object[] rowModel) {
-		graphRowResults.add(new GraphRowResult(graphModel, rowModel));
+		graphRowResults.add(new GraphRowModelResponse.GraphRowResult(graphModel, rowModel));
 	}
 }

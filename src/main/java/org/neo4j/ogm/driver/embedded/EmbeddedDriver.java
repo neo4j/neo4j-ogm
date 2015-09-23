@@ -5,7 +5,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.session.request.RequestHandler;
+import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class EmbeddedDriver implements Driver {
     }
 
     @Override
-    public RequestHandler requestHandler() {
+    public Request requestHandler() {
         return new EmbeddedRequest(graphDb);
     }
 

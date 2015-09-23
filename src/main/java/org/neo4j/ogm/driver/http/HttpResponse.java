@@ -15,7 +15,7 @@
 package org.neo4j.ogm.driver.http;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import java.util.Scanner;
 /**
  * @author Vince Bickers
  */
-public class HttpResponse implements Neo4jResponse<String> {
+public class HttpResponse implements Response<String> {
 
     private static final String COMMA = ",";
     private static final String START_RECORD_TOKEN = "{";

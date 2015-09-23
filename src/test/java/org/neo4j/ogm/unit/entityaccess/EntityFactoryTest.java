@@ -22,8 +22,8 @@ import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.entityaccess.EntityFactory;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.model.NodeModel;
-import org.neo4j.ogm.model.RelationshipModel;
+import org.neo4j.ogm.session.response.model.NodeModel;
+import org.neo4j.ogm.session.response.model.RelationshipModel;
 
 import static org.junit.Assert.assertNotNull;
 

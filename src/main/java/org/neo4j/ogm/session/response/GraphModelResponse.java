@@ -18,21 +18,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.result.GraphModelResult;
+import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 
 /**
+ * A GraphModel response provides GraphModel objects from the a neo4j response
+ *
+ * These responses should be identical, whichever driver is being used to provide them
+ *
  * @author Vince Bickers
  */
-public class GraphModelResponse implements Neo4jResponse<GraphModel> {
+public class GraphModelResponse implements Response<GraphModel> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphModelResponse.class);
 
     private final ObjectMapper objectMapper;
-    private final Neo4jResponse<String> response;
+    private final Response<String> response;
 
-    public GraphModelResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
+    public GraphModelResponse(Response<String> response, ObjectMapper mapper) {
         this.response = response;
         this.objectMapper = mapper;
         try {
@@ -79,4 +82,23 @@ public class GraphModelResponse implements Neo4jResponse<GraphModel> {
         return response.rowId();
     }
 
+    /**
+     * A result encapsulated in a GraphModel
+     *
+     * @author Vince Bickers
+     */
+    public static class GraphModelResult {
+
+        private GraphModel graph;
+
+        public GraphModel getGraph() {
+            return graph;
+        }
+
+        @SuppressWarnings("UnusedDeclaration")
+        public void setGraph(GraphModel graph) {
+            this.graph = graph;
+        }
+
+    }
 }

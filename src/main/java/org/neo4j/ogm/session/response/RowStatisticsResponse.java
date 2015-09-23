@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
-import org.neo4j.ogm.session.result.QueryStatistics;
-import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
+import org.neo4j.ogm.session.response.model.RowStatisticsModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,17 +27,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A Response containing rows and statistics.
+ *
+ * Should be identical, regardless of which driver is generating them
+ *
  * @author Luanne Misquitta
  */
-public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsResult> {
+public class RowStatisticsResponse implements Response<RowStatisticsModel> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RowStatisticsResponse.class);
 
 	private final ObjectMapper objectMapper;
-	private final Neo4jResponse<String> response;
+	private final Response<String> response;
 	private String[] columns;
 
-	public RowStatisticsResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
+	public RowStatisticsResponse(Response<String> response, ObjectMapper mapper) {
 		this.response = response;
 		this.objectMapper = mapper;
 		try {
@@ -48,17 +52,17 @@ public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsRe
 		}
 	}
 	@Override
-	public RowQueryStatisticsResult next() {
+	public RowStatisticsModel next() {
 		String json = response.next();
 		if (json != null) {
 			try {
-				RowQueryStatisticsResult rowQueryStatisticsResult = new RowQueryStatisticsResult();
+				RowStatisticsModel rowQueryStatisticsResult = new RowStatisticsModel();
 				JSONObject jsonObject = getOuterObject(json);
 				JSONArray columnsObject = jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("columns");
 				columns = objectMapper.readValue(columnsObject.toString(), String[].class);
 				JSONArray dataObject = jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("data");
 				JSONObject statsJson = jsonObject.getJSONArray("results").getJSONObject(0).getJSONObject("stats");
-				rowQueryStatisticsResult.setStats(objectMapper.readValue(statsJson.toString(),QueryStatistics.class));
+				rowQueryStatisticsResult.setStats(objectMapper.readValue(statsJson.toString(),QueryStatisticsModel.class));
 				List<Object> rows = new ArrayList<>();
 				for (int i = 0; i < dataObject.length(); i++) {
 					String rowJson = dataObject.getJSONObject(i).getString("row");
@@ -105,4 +109,5 @@ public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsRe
 		}
 		return outerObject;
 	}
+
 }

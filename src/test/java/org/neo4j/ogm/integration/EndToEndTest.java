@@ -15,15 +15,15 @@
 package org.neo4j.ogm.integration;
 
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.testutil.TestDriverFactory;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.TestDriverFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,12 +36,12 @@ import static org.junit.Assert.*;
  */
 public class EndToEndTest {
 
-    private Session session;
+    private static Session session;
 
-    @Before
-    public void init() throws IOException {
+    @BeforeClass
+    public static void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession(TestDriverFactory.driver("http"));
+        session = sessionFactory.openSession(TestDriverFactory.driver("http")); // try with embedded next!
     }
 
     @After
@@ -138,6 +138,7 @@ public class EndToEndTest {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("brand", "Huffy");
         parameters.put("saddle", newSaddle);
+
         session.execute("MATCH (bike:Bike{brand:{brand}})-[r]-(s:Saddle) SET s = {saddle}", parameters);
 
         HashMap<String, Object> parameters2 = new HashMap<>();

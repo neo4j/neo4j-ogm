@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.session.result;
+package org.neo4j.ogm.session.response.model;
 
 /**
  * Holds read only statistics about query execution.
@@ -20,14 +20,15 @@ package org.neo4j.ogm.session.result;
  *
  * @author Luanne Misquitta
  */
-public class QueryStatistics {
+public class QueryStatisticsModel {
 
 	private boolean contains_updates;
 	private int nodes_created;
 	private int nodes_deleted;
 	private int properties_set;
 	private int relationships_created;
-	private int relationship_deleted;
+	private int relationships_deleted; // embedded result calls it this
+    private int relationship_deleted;  // http response calls it this. go figure
 	private int labels_added;
 	private int labels_removed;
 	private int indexes_added;
@@ -56,7 +57,7 @@ public class QueryStatistics {
 	}
 
 	public int getRelationshipsDeleted() {
-		return relationship_deleted;
+		return relationships_deleted + relationship_deleted;
 	}
 
 	public int getLabelsAdded() {
@@ -103,8 +104,9 @@ public class QueryStatistics {
 		this.relationships_created = relationships_created;
 	}
 
-	void setRelationship_deleted(int relationships_deleted) {
-		this.relationship_deleted = relationships_deleted;
+	void setRelationships_deleted(int relationships_deleted) {
+		this.relationships_deleted = relationships_deleted;
+        this.relationship_deleted = relationships_deleted;
 	}
 
 	void setLabels_added(int labels_added) {
@@ -130,4 +132,13 @@ public class QueryStatistics {
 	void setConstraints_removed(int constraints_removed) {
 		this.constraints_removed = constraints_removed;
 	}
+
+    public int getRelationship_deleted() {
+        return relationship_deleted + relationships_deleted;
+    }
+
+    public void setRelationship_deleted(int relationship_deleted) {
+        this.relationship_deleted = relationship_deleted;
+        this.relationships_deleted = relationship_deleted;
+    }
 }

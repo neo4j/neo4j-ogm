@@ -15,7 +15,7 @@ package org.neo4j.ogm.unit.response;
 
 import org.junit.Test;
 import org.neo4j.ogm.driver.http.HttpResponse;
-import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 
 import java.io.ByteArrayInputStream;
@@ -56,7 +56,7 @@ public class JsonResponseTest {
     }
 
     private void parseResponse(HttpResponse rsp) {
-        rsp.expect(Neo4jResponse.ResponseRecord.ROW);
+        rsp.expect(Response.ResponseRecord.ROW);
         while (rsp.next() != null);
     }
 

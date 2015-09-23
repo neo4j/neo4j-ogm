@@ -16,7 +16,7 @@ import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.session.request.RequestHandler;
+import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -49,7 +49,7 @@ public final class HttpDriver implements Driver {
     }
 
     @Override
-    public RequestHandler requestHandler() {
+    public Request requestHandler() {
         return new HttpRequest(httpClient, url, (Neo4jCredentials) driverConfig.getConfig("credentials"));
     }
 

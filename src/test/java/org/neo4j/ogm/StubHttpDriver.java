@@ -23,13 +23,13 @@ import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.request.RequestHandler;
+import org.neo4j.ogm.session.request.Request;
+import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.response.GraphModelResponse;
-import org.neo4j.ogm.session.response.Neo4jResponse;
-import org.neo4j.ogm.session.result.GraphRowModel;
-import org.neo4j.ogm.session.result.RowModel;
-import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphRowModel;
+import org.neo4j.ogm.session.response.model.RowModel;
+import org.neo4j.ogm.session.response.model.RowStatisticsModel;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 
@@ -42,7 +42,7 @@ public abstract class StubHttpDriver implements Driver {
 
     protected abstract String[] getResponse();
 
-    static class StubResponse implements Neo4jResponse<String> {
+    static class StubResponse implements Response<String> {
 
         private final String[] jsonModel;
         private int count = 0;
@@ -102,30 +102,30 @@ public abstract class StubHttpDriver implements Driver {
     }
 
     @Override
-    public RequestHandler requestHandler() {
+    public Request requestHandler() {
 
-        return new RequestHandler() {
+        return new Request() {
             @Override
-            public Neo4jResponse<GraphModel> execute(GraphModelQuery qry) {
+            public Response<GraphModel> execute(GraphModelQuery qry) {
                 return new GraphModelResponse(new StubResponse(getResponse()), mapper);
             }
 
             @Override
-            public Neo4jResponse<RowModel> execute(RowModelQuery query) {
+            public Response<RowModel> execute(RowModelQuery query) {
                 return null;
             }
 
             @Override
-            public Neo4jResponse<GraphRowModel> execute(GraphRowModelQuery query) {
+            public Response<GraphRowModel> execute(GraphRowModelQuery query) {
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
             }
 
             @Override
-            public Neo4jResponse<String> execute(ParameterisedStatement statement) {
+            public Response<String> execute(ParameterisedStatement statement) {
                 return new StubResponse(getResponse());
             }
             @Override
-            public Neo4jResponse<RowQueryStatisticsResult> execute(RowModelQueryWithStatistics query) {
+            public Response<RowStatisticsModel> execute(RowModelQueryWithStatistics query) {
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
             }
         };

@@ -17,7 +17,7 @@ package org.neo4j.ogm.session.response;
 /**
  * @author Vince Bickers
  */
-public class EmptyResponse implements Neo4jResponse<String> {
+public class EmptyResponse implements Response<String> {
     @Override
     public String next() {
         return null;

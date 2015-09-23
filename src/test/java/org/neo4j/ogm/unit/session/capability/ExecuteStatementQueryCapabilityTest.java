@@ -27,7 +27,7 @@ import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.result.QueryStatistics;
+import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 /**
@@ -74,7 +74,7 @@ public class ExecuteStatementQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		QueryStatistics queryStatistics = session.execute("MATCH (n:Actor) set n.age={age}", MapUtil.map("age", 30));
+		QueryStatisticsModel queryStatistics = session.execute("MATCH (n:Actor) set n.age={age}", MapUtil.map("age", 30));
 		assertNotNull(queryStatistics);
 		assertEquals(3, queryStatistics.getPropertiesSet());
 	}

@@ -30,7 +30,7 @@ import org.neo4j.ogm.entityaccess.PropertyWriter;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.session.result.RowModel;
+import org.neo4j.ogm.session.response.model.RowModel;
 
 /**
  * Simple graph-to-entity mapper suitable for ad-hoc, one-off mappings.  This doesn't interact with a

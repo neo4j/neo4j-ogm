@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.Iterator;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
@@ -30,6 +28,8 @@ import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
 
 /**
  * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link MetaData}.
@@ -223,7 +223,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param horizon the depth in the tree. If this reaches 0, we stop mapping any deeper
      * @param compiler the {@link CypherCompiler}
      */
-    private void mapEntityReferences(Object entity, NodeBuilder nodeBuilder, int horizon, CypherCompiler compiler) {
+    private void mapEntityReferences(final Object entity, NodeBuilder nodeBuilder, int horizon, CypherCompiler compiler) {
 
         logger.debug("mapping references declared by: {} ", entity);
 
@@ -241,8 +241,6 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             CypherContext context=compiler.context();
             Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(srcInfo).read(entity);
 
-            logger.debug("mapping reference type: " + relationshipType);
-
             if (srcIdentity != null) {
                 boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
                 if (!cleared) {
@@ -253,6 +251,25 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
             Object relatedObject = reader.read(entity);
             if (relatedObject != null) {
+
+                // if the type of a relationship backed by a relationship entity is not the same as its declared type
+                // in the parent object, and the reader on the parent object is abstract, we need to check
+                // the directedRelationship object, or the incorrect edge type may be persisted.
+
+                if (isRelationshipEntity(relatedObject)) {
+                    ClassInfo declaredObjectInfo = metaData.classInfo(relationshipType);
+                    if (declaredObjectInfo.isAbstract())
+                    {
+                        final ClassInfo relatedObjectClassInfo = metaData.classInfo(relatedObject);
+                        if (!relatedObjectClassInfo.neo4jName().equals(directedRelationship.type())) {
+                            directedRelationship = new DirectedRelationship(relatedObjectClassInfo.neo4jName(), directedRelationship.direction());
+                            relationshipType = directedRelationship.type();
+                        }
+                    }
+                }
+
+                logger.debug("mapping reference type: " + relationshipType);
+
                 RelationshipNodes relNodes = new RelationshipNodes(entity,relatedObject,startNodeType,endNodeType);
                 relNodes.sourceId = srcIdentity;
                 Boolean mapBothWays = null;
@@ -279,7 +296,6 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             }
         }
     }
-
 
     /**
      * Clears the relationships in the compiler context for the object represented by identity

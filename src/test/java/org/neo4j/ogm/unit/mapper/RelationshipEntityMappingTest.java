@@ -16,7 +16,9 @@ package org.neo4j.ogm.unit.mapper;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
+import org.neo4j.ogm.domain.canonical.hierarchies.A;
+import org.neo4j.ogm.domain.canonical.hierarchies.B;
+import org.neo4j.ogm.domain.canonical.hierarchies.CR;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 
@@ -28,7 +30,7 @@ public class RelationshipEntityMappingTest extends MappingTrait
 
     @BeforeClass
     public static void setUp() {
-        MappingTrait.setUp( "org.neo4j.ogm.domain.cineasts.annotated" );
+        MappingTrait.setUp( "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.canonical.hierarchies");
     }
 
     @Test
@@ -55,6 +57,22 @@ public class RelationshipEntityMappingTest extends MappingTrait
         //Not quite sure if the relationship type should be the field name or the RelationshipEntity class name?
     }
 
+    @Test
+    public void shouldUseCorrectTypeFromHierarchyOfRelationshipEntities() {
 
+        A a = new A();
+        B b = new B();
+
+        CR r = new CR();
+        r.setA(a);
+        r.setB(b);
+
+        a.setR(r);
+
+        saveAndVerify(a,
+                "CREATE (a:A) " +
+                "CREATE (b:B) " +
+                "CREATE (a)-[:CR]->(b)");
+    }
 
 }

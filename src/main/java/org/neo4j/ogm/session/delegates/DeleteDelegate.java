@@ -13,10 +13,6 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -26,6 +22,10 @@ import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Vince Bickers

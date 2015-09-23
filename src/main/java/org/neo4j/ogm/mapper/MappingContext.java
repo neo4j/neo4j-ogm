@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.mapper;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -23,10 +27,6 @@ import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -104,6 +104,7 @@ public class MappingContext {
      * Deregisters an object from the mapping context
      * - removes the object instance from the typeRegister(s)
      * - removes the object id from the nodeEntityRegister
+     * - removes any relationship entities from relationshipEntityRegister if they have this object either as start or end node
      *
      * @param entity the object to deregister
      * @param id the id of the object in Neo4j
@@ -111,6 +112,7 @@ public class MappingContext {
     public void deregister(Object entity, Long id) {
         deregisterTypes(entity.getClass(), entity);
         nodeEntityRegister.remove(id);
+        deregisterDependentRelationshipEntity(entity);
     }
 
     public void replace(Object entity, Long id) {
@@ -200,6 +202,23 @@ public class MappingContext {
         else {
             PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
             clear(type, identityReader);
+        }
+    }
+
+    /**
+     * Deregister a relationship entity if it has either start or end node equal to the supplied startOrEndEntity
+     * @param startOrEndEntity the entity that might be the start or end node of a relationship entity
+     */
+    private void deregisterDependentRelationshipEntity(Object startOrEndEntity) {
+        Iterator<Long> relationshipEntityIdIterator = relationshipEntityRegister.keySet().iterator();
+        while (relationshipEntityIdIterator.hasNext()) {
+            Long relationshipEntityId = relationshipEntityIdIterator.next();
+            Object relationshipEntity = relationshipEntityRegister.get(relationshipEntityId);
+            RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(relationshipEntity));
+            RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(relationshipEntity));
+            if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity ==endNodeReader.read(relationshipEntity)) {
+                relationshipEntityIdIterator.remove();
+            }
         }
     }
 

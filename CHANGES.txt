@@ -1,3 +1,9 @@
+1.1.3-SNAPSHOT
+--------------
+o Fixes an issue with the mapping context where node entities are deregistered, but not referenced relationship entities
+o Fixes issue when type descriptors are defined on interfaces
+o Fixes metadata label resolution with certain class hierarchies
+
 1.1.2
 --------------
 o Improvements to class loading mechanism to support Play framework
@@ -24,6 +30,5 @@ o Plain Object Graph Mapper
     - fast class scanner for metadata
     - annotation free mapping
     - property conversion handling
-    - high_performance_cache_min_log_interval
 o Label based type representation
 o Query sorting and paging support

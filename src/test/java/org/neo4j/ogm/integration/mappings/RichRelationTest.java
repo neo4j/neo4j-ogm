@@ -13,7 +13,10 @@
  */
 package org.neo4j.ogm.integration.mappings;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,6 +24,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.mappings.Article;
 import org.neo4j.ogm.domain.mappings.Person;
 import org.neo4j.ogm.domain.mappings.RichRelation;
+import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -61,5 +65,31 @@ public class RichRelationTest {
         RichRelation relation2 = new RichRelation();
         person.addRelation(article2, relation2);
         session.save(person, 1);
+    }
+
+    /**
+     * @see issue #46
+     */
+    @Test
+    public void shouldUpdateEndNodeEntityWithoutException() {
+        Person person = new Person();
+        session.save(person);
+
+        Article article1 = new Article();
+        Tag tag1 = new Tag("tag1");
+        article1.tags = Collections.singletonList(tag1);
+        session.save(article1);
+        RichRelation relation1 = new RichRelation();
+        person.addRelation(article1, relation1);
+        session.save(person, 1);
+
+        Article updateArticle = session.load(Article.class, article1.getNodeId(), 1);
+        assertSame(updateArticle, ((RichRelation) updateArticle.relations.toArray()[0]).article);
+        updateArticle.tags = Collections.singletonList(new Tag("tag2"));
+        session.save(updateArticle, 1);
+
+        updateArticle = session.load(Article.class, article1.getNodeId(), 1);
+        assertSame(updateArticle, ((RichRelation)updateArticle.relations.toArray()[0]).article);
+        session.save(updateArticle, 1);
     }
 }

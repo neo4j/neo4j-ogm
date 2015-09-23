@@ -17,4 +17,7 @@ public class RichRelation
 
     @EndNode
     public Article article;
+
+    public RichRelation() {
+    }
 }

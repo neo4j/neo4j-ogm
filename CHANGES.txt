@@ -3,6 +3,9 @@
 o Fixes an issue with the mapping context where node entities are deregistered, but not referenced relationship entities
 o Fixes issue when type descriptors are defined on interfaces
 o Fixes metadata label resolution with certain class hierarchies
+o Change logback dependencies to 'test' scope
+o Change ancient comments-lang to org.apache.commons:commons-lang3
+
 
 1.1.2
 --------------

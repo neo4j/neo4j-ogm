@@ -17,7 +17,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.RowModelQuery;
@@ -38,7 +39,7 @@ import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE)\\b");
-    
+
     private final Neo4jSession session;
 
     public ExecuteQueriesDelegate(Neo4jSession neo4jSession) {

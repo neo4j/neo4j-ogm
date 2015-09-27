@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.testutil;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Scanner;
 
@@ -22,7 +23,9 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
+import org.neo4j.helpers.Settings;
 import org.neo4j.server.AbstractNeoServer;
+import org.neo4j.shell.ShellSettings;
 
 /**
  * @author Vince Bickers
@@ -38,6 +41,8 @@ public class TestServer {
         try {
             ServerControls controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
+                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(TestUtils.getAvailablePort()))
+                    .withConfig(ShellSettings.remote_shell_enabled.name(), Settings.FALSE)
                     .newServer();
 
             initialise(controls);
@@ -54,6 +59,7 @@ public class TestServer {
             ServerControls controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
+                    .withConfig(ShellSettings.remote_shell_enabled.name(), Settings.FALSE)
                     .newServer();
 
             initialise(controls);

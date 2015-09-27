@@ -18,8 +18,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.metadata.MetaData;
 
@@ -32,7 +33,7 @@ import org.neo4j.ogm.metadata.MetaData;
 public class SessionFactory {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final CloseableHttpClient httpClient = HttpClients.createDefault();
+    private final CloseableHttpClient httpClient;
     private final MetaData metaData;
 
     /**
@@ -48,6 +49,13 @@ public class SessionFactory {
      */
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);
+        httpClient = HttpClientBuilder.create()
+                .setDefaultRequestConfig(RequestConfig.copy(RequestConfig.DEFAULT)
+                        .setConnectionRequestTimeout(-1) // Default/Undefined - use OS defaults
+                        .setSocketTimeout(-1)  // Default/Undefined - use OS defaults
+                        .build()
+                )
+                .build();
     }
 
     /**

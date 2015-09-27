@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
+import org.neo4j.helpers.Settings;
 import org.neo4j.kernel.Version;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.session.Session;
@@ -41,6 +42,7 @@ import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.server.AbstractNeoServer;
+import org.neo4j.shell.ShellSettings;
 
 /**
  * @author Vince Bickers
@@ -71,6 +73,7 @@ public class AuthenticationTest
                     .withConfig("dbms.security.auth_enabled", "true")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(neoPort))
                     .withConfig("dbms.security.auth_store.location", authStore.toAbsolutePath().toString())
+                    .withConfig(ShellSettings.remote_shell_enabled.name(), Settings.FALSE)
                     .newServer();
 
             initialise(controls);

@@ -158,6 +158,12 @@
                             <excludes>
                                 <exclude>**/defects/**</exclude>
                             </excludes>
+                            <systemProperties>
+                                <property>
+                                    <name>java.io.tmpdir</name>
+                                    <value>${project.build.testOutputDirectory}</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
                     </execution>
 

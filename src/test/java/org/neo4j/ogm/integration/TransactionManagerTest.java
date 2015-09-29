@@ -64,25 +64,27 @@ public class TransactionManagerTest {
 
     @Test(expected = TransactionException.class)
     public void shouldFailCommitFreeTransactionInManagedContext() {
-        Transaction tx = driver.newTransaction(null, transactionManager);
-        tx.commit();
+        Transaction tx = driver.newTransaction(null);
+        transactionManager.commit(tx);
     }
 
     @Test(expected = TransactionException.class)
     public void shouldFailRollbackFreeTransactionInManagedContext() {
-        Transaction tx = driver.newTransaction(null, transactionManager);
-        tx.rollback();
+        Transaction tx = driver.newTransaction(null);
+        transactionManager.rollback(tx);
     }
 
     @Test
     public void shouldCommitFreeTransaction() {
-        Transaction tx = driver.newTransaction(null, null);
+        driver.setTransactionManager(null);
+        Transaction tx = driver.newTransaction(null);
         tx.commit();
     }
 
     @Test
     public void shouldRollbackFreeTransaction() {
-        Transaction tx = driver.newTransaction(null, null);
+        driver.setTransactionManager(null);
+        Transaction tx = driver.newTransaction(null);
         tx.rollback();
     }
 

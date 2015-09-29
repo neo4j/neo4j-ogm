@@ -54,7 +54,7 @@ public abstract class StubHttpDriver implements Driver {
     }
 
     @Override
-    public Transaction newTransaction(MappingContext context, TransactionManager tx) {
+    public Transaction newTransaction(MappingContext context) {
         throw new RuntimeException("not implemented");
     }
 

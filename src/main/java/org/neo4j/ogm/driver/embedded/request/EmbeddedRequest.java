@@ -12,6 +12,7 @@ import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.driver.EmptyResponse;
 import org.neo4j.ogm.driver.embedded.response.GraphModelResponse;
+import org.neo4j.ogm.driver.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.driver.embedded.response.RowModelResponse;
 import org.neo4j.ogm.driver.embedded.response.RowStatisticsModelResponse;
 import org.neo4j.ogm.session.request.Request;
@@ -57,7 +58,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowModelResponse(startTransaction(), executeRequest(request));
+        return new GraphRowModelResponse(startTransaction(), executeRequest(request));
     }
 
     @Override

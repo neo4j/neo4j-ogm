@@ -80,10 +80,10 @@ public final class HttpDriver implements Driver {
 
 
     @Override
-    public Transaction newTransaction(MappingContext context, TransactionManager txManager) {
+    public Transaction newTransaction(MappingContext context) {
 
         String url = newTransactionUrl();
-        return new HttpTransaction(context, txManager, this, url);
+        return new HttpTransaction(context, transactionManager, this, url);
     }
 
     // TODO: move this !

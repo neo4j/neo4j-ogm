@@ -34,9 +34,6 @@ import java.util.Iterator;
 import static org.junit.Assert.*;
 
 /**
- * This is a full integration test that requires a running neo4j
- * database on localhost.
- *
  * @author Vince Bickers
  */
 public class SatelliteIntegrationTest

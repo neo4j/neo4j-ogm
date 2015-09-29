@@ -19,7 +19,7 @@ public class EmbeddedDriver implements Driver {
 
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
-    private GraphDatabaseService graphDb = null;
+    private GraphDatabaseService transport;
     private DriverConfig driverConfig;
     private TransactionManager transactionManager;
 
@@ -48,39 +48,39 @@ public class EmbeddedDriver implements Driver {
 
         this.driverConfig = config;
 
-        if (graphDb != null) {
+        if (transport != null) {
             logger.warn("Instance is being re-configured");
-            graphDb.shutdown();
+            transport.shutdown();
         }
 
         String storeDir = (String) config.getConfig("neo4j.store");
 
         // TODO: String ha = config.getConfig("ha");
 
-        graphDb = new GraphDatabaseFactory()
+        transport = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder( storeDir )
                 .newGraphDatabase();
 
-        registerShutdownHook(graphDb);
+        registerShutdownHook(transport);
 
-        config.setConfig("graphDb", graphDb);
+        config.setConfig("transport", transport);
     }
 
     @Override
     public Transaction newTransaction() {
-        return new EmbeddedTransaction(transactionManager, graphDb);
+        return new EmbeddedTransaction(transactionManager, transport);
     }
 
     @Override
     public void close() {
-        if (graphDb != null) {
-            graphDb.shutdown();
+        if (transport != null) {
+            transport.shutdown();
         }
     }
 
     @Override
     public Request requestHandler() {
-        return new EmbeddedRequest(graphDb);
+        return new EmbeddedRequest(transport);
     }
 
     @Override

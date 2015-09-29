@@ -9,27 +9,27 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
  */
 public class EmbeddedTransaction extends AbstractTransaction {
 
-    private final org.neo4j.graphdb.Transaction wrappedTransaction;
+    private final org.neo4j.graphdb.Transaction nativeTransaction;
 
-    public EmbeddedTransaction(TransactionManager txManager, GraphDatabaseService graphDb) {
+    public EmbeddedTransaction(TransactionManager txManager, GraphDatabaseService transport) {
         super(txManager);
-        this.wrappedTransaction = graphDb.beginTx();
+        this.nativeTransaction = transport.beginTx();
     }
 
     @Override
     public void rollback() {
 
-        wrappedTransaction.failure();
+        nativeTransaction.failure();
         super.rollback();
-        wrappedTransaction.close();
+        nativeTransaction.close();
     }
 
     @Override
     public void commit() {
 
-        wrappedTransaction.success();
+        nativeTransaction.success();
         super.commit();
-        wrappedTransaction.close();
+        nativeTransaction.close();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.neo4j.ogm.driver.bolt;
+package org.neo4j.ogm.driver.bolt.request;
 
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
@@ -9,6 +9,8 @@ import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
 import org.neo4j.ogm.cypher.query.RowModelRequest;
 import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.driver.EmptyResponse;
+import org.neo4j.ogm.driver.bolt.response.GraphModelResponse;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.GraphModel;
@@ -23,40 +25,47 @@ import java.util.Map;
  */
 public class BoltRequest implements Request {
 
-    private final Session session;
+    private final Session transport;
 
-    public BoltRequest(Session session) {
-        this.session = session;
+    public BoltRequest(Session transport) {
+        this.transport = transport;
     }
 
     @Override
-    public Response<GraphModel> execute(GraphModelRequest query) {
-
-        Result result = executeRequest(query);
-
-        Response<GraphModel> response = new GraphModelResponse(result);
-
-        return response;
+    public Response<GraphModel> execute(GraphModelRequest request) {
+        if (request.getStatement().length() == 0) {
+            return new EmptyResponse();
+        }
+        return new GraphModelResponse(executeRequest(request));
     }
 
     @Override
 
-    public Response<RowModel> execute(RowModelRequest query) {
-        throw new RuntimeException("not implemented");
+    public Response<RowModel> execute(RowModelRequest request) {
+        if (request.getStatement().length() == 0) {
+            return new EmptyResponse();
+        }
+        return null;//new RowModelResponse(executeRequest(request));
     }
 
     @Override
-    public Response<GraphRowModel> execute(GraphRowModelRequest query) {
-        throw new RuntimeException("not implemented");
+    public Response<GraphRowModel> execute(GraphRowModelRequest request) {
+        if (request.getStatement().length() == 0) {
+            return new EmptyResponse();
+        }
+        return null;//new GraphRowModelResponse(executeRequest(request));
     }
 
     @Override
-    public Response<RowStatisticsModel> execute(RowModelStatisticsRequest query) {
-        throw new RuntimeException("not implemented");
+    public Response<RowStatisticsModel> execute(RowModelStatisticsRequest request) {
+        if (request.getStatement().length() == 0) {
+            return new EmptyResponse();
+        }
+        return null;//new RowStatisticsModelResponse(executeRequest(request));
     }
 
     private Result executeRequest(Statement request) {
-        return session.run(request.getStatement(), toValueMap(request.getParameters()));
+        return transport.run(request.getStatement(), toValueMap(request.getParameters()));
     }
 
     private Map<String, Value> toValueMap(Map<String, Object> params) {
@@ -71,6 +80,5 @@ public class BoltRequest implements Request {
             return Values.parameters(kvs);
         }
         return null;
-
     }
 }

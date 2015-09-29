@@ -1,8 +1,10 @@
-package org.neo4j.ogm.driver.bolt;
+package org.neo4j.ogm.driver.bolt.driver;
 
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.bolt.request.BoltRequest;
+import org.neo4j.ogm.driver.bolt.transaction.BoltTransaction;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.transaction.Transaction;
@@ -13,7 +15,7 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
  */
 public class BoltDriver implements Driver {
 
-    private Session session;
+    private Session transport;
     private DriverConfig driverConfig;
     private TransactionManager transactionManager;
 
@@ -25,22 +27,20 @@ public class BoltDriver implements Driver {
     @Override
     public void configure(DriverConfig config) {
         this.driverConfig = config;
-        this.session = GraphDatabase.driver((String) config.getConfig("server")).session();
-        this.driverConfig.setConfig("session", session);
+        this.transport = GraphDatabase.driver((String) config.getConfig("server")).session();
     }
 
     @Override
     public Transaction newTransaction() {
-        throw new RuntimeException("Not implemented!");
+        return new BoltTransaction(transactionManager, transport);
     }
 
     @Override
     public void close() {
-        // cannot detect if session is already closed, so explicitly set to null.
-        if (session != null) {
-            session.close();
-            session = null;
-            this.driverConfig.setConfig("session", null);
+        // cannot detect if transport is already closed, so explicitly set to null.
+        if (transport != null) {
+            transport.close();
+            transport = null;
         }
     }
 
@@ -51,7 +51,7 @@ public class BoltDriver implements Driver {
 
     @Override
     public Request requestHandler() {
-        return new BoltRequest(session);
+        return new BoltRequest(transport);
     }
 
     @Override

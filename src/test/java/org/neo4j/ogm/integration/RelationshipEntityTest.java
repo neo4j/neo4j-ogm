@@ -194,11 +194,7 @@ public class RelationshipEntityTest {
         session.clear();
 
         M qryM = session.queryForObject(M.class, "MATCH (n:M) return n", Utils.map());
-
-        //M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", Utils.map("id", m.id));
-
         M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Utils.map("id", m.id));
-
         M findM2 = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)", Utils.map("id", m.id));
 
         assertNotNull(qryM);

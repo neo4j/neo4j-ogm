@@ -1,4 +1,4 @@
-package org.neo4j.ogm.driver.bolt;
+package org.neo4j.ogm.driver.bolt.response;
 
 import org.neo4j.driver.*;
 import org.neo4j.ogm.driver.JsonAdapter;
@@ -12,6 +12,8 @@ import java.util.List;
 
 
 /**
+ *
+ * TODO: fix this up, see the embedded version for a working example
  * @author vince
  */
 public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Result, GraphModelResult> {

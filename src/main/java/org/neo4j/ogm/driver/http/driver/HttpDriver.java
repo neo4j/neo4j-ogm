@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class HttpDriver implements Driver {
 
-    private static final CloseableHttpClient httpClient = HttpClients.createDefault();
+    private static final CloseableHttpClient transport = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
     private DriverConfig driverConfig;
     private TransactionManager transactionManager;
@@ -44,7 +44,7 @@ public final class HttpDriver implements Driver {
     @Override
     public void close() {
         try {
-            httpClient.close();
+            transport.close();
         } catch (Exception e) {
             logger.warn("Unexpected Exception when closing http client transport: ", e);
         }
@@ -53,7 +53,7 @@ public final class HttpDriver implements Driver {
     @Override
     public Request requestHandler() {
         String url = requestUrl();
-        return new HttpRequest(httpClient, url, (Neo4jCredentials) driverConfig.getConfig("credentials"));
+        return new HttpRequest(transport, url, (Neo4jCredentials) driverConfig.getConfig("credentials"));
     }
 
     @Override
@@ -91,7 +91,7 @@ public final class HttpDriver implements Driver {
 
             HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
 
-            CloseableHttpResponse response = httpClient.execute(request);
+            CloseableHttpResponse response = transport.execute(request);
             StatusLine statusLine = response.getStatusLine();
 
             logger.debug("Status code: " + statusLine.getStatusCode());

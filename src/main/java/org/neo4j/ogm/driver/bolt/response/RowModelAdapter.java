@@ -1,4 +1,4 @@
-package org.neo4j.ogm.driver.bolt;
+package org.neo4j.ogm.driver.bolt.response;
 
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Value;

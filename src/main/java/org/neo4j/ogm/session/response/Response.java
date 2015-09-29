@@ -19,13 +19,7 @@ package org.neo4j.ogm.session.response;
  */
 public interface Response<T> extends AutoCloseable {
 
-    public enum ResponseRecord {
-        GRAPH, ROW, RESULTS, STATS
-    }
-
     T next();
     void close();
-    void expect(ResponseRecord record);
     String[] columns();
-    int rowId();
 }

@@ -16,26 +16,26 @@ package org.neo4j.ogm.session.request.strategy;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.session.Utils;
 
 /**
  * @author Luanne Misquitta
  */
 public class DeleteRelationshipStatements implements DeleteStatements {
-    public ParameterisedStatement delete(Long id) {
-        return new ParameterisedStatement("MATCH (n)-[r]->() WHERE ID(r) = { id } DELETE r", Utils.map("id", id));
+    public Statement delete(Long id) {
+        return new Statement("MATCH (n)-[r]->() WHERE ID(r) = { id } DELETE r", Utils.map("id", id));
     }
 
-    public ParameterisedStatement deleteAll(Collection<Long> ids) {
-        return new ParameterisedStatement("MATCH (n)-[r]->() WHERE id(r) in { ids } DELETE r", Utils.map("ids", ids));
+    public Statement deleteAll(Collection<Long> ids) {
+        return new Statement("MATCH (n)-[r]->() WHERE id(r) in { ids } DELETE r", Utils.map("ids", ids));
     }
 
-    public ParameterisedStatement purge() {
-        return new ParameterisedStatement("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
+    public Statement purge() {
+        return new Statement("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
     }
 
-    public ParameterisedStatement deleteByType(String type) {
-        return new ParameterisedStatement(String.format("MATCH (n)-[r:`%s`]-() DELETE r", type), Utils.map());
+    public Statement deleteByType(String type) {
+        return new Statement(String.format("MATCH (n)-[r:`%s`]-() DELETE r", type), Utils.map());
     }
 }

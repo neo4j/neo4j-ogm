@@ -30,7 +30,7 @@ import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.ogm.domain.bike.WheelWithUUID;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNotNull;
 public class TxHandlerIntegrationTest {
 
     @Rule
-    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule(7577);
+    public IntegrationTestRule testServer = new IntegrationTestRule(7577);
 
     private static SessionFactory sessionFactory;
     private Session session;

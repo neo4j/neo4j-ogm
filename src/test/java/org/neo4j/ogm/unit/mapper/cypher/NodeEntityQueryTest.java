@@ -19,7 +19,7 @@ import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.Query;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 
@@ -114,10 +114,10 @@ public class NodeEntityQueryTest {
      * @throws Exception
      */
     public void testFindByPropertyWithNegativeValue() throws Exception {
-        Query query = queryStatements.findByProperties("Asteroid", new Filters().add("albedo", -12.2), 0);
+        AbstractRequest abstractRequest = queryStatements.findByProperties("Asteroid", new Filters().add("albedo", -12.2), 0);
 
-        assertEquals("MATCH (n:`Asteroid`) WHERE n.`albedo` = { `albedo` } RETURN n", query.getStatement());
-        assertEquals(-12.2, (double) query.getParameters().get("albedo"), 0.005);
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`albedo` = { `albedo` } RETURN n", abstractRequest.getStatement());
+        assertEquals(-12.2, (double) abstractRequest.getParameters().get("albedo"), 0.005);
     }
 
     /**

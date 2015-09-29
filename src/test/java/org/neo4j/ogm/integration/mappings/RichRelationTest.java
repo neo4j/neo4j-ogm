@@ -27,14 +27,14 @@ import org.neo4j.ogm.domain.mappings.RichRelation;
 import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Nils Dr\u00F6ge
  */
 public class RichRelationTest {
     @Rule
-    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 

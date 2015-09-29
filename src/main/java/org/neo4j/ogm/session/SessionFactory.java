@@ -18,7 +18,7 @@ import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
-import org.neo4j.ogm.driver.http.HttpDriver;
+import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.ogm.metadata.MetaData;
 
 import java.net.URI;

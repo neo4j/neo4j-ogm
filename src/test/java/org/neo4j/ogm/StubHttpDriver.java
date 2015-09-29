@@ -15,21 +15,22 @@
 package org.neo4j.ogm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.cypher.query.GraphModelQuery;
-import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
-import org.neo4j.ogm.cypher.query.RowModelQuery;
-import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.query.GraphModelRequest;
+import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
+import org.neo4j.ogm.cypher.query.RowModelRequest;
+import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.Request;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.GraphModelResponse;
 import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.response.model.GraphRowModel;
 import org.neo4j.ogm.session.response.model.RowModel;
 import org.neo4j.ogm.session.response.model.RowStatisticsModel;
+import org.neo4j.ogm.session.result.GraphModelResult;
+import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.session.result.RowModelResult;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 
@@ -38,97 +39,157 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
  */
 public abstract class StubHttpDriver implements Driver {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     protected abstract String[] getResponse();
 
-    static class StubResponse implements Response<String> {
-
-        private final String[] jsonModel;
-        private int count = 0;
-
-        public StubResponse(String[] jsonModel) {
-            this.jsonModel = jsonModel;
-        }
-
-        public String next()  {
-            if (count < jsonModel.length) {
-                String json = jsonModel[count];
-                count++;
-                return json;
-            }
-            return null;
-        }
-
-        @Override
-        public void close() {
-            // nothing to do.
-        }
-
-        @Override
-        public void expect(ResponseRecord record) {
-            // nothing to do
-        }
-
-        @Override
-        public String[] columns() {
-            return new String[0];
-        }
-
-        @Override
-        public int rowId() {
-            return count-1;
-        }
-    }
-
     @Override
     public void close() {
-
+        throw new RuntimeException("not implemented");
     }
 
     @Override
     public void configure(DriverConfig config) {
-
+        throw new RuntimeException("not implemented");
     }
 
     @Override
-    public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
-        return null;
+    public Transaction newTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
+        throw new RuntimeException("not implemented");
     }
 
     @Override
     public Object getConfig(String key) {
-        return null;
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public TransactionManager transactionManager() {
+       return null;
+    }
+
+    @Override
+    public void setTransactionManager(TransactionManager transactionManager) {
+        ;
     }
 
     @Override
     public Request requestHandler() {
 
         return new Request() {
-            @Override
-            public Response<GraphModel> execute(GraphModelQuery qry) {
-                return new GraphModelResponse(new StubResponse(getResponse()), mapper);
-            }
 
-            @Override
-            public Response<RowModel> execute(RowModelQuery query) {
+            private final String[] json = getResponse();
+            private int count = 0;
+
+            private String nextRecord() {
+                if (count < json.length) {
+                    String r = json[count];
+                    count++;
+                    return r;
+                }
                 return null;
             }
 
+
             @Override
-            public Response<GraphRowModel> execute(GraphRowModelQuery query) {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            public Response<GraphModel> execute(GraphModelRequest qry) {
+
+                return new Response<GraphModel>() {
+
+                    @Override
+                    public GraphModel next() {
+                        String r = nextRecord();
+                        if (r != null) {
+                            try {
+                                return mapper.readValue(r, GraphModelResult.class).getGraph();
+                            } catch (Exception e) {
+                                throw new ResultProcessingException("Could not parse response", e);
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void close() {
+                    }
+
+                    @Override
+                    public String[] columns() {
+                        return new String[0];
+                    }
+                };
             }
 
             @Override
-            public Response<String> execute(ParameterisedStatement statement) {
-                return new StubResponse(getResponse());
+            public Response<RowModel> execute(RowModelRequest query) {
+                return new Response<RowModel>() {
+
+                    @Override
+                    public RowModel next() {
+                        String r = nextRecord();
+                        if (r != null) {
+                            try {
+                                return new RowModel(mapper.readValue(r, RowModelResult.class).getRow());
+                            } catch (Exception e) {
+                                throw new ResultProcessingException("Could not parse response", e);
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void close() {
+                    }
+
+                    @Override
+                    public String[] columns() {
+                        return new String[0];
+                    }
+                };
             }
+
             @Override
-            public Response<RowStatisticsModel> execute(RowModelQueryWithStatistics query) {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            public Response<GraphRowModel> execute(GraphRowModelRequest query) {
+                return new Response<GraphRowModel>() {
+
+                    @Override
+                    public GraphRowModel next() {
+                        throw new RuntimeException("not implemented");
+                    }
+
+                    @Override
+                    public void close() {
+                    }
+
+                    @Override
+                    public String[] columns() {
+                        return new String[0];
+                    }
+                };
+            }
+
+            @Override
+            public Response<RowStatisticsModel> execute(RowModelStatisticsRequest query) {
+                return new Response<RowStatisticsModel>() {
+
+                    @Override
+                    public RowStatisticsModel next() {
+                        throw new RuntimeException("not implemented");
+                    }
+
+                    @Override
+                    public void close() {
+                    }
+
+                    @Override
+                    public String[] columns() {
+                        return new String[0];
+                    }
+                };
             }
         };
     }
+
+
 
 }

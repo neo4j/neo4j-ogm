@@ -27,7 +27,7 @@ import org.neo4j.ogm.domain.friendships.Friendship;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 public class FriendshipsRelationshipEntityTest {
 
 	@Rule
-	public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 

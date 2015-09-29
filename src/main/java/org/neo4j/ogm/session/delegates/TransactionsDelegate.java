@@ -35,7 +35,8 @@ public class TransactionsDelegate implements Capability.Transactions {
         session.debug("beginTransaction() being called on thread: " + Thread.currentThread().getId());
         session.debug("Neo4jSession identity: " + this);
 
-        Transaction tx = session.transactionManager().openTransaction(session.context());
+        //Transaction tx = session.transactionManager().openTransaction(session.context());
+        Transaction tx = session.transactionManager().openTransaction();
 
         session.debug("Obtained new transaction, tx id: " + tx);
         return tx;

@@ -20,8 +20,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.statement.Statements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 
 import static org.junit.Assert.assertEquals;
@@ -36,10 +36,10 @@ public class ParameterisedStatementsTest {
     @Test
     public void testStatement() throws Exception {
 
-        List<ParameterisedStatement > statements = new ArrayList<>();
+        List<Statement> statements = new ArrayList<>();
         statements.add(new VariableDepthQuery().findOne(123L, 1));
 
-        String cypher = mapper.writeValueAsString(new ParameterisedStatements(statements));
+        String cypher = mapper.writeValueAsString(new Statements(statements));
 
         assertEquals("{\"statements\":[{\"statement\":\"MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}", cypher);
 

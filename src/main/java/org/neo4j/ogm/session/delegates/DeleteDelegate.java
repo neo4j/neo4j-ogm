@@ -13,8 +13,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.cypher.query.RowModelQuery;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.query.RowModelRequest;
+import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.Capability;
@@ -24,10 +24,6 @@ import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.RowModel;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -74,9 +70,8 @@ public class DeleteDelegate implements Capability.Delete {
                 Field identityField = classInfo.getField(classInfo.identityField());
                 Long identity = (Long) FieldWriter.read(identityField, object);
                 if (identity != null) {
-                    ParameterisedStatement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
-                    session.ensureTransaction();
-                    RowModelQuery query = new RowModelQuery(request.getStatement(), request.getParameters());
+                    Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
+                    RowModelRequest query = new RowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
                     }
@@ -91,9 +86,8 @@ public class DeleteDelegate implements Capability.Delete {
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
-            ParameterisedStatement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
-            session.ensureTransaction();
-            RowModelQuery query = new RowModelQuery(request.getStatement(), request.getParameters());
+            Statement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
+            RowModelRequest query = new RowModelRequest(request.getStatement(), request.getParameters());
             try (Response<RowModel> response = session.requestHandler().execute(query)) {
                 session.context().clear(type);
             }
@@ -105,9 +99,8 @@ public class DeleteDelegate implements Capability.Delete {
 
     @Override
     public void purgeDatabase() {
-        session.ensureTransaction();
-        ParameterisedStatement stmt = new DeleteNodeStatements().purge();
-        RowModelQuery query = new RowModelQuery(stmt.getStatement(), stmt.getParameters());
+        Statement stmt = new DeleteNodeStatements().purge();
+        RowModelRequest query = new RowModelRequest(stmt.getStatement(), stmt.getParameters());
         session.requestHandler().execute(query).close();
         session.context().clear();
     }

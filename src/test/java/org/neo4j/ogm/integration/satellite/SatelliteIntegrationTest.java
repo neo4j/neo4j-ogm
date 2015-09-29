@@ -24,7 +24,7 @@ import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 public class SatelliteIntegrationTest
 {
     @ClassRule
-    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule();
 
     private static Session session;
 

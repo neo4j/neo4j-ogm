@@ -14,14 +14,13 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
-import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
+import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.session.response.model.RowStatisticsModel;
-import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.response.model.StatisticsModel;
 
 import java.util.Map;
 
@@ -38,7 +37,7 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
     }
 
     @Override
-    public QueryStatisticsModel execute(String cypher, Map<String, Object> parameters) {
+    public StatisticsModel execute(String cypher, Map<String, Object> parameters) {
         if (StringUtils.isEmpty(cypher)) {
             throw new RuntimeException("Supplied cypher statement must not be null or empty.");
         }
@@ -47,11 +46,10 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
         assertNothingReturned(cypher);
-        session.ensureTransaction();
 
         // NOTE: No need to check if domain objects are parameters and flatten them to json as this is done
         // for us using the existing execute() method.
-        RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
+        RowModelStatisticsRequest parameterisedStatement = new RowModelStatisticsRequest(cypher, parameters);
         try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
             RowStatisticsModel result = response.next();
             return result == null ? null : result.getStats();
@@ -59,13 +57,13 @@ public class ExecuteStatementsDelegate implements Capability.ExecuteStatements {
     }
 
     @Override
-    public QueryStatisticsModel execute(String statement) {
+    public StatisticsModel execute(String statement) {
         if (StringUtils.isEmpty(statement)) {
             throw new RuntimeException("Supplied cypher statement must not be null or empty.");
         }
         assertNothingReturned(statement);
-        RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(statement, Utils.map());
-        Transaction tx = session.ensureTransaction();
+        RowModelStatisticsRequest parameterisedStatement = new RowModelStatisticsRequest(statement, Utils.map());
+        //Transaction tx = session.ensureTransaction();
         try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
             RowStatisticsModel result = response.next();
             return result == null ? null : result.getStats();

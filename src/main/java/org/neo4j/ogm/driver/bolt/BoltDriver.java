@@ -1,5 +1,7 @@
 package org.neo4j.ogm.driver.bolt;
 
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Session;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.mapper.MappingContext;
@@ -12,38 +14,36 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
  */
 public class BoltDriver implements Driver {
 
-
+    private Session session;
     private DriverConfig driverConfig;
+    private TransactionManager transactionManager;
 
     public BoltDriver() {
-        this.driverConfig = new DriverConfig("driver.properties.bolt");
+        configure(new DriverConfig("driver.properties.bolt"));
     }
 
 
     @Override
     public void configure(DriverConfig config) {
         this.driverConfig = config;
+        this.session = GraphDatabase.driver((String) config.getConfig("server")).session();
+        this.driverConfig.setConfig("session", session);
     }
 
     @Override
-    public Transaction openTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public Transaction newTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
+        throw new RuntimeException("Not implemented!");
     }
 
     @Override
     public void close() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // cannot detect if session is already closed, so explicitly set to null.
+        if (session != null) {
+            session.close();
+            session = null;
+            this.driverConfig.setConfig("session", null);
+        }
     }
-
-//    @Override
-//    public Neo4jResponse<String> execute(String cypher) {
-//        return null;  //To change body of implemented methods use File | Settings | File Templates.
-//    }
-//
-//    @Override
-//    public Neo4jResponse<String> execute(String cypher, Map<String, Object> parameters) {
-//        return null;  //To change body of implemented methods use File | Settings | File Templates.
-//    }
 
     @Override
     public Object getConfig(String key) {
@@ -52,10 +52,16 @@ public class BoltDriver implements Driver {
 
     @Override
     public Request requestHandler() {
-        //return null;  //To change body of implemented methods use File | Settings | File Templates.
-        throw new RuntimeException("Not implemented!");
+        return new BoltRequest(session);
     }
 
+    @Override
+    public TransactionManager transactionManager() {
+        return transactionManager;
+    }
+
+    @Override
+    public void setTransactionManager(TransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 }
-
-

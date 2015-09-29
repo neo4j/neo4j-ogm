@@ -24,8 +24,8 @@ import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.statement.Statements;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
@@ -133,7 +133,7 @@ public class DegenerateEntityModelTests {
         // set a's f to a new f, but don't remove from the current f's list of documents
         a.setFolder(null);
 
-        ParameterisedStatements cypher = new ParameterisedStatements(mapper.map(a).getStatements());
+        Statements cypher = new Statements(mapper.map(a).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (f:Folder {name : 'f' } )" +
@@ -148,7 +148,7 @@ public class DegenerateEntityModelTests {
         // remove f's documents, but don't clear the documents' f reference
         f.setDocuments(new HashSet<Document>());
 
-        ParameterisedStatements cypher = new ParameterisedStatements(mapper.map(f).getStatements());
+        Statements cypher = new Statements(mapper.map(f).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (f:Folder { name: 'f' } )" +
@@ -165,7 +165,7 @@ public class DegenerateEntityModelTests {
         clone.setName(a.getName());
         clone.setFolder(null);
 
-        ParameterisedStatements cypher = new ParameterisedStatements(mapper.map(clone).getStatements());
+        Statements cypher = new Statements(mapper.map(clone).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (f:Folder { name: 'f' } )" +
@@ -182,7 +182,7 @@ public class DegenerateEntityModelTests {
         clone.setName(f.getName());
         clone.setDocuments(new HashSet<Document>());
 
-        ParameterisedStatements cypher = new ParameterisedStatements(mapper.map(clone).getStatements());
+        Statements cypher = new Statements(mapper.map(clone).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (f:Folder { name: 'f' } )" +
@@ -197,7 +197,7 @@ public class DegenerateEntityModelTests {
         a.setFolder(new Folder());
         a.getFolder().setName("g");
 
-        ParameterisedStatements cypher = new ParameterisedStatements(mapper.map(a).getStatements());
+        Statements cypher = new Statements(mapper.map(a).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (f:Folder { name: 'f' } )" +
@@ -218,7 +218,7 @@ public class DegenerateEntityModelTests {
         f.getDocuments().add(c);
         f.getDocuments().remove(a);
 
-        ParameterisedStatements cypher = new ParameterisedStatements(mapper.map(f).getStatements());
+        Statements cypher = new Statements(mapper.map(f).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (f:Folder { name: 'f' })" +
@@ -230,12 +230,12 @@ public class DegenerateEntityModelTests {
 
     }
 
-    private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
+    private void executeStatementsAndAssertSameGraph(Statements cypher, String sameGraphCypher) {
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
 
-        for (ParameterisedStatement query : cypher.getStatements()) {
+        for (Statement query : cypher.getStatements()) {
             executionEngine.execute(query.getStatement(), query.getParameters());
         }
         assertSameGraph(graphDatabase, sameGraphCypher);

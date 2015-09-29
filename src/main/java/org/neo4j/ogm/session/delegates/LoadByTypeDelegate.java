@@ -48,7 +48,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filters filters, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        session.ensureTransaction();
+        //session.ensureTransaction();
         String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
@@ -58,27 +58,27 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
         // though they are at the moment because of the problems with "graph" response format.
         if (filters.isEmpty()) {
 
-            Query qry = queryStatements.findByType(entityType, depth)
+            AbstractRequest qry = queryStatements.findByType(entityType, depth)
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
 
             filters = resolvePropertyAnnotations(type, filters);
 
-            Query qry = queryStatements.findByProperties(entityType, filters, depth)
+            AbstractRequest qry = queryStatements.findByProperties(entityType, filters, depth)
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
             if (depth != 0) {
-                try (Response<GraphRowModel> response = session.requestHandler().execute((GraphRowModelQuery) qry)) {
+                try (Response<GraphRowModel> response = session.requestHandler().execute((GraphRowModelRequest) qry)) {
                     return session.responseHandler().loadByProperty(type, response);
                 }
             } else {
-                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
                     return session.responseHandler().loadAll(type, response);
                 }
             }

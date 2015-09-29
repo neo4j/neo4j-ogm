@@ -14,25 +14,29 @@
 
 package org.neo4j.ogm.session.response.model;
 
-import org.neo4j.ogm.session.response.GraphRowModelResponse;
+import org.neo4j.ogm.session.result.GraphRowResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The results of a query which returns both graph and row data.
+ * The results of a query, modelled as both both graph and row data.
  *
  * @author Luanne Misquitta
  */
 public class GraphRowModel {
 
-	List<GraphRowModelResponse.GraphRowResult> graphRowResults = new ArrayList<>();
+	List<GraphRowResult> graphRowResults = new ArrayList<>();
 
-	public List<GraphRowModelResponse.GraphRowResult> getGraphRowResults() {
+	public List<GraphRowResult> getGraphRowResults() {
 		return graphRowResults;
 	}
 
+    public void addGraphRowResult(GraphModel graphModel, RowModel rowModel) {
+        graphRowResults.add(new GraphRowResult(graphModel, rowModel.getValues()));
+    }
+
 	public void addGraphRowResult(GraphModel graphModel, Object[] rowModel) {
-		graphRowResults.add(new GraphRowModelResponse.GraphRowResult(graphModel, rowModel));
+		graphRowResults.add(new GraphRowResult(graphModel, rowModel));
 	}
 }

@@ -2,14 +2,15 @@ package org.neo4j.ogm.unit.drivers;
 
 import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.Drivers;
 import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.driver.http.driver.HttpDriver;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author vince
  */
+
 public class DriverConfigTest {
 
     @Test
@@ -25,7 +26,8 @@ public class DriverConfigTest {
     @Test
     public void shouldAutoConfigureDriver() {
 
-        Driver driver = Drivers.HTTP;
+
+        Driver driver = new HttpDriver();
 
         assertEquals("http://localhost:7474", driver.getConfig("server"));
         assertEquals("neo4j", driver.getConfig("username"));

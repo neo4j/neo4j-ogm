@@ -28,7 +28,7 @@ import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 import org.neo4j.ogm.session.response.handler.ResponseHandler;
 import org.neo4j.ogm.session.response.handler.SessionResponseHandler;
-import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
+import org.neo4j.ogm.session.response.model.StatisticsModel;
 import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
@@ -69,7 +69,7 @@ public class Neo4jSession implements Session {
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new TransactionManager(driver);
+        this.txManager = new TransactionManager(driver, mappingContext);
     }
 
     /*
@@ -381,12 +381,12 @@ public class Neo4jSession implements Session {
     *----------------------------------------------------------------------------------------------------------
     */
     @Override
-    public QueryStatisticsModel execute(String cypher, Map<String, Object> parameters) {
+    public StatisticsModel execute(String cypher, Map<String, Object> parameters) {
         return executeStatementsDelegate.execute(cypher, parameters);
     }
 
     @Override
-    public QueryStatisticsModel execute(String statement) {
+    public StatisticsModel execute(String statement) {
         return executeStatementsDelegate.execute(statement);
     }
 
@@ -449,10 +449,6 @@ public class Neo4jSession implements Session {
 
     public Request requestHandler() {
         return driver.requestHandler();
-    }
-
-    public Transaction ensureTransaction() {
-        return transactionsDelegate.getCurrentOrTransientTransaction();
     }
 
     public ResponseHandler responseHandler() {

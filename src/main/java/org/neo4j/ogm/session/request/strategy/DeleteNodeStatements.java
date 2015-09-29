@@ -15,7 +15,7 @@ package org.neo4j.ogm.session.request.strategy;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.session.Utils;
 
 /**
@@ -23,19 +23,19 @@ import org.neo4j.ogm.session.Utils;
  */
 public class DeleteNodeStatements implements DeleteStatements{
 
-    public ParameterisedStatement delete(Long id) {
-        return new ParameterisedStatement("MATCH (n) WHERE id(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("id", id));
+    public Statement delete(Long id) {
+        return new Statement("MATCH (n) WHERE id(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("id", id));
     }
 
-    public ParameterisedStatement deleteAll(Collection<Long> ids) {
-        return new ParameterisedStatement("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("ids", ids));
+    public Statement deleteAll(Collection<Long> ids) {
+        return new Statement("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("ids", ids));
     }
 
-    public ParameterisedStatement purge() {
-        return new ParameterisedStatement("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
+    public Statement purge() {
+        return new Statement("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
     }
 
-    public ParameterisedStatement deleteByType(String label) {
-        return new ParameterisedStatement(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label), Utils.map());
+    public Statement deleteByType(String label) {
+        return new Statement(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label), Utils.map());
     }
 }

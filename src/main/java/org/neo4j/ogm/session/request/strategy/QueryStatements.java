@@ -18,7 +18,7 @@ package org.neo4j.ogm.session.request.strategy;
 import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.Query;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
 
 /**
  * @author Vince Bickers
@@ -32,13 +32,13 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a Cypher expression
      */
-    Query findOne(Long id, int depth);
+    AbstractRequest findOne(Long id, int depth);
 
     /**
      * construct a query to fetch all objects
      * @return a Cypher expression
      */
-    Query findAll();
+    AbstractRequest findAll();
 
     /**
      * construct a query to fetch all objects with the specified ids
@@ -46,7 +46,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a Cypher expression
      */
-    Query findAll(Collection<Long> ids, int depth);
+    AbstractRequest findAll(Collection<Long> ids, int depth);
 
     /**
      * construct a query to fetch all objects with the specified ids
@@ -55,7 +55,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a Cypher expression
      */
-    Query findAllByType(String type, Collection<Long> ids, int depth);
+    AbstractRequest findAllByType(String type, Collection<Long> ids, int depth);
 
     /**
      * construct queries to fetch all objects with the specified label or relationship type
@@ -63,7 +63,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for related objects
      * @return a Cypher expression
      */
-    Query findByType(String type, int depth);
+    AbstractRequest findByType(String type, int depth);
 
     /**
      * construct queries to fetch all objects with the specified label and property
@@ -73,6 +73,6 @@ public interface QueryStatements {
      * @return a Cypher expression
      */
 
-    Query findByProperties(String type, Filters filters, int depth);
+    AbstractRequest findByProperties(String type, Filters filters, int depth);
 
 }

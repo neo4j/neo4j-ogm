@@ -15,6 +15,8 @@
 package org.neo4j.ogm.session.response.model;
 
 /**
+ * The results of a query, modelled as row data.
+ *
  * @author Vince Bickers
  */
 public class RowModel {

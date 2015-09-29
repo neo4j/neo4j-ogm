@@ -10,7 +10,7 @@ import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ import java.io.IOException;
 public class ElectionTest {
 
     @Rule
-    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.election");
 

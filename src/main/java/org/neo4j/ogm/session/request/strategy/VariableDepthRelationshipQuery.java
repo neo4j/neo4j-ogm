@@ -18,9 +18,9 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.GraphModelQuery;
-import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
-import org.neo4j.ogm.cypher.query.Query;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.GraphModelRequest;
+import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
 
@@ -32,52 +32,52 @@ import java.util.*;
 public class VariableDepthRelationshipQuery implements QueryStatements {
 
     @Override
-    public Query findOne(Long id, int depth) {
+    public AbstractRequest findOne(Long id, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
             String qry = String.format("MATCH (n)-[r]->() WHERE ID(r) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
-            return new GraphModelQuery(qry, Utils.map("id", id));
+            return new GraphModelRequest(qry, Utils.map("id", id));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
     }
 
     @Override
-    public Query findAll(Collection<Long> ids, int depth) {
+    public AbstractRequest findAll(Collection<Long> ids, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
             String qry=String.format("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
-            return new GraphModelQuery(qry, Utils.map("ids", ids));
+            return new GraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
     }
 
     @Override
-    public Query findAllByType(String type, Collection<Long> ids, int depth) {
+    public AbstractRequest findAllByType(String type, Collection<Long> ids, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
             String qry=String.format("MATCH (n)-[r:`%s`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", type, min, max);
-            return new GraphModelQuery(qry, Utils.map("ids", ids));
+            return new GraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
     }
 
     @Override
-    public Query findAll() {
-        return new GraphModelQuery("MATCH p=()-->() RETURN p", Utils.map());
+    public AbstractRequest findAll() {
+        return new GraphModelRequest("MATCH p=()-->() RETURN p", Utils.map());
     }
 
     @Override
-    public Query findByType(String type, int depth) {
+    public AbstractRequest findByType(String type, int depth) {
         int max = max(depth);
         if (max > 0) {
             String qry = String.format("MATCH p=()-[r:`%s`*..%d]-() RETURN p", type, max);
-            return new GraphModelQuery(qry, Utils.map());
+            return new GraphModelRequest(qry, Utils.map());
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
@@ -85,14 +85,14 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
 
 
 	@Override
-	public Query findByProperties(String type, Filters parameters, int depth) {
+	public AbstractRequest findByProperties(String type, Filters parameters, int depth) {
 		int max = max(depth);
 		int min = min(max);
 		if (max > 0) {
 			Map<String, Object> properties = new HashMap<>();
             StringBuilder query = constructQuery(type, parameters, properties);
 			query.append(String.format("WITH n,r MATCH p=(n)-[*%d..%d]-() RETURN p, ID(r)", min, max));
-			return new GraphRowModelQuery(query.toString(), properties);
+			return new GraphRowModelRequest(query.toString(), properties);
 		} else {
 			throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
 		}

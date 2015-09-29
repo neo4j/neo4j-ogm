@@ -27,7 +27,8 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.TestDriverFactory;
 
 /**
  * @author Vince Bickers
@@ -35,8 +36,8 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
  */
 public class RelationshipEntityTest {
 
-    @Rule
-    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    //@Rule
+    //public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private U u;
     private M m;
@@ -47,7 +48,10 @@ public class RelationshipEntityTest {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.integration").openSession(testServer.driver());
+        //session = new SessionFactory("org.neo4j.ogm.integration").openSession(testServer.driver());
+
+        session = new SessionFactory("org.neo4j.ogm.integration").openSession(TestDriverFactory.driver("http"));
+
         u = new U("Luanne");
         m = new M("Taken");
         r1 = new R(u, m, "great!", 4);
@@ -66,6 +70,7 @@ public class RelationshipEntityTest {
         m.rset.add(r2);
 
         session.save(u);
+        session.clear();
 
         m = session.load(M.class, m.id);
 
@@ -80,6 +85,7 @@ public class RelationshipEntityTest {
         r1.stars=3;
 
         session.save(u);
+        session.clear();
 
         m = session.load(M.class, m.id);
 
@@ -98,10 +104,14 @@ public class RelationshipEntityTest {
 
         session.save(u);
 
+        session.clear();
+
         m = session.load(M.class, m.id);
         u = session.load(U.class, u.id);
-
+        assertNotNull(m);
         assertEquals(0, m.rset.size());
+
+        assertNotNull(u);
         assertEquals(0, u.rset.size());
 
     }
@@ -120,6 +130,7 @@ public class RelationshipEntityTest {
         m.rset.add(r3);
 
         session.save(u);
+        session.clear();
 
         m = session.load(M.class, m.id);
 
@@ -132,6 +143,7 @@ public class RelationshipEntityTest {
 
         session.save(r1);
         session.clear();
+
         r1 = session.load(R.class, r1.id);
 
         assertEquals(1, r1.m.rset.size());
@@ -170,6 +182,7 @@ public class RelationshipEntityTest {
         u.rset.clear();
         m.rset.clear();
         session.delete(r1);
+        session.clear();
 
         assertNull(session.load(R.class, r1.id));
 
@@ -196,6 +209,7 @@ public class RelationshipEntityTest {
         assertEquals(m2, u.rset.iterator().next().m);
 
         session.clear();
+
         u = session.load(U.class, u.id);
         assertEquals(1, u.rset.size()); //we've lost all R's from u
         assertEquals(m2.title, u.rset.iterator().next().m.title);

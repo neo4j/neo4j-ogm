@@ -15,10 +15,10 @@
 package org.neo4j.ogm.session.request;
 
 
-import org.neo4j.ogm.cypher.query.GraphModelQuery;
-import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
-import org.neo4j.ogm.cypher.query.RowModelQuery;
-import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
+import org.neo4j.ogm.cypher.query.GraphModelRequest;
+import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
+import org.neo4j.ogm.cypher.query.RowModelRequest;
+import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.response.model.GraphRowModel;
@@ -31,10 +31,10 @@ import org.neo4j.ogm.session.response.model.RowStatisticsModel;
  */
 public interface Request {
 
-    Response<GraphModel> execute(GraphModelQuery query);
-    Response<RowModel> execute(RowModelQuery query);
-    Response<GraphRowModel> execute(GraphRowModelQuery query);
-    Response<RowStatisticsModel> execute(RowModelQueryWithStatistics query);
+    Response<GraphModel> execute(GraphModelRequest query);
+    Response<RowModel> execute(RowModelRequest query);
+    Response<GraphRowModel> execute(GraphRowModelRequest query);
+    Response<RowStatisticsModel> execute(RowModelStatisticsRequest query);
 
     //Response<String> execute(ParameterisedStatement statement);
 }

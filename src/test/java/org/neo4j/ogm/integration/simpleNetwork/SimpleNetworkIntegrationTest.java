@@ -6,7 +6,7 @@ import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
 import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.Set;
 public class SimpleNetworkIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 

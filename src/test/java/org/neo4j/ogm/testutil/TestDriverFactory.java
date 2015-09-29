@@ -1,12 +1,16 @@
 package org.neo4j.ogm.testutil;
 
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.embedded.EmbeddedDriver;
+import org.neo4j.ogm.driver.bolt.BoltDriver;
+import org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver;
 
 /**
  * @author vince
  */
 public abstract class TestDriverFactory {
+
+    // shared static instance so we don't run into store lock problems during tests.
+    private static final Driver EMBEDDED_DRIVER = new EmbeddedDriver();
 
     private TestDriverFactory()  {
     }
@@ -18,9 +22,12 @@ public abstract class TestDriverFactory {
         }
 
         if (strategy.equals("embedded")) {
-            return new EmbeddedDriver();
+            return EMBEDDED_DRIVER;
         }
 
+        if (strategy.equals("bolt")) {
+            return new BoltDriver();
+        }
         throw new RuntimeException("Not implemented: " + strategy);
     }
 }

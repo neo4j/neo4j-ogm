@@ -19,7 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.Statements;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
@@ -337,7 +337,7 @@ public class DirectRelationshipsTest {
     }
 
     private void expectOnSave(Object object, String... cypher) {
-        ParameterisedStatements statements = new ParameterisedStatements(this.mapper.map(object).getStatements());
+        Statements statements = new Statements(this.mapper.map(object).getStatements());
         for (String s : cypher) {
             if (s.equals(statements.getStatements().get(0).getStatement())) {
                 return;

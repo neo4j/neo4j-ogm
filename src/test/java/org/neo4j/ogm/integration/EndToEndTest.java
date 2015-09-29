@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.integration;
 
-import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
@@ -33,6 +33,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author Michal Bachman
+ * @author Vince Bickers
  */
 public class EndToEndTest {
 
@@ -41,11 +42,11 @@ public class EndToEndTest {
     @BeforeClass
     public static void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession(TestDriverFactory.driver("http")); // try with embedded next!
+        session = sessionFactory.openSession(TestDriverFactory.driver("embedded"));
     }
 
-    @After
-    public void clearDatabase() {
+    @Before
+    public void setup() {
         session.purgeDatabase();
     }
 
@@ -109,6 +110,7 @@ public class EndToEndTest {
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("brand", "Huffy");
+
         Bike actual = session.queryForObject(Bike.class, "MATCH (bike:Bike{brand:{brand}})-[rels]-() RETURN bike, COLLECT(DISTINCT rels) as rels", parameters);
 
         assertEquals(bike.getId(), actual.getId());
@@ -148,7 +150,7 @@ public class EndToEndTest {
         assertEquals(bike.getId(), actual.getId());
         assertEquals(bike.getBrand(), actual.getBrand());
         assertEquals(bike.getWheels().size(), actual.getWheels().size());
-        assertEquals(actual.getSaddle().getMaterial(), "Vinyl");
+        assertEquals("Vinyl", actual.getSaddle().getMaterial());
     }
 
     @Test

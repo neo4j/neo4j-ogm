@@ -20,11 +20,11 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.driver.http.HttpTransaction;
+import org.neo4j.ogm.driver.http.transaction.HttpTransaction;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 import org.neo4j.ogm.session.transaction.TransactionManager;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +35,7 @@ public class TransactionRequestHandlerTest
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 
@@ -44,8 +44,8 @@ public class TransactionRequestHandlerTest
     public void testCreateLongTransaction() {
 
 
-        TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
-        try (Transaction tx = txRequestHandler.openTransaction(null)) {
+        TransactionManager txRequestHandler = new TransactionManager(testServer.driver(), null);
+        try (Transaction tx = txRequestHandler.openTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
     }
@@ -53,11 +53,11 @@ public class TransactionRequestHandlerTest
     @Test
     public void testCreateConcurrentTransactions() {
 
-        TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
+        TransactionManager txRequestHandler = new TransactionManager(testServer.driver(), null);
 
         // note that the try-with-resources implies these transactions are nested, but they are in fact independent
-        try (Transaction tx1 = txRequestHandler.openTransaction(null)) {
-            try (Transaction tx2 = txRequestHandler.openTransaction(null)) {
+        try (Transaction tx1 = txRequestHandler.openTransaction()) {
+            try (Transaction tx2 = txRequestHandler.openTransaction()) {
                 assertEquals(Transaction.Status.OPEN, tx1.status());
                 assertEquals(Transaction.Status.OPEN, tx2.status());
             }
@@ -76,7 +76,7 @@ public class TransactionRequestHandlerTest
 
     @Test(expected = TransactionException.class)
     public void shouldDetectErrorsOnCommitOfNonExistentTransaction() {
-        TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
+        TransactionManager txRequestHandler = new TransactionManager(testServer.driver(), null);
         Transaction tx = new HttpTransaction(null, txRequestHandler, false, null, null);
         tx.commit();
     }

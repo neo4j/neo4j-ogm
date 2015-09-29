@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @see DATAGRAPH-636
@@ -52,7 +52,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class BidirectionalMappingTest {
 
     @Rule
-    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 

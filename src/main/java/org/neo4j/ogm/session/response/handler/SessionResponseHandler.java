@@ -24,11 +24,11 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.session.result.GraphRowResult;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.response.model.GraphRowModel;
 import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.response.GraphRowModelResponse;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -57,7 +57,7 @@ public class SessionResponseHandler implements ResponseHandler {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         GraphRowModel graphRowModel = response.next();
 
-        for(GraphRowModelResponse.GraphRowResult graphRowResult : graphRowModel.getGraphRowResults()) {
+        for(GraphRowResult graphRowResult : graphRowModel.getGraphRowResults()) {
             //Load the GraphModel into the ogm
             GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
             ogm.map(type, graphRowResult.getGraph());

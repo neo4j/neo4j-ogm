@@ -28,7 +28,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.result.Result;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Luanne Misquitta
@@ -36,7 +36,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class ExecuteQueryCapabilityTest {
 
 	@ClassRule
-	public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public static IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 

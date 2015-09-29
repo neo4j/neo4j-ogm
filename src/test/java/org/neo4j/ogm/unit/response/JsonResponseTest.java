@@ -13,10 +13,13 @@
  */
 package org.neo4j.ogm.unit.response;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.neo4j.ogm.driver.http.HttpResponse;
+import org.neo4j.ogm.driver.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.RowModel;
 import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.session.result.RowModelResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -29,34 +32,33 @@ public class JsonResponseTest {
 
     @Test(expected = ResultProcessingException.class)
     public void shouldHandleNoResultsAndErrors() {
-        try( HttpResponse rsp = new HttpResponse(noResultsAndErrors()) ) {
+        try( Response<RowModel> rsp = new TestRowHttpResponse(noResultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test(expected = ResultProcessingException.class)
     public void shouldHandleResultsAndErrors() {
-        try( HttpResponse rsp = new HttpResponse(resultsAndErrors()) ) {
+        try( Response<RowModel> rsp = new TestRowHttpResponse(resultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test
     public void shouldHandleNoResultsAndNoErrors() {
-        try( HttpResponse rsp = new HttpResponse(noResultsAndNoErrors()) ) {
+        try( Response<RowModel> rsp = new TestRowHttpResponse(noResultsAndNoErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test
     public void shouldHandleResultsAndNoErrors() {
-        try( HttpResponse rsp = new HttpResponse(resultsAndNoErrors()) ) {
+        try( Response<RowModel> rsp = new TestRowHttpResponse(resultsAndNoErrors()) ) {
             parseResponse(rsp);
         }
     }
 
-    private void parseResponse(HttpResponse rsp) {
-        rsp.expect(Response.ResponseRecord.ROW);
+    private void parseResponse(Response<RowModel> rsp) {
         while (rsp.next() != null);
     }
 
@@ -96,4 +98,34 @@ public class JsonResponseTest {
         return new ByteArrayInputStream(s.getBytes());
     }
 
+    static class TestRowHttpResponse extends AbstractHttpResponse implements Response<RowModel> {
+
+        private static final ObjectMapper mapper = new ObjectMapper();
+
+        public TestRowHttpResponse(InputStream inputStream) {
+            super(inputStream);
+        }
+
+        @Override
+        public String scanToken() {
+            return "\"row";
+        }
+
+        @Override
+        public RowModel next() {
+
+            String json = super.nextRecord();
+
+            if (json != null) {
+                try {
+                    return new RowModel(mapper.readValue(json, RowModelResult.class).getRow());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                return null;
+            }
+        }
+
+    }
 }

@@ -24,7 +24,7 @@ import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertEquals;
 public class StaleObjectTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Folder f;
     private Document a;

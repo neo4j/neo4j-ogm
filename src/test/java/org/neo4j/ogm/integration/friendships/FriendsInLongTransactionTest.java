@@ -13,8 +13,6 @@ package org.neo4j.ogm.integration.friendships;
 
 import static org.junit.Assert.*;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Person;
@@ -22,7 +20,7 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Luanne Misquitta
@@ -30,7 +28,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class FriendsInLongTransactionTest {
 
 	@ClassRule
-	public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public static IntegrationTestRule testServer = new IntegrationTestRule();
 
 	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(testServer.driver());
 
@@ -39,8 +37,8 @@ public class FriendsInLongTransactionTest {
 	 */
 	@Test
 	public void createPersonAndFriendsInLongTransaction() {
-		TransactionManager txRequestHandler = new TransactionManager(testServer.driver());
-		try (Transaction tx = txRequestHandler.openTransaction(null)) {
+		TransactionManager txRequestHandler = new TransactionManager(testServer.driver(), null);
+		try (Transaction tx = txRequestHandler.openTransaction()) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
 			Person john = new Person("John");
 			session.save(john);

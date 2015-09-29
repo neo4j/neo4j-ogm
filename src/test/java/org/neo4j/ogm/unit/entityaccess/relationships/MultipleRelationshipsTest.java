@@ -29,7 +29,7 @@ import org.neo4j.ogm.domain.entityMapping.Person;
 import org.neo4j.ogm.domain.entityMapping.Rating;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author vince
@@ -38,7 +38,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class MultipleRelationshipsTest {
 
 	@Rule
-	public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 

@@ -13,16 +13,16 @@
  */
 package org.neo4j.ogm.session;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
+import org.neo4j.ogm.session.response.model.StatisticsModel;
 import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.transaction.Transaction;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Vince Bickers
@@ -151,13 +151,13 @@ public interface Capability {
          *                   if a complex domain object is provided only the properties of that object will be set.
          *                   If relationships of a provided object also need to be set then the cypher should reflect this
          *                   and further domain object parameters provided.
-         * @return {@link org.neo4j.ogm.session.response.model.QueryStatisticsModel} representing statistics about graph modifications as a result of the cypher execution.
+         * @return {@link org.neo4j.ogm.session.response.model.StatisticsModel} representing statistics about graph modifications as a result of the cypher execution.
          */
         @Deprecated
-        QueryStatisticsModel execute(String cypher, Map<String, Object> parameters);
+        StatisticsModel execute(String cypher, Map<String, Object> parameters);
 
         @Deprecated
-        QueryStatisticsModel execute(String jsonStatements);
+        StatisticsModel execute(String jsonStatements);
 
     }
 
@@ -204,7 +204,7 @@ public interface Capability {
          * @param cypher  The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher.
          *
-         * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.session.response.model.QueryStatisticsModel} if applicable.
+         * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.session.response.model.StatisticsModel} if applicable.
          */
         Result query(String cypher, Map<String, ?> parameters);
 

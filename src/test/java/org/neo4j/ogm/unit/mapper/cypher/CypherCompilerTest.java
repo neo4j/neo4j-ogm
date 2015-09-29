@@ -16,17 +16,15 @@ package org.neo4j.ogm.unit.mapper.cypher;
 
 import static org.junit.Assert.*;
 
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.Statements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -639,7 +637,7 @@ public class CypherCompilerTest {
 
 
     private void expectOnSave(Object object, String... cypher) {
-        ParameterisedStatements statements = new ParameterisedStatements(this.mapper.map(object).getStatements());
+        Statements statements = new Statements(this.mapper.map(object).getStatements());
         for (String s : cypher) {
             if (s.equals(statements.getStatements().get(0).getStatement())) {
                 return;

@@ -22,7 +22,7 @@ import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.domain.cineasts.partial.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -39,7 +39,7 @@ import static junit.framework.Assert.assertEquals;
 public class RelationshipEntityPartialMappingTest {
 
     @Rule
-    public final Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public final IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 

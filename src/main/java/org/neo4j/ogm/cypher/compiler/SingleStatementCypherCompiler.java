@@ -14,16 +14,10 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
+import org.neo4j.ogm.cypher.statement.Statement;
 
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Implementation of {@link CypherCompiler} that builds a single query for the object graph.
@@ -96,7 +90,7 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
     }
 
     @Override
-    public List<ParameterisedStatement> getStatements() {
+    public List<Statement> getStatements() {
 
         StringBuilder queryBuilder = new StringBuilder();
 
@@ -141,7 +135,7 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
 
         returnClause.emit(queryBuilder, parameters, newStack);
 
-        return Collections.singletonList(new ParameterisedStatement(queryBuilder.toString(), parameters));
+        return Collections.singletonList(new Statement(queryBuilder.toString(), parameters));
     }
 
     public CypherContext context() {

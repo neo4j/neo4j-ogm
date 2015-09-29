@@ -16,7 +16,7 @@ package org.neo4j.ogm.session.request.strategy;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.Statement;
 
 /**
  * @author Vince Bickers
@@ -24,12 +24,12 @@ import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
  */
 public interface DeleteStatements {
 
-    ParameterisedStatement delete(Long id);
+    Statement delete(Long id);
 
-    ParameterisedStatement deleteAll(Collection<Long> ids);
+    Statement deleteAll(Collection<Long> ids);
 
-    ParameterisedStatement purge();
+    Statement purge();
 
-    ParameterisedStatement deleteByType(String label);
+    Statement deleteByType(String label);
 
 }

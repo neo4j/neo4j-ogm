@@ -21,8 +21,8 @@ import org.junit.Before;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.statement.Statements;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappingContext;
@@ -79,12 +79,12 @@ public abstract class MappingTrait
     }
 
     public void save(Object domainObject) {
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(domainObject).getStatements());
+        Statements cypher = new Statements(this.mapper.map(domainObject).getStatements());
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
 
-        for (ParameterisedStatement query : cypher.getStatements()) {
+        for (Statement query : cypher.getStatements()) {
             System.out.println("compiled: " + query.getStatement());
             executionEngine.execute(query.getStatement(), query.getParameters());
         }

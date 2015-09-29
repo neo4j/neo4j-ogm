@@ -29,7 +29,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * Simple integration test based on cineasts that exercises relationship entities.
@@ -40,7 +40,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class CineastsIntegrationTest {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule();
 
     private static Session session;
 

@@ -27,21 +27,45 @@ public class TransactionManager {
 
     private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
-    public TransactionManager(Driver driver) {
+    // if supplied, all threads share the same mapping context
+    private final MappingContext mappingContext;
+
+//    public TransactionManager(Driver driver) {
+//        this.driver = driver;
+//        this.mappingContext = null;
+//        transaction.remove();
+//    }
+
+    public TransactionManager(Driver driver, MappingContext context) {
         this.driver = driver;
+        driver.setTransactionManager(this);
+        this.mappingContext = context;
+
         transaction.remove();
     }
+
+//    /**
+//     * Opens a new transaction against a database instance.
+//     *
+//     * Instantiation of the transaction is left to the driver
+//     *
+//     * @param mappingContext The session's mapping context. This may be required by the transaction?
+//     * @return
+//     */
+//    public Transaction openTransaction(MappingContext mappingContext) {
+//        transaction.set(driver.newTransaction(mappingContext, this, false));
+//        return transaction.get();
+//    }
 
     /**
      * Opens a new transaction against a database instance.
      *
      * Instantiation of the transaction is left to the driver
      *
-     * @param mappingContext The session's mapping context. This may be required by the transaction?
      * @return
-     */
-    public Transaction openTransaction(MappingContext mappingContext) {
-        transaction.set(driver.openTransaction(mappingContext, this, false));
+     */// half-way house: we want drivers to be unaware of mapping contexts.
+    public Transaction openTransaction() {
+        transaction.set(driver.newTransaction(this.mappingContext, this, false));
         return transaction.get();
     }
 
@@ -56,7 +80,7 @@ public class TransactionManager {
      * @return
      */
     public Transaction openTransientTransaction(MappingContext mappingContext) {
-        transaction.set(driver.openTransaction(mappingContext, this, true));
+        transaction.set(driver.newTransaction(mappingContext, this, true));
         return transaction.get();
     }
 

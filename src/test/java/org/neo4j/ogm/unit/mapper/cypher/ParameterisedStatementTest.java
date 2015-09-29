@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertEquals;
 public class ParameterisedStatementTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
-    private ParameterisedStatement statement;
+    private Statement statement;
 
     @Test
     public void testFindOne() throws Exception {

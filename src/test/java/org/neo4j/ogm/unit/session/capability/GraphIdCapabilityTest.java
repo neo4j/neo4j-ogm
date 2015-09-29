@@ -26,7 +26,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.music.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Luanne Misquitta
@@ -35,7 +35,7 @@ public class GraphIdCapabilityTest {
 
 
 	@ClassRule
-	public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public static IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 	private Long pleaseId;

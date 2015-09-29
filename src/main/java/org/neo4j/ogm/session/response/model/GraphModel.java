@@ -17,7 +17,9 @@ package org.neo4j.ogm.session.response.model;
 import java.util.*;
 
 /**
- * @author Michal Bachman
+ * The results of a query, modelled as graph data.
+ *
+ *  @author Michal Bachman
  */
 public class GraphModel  {
 

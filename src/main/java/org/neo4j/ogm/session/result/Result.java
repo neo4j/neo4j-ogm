@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.session.result;
 
-import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
+import org.neo4j.ogm.session.response.model.StatisticsModel;
 
 import java.util.Map;
 
@@ -25,6 +25,6 @@ public interface Result extends Iterable<Map<String,Object>>  {
 
 	Iterable<Map<String,Object>> queryResults();
 
-	QueryStatisticsModel queryStatistics();
+	StatisticsModel queryStatistics();
 
 }

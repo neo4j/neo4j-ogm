@@ -34,7 +34,7 @@ import org.neo4j.ogm.integration.hierarchy.domain.plain.*;
 import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
@@ -55,7 +55,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class ClassHierarchiesIntegrationTest {
 
     @Rule
-    public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.hierarchy.domain");
 

@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.session.result;
 
-import org.neo4j.ogm.session.response.model.QueryStatisticsModel;
+import org.neo4j.ogm.session.response.model.StatisticsModel;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -25,9 +25,9 @@ import java.util.Map;
 public class QueryResult implements Result {
 
 	private Iterable<Map<String,Object>> result;
-	private QueryStatisticsModel queryStatistics;
+	private StatisticsModel queryStatistics;
 
-	public QueryResult(Iterable<Map<String,Object>> result, QueryStatisticsModel queryStatistics) {
+	public QueryResult(Iterable<Map<String,Object>> result, StatisticsModel queryStatistics) {
 		this.result = result;
 		this.queryStatistics = queryStatistics;
 	}
@@ -43,7 +43,7 @@ public class QueryResult implements Result {
 	}
 
 	@Override
-	public QueryStatisticsModel queryStatistics() {
+	public StatisticsModel queryStatistics() {
 		return queryStatistics;
 	}
 }

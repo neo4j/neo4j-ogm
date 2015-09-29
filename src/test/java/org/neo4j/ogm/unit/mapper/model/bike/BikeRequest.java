@@ -25,6 +25,7 @@ public class BikeRequest extends StubHttpDriver {
         return jsonModel;
     }
 
+    // each element in the array is a row in the response
     private static String[] jsonModel = {
             "{\"graph\": { " +
                 "\"nodes\" :[ " +

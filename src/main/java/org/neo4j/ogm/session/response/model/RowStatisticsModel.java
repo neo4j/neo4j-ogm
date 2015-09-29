@@ -3,15 +3,15 @@ package org.neo4j.ogm.session.response.model;
 import java.util.Collection;
 
 /**
- * Encapsulates {@link org.neo4j.ogm.session.response.model.QueryStatisticsModel} and row data returned by a query.
+ * Encapsulates {@link StatisticsModel} and row data returned by a query.
  * @author Luanne Misquitta
  */
 public class RowStatisticsModel {
 
     private Collection<Object> rows;
-    private QueryStatisticsModel stats;
+    private StatisticsModel stats;
 
-    public QueryStatisticsModel getStats() {
+    public StatisticsModel getStats() {
         return stats;
     }
 
@@ -19,7 +19,7 @@ public class RowStatisticsModel {
         this.rows = rows;
     }
 
-    public void setStats(QueryStatisticsModel stats) {
+    public void setStats(StatisticsModel stats) {
         this.stats = stats;
     }
 

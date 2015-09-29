@@ -25,7 +25,7 @@ import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 public class IngredientsIntegrationTest {
 
 	@ClassRule
-	public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public static IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private static Session session;
 

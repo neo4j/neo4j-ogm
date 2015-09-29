@@ -23,8 +23,8 @@ import org.junit.*;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatements;
+import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.statement.Statements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -40,7 +40,7 @@ import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Adam George
@@ -52,7 +52,7 @@ public class EntityGraphMapperTest {
     private EntityToGraphMapper mapper;
 
     @ClassRule
-    public static Neo4jIntegrationTestRule testRule = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testRule = new IntegrationTestRule();
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;
@@ -96,7 +96,7 @@ public class EntityGraphMapperTest {
     public void createObjectWithLabelsAndProperties() {
 
         Student newStudent = new Student("Gary");
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(newStudent).getStatements());
+        Statements cypher = new Statements(this.mapper.map(newStudent).getStatements());
 
         assertNull(newStudent.getId());
 
@@ -122,7 +122,7 @@ public class EntityGraphMapperTest {
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(sheila).getStatements());
+        Statements cypher = new Statements(this.mapper.map(sheila).getStatements());
 
         expect( "MATCH (" + sheilaNode + ") " +
                 "WHERE id(" + sheilaNode + ")={" +sheilaNode + "} " +
@@ -143,7 +143,7 @@ public class EntityGraphMapperTest {
         mappingContext.remember(sheila);
 
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(sheila).getStatements());
+        Statements cypher = new Statements(this.mapper.map(sheila).getStatements());
 
         expect("", cypher);
     }
@@ -175,7 +175,7 @@ public class EntityGraphMapperTest {
         bscComputerScience.setStudents(Arrays.asList(lakshmipathy, gianFranco));
 
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(bscComputerScience).getStatements());
+        Statements cypher = new Statements(this.mapper.map(bscComputerScience).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
@@ -211,7 +211,7 @@ public class EntityGraphMapperTest {
         // ensure that the domain objects are mutually established by the code
         assertTrue(waller.getTeachers().contains(jim));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(jim).getStatements());
+        Statements cypher = new Statements(this.mapper.map(jim).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE " +
@@ -232,7 +232,7 @@ public class EntityGraphMapperTest {
         School school = new School("Hilly Fields");
         school.setTeachers(Arrays.asList(missJones, mrWhite));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(school).getStatements());
+        Statements cypher = new Statements(this.mapper.map(school).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (j:Teacher {name:'Miss Jones'}), " +
@@ -262,7 +262,7 @@ public class EntityGraphMapperTest {
         teacher.setName("Mrs Kapoor");
         teacher.setCourses(Arrays.asList(physics, maths));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(teacher).getStatements());
+        Statements cypher = new Statements(this.mapper.map(teacher).getStatements());
 
 //        // todo: too many with clauses for merge statements
 //        // todo: we can build larger merge paths from single-hop merge fragments (but check behaviour of partial paths?)
@@ -332,7 +332,7 @@ public class EntityGraphMapperTest {
         // now, update the domain model, setting yvonne as the only music student (i.e remove zack and xavier)
         music.setStudents(Arrays.asList(yvonne));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(music).getStatements());
+        Statements cypher = new Statements(this.mapper.map(music).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Xavier'}), "
                 + "(:Student:DomainObject {name:'Zack'}), "
@@ -384,7 +384,7 @@ public class EntityGraphMapperTest {
         businessStudies.setStudents(Collections.<Student>emptyList());
         designTech.setStudents(Arrays.asList(shivani));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(msThompson).getStatements());
+        Statements cypher = new Statements(this.mapper.map(msThompson).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
@@ -431,7 +431,7 @@ public class EntityGraphMapperTest {
         // Fire Mr White:
         mrWhite.setSchool(null);
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(hillsRoad).getStatements());
+        Statements cypher = new Statements(this.mapper.map(hillsRoad).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (w:Teacher {name:'Mr White'}), (s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
@@ -447,7 +447,7 @@ public class EntityGraphMapperTest {
 
         coalHillSchool.setTeachers(Arrays.asList(claraOswald, dannyPink));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(coalHillSchool, 0).getStatements());
+        Statements cypher = new Statements(this.mapper.map(coalHillSchool, 0).getStatements());
 
         // we don't expect the teachers to be persisted when persisting the school to depth 0
         executeStatementsAndAssertSameGraph(cypher, "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
@@ -461,7 +461,7 @@ public class EntityGraphMapperTest {
         individual.setBankBalance(1000.50f);
         individual.setPrimitiveIntArray(new int[]{1, 6, 4, 7, 2});
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(individual).getStatements());
+        Statements cypher = new Statements(this.mapper.map(individual).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {name:'Jeff', age:41, bankBalance: 1000.50, code:0, primitiveIntArray:[1,6,4,7,2]})");
 
@@ -479,7 +479,7 @@ public class EntityGraphMapperTest {
         individual.setBankBalance(1000.50f);
         individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(individual).getStatements());
+        Statements cypher = new Statements(this.mapper.map(individual).getStatements());
 
         executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {age:41, bankBalance: 1000.50, code:0, primitiveByteArray:'AQIDBAU='})");
 
@@ -497,7 +497,7 @@ public class EntityGraphMapperTest {
         individual.setBankBalance(99.99f);
         individual.setFavouriteRadioStations(new Vector<Double>(Arrays.asList(97.4, 105.4, 98.2)));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(individual).getStatements());
+        Statements cypher = new Statements(this.mapper.map(individual).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Individual {name:'Gary', age:36, bankBalance:99.99, code:0, favouriteRadioStations:[97.4, 105.4, 98.2]})");
     }
@@ -520,7 +520,7 @@ public class EntityGraphMapperTest {
         claraOswald.setCourses(Arrays.asList(english));
         dannyPink.setCourses(Arrays.asList(maths));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(coalHillSchool, 1).getStatements());
+        Statements cypher = new Statements(this.mapper.map(coalHillSchool, 1).getStatements());
 
         // we ONLY expect the school and its teachers to be persisted when persisting the school to depth 1
         executeStatementsAndAssertSameGraph(cypher, "CREATE " +
@@ -550,7 +550,7 @@ public class EntityGraphMapperTest {
         claraOswald.setCourses(Arrays.asList(english));
         dannyPink.setCourses(Arrays.asList(maths));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(coalHillSchool, 2).getStatements());
+        Statements cypher = new Statements(this.mapper.map(coalHillSchool, 2).getStatements());
 
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
         executeStatementsAndAssertSameGraph(cypher, "CREATE " +
@@ -576,7 +576,7 @@ public class EntityGraphMapperTest {
         link.setTimestamp(1647209L);
         forum.setTopicsInForum(Arrays.asList(link));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(forum).getStatements());
+        Statements cypher = new Statements(this.mapper.map(forum).getStatements());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
                 + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
     }
@@ -604,7 +604,7 @@ public class EntityGraphMapperTest {
         link.setTimestamp(327790L);
         forum.setTopicsInForum(Arrays.asList(link));
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(forum).getStatements());
+        Statements cypher = new Statements(this.mapper.map(forum).getStatements());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
                 + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
     }
@@ -646,7 +646,7 @@ public class EntityGraphMapperTest {
         List<ForumTopicLink> linksToSave = Arrays.asList(firstRelationshipEntity, secondRelationshipEntity, thirdRelationshipEntity);
 
         // FIXME: currently fails straight away, but do we even support mapping collections in this way?
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(linksToSave).getStatements());
+        Statements cypher = new Statements(this.mapper.map(linksToSave).getStatements());
         System.err.println(cypher.getStatements().get(0).getStatement());
         System.err.println(cypher.getStatements().get(0).getParameters());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
@@ -664,7 +664,7 @@ public class EntityGraphMapperTest {
 
         person1.getWritten().add(policy1);
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(person1).getStatements());
+        Statements cypher = new Statements(this.mapper.map(person1).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
 
@@ -679,7 +679,7 @@ public class EntityGraphMapperTest {
 
         policy1.getWriters().add(person1);
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(policy1).getStatements());
+        Statements cypher = new Statements(this.mapper.map(policy1).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
 
@@ -716,7 +716,7 @@ public class EntityGraphMapperTest {
         // now remove the relationship from the person side
         person.getWritten().clear();
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(person).getStatements());
+        Statements cypher = new Statements(this.mapper.map(person).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
                 "CREATE (:Policy:DomainObject { name: 'health' })");
@@ -761,7 +761,7 @@ public class EntityGraphMapperTest {
         person.getWritten().clear();
 
         //No relations are
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(policy).getStatements());
+        Statements cypher = new Statements(this.mapper.map(policy).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
                 "CREATE (:Policy:DomainObject { name: 'health' })");
@@ -805,7 +805,7 @@ public class EntityGraphMapperTest {
         jim.getWritten().add(immigration);
 
 
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(jim).getStatements());
+        Statements cypher = new Statements(this.mapper.map(jim).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (j:Person:DomainObject { name :'jim' }) " +
                 "CREATE (h:Policy:DomainObject { name: 'health' }) " +
@@ -854,7 +854,7 @@ public class EntityGraphMapperTest {
         immigration.getWriters().add(jim);
 
         // note that we save the graph to the same depth as we hydrate it.
-        ParameterisedStatements cypher = new ParameterisedStatements(this.mapper.map(immigration, 2).getStatements());
+        Statements cypher = new Statements(this.mapper.map(immigration, 2).getStatements());
         executeStatementsAndAssertSameGraph(cypher,
                 "CREATE (j:Person:DomainObject { name :'jim' }) " +
                         "CREATE (h:Policy:DomainObject { name: 'health' }) " +
@@ -866,18 +866,18 @@ public class EntityGraphMapperTest {
     }
 
 
-    private void executeStatementsAndAssertSameGraph(ParameterisedStatements cypher, String sameGraphCypher) {
+    private void executeStatementsAndAssertSameGraph(Statements cypher, String sameGraphCypher) {
 
         assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
 
-        for (ParameterisedStatement query : cypher.getStatements()) {
+        for (Statement query : cypher.getStatements()) {
             executionEngine.execute(query.getStatement(), query.getParameters());
         }
         assertSameGraph(graphDatabase, sameGraphCypher);
     }
 
-    private void expect(String expected, ParameterisedStatements cypher) {
+    private void expect(String expected, Statements cypher) {
         assertEquals(expected, cypher.getStatements().get(0).getStatement());
     }
 

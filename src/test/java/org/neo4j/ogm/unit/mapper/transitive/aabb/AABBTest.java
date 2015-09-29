@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
 /**
@@ -37,7 +37,7 @@ public class AABBTest extends RelationshipTrait
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
     private static SessionFactory sessionFactory;

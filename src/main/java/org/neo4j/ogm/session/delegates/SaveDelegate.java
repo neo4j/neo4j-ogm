@@ -14,15 +14,14 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.cypher.query.RowModelQuery;
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.query.RowModelRequest;
+import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.RowModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.session.response.model.RowModel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,15 +65,12 @@ public class SaveDelegate implements Capability.Save {
         } else {
             ClassInfo classInfo = session.metaData().classInfo(object);
             if (classInfo != null) {
-                Transaction tx = session.ensureTransaction();
-
                 CypherContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
-                ParameterisedStatement statement = context.getStatements().get(0);
+                Statement statement = context.getStatements().get(0);
 
-                RowModelQuery qry = new RowModelQuery(statement.getStatement(), statement.getParameters() );
+                RowModelRequest qry = new RowModelRequest(statement.getStatement(), statement.getParameters() );
                 try (Response<RowModel> response = session.requestHandler().execute(qry)) {
                     session.responseHandler().updateObjects(context, response);
-                    tx.append(context);
                 }
             } else {
                 session.info(object.getClass().getName() + " is not an instance of a persistable class");

@@ -14,10 +14,10 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
-import org.neo4j.ogm.cypher.query.GraphModelQuery;
-import org.neo4j.ogm.cypher.query.Query;
-import org.neo4j.ogm.cypher.query.RowModelQuery;
-import org.neo4j.ogm.cypher.query.RowModelQueryWithStatistics;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.GraphModelRequest;
+import org.neo4j.ogm.cypher.query.RowModelRequest;
+import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.GraphModel;
@@ -85,10 +85,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return new QueryResult(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
-
-            session.ensureTransaction();
-
-            RowModelQueryWithStatistics parameterisedStatement = new RowModelQueryWithStatistics(cypher, parameters);
+            RowModelStatisticsRequest parameterisedStatement = new RowModelStatisticsRequest(cypher, parameters);
             try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
                 RowStatisticsModel result = response.next();
                 RowModelMapper rowModelMapper = new MapRowModelMapper();
@@ -113,15 +110,15 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
 
-        session.ensureTransaction();
+//        session.ensureTransaction();
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
-            Query qry = new GraphModelQuery(cypher, parameters);
-            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+            AbstractRequest qry = new GraphModelRequest(cypher, parameters);
+            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
-            RowModelQuery qry = new RowModelQuery(cypher, parameters);
+            RowModelRequest qry = new RowModelRequest(cypher, parameters);
             try (Response<RowModel> response = session.requestHandler().execute(qry)) {
 
                 String[] variables = response.columns();
@@ -144,8 +141,8 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return 0;
         }
 
-        RowModelQuery countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
-        session.ensureTransaction();
+        RowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
+//        session.ensureTransaction();
 
         try (Response<RowModel> response = session.requestHandler().execute(countStatement)) {
             RowModel queryResult = response.next();

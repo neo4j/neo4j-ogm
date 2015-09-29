@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.*;
-
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
+import org.neo4j.ogm.cypher.statement.Statement;
 import org.neo4j.ogm.mapper.MappedRelationship;
+
+import java.util.*;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
@@ -38,7 +38,7 @@ public class CypherContext {
 
     private final Collection<Object> log = new HashSet<>();
 
-    private List<ParameterisedStatement> statements;
+    private List<Statement> statements;
 
     public boolean visited(Object obj) {
         return this.visitedObjects.containsKey(obj);
@@ -64,11 +64,11 @@ public class CypherContext {
         return this.registeredRelationships.contains(mappedRelationship);
     }
 
-    public void setStatements(List<ParameterisedStatement> statements) {
+    public void setStatements(List<Statement> statements) {
         this.statements = statements;
     }
 
-    public List<ParameterisedStatement> getStatements() {
+    public List<Statement> getStatements() {
         return this.statements;
     }
 

@@ -28,7 +28,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Vince Bickers
@@ -37,7 +37,7 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 public class CineastsRelationshipEntityTest{
 
 	@Rule
-	public Neo4jIntegrationTestRule testServer = new Neo4jIntegrationTestRule();
+	public IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 

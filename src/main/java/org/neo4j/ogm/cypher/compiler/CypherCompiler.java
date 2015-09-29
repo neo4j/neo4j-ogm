@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.cypher.statement.Statement;
+
 import java.util.List;
 import java.util.Map;
-
-import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 
 /**
  * Defines a simple API for building up Cypher queries programmatically.
@@ -97,7 +97,7 @@ public interface CypherCompiler {
      *
      * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    List<ParameterisedStatement> getStatements();
+    List<Statement> getStatements();
 
     /**
      * Returns an unused relationship's reference to the ref pool

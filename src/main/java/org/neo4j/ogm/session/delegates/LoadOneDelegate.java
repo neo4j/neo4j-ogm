@@ -13,8 +13,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.cypher.query.GraphModelQuery;
-import org.neo4j.ogm.cypher.query.Query;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.GraphModelRequest;
 import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
@@ -39,10 +39,9 @@ public class LoadOneDelegate implements Capability.LoadOne {
 
     @Override
     public <T> T load(Class<T> type, Long id, int depth) {
-        session.ensureTransaction();
         QueryStatements queryStatements = session.queryStatementsFor(type);
-        Query qry = queryStatements.findOne(id,depth);
-        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelQuery) qry)) {
+        AbstractRequest qry = queryStatements.findOne(id,depth);
+        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
             return session.responseHandler().loadById(type, response, id);
         }
     }

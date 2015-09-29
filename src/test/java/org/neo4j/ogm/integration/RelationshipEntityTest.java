@@ -207,7 +207,7 @@ public class RelationshipEntityTest {
 
         session.clear();
 
-        //assertNull(session.load(R.class, r1.id));
+        assertNull(session.load(R.class, r1.id));
 
         m = session.load(M.class,m.id);
         assertNotNull(m);

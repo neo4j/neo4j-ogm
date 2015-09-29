@@ -14,8 +14,15 @@
 
 package org.neo4j.ogm.session.transaction;
 
+import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.mapper.TransientRelationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -24,38 +31,22 @@ import org.neo4j.ogm.mapper.MappingContext;
 public class TransactionManager {
 
     private final Driver driver;
+    private final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
 
     private static final ThreadLocal<Transaction> transaction = new ThreadLocal<>();
 
-    // if supplied, all threads share the same mapping context
     private final MappingContext mappingContext;
 
-//    public TransactionManager(Driver driver) {
-//        this.driver = driver;
-//        this.mappingContext = null;
-//        transaction.remove();
-//    }
+    public TransactionManager(Driver driver) {
+        this(driver, null);
+    }
 
     public TransactionManager(Driver driver, MappingContext context) {
         this.driver = driver;
-        driver.setTransactionManager(this);
         this.mappingContext = context;
-
+        this.driver.setTransactionManager(this);
         transaction.remove();
     }
-
-//    /**
-//     * Opens a new transaction against a database instance.
-//     *
-//     * Instantiation of the transaction is left to the driver
-//     *
-//     * @param mappingContext The session's mapping context. This may be required by the transaction?
-//     * @return
-//     */
-//    public Transaction openTransaction(MappingContext mappingContext) {
-//        transaction.set(driver.newTransaction(mappingContext, this, false));
-//        return transaction.get();
-//    }
 
     /**
      * Opens a new transaction against a database instance.
@@ -66,27 +57,13 @@ public class TransactionManager {
      */// half-way house: we want drivers to be unaware of mapping contexts.
     public Transaction openTransaction() {
         if (transaction.get() == null) {
-            transaction.set(driver.newTransaction(this.mappingContext));
+            transaction.set(driver.newTransaction());
             return transaction.get();
         } else {
             throw new TransactionException("Nested transactions not supported");
         }
     }
 
-    /**
-     * Opens an auto-commit transaction. An auto-commit transaction will immediately
-     * invoke commit as soon as any request is made on it. The mechanism for handling
-     * this is managed in @{link AbstractTransaction}
-     *
-     * Instantiation of the transaction is left to the driver.
-     *
-     * @param mappingContext The session's mapping context. This may be required by the transaction?
-     * @return
-     */
-//    public Transaction openTransientTransaction(MappingContext mappingContext) {
-//        transaction.set(driver.newTransaction(mappingContext, this, true));
-//        return transaction.get();
-//    }
 
     /**
      * Rolls back the specified transaction.
@@ -102,7 +79,6 @@ public class TransactionManager {
         if (tx != transaction.get()) {
             throw new TransactionException("Transaction is not current for this thread");
         }
-        //driver.rollback(tx);
         transaction.remove();
     }
 
@@ -120,8 +96,9 @@ public class TransactionManager {
         if (tx != transaction.get()) {
             throw new TransactionException("Transaction is not current for this thread");
         }
-        //driver.commit(tx);
+
         transaction.remove();
+        synchroniseSession(((AbstractTransaction) tx).contexts);
     }
 
     /**
@@ -133,5 +110,32 @@ public class TransactionManager {
         return transaction.get();
     }
 
+    void synchroniseSession(Collection<CypherContext> contexts)  {
+
+        for (CypherContext cypherContext : contexts) {
+
+            logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
+
+            for (Object o : cypherContext.log())  {
+                logger.debug("checking cypher context object: " + o);
+                if (o instanceof MappedRelationship) {
+                    MappedRelationship mappedRelationship = (MappedRelationship) o;
+                    if (mappedRelationship.isActive()) {
+                        logger.debug("activating (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                        mappingContext.registerRelationship((MappedRelationship) o);
+                    } else {
+                        logger.debug("de-activating (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+                        mappingContext.mappedRelationships().remove(mappedRelationship);
+                    }
+                } else if (!(o instanceof TransientRelationship)) {
+                    logger.debug("remembering " + o);
+                    mappingContext.remember(o);
+                }
+            }
+            logger.debug("number of objects: " + cypherContext.log().size());
+        }
+
+        contexts.clear();
+    }
 
 }

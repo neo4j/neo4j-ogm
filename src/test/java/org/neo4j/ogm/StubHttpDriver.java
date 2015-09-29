@@ -21,7 +21,6 @@ import org.neo4j.ogm.cypher.query.RowModelRequest;
 import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.GraphModel;
@@ -54,18 +53,13 @@ public abstract class StubHttpDriver implements Driver {
     }
 
     @Override
-    public Transaction newTransaction(MappingContext context) {
+    public Transaction newTransaction() {
         throw new RuntimeException("not implemented");
     }
 
     @Override
     public Object getConfig(String key) {
         throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public TransactionManager transactionManager() {
-       return null;
     }
 
     @Override

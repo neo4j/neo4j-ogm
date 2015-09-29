@@ -6,7 +6,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.driver.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.driver.embedded.transaction.EmbeddedTransaction;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
@@ -68,8 +67,8 @@ public class EmbeddedDriver implements Driver {
     }
 
     @Override
-    public Transaction newTransaction(MappingContext context) {
-        return new EmbeddedTransaction(context, transactionManager, graphDb);
+    public Transaction newTransaction() {
+        return new EmbeddedTransaction(transactionManager, graphDb);
     }
 
     @Override
@@ -87,11 +86,6 @@ public class EmbeddedDriver implements Driver {
     @Override
     public Object getConfig(String key) {
         return driverConfig.getConfig(key);
-    }
-
-    @Override
-    public TransactionManager transactionManager() {
-        return transactionManager;
     }
 
     @Override

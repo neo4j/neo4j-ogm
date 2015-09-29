@@ -1,9 +1,6 @@
 package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.TransientRelationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +13,13 @@ import java.util.List;
 public abstract class AbstractTransaction implements Transaction {
 
     private final Logger logger = LoggerFactory.getLogger(Transaction.class);
-    private final MappingContext mappingContext;
-    private final List<CypherContext> contexts;
 
+    protected final List<CypherContext> contexts;
     protected final TransactionManager transactionManager;
+
     protected Transaction.Status status = Transaction.Status.OPEN;
 
-    public AbstractTransaction(MappingContext mappingContext, TransactionManager transactionManager) {
-        this.mappingContext = mappingContext;
+    public AbstractTransaction(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
         this.contexts = new ArrayList<>();
     }
@@ -63,8 +59,8 @@ public abstract class AbstractTransaction implements Transaction {
         if (status == Status.OPEN || status == Status.PENDING) {
             if (transactionManager != null) {
                 transactionManager.commit(this);
+
             }
-            synchroniseSession();
             status = Status.COMMITTED;
         } else {
             throw new TransactionException("Transaction is no longer open. Cannot commit");
@@ -82,32 +78,5 @@ public abstract class AbstractTransaction implements Transaction {
         status = Status.CLOSED;
     }
 
-    private void synchroniseSession()  {
-
-        for (CypherContext cypherContext : contexts) {
-
-            logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
-
-            for (Object o : cypherContext.log())  {
-                logger.debug("checking cypher context object: " + o);
-                if (o instanceof MappedRelationship) {
-                    MappedRelationship mappedRelationship = (MappedRelationship) o;
-                    if (mappedRelationship.isActive()) {
-                        logger.debug("activating (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                        mappingContext.registerRelationship((MappedRelationship) o);
-                    } else {
-                        logger.debug("de-activating (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                        mappingContext.mappedRelationships().remove(mappedRelationship);
-                    }
-                } else if (!(o instanceof TransientRelationship)) {
-                    logger.debug("remembering " + o);
-                    mappingContext.remember(o);
-                }
-            }
-            logger.debug("number of objects: " + cypherContext.log().size());
-        }
-
-        contexts.clear();
-    }
 
 }

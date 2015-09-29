@@ -1,7 +1,6 @@
 package org.neo4j.ogm.driver.embedded.transaction;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.transaction.AbstractTransaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 
@@ -12,8 +11,8 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     private final org.neo4j.graphdb.Transaction wrappedTransaction;
 
-    public EmbeddedTransaction(MappingContext mappingContext, TransactionManager txManager, GraphDatabaseService graphDb) {
-        super(mappingContext, txManager);
+    public EmbeddedTransaction(TransactionManager txManager, GraphDatabaseService graphDb) {
+        super(txManager);
         this.wrappedTransaction = graphDb.beginTx();
     }
 

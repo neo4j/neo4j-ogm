@@ -4,7 +4,6 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.config.DriverConfig;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
@@ -31,7 +30,7 @@ public class BoltDriver implements Driver {
     }
 
     @Override
-    public Transaction newTransaction(MappingContext context) {
+    public Transaction newTransaction() {
         throw new RuntimeException("Not implemented!");
     }
 
@@ -53,11 +52,6 @@ public class BoltDriver implements Driver {
     @Override
     public Request requestHandler() {
         return new BoltRequest(session);
-    }
-
-    @Override
-    public TransactionManager transactionManager() {
-        return transactionManager;
     }
 
     @Override

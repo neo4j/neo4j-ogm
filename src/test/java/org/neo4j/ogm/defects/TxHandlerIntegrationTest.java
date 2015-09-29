@@ -12,17 +12,9 @@
  *
  */
 
-package org.neo4j.ogm.integration;
+package org.neo4j.ogm.defects;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-
+import org.junit.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.TransactionData;
@@ -31,6 +23,9 @@ import org.neo4j.ogm.domain.bike.WheelWithUUID;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

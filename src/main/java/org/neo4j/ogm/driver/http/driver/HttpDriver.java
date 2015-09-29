@@ -19,7 +19,6 @@ import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.driver.http.request.HttpAuthorization;
 import org.neo4j.ogm.driver.http.request.HttpRequest;
 import org.neo4j.ogm.driver.http.transaction.HttpTransaction;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
@@ -58,11 +57,6 @@ public final class HttpDriver implements Driver {
     }
 
     @Override
-    public TransactionManager transactionManager() {
-        return transactionManager;
-    }
-
-    @Override
     public void setTransactionManager(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
@@ -80,10 +74,10 @@ public final class HttpDriver implements Driver {
 
 
     @Override
-    public Transaction newTransaction(MappingContext context) {
+    public Transaction newTransaction() {
 
         String url = newTransactionUrl();
-        return new HttpTransaction(context, transactionManager, this, url);
+        return new HttpTransaction(transactionManager, this, url);
     }
 
     // TODO: move this !

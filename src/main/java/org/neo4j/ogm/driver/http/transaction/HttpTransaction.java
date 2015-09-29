@@ -5,7 +5,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.session.transaction.AbstractTransaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 import org.neo4j.ogm.session.transaction.TransactionManager;
@@ -18,8 +17,8 @@ public class HttpTransaction extends AbstractTransaction {
     private final HttpDriver driver;
     private final String url;
 
-    public HttpTransaction(MappingContext mappingContext, TransactionManager transactionManager, HttpDriver driver, String url) {
-        super( mappingContext, transactionManager);
+    public HttpTransaction(TransactionManager transactionManager, HttpDriver driver, String url) {
+        super(transactionManager);
         this.driver = driver;
         this.url = url;
     }

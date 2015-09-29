@@ -42,8 +42,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class TransactionManagerTest {
 
-    private static final Driver driver = TestDriverFactory.driver("http");
-    private static final TransactionManager transactionManager = new TransactionManager(driver, null);
+    private static final Driver driver = TestDriverFactory.driver("embedded");
+    private static final TransactionManager transactionManager = new TransactionManager(driver);
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
@@ -64,27 +64,27 @@ public class TransactionManagerTest {
 
     @Test(expected = TransactionException.class)
     public void shouldFailCommitFreeTransactionInManagedContext() {
-        Transaction tx = driver.newTransaction(null);
+        Transaction tx = driver.newTransaction();
         transactionManager.commit(tx);
     }
 
     @Test(expected = TransactionException.class)
     public void shouldFailRollbackFreeTransactionInManagedContext() {
-        Transaction tx = driver.newTransaction(null);
+        Transaction tx = driver.newTransaction();
         transactionManager.rollback(tx);
     }
 
     @Test
     public void shouldCommitFreeTransaction() {
         driver.setTransactionManager(null);
-        Transaction tx = driver.newTransaction(null);
+        Transaction tx = driver.newTransaction();
         tx.commit();
     }
 
     @Test
     public void shouldRollbackFreeTransaction() {
         driver.setTransactionManager(null);
-        Transaction tx = driver.newTransaction(null);
+        Transaction tx = driver.newTransaction();
         tx.rollback();
     }
 

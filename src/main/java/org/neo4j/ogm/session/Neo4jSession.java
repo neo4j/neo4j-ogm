@@ -400,10 +400,10 @@ public class Neo4jSession implements Session {
         return transactionsDelegate.beginTransaction();
     }
 
-    @Override
-    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-        return transactionsDelegate.doInTransaction(graphCallback);
-    }
+//    @Override
+//    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+//        return transactionsDelegate.doInTransaction(graphCallback);
+//    }
 
     @Override
     public Transaction getTransaction() {

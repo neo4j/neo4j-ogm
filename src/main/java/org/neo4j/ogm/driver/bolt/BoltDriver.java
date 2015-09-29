@@ -31,7 +31,7 @@ public class BoltDriver implements Driver {
     }
 
     @Override
-    public Transaction newTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
+    public Transaction newTransaction(MappingContext context, TransactionManager tx) {
         throw new RuntimeException("Not implemented!");
     }
 

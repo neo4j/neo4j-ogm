@@ -14,7 +14,6 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.session.Capability;
-import org.neo4j.ogm.session.GraphCallback;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.transaction.Transaction;
 
@@ -35,17 +34,16 @@ public class TransactionsDelegate implements Capability.Transactions {
         session.debug("beginTransaction() being called on thread: " + Thread.currentThread().getId());
         session.debug("Neo4jSession identity: " + this);
 
-        //Transaction tx = session.transactionManager().openTransaction(session.context());
         Transaction tx = session.transactionManager().openTransaction();
 
         session.debug("Obtained new transaction, tx id: " + tx);
         return tx;
     }
 
-    @Override
-    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-        return graphCallback.apply(session.requestHandler(), getCurrentOrTransientTransaction(), session.metaData());
-    }
+//    @Override
+//    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+//        return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
+//    }
 
 
     @Override
@@ -53,28 +51,29 @@ public class TransactionsDelegate implements Capability.Transactions {
         return session.transactionManager().getCurrentTransaction();
     }
 
-    public Transaction getCurrentOrTransientTransaction() {
-
-        session.debug("--------- new request ----------");
-        session.debug("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
-        session.debug("Session identity: " + this);
-
-        Transaction tx = session.transactionManager().getCurrentTransaction();
-
-        if (tx == null
-                || tx.status().equals(Transaction.Status.CLOSED)
-                || tx.status().equals(Transaction.Status.COMMITTED)
-                || tx.status().equals(Transaction.Status.ROLLEDBACK)) {
-
-            session.debug("There is no existing transaction, creating a transient one");
-            return session.transactionManager().openTransientTransaction(session.context());
-
-        }
-
-        session.debug("Current transaction: , tx id: " + tx);
-        return tx;
-
-    }
+//    @Deprecated
+//    private Transaction getCurrentOrTransientTransaction() {
+//
+//        session.debug("--------- new request ----------");
+//        session.debug("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
+//        session.debug("Session identity: " + this);
+//
+//        Transaction tx = session.transactionManager().getCurrentTransaction();
+//
+//        if (tx == null
+//                || tx.status().equals(Transaction.Status.CLOSED)
+//                || tx.status().equals(Transaction.Status.COMMITTED)
+//                || tx.status().equals(Transaction.Status.ROLLEDBACK)) {
+//
+//            session.debug("There is no existing transaction, request will auto-commit");
+//            return null;
+//
+//        }
+//
+//        session.debug("Current transaction: , tx id: " + tx);
+//        return tx;
+//
+//    }
 
 
 }

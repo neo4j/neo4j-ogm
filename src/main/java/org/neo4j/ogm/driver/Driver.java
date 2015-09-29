@@ -13,7 +13,7 @@ public interface Driver {
 
     public void configure(DriverConfig config);
     public Object getConfig(String key);
-    public Transaction newTransaction(MappingContext context, TransactionManager tx, boolean autoCommit);
+    public Transaction newTransaction(MappingContext context, TransactionManager tx);
     public void close();
     public Request requestHandler();
     public TransactionManager transactionManager();

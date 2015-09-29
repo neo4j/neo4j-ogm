@@ -18,8 +18,8 @@ public class HttpTransaction extends AbstractTransaction {
     private final HttpDriver driver;
     private final String url;
 
-    public HttpTransaction(MappingContext mappingContext, TransactionManager transactionManager, boolean autoCommit, HttpDriver driver, String url) {
-        super( mappingContext, transactionManager, autoCommit );
+    public HttpTransaction(MappingContext mappingContext, TransactionManager transactionManager, HttpDriver driver, String url) {
+        super( mappingContext, transactionManager);
         this.driver = driver;
         this.url = url;
     }
@@ -27,7 +27,7 @@ public class HttpTransaction extends AbstractTransaction {
     @Override
     public void rollback() {
 
-        if (!autoCommit()) {
+        if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
             try {
                 HttpDelete request = new HttpDelete(url);
                 driver.executeHttpRequest(request);
@@ -42,7 +42,7 @@ public class HttpTransaction extends AbstractTransaction {
     @Override
     public void commit() {
 
-        if (!autoCommit()) {
+        if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
             try {
                 HttpPost request = new HttpPost(url);
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));

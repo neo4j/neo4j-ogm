@@ -18,26 +18,28 @@ public abstract class AbstractTransaction implements Transaction {
     private final Logger logger = LoggerFactory.getLogger(Transaction.class);
     private final MappingContext mappingContext;
     private final List<CypherContext> contexts;
-    private final boolean autoCommit;
-    private final TransactionManager transactionManager;
 
+    protected final TransactionManager transactionManager;
     protected Transaction.Status status = Transaction.Status.OPEN;
 
-    public AbstractTransaction(MappingContext mappingContext, TransactionManager transactionManager, boolean autoCommit) {
+    public AbstractTransaction(MappingContext mappingContext, TransactionManager transactionManager) {
         this.mappingContext = mappingContext;
         this.transactionManager = transactionManager;
-        this.autoCommit = autoCommit;
         this.contexts = new ArrayList<>();
     }
 
     public final void append(CypherContext context) {
+
         logger.debug("Appending transaction context " + context);
+
         if (status == Transaction.Status.OPEN || status == Transaction.Status.PENDING) {
             contexts.add(context);
             status = Transaction.Status.PENDING;
-            if (autoCommit()) {
+
+            if (transactionManager == null || transactionManager.getCurrentTransaction() == null) {
                 commit();
             }
+
         } else {
             throw new TransactionException("Transaction is no longer open. Cannot accept new operations");
         }
@@ -74,6 +76,9 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     public void close() {
+        if (status == Status.PENDING || status == Status.OPEN) {
+            commit();
+        }
         status = Status.CLOSED;
     }
 
@@ -104,10 +109,5 @@ public abstract class AbstractTransaction implements Transaction {
 
         contexts.clear();
     }
-
-    public boolean autoCommit() {
-        return autoCommit;
-    }
-
 
 }

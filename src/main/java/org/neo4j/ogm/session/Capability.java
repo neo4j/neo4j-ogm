@@ -128,15 +128,15 @@ public interface Capability {
          */
         Transaction beginTransaction();
 
-        /**
-         * Applies the given {@link org.neo4j.ogm.session.GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
-         * behaviour.
-         *
-         * @param graphCallback The {@link org.neo4j.ogm.session.GraphCallback} to execute
-         * @return The result of calling the given {@link org.neo4j.ogm.session.GraphCallback}
-         * @throws NullPointerException if invoked with <code>null</code>
-         */
-        <T> T doInTransaction(GraphCallback<T> graphCallback);
+//        /**
+//         * Applies the given {@link org.neo4j.ogm.session.GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
+//         * behaviour.
+//         *
+//         * @param graphCallback The {@link org.neo4j.ogm.session.GraphCallback} to execute
+//         * @return The result of calling the given {@link org.neo4j.ogm.session.GraphCallback}
+//         * @throws NullPointerException if invoked with <code>null</code>
+//         */
+//        <T> T doInTransaction(GraphCallback<T> graphCallback);
 
     }
 

@@ -66,7 +66,7 @@ public class TransactionManager {
      */// half-way house: we want drivers to be unaware of mapping contexts.
     public Transaction openTransaction() {
         if (transaction.get() == null) {
-            transaction.set(driver.newTransaction(this.mappingContext, this, false));
+            transaction.set(driver.newTransaction(this.mappingContext, this));
             return transaction.get();
         } else {
             throw new TransactionException("Nested transactions not supported");
@@ -83,10 +83,10 @@ public class TransactionManager {
      * @param mappingContext The session's mapping context. This may be required by the transaction?
      * @return
      */
-    public Transaction openTransientTransaction(MappingContext mappingContext) {
-        transaction.set(driver.newTransaction(mappingContext, this, true));
-        return transaction.get();
-    }
+//    public Transaction openTransientTransaction(MappingContext mappingContext) {
+//        transaction.set(driver.newTransaction(mappingContext, this, true));
+//        return transaction.get();
+//    }
 
     /**
      * Rolls back the specified transaction.

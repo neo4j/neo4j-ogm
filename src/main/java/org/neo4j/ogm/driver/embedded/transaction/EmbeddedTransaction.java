@@ -17,8 +17,8 @@ public class EmbeddedTransaction extends AbstractTransaction {
     private final GraphDatabaseService graphDb;
     private final org.neo4j.graphdb.Transaction wrappedTransaction;
 
-    public EmbeddedTransaction(MappingContext mappingContext, TransactionManager txManager, boolean autoCommit, GraphDatabaseService graphDb) {
-        super(mappingContext, txManager, autoCommit);
+    public EmbeddedTransaction(MappingContext mappingContext, TransactionManager txManager, GraphDatabaseService graphDb) {
+        super(mappingContext, txManager);
         this.graphDb = graphDb;
         this.wrappedTransaction = graphDb.beginTx();
     }

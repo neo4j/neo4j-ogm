@@ -68,8 +68,8 @@ public class EmbeddedDriver implements Driver {
     }
 
     @Override
-    public Transaction newTransaction(MappingContext context, TransactionManager tx, boolean autoCommit) {
-        return new EmbeddedTransaction(context, tx, autoCommit, graphDb);
+    public Transaction newTransaction(MappingContext context, TransactionManager tx) {
+        return new EmbeddedTransaction(context, tx, graphDb);
     }
 
     @Override

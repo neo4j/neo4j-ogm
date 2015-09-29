@@ -46,7 +46,9 @@ public abstract class AbstractTransaction implements Transaction {
     public void rollback() {
         logger.debug("rollback invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
-            transactionManager.rollback(this);
+            if (transactionManager != null) {
+                transactionManager.rollback(this);
+            }
             contexts.clear();
             status = Status.ROLLEDBACK;
         } else {
@@ -57,7 +59,9 @@ public abstract class AbstractTransaction implements Transaction {
     public void commit() {
         logger.debug("commit invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
-            transactionManager.commit(this);
+            if (transactionManager != null) {
+                transactionManager.commit(this);
+            }
             synchroniseSession();
             status = Status.COMMITTED;
         } else {

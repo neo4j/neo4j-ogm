@@ -76,6 +76,8 @@ public class EmbeddedRequest implements Request {
             TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
             HashMap<String, Object> parameterMap = mapper.readValue(params.getBytes(), typeRef);
 
+            //System.out.println("*** executing: " + cypher + " with params: " + params);
+
             return graphDatabaseService.execute(cypher, parameterMap);
 
         } catch (Exception e) {

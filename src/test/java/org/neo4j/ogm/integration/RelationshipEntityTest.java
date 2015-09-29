@@ -14,21 +14,21 @@
 
 package org.neo4j.ogm.integration;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.TestDriverFactory;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -50,7 +50,7 @@ public class RelationshipEntityTest {
     public void init() throws IOException {
         //session = new SessionFactory("org.neo4j.ogm.integration").openSession(testServer.driver());
 
-        session = new SessionFactory("org.neo4j.ogm.integration").openSession(TestDriverFactory.driver("http"));
+        session = new SessionFactory("org.neo4j.ogm.integration").openSession(TestDriverFactory.driver("embedded"));
 
         u = new U("Luanne");
         m = new M("Taken");
@@ -58,6 +58,8 @@ public class RelationshipEntityTest {
 
         u.rset.add(r1);
         m.rset.add(r1);
+
+        session.purgeDatabase();
     }
 
     @Test
@@ -174,17 +176,43 @@ public class RelationshipEntityTest {
 
     @Test
     public void shouldDirectlyDeleteR() {
+
         session.save(r1);
+
+        assertNull(session.getTransaction());
 
         r1 = session.load(R.class, r1.id);
         u = session.load(U.class,u.id);
         m = session.load(M.class,m.id);
+
+        assertNotNull(m);
+        assertNotNull(u);
+        assertNotNull(r1);
+        assertNull(session.getTransaction());
+
         u.rset.clear();
         m.rset.clear();
+
         session.delete(r1);
+        assertNull(session.getTransaction());
+
         session.clear();
 
-        assertNull(session.load(R.class, r1.id));
+        M qryM = session.queryForObject(M.class, "MATCH (n:M) return n", Utils.map());
+
+        //M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", Utils.map("id", m.id));
+
+        M findM = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } RETURN n", Utils.map("id", m.id));
+
+        M findM2 = session.queryForObject(M.class, "MATCH (n:M) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN nodes(p)", Utils.map("id", m.id));
+
+        assertNotNull(qryM);
+        assertNotNull(findM);
+        assertNotNull(findM2);
+
+        session.clear();
+
+        //assertNull(session.load(R.class, r1.id));
 
         m = session.load(M.class,m.id);
         assertNotNull(m);

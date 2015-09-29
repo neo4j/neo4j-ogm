@@ -23,6 +23,7 @@ public class GraphModelResponse extends EmbeddedResponse<GraphModel> {
         if (result.hasNext()) {
             return adapter.adapt(result.next());
         }
+        close();
         return null;
     }
 

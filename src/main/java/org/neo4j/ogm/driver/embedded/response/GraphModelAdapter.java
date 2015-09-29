@@ -98,17 +98,18 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
     private void buildPath(Path path, StringBuilder nodes, StringBuilder edges) {
 
         Iterator<Relationship> relIterator = path.relationships().iterator();
+        Iterator<Node> nodeIterator = path.nodes().iterator();
 
         while (relIterator.hasNext()) {
-
             Relationship rel = relIterator.next();
-
-            //buildNode(rel.getStartNode(), nodes);
-            //nodes.append(COMMA);
-            //buildNode(rel.getEndNode(), nodes);
-
             buildRelationship(rel, nodes, edges);
         }
+
+        while (nodeIterator.hasNext()) {
+            Node node = nodeIterator.next();
+            buildNode(node, nodes);
+        }
+
 
     }
 

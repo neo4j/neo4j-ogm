@@ -41,6 +41,7 @@ public class LoadOneDelegate implements Capability.LoadOne {
     public <T> T load(Class<T> type, Long id, int depth) {
         QueryStatements queryStatements = session.queryStatementsFor(type);
         AbstractRequest qry = queryStatements.findOne(id,depth);
+
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
             return session.responseHandler().loadById(type, response, id);
         }

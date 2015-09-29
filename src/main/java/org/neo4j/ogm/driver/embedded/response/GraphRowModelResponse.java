@@ -25,6 +25,7 @@ public class GraphRowModelResponse extends EmbeddedResponse<GraphRowModel> {
         if (result.hasNext()) {
             return parse(result.next());
         }
+        close();
         return null;
     }
 

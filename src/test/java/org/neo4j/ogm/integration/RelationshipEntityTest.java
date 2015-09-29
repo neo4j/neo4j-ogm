@@ -36,19 +36,14 @@ import static org.junit.Assert.*;
  */
 public class RelationshipEntityTest {
 
-    //@Rule
-    //public IntegrationTestRule testServer = new IntegrationTestRule();
-
     private U u;
     private M m;
     private R r1;
-
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        //session = new SessionFactory("org.neo4j.ogm.integration").openSession(testServer.driver());
 
         session = new SessionFactory("org.neo4j.ogm.integration").openSession(TestDriverFactory.driver("embedded"));
 

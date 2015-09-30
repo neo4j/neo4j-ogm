@@ -15,7 +15,11 @@ import org.neo4j.ogm.session.transaction.TransactionManager;
  */
 public class EmbeddedDriver implements Driver {
 
-    private GraphDatabaseService transport;
+    // a single instance of the driver's transport must be shared among all instances of the driver
+    // so that we do not run into locking problems.
+
+    private static GraphDatabaseService transport;
+
     private DriverConfig driverConfig;
     private TransactionManager transactionManager;
 
@@ -60,7 +64,7 @@ public class EmbeddedDriver implements Driver {
 
         this.driverConfig = config;
 
-        if (transport != null) {
+        if (transport == null) {
             String storeDir = (String) config.getConfig("neo4j.store");
             transport = new GraphDatabaseFactory()
                     .newEmbeddedDatabaseBuilder( storeDir )

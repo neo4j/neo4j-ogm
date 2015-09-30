@@ -23,7 +23,7 @@ import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.TestDriverFactory;
+import org.neo4j.ogm.spi.DriverService;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public class EndToEndTest {
     @BeforeClass
     public static void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession(TestDriverFactory.driver("embedded"));
+        session = sessionFactory.openSession(DriverService.load("org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver"));
     }
 
     @Before

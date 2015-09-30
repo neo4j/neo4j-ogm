@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author vince
  */
+
 public final class HttpDriver implements Driver {
 
     private static final CloseableHttpClient transport = HttpClients.createDefault();

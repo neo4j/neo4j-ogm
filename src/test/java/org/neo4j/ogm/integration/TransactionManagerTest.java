@@ -19,7 +19,7 @@ import org.neo4j.ogm.session.Driver;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 import org.neo4j.ogm.session.transaction.TransactionManager;
-import org.neo4j.ogm.testutil.TestDriverFactory;
+import org.neo4j.ogm.spi.DriverService;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class TransactionManagerTest {
 
-    private static final Driver driver = TestDriverFactory.driver("embedded");
+    private static final Driver driver = DriverService.load("org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver");
     private static final TransactionManager transactionManager = new TransactionManager(driver);
 
     @Test

@@ -1,1 +1,2 @@
+class = org.neo4j.ogm.driver.bolt.driver.BoltDriver
 server = bolt://localhost

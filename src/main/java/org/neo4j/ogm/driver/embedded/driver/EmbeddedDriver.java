@@ -2,28 +2,40 @@ package org.neo4j.ogm.driver.embedded.driver;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.ogm.session.Driver;
-import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.driver.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.driver.embedded.transaction.EmbeddedTransaction;
+import org.neo4j.ogm.session.Driver;
+import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
  */
 public class EmbeddedDriver implements Driver {
 
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
-
     private GraphDatabaseService transport;
     private DriverConfig driverConfig;
     private TransactionManager transactionManager;
 
+    /**
+     * The default constructor will start a new embedded instance
+     * using the default properties file.
+     */
     public EmbeddedDriver() {
+        configure(new DriverConfig("driver.properties.embedded"));
+    }
+
+    /**
+     * This constructor allows the user to pass in an existing
+     * Graph database service, e.g. if user code is running as an extension inside
+     * an existing Neo4j server
+     *
+     * @param transport
+     */
+    public EmbeddedDriver(GraphDatabaseService transport) {
+        this.transport = transport;
         configure(new DriverConfig("driver.properties.embedded"));
     }
 
@@ -49,19 +61,13 @@ public class EmbeddedDriver implements Driver {
         this.driverConfig = config;
 
         if (transport != null) {
-            logger.warn("Instance is being re-configured");
-            transport.shutdown();
+            String storeDir = (String) config.getConfig("neo4j.store");
+            transport = new GraphDatabaseFactory()
+                    .newEmbeddedDatabaseBuilder( storeDir )
+                    .newGraphDatabase();
+
+            registerShutdownHook(transport);
         }
-
-        String storeDir = (String) config.getConfig("neo4j.store");
-
-        // TODO: String ha = config.getConfig("ha");
-
-        transport = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder( storeDir )
-                .newGraphDatabase();
-
-        registerShutdownHook(transport);
 
         config.setConfig("transport", transport);
     }

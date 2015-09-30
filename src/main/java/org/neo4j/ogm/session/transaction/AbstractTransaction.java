@@ -73,7 +73,7 @@ public abstract class AbstractTransaction implements Transaction {
 
     public void close() {
         if (status == Status.PENDING || status == Status.OPEN) {
-            commit();
+            rollback();
         }
         status = Status.CLOSED;
     }

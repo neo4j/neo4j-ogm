@@ -2,10 +2,10 @@ package org.neo4j.ogm.driver.bolt.driver;
 
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.session.Driver;
 import org.neo4j.ogm.driver.bolt.request.BoltRequest;
 import org.neo4j.ogm.driver.bolt.transaction.BoltTransaction;
-import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.session.request.Request;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;

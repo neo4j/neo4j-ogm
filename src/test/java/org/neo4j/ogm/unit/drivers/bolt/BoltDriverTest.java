@@ -3,7 +3,7 @@ package org.neo4j.ogm.unit.drivers.bolt;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.query.GraphModelRequest;
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.session.Driver;
 import org.neo4j.ogm.session.response.Response;
 import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.testutil.TestDriverFactory;

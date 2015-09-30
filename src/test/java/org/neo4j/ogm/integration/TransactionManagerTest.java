@@ -15,7 +15,7 @@
 package org.neo4j.ogm.integration;
 
 import org.junit.Test;
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.session.Driver;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 import org.neo4j.ogm.session.transaction.TransactionManager;

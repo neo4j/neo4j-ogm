@@ -1,6 +1,6 @@
 package org.neo4j.ogm.testutil;
 
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.session.Driver;
 import org.neo4j.ogm.driver.bolt.driver.BoltDriver;
 import org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver;
 

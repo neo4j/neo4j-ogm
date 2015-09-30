@@ -5,7 +5,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.ogm.driver.JsonAdapter;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.result.RowModelResult;
-import org.neo4j.ogm.session.result.ResultAdapter;
+import org.neo4j.ogm.driver.ResultAdapter;
 
 import java.util.Iterator;
 

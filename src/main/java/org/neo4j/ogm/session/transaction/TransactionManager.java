@@ -15,7 +15,7 @@
 package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.session.Driver;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;

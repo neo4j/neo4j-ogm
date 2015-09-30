@@ -2,8 +2,8 @@ package org.neo4j.ogm.driver.embedded.driver;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.session.Driver;
+import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.driver.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.driver.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.session.request.Request;

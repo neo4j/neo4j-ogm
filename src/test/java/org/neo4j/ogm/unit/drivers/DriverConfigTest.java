@@ -1,8 +1,8 @@
 package org.neo4j.ogm.unit.drivers;
 
 import org.junit.Test;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.session.Driver;
+import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
 
 import static org.junit.Assert.assertEquals;

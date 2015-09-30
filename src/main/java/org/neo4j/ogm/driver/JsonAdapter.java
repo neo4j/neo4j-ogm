@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * this class should probably go, and we should build our response objects directly
+ *
  * @author vince
  */
 public abstract class JsonAdapter {

@@ -3,7 +3,7 @@ package org.neo4j.ogm.driver.embedded.response;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.driver.JsonAdapter;
 import org.neo4j.ogm.session.response.model.StatisticsModel;
-import org.neo4j.ogm.session.result.ResultAdapter;
+import org.neo4j.ogm.driver.ResultAdapter;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 
 /**

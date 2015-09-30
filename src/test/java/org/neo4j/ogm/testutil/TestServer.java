@@ -19,8 +19,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.session.Driver;
+import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.server.AbstractNeoServer;
 

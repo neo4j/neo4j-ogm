@@ -2,7 +2,7 @@ package org.neo4j.ogm.driver.embedded.response;
 
 import org.neo4j.ogm.driver.JsonAdapter;
 import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.result.ResultAdapter;
+import org.neo4j.ogm.driver.ResultAdapter;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.result.RowModelResult;
 

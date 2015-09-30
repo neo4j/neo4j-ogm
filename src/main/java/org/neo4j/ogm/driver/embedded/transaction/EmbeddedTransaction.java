@@ -31,10 +31,4 @@ public class EmbeddedTransaction extends AbstractTransaction {
         super.commit();
         nativeTransaction.close();
     }
-
-    @Override
-    public void close() {
-        commit();
-    }
-
 }

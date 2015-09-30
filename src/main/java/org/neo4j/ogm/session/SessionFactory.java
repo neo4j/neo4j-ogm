@@ -16,8 +16,7 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.config.DriverConfig;
+import org.neo4j.ogm.session.DriverConfig;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.ogm.metadata.MetaData;
 

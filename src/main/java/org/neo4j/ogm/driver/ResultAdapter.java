@@ -1,4 +1,4 @@
-package org.neo4j.ogm.session.result;
+package org.neo4j.ogm.driver;
 
 /**
  * This adapter interface should be implemented by all drivers

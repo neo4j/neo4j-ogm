@@ -1,4 +1,4 @@
-package org.neo4j.ogm.driver;
+package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.driver.config.DriverConfig;
 import org.neo4j.ogm.session.request.Request;

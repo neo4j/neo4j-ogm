@@ -1,4 +1,4 @@
-package org.neo4j.ogm.driver.config;
+package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.metadata.classloader.ClassLoaderResolver;
 import org.slf4j.Logger;

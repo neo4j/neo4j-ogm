@@ -1,10 +1,10 @@
 package org.neo4j.ogm.driver.bolt.response;
 
 import org.neo4j.driver.*;
-import org.neo4j.ogm.driver.JsonAdapter;
-import org.neo4j.ogm.session.result.GraphModelResult;
-import org.neo4j.ogm.driver.ResultAdapter;
-import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.driver.embedded.response.JsonAdapter;
+import org.neo4j.ogm.driver.api.result.ResultAdapter;
+import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,10 +16,10 @@ import java.util.List;
  * TODO: fix this up, see the embedded version for a working example
  * @author vince
  */
-public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Result, GraphModelResult> {
+public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Result, ResultGraphModel> {
 
     @Override
-    public GraphModelResult adapt(Result response) {
+    public ResultGraphModel adapt(Result response) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -59,7 +59,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Resu
         CLOSE_OBJECT(sb);
 
         try {
-            return mapper.readValue(sb.toString().getBytes(), GraphModelResult.class);
+            return mapper.readValue(sb.toString().getBytes(), ResultGraphModel.class);
         } catch (Exception e) {
             throw new ResultProcessingException("Could not parse response", e);
         }

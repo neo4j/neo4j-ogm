@@ -26,23 +26,21 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.neo4j.ogm.authentication.Neo4jCredentials;
-import org.neo4j.ogm.cypher.query.GraphModelRequest;
-import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
-import org.neo4j.ogm.cypher.query.RowModelRequest;
-import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
-import org.neo4j.ogm.cypher.statement.Statement;
-import org.neo4j.ogm.cypher.statement.Statements;
-import org.neo4j.ogm.driver.EmptyResponse;
-import org.neo4j.ogm.driver.http.response.*;
+import org.neo4j.ogm.driver.api.authentication.Credentials;
+import org.neo4j.ogm.driver.api.request.*;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.http.response.GraphModelResponse;
+import org.neo4j.ogm.driver.http.response.GraphRowModelResponse;
+import org.neo4j.ogm.driver.http.response.RowModelResponse;
+import org.neo4j.ogm.driver.http.response.RowStatisticsModelResponse;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
+import org.neo4j.ogm.driver.impl.request.Statements;
+import org.neo4j.ogm.driver.impl.response.EmptyResponse;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.neo4j.ogm.metadata.MappingException;
-import org.neo4j.ogm.session.request.Request;
-import org.neo4j.ogm.session.response.*;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
-import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.response.model.RowStatisticsModel;
-import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +58,11 @@ public class HttpRequest implements Request {
 
     private final String url;
     private final CloseableHttpClient httpClient;
-    private final Neo4jCredentials credentials;
+    private final Credentials credentials;
 
     private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(CloseableHttpClient httpClient, String url, Neo4jCredentials credentials) {
+    public HttpRequest(CloseableHttpClient httpClient, String url, Credentials credentials) {
         this.httpClient = httpClient;
         this.url = url;
         this.credentials = credentials;

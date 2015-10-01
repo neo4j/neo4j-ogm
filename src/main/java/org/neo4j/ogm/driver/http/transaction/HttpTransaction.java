@@ -4,10 +4,10 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.neo4j.ogm.driver.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
-import org.neo4j.ogm.session.transaction.AbstractTransaction;
-import org.neo4j.ogm.session.transaction.TransactionException;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.driver.impl.transaction.AbstractTransaction;
+import org.neo4j.ogm.driver.impl.transaction.TransactionException;
 
 /**
  * @author vince

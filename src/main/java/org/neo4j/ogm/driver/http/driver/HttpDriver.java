@@ -12,18 +12,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.neo4j.ogm.authentication.Neo4jCredentials;
-import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
-import org.neo4j.ogm.session.Driver;
-import org.neo4j.ogm.session.DriverConfig;
+
+import org.neo4j.ogm.driver.api.authentication.Credentials;
+import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
+
+import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.driver.api.request.Request;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.driver.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.http.request.HttpAuthorization;
 import org.neo4j.ogm.driver.http.request.HttpRequest;
 import org.neo4j.ogm.driver.http.transaction.HttpTransaction;
-import org.neo4j.ogm.session.request.Request;
-import org.neo4j.ogm.session.result.ErrorsException;
-import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.driver.impl.driver.DriverConfig;
+import org.neo4j.ogm.driver.impl.result.ResultErrorsException;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public final class HttpDriver implements Driver {
     @Override
     public Request requestHandler() {
         String url = requestUrl();
-        return new HttpRequest(transport, url, (Neo4jCredentials) driverConfig.getConfig("credentials"));
+        return new HttpRequest(transport, url, (Credentials) driverConfig.getConfig("credentials"));
     }
 
     @Override
@@ -90,7 +92,7 @@ public final class HttpDriver implements Driver {
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
 
 
-            HttpAuthorization.authorize(request, (Neo4jCredentials) driverConfig.getConfig("credentials"));
+            HttpAuthorization.authorize(request, (Credentials) driverConfig.getConfig("credentials"));
 
             CloseableHttpResponse response = transport.execute(request);
             StatusLine statusLine = response.getStatusLine();
@@ -109,7 +111,7 @@ public final class HttpDriver implements Driver {
                 logger.debug(responseText);
                 EntityUtils.consume(responseEntity);
                 if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
-                    throw new ErrorsException(responseText);
+                    throw new ResultErrorsException(responseText);
                 }
             }
             return response;

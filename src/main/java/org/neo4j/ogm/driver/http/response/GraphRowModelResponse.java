@@ -2,13 +2,13 @@ package org.neo4j.ogm.driver.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
-import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.driver.impl.json.JSONArray;
+import org.neo4j.ogm.driver.impl.json.JSONException;
+import org.neo4j.ogm.driver.impl.json.JSONObject;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

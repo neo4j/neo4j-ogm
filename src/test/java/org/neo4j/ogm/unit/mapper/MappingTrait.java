@@ -17,12 +17,11 @@ package org.neo4j.ogm.unit.mapper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.cypher.statement.Statement;
-import org.neo4j.ogm.cypher.statement.Statements;
+import org.neo4j.ogm.driver.api.request.Statement;
+import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappingContext;

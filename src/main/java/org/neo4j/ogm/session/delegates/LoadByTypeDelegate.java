@@ -19,17 +19,21 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.*;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.driver.api.request.GraphModelRequest;
+import org.neo4j.ogm.driver.api.request.GraphRowModelRequest;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
 import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
-import org.neo4j.ogm.session.response.model.GraphModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
 
 import java.util.Collection;
 

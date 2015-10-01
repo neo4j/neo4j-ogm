@@ -24,8 +24,8 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.session.response.model.NodeModel;
-import org.neo4j.ogm.session.response.model.RelationshipModel;
+import org.neo4j.ogm.driver.impl.model.NodeModel;
+import org.neo4j.ogm.driver.impl.model.RelationshipModel;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.

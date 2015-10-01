@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.driver.api.request.Statement;
 
 import java.util.List;
 import java.util.Map;

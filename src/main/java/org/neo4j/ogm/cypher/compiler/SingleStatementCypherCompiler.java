@@ -14,7 +14,8 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.statement.CypherStatement;
+import org.neo4j.ogm.driver.api.request.Statement;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -135,7 +136,7 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
 
         returnClause.emit(queryBuilder, parameters, newStack);
 
-        return Collections.singletonList(new Statement(queryBuilder.toString(), parameters));
+        return Collections.singletonList((Statement) new CypherStatement(queryBuilder.toString(), parameters));
     }
 
     public CypherContext context() {

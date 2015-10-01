@@ -14,14 +14,14 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.cypher.query.RowModelRequest;
-import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
+import org.neo4j.ogm.driver.api.request.Statement;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.impl.model.RowModel;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.RowModel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +68,7 @@ public class SaveDelegate implements Capability.Save {
                 CypherContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
                 Statement statement = context.getStatements().get(0);
 
-                RowModelRequest qry = new RowModelRequest(statement.getStatement(), statement.getParameters() );
+                DefaultRowModelRequest qry = new DefaultRowModelRequest(statement.getStatement(), statement.getParameters() );
                 try (Response<RowModel> response = session.requestHandler().execute(qry)) {
                     session.responseHandler().updateObjects(context, response);
                 }

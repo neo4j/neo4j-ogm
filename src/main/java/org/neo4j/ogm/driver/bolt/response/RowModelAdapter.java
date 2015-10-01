@@ -2,19 +2,19 @@ package org.neo4j.ogm.driver.bolt.response;
 
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Value;
-import org.neo4j.ogm.driver.JsonAdapter;
-import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.result.RowModelResult;
-import org.neo4j.ogm.driver.ResultAdapter;
+import org.neo4j.ogm.driver.embedded.response.JsonAdapter;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
+import org.neo4j.ogm.driver.impl.result.ResultRowModel;
+import org.neo4j.ogm.driver.api.result.ResultAdapter;
 
 import java.util.Iterator;
 
 /**
  * @author vince
  */
-public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Result, RowModelResult> {
+public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Result, ResultRowModel> {
     @Override
-    public RowModelResult adapt(Result response) {
+    public ResultRowModel adapt(Result response) {
 
         if (response.next()) {
             StringBuilder sb = new StringBuilder();
@@ -46,7 +46,7 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Result
 
 
             try {
-                return mapper.readValue(sb.toString().getBytes(), RowModelResult.class);
+                return mapper.readValue(sb.toString().getBytes(), ResultRowModel.class);
             } catch (Exception e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }

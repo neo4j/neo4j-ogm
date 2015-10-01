@@ -2,7 +2,7 @@ package org.neo4j.ogm.unit.drivers;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.session.Driver;
+import org.neo4j.ogm.driver.api.driver.Driver;
 import org.neo4j.ogm.spi.DriverNotFoundException;
 import org.neo4j.ogm.spi.DriverService;
 

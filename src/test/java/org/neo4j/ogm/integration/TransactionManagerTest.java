@@ -15,10 +15,10 @@
 package org.neo4j.ogm.integration;
 
 import org.junit.Test;
-import org.neo4j.ogm.session.Driver;
-import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.session.transaction.TransactionException;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.driver.impl.transaction.TransactionException;
 import org.neo4j.ogm.spi.DriverService;
 
 import static org.junit.Assert.assertEquals;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 public class TransactionManagerTest {
 
     private static final Driver driver = DriverService.load("org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver");
-    private static final TransactionManager transactionManager = new TransactionManager(driver);
+    private static final DefaultTransactionManager transactionManager = new DefaultTransactionManager(driver);
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {

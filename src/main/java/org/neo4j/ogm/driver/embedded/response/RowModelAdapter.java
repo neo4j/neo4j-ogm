@@ -1,10 +1,9 @@
 package org.neo4j.ogm.driver.embedded.response;
 
-import org.neo4j.ogm.driver.JsonAdapter;
-import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.driver.ResultAdapter;
-import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.result.RowModelResult;
+import org.neo4j.ogm.driver.api.result.ResultAdapter;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
+import org.neo4j.ogm.driver.impl.result.ResultRowModel;
 
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +57,7 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
         CLOSE_OBJECT(sb);
 
         try {
-            return new RowModel(mapper.readValue(sb.toString(), RowModelResult.class).getRow());
+            return new RowModel(mapper.readValue(sb.toString(), ResultRowModel.class).model());
         } catch (Exception e) {
             throw new ResultProcessingException("Could not parse result", e);
         }

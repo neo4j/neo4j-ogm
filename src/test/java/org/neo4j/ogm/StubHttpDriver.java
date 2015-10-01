@@ -15,23 +15,19 @@
 package org.neo4j.ogm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.cypher.query.GraphModelRequest;
-import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
-import org.neo4j.ogm.cypher.query.RowModelRequest;
-import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
-import org.neo4j.ogm.session.Driver;
-import org.neo4j.ogm.session.DriverConfig;
-import org.neo4j.ogm.session.request.Request;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
-import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.response.model.RowStatisticsModel;
-import org.neo4j.ogm.session.result.GraphModelResult;
-import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.result.RowModelResult;
-import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.driver.api.request.*;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.driver.api.transaction.TransactionManager;
+import org.neo4j.ogm.driver.impl.driver.DriverConfig;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
+import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
+import org.neo4j.ogm.driver.impl.result.ResultRowModel;
 
 /**
  * @author Vince Bickers
@@ -95,7 +91,7 @@ public abstract class StubHttpDriver implements Driver {
                         String r = nextRecord();
                         if (r != null) {
                             try {
-                                return mapper.readValue(r, GraphModelResult.class).getGraph();
+                                return mapper.readValue(r, ResultGraphModel.class).model();
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }
@@ -123,7 +119,7 @@ public abstract class StubHttpDriver implements Driver {
                         String r = nextRecord();
                         if (r != null) {
                             try {
-                                return new RowModel(mapper.readValue(r, RowModelResult.class).getRow());
+                                return new RowModel(mapper.readValue(r, ResultRowModel.class).model());
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }

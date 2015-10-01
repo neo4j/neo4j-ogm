@@ -4,19 +4,14 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
-import org.neo4j.ogm.cypher.query.GraphModelRequest;
-import org.neo4j.ogm.cypher.query.GraphRowModelRequest;
-import org.neo4j.ogm.cypher.query.RowModelRequest;
-import org.neo4j.ogm.cypher.query.RowModelStatisticsRequest;
-import org.neo4j.ogm.cypher.statement.Statement;
-import org.neo4j.ogm.driver.EmptyResponse;
+import org.neo4j.ogm.driver.api.request.*;
+import org.neo4j.ogm.driver.api.response.Response;
 import org.neo4j.ogm.driver.bolt.response.GraphModelResponse;
-import org.neo4j.ogm.session.request.Request;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
-import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.response.model.RowStatisticsModel;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
+import org.neo4j.ogm.driver.impl.response.EmptyResponse;
 
 import java.util.Map;
 

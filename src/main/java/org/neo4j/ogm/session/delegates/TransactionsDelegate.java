@@ -15,7 +15,7 @@ package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
 
 /**
  * @author Vince Bickers
@@ -50,30 +50,6 @@ public class TransactionsDelegate implements Capability.Transactions {
     public Transaction getTransaction() {
         return session.transactionManager().getCurrentTransaction();
     }
-
-//    @Deprecated
-//    private Transaction getCurrentOrTransientTransaction() {
-//
-//        session.debug("--------- new request ----------");
-//        session.debug("getOrCreateTransaction() being called on thread: " + Thread.currentThread().getId());
-//        session.debug("Session identity: " + this);
-//
-//        Transaction tx = session.transactionManager().getCurrentTransaction();
-//
-//        if (tx == null
-//                || tx.status().equals(Transaction.Status.CLOSED)
-//                || tx.status().equals(Transaction.Status.COMMITTED)
-//                || tx.status().equals(Transaction.Status.ROLLEDBACK)) {
-//
-//            session.debug("There is no existing transaction, request will auto-commit");
-//            return null;
-//
-//        }
-//
-//        session.debug("Current transaction: , tx id: " + tx);
-//        return tx;
-//
-//    }
 
 
 }

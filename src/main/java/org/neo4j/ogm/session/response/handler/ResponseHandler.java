@@ -15,10 +15,10 @@
 package org.neo4j.ogm.session.response.handler;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
-import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.api.response.Response;
 
 import java.util.Collection;
 

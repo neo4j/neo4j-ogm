@@ -17,6 +17,7 @@ package org.neo4j.ogm.session.response.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.driver.impl.result.ResultGraphRow;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.mapper.GraphEntityMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
@@ -24,11 +25,10 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.session.result.GraphRowResult;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.response.model.GraphRowModel;
-import org.neo4j.ogm.session.response.model.RowModel;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.model.RowModel;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -57,7 +57,7 @@ public class SessionResponseHandler implements ResponseHandler {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         GraphRowModel graphRowModel = response.next();
 
-        for(GraphRowResult graphRowResult : graphRowModel.getGraphRowResults()) {
+        for(ResultGraphRow graphRowResult : graphRowModel.getGraphRowResults()) {
             //Load the GraphModel into the ogm
             GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
             ogm.map(type, graphRowResult.getGraph());

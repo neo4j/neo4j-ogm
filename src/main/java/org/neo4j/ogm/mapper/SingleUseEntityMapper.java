@@ -14,23 +14,17 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccess;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityFactory;
-import org.neo4j.ogm.entityaccess.PropertyReader;
-import org.neo4j.ogm.entityaccess.PropertyWriter;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.session.response.model.RowModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Simple graph-to-entity mapper suitable for ad-hoc, one-off mappings.  This doesn't interact with a

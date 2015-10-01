@@ -15,11 +15,11 @@ package org.neo4j.ogm.unit.response;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.neo4j.ogm.driver.impl.result.ResultRowModel;
 import org.neo4j.ogm.driver.http.response.AbstractHttpResponse;
-import org.neo4j.ogm.session.response.Response;
-import org.neo4j.ogm.session.response.model.RowModel;
-import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.result.RowModelResult;
+import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -118,7 +118,7 @@ public class JsonResponseTest {
 
             if (json != null) {
                 try {
-                    return new RowModel(mapper.readValue(json, RowModelResult.class).getRow());
+                    return new RowModel(mapper.readValue(json, ResultRowModel.class).model());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

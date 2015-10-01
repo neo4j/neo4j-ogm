@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -37,7 +37,7 @@ public class FriendsInLongTransactionTest {
 	 */
 	@Test
 	public void createPersonAndFriendsInLongTransaction() {
-		TransactionManager txRequestHandler = new TransactionManager(testServer.driver(), null);
+		DefaultTransactionManager txRequestHandler = new DefaultTransactionManager(testServer.driver());
 		try (Transaction tx = txRequestHandler.openTransaction()) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
 			Person john = new Person("John");

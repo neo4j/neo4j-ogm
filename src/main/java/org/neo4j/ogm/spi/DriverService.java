@@ -1,7 +1,7 @@
 package org.neo4j.ogm.spi;
 
-import org.neo4j.ogm.session.Driver;
-import org.neo4j.ogm.session.DriverConfig;
+import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.driver.impl.driver.DriverConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

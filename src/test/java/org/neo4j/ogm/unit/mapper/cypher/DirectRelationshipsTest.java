@@ -19,7 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.statement.Statements;
+import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.mapper.EntityGraphMapper;

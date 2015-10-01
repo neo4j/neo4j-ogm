@@ -25,9 +25,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.driver.api.result.DriverStatistics;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -71,7 +71,7 @@ public class ExecuteQueryCapabilityTest {
 		Map<String,Object> row =  resultsIterable.iterator().next();
 		assertEquals("Alec Baldwin", row.get("name"));
 
-		Result results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
+		DriverStatistics results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
 				Collections.<String, Object>singletonMap("param", alec.getId()));
 		assertNotNull("Results are empty", results);
 		assertEquals("Alec Baldwin", results.iterator().next().get("name"));
@@ -97,16 +97,16 @@ public class ExecuteQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		Result result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
+		DriverStatistics result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
 		assertNotNull(result);
-		assertNotNull(result.queryStatistics());
-		assertEquals(3, result.queryStatistics().getPropertiesSet());
+		assertNotNull(result.statistics());
+		assertEquals(3, result.statistics().getPropertiesSet());
 
 
 		result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5));
 		assertNotNull(result);
-		assertNotNull(result.queryStatistics());
-		assertEquals(3, result.queryStatistics().getPropertiesSet());
+		assertNotNull(result.statistics());
+		assertEquals(3, result.statistics().getPropertiesSet());
 
 	}
 
@@ -118,13 +118,13 @@ public class ExecuteQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		Result result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
+		DriverStatistics result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
 		assertNotNull(result);
-		assertNotNull(result.queryStatistics());
-		assertEquals(3, result.queryStatistics().getPropertiesSet());
+		assertNotNull(result.statistics());
+		assertEquals(3, result.statistics().getPropertiesSet());
 		List<String> names = new ArrayList<>();
 
-		Iterator<Map<String,Object>> namesIterator = result.queryResults().iterator();
+		Iterator<Map<String,Object>> namesIterator = result.model().iterator();
 		while(namesIterator.hasNext()) {
 			names.add((String)namesIterator.next().get("a.name"));
 		}
@@ -136,11 +136,11 @@ public class ExecuteQueryCapabilityTest {
 
 		result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name, a.age", MapUtil.map("age", 5));
 		assertNotNull(result);
-		assertNotNull(result.queryStatistics());
-		assertEquals(3, result.queryStatistics().getPropertiesSet());
+		assertNotNull(result.statistics());
+		assertEquals(3, result.statistics().getPropertiesSet());
 		names = new ArrayList<>();
 
-		namesIterator = result.queryResults().iterator();
+		namesIterator = result.model().iterator();
 		while(namesIterator.hasNext()) {
 			Map<String,Object> row = namesIterator.next();
 			names.add((String)row.get("a.name"));
@@ -161,13 +161,13 @@ public class ExecuteQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		Result result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
+		DriverStatistics result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
 		assertNotNull(result);
-		assertNull(result.queryStatistics());
+		assertNull(result.statistics());
 
 		List<String> names = new ArrayList<>();
 
-		Iterator<Map<String,Object>> namesIterator = result.queryResults().iterator();
+		Iterator<Map<String,Object>> namesIterator = result.model().iterator();
 		while(namesIterator.hasNext()) {
 			names.add((String)namesIterator.next().get("a.name"));
 		}

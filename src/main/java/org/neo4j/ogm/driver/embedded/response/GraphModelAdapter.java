@@ -4,11 +4,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.ogm.driver.JsonAdapter;
-import org.neo4j.ogm.session.response.model.GraphModel;
-import org.neo4j.ogm.session.result.GraphModelResult;
-import org.neo4j.ogm.driver.ResultAdapter;
-import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.driver.api.result.ResultAdapter;
+import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -100,7 +99,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
 
         try {
             String record = sb.toString();
-            return mapper.readValue(record, GraphModelResult.class).getGraph();
+            return mapper.readValue(record, ResultGraphModel.class).model();
         } catch (Exception e) {
             throw new ResultProcessingException("Could not parse response", e);
         }

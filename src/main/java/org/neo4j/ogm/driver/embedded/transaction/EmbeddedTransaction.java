@@ -1,8 +1,8 @@
 package org.neo4j.ogm.driver.embedded.transaction;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.session.transaction.AbstractTransaction;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.driver.api.transaction.TransactionManager;
+import org.neo4j.ogm.driver.impl.transaction.AbstractTransaction;
 
 /**
  * @author vince
@@ -11,8 +11,8 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     private final org.neo4j.graphdb.Transaction nativeTransaction;
 
-    public EmbeddedTransaction(TransactionManager txManager, GraphDatabaseService transport) {
-        super(txManager);
+    public EmbeddedTransaction(TransactionManager transactionManager, GraphDatabaseService transport) {
+        super(transactionManager);
         this.nativeTransaction = transport.beginTx();
     }
 

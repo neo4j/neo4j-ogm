@@ -14,17 +14,6 @@
 
 package org.neo4j.ogm.auth;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
-
-import java.io.FileWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
@@ -35,12 +24,23 @@ import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.kernel.Version;
 import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.result.ResultProcessingException;
-import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.server.AbstractNeoServer;
+
+import java.io.FileWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Vince Bickers

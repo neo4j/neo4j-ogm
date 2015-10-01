@@ -15,7 +15,7 @@
 package org.neo4j.ogm.driver.http.request;
 
 import org.apache.http.client.methods.HttpRequestBase;
-import org.neo4j.ogm.authentication.Neo4jCredentials;
+import org.neo4j.ogm.driver.api.authentication.Credentials;
 
 /**
  * @author Vince Bickers
@@ -35,7 +35,7 @@ public class HttpAuthorization {
      *
      * @param request The HttpRequest that may need an auth header.
      */
-    public static void authorize(HttpRequestBase request, Neo4jCredentials credentials) {
+    public static void authorize(HttpRequestBase request, Credentials credentials) {
         if (credentials != null) {
             request.setHeader("Authorization", "Basic " + credentials.credentials());
         }

@@ -18,7 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.neo4j.ogm.authentication.CredentialsService;
+import org.neo4j.ogm.driver.impl.authentication.CredentialsService;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;

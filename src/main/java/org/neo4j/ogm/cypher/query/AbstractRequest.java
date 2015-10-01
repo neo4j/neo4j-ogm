@@ -14,14 +14,15 @@
 package org.neo4j.ogm.cypher.query;
 
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.statement.Statement;
+import org.neo4j.ogm.cypher.statement.CypherStatement;
+import org.neo4j.ogm.driver.api.request.Statement;
 
 import java.util.Map;
 
 /**
  * @author Vince Bickers
  */
-public abstract class AbstractRequest extends Statement implements FilteringPagingAndSorting {
+public abstract class AbstractRequest extends CypherStatement implements Statement, FilteringPagingAndSorting {
 
     protected AbstractRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);
@@ -32,7 +33,6 @@ public abstract class AbstractRequest extends Statement implements FilteringPagi
         return this;
     }
 
-    // TODO: this method is never called. Filters get applied elsewhere
     public AbstractRequest setFilters(Filters filters) {
         super.addFilters(filters);
         return this;
@@ -43,7 +43,6 @@ public abstract class AbstractRequest extends Statement implements FilteringPagi
         return this;
     }
 
-    // statistics are not returned by default. Do not remove or change this method name
     public boolean isIncludeStats() {
         return false;
     }

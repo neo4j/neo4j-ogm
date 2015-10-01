@@ -14,15 +14,14 @@
 
 package org.neo4j.ogm.unit.mapper.cypher;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-
-import org.neo4j.ogm.cypher.statement.Statement;
-import org.neo4j.ogm.cypher.statement.Statements;
+import org.neo4j.ogm.driver.api.request.Statement;
+import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 

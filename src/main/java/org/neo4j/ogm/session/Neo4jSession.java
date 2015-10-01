@@ -18,19 +18,20 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.driver.api.result.DriverStatistics;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.delegates.*;
-import org.neo4j.ogm.session.request.Request;
+import org.neo4j.ogm.driver.api.request.Request;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 import org.neo4j.ogm.session.response.handler.ResponseHandler;
 import org.neo4j.ogm.session.response.handler.SessionResponseHandler;
-import org.neo4j.ogm.session.response.model.StatisticsModel;
-import org.neo4j.ogm.session.result.Result;
-import org.neo4j.ogm.session.transaction.Transaction;
-import org.neo4j.ogm.session.transaction.TransactionManager;
+import org.neo4j.ogm.driver.impl.model.StatisticsModel;
+import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.driver.api.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public class Neo4jSession implements Session {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;
-    private final TransactionManager txManager;
+    private final DefaultTransactionManager txManager;
 
     private final LoadOneDelegate loadOneHandler = new LoadOneDelegate(this);
     private final LoadByTypeDelegate loadByTypeHandler = new LoadByTypeDelegate(this);
@@ -68,7 +69,7 @@ public class Neo4jSession implements Session {
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new TransactionManager(driver, mappingContext);
+        this.txManager = new DefaultTransactionManager(driver);
     }
 
     /*
@@ -313,12 +314,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public Result query(String cypher, Map<String, ?> parameters) {
+    public DriverStatistics query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
 
     @Override
-    public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public DriverStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 
@@ -454,7 +455,7 @@ public class Neo4jSession implements Session {
         return new SessionResponseHandler(metaData, mappingContext);
     }
 
-    public TransactionManager transactionManager() {
+    public DefaultTransactionManager transactionManager() {
         return txManager;
     }
 

@@ -1,9 +1,8 @@
 package org.neo4j.ogm.driver.embedded.response;
 
-import org.neo4j.graphdb.QueryStatistics;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.session.response.Response;
+import org.neo4j.ogm.driver.api.response.Response;
 
 /**
  * @author vince
@@ -12,19 +11,10 @@ public abstract class EmbeddedResponse<T> implements Response {
 
     protected final Result result;
     private final Transaction tx;
-    private final QueryStatistics statistics;
-
 
     public EmbeddedResponse(Transaction tx, Result result) {
         this.result = result;
-        this.statistics = result.getQueryStatistics();
         this.tx = tx;
-//        if (result.hasNext()) {
-//            System.out.println("*** results found");
-//        } else {
-//            System.out.println("*** no results");
-//        }
-
     }
 
     @Override

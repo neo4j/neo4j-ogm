@@ -17,7 +17,7 @@ package org.neo4j.ogm.session.request.strategy;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.neo4j.ogm.cypher.query.RowModelRequest;
+import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 
 /**
  * Encapsulates Cypher statements used to execute aggregation queries.
@@ -26,12 +26,12 @@ import org.neo4j.ogm.cypher.query.RowModelRequest;
  */
 public class AggregateStatements {
 
-    public RowModelRequest countNodesLabelledWith(Collection<String> labels) {
+    public DefaultRowModelRequest countNodesLabelledWith(Collection<String> labels) {
         StringBuilder cypherLabels = new StringBuilder();
         for (String label : labels) {
             cypherLabels.append(":`").append(label).append('`');
         }
-        return new RowModelRequest(String.format("MATCH (n%s) RETURN COUNT(n)", cypherLabels.toString()),
+        return new DefaultRowModelRequest(String.format("MATCH (n%s) RETURN COUNT(n)", cypherLabels.toString()),
                 Collections.<String, String> emptyMap());
     }
 

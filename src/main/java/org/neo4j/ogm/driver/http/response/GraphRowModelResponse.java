@@ -2,12 +2,13 @@ package org.neo4j.ogm.driver.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.neo4j.ogm.api.model.GraphRows;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.driver.impl.json.JSONArray;
 import org.neo4j.ogm.driver.impl.json.JSONException;
 import org.neo4j.ogm.driver.impl.json.JSONObject;
-import org.neo4j.ogm.driver.api.response.Response;
 import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.driver.impl.result.ResultGraphRowsModel;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import java.io.IOException;
 /**
  * @author vince
  */
-public class GraphRowModelResponse extends AbstractHttpResponse implements Response<GraphRowModel> {
+public class GraphRowModelResponse extends AbstractHttpResponse implements Response<GraphRows> {
 
     protected static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRowModelResponse.class);
@@ -31,13 +32,13 @@ public class GraphRowModelResponse extends AbstractHttpResponse implements Respo
     }
 
     @Override
-    public GraphRowModel next() {
+    public GraphRows next() {
 
         String json = super.nextRecord();
 
         if (json != null) {
             try {
-                GraphRowModel graphRowModel = new GraphRowModel();
+                ResultGraphRowsModel graphRowModelResult = new ResultGraphRowsModel();
 
                 JSONObject jsonObject = getOuterObject(json);
 
@@ -48,9 +49,9 @@ public class GraphRowModelResponse extends AbstractHttpResponse implements Respo
                     String rowJson = dataObject.getJSONObject(i).getString("row");
                     GraphModel graphModel = mapper.readValue(graphJson, GraphModel.class);
                     Object[] rows = mapper.readValue(rowJson, Object[].class);
-                    graphRowModel.addGraphRowResult(graphModel, rows);
+                    graphRowModelResult.addGraphRowResult(graphModel, rows);
                 }
-                return graphRowModel;
+                return graphRowModelResult.model();
             } catch (Exception e) {
                 LOGGER.error("failed to parse: " + json);
                 throw new RuntimeException(e);

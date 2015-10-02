@@ -12,20 +12,18 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-
-import org.neo4j.ogm.driver.api.authentication.Credentials;
-import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
-
-import org.neo4j.ogm.driver.api.driver.Driver;
-import org.neo4j.ogm.driver.api.request.Request;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
-import org.neo4j.ogm.driver.api.transaction.TransactionManager;
+import org.neo4j.ogm.api.authentication.Credentials;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.request.Request;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.http.request.HttpAuthorization;
 import org.neo4j.ogm.driver.http.request.HttpRequest;
 import org.neo4j.ogm.driver.http.transaction.HttpTransaction;
-import org.neo4j.ogm.driver.impl.driver.DriverConfig;
+import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.impl.result.ResultErrorsException;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +35,11 @@ public final class HttpDriver implements Driver {
 
     private static final CloseableHttpClient transport = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
-    private DriverConfig driverConfig;
+    private ServiceConfiguration driverConfig;
     private TransactionManager transactionManager;
 
     public HttpDriver() {
-        configure(new DriverConfig("driver.properties.http"));
+        configure(new ServiceConfiguration("http.driver.properties"));
     }
 
     @Override
@@ -65,7 +63,7 @@ public final class HttpDriver implements Driver {
     }
 
     @Override
-    public void configure(DriverConfig config) {
+    public void configure(ServiceConfiguration config) {
         this.driverConfig = config;
         setCredentials();
     }

@@ -15,7 +15,7 @@ package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.Transaction;
 
 /**
  * @author Vince Bickers

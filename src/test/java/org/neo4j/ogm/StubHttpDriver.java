@@ -15,19 +15,23 @@
 package org.neo4j.ogm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.driver.api.driver.Driver;
-import org.neo4j.ogm.driver.api.request.*;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
-import org.neo4j.ogm.driver.api.transaction.TransactionManager;
-import org.neo4j.ogm.driver.impl.driver.DriverConfig;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRows;
+import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.api.model.RowStatistics;
+import org.neo4j.ogm.api.request.*;
+import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.spi.ServiceConfiguration;
+import org.neo4j.ogm.driver.impl.model.GraphRowsModel;
 import org.neo4j.ogm.driver.impl.model.RowModel;
 import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
 import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.neo4j.ogm.driver.impl.result.ResultRowModel;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 
 /**
  * @author Vince Bickers
@@ -44,7 +48,7 @@ public abstract class StubHttpDriver implements Driver {
     }
 
     @Override
-    public void configure(DriverConfig config) {
+    public void configure(ServiceConfiguration config) {
         throw new RuntimeException("not implemented");
     }
 
@@ -82,12 +86,12 @@ public abstract class StubHttpDriver implements Driver {
 
 
             @Override
-            public Response<GraphModel> execute(GraphModelRequest qry) {
+            public Response<Graph> execute(GraphModelRequest qry) {
 
-                return new Response<GraphModel>() {
+                return new Response<Graph>() {
 
                     @Override
-                    public GraphModel next() {
+                    public Graph next() {
                         String r = nextRecord();
                         if (r != null) {
                             try {
@@ -111,11 +115,11 @@ public abstract class StubHttpDriver implements Driver {
             }
 
             @Override
-            public Response<RowModel> execute(RowModelRequest query) {
-                return new Response<RowModel>() {
+            public Response<Row> execute(RowModelRequest query) {
+                return new Response<Row>() {
 
                     @Override
-                    public RowModel next() {
+                    public Row next() {
                         String r = nextRecord();
                         if (r != null) {
                             try {
@@ -139,11 +143,11 @@ public abstract class StubHttpDriver implements Driver {
             }
 
             @Override
-            public Response<GraphRowModel> execute(GraphRowModelRequest query) {
-                return new Response<GraphRowModel>() {
+            public Response<GraphRows> execute(GraphRowModelRequest query) {
+                return new Response<GraphRows>() {
 
                     @Override
-                    public GraphRowModel next() {
+                    public GraphRowsModel next() {
                         throw new RuntimeException("not implemented");
                     }
 
@@ -159,8 +163,8 @@ public abstract class StubHttpDriver implements Driver {
             }
 
             @Override
-            public Response<RowStatisticsModel> execute(RowModelStatisticsRequest query) {
-                return new Response<RowStatisticsModel>() {
+            public Response<RowStatistics> execute(RowModelStatisticsRequest query) {
+                return new Response<RowStatistics>() {
 
                     @Override
                     public RowStatisticsModel next() {

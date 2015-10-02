@@ -14,21 +14,22 @@
 
 package org.neo4j.ogm.unit.session.capability;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.api.model.Statistics;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.driver.impl.model.StatisticsModel;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
@@ -74,7 +75,7 @@ public class ExecuteStatementQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		StatisticsModel queryStatistics = session.execute("MATCH (n:Actor) set n.age={age}", MapUtil.map("age", 30));
+		Statistics queryStatistics = session.execute("MATCH (n:Actor) set n.age={age}", MapUtil.map("age", 30));
 		assertNotNull(queryStatistics);
 		assertEquals(3, queryStatistics.getPropertiesSet());
 	}

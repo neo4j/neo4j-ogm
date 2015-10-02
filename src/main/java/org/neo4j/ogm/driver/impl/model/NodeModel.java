@@ -14,6 +14,9 @@
 
 package org.neo4j.ogm.driver.impl.model;
 
+import org.neo4j.ogm.api.model.Node;
+import org.neo4j.ogm.api.model.Property;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.Map;
 /**
  * @author Michal Bachman
  */
-public class NodeModel {
+public class NodeModel implements Node {
 
     Long id;
     String[] labels;
@@ -43,7 +46,7 @@ public class NodeModel {
     public void setProperties(Map<String, Object> properties) {
         this.properties = new ArrayList<>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            this.properties.add(new Property<>(entry.getKey(), entry.getValue()));
+            this.properties.add(new PropertyModel<>(entry.getKey(), entry.getValue()));
         }
     }
 

@@ -1,12 +1,14 @@
 package org.neo4j.ogm.driver.impl.model;
 
+import org.neo4j.ogm.api.model.RowStatistics;
+
 import java.util.Collection;
 
 /**
  * Encapsulates {@link StatisticsModel} and row data returned by a query.
  * @author Luanne Misquitta
  */
-public class RowStatisticsModel {
+public class RowStatisticsModel implements RowStatistics {
 
     private Collection<Object> rows;
     private StatisticsModel stats;

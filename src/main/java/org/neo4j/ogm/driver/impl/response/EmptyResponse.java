@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.driver.impl.response;
 
-import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.api.response.Response;
 
 /**
  * @author Vince Bickers

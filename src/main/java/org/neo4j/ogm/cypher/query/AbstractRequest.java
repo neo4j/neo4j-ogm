@@ -15,7 +15,7 @@ package org.neo4j.ogm.cypher.query;
 
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.statement.CypherStatement;
-import org.neo4j.ogm.driver.api.request.Statement;
+import org.neo4j.ogm.api.request.Statement;
 
 import java.util.Map;
 

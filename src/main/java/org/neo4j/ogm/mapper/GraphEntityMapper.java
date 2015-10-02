@@ -17,10 +17,12 @@ package org.neo4j.ogm.mapper;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.NodeModel;
-import org.neo4j.ogm.driver.impl.model.Property;
-import org.neo4j.ogm.driver.impl.model.RelationshipModel;
+import org.neo4j.ogm.api.mapper.GraphToEntityMapper;
+import org.neo4j.ogm.api.model.Edge;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.Node;
+import org.neo4j.ogm.api.model.Property;
+import org.neo4j.ogm.driver.impl.model.PropertyModel;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.BaseClassNotFoundException;
 import org.neo4j.ogm.metadata.ClassUtils;
@@ -40,7 +42,7 @@ import java.util.Map.Entry;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
+public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 
 	private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
@@ -57,7 +59,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 	}
 
 	@Override
-	public <T> List<T> map(Class<T> type, GraphModel graphModel) {
+	public <T> List<T> map(Class<T> type, Graph graphModel) {
 
         /*
 		 * these two lists will contain the node ids and edge ids from the response, in the order
@@ -89,7 +91,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		return results;
 	}
 
-	private <T> void mapEntities(Class<T> type, GraphModel graphModel, List<Long> nodeIds, List<Long> edgeIds) {
+	private <T> void mapEntities(Class<T> type, Graph graphModel, List<Long> nodeIds, List<Long> edgeIds) {
 		try {
 			mapNodes(graphModel, nodeIds);
 			mapRelationships(graphModel, edgeIds);
@@ -98,9 +100,9 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		}
 	}
 
-	private void mapNodes(GraphModel graphModel, List<Long> nodeIds) {
+	private void mapNodes(Graph graphModel, List<Long> nodeIds) {
 
-		for (NodeModel node : graphModel.getNodes()) {
+		for (Node node : graphModel.getNodes()) {
 			Object entity = mappingContext.getNodeEntity(node.getId());
 			try {
 				if (entity == null) {
@@ -122,7 +124,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
 	}
 
-	private void setProperties(NodeModel nodeModel, Object instance) {
+	private void setProperties(Node nodeModel, Object instance) {
 		// cache this.
 		ClassInfo classInfo = metadata.classInfo(instance);
 		for (Property<?, ?> property : nodeModel.getPropertyList()) {
@@ -130,12 +132,14 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		}
 	}
 
-	private void setProperties(RelationshipModel relationshipModel, Object instance) {
+	private void setProperties(Edge relationshipModel, Object instance) {
 		// cache this.
 		ClassInfo classInfo = metadata.classInfo(instance);
 		if (relationshipModel.getProperties() != null) {
+            // todo: refactor this so as not to use PropertyModel impl
 			for (Entry<String, Object> property : relationshipModel.getProperties().entrySet()) {
-				writeProperty(classInfo, instance, Property.with(property.getKey(), property.getValue()));
+                // todo:
+				writeProperty(classInfo, instance, PropertyModel.with(property.getKey(), property.getValue()));
 			}
 		}
 	}
@@ -165,7 +169,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		}
 	}
 
-	private boolean tryMappingAsSingleton(Object source, Object parameter, RelationshipModel edge, String relationshipDirection) {
+	private boolean tryMappingAsSingleton(Object source, Object parameter, Edge edge, String relationshipDirection) {
 
 		String edgeLabel = edge.getType();
 		ClassInfo sourceInfo = metadata.classInfo(source);
@@ -179,11 +183,11 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		return false;
 	}
 
-	private void mapRelationships(GraphModel graphModel, List<Long> edgeIds) {
+	private void mapRelationships(Graph graphModel, List<Long> edgeIds) {
 
-		final List<RelationshipModel> oneToMany = new ArrayList<>();
+		final List<Edge> oneToMany = new ArrayList<>();
 
-		for (RelationshipModel edge : graphModel.getRelationships()) {
+		for (Edge edge : graphModel.getRelationships()) {
 			Object source = mappingContext.getNodeEntity(edge.getStartNode());
 			Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
@@ -206,7 +210,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		mapOneToMany(oneToMany);
 	}
 
-	private void mapRelationship(List<RelationshipModel> oneToMany, RelationshipModel edge, Object source, Object target) {
+	private void mapRelationship(List<Edge> oneToMany, Edge edge, Object source, Object target) {
 		boolean oneToOne;
 		//Since source=start node, end=end node, the direction from source->target has to be outgoing, try mapping it
 		oneToOne = tryMappingAsSingleton(source, target, edge, Relationship.OUTGOING);
@@ -222,7 +226,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		}
 	}
 
-	private void mapRelationshipEntity(List<RelationshipModel> oneToMany, RelationshipModel edge, Object source, Object target, ClassInfo relationshipEntityClassInfo) {
+	private void mapRelationshipEntity(List<Edge> oneToMany, Edge edge, Object source, Object target, ClassInfo relationshipEntityClassInfo) {
 		logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(), relationshipEntityClassInfo.name());
 
 		// look to see if this relationship already exists in the mapping context.
@@ -262,7 +266,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		}
 	}
 
-	private Object createRelationshipEntity(RelationshipModel edge, Object startEntity, Object endEntity) {
+	private Object createRelationshipEntity(Edge edge, Object startEntity, Object endEntity) {
 
 		// create and hydrate the new RE
 		Object relationshipEntity = entityFactory.newObject(getRelationshipEntity(edge));
@@ -296,13 +300,13 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		return relationshipEntity;
 	}
 
-	private void mapOneToMany(Collection<RelationshipModel> oneToManyRelationships) {
+	private void mapOneToMany(Collection<Edge> oneToManyRelationships) {
 
 		EntityCollector entityCollector = new EntityCollector();
 		List<MappedRelationship> relationshipsToRegister = new ArrayList<>();
 
 		// first, build the full set of related entities of each type and direction for each source entity in the relationship
-		for (RelationshipModel edge : oneToManyRelationships) {
+		for (Edge edge : oneToManyRelationships) {
 
 			Object instance = mappingContext.getNodeEntity(edge.getStartNode());
 			Object parameter = mappingContext.getNodeEntity(edge.getEndNode());
@@ -403,7 +407,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 		logger.debug("Unable to map iterable of type: {} onto property of {}", valueType, classInfo.name());
 	}
 
-	private ClassInfo getRelationshipEntity(RelationshipModel edge) {
+	private ClassInfo getRelationshipEntity(Edge edge) {
 		for (ClassInfo classInfo : metadata.classInfoByLabelOrType(edge.getType())) {
 			if (classInfo != null) {
 				//verify the start and end node types because there might be more than one RE defined with the same type and direction but different start/end nodes

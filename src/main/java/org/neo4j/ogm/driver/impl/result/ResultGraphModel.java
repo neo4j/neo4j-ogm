@@ -1,18 +1,19 @@
 package org.neo4j.ogm.driver.impl.result;
 
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.result.DriverResult;
 import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.api.result.DriverResult;
 
 /**
  * A result encapsulated in a GraphModel
  *
  * @author Vince Bickers
  */
-public class ResultGraphModel implements DriverResult<GraphModel> {
+public class ResultGraphModel implements DriverResult<Graph> {
 
-    private GraphModel graph;
+    private Graph graph;
 
-    public GraphModel model() {
+    public Graph model() {
         return graph;
     }
 

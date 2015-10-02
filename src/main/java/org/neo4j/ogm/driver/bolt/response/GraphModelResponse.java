@@ -1,8 +1,8 @@
 package org.neo4j.ogm.driver.bolt.response;
 
 import org.neo4j.driver.Result;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.response.Response;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author vince
  */
-public class GraphModelResponse implements Response<GraphModel> {
+public class GraphModelResponse implements Response<Graph> {
 
     private final Result result;
     private final GraphModelAdapter adapter = new GraphModelAdapter();
@@ -22,7 +22,7 @@ public class GraphModelResponse implements Response<GraphModel> {
     }
 
     @Override
-    public GraphModel next() {
+    public Graph next() {
         if (result.next()) {
             rowId++;
             return adapter.adapt(result).model();

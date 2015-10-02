@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.api.mapper.Mappable;
+
 /**
  * Light-weight record of a relationship mapped from the database
  * <code>startNodeId - relationshipId - relationshipType - endNodeId</code>
@@ -23,7 +25,7 @@ package org.neo4j.ogm.mapper;
  * @author Adam George
  * @author Luanne Misquitta
  */
-public class MappedRelationship {
+public class MappedRelationship implements Mappable {
 
     private final long startNodeId;
     private final String relationshipType;

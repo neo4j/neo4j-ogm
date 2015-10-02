@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.Map;
+import org.neo4j.ogm.api.compiler.RelationshipEmitter;
 
-import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
+import java.util.Map;
 
 /**
  * A TransientRelationship represents a relationship that is not yet
@@ -83,7 +83,7 @@ public class TransientRelationship {
         return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity, srcClass, tgtClass);
     }
 
-    public boolean equalsIgnoreDirection(String src, RelationshipBuilder builder, String tgt) {
+    public boolean equalsIgnoreDirection(String src, RelationshipEmitter builder, String tgt) {
         Boolean singleton = builder.isSingleton();
         if (this.rel.equals(builder.getType())) {
             if (singleton) {

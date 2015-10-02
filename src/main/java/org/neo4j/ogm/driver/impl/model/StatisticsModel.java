@@ -14,13 +14,16 @@
 
 package org.neo4j.ogm.driver.impl.model;
 
+
+import org.neo4j.ogm.api.model.Statistics;
+
 /**
  * Holds read only statistics about query execution.
  * The field names do not follow convention as they are mapped directly from the JSON received from the Neo4j API.
  *
  * @author Luanne Misquitta
  */
-public class StatisticsModel {
+public class StatisticsModel implements Statistics {
 
 	private boolean contains_updates;
 	private int nodes_created;

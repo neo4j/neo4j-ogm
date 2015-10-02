@@ -4,8 +4,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.ogm.driver.api.result.ResultAdapter;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.result.ResultAdapter;
 import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 
@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * @author vince
  */
-public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, GraphModel> {
+public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, Graph> {
 
     /**
      * Parses a row from the result object and transforms it into a JSON representation
@@ -32,7 +32,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
      * @return
      */
 
-    public GraphModel adapt(Map<String, Object> data) {
+    public Graph adapt(Map<String, Object> data) {
 
         // These two sets keep track of which nodes and edges have already been built, so we don't redundantly
         // write the same node or relationship entity many times. They are deliberately untyped.

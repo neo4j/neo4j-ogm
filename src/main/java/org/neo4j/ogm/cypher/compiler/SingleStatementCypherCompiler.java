@@ -14,18 +14,20 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.api.compiler.*;
+import org.neo4j.ogm.api.compiler.Compiler;
+import org.neo4j.ogm.api.request.Statement;
 import org.neo4j.ogm.cypher.statement.CypherStatement;
-import org.neo4j.ogm.driver.api.request.Statement;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * Implementation of {@link CypherCompiler} that builds a single query for the object graph.
+ * Implementation of {@link org.neo4j.ogm.api.compiler.Compiler} that builds a single query for the object graph.
  *
  * @author Vince Bickers
  */
-public class SingleStatementCypherCompiler implements CypherCompiler {
+public class SingleStatementCypherCompiler implements Compiler {
 
     private final IdentifierManager identifiers = new IdentifierManager();
 
@@ -36,12 +38,12 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
     private final Set<CypherEmitter> deletedRelationships = new TreeSet<>();
 
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
-    private final CypherContext context = new CypherContext();
+    private final CompileContext context = new CypherContext();
 
     @Deprecated
     @Override
     public void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode) {
-        RelationshipBuilder newRelationship = newRelationship();
+        RelationshipEmitter newRelationship = newRelationship();
         newRelationship.type(relationshipType);
         for (Entry<String, Object> property : relationshipProperties.entrySet()) {
             newRelationship.addProperty(property.getKey(), property.getValue());
@@ -56,35 +58,35 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
     }
 
     @Override
-    public NodeBuilder newNode() {
+    public NodeEmitter newNode() {
         NodeBuilder newNode = new NewNodeBuilder(this.identifiers.nextIdentifier());
         this.newNodes.add(newNode);
         return newNode;
     }
 
     @Override
-    public NodeBuilder existingNode(Long existingNodeId) {
+    public NodeEmitter existingNode(Long existingNodeId) {
         NodeBuilder node = new ExistingNodeBuilder(this.identifiers.identifier(existingNodeId));
         this.updatedNodes.add(node);
         return node;
     }
 
     @Override
-    public RelationshipBuilder newRelationship() {
+    public RelationshipEmitter newRelationship() {
         RelationshipBuilder builder = new NewRelationshipBuilder(identifiers.nextIdentifier());
         this.newRelationships.add(builder);
         return builder;
     }
 
     @Override
-    public RelationshipBuilder newBiDirectionalRelationship() {
+    public RelationshipEmitter newBiDirectionalRelationship() {
         RelationshipBuilder builder = new NewBiDirectionalRelationshipBuilder(identifiers.nextIdentifier(), identifiers.nextIdentifier());
         this.newRelationships.add(builder);
         return builder;
     }
 
     @Override
-    public RelationshipBuilder existingRelationship(Long existingRelationshipId) {
+    public RelationshipEmitter existingRelationship(Long existingRelationshipId) {
         RelationshipBuilder builder = new ExistingRelationshipBuilder(this.identifiers.nextIdentifier(), existingRelationshipId);
         this.updatedRelationships.add(builder);
         return builder;
@@ -139,18 +141,18 @@ public class SingleStatementCypherCompiler implements CypherCompiler {
         return Collections.singletonList((Statement) new CypherStatement(queryBuilder.toString(), parameters));
     }
 
-    public CypherContext context() {
+    public CompileContext context() {
         return context;
     }
 
     @Override
-    public CypherContext compile() {
+    public CompileContext compile() {
         context.setStatements(getStatements());
         return context;
     }
 
     @Override
-    public void release(RelationshipBuilder relationshipBuilder) {
+    public void release(RelationshipEmitter relationshipBuilder) {
         identifiers.releaseIdentifier();
     }
 

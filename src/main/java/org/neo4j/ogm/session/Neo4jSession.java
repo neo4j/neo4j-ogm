@@ -18,20 +18,20 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.driver.api.driver.Driver;
-import org.neo4j.ogm.driver.api.result.DriverStatistics;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.model.Statistics;
+import org.neo4j.ogm.api.request.Request;
+import org.neo4j.ogm.api.result.DriverStatistics;
+import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.delegates.*;
-import org.neo4j.ogm.driver.api.request.Request;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 import org.neo4j.ogm.session.response.handler.ResponseHandler;
 import org.neo4j.ogm.session.response.handler.SessionResponseHandler;
-import org.neo4j.ogm.driver.impl.model.StatisticsModel;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -381,12 +381,12 @@ public class Neo4jSession implements Session {
     *----------------------------------------------------------------------------------------------------------
     */
     @Override
-    public StatisticsModel execute(String cypher, Map<String, Object> parameters) {
+    public Statistics execute(String cypher, Map<String, Object> parameters) {
         return executeStatementsDelegate.execute(cypher, parameters);
     }
 
     @Override
-    public StatisticsModel execute(String statement) {
+    public Statistics execute(String statement) {
         return executeStatementsDelegate.execute(statement);
     }
 

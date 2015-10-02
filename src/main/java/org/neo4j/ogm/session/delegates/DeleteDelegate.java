@@ -14,10 +14,10 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.driver.api.request.RowModelRequest;
-import org.neo4j.ogm.driver.api.request.Statement;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.api.request.RowModelRequest;
+import org.neo4j.ogm.api.request.Statement;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.Capability;
@@ -72,8 +72,8 @@ public class DeleteDelegate implements Capability.Delete {
                 Long identity = (Long) FieldWriter.read(identityField, object);
                 if (identity != null) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
-                    DefaultRowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    try (Response<RowModel> response = session.requestHandler().execute(query)) {
+                    RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
+                    try (Response<Row> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
                     }
                 }
@@ -89,7 +89,7 @@ public class DeleteDelegate implements Capability.Delete {
         if (classInfo != null) {
             Statement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-            try (Response<RowModel> response = session.requestHandler().execute(query)) {
+            try (Response<Row> response = session.requestHandler().execute(query)) {
                 session.context().clear(type);
             }
         } else {

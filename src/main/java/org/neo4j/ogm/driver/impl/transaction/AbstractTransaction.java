@@ -1,7 +1,7 @@
 package org.neo4j.ogm.driver.impl.transaction;
 
-import org.neo4j.ogm.driver.api.transaction.Transaction;
-import org.neo4j.ogm.driver.api.transaction.TransactionManager;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

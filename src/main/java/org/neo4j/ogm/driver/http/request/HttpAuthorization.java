@@ -15,7 +15,7 @@
 package org.neo4j.ogm.driver.http.request;
 
 import org.apache.http.client.methods.HttpRequestBase;
-import org.neo4j.ogm.driver.api.authentication.Credentials;
+import org.neo4j.ogm.api.authentication.Credentials;
 
 /**
  * @author Vince Bickers

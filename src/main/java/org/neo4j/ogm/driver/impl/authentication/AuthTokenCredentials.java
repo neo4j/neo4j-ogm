@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.driver.impl.authentication;
 
-import org.neo4j.ogm.driver.api.authentication.Credentials;
+import org.neo4j.ogm.api.authentication.Credentials;
 
 /**
  * @author Vince Bickers

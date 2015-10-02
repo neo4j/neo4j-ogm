@@ -2,12 +2,13 @@ package org.neo4j.ogm.driver.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.neo4j.ogm.api.model.RowStatistics;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.driver.impl.json.JSONArray;
 import org.neo4j.ogm.driver.impl.json.JSONException;
 import org.neo4j.ogm.driver.impl.json.JSONObject;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.impl.model.StatisticsModel;
 import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
+import org.neo4j.ogm.driver.impl.model.StatisticsModel;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * @author vince
  */
-public class RowStatisticsModelResponse extends AbstractHttpResponse implements Response<RowStatisticsModel> {
+public class RowStatisticsModelResponse extends AbstractHttpResponse implements Response<RowStatistics> {
 
     protected static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(RowStatisticsModelResponse.class);
@@ -33,7 +34,7 @@ public class RowStatisticsModelResponse extends AbstractHttpResponse implements 
     }
 
     @Override
-    public RowStatisticsModel next() {
+    public RowStatistics next() {
 
         String json = super.nextRecord();
 

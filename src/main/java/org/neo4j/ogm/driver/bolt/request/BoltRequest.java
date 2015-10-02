@@ -4,13 +4,12 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
-import org.neo4j.ogm.driver.api.request.*;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.bolt.response.GraphModelResponse;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
-import org.neo4j.ogm.driver.impl.model.RowModel;
-import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRows;
+import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.api.model.RowStatistics;
+import org.neo4j.ogm.api.request.*;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.driver.impl.response.EmptyResponse;
 
 import java.util.Map;
@@ -27,16 +26,16 @@ public class BoltRequest implements Request {
     }
 
     @Override
-    public Response<GraphModel> execute(GraphModelRequest request) {
+    public Response<Graph> execute(GraphModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphModelResponse(executeRequest(request));
+        return null;//return new GraphModelResponse(executeRequest(request));
     }
 
     @Override
 
-    public Response<RowModel> execute(RowModelRequest request) {
+    public Response<Row> execute(RowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -44,7 +43,7 @@ public class BoltRequest implements Request {
     }
 
     @Override
-    public Response<GraphRowModel> execute(GraphRowModelRequest request) {
+    public Response<GraphRows> execute(GraphRowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -52,7 +51,7 @@ public class BoltRequest implements Request {
     }
 
     @Override
-    public Response<RowStatisticsModel> execute(RowModelStatisticsRequest request) {
+    public Response<RowStatistics> execute(RowModelStatisticsRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }

@@ -14,12 +14,12 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.cypher.query.AbstractRequest;
-import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.request.GraphModelRequest;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.driver.api.response.Response;
 
 /**
  * @author Vince Bickers
@@ -42,7 +42,7 @@ public class LoadOneDelegate implements Capability.LoadOne {
         QueryStatements queryStatements = session.queryStatementsFor(type);
         AbstractRequest qry = queryStatements.findOne(id,depth);
 
-        try (Response<GraphModel> response = session.requestHandler().execute((DefaultGraphModelRequest) qry)) {
+        try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
             return session.responseHandler().loadById(type, response, id);
         }
     }

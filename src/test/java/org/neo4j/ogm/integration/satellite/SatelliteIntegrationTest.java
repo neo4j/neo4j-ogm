@@ -23,7 +23,7 @@ import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;

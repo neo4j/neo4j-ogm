@@ -18,13 +18,14 @@ import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
-import org.neo4j.ogm.driver.api.request.RowModelStatisticsRequest;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.api.result.DriverStatistics;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.RowModel;
-import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
-import org.neo4j.ogm.driver.impl.result.ResultQuery;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.api.model.RowStatistics;
+import org.neo4j.ogm.api.request.GraphModelRequest;
+import org.neo4j.ogm.api.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.api.result.DriverStatistics;
+import org.neo4j.ogm.cypher.query.DefaultQuery;
 import org.neo4j.ogm.mapper.EntityRowModelMapper;
 import org.neo4j.ogm.mapper.MapRowModelMapper;
 import org.neo4j.ogm.mapper.RowModelMapper;
@@ -84,23 +85,24 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
     @Override
     public DriverStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+
         validateQuery(cypher, parameters, readOnly);
 
         //If readOnly=true, just execute the query. If false, execute the query and return stats as well
         if(readOnly) {
-            return new ResultQuery(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
+            return new DefaultQuery(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
             RowModelStatisticsRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
-            try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
-                RowStatisticsModel result = response.next();
+            try (Response<RowStatistics> response = session.requestHandler().execute(parameterisedStatement)) {
+                RowStatistics result = response.next();
                 RowModelMapper rowModelMapper = new MapRowModelMapper();
                 Collection rowResult = new LinkedHashSet();
                 for (Iterator<Object> iterator = result.getRows().iterator(); iterator.hasNext(); ) {
                     List next =  (List) iterator.next();
                     rowModelMapper.mapIntoResult(rowResult, next.toArray(), response.columns());
                 }
-                return new ResultQuery(rowResult, result.getStats());
+                return new DefaultQuery(rowResult, result.getStats());
 
             }
         }
@@ -116,21 +118,19 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             throw new RuntimeException("Supplied Parameters cannot be null.");
         }
 
-//        session.ensureTransaction();
-
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
             AbstractRequest qry = new DefaultGraphModelRequest(cypher, parameters);
-            try (Response<GraphModel> response = session.requestHandler().execute((DefaultGraphModelRequest) qry)) {
+            try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
             DefaultRowModelRequest qry = new DefaultRowModelRequest(cypher, parameters);
-            try (Response<RowModel> response = session.requestHandler().execute(qry)) {
+            try (Response<Row> response = session.requestHandler().execute(qry)) {
 
                 String[] variables = response.columns();
 
                 Collection<T> result = new ArrayList<>();
-                RowModel rowModel;
+                Row rowModel;
                 while ((rowModel = response.next()) != null) {
                     rowModelMapper.mapIntoResult(result, rowModel.getValues(), variables);
                 }
@@ -150,8 +150,8 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         DefaultRowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
 //        session.ensureTransaction();
 
-        try (Response<RowModel> response = session.requestHandler().execute(countStatement)) {
-            RowModel queryResult = response.next();
+        try (Response<Row> response = session.requestHandler().execute(countStatement)) {
+            Row queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
         }
     }

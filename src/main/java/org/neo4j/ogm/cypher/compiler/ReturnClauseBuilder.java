@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.api.compiler.CypherEmitter;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +23,7 @@ import java.util.Set;
 /**
  * @author Vince Bickers
  */
-public class ReturnClauseBuilder implements CypherEmitter {
+class ReturnClauseBuilder implements CypherEmitter {
     @Override
     public boolean emit(StringBuilder queryBuilder, Map<String, Object> parameters, Set<String> varStack) {
 

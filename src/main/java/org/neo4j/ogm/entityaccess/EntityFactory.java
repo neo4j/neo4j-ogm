@@ -14,18 +14,20 @@
 
 package org.neo4j.ogm.entityaccess;
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import org.neo4j.ogm.api.model.Edge;
+import org.neo4j.ogm.api.model.Node;
 
+import org.neo4j.ogm.driver.impl.model.RelationshipModel;
 import org.neo4j.ogm.metadata.BaseClassNotFoundException;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.driver.impl.model.NodeModel;
-import org.neo4j.ogm.driver.impl.model.RelationshipModel;
+
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
@@ -48,26 +50,26 @@ public class EntityFactory {
     }
 
     /**
-     * Constructs a new object based on the class mapped to the labels on the given {@link NodeModel}.  In the
+     * Constructs a new object based on the class mapped to the labels on the given {@link Node}.  In the
      * case of multiple labels, only the one that identifies a class in the domain will be used, and if there
      * are any ambiguities in which label to use then an exception will be thrown.
      *
-     * @param nodeModel The {@link NodeModel} from which to determine the type
+     * @param nodeModel The {@link Node} from which to determine the type
      * @return A new instance of the class that corresponds to the node label, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
      */
-    public <T> T newObject(NodeModel nodeModel) {
+    public <T> T newObject(Node nodeModel) {
         return instantiateObjectFromTaxa(nodeModel.getLabels());
     }
 
     /**
      * Constructs a new object based on the class mapped to the type in the given {@link RelationshipModel}.
      *
-     * @param edgeModel The {@link RelationshipModel} from which to determine the type
+     * @param edgeModel The {@link Edge} from which to determine the type
      * @return A new instance of the class that corresponds to the relationship type, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
      */
-    public <T> T newObject(RelationshipModel edgeModel) {
+    public <T> T newObject(Edge edgeModel) {
         return instantiateObjectFromTaxa(edgeModel.getType());
     }
 

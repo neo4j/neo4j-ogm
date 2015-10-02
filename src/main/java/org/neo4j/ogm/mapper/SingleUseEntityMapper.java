@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
@@ -56,10 +56,10 @@ public class SingleUseEntityMapper {
      *
      * @param type The {@link Class} denoting the type of object to create
      * @param columnNames The names of the columns in each row of the result
-     * @param rowModel The {@link RowModel} containing the data to map
+     * @param rowModel The {@link Row} containing the data to map
      * @return A new instance of <tt>T</tt> populated with the data in the specified row model
      */
-    public <T> T map(Class<T> type, String[] columnNames, RowModel rowModel) {
+    public <T> T map(Class<T> type, String[] columnNames, Row rowModel) {
         Map<String, Object> properties = new HashMap<>();
         for (int i = 0; i < rowModel.getValues().length; i++) {
             properties.put(columnNames[i], rowModel.getValues()[i]);

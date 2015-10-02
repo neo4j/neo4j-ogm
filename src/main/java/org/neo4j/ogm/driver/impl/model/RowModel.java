@@ -14,12 +14,14 @@
 
 package org.neo4j.ogm.driver.impl.model;
 
+import org.neo4j.ogm.api.model.Row;
+
 /**
  * The results of a query, modelled as row data.
  *
  * @author Vince Bickers
  */
-public class RowModel {
+public class RowModel implements Row {
 
     private Object[] values;
 

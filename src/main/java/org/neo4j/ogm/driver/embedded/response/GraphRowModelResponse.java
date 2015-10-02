@@ -2,16 +2,17 @@ package org.neo4j.ogm.driver.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRows;
 import org.neo4j.ogm.driver.impl.model.RowModel;
+import org.neo4j.ogm.driver.impl.result.ResultGraphRowsModel;
 
 import java.util.Map;
 
 /**
  * @author vince
  */
-public class GraphRowModelResponse extends EmbeddedResponse<GraphRowModel> {
+public class GraphRowModelResponse extends EmbeddedResponse<GraphRows> {
 
     private GraphModelAdapter graphModelAdapter = new GraphModelAdapter();
     private RowModelAdapter rowModelAdapter = new RowModelAdapter();
@@ -21,7 +22,7 @@ public class GraphRowModelResponse extends EmbeddedResponse<GraphRowModel> {
     }
 
     @Override
-    public GraphRowModel next() {
+    public GraphRows next() {
         if (result.hasNext()) {
             return parse(result.next());
         }
@@ -29,16 +30,18 @@ public class GraphRowModelResponse extends EmbeddedResponse<GraphRowModel> {
         return null;
     }
 
-    private GraphRowModel parse(Map<String, Object> data) {
+    // this is most likely wrong. we should collect all the results. I don't know why this is different from
+    // all the others though.
+    private GraphRows parse(Map<String, Object> data) {
 
-        GraphRowModel graphRowModel = new GraphRowModel();
+        ResultGraphRowsModel graphRowModelResult = new ResultGraphRowsModel();
 
-        GraphModel graphModel = graphModelAdapter.adapt(data);
+        Graph graphModel = graphModelAdapter.adapt(data);
         RowModel rowModel = rowModelAdapter.adapt(data);
 
-        graphRowModel.addGraphRowResult(graphModel, rowModel);
+        graphRowModelResult.addGraphRowResult(graphModel, rowModel);
 
-        return graphRowModel;
+        return graphRowModelResult.model();
 
     }
 

@@ -16,10 +16,11 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.driver.impl.authentication.CredentialsService;
 import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
-import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
-import org.neo4j.ogm.driver.impl.driver.DriverConfig;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -102,7 +103,7 @@ public class SessionFactory {
 
     private Session openSession(String url, Driver driver) {
 
-        DriverConfig driverConfig = new DriverConfig();
+        ServiceConfiguration driverConfig = new ServiceConfiguration();
         driver.configure(driverConfig);
 
         try {
@@ -137,7 +138,7 @@ public class SessionFactory {
 
     private Session openSession(String url, String username, String password, Driver driver) {
 
-        DriverConfig driverConfig = new DriverConfig();
+        ServiceConfiguration driverConfig = new ServiceConfiguration();
         driver.configure(driverConfig);
 
         driverConfig.setConfig("server", url);

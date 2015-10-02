@@ -15,10 +15,10 @@
 package org.neo4j.ogm.integration;
 
 import org.junit.Test;
-import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
-import org.neo4j.ogm.driver.impl.transaction.TransactionException;
+import org.neo4j.ogm.session.transaction.TransactionManagerException;
 import org.neo4j.ogm.spi.DriverService;
 
 import static org.junit.Assert.assertEquals;
@@ -52,7 +52,7 @@ public class TransactionManagerTest {
         }
     }
 
-    @Test(expected = TransactionException.class)
+    @Test(expected = TransactionManagerException.class)
     public void shouldNotBeAbleToCreateConcurrentOrNestedManagedTransactions() {
         try (Transaction tx1 = transactionManager.openTransaction()) {
             try (Transaction tx2 = transactionManager.openTransaction()) {
@@ -62,13 +62,13 @@ public class TransactionManagerTest {
         }
     }
 
-    @Test(expected = TransactionException.class)
+    @Test(expected = TransactionManagerException.class)
     public void shouldFailCommitFreeTransactionInManagedContext() {
         Transaction tx = driver.newTransaction();
         transactionManager.commit(tx);
     }
 
-    @Test(expected = TransactionException.class)
+    @Test(expected = TransactionManagerException.class)
     public void shouldFailRollbackFreeTransactionInManagedContext() {
         Transaction tx = driver.newTransaction();
         transactionManager.rollback(tx);

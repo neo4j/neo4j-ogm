@@ -22,11 +22,11 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.driver.api.request.GraphModelRequest;
-import org.neo4j.ogm.driver.api.request.GraphRowModelRequest;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRows;
+import org.neo4j.ogm.api.request.GraphModelRequest;
+import org.neo4j.ogm.api.request.GraphRowModelRequest;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.metadata.RelationshipUtils;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
@@ -66,7 +66,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+            try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
                 return session.responseHandler().loadAll(type, response);
             }
         } else {
@@ -78,11 +78,11 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setPagination(pagination);
 
             if (depth != 0) {
-                try (Response<GraphRowModel> response = session.requestHandler().execute((GraphRowModelRequest) qry)) {
+                try (Response<GraphRows> response = session.requestHandler().execute((GraphRowModelRequest) qry)) {
                     return session.responseHandler().loadByProperty(type, response);
                 }
             } else {
-                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+                try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
                     return session.responseHandler().loadAll(type, response);
                 }
             }

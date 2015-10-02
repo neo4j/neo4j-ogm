@@ -24,7 +24,7 @@ import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.kernel.Version;
 import org.neo4j.ogm.domain.bike.Bike;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;

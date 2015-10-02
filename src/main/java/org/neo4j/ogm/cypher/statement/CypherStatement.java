@@ -17,7 +17,7 @@ package org.neo4j.ogm.cypher.statement;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.driver.api.request.Statement;
+import org.neo4j.ogm.api.request.Statement;
 
 import java.util.HashMap;
 import java.util.Map;

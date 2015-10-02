@@ -14,12 +14,13 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.Map;
-import java.util.Set;
-
+import org.neo4j.ogm.api.compiler.NodeEmitter;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Renders Cypher appropriate for a new node that needs creating in the database.
@@ -33,7 +34,7 @@ class NewNodeBuilder extends NodeBuilder {
     }
 
     @Override
-    public NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy) {
+    public NodeEmitter mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy) {
         for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(classInfo)) {
             Object value = propertyReader.read(toPersist);
             if (value != null) {

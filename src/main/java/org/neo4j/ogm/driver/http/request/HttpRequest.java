@@ -26,17 +26,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.neo4j.ogm.driver.api.authentication.Credentials;
-import org.neo4j.ogm.driver.api.request.*;
-import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.api.authentication.Credentials;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRows;
+import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.api.model.RowStatistics;
+import org.neo4j.ogm.api.request.*;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.driver.http.response.GraphModelResponse;
 import org.neo4j.ogm.driver.http.response.GraphRowModelResponse;
 import org.neo4j.ogm.driver.http.response.RowModelResponse;
 import org.neo4j.ogm.driver.http.response.RowStatisticsModelResponse;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
-import org.neo4j.ogm.driver.impl.model.RowModel;
-import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
 import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.driver.impl.response.EmptyResponse;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
@@ -69,7 +69,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<GraphModel> execute(GraphModelRequest request) {
+    public Response<Graph> execute(GraphModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -84,7 +84,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<RowModel> execute(RowModelRequest request) {
+    public Response<Row> execute(RowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -99,7 +99,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<GraphRowModel> execute(GraphRowModelRequest request) {
+    public Response<GraphRows> execute(GraphRowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -115,7 +115,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<RowStatisticsModel> execute(RowModelStatisticsRequest request) {
+    public Response<RowStatistics> execute(RowModelStatisticsRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }

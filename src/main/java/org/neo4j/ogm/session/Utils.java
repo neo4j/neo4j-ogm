@@ -14,12 +14,12 @@
 
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.api.model.Property;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.neo4j.ogm.driver.impl.model.Property;
 
 /**
  * @author Vince Bickers

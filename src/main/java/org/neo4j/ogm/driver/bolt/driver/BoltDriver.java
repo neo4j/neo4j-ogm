@@ -2,13 +2,13 @@ package org.neo4j.ogm.driver.bolt.driver;
 
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
-import org.neo4j.ogm.driver.api.driver.Driver;
-import org.neo4j.ogm.driver.api.request.Request;
-import org.neo4j.ogm.driver.api.transaction.Transaction;
-import org.neo4j.ogm.driver.api.transaction.TransactionManager;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.request.Request;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.bolt.request.BoltRequest;
 import org.neo4j.ogm.driver.bolt.transaction.BoltTransaction;
-import org.neo4j.ogm.driver.impl.driver.DriverConfig;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 
 /**
  * @author vince
@@ -16,16 +16,16 @@ import org.neo4j.ogm.driver.impl.driver.DriverConfig;
 public class BoltDriver implements Driver {
 
     private Session transport;
-    private DriverConfig driverConfig;
+    private ServiceConfiguration driverConfig;
     private TransactionManager transactionManager;
 
     public BoltDriver() {
-        configure(new DriverConfig("driver.properties.bolt"));
+        configure(new ServiceConfiguration("bolt.driver.properties"));
     }
 
 
     @Override
-    public void configure(DriverConfig config) {
+    public void configure(ServiceConfiguration config) {
         this.driverConfig = config;
         this.transport = GraphDatabase.driver((String) config.getConfig("server")).session();
     }

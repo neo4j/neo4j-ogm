@@ -14,29 +14,29 @@
 
 package org.neo4j.ogm.driver.impl.model;
 
-import org.neo4j.ogm.driver.impl.result.ResultGraphRow;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRow;
 
 /**
- * The results of a query, modelled as both both graph and row data.
+ * Represents a single row in a query response which returns both graph and row data.
  *
  * @author Luanne Misquitta
  */
-public class GraphRowModel {
+public class GraphRowModel implements GraphRow {
 
-	List<ResultGraphRow> graphRowResults = new ArrayList<>();
+    private Graph graph;
+    private Object[] row;
 
-	public List<ResultGraphRow> getGraphRowResults() {
-		return graphRowResults;
-	}
-
-    public void addGraphRowResult(GraphModel graphModel, RowModel rowModel) {
-        graphRowResults.add(new ResultGraphRow(graphModel, rowModel.getValues()));
+    public GraphRowModel(Graph graph, Object[] row) {
+        this.graph = graph;
+        this.row = row;
     }
 
-	public void addGraphRowResult(GraphModel graphModel, Object[] rowModel) {
-		graphRowResults.add(new ResultGraphRow(graphModel, rowModel));
-	}
+    public Graph getGraph() {
+        return graph;
+    }
+
+    public Object[] getRow() {
+        return row;
+    }
 }

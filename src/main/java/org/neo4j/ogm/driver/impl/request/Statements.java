@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.driver.impl.request;
 
-import org.neo4j.ogm.driver.api.request.Statement;
+import org.neo4j.ogm.api.request.Statement;
 
 import java.util.List;
 

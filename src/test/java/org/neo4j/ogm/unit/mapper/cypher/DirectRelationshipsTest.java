@@ -23,7 +23,7 @@ import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
-import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;

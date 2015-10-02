@@ -14,10 +14,9 @@
 
 package org.neo4j.ogm.session.transaction;
 
-import org.neo4j.ogm.driver.api.transaction.Transaction;
-import org.neo4j.ogm.driver.impl.transaction.TransactionException;
-import org.neo4j.ogm.driver.api.transaction.TransactionManager;
-import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.TransactionManager;
 
 /**
  * @author Vince Bickers
@@ -47,7 +46,7 @@ public class DefaultTransactionManager implements TransactionManager {
             TRANSACTION_THREAD_LOCAL.set(driver.newTransaction());
             return TRANSACTION_THREAD_LOCAL.get();
         } else {
-            throw new TransactionException("Nested transactions not supported");
+            throw new TransactionManagerException("Nested transactions not supported");
         }
     }
 
@@ -64,7 +63,7 @@ public class DefaultTransactionManager implements TransactionManager {
      */
     public void rollback(Transaction transaction) {
         if (transaction != getCurrentTransaction()) {
-            throw new TransactionException("Transaction is not current for this thread");
+            throw new TransactionManagerException("Transaction is not current for this thread");
         }
         TRANSACTION_THREAD_LOCAL.remove();
     }
@@ -81,7 +80,7 @@ public class DefaultTransactionManager implements TransactionManager {
      */
     public void commit(Transaction tx) {
         if (tx != getCurrentTransaction()) {
-            throw new TransactionException("Transaction is not current for this thread");
+            throw new TransactionManagerException("Transaction is not current for this thread");
         }
         TRANSACTION_THREAD_LOCAL.remove();
     }

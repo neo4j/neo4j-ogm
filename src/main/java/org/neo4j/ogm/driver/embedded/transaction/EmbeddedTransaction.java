@@ -1,7 +1,7 @@
 package org.neo4j.ogm.driver.embedded.transaction;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.driver.api.transaction.TransactionManager;
+import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.impl.transaction.AbstractTransaction;
 
 /**

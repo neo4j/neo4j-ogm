@@ -1,6 +1,6 @@
 package org.neo4j.ogm.testutil;
 
-import org.neo4j.ogm.driver.api.driver.Driver;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.spi.DriverService;
 
 /**

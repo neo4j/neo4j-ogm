@@ -2,8 +2,8 @@ package org.neo4j.ogm.unit.drivers;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.driver.api.driver.Driver;
-import org.neo4j.ogm.spi.DriverNotFoundException;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.spi.ServiceNotFoundException;
 import org.neo4j.ogm.spi.DriverService;
 
 import static org.junit.Assert.assertNotNull;
@@ -51,7 +51,7 @@ public class DriverServiceTest {
         assertNotNull(driver);
     }
 
-    @Test(expected = DriverNotFoundException.class)
+    @Test(expected = ServiceNotFoundException.class)
     public void shouldFailForMissingOrUnregisteredDriver() {
         Driver driver = DriverService.load("Unregistered");
         assertNotNull(driver);

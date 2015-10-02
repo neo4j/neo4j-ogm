@@ -1,6 +1,6 @@
 package org.neo4j.ogm.driver.impl.result;
 
-import org.neo4j.ogm.driver.api.result.DriverResult;
+import org.neo4j.ogm.api.result.DriverResult;
 
 /**
  * @author Vince Bickers

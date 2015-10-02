@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.api.compiler.RelationshipEmitter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ import java.util.Map;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public abstract class RelationshipBuilder implements CypherEmitter, Comparable<RelationshipBuilder> {
+abstract class RelationshipBuilder implements RelationshipEmitter {
 
     protected Long id;
     protected String type;
@@ -52,7 +54,7 @@ public abstract class RelationshipBuilder implements CypherEmitter, Comparable<R
         return this.type;
     }
 
-    public RelationshipBuilder type(String type) {
+    public RelationshipEmitter type(String type) {
         this.type = type;
         return this;
     }
@@ -61,7 +63,7 @@ public abstract class RelationshipBuilder implements CypherEmitter, Comparable<R
         this.props.put(propertyName, propertyValue);
     }
 
-    public RelationshipBuilder direction(String direction) {
+    public RelationshipEmitter direction(String direction) {
         this.direction = direction;
         return this;
     }
@@ -82,17 +84,21 @@ public abstract class RelationshipBuilder implements CypherEmitter, Comparable<R
 
     public abstract boolean isNew();
 
-    public String getReference() {
+    public String reference() {
         return reference;
     }
 
     @Override
-    public int compareTo(RelationshipBuilder o) {
-        return reference.compareTo(o.reference);
+    public int compareTo(RelationshipEmitter o) {
+        return reference.compareTo(o.reference());
     }
 
     @Override
     public String toString() {
         return "(" + startNodeIdentifier + ")-[" + reference + ":`" + type + "`]->(" + endNodeIdentifier + ")";
+    }
+
+    public boolean isBidirectional() {
+        return false;
     }
 }

@@ -19,9 +19,10 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
-import org.neo4j.ogm.driver.api.driver.Driver;
-import org.neo4j.ogm.driver.impl.driver.DriverConfig;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
+import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
@@ -77,7 +78,7 @@ public class TestServer {
 
         driver = new HttpDriver();
 
-        DriverConfig driverConfig = new DriverConfig();
+        ServiceConfiguration driverConfig = new ServiceConfiguration();
         driverConfig.setConfig("server", url());
         driver.configure(driverConfig);
 

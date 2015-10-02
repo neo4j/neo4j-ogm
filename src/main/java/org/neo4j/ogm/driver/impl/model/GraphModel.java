@@ -14,22 +14,29 @@
 
 package org.neo4j.ogm.driver.impl.model;
 
-import java.util.*;
+import org.neo4j.ogm.api.model.Edge;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.Node;
+
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The results of a query, modelled as graph data.
  *
  *  @author Michal Bachman
  */
-public class GraphModel  {
+public class GraphModel implements Graph {
 
     private final Map<Long, NodeModel> nodeMap = new HashMap<>();
     private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
 
-    private Set<NodeModel> nodes = new LinkedHashSet<>();
-    private Set<RelationshipModel> relationships = new LinkedHashSet<>();
+    private Set<Node> nodes = new LinkedHashSet<>();
+    private Set<Edge> relationships = new LinkedHashSet<>();
 
-    public Set<NodeModel> getNodes() {
+    public Set<Node> getNodes() {
         return nodes;
     }
 
@@ -40,7 +47,7 @@ public class GraphModel  {
         }
     }
 
-    public Set<RelationshipModel> getRelationships() {
+    public Set<Edge> getRelationships() {
         return relationships;
     }
 

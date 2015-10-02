@@ -17,7 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.driver.impl.result.ResultRowModel;
 import org.neo4j.ogm.driver.http.response.AbstractHttpResponse;
-import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.driver.impl.model.RowModel;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 

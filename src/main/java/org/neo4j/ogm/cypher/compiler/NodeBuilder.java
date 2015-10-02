@@ -14,18 +14,19 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.api.compiler.NodeEmitter;
+import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.metadata.info.ClassInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-
 /**
  * @author Vince Bickers
  */
-public abstract class NodeBuilder implements CypherEmitter, Comparable<NodeBuilder> {
+public abstract class NodeBuilder implements NodeEmitter {
 
     private final String cypherReference;
 
@@ -53,14 +54,14 @@ public abstract class NodeBuilder implements CypherEmitter, Comparable<NodeBuild
         return this;
     }
 
-    public NodeBuilder addLabels(Iterable<String> labelName) {
+    public NodeEmitter addLabels(Iterable<String> labelName) {
         for (String label : labelName) {
             addLabel(label);
         }
         return this;
     }
 
-    public abstract NodeBuilder mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy);
+    public abstract NodeEmitter mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy);
 
     @Override
     public String toString() {
@@ -81,8 +82,8 @@ public abstract class NodeBuilder implements CypherEmitter, Comparable<NodeBuild
     }
 
     @Override
-    public int compareTo(NodeBuilder o) {
-        return cypherReference.compareTo(o.cypherReference);
+    public int compareTo(NodeEmitter o) {
+        return cypherReference.compareTo(o.reference());
     }
 
 

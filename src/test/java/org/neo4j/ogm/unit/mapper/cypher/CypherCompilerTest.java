@@ -37,7 +37,7 @@ import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
-import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;

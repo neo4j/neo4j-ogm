@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
+import org.neo4j.ogm.api.compiler.DeletedRelationshipEmitter;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +23,7 @@ import java.util.Set;
  * @author Mark Angrish
  * @author Luanne Misquitta
  */
-public class DeletedRelationshipBuilder implements CypherEmitter, Comparable<DeletedRelationshipBuilder> {
+class DeletedRelationshipBuilder implements DeletedRelationshipEmitter {
 
     private final String type;
     private final String src;
@@ -126,7 +128,7 @@ public class DeletedRelationshipBuilder implements CypherEmitter, Comparable<Del
     }
 
     @Override
-    public int compareTo(DeletedRelationshipBuilder o) {
+    public int compareTo(DeletedRelationshipEmitter o) {
         return hashCode()-o.hashCode();
     }
 }

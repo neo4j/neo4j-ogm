@@ -16,8 +16,12 @@ package org.neo4j.ogm.session.response.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.cypher.compiler.CypherContext;
-import org.neo4j.ogm.driver.impl.result.ResultGraphRow;
+import org.neo4j.ogm.api.compiler.CompileContext;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.model.GraphRow;
+import org.neo4j.ogm.api.model.GraphRows;
+import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.mapper.GraphEntityMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
@@ -25,10 +29,6 @@ import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.neo4j.ogm.driver.api.response.Response;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphRowModel;
-import org.neo4j.ogm.driver.impl.model.RowModel;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -50,26 +50,32 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> Collection<T> loadByProperty(Class<T> type, Response<GraphRowModel> response) {
+    public <T> Collection<T> loadByProperty(Class<T> type, Response<GraphRows> response) {
 
         Set<T> result = new LinkedHashSet<>();
         Set<Long> resultEntityIds = new LinkedHashSet<>();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        GraphRowModel graphRowModel = response.next();
 
-        for(ResultGraphRow graphRowResult : graphRowModel.getGraphRowResults()) {
-            //Load the GraphModel into the ogm
-            GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
-            ogm.map(type, graphRowResult.getGraph());
-            //Extract the id's of filtered nodes from the rowData and return them
-            Object[] rowData = graphRowResult.getRow();
-            for (Object data : rowData) {
-                if (data instanceof Number) {
-                    resultEntityIds.add(((Number) data).longValue());
+        GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
+
+        GraphRows graphRowsModel;
+
+        while ((graphRowsModel = response.next()) != null) {
+            for (GraphRow graphRowModel : graphRowsModel.model()) {
+                //Load the GraphModel into the ogm
+                ogm.map(type, graphRowModel.getGraph());
+                //Extract the id's of filtered nodes from the rowData and return them
+                Object[] rowData = graphRowModel.getRow();
+                for (Object data : rowData) {
+                    if (data instanceof Number) {
+                        resultEntityIds.add(((Number) data).longValue());
+                    }
                 }
             }
         }
+
         response.close();
+
         if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
             for(Long resultEntityId : resultEntityIds) {
                 result.add((T) mappingContext.getNodeEntity(resultEntityId));
@@ -85,11 +91,10 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public void updateObjects(CypherContext context, Response<RowModel> rowModelResponse) { //Neo4jResponse<String> response) {
+    public void updateObjects(CompileContext context, Response<Row> rowModelResponse) {
 
-        //RowModelResponse rowModelResponse = new RowModelResponse(response, mapper);
         String[] variables = rowModelResponse.columns();
-        RowModel rowModel;
+        Row rowModel;
 
         Map<String, Long> directRefMap = new HashMap<>();
 
@@ -129,7 +134,7 @@ public class SessionResponseHandler implements ResponseHandler {
 
         // finally, all new relationships just established in the graph need to be added to the mapping context.
         if(directRefMap.size() > 0) {
-            for (Object object : context.log()) {
+            for (Object object : context.registry()) {
                 if (object instanceof TransientRelationship) {
                     MappedRelationship relationship = (((TransientRelationship) object).convert(directRefMap));
                     if(mappingContext.getRelationshipEntity(relationship.getRelationshipId()) == null) {
@@ -144,9 +149,9 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> T loadById(Class<T> type, Response<GraphModel> response, Long id) {
+    public <T> T loadById(Class<T> type, Response<Graph> response, Long id) {
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
-        GraphModel graphModel;
+        Graph graphModel;
 
         while ((graphModel = response.next()) != null) {
             ogm.map(type, graphModel);
@@ -173,13 +178,13 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Response<GraphModel> response) {
+    public <T> Collection<T> loadAll(Class<T> type, Response<Graph> response) {
 
         Set<T> objects = new LinkedHashSet<>();
 
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
 
-        GraphModel graphModel;
+        Graph graphModel;
         while ((graphModel = response.next()) != null) {
             objects.addAll(ogm.map(type, graphModel));
         }

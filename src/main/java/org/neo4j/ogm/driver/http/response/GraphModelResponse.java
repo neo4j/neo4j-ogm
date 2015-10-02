@@ -2,9 +2,9 @@ package org.neo4j.ogm.driver.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.driver.api.response.Response;
+import org.neo4j.ogm.api.model.Graph;
+import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
-import org.neo4j.ogm.driver.impl.model.GraphModel;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author vince
  */
-public class GraphModelResponse extends AbstractHttpResponse implements Response<GraphModel> {
+public class GraphModelResponse extends AbstractHttpResponse implements Response<Graph> {
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphModelResponse.class);
@@ -28,7 +28,7 @@ public class GraphModelResponse extends AbstractHttpResponse implements Response
     }
 
     @Override
-    public GraphModel next() {
+    public Graph next() {
 
         String json = super.nextRecord();
 

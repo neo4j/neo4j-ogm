@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * @author Luanne Misquitta
  */
-public class NewBiDirectionalRelationshipBuilder extends RelationshipBuilder {
+class NewBiDirectionalRelationshipBuilder extends RelationshipBuilder {
 
 	String otherReference; //in order to create a relationship in the opposite direction as well
 
@@ -129,4 +129,9 @@ public class NewBiDirectionalRelationshipBuilder extends RelationshipBuilder {
 
 		return true;
 	}
+
+    public boolean isBidirectional() {
+        return true;
+    }
+
 }

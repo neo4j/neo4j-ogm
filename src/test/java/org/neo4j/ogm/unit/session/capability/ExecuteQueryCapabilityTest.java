@@ -24,33 +24,36 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.api.result.DriverStatistics;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.TestUtils;
 
 /**
  * @author Luanne Misquitta
  */
 public class ExecuteQueryCapabilityTest {
 
-	@ClassRule
-	public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver);
 		importCineasts();
 	}
 
-	private static void importCineasts() {
-		testServer.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
-	}
+    private void importCineasts() {
+        session.execute(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+    }
 
-	@After
+    @After
 	public void clearDatabase() {
 		session.purgeDatabase();
 	}

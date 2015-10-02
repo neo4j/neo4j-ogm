@@ -33,6 +33,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.domain.convertible.enums.Education;
@@ -41,6 +42,7 @@ import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
@@ -52,14 +54,13 @@ import static org.junit.Assert.fail;
  */
 public class ConvertibleIntegrationTest {
 
-    @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
     private static Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession(testServer.driver());
+        session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession(driver);
     }
 
     /**

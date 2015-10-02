@@ -14,17 +14,16 @@
 
 package org.neo4j.ogm.unit.session.lifecycle;
 
-import java.io.IOException;
-
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.spi.DriverService;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,8 +52,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class StaleObjectTest {
 
-    @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
+
 
     private Folder f;
     private Document a;
@@ -65,7 +64,7 @@ public class StaleObjectTest {
     @Before
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem");
-        session = sessionFactory.openSession(testServer.driver());
+        session = sessionFactory.openSession(driver);
 
         a = new Document();
         a.setName("a");

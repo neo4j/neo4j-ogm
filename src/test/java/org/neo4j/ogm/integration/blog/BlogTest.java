@@ -14,31 +14,31 @@
 
 package org.neo4j.ogm.integration.blog;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.spi.DriverService;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
  */
 public class BlogTest {
 
-    @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.blog").openSession(testServer.driver());
+        session = new SessionFactory("org.neo4j.ogm.domain.blog").openSession(driver);
     }
 
     @Test

@@ -16,6 +16,7 @@ package org.neo4j.ogm.testutil;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -34,6 +35,19 @@ public final class TestUtils {
             throw new IllegalStateException("Cannot find available port: " + e.getMessage(), e);
         }
     }
+
+    public static StringBuilder readCQLFile(String cqlFileName) {
+
+        StringBuilder cypher = new StringBuilder();
+        try (Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
+            scanner.useDelimiter(System.getProperty("line.separator"));
+            while (scanner.hasNext()) {
+                cypher.append(scanner.next()).append(' ');
+            }
+        }
+        return cypher;
+    }
+
 
     private TestUtils() {
     }

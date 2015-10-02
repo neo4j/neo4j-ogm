@@ -20,13 +20,11 @@ import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
-import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -124,15 +122,7 @@ public class TestServer {
      * @param cqlFileName The name of the CQL file to load
      */
     public void loadClasspathCypherScriptFile(String cqlFileName) {
-        StringBuilder cypher = new StringBuilder();
-        try (Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
-            scanner.useDelimiter(System.getProperty("line.separator"));
-            while (scanner.hasNext()) {
-                cypher.append(scanner.next()).append(' ');
-            }
-        }
-
-        new ExecutionEngine(this.database).execute(cypher.toString());
+        new ExecutionEngine(this.database).execute(TestUtils.readCQLFile(cqlFileName).toString());
     }
 
     /**

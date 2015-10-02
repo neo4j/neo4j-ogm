@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.music.Album;
@@ -32,6 +33,7 @@ import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -39,14 +41,13 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
  */
 public class MusicIntegrationTest {
 
-    @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
     private static Session session;
 
     @Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.music").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.music").openSession(driver);
 	}
 
 	@After
@@ -100,7 +101,7 @@ public class MusicIntegrationTest {
 	 */
 	@Test
 	public void shouldLoadStudioWithLocationMissingInDomainModel() {
-		new ExecutionEngine(testServer.getGraphDatabaseService()).execute("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})");
+		session.execute("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})");
 		Studio studio = session.loadAll(Studio.class, new Filter("name", "Abbey Road Studios")).iterator().next();
 		assertNotNull(studio);
 

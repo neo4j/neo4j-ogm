@@ -25,12 +25,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -38,9 +40,8 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
  */
 public class LoadCapabilityTest {
 
+    private static final Driver driver = DriverService.lookup("http");
 
-	@ClassRule
-	public static IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 	private Long pleaseId;
@@ -49,7 +50,7 @@ public class LoadCapabilityTest {
 	@Before
 	public void init() throws IOException {
 		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
-		session = sessionFactory.openSession(testServer.driver());
+		session = sessionFactory.openSession(driver);
 
 		//Create some data
 		Artist theBeatles = new Artist("The Beatles");
@@ -64,7 +65,7 @@ public class LoadCapabilityTest {
 
 	@After
 	public void clearDatabase() {
-		testServer.clearDatabase();
+		session.purgeDatabase();
 	}
 
 	/**

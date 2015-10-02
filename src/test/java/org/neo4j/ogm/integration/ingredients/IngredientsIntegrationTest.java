@@ -21,10 +21,12 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
@@ -34,14 +36,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class IngredientsIntegrationTest {
 
-	@ClassRule
-	public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
 	private static Session session;
 
 	@BeforeClass
 	public static void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.ingredients").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.ingredients").openSession(driver);
 	}
 
 	/**

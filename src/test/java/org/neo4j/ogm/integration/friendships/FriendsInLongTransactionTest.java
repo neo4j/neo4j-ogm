@@ -15,11 +15,13 @@ import static org.junit.Assert.*;
 
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -27,17 +29,16 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
  */
 public class FriendsInLongTransactionTest {
 
-	@ClassRule
-	public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
-	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(testServer.driver());
+	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(driver);
 
 	/**
 	 * @see DATAGRAPH-703
 	 */
 	@Test
 	public void createPersonAndFriendsInLongTransaction() {
-		DefaultTransactionManager txRequestHandler = new DefaultTransactionManager(testServer.driver());
+		DefaultTransactionManager txRequestHandler = new DefaultTransactionManager(driver);
 		try (Transaction tx = txRequestHandler.openTransaction()) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
 			Person john = new Person("John");

@@ -24,10 +24,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.tree.Entity;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -35,15 +37,14 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
  */
 public class TreeIntegrationTest {
 
-	@ClassRule
-	public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
 	private Session session;
 
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.tree").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.tree").openSession(driver);
 	}
 
 	@After

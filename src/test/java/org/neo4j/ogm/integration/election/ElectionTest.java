@@ -1,11 +1,8 @@
 package org.neo4j.ogm.integration.election;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.session.Session;
@@ -13,6 +10,9 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * These tests assert that we can create loop edges in the graph, to support use cases
@@ -35,10 +35,6 @@ public class ElectionTest {
     @Before
     public void init() throws IOException {
         session = sessionFactory.openSession(testServer.driver());
-    }
-
-    private GraphDatabaseService getDatabase() {
-        return testServer.getGraphDatabaseService();
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
@@ -32,6 +33,7 @@ import org.neo4j.ogm.domain.social.Person;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
@@ -39,20 +41,19 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
  */
 public class SocialIntegrationTest
 {
-    @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
     private Session session;
 
 
     @Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.social").openSession(driver);
 	}
 
 	@After
 	public void clearDatabase() {
-	    testServer.clearDatabase();
+	    session.purgeDatabase();
 	}
 
 	/**

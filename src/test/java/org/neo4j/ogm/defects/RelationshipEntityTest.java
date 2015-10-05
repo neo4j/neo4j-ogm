@@ -14,14 +14,16 @@
 
 package org.neo4j.ogm.defects;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.TestDriverFactory;
+import org.neo4j.ogm.spi.DriverService;
 
 import java.io.IOException;
 
@@ -34,17 +36,20 @@ import static org.junit.Assert.assertNotNull;
 @Ignore
 public class RelationshipEntityTest {
 
-	//@Rule
-	//public IntegrationTestRule testServer = new IntegrationTestRule();
+    private static final Driver driver = DriverService.lookup("http");
 
 	private Session session;
 
+
 	@Before
 	public void init() throws IOException {
-		//session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(testServer.driver());
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(TestDriverFactory.driver("embedded"));
+        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver);
 	}
 
+    @After
+    public void clean() throws IOException {
+        session.purgeDatabase();
+    }
 	/**
 	 * @see DATAGRAPH-615
 	 */

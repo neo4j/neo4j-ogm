@@ -16,11 +16,9 @@ package org.neo4j.ogm.unit.mapper.cypher;
 
 import static org.junit.Assert.*;
 
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -527,7 +525,7 @@ public class CypherCompilerTest {
         link.setTimestamp(327790L);
 
         // expect the property on the relationship entity to be updated on the graph relationship
-        expectOnSave(forum, "MATCH ()-[_0]->() WHERE id(_0)={_0} SET _0+={_0_props}");
+        expectOnSave(forum, "START _0 = rel({_0}) SET _0+={_0_props}");
 
     }
 

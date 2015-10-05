@@ -14,10 +14,14 @@
 
 package org.neo4j.ogm.metadata;
 
+import org.jboss.vfs.VFS;
+import org.jboss.vfs.VFSUtils;
+import org.jboss.vfs.VirtualFile;
 import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -108,13 +112,19 @@ public abstract class ClassUtils {
                 Enumeration<URL> resources = ClassUtils.class.getClassLoader().getResources(classPath.replace(".","/"));
                 while(resources.hasMoreElements()) {
                     URL resource = resources.nextElement();
-                    if(resource.getProtocol().equals("file")) {
-                        pathFiles.add(new File(resource.toURI()));
-                    }
-                    else if(resource.getProtocol().equals("jar")) {
-                        String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!"));  //Strip out the jar protocol
-                        pathFiles.add(new File(jarPath));
-
+                    switch (resource.getProtocol()) {
+                        case "file":
+                            pathFiles.add(new File(resource.toURI()));
+                            break;
+                        case "jar":
+                            String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!"));  //Strip out the jar protocol
+                            pathFiles.add(new File(jarPath));
+                            break;
+                        case "vfs":
+                            VirtualFile file = VFS.getChild(resource.toURI());
+                            URI physicalURI = VFSUtils.getPhysicalURI(file);
+                            pathFiles.add(new File(physicalURI.getPath()));
+                            break;
                     }
                 }
             } catch (IOException | URISyntaxException e) {

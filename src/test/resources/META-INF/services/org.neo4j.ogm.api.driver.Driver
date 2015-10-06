@@ -1,4 +1,5 @@
 org.neo4j.ogm.driver.http.driver.HttpDriver
 org.neo4j.ogm.driver.bolt.driver.BoltDriver
 org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver
+org.neo4j.ogm.testutil.TestServer
 

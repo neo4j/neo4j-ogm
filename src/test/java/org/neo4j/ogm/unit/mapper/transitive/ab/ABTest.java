@@ -14,20 +14,19 @@
 
 package org.neo4j.ogm.unit.mapper.transitive.ab;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -36,7 +35,7 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
 public class ABTest
 {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
     private Session session;
 

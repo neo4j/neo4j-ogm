@@ -14,13 +14,13 @@
 
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.config.ServiceConfiguration;
+import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.ogm.driver.impl.authentication.CredentialsService;
 import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.driver.http.driver.HttpDriver;
-import org.neo4j.ogm.spi.ServiceConfiguration;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.spi.ServiceConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 public class SessionFactory {
 
     private final MetaData metaData;
+
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -85,6 +86,17 @@ public class SessionFactory {
      */
     public Session openSession(Driver driver) {
         return new Neo4jSession(metaData, driver);
+    }
+
+    /**
+     * Opens a new Neo4j mapping {@link Session} using the Driver specified in the OGM configuration
+     * The driver should be configured to connect to the database using the appropriate
+     * DriverConfig
+     *
+     * @return A new {@link Session}
+     */
+    public Session openSession() {
+        return new Neo4jSession(metaData, Components.driver());
     }
 
     /**

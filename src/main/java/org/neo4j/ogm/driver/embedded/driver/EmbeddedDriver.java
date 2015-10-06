@@ -8,7 +8,7 @@ import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.driver.embedded.transaction.EmbeddedTransaction;
-import org.neo4j.ogm.spi.ServiceConfiguration;
+import org.neo4j.ogm.config.ServiceConfiguration;
 
 /**
  * @author vince

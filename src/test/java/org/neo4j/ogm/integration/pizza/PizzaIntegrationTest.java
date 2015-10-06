@@ -14,27 +14,25 @@
 
 package org.neo4j.ogm.integration.pizza;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.domain.pizza.*;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.domain.pizza.*;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
  */
 public class PizzaIntegrationTest {
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
 	private Session session;
 

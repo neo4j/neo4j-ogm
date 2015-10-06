@@ -11,25 +11,23 @@
 
 package org.neo4j.ogm.integration.friendships;
 
-import static org.junit.Assert.*;
-
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
-import org.neo4j.ogm.api.transaction.Transaction;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luanne Misquitta
  */
 public class FriendsInLongTransactionTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
 	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(driver);
 

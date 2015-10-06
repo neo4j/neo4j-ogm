@@ -4,7 +4,7 @@ import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.service.LoadableService;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
-import org.neo4j.ogm.spi.ServiceConfiguration;
+import org.neo4j.ogm.config.ServiceConfiguration;
 
 /**
  * @author vince

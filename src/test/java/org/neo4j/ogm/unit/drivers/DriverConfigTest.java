@@ -2,7 +2,7 @@ package org.neo4j.ogm.unit.drivers;
 
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.spi.ServiceConfiguration;
+import org.neo4j.ogm.config.ServiceConfiguration;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
 
 import static org.junit.Assert.assertEquals;

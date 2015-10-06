@@ -14,20 +14,17 @@
 
 package org.neo4j.ogm.integration.ingredients;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class IngredientsIntegrationTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
 	private static Session session;
 

@@ -23,7 +23,7 @@ import org.neo4j.ogm.driver.http.transaction.HttpTransaction;
 import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.impl.result.ResultErrorsException;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
-import org.neo4j.ogm.spi.ServiceConfiguration;
+import org.neo4j.ogm.config.ServiceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

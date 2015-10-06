@@ -14,21 +14,19 @@
 
 package org.neo4j.ogm.unit.mapper.transitive.abb;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
 
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
-import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -36,7 +34,7 @@ import org.neo4j.ogm.unit.mapper.direct.RelationshipTrait;
  */
 public class ABBTest extends RelationshipTrait
 {
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
     private Session session;
 

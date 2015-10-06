@@ -14,12 +14,11 @@
 
 package org.neo4j.ogm.integration.pets;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.domain.pets.Dog;
 import org.neo4j.ogm.domain.pets.DomesticDog;
 import org.neo4j.ogm.domain.pets.Kid;
@@ -27,15 +26,18 @@ import org.neo4j.ogm.domain.pets.Mammal;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
  */
 
 public class PetIntegrationTest {
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
 	private Session session;
 

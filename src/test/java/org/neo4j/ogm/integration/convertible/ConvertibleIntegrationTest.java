@@ -13,27 +13,11 @@
  */
 package org.neo4j.ogm.integration.convertible;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.domain.convertible.enums.Education;
@@ -42,19 +26,22 @@ import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
  */
 public class ConvertibleIntegrationTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
     private static Session session;
 

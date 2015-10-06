@@ -1,4 +1,4 @@
-package org.neo4j.ogm.spi;
+package org.neo4j.ogm.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

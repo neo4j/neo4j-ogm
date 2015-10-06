@@ -14,22 +14,19 @@
 
 package org.neo4j.ogm.integration.convertible;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +36,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class NumericConversionTest
 {
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
     private Session session;
 

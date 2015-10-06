@@ -14,32 +14,30 @@
 
 package org.neo4j.ogm.unit.session.capability;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.result.DriverStatistics;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.testutil.TestUtils;
 
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.api.result.DriverStatistics;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
-import org.neo4j.ogm.testutil.TestUtils;
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
  */
 public class ExecuteQueryCapabilityTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
 	private Session session;
 

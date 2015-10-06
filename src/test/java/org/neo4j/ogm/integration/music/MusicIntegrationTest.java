@@ -14,17 +14,11 @@
 
 package org.neo4j.ogm.integration.music;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collection;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.music.Album;
@@ -33,15 +27,18 @@ import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Collection;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
  */
 public class MusicIntegrationTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
     private static Session session;
 

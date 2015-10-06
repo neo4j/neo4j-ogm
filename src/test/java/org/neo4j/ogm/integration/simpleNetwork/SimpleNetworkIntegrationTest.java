@@ -1,14 +1,16 @@
 package org.neo4j.ogm.integration.simpleNetwork;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.domain.simpleNetwork.classes.IdentityNode;
-import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
 import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
+import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -19,7 +21,7 @@ import java.util.Set;
  */
 public class SimpleNetworkIntegrationTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
     private Session session;
 
     @Before

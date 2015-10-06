@@ -20,8 +20,11 @@ import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.request.Request;
+import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
-import org.neo4j.ogm.spi.ServiceConfiguration;
+import org.neo4j.ogm.config.ServiceConfiguration;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
@@ -30,16 +33,17 @@ import java.lang.reflect.Field;
  * @author Vince Bickers
  */
 @SuppressWarnings("deprecation")
-public class TestServer {
+public class TestServer implements Driver {
 
     private AbstractNeoServer server;
     private GraphDatabaseService database;
+    private ServerControls controls;
     private Driver driver;
 
     public TestServer() {
 
         try {
-            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+            controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
                     .newServer();
 
@@ -54,7 +58,7 @@ public class TestServer {
     public TestServer(int port) {
 
         try {
-            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+            controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
                     .newServer();
@@ -72,15 +76,9 @@ public class TestServer {
         field.setAccessible(true);
         server = (AbstractNeoServer) field.get(controls);
         database = server.getDatabase().getGraph();
-
-
         driver = new HttpDriver();
 
-        ServiceConfiguration driverConfig = new ServiceConfiguration();
-        driverConfig.setConfig("server", url());
-        driver.configure(driverConfig);
-
-
+        configure(new ServiceConfiguration());
     }
 
     public Driver driver() {
@@ -95,7 +93,7 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
-        server.stop();
+        controls.close();
     }
 
     /**
@@ -142,4 +140,35 @@ public class TestServer {
     }
 
 
+    @Override
+    public void configure(ServiceConfiguration config) {
+        config.setConfig("server", url());
+        driver.configure(config);
+    }
+
+    @Override
+    public Object getConfig(String key) {
+        return driver.getConfig(key);
+    }
+
+    @Override
+    public Transaction newTransaction() {
+        return driver.newTransaction();
+    }
+
+    @Override
+    public void close() {
+        driver.close();
+        shutdown();
+    }
+
+    @Override
+    public Request requestHandler() {
+        return driver.requestHandler();
+    }
+
+    @Override
+    public void setTransactionManager(TransactionManager tx) {
+        driver.setTransactionManager(tx);
+    }
 }

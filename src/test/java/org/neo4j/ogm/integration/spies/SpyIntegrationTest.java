@@ -14,27 +14,26 @@
 
 package org.neo4j.ogm.integration.spies;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.domain.spies.Spy;
 import org.neo4j.ogm.domain.spies.Target;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
  */
 public class SpyIntegrationTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
 	private Session session;
 

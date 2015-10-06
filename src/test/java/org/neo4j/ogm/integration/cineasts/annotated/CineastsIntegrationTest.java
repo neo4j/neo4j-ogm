@@ -14,7 +14,16 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
-import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.cineasts.annotated.*;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.testutil.TestUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,18 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.*;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
-import org.neo4j.ogm.testutil.TestUtils;
+import static org.junit.Assert.*;
 
 /**
  * Simple integration test based on cineasts that exercises relationship entities.
@@ -43,7 +41,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  */
 public class CineastsIntegrationTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
 
     private static Session session;
 

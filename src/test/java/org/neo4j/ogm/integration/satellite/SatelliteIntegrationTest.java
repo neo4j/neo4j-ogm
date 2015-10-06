@@ -18,13 +18,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.spi.DriverService;
 import org.neo4j.ogm.testutil.TestUtils;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class SatelliteIntegrationTest
 {
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
     private static Session session;
 
 

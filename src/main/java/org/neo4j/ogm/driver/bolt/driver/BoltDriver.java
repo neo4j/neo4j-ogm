@@ -6,9 +6,9 @@ import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.config.ComponentConfiguration;
 import org.neo4j.ogm.driver.bolt.request.BoltRequest;
 import org.neo4j.ogm.driver.bolt.transaction.BoltTransaction;
-import org.neo4j.ogm.config.ServiceConfiguration;
 
 /**
  * @author vince
@@ -16,16 +16,16 @@ import org.neo4j.ogm.config.ServiceConfiguration;
 public class BoltDriver implements Driver {
 
     private Session transport;
-    private ServiceConfiguration driverConfig;
+    private ComponentConfiguration driverConfig;
     private TransactionManager transactionManager;
 
     public BoltDriver() {
-        configure(new ServiceConfiguration("bolt.driver.properties"));
+        configure(new ComponentConfiguration("bolt.driver.properties"));
     }
 
 
     @Override
-    public void configure(ServiceConfiguration config) {
+    public void configure(ComponentConfiguration config) {
         this.driverConfig = config;
         this.transport = GraphDatabase.driver((String) config.getConfig("server")).session();
     }

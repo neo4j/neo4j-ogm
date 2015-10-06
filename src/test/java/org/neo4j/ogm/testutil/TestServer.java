@@ -23,8 +23,8 @@ import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.config.ComponentConfiguration;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
-import org.neo4j.ogm.config.ServiceConfiguration;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
@@ -78,7 +78,7 @@ public class TestServer implements Driver {
         database = server.getDatabase().getGraph();
         driver = new HttpDriver();
 
-        configure(new ServiceConfiguration());
+        configure(new ComponentConfiguration());
     }
 
     public Driver driver() {
@@ -141,7 +141,7 @@ public class TestServer implements Driver {
 
 
     @Override
-    public void configure(ServiceConfiguration config) {
+    public void configure(ComponentConfiguration config) {
         config.setConfig("server", url());
         driver.configure(config);
     }

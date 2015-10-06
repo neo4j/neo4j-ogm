@@ -15,8 +15,8 @@
 package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.config.ComponentConfiguration;
 import org.neo4j.ogm.config.Components;
-import org.neo4j.ogm.config.ServiceConfiguration;
 import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.ogm.driver.impl.authentication.CredentialsService;
 import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
@@ -115,7 +115,7 @@ public class SessionFactory {
 
     private Session openSession(String url, Driver driver) {
 
-        ServiceConfiguration driverConfig = new ServiceConfiguration();
+        ComponentConfiguration driverConfig = new ComponentConfiguration();
         driver.configure(driverConfig);
 
         try {
@@ -150,7 +150,7 @@ public class SessionFactory {
 
     private Session openSession(String url, String username, String password, Driver driver) {
 
-        ServiceConfiguration driverConfig = new ServiceConfiguration();
+        ComponentConfiguration driverConfig = new ComponentConfiguration();
         driver.configure(driverConfig);
 
         driverConfig.setConfig("server", url);

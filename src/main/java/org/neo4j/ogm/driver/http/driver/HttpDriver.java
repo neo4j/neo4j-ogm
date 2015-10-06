@@ -17,13 +17,13 @@ import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.config.ComponentConfiguration;
 import org.neo4j.ogm.driver.http.request.HttpAuthorization;
 import org.neo4j.ogm.driver.http.request.HttpRequest;
 import org.neo4j.ogm.driver.http.transaction.HttpTransaction;
 import org.neo4j.ogm.driver.impl.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.impl.result.ResultErrorsException;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
-import org.neo4j.ogm.config.ServiceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +35,11 @@ public final class HttpDriver implements Driver {
 
     private static final CloseableHttpClient transport = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
-    private ServiceConfiguration driverConfig;
+    private ComponentConfiguration driverConfig;
     private TransactionManager transactionManager;
 
     public HttpDriver() {
-        configure(new ServiceConfiguration("http.driver.properties"));
+        configure(new ComponentConfiguration("http.driver.properties"));
     }
 
     @Override
@@ -63,7 +63,7 @@ public final class HttpDriver implements Driver {
     }
 
     @Override
-    public void configure(ServiceConfiguration config) {
+    public void configure(ComponentConfiguration config) {
         this.driverConfig = config;
         setCredentials();
     }

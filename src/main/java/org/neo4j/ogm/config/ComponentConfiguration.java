@@ -12,15 +12,15 @@ import java.util.Properties;
 /**
  * @author vince
  */
-public class ServiceConfiguration {
+public class ComponentConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(ServiceConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(ComponentConfiguration.class);
 
     private final Map<String, Object> config = new HashMap();
 
-    public ServiceConfiguration() {}
+    public ComponentConfiguration() {}
 
-    public ServiceConfiguration(String propertiesFilename) {
+    public ComponentConfiguration(String propertiesFilename) {
         configure(propertiesFilename);
     }
 

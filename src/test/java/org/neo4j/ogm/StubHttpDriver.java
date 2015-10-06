@@ -24,7 +24,7 @@ import org.neo4j.ogm.api.request.*;
 import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
-import org.neo4j.ogm.config.ServiceConfiguration;
+import org.neo4j.ogm.config.ComponentConfiguration;
 import org.neo4j.ogm.driver.impl.model.GraphRowsModel;
 import org.neo4j.ogm.driver.impl.model.RowModel;
 import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
@@ -47,7 +47,7 @@ public abstract class StubHttpDriver implements Driver {
     }
 
     @Override
-    public void configure(ServiceConfiguration config) {
+    public void configure(ComponentConfiguration config) {
         throw new RuntimeException("not implemented");
     }
 

@@ -1,7 +1,7 @@
 package org.neo4j.ogm.spi;
 
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.config.ServiceConfiguration;
+import org.neo4j.ogm.config.ComponentConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class DriverService {
      */
     public static Driver lookup(String registeredName) {
 
-        ServiceConfiguration config = new ServiceConfiguration(registeredName + ".driver.properties");
+        ComponentConfiguration config = new ComponentConfiguration(registeredName + ".driver.properties");
         String fqn = (String) config.getConfig("class");
         if (fqn != null) {
             return load(fqn);

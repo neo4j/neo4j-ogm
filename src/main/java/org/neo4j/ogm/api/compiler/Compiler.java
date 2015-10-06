@@ -15,6 +15,7 @@
 package org.neo4j.ogm.api.compiler;
 
 import org.neo4j.ogm.api.request.Statement;
+import org.neo4j.ogm.api.service.LoadableService;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ import java.util.Map;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public interface Compiler {
+public interface Compiler extends LoadableService {
 
     /**
      * Defines a new relationship between the specified start node to end node with the given relationship type and direction

@@ -21,7 +21,6 @@ import org.neo4j.ogm.api.compiler.Compiler;
 import org.neo4j.ogm.api.compiler.NodeEmitter;
 import org.neo4j.ogm.api.compiler.RelationshipEmitter;
 import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
-import org.neo4j.ogm.cypher.compiler.SingleStatementCypherCompiler;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -31,6 +30,7 @@ import org.neo4j.ogm.metadata.MappingException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.neo4j.ogm.spi.CompilerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +74,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             throw new NullPointerException("Cannot map null object");
         }
 
-        // todo: load this from the service mechanism
-        Compiler compiler = new SingleStatementCypherCompiler();
+        Compiler compiler = CompilerService.lookup("default");
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.

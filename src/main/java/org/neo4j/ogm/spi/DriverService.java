@@ -21,7 +21,7 @@ import java.util.ServiceLoader;
  *
  * @author vince
  */
-public abstract class DriverService {
+public class DriverService {
 
     private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
 

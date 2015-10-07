@@ -132,6 +132,10 @@ public class Movie {
     private String title;
 }
 ----
+Note that the `Actor` also contains a reference to a `Role`.  This is important for persistence, *even when saving the `Role` directly*, because paths in the graph are written starting with nodes first and then relationships are created between them.
+Therefore, you need to structure your domain models so that relationship entities are reachable from node entities for this to work correctly.
+
+Additionally, the OGM will not persist a relationship entity that doesn't have any properties defined.  If you don't want to include properties in your relationship entity then you should use a plain `@Relationship` instead.
 
 [NOTE]
 ====

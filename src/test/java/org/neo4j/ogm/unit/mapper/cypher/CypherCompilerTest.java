@@ -525,7 +525,7 @@ public class CypherCompilerTest {
         link.setTimestamp(327790L);
 
         // expect the property on the relationship entity to be updated on the graph relationship
-        expectOnSave(forum, "MATCH ()-[_0]->() WHERE id(_0)={_0} SET _0+={_0_props}");
+        expectOnSave(forum, "START _0 = rel({_0}) SET _0+={_0_props}");
 
     }
 

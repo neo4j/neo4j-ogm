@@ -52,8 +52,7 @@ class ExistingRelationshipBuilder extends RelationshipBuilder {
             queryBuilder.append(" WITH ").append(NodeBuilder.toCsv(varStack));
         }
 
-        queryBuilder.append(" MATCH ()-[").append(this.reference).append("]->() WHERE id(")
-                .append(this.reference).append(")={").append(this.reference).append("}");
+        queryBuilder.append(" START ").append(this.reference).append(" = rel({").append(this.reference).append("})");
         parameters.put(this.reference, this.getId());
 
         if (!this.props.isEmpty()) {

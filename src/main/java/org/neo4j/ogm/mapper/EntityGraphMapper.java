@@ -150,10 +150,15 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     private NodeEmitter mapEntity(Object entity, int horizon, Compiler compiler) {
 
         CompileContext context=compiler.context();
+       // if this object is transient it won't have a classinfo, and isn't persistable
+        if (metaData.classInfo(entity) == null) {
+            return null;
+        }
 
-        if (context.visited(entity)) {
+        Long identity = identity(entity);
+        if (context.visited(identity)) {
             logger.debug("already visited: {}", entity);
-            return context.nodeEmitter(entity);
+            return context.nodeEmitter(identity);
         }
 
         NodeEmitter nodeBuilder = getNodeBuilder(compiler, entity);
@@ -212,7 +217,8 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         } else {
             nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
         }
-        context.visit(entity, nodeBuilder);
+        Long identity = identity(entity);
+        context.visit(identity, nodeBuilder);
         logger.debug("visiting: {}", entity);
         return nodeBuilder;
     }
@@ -347,7 +353,8 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             RelationshipEmitter relationshipBuilder = getRelationshipBuilder(cypherCompiler, relNodes.target, directedRelationship, mapBothDirections);
 
             if (isRelationshipEntity(relNodes.target)) {
-                if (!context.visitedRelationshipEntity(relNodes.target)) {
+                Long reIdentity = identity(relNodes.target);
+                if (!context.visitedRelationshipEntity(reIdentity)) {
                     mapRelationshipEntity(relNodes.target, relNodes.source, relationshipBuilder, context, nodeBuilder, cypherCompiler, horizon, relNodes.sourceType, relNodes.targetType);
                 }
                 else {
@@ -454,6 +461,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         ClassInfo targetInfo = metaData.classInfo(targetEntity);
         ClassInfo startInfo = metaData.classInfo(startEntity);
+
         Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
         Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startEntity);
 
@@ -479,11 +487,14 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             logger.debug("RE is new or has not changed");
         }
 
-        NodeEmitter srcNodeBuilder = context.nodeEmitter(startEntity);
-        NodeEmitter tgtNodeBuilder = context.nodeEmitter(targetEntity);
+        Long startIdentity = identity(startEntity);
+        Long targetIdentity = identity(targetEntity);
+
+        NodeEmitter srcNodeBuilder = context.nodeEmitter(startIdentity);
+        NodeEmitter tgtNodeBuilder = context.nodeEmitter(targetIdentity);
 
         if (parent == targetEntity) {
-            if(!context.visited(startEntity)) {
+            if(!context.visited(startIdentity)) {
                 relNodes.source = targetEntity;
                 relNodes.target = startEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
@@ -493,7 +504,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             }
         }
         else { //parent=startEntity
-            if(!context.visited(targetEntity)) {
+            if(!context.visited(targetIdentity)) {
                 relNodes.source = startEntity;
                 relNodes.target = targetEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
@@ -506,7 +517,8 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
     private void updateRelationshipEntity(CompileContext context, Object relationshipEntity, RelationshipEmitter relationshipBuilder, ClassInfo relEntityClassInfo) {
 
-        context.visitRelationshipEntity(relationshipEntity);
+        Long reIdentity = identity(relationshipEntity);
+        context.visitRelationshipEntity(reIdentity);
 
         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
         if (relationshipBuilder.getType() == null) {
@@ -834,4 +846,14 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         }
     }
 
+    private Long identity(Object entity) {
+
+        ClassInfo classInfo = metaData.classInfo(entity);
+
+        assert (classInfo != null);
+
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+
+        return (id == null ? -System.identityHashCode(entity) : (Long) id);
+    }
 }

@@ -17,21 +17,21 @@ public interface CompileContext {
 
     boolean removeRegisteredRelationship(Mappable mappable);
 
-    boolean visited(Object entity);
+    boolean visited(Long identity);
 
-    NodeEmitter nodeEmitter(Object entity);
+    NodeEmitter nodeEmitter(Long identity);
 
     void register(Object entity);
 
     void registerNewObject(String reference, Object relationshipEntity);
 
-    void visitRelationshipEntity(Object relationshipEntity);
+    void visitRelationshipEntity(Long relationshipIdentity);
 
     Collection<Object> registry();
 
-    void visit(Object entity, NodeEmitter nodeBuilder);
+    void visit(Long identity, NodeEmitter nodeBuilder);
 
-    boolean visitedRelationshipEntity(Object relationshipEntity);
+    boolean visitedRelationshipEntity(Long relationshipIdentity);
 
     boolean deregisterIncomingRelationships(Long identity, String type, Class endNodeType, boolean relationshipEntity);
 

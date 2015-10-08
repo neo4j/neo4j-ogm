@@ -19,6 +19,7 @@ import org.neo4j.ogm.api.compiler.NodeEmitter;
 import org.neo4j.ogm.api.mapper.Mappable;
 import org.neo4j.ogm.api.request.Statement;
 
+
 import java.util.*;
 
 /**
@@ -30,8 +31,8 @@ import java.util.*;
  */
 class CypherContext implements CompileContext {
 
-    private final Map<Object, NodeEmitter> visitedObjects = new HashMap<>();
-    private final Set<Object> visitedRelationshipEntities = new HashSet<>();
+    private final Map<Long, NodeEmitter> visitedObjects = new HashMap<>();
+    private final Set<Long> visitedRelationshipEntities = new HashSet<>();
 
     private final Map<String, Object> createdObjects = new HashMap<>();
     private final Collection<Mappable> registeredRelationships = new HashSet<>();
@@ -42,11 +43,11 @@ class CypherContext implements CompileContext {
 
     private List<Statement> statements;
 
-    public boolean visited(Object obj) {
+    public boolean visited(Long obj) {
         return this.visitedObjects.containsKey(obj);
     }
 
-    public void visit(Object toPersist, NodeEmitter nodeBuilder) {
+    public void visit(Long toPersist, NodeEmitter nodeBuilder) {
         this.visitedObjects.put(toPersist, nodeBuilder);
     }
 
@@ -58,7 +59,7 @@ class CypherContext implements CompileContext {
         return this.registeredRelationships.remove(mappedRelationship);
     }
 
-    public NodeEmitter nodeEmitter(Object obj) {
+    public NodeEmitter nodeEmitter(Long obj) {
         return this.visitedObjects.get(obj);
     }
 
@@ -188,12 +189,12 @@ class CypherContext implements CompileContext {
     }
 
 
-    public void visitRelationshipEntity(Object relationshipEntity) {
+    public void visitRelationshipEntity(Long relationshipEntity) {
         visitedRelationshipEntities.add(relationshipEntity);
 
     }
 
-    public boolean visitedRelationshipEntity(Object relationshipEntity) {
+    public boolean visitedRelationshipEntity(Long relationshipEntity) {
         return visitedRelationshipEntities.contains(relationshipEntity);
     }
 

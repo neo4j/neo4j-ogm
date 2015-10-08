@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.*;
-
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
 import org.neo4j.ogm.mapper.MappedRelationship;
+
+import java.util.*;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
@@ -28,8 +28,8 @@ import org.neo4j.ogm.mapper.MappedRelationship;
  */
 public class CypherContext {
 
-    private final Map<Object, NodeBuilder> visitedObjects = new HashMap<>();
-    private final Set<Object> visitedRelationshipEntities = new HashSet<>();
+    private final Map<Long, NodeBuilder> visitedObjects = new HashMap<>();
+    private final Set<Long> visitedRelationshipEntities = new HashSet<>();
 
     private final Map<String, Object> createdObjects = new HashMap<>();
     private final Collection<MappedRelationship> registeredRelationships = new HashSet<>();
@@ -40,11 +40,11 @@ public class CypherContext {
 
     private List<ParameterisedStatement> statements;
 
-    public boolean visited(Object obj) {
+    public boolean visited(Long obj) {
         return this.visitedObjects.containsKey(obj);
     }
 
-    public void visit(Object toPersist, NodeBuilder nodeBuilder) {
+    public void visit(Long toPersist, NodeBuilder nodeBuilder) {
         this.visitedObjects.put(toPersist, nodeBuilder);
     }
 
@@ -56,7 +56,7 @@ public class CypherContext {
         return this.registeredRelationships.remove(mappedRelationship);
     }
 
-    public NodeBuilder nodeBuilder(Object obj) {
+    public NodeBuilder nodeBuilder(Long obj) {
         return this.visitedObjects.get(obj);
     }
 
@@ -194,12 +194,12 @@ public class CypherContext {
     }
 
 
-    public void visitRelationshipEntity(Object relationshipEntity) {
+    public void visitRelationshipEntity(Long relationshipEntity) {
         visitedRelationshipEntities.add(relationshipEntity);
 
     }
 
-    public boolean visitedRelationshipEntity(Object relationshipEntity) {
+    public boolean visitedRelationshipEntity(Long relationshipEntity) {
         return visitedRelationshipEntities.contains(relationshipEntity);
     }
 

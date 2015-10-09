@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class Filters implements Iterable<Filter> {
 
-    private List<Filter> filters = new ArrayList();
+    private List<Filter> filters = new ArrayList<>();
 
     public Filters add(Filter... filters) {
         for (Filter filter : filters) {

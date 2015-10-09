@@ -49,7 +49,7 @@ public class Filter {
 	/**
 	 * The parent entity which owns this parameter
 	 */
-	private Class ownerEntityType;
+	private Class<?> ownerEntityType;
 
 	/**
 	 * The label of the entity which contains the nested property
@@ -64,7 +64,7 @@ public class Filter {
 	/**
 	 * The type of the entity that owns the nested property
 	 */
-	private Class nestedPropertyType;
+	private Class<?> nestedPropertyType;
 
 	/**
 	 * The relationship type to be used for a nested property
@@ -137,11 +137,11 @@ public class Filter {
 		this.booleanOperator = booleanOperator;
 	}
 
-	public Class getOwnerEntityType() {
+	public Class<?> getOwnerEntityType() {
 		return ownerEntityType;
 	}
 
-	public void setOwnerEntityType(Class ownerEntityType) {
+	public void setOwnerEntityType(Class<?> ownerEntityType) {
 		this.ownerEntityType = ownerEntityType;
 	}
 
@@ -165,11 +165,11 @@ public class Filter {
 		return this.nestedPropertyName != null;
 	}
 
-	public Class getNestedPropertyType() {
+	public Class<?> getNestedPropertyType() {
 		return nestedPropertyType;
 	}
 
-	public void setNestedPropertyType(Class nestedPropertyType) {
+	public void setNestedPropertyType(Class<?> nestedPropertyType) {
 		this.nestedPropertyType = nestedPropertyType;
 	}
 

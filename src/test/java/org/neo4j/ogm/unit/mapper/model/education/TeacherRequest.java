@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.unit.mapper.model.education;
 
-import org.neo4j.ogm.StubHttpDriver;
+import org.neo4j.ogm.unit.drivers.StubHttpDriver;
 
 /**
  * MATCH p=(t:TEACHER)--(c) return p

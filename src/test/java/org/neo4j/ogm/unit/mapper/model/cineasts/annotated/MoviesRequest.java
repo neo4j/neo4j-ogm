@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.unit.mapper.model.cineasts.annotated;
 
-import org.neo4j.ogm.StubHttpDriver;
+import org.neo4j.ogm.unit.drivers.StubHttpDriver;
 
 /**
  * @author Michal Bachman

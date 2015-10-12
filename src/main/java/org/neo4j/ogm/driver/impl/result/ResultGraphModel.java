@@ -1,7 +1,7 @@
 package org.neo4j.ogm.driver.impl.result;
 
 import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.result.DriverResult;
+import org.neo4j.ogm.api.model.Query;
 import org.neo4j.ogm.driver.impl.model.GraphModel;
 
 /**
@@ -9,7 +9,7 @@ import org.neo4j.ogm.driver.impl.model.GraphModel;
  *
  * @author Vince Bickers
  */
-public class ResultGraphModel implements DriverResult<Graph> {
+public class ResultGraphModel implements Query<Graph> {
 
     private Graph graph;
 

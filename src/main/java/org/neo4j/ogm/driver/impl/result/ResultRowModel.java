@@ -1,11 +1,11 @@
 package org.neo4j.ogm.driver.impl.result;
 
-import org.neo4j.ogm.api.result.DriverResult;
+import org.neo4j.ogm.api.model.Query;
 
 /**
  * @author Vince Bickers
  */
-public class ResultRowModel implements DriverResult<Object[]> {
+public class ResultRowModel implements Query<Object[]> {
 
     private Object[] row;
 

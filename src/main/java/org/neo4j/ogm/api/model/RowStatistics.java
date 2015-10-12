@@ -10,5 +10,5 @@ import java.util.Collection;
 public interface RowStatistics {
 
     public Collection<Object> getRows();
-    public StatisticsModel getStats();
+    public Statistics getStats();
 }

@@ -2,7 +2,7 @@ package org.neo4j.ogm.driver.impl.result;
 
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.model.GraphRows;
-import org.neo4j.ogm.api.result.DriverResult;
+import org.neo4j.ogm.api.model.Query;
 import org.neo4j.ogm.driver.impl.model.GraphRowModel;
 import org.neo4j.ogm.driver.impl.model.GraphRowsModel;
 import org.neo4j.ogm.driver.impl.model.RowModel;
@@ -12,7 +12,7 @@ import org.neo4j.ogm.driver.impl.model.RowModel;
  *
  * @author Luanne Misquitta
  */
-public class ResultGraphRowsModel implements DriverResult<GraphRows> {
+public class ResultGraphRowsModel implements Query<GraphRows> {
 
     GraphRowsModel model;
 

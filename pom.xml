@@ -201,6 +201,18 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
+
+                    <excludes>
+                        <exclude>**/auth/**</exclude>
+                        <exclude>**/defects/**</exclude>
+                        <exclude>**/domain/**</exclude>
+                        <exclude>**/integration/**</exclude>
+                        <exclude>**/unit/**</exclude>
+                        <exclude>**/cql/**</exclude>
+                        <exclude>*.jar</exclude>
+                        <exclude>*.xml</exclude>
+                    </excludes>
+
                 </configuration>
                 <executions>
                     <execution>

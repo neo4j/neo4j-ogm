@@ -13,9 +13,10 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.session.Capability;
-import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.session.Capability;
+import org.neo4j.ogm.session.GraphCallback;
+import org.neo4j.ogm.session.Neo4jSession;
 
 /**
  * @author Vince Bickers
@@ -40,10 +41,11 @@ public class TransactionsDelegate implements Capability.Transactions {
         return tx;
     }
 
-//    @Override
-//    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-//        return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
-//    }
+    @Override
+    @Deprecated
+    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+        return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
+    }
 
 
     @Override

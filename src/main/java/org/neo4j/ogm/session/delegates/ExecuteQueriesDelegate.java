@@ -14,18 +14,15 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
-import org.neo4j.ogm.cypher.query.AbstractRequest;
-import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
-import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
+import org.neo4j.ogm.api.model.QueryStatistics;
+import org.neo4j.ogm.cypher.query.*;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.api.model.RowStatistics;
 import org.neo4j.ogm.api.request.GraphModelRequest;
 import org.neo4j.ogm.api.request.RowModelStatisticsRequest;
 import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.api.result.DriverStatistics;
-import org.neo4j.ogm.cypher.query.DefaultQuery;
+import org.neo4j.ogm.driver.impl.model.MapStatisticsModel;
 import org.neo4j.ogm.mapper.EntityRowModelMapper;
 import org.neo4j.ogm.mapper.MapRowModelMapper;
 import org.neo4j.ogm.mapper.RowModelMapper;
@@ -70,7 +67,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public DriverStatistics query(String cypher, Map<String, ?> parameters) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
         return query(cypher, parameters, isReadOnly(cypher));
     }
 
@@ -84,13 +81,13 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public DriverStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
         validateQuery(cypher, parameters, readOnly);
 
         //If readOnly=true, just execute the query. If false, execute the query and return stats as well
         if(readOnly) {
-            return new DefaultQuery(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
+            return new MapStatisticsModel(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
             RowModelStatisticsRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
@@ -102,7 +99,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
                     List next =  (List) iterator.next();
                     rowModelMapper.mapIntoResult(rowResult, next.toArray(), response.columns());
                 }
-                return new DefaultQuery(rowResult, result.getStats());
+                return new MapStatisticsModel(rowResult, result.getStats());
 
             }
         }

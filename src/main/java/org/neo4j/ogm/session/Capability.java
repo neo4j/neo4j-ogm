@@ -13,12 +13,12 @@
  */
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.api.model.QueryStatistics;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.api.model.Statistics;
-import org.neo4j.ogm.api.result.DriverStatistics;
 import org.neo4j.ogm.api.transaction.Transaction;
 
 import java.util.Collection;
@@ -128,15 +128,16 @@ public interface Capability {
          */
         Transaction beginTransaction();
 
-//        /**
-//         * Applies the given {@link org.neo4j.ogm.session.GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
-//         * behaviour.
-//         *
-//         * @param graphCallback The {@link org.neo4j.ogm.session.GraphCallback} to execute
-//         * @return The result of calling the given {@link org.neo4j.ogm.session.GraphCallback}
-//         * @throws NullPointerException if invoked with <code>null</code>
-//         */
-//        <T> T doInTransaction(GraphCallback<T> graphCallback);
+        /**
+         * Applies the given {@link org.neo4j.ogm.session.GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
+         * behaviour.
+         *
+         * @param graphCallback The {@link org.neo4j.ogm.session.GraphCallback} to execute
+         * @return The result of calling the given {@link org.neo4j.ogm.session.GraphCallback}
+         * @throws NullPointerException if invoked with <code>null</code>
+         */
+        @Deprecated
+        <T> T doInTransaction(GraphCallback<T> graphCallback);
 
     }
 
@@ -204,9 +205,9 @@ public interface Capability {
          * @param cypher  The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher.
          *
-         * @return A {@link org.neo4j.ogm.api.result.DriverStatistics} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.api.model.Statistics} if applicable.
+         * @return A {@link org.neo4j.ogm.api.model.QueryStatistics} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.api.model.Statistics} if applicable.
          */
-        DriverStatistics query(String cypher, Map<String, ?> parameters);
+        QueryStatistics query(String cypher, Map<String, ?> parameters);
 
         /**
          * Given a cypher statement this method will return a Result object containing a collection of Map's which represent Neo4j
@@ -220,9 +221,9 @@ public interface Capability {
          * @param parameters Any parameters to attach to the cypher.
          * @param readOnly true if the query is readOnly, false otherwise
          *
-         * @return A {@link org.neo4j.ogm.api.result.DriverStatistics} of {@link Iterable}s with each entry representing a neo4j object's properties.
+         * @return A {@link org.neo4j.ogm.api.model.QueryStatistics} of {@link Iterable}s with each entry representing a neo4j object's properties.
          */
-        DriverStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly);
+        QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly);
 
         /**
          * Counts all the <em>node</em> entities of the specified type.

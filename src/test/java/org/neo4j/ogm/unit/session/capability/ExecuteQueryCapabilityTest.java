@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.result.DriverStatistics;
+import org.neo4j.ogm.api.model.QueryStatistics;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.session.Session;
@@ -72,7 +72,7 @@ public class ExecuteQueryCapabilityTest {
 		Map<String,Object> row =  resultsIterable.iterator().next();
 		assertEquals("Alec Baldwin", row.get("name"));
 
-		DriverStatistics results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
+		QueryStatistics results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
 				Collections.<String, Object>singletonMap("param", alec.getId()));
 		assertNotNull("Results are empty", results);
 		assertEquals("Alec Baldwin", results.iterator().next().get("name"));
@@ -98,7 +98,7 @@ public class ExecuteQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		DriverStatistics result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
+		QueryStatistics result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
 		assertNotNull(result);
 		assertNotNull(result.statistics());
 		assertEquals(3, result.statistics().getPropertiesSet());
@@ -119,7 +119,7 @@ public class ExecuteQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		DriverStatistics result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
+		QueryStatistics result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
 		assertNotNull(result);
 		assertNotNull(result.statistics());
 		assertEquals(3, result.statistics().getPropertiesSet());
@@ -162,7 +162,7 @@ public class ExecuteQueryCapabilityTest {
 		session.save(new Actor("Jeff"));
 		session.save(new Actor("John"));
 		session.save(new Actor("Colin"));
-		DriverStatistics result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
+		QueryStatistics result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
 		assertNotNull(result);
 		assertNull(result.statistics());
 

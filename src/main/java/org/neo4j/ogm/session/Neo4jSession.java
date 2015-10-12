@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.api.model.QueryStatistics;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -21,7 +22,6 @@ import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.model.Statistics;
 import org.neo4j.ogm.api.request.Request;
-import org.neo4j.ogm.api.result.DriverStatistics;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
@@ -314,12 +314,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public DriverStatistics query(String cypher, Map<String, ?> parameters) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
 
     @Override
-    public DriverStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 
@@ -400,10 +400,11 @@ public class Neo4jSession implements Session {
         return transactionsDelegate.beginTransaction();
     }
 
-//    @Override
-//    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-//        return transactionsDelegate.doInTransaction(graphCallback);
-//    }
+    @Override
+    @Deprecated
+    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+        return transactionsDelegate.doInTransaction(graphCallback);
+    }
 
     @Override
     public Transaction getTransaction() {

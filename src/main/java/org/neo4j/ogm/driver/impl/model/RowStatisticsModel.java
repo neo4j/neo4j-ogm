@@ -1,6 +1,7 @@
 package org.neo4j.ogm.driver.impl.model;
 
 import org.neo4j.ogm.api.model.RowStatistics;
+import org.neo4j.ogm.api.model.Statistics;
 
 import java.util.Collection;
 
@@ -11,9 +12,9 @@ import java.util.Collection;
 public class RowStatisticsModel implements RowStatistics {
 
     private Collection<Object> rows;
-    private StatisticsModel stats;
+    private Statistics stats;
 
-    public StatisticsModel getStats() {
+    public Statistics getStats() {
         return stats;
     }
 
@@ -21,7 +22,7 @@ public class RowStatisticsModel implements RowStatistics {
         this.rows = rows;
     }
 
-    public void setStats(StatisticsModel stats) {
+    public void setStats(Statistics stats) {
         this.stats = stats;
     }
 

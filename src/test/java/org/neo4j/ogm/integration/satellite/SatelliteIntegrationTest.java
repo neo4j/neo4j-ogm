@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -151,12 +152,15 @@ public class SatelliteIntegrationTest
             Satellite updatedSatellite = session.load(Satellite.class, id);
             assertEquals("Updated satellite", updatedSatellite.getName());
 
-        }
+        }  // transaction will be rolled back
     }
 
 
     @Test
     public void shouldRollbackLongTransaction() {
+
+        Long id;
+        String name;
 
         try (Transaction tx = session.beginTransaction()) {
 
@@ -165,12 +169,14 @@ public class SatelliteIntegrationTest
             assertEquals(11, satellites.size());
 
             Satellite satellite = satellites.iterator().next();
-            Long id = satellite.getId();
-            String name = satellite.getName();
+            id = satellite.getId();
+            name = satellite.getName();
             satellite.setName("Updated satellite");
 
             // update
             session.save(satellite);
+
+            session.clear();
 
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
@@ -178,18 +184,20 @@ public class SatelliteIntegrationTest
 
             tx.rollback();
 
-            //Transaction tx2 = session.beginTransaction();
-            // fetch - after rollback should not be changed
-            // note, that because we aren't starting a new tx, we will be given an autocommit one.
-            updatedSatellite = session.load(Satellite.class, id);
-            assertEquals(name, updatedSatellite.getName());
-
-            //tx2.close();
         }
+        session.clear();
+
+        // fetch - after rollback should not be changed
+        // note, that because we aren't starting a new tx, we will be given an autocommit one.
+        Satellite reloadedSatellite = session.load(Satellite.class, id);
+        assertEquals(name, reloadedSatellite.getName());
     }
 
     @Test
-    public void shouldCommitLongTransaction() {
+    public void shouldRollbackClosedAndUnCommittedTransaction() {
+
+        Long id;
+        String name;
 
         try (Transaction tx = session.beginTransaction()) {
 
@@ -198,24 +206,63 @@ public class SatelliteIntegrationTest
             assertEquals(11, satellites.size());
 
             Satellite satellite = satellites.iterator().next();
-            Long id = satellite.getId();
+            id = satellite.getId();
+            name = satellite.getName();
             satellite.setName("Updated satellite");
 
             // update
             session.save(satellite);
 
+            session.clear();
+            // refetch
+            Satellite updatedSatellite = session.load(Satellite.class, id);
+            assertEquals("Updated satellite", updatedSatellite.getName());
+
+
+        }
+        session.clear();
+
+        // fetch - after rollback should not be changed
+        // note, that because we aren't starting a new tx, we will be given an autocommit one.
+        Satellite reloadedSatellite = session.load(Satellite.class, id);
+        assertEquals(name, reloadedSatellite.getName());
+    }
+
+    @Test
+    public void shouldCommitLongTransaction() {
+
+        Long id;
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            // load all
+            Collection<Satellite> satellites = session.loadAll(Satellite.class);
+            assertEquals(11, satellites.size());
+
+            Satellite satellite = satellites.iterator().next();
+            id = satellite.getId();
+            satellite.setName("Updated satellite");
+
+            // update
+            session.save(satellite);
+
+            session.clear();
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
             assertEquals("Updated satellite", updatedSatellite.getName());
 
             tx.commit();
 
-            // fetch - after commit should be changed
-            // note, that because we aren't starting a new tx, we will be given an autocommit one.
-            updatedSatellite = session.load(Satellite.class, id);
-            assertEquals("Updated satellite", updatedSatellite.getName());
-
         }
+
+        session.clear();
+
+        // fetch - after commit should be changed
+        // note, that because we aren't starting a new tx, we will be given an autocommit one.
+        Satellite reloadedSatellite = session.load(Satellite.class, id);
+        assertEquals("Updated satellite", reloadedSatellite.getName());
+
+
     }
 
     @Test

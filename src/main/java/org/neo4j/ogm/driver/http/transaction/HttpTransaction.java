@@ -43,7 +43,7 @@ public class HttpTransaction extends AbstractTransaction {
 
         if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
             try {
-                HttpPost request = new HttpPost(url);
+                HttpPost request = new HttpPost(url + "/commit");
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
                 driver.executeHttpRequest(request);
             } catch (Exception e) {

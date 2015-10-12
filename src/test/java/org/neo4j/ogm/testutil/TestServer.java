@@ -110,7 +110,7 @@ public class TestServer implements Driver {
      *
      * @return The URL of the Neo4j test server
      */
-    private String url() {
+    public String url() {
         return server.baseUri().toString();
     }
 

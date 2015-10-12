@@ -41,13 +41,13 @@ import static org.junit.Assert.*;
  */
 public class CineastsIntegrationTest {
 
-    private static final Driver driver = Components.driver();
+    //private static final Driver driver = Components.driver();
 
     private static Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver);
+        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
         importCineasts();
     }
 

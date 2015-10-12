@@ -41,6 +41,8 @@ public class BlogTest {
         session = new SessionFactory("org.neo4j.ogm.domain.blog").openSession(driver);
     }
 
+
+
     @Test
     public void shouldTraverseListOfBlogPosts() {
 

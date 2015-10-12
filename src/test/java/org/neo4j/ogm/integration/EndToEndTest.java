@@ -42,7 +42,7 @@ public class EndToEndTest {
     @BeforeClass
     public static void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession(DriverService.lookup("embedded"));
+        session = sessionFactory.openSession(DriverService.lookup("http-test"));
     }
 
     @Before

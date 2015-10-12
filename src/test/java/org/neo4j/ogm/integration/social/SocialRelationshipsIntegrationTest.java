@@ -37,7 +37,7 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
 public class SocialRelationshipsIntegrationTest {
 
     @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule();
+    public static IntegrationTestRule testServer = new IntegrationTestRule(7879);
 
 	private Session session;
 

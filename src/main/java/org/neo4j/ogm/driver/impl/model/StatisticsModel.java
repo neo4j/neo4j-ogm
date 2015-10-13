@@ -59,6 +59,7 @@ public class StatisticsModel implements Statistics {
 		return relationships_created;
 	}
 
+    // could be set by different drivers, but only one property will be set
 	public int getRelationshipsDeleted() {
 		return relationships_deleted + relationship_deleted;
 	}
@@ -107,9 +108,9 @@ public class StatisticsModel implements Statistics {
 		this.relationships_created = relationships_created;
 	}
 
+    // property name in embedded driver
 	void setRelationships_deleted(int relationships_deleted) {
 		this.relationships_deleted = relationships_deleted;
-        this.relationship_deleted = relationships_deleted;
 	}
 
 	void setLabels_added(int labels_added) {
@@ -140,8 +141,8 @@ public class StatisticsModel implements Statistics {
         return relationship_deleted + relationships_deleted;
     }
 
+    // property name in http response
     public void setRelationship_deleted(int relationship_deleted) {
         this.relationship_deleted = relationship_deleted;
-        this.relationships_deleted = relationship_deleted;
     }
 }

@@ -52,13 +52,14 @@ public class MappingContext {
 
     /** register of all mapped entities of a specific type (including supertypes) */
     private final ConcurrentMap<Class<?>, Set<Object>> typeRegister = new ConcurrentHashMap<>();
-    private final EntityMemo objectMemo = new EntityMemo();
+    private final EntityMemo objectMemo;
 
     private final MetaData metaData;
     private final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
 
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
+        objectMemo = new EntityMemo(metaData);
     }
 
     public Object getNodeEntity(Long id) {
@@ -132,12 +133,15 @@ public class MappingContext {
 
     // object memorisations
     public void remember(Object entity) {
-        objectMemo.remember(entity, metaData.classInfo(entity));
+        Object id = entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
+        assert id != null;
+        objectMemo.remember((Long)id, entity, metaData.classInfo(entity));
     }
 
     public boolean isDirty(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        return !objectMemo.remembered(entity, classInfo);
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        return !objectMemo.remembered((Long)id, entity, classInfo);
     }
 
     // these methods belong on the relationship registry
@@ -267,16 +271,4 @@ public class MappingContext {
         }
     }
 
-    public void dump() {
-
-        for (Object o : nodeEntityRegister.values()) {
-            boolean remembered = objectMemo.contains(o);
-            System.out.println(String.format("%s, %s", o, remembered));
-        }
-
-        for (Object o : relationshipEntityRegister.values()) {
-            boolean remembered = objectMemo.contains(o);
-            System.out.println(String.format("%s, %s", o, remembered));
-        }
-    }
 }

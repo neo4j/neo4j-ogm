@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 
@@ -27,19 +28,31 @@ import org.neo4j.ogm.metadata.info.FieldInfo;
  */
 public class EntityMemo {
 
-    private final Map<Object, Long> objectHash = new ConcurrentHashMap<>();
+    private final Map<Long, Long> nodeHash = new ConcurrentHashMap<>();
+    private final Map<Long, Long> relEntityHash = new ConcurrentHashMap<>();
+    private  final MetaData metaData;
 
     // objects with no properties will always hash to this value.
     private static final long seed = 0xDEADBEEF / (11 * 257);
 
+    public EntityMemo(MetaData meta) {
+        metaData = meta;
+    }
+
     /**
      * constructs a 64-bit hash of this object's node properties
      * and maps the object to that hash. The object must not be null
+     * @param entityId the id of the entity
      * @param object the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
-    public void remember(Object object, ClassInfo classInfo) {
-        objectHash.put(object, hash(object, classInfo));
+    public void remember(Long entityId, Object object, ClassInfo classInfo) {
+        if (metaData.isRelationshipEntity(classInfo.name())) {
+            relEntityHash.put(entityId, hash(object, classInfo));
+        }
+        else {
+            nodeHash.put(entityId, hash(object, classInfo));
+        }
     }
 
     /**
@@ -48,29 +61,35 @@ public class EntityMemo {
      * is regarded as memorised if its hash value in the memo hash
      * is identical to a recalculation of its hash value.
      *
+     *
+     * @param entityId the id of the entity
      * @param object the object whose persistable properties we want to check
      * @param classInfo metadata about the object
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
-    public boolean remembered(Object object, ClassInfo classInfo) {
+    public boolean remembered(Long entityId, Object object, ClassInfo classInfo) {
+        boolean isRelEntity = false;
 
-        if (!objectHash.containsKey(object)) {
-            return false;
+        if (entityId != null) {
+            if (metaData.isRelationshipEntity(classInfo.name())) {
+                isRelEntity = true;
+            }
+
+            if ((!isRelEntity && !nodeHash.containsKey(entityId)) || (isRelEntity && !relEntityHash.containsKey(entityId))) {
+                return false;
+            }
+
+            long actual = hash(object, classInfo);
+            long expected = isRelEntity ? relEntityHash.get(entityId) : nodeHash.get(entityId);
+
+            return (actual == expected);
         }
-
-        long actual = hash(object, classInfo);
-        long expected = objectHash.get(object);
-
-        return (actual == expected);
-        //return objectHash.containsKey(object) && hash(object, classInfo) == objectHash.get(object);
+        return false;
     }
 
     public void clear() {
-        objectHash.clear();
-    }
-
-    public boolean contains(Object o) {
-        return objectHash.containsKey(o);
+        nodeHash.clear();
+        relEntityHash.clear();
     }
 
 

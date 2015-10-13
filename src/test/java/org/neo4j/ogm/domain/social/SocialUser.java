@@ -72,6 +72,13 @@ public class SocialUser {
 		return id;
 	}
 
+	/**
+	 * For test purposes only
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -79,7 +86,6 @@ public class SocialUser {
 
 		SocialUser that = (SocialUser) o;
 
-		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 		if (name != null ? !name.equals(that.name) : that.name != null) return false;
 		if (friends != null ? !friends.equals(that.friends) : that.friends != null) return false;
 		if (following != null ? !following.equals(that.following) : that.following != null) return false;
@@ -88,8 +94,7 @@ public class SocialUser {
 
 	@Override
 	public int hashCode() {
-		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (name != null ? name.hashCode() : 0);
+		int result = 31 + (name != null ? name.hashCode() : 0);
 		result = 31 * result + (friends != null ? friends.hashCode() : 0);
 		result = 31 * result + (following != null ? following.hashCode() : 0);
 		result = 31 * result + (followers != null ? followers.hashCode() : 0);

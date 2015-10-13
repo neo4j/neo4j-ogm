@@ -143,4 +143,10 @@ The `@RelationshipEntity` annotation must appear on all leaf subclasses if they 
 This annotation is optional on superclasses.
 ====
 
+[NOTE]
+====
+The `@RelationshipEntity` annotation must appear on all leaf subclasses if they are part of a class hierarchy representing relationship entities.
+This annotation is optional on superclasses.
+====
+
 

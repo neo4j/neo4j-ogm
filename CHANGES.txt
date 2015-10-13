@@ -1,5 +1,9 @@
 1.1.3-SNAPSHOT
 --------------
+o Fixes issue when entity identity was based on equals/hashcode when traversing object graph
+o Performance improvements when
+  - updating existing relationships by id
+  - creating new relationships between already persisted nodes. Does not apply to relationship entities.
 o Fixes an issue with the mapping context where node entities are deregistered, but not referenced relationship entities
 o Fixes issue when type descriptors are defined on interfaces
 o Fixes metadata label resolution with certain class hierarchies

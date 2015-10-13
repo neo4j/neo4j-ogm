@@ -97,6 +97,17 @@ public class SessionResponseHandler implements ResponseHandler {
 
                 String variable = variables[i];
 
+                //Temporary changes to support the different result data in queries optimized for performance
+                //TODO refactor in OGM 2.0
+                if (variable.equalsIgnoreCase("relRef")) {
+                    for (int j=0; j<variables.length;j++) {
+                        if (variables[j].equalsIgnoreCase("relId")) {
+                            directRefMap.put(results[i].toString(),Long.parseLong(results[j].toString()));
+                        }
+                    }
+                    continue;
+                }
+
                 // create the mapping between the cypher variable and the newly created domain object's
                 // identity, as returned by the database
                 Long identity = Long.parseLong(results[i].toString());

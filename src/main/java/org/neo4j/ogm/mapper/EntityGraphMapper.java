@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.mapper;
 
+import java.util.Iterator;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
@@ -28,8 +30,6 @@ import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
 
 /**
  * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link MetaData}.
@@ -69,7 +69,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             throw new NullPointerException("Cannot map null object");
         }
 
-        CypherCompiler compiler = new SingleStatementCypherCompiler();
+        CypherCompiler compiler = new SingleStatementCypherCompiler(metaData);
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.

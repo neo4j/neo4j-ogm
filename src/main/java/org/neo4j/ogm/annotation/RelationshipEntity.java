@@ -15,7 +15,6 @@
 package org.neo4j.ogm.annotation;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -25,16 +24,14 @@ import java.lang.annotation.Target;
  *
  * This annotation is always needed for relationship-backed entities.
  *
- * The type attribute supplies the relatoionship-type in the graph, and
+ * The type attribute supplies the relationship type in the graph, and
  * can be omitted if the domain entity's simple class name matches
  * exactly the relationship type.
  *
  * @author Michal Bachman
  */
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Inherited
 public @interface RelationshipEntity {
 
     static final String CLASS = "org.neo4j.ogm.annotation.RelationshipEntity";

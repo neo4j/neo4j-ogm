@@ -36,6 +36,7 @@ import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
+import org.neo4j.ogm.domain.social.SocialUser;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
@@ -634,6 +635,35 @@ public class CypherCompilerTest {
         expectOnSave(adam, cypher);
 
     }
+
+    /**
+     * @see Issue #65
+     */
+    @Test
+    public void doNotUpdateNodesNotChanged() {
+        SocialUser user1 = new SocialUser("x");
+        user1.setId(0l);
+        SocialUser user2 = new SocialUser("x");
+        user2.setId(1l);
+        SocialUser user3 = new SocialUser("x");
+        user3.setId(2l);
+        user1.setFollowers(Collections.singleton(user3));
+        user2.setFollowers(Collections.singleton(user3));
+
+        assertEquals(user1, user2);
+        mappingContext.remember(user1);
+        mappingContext.remember(user2);
+        mappingContext.remember(user3);
+
+        //Check that none of the nodes are updated and only the relationship is created
+        String cypher =
+                "MATCH ($2) WHERE id($2)={$2} MATCH ($0) WHERE id($0)={$0} MERGE ($2)-[_0:`IS_FOLLOWED_BY`]->($0) RETURN id(_0) AS _0";
+        expectOnSave(user1, cypher);
+
+
+
+    }
+
 
 
     private void expectOnSave(Object object, String... cypher) {

@@ -316,12 +316,12 @@ public class CineastsRelationshipEntityTest{
 	 */
 	@Test
 	public void shouldBeAbleToSaveAndUpdateMultipleUserRatings() {
-		Set<Rating> azkabanRatings = new HashSet<>();
+		Set<Rating> gobletRatings = new HashSet<>();
 		Set<Rating> phoenixRatings = new HashSet<>();
 
-		Movie azkaban = new Movie();
-		azkaban.setTitle("Harry Potter and the Goblet of Fire");
-		session.save(azkaban);
+		Movie goblet = new Movie();
+		goblet.setTitle("Harry Potter and the Goblet of Fire");
+		session.save(goblet);
 
 		Movie phoenix = new Movie();
 		phoenix.setTitle("Harry Potter and the Order of the Phoenix");
@@ -332,10 +332,10 @@ public class CineastsRelationshipEntityTest{
 
 		Rating good = new Rating();
 		good.setUser(adam);
-		good.setMovie(azkaban);
+		good.setMovie(goblet);
 		good.setStars(3);
-		azkabanRatings.add(good);
-		azkaban.setRatings(azkabanRatings);
+		gobletRatings.add(good);
+		goblet.setRatings(gobletRatings);
 
 		Rating okay = new Rating();
 		okay.setMovie(phoenix);
@@ -344,17 +344,17 @@ public class CineastsRelationshipEntityTest{
 		phoenixRatings.add(okay);
 		phoenix.setRatings(phoenixRatings);
 
-		Set<Rating> michalsRatings = new HashSet<>();
-		michalsRatings.add(good);
-		michalsRatings.add(okay);
-		adam.setRatings(michalsRatings);
+		Set<Rating> adamsRatings = new HashSet<>();
+		adamsRatings.add(good);
+		adamsRatings.add(okay);
+		adam.setRatings(adamsRatings);
 
 		session.save(adam);
 
 		Collection<Movie> movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Goblet of Fire"));
-		azkaban = movies.iterator().next();
-		Assert.assertNotNull(azkaban.getRatings());
-		assertEquals(1, azkaban.getRatings().size());
+		goblet = movies.iterator().next();
+		Assert.assertNotNull(goblet.getRatings());
+		assertEquals(1, goblet.getRatings().size());
 
 		movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Order of the Phoenix"));
 		phoenix = movies.iterator().next();
@@ -364,7 +364,7 @@ public class CineastsRelationshipEntityTest{
 		adam = session.loadAll(User.class, new Filter("name", "Adam")).iterator().next();
 		assertEquals(2, adam.getRatings().size());
 
-		adam.setRatings(azkabanRatings); //Get rid of the Phoenix rating
+		adam.setRatings(gobletRatings); //Get rid of the Phoenix rating
 		session.save(adam);
 
 		adam = session.loadAll(User.class, new Filter("name", "Adam")).iterator().next();
@@ -375,9 +375,9 @@ public class CineastsRelationshipEntityTest{
 		assertNull(phoenix.getRatings());
 
 		movies = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Goblet of Fire"));
-		azkaban = movies.iterator().next();
-		Assert.assertNotNull(azkaban.getRatings());
-		assertEquals(1,azkaban.getRatings().size());
+		goblet = movies.iterator().next();
+		Assert.assertNotNull(goblet.getRatings());
+		assertEquals(1, goblet.getRatings().size());
 
 	}
 

@@ -20,6 +20,7 @@ package org.neo4j.ogm.cypher;
  */
 public enum ComparisonOperator {
 	EQUALS("="),
+	MATCHES("=~"),
 	GREATER_THAN(">"),
 	LESS_THAN("<");
 

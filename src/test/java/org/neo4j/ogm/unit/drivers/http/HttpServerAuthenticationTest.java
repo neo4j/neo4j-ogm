@@ -44,7 +44,7 @@ public class HttpServerAuthenticationTest {
     private Session session;
     private boolean AUTH = true;
     private boolean NO_AUTH = false;
-    private String DOMAIN_CLASSES = "org.neo4j.ogm.bike";
+    private String DOMAIN_CLASSES = "org.neo4j.ogm.domain.bike";
 
     @BeforeClass
     public static void setUp() {

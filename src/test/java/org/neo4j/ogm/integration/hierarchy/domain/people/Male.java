@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.integration.hierarchy.domain.people;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Michal Bachman

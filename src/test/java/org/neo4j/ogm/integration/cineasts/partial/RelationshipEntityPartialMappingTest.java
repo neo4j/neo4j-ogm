@@ -17,7 +17,6 @@ package org.neo4j.ogm.integration.cineasts.partial;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.domain.cineasts.partial.Movie;
 import org.neo4j.ogm.session.Session;

@@ -16,7 +16,6 @@ package org.neo4j.ogm.unit.mapper;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.domain.cineasts.partial.Movie;
 

@@ -14,12 +14,6 @@
 
 package org.neo4j.ogm.unit.typeconversion;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.neo4j.ogm.domain.convertible.enums.*;
 import org.neo4j.ogm.metadata.MetaData;
@@ -27,6 +21,12 @@ import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

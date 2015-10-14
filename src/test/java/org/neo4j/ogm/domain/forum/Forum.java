@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.domain.forum;
 
-import java.util.List;
-
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.List;
 
 /**
  * Represents a forum that contains a number of topics.

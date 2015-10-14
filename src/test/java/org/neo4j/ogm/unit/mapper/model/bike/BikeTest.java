@@ -14,18 +14,15 @@
 
 package org.neo4j.ogm.unit.mapper.model.bike;
 
-import java.util.Collection;
-
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import java.util.Collection;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

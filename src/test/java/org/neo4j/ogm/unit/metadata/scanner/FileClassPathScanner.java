@@ -13,14 +13,14 @@
  */
 package org.neo4j.ogm.unit.metadata.scanner;
 
+import org.neo4j.ogm.metadata.ClassPathScanner;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
-import org.neo4j.ogm.metadata.ClassPathScanner;
 
 /**
  * For the purpose of testing classpath scanning within jars and to bypass the classload mechanism in tests.

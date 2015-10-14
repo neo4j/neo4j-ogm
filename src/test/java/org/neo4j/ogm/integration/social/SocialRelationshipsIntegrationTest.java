@@ -13,14 +13,6 @@
 
 package org.neo4j.ogm.integration.social;
 
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.*;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -30,6 +22,14 @@ import org.neo4j.ogm.domain.social.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Luanne Misquitta

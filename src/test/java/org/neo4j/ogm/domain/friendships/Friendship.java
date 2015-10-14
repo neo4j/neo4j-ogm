@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.domain.friendships;
 
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
+
+import java.util.Set;
 
 /**
  * @author Vince Bickers

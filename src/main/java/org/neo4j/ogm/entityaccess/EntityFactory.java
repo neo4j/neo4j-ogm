@@ -16,7 +16,6 @@ package org.neo4j.ogm.entityaccess;
 
 import org.neo4j.ogm.api.model.Edge;
 import org.neo4j.ogm.api.model.Node;
-
 import org.neo4j.ogm.driver.impl.model.RelationshipModel;
 import org.neo4j.ogm.metadata.BaseClassNotFoundException;
 import org.neo4j.ogm.metadata.MappingException;

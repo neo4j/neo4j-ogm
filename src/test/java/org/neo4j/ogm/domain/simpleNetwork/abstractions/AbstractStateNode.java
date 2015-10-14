@@ -14,8 +14,8 @@
 package org.neo4j.ogm.domain.simpleNetwork.abstractions;
 
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceStateNode;
+import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
 
 /**
  * @author vince

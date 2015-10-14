@@ -13,11 +13,11 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.api.request.RowModelRequest;
 import org.neo4j.ogm.api.request.Statement;
 import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.session.Capability;

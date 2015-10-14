@@ -14,13 +14,6 @@
 
 package org.neo4j.ogm.integration.hierarchy;
 
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.*;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -35,6 +28,13 @@ import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * Integration test for label-based mapping of class hierarchies.

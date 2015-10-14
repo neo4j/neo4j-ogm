@@ -1,11 +1,11 @@
 package org.neo4j.ogm.unit.drivers.embedded;
 
 import org.junit.Test;
-import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.testutil.TestDriverFactory;
+import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
+import org.neo4j.ogm.spi.DriverService;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class EmbeddedDriverTest {
 
-    private Driver driver = TestDriverFactory.driver("embedded");
+    private Driver driver = DriverService.lookup("embedded");
 
     @Test
     public void shouldGetGraphModelResponse() {

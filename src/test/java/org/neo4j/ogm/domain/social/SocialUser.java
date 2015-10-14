@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.domain.social;
 
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.Set;
 
 /**
  * @author Luanne Misquitta

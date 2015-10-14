@@ -14,13 +14,14 @@
 
 package org.neo4j.ogm.unit.mapper;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vince Bickers

@@ -15,7 +15,6 @@
 package org.neo4j.ogm.unit.mapper.model.cineasts.annotated;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.session.Neo4jSession;

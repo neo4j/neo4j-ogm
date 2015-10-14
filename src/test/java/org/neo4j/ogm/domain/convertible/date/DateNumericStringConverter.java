@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.domain.convertible.date;
 
-import java.util.Date;
-
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.DateStringConverter;
+
+import java.util.Date;
 
 /**
  * @author Vince Bickers

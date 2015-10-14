@@ -13,11 +13,6 @@
  */
 package org.neo4j.ogm.integration.mappings;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +23,11 @@ import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+import java.util.Collections;
+
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Nils Dr\u00F6ge

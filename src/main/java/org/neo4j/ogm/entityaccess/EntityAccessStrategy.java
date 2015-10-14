@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.entityaccess;
 
-import java.util.Collection;
-
 import org.neo4j.ogm.metadata.info.ClassInfo;
+
+import java.util.Collection;
 
 /**
  * Implements the logic to determine how entities should be accessed in both reading and writing scenarios.

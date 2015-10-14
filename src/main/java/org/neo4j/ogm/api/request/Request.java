@@ -15,9 +15,6 @@
 package org.neo4j.ogm.api.request;
 
 
-import org.neo4j.ogm.api.model.Row;
-import org.neo4j.ogm.api.model.RowStatistics;
-import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.model.GraphRows;
 import org.neo4j.ogm.api.model.Row;

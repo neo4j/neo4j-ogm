@@ -14,14 +14,14 @@
 
 package org.neo4j.ogm.entityaccess;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassUtils;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.session.Utils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * @author Vince Bickers

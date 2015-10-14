@@ -12,32 +12,23 @@
  *
  */
 
-package org.neo4j.ogm.auth;
+package org.neo4j.ogm.unit.drivers.http;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilders;
-import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.kernel.Version;
-import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.TestUtils;
-import org.neo4j.server.AbstractNeoServer;
+import org.neo4j.ogm.testutil.AuthenticatingTestServer;
 
-import java.io.FileWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -46,54 +37,27 @@ import static org.junit.Assume.assumeTrue;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class AuthenticationTest
-{
-    private static AbstractNeoServer neoServer;
-    private static int neoPort;
-    private Session session;
+public class HttpServerAuthenticationTest {
 
+    private static AuthenticatingTestServer testServer;
+
+    private Session session;
     private boolean AUTH = true;
     private boolean NO_AUTH = false;
+    private String DOMAIN_CLASSES = "org.neo4j.ogm.bike";
 
     @BeforeClass
-    public static void setUp() throws Exception {
-
-        Path authStore = Files.createTempFile( "neo4j", "credentials" );
-        authStore.toFile().deleteOnExit();
-        try (Writer authStoreWriter = new FileWriter( authStore.toFile() )) {
-            IOUtils.write( "neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:", authStoreWriter );
-        }
-
-        neoPort = TestUtils.getAvailablePort();
-
-        try {
-            ServerControls controls = TestServerBuilders.newInProcessBuilder()
-                    .withConfig("dbms.security.auth_enabled", "true")
-                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(neoPort))
-                    .withConfig("dbms.security.auth_store.location", authStore.toAbsolutePath().toString())
-                    .newServer();
-
-            initialise(controls);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error starting in-process server",e);
-        }
-    }
-
-    private static void initialise(ServerControls controls) throws Exception {
-
-        Field field = InProcessServerControls.class.getDeclaredField( "server" );
-        field.setAccessible( true );
-        neoServer = (AbstractNeoServer) field.get(controls);
+    public static void setUp() {
+        testServer = new AuthenticatingTestServer();
     }
 
     @Test
     public void testUnauthorizedSession() {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
-        init( NO_AUTH, "org.neo4j.ogm.domain.bike" );
+        init(NO_AUTH, DOMAIN_CLASSES);
 
-        try ( Transaction tx = session.beginTransaction() ) {
+        try (Transaction tx = session.beginTransaction()) {
             session.loadAll(Bike.class);
             fail("A non-authenticating version of Neo4j is running. Please start Neo4j 2.2.0 or later to run these tests");
         } catch (ResultProcessingException rpe) {
@@ -112,7 +76,7 @@ public class AuthenticationTest
 
     // good enough for now: ignore test if we are not on something better than 2.1
     private boolean isRunningWithNeo4j2Dot2OrLater() {
-        BigDecimal version = new BigDecimal(Version.getKernelRevision().substring(0,3));
+        BigDecimal version = new BigDecimal(Version.getKernelRevision().substring(0, 3));
         return version.compareTo(new BigDecimal("2.1")) > 0;
     }
 
@@ -120,9 +84,9 @@ public class AuthenticationTest
     public void testAuthorizedSession() {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
-        init(AUTH, "org.neo4j.ogm.domain.bike");
+        init(AUTH, DOMAIN_CLASSES);
 
-        try ( Transaction ignored = session.beginTransaction() ) {
+        try (Transaction ignored = session.beginTransaction()) {
             session.loadAll(Bike.class);
         } catch (ResultProcessingException rpe) {
             fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");
@@ -137,9 +101,9 @@ public class AuthenticationTest
     public void testAuthorizedSessionWithSuppliedCredentials() {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
-        initWithSuppliedCredentials("neo4j", "password", "org.neo4j.ogm.domain.bike");
+        initWithSuppliedCredentials("neo4j", "password", DOMAIN_CLASSES);
 
-        try ( Transaction ignored = session.beginTransaction() ) {
+        try (Transaction ignored = session.beginTransaction()) {
             session.loadAll(Bike.class);
         } catch (ResultProcessingException rpe) {
             fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");
@@ -154,9 +118,9 @@ public class AuthenticationTest
     public void testUnauthorizedSessionWithSuppliedCredentials() {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
-        initWithSuppliedCredentials("neo4j", "incorrectPassword", "org.neo4j.ogm.domain.bike");
+        initWithSuppliedCredentials("neo4j", "incorrectPassword", DOMAIN_CLASSES);
 
-        try ( Transaction tx = session.beginTransaction() ) {
+        try (Transaction tx = session.beginTransaction()) {
             session.loadAll(Bike.class);
             fail("A non-authenticating version of Neo4j is running. Please start Neo4j 2.2.0 or later to run these tests");
         } catch (ResultProcessingException rpe) {
@@ -178,9 +142,11 @@ public class AuthenticationTest
     public void testAuthorizedSessionWithURI() throws URISyntaxException {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
-        initWithEmbeddedCredentials("http://neo4j:password@" + neoServer.baseUri().getHost() + ":" + neoServer.baseUri().getPort(), "org.neo4j.ogm.domain.bike");
+        URI uri = new URI(testServer.url());
 
-        try ( Transaction ignored = session.beginTransaction() ) {
+        initWithEmbeddedCredentials("http://neo4j:password@" + uri.getHost() + ":" + uri.getPort(), DOMAIN_CLASSES);
+
+        try (Transaction ignored = session.beginTransaction()) {
             session.loadAll(Bike.class);
         } catch (ResultProcessingException rpe) {
             fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");
@@ -195,9 +161,9 @@ public class AuthenticationTest
     public void testUnauthorizedSessionWithURI() {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
-        initWithEmbeddedCredentials(neoServer.baseUri().toString(), "org.neo4j.ogm.domain.bike");
+        initWithEmbeddedCredentials(testServer.url(), DOMAIN_CLASSES);
 
-        try ( Transaction tx = session.beginTransaction() ) {
+        try (Transaction tx = session.beginTransaction()) {
             session.loadAll(Bike.class);
             fail("A non-authenticating version of Neo4j is running. Please start Neo4j 2.2.0 or later to run these tests");
         } catch (ResultProcessingException rpe) {
@@ -222,7 +188,7 @@ public class AuthenticationTest
             System.getProperties().remove("password");
         }
 
-        session = new SessionFactory(packages).openSession(neoServer.baseUri().toString());
+        session = new SessionFactory(packages).openSession(testServer.url());
 
     }
 
@@ -230,7 +196,7 @@ public class AuthenticationTest
         System.getProperties().remove("username");
         System.getProperties().remove("password");
 
-        session = new SessionFactory(packages).openSession(neoServer.baseUri().toString(),username,password);
+        session = new SessionFactory(packages).openSession(testServer.url(), username, password);
     }
 
     private void initWithEmbeddedCredentials(String url, String... packages) {

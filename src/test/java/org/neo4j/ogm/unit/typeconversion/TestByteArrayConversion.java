@@ -15,7 +15,6 @@
 package org.neo4j.ogm.unit.typeconversion;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.convertible.bytes.Photo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;

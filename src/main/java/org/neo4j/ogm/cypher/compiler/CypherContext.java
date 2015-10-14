@@ -19,7 +19,6 @@ import org.neo4j.ogm.api.compiler.NodeEmitter;
 import org.neo4j.ogm.api.mapper.Mappable;
 import org.neo4j.ogm.api.request.Statement;
 
-
 import java.util.*;
 
 /**

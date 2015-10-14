@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * A callback interface used to pass functional code to the {@link Session} to be executed in a transaction

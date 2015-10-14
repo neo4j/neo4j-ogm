@@ -14,17 +14,16 @@
 
 package org.neo4j.ogm.unit.typeconversion;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

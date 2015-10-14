@@ -15,7 +15,6 @@
 package org.neo4j.ogm.unit.mapper.model.cineasts.annotated;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;

@@ -14,13 +14,13 @@
 
 package org.neo4j.ogm.mapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility to help group elements of a common type into a single collection (by relationship type and direction) to be set on an owning object.

@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.entityaccess;
 
-import java.util.*;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -28,6 +26,8 @@ import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Default implementation of {@link EntityAccessStrategy} that looks up information from {@link ClassInfo} in the following order.

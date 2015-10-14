@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
  * @author Luane Misquitta

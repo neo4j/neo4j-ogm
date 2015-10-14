@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
+import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
+
 import java.util.Collection;
 import java.util.Collections;
-
-import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 
 /**
  * Encapsulates Cypher statements used to execute aggregation queries.

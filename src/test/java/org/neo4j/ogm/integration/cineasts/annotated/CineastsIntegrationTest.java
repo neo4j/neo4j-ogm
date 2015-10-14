@@ -16,8 +16,6 @@ package org.neo4j.ogm.integration.cineasts.annotated;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;

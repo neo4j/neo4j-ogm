@@ -14,13 +14,6 @@
 
 package org.neo4j.ogm.unit.metadata;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
@@ -36,6 +29,13 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

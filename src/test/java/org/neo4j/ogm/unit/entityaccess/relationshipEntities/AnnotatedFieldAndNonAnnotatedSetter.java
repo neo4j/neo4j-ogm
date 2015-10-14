@@ -14,12 +14,6 @@
 
 package org.neo4j.ogm.unit.entityaccess.relationshipEntities;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Test;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
@@ -30,6 +24,12 @@ import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.entityaccess.RelationalWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta

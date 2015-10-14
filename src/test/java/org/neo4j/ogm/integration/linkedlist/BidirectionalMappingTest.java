@@ -14,10 +14,6 @@
 
 package org.neo4j.ogm.integration.linkedlist;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +21,11 @@ import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @see DATAGRAPH-636

@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.metadata;
 
+import org.neo4j.ogm.metadata.info.ClassFileProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,11 +28,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.metadata.info.ClassFileProcessor;
 
 /**
  * @author Vince Bickers

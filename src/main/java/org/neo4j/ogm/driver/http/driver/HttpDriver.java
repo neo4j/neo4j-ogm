@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public final class HttpDriver implements Driver {
 
-    private static final CloseableHttpClient transport = HttpClients.createDefault();
+    private final CloseableHttpClient transport = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
     private ComponentConfiguration driverConfig;
     private TransactionManager transactionManager;

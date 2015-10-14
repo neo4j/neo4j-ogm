@@ -13,20 +13,21 @@
  */
 package org.neo4j.ogm.unit.mapper.cypher;
 
-import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.driver.impl.request.Statements;
+import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
+import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
-import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * This test suite contains tests of the cypher compiler output regarding

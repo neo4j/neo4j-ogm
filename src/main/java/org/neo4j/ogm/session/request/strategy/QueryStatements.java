@@ -15,10 +15,10 @@
 package org.neo4j.ogm.session.request.strategy;
 
 
-import java.util.Collection;
-
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
+
+import java.util.Collection;
 
 /**
  * @author Vince Bickers

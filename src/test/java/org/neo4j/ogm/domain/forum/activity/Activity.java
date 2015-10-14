@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.domain.forum.activity;
 
-import java.util.Date;
-
 import org.neo4j.ogm.annotation.GraphId;
+
+import java.util.Date;
 
 /**
  * @author Vince Bickers

@@ -14,31 +14,19 @@
 
 package org.neo4j.ogm.unit.typeconversion;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-
 import org.junit.Test;
-
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
-import org.neo4j.ogm.typeconversion.DateArrayStringConverter;
-import org.neo4j.ogm.typeconversion.DateCollectionStringConverter;
-import org.neo4j.ogm.typeconversion.DateLongConverter;
-import org.neo4j.ogm.typeconversion.DateStringConverter;
+import org.neo4j.ogm.typeconversion.*;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

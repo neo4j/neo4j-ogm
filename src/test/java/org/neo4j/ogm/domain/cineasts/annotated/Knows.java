@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
-import java.util.Date;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
+
+import java.util.Date;
 
 /**
  * @author Luanne Misquitta

@@ -14,10 +14,6 @@
 
 package org.neo4j.ogm.unit.entityaccess;
 
-import static org.junit.Assert.*;
-
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -36,6 +32,10 @@ import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Adam George

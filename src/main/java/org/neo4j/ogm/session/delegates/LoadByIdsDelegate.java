@@ -13,12 +13,12 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.cypher.query.AbstractRequest;
-import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.request.GraphModelRequest;
 import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;

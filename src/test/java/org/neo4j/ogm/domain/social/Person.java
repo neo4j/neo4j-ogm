@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.domain.social;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * POJO used to test the direction of an outgoing relationship.

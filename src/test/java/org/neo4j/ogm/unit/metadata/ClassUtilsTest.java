@@ -14,15 +14,15 @@
 
 package org.neo4j.ogm.unit.metadata;
 
-import static org.junit.Assert.*;
-
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.metadata.ClassUtils;
+
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Adam George

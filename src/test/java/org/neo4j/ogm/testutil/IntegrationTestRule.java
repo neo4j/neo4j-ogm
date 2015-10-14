@@ -18,7 +18,6 @@ import org.junit.Assert;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
 import org.neo4j.graphdb.GraphDatabaseService;
 
 /**

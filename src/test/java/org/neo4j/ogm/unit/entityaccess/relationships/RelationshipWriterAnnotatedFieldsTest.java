@@ -15,13 +15,6 @@
 package org.neo4j.ogm.unit.entityaccess.relationships;
 
 
-import static org.junit.Assert.*;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
@@ -29,6 +22,13 @@ import org.neo4j.ogm.entityaccess.FieldWriter;
 import org.neo4j.ogm.entityaccess.RelationalWriter;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

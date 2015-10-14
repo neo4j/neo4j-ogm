@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers

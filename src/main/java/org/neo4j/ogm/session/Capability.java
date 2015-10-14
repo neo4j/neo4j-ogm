@@ -14,12 +14,12 @@
 package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.api.model.QueryStatistics;
+import org.neo4j.ogm.api.model.Statistics;
+import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.api.model.Statistics;
-import org.neo4j.ogm.api.transaction.Transaction;
 
 import java.util.Collection;
 import java.util.Map;

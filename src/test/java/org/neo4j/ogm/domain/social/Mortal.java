@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.domain.social;
 
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * POJO to test the direction of an incoming relationships.

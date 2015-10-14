@@ -14,10 +14,6 @@
 
 package org.neo4j.ogm.metadata.info;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.metadata.ClassPathScanner;
 import org.neo4j.ogm.metadata.ClassUtils;
@@ -27,6 +23,10 @@ import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @author Vince Bickers

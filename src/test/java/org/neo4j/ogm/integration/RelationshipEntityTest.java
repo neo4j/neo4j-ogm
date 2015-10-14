@@ -22,11 +22,9 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.testutil.TestDriverFactory;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;

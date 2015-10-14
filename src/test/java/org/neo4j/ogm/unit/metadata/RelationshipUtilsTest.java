@@ -15,7 +15,6 @@
 package org.neo4j.ogm.unit.metadata;
 
 import org.junit.Test;
-
 import org.neo4j.ogm.metadata.RelationshipUtils;
 
 import static org.junit.Assert.assertEquals;

@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.domain.rulers;
 
-import java.util.List;
-
 import org.neo4j.ogm.annotation.Index;
+
+import java.util.List;
 
 /**
  * @author Vince Bickers

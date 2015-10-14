@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import java.util.Set;
-
 import org.neo4j.ogm.domain.entityMapping.Entity;
+
+import java.util.Set;
 
 /**
  * No method or iterable field annotated.

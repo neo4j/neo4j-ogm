@@ -14,12 +14,6 @@
 
 package org.neo4j.ogm.unit.entityaccess.relationships;
 
-import static org.junit.Assert.*;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
@@ -28,6 +22,12 @@ import org.neo4j.ogm.domain.entityMapping.iterables.*;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta

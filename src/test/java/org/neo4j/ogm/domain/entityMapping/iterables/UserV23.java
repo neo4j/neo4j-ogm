@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import java.util.List;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.PlainUser;
+
+import java.util.List;
 
 /**
  * One iterable and one scalar, same relationship types, incoming, fields and methods annotated

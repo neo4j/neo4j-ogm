@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.Entity;
+
+import java.util.Set;
 
 /**
  * One incoming and one outgoing relationship of the same type. Methods annotated, iterable fields not annotated.

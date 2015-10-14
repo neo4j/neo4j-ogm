@@ -14,17 +14,11 @@
 
 package org.neo4j.ogm.unit.mapper.cypher;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.driver.impl.request.Statements;
+import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -37,11 +31,17 @@ import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.domain.social.SocialUser;
+import org.neo4j.ogm.driver.impl.request.Statements;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
-import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

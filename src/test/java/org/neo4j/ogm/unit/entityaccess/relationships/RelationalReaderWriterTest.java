@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.unit.entityaccess.relationships;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
@@ -23,6 +21,8 @@ import org.neo4j.ogm.domain.entityMapping.*;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.DomainInfo;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta

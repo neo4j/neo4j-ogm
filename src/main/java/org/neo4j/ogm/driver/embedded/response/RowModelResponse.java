@@ -2,8 +2,8 @@ package org.neo4j.ogm.driver.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.driver.impl.model.RowModel;
 import org.neo4j.ogm.api.result.ResultAdapter;
+import org.neo4j.ogm.driver.impl.model.RowModel;
 
 import java.util.Map;
 

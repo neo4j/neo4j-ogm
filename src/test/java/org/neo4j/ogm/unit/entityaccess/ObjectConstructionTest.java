@@ -14,9 +14,9 @@
 
 package org.neo4j.ogm.unit.entityaccess;
 
-import java.lang.reflect.Constructor;
-
 import org.junit.Test;
+
+import java.lang.reflect.Constructor;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;

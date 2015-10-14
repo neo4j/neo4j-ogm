@@ -3,8 +3,8 @@ package org.neo4j.ogm.unit.drivers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.spi.ServiceNotFoundException;
 import org.neo4j.ogm.spi.DriverService;
+import org.neo4j.ogm.spi.ServiceNotFoundException;
 
 import static org.junit.Assert.assertNotNull;
 

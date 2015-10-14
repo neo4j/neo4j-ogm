@@ -14,16 +14,15 @@
 
 package org.neo4j.ogm.unit.metadata.scanner;
 
+import org.neo4j.ogm.metadata.info.ClassFileProcessor;
+import org.neo4j.ogm.metadata.info.ClassInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.neo4j.ogm.metadata.info.ClassFileProcessor;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A {@link ClassFileProcessor} that exists solely to record information about classes scanned for test purposes.

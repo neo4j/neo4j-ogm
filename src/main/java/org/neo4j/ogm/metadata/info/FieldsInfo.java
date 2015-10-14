@@ -14,13 +14,13 @@
 
 package org.neo4j.ogm.metadata.info;
 
+import org.neo4j.ogm.annotation.Transient;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.neo4j.ogm.annotation.Transient;
 
 /**
  * @author Vince Bickers

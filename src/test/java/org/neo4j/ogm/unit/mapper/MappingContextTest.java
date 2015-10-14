@@ -14,12 +14,6 @@
 
 package org.neo4j.ogm.unit.mapper;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.policy.Person;
@@ -27,6 +21,12 @@ import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.metadata.MetaData;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

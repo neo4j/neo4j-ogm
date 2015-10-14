@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.domain.ingredients;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Luanne Misquitta

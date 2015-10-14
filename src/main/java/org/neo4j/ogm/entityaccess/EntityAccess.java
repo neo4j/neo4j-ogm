@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.entityaccess;
 
+import org.neo4j.ogm.session.Utils;
+
 import java.lang.reflect.Array;
 import java.util.*;
-
-import org.neo4j.ogm.session.Utils;
 
 /**
  * @author Vince Bickers

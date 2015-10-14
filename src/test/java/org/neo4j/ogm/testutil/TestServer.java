@@ -28,6 +28,8 @@ import org.neo4j.ogm.driver.http.driver.HttpDriver;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author Vince Bickers
@@ -44,7 +46,9 @@ public class TestServer implements Driver {
 
         try {
             controls = TestServerBuilders.newInProcessBuilder()
-                    .withConfig("dbms.security.auth_enabled", "false")
+                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
+                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(TestUtils.getAvailablePort()))
+                    .withConfig("dbms.security.auth_store.location", authStoreLocation())
                     .newServer();
 
             initialise(controls);
@@ -59,8 +63,9 @@ public class TestServer implements Driver {
 
         try {
             controls = TestServerBuilders.newInProcessBuilder()
-                    .withConfig("dbms.security.auth_enabled", "false")
+                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
+                    .withConfig("dbms.security.auth_store.location", authStoreLocation())
                     .newServer();
 
             initialise(controls);
@@ -70,12 +75,28 @@ public class TestServer implements Driver {
         }
     }
 
+    public boolean enableAuthentication() {
+        return false;
+    }
+
+    public String authStoreLocation() {
+        // creates an empty auth store, as this is a non-authenticating instance
+        try {
+            Path authStore = Files.createTempFile("neo4j", "credentials");
+            authStore.toFile().deleteOnExit();
+            return authStore.toAbsolutePath().toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void initialise(ServerControls controls) throws Exception {
 
         Field field = InProcessServerControls.class.getDeclaredField("server");
         field.setAccessible(true);
         server = (AbstractNeoServer) field.get(controls);
         database = server.getDatabase().getGraph();
+
         driver = new HttpDriver();
 
         configure(new ComponentConfiguration());
@@ -93,7 +114,9 @@ public class TestServer implements Driver {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
+        driver.close();
         controls.close();
+        database.shutdown();
     }
 
     /**
@@ -158,7 +181,6 @@ public class TestServer implements Driver {
 
     @Override
     public void close() {
-        driver.close();
         shutdown();
     }
 

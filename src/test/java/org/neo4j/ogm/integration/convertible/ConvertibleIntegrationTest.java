@@ -13,25 +13,18 @@
  */
 package org.neo4j.ogm.integration.convertible;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.convertible.date.Memo;
@@ -42,10 +35,6 @@ import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Luanne Misquitta
@@ -159,7 +148,7 @@ public class ConvertibleIntegrationTest {
     public void shouldSaveAndRetrieveNumbers() {
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
-
+        account.setCode((short)1000);
 
         BigDecimal[] deposits = new BigDecimal[] {new BigDecimal("12345.67"),new BigDecimal("34567.89")};
 
@@ -172,10 +161,8 @@ public class ConvertibleIntegrationTest {
 
         session.save(account);
 
-        assertEquals(new BigDecimal("12345.67"),account.getBalance());
-
-
         Account loadedAccount = session.loadAll(Account.class).iterator().next();
+        assertEquals((short)1000, account.getCode());
         assertEquals(new BigDecimal("12345.67"),loadedAccount.getBalance());
         assertEquals(new BigInteger("1000"),loadedAccount.getFacility());
         assertEquals(loans,loadedAccount.getLoans());

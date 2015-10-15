@@ -1,5 +1,6 @@
 1.1.3
 --------------
+o Fixes null pointer exceptions when nulls are sent as parameters and returned from custom queries
 o Fixes issue when entity identity was based on equals/hashcode when traversing object graph
 o Performance improvements when
   - updating existing relationships by id

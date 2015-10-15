@@ -13,6 +13,7 @@
  */
 package org.neo4j.ogm.integration.convertible;
 
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
@@ -147,7 +148,7 @@ public class ConvertibleIntegrationTest {
     public void shouldSaveAndRetrieveNumbers() {
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
-
+        account.setCode((short)1000);
 
         BigDecimal[] deposits = new BigDecimal[] {new BigDecimal("12345.67"),new BigDecimal("34567.89")};
 
@@ -160,10 +161,8 @@ public class ConvertibleIntegrationTest {
 
         session.save(account);
 
-        assertEquals(new BigDecimal("12345.67"),account.getBalance());
-
-
         Account loadedAccount = session.loadAll(Account.class).iterator().next();
+        assertEquals((short)1000, account.getCode());
         assertEquals(new BigDecimal("12345.67"),loadedAccount.getBalance());
         assertEquals(new BigInteger("1000"),loadedAccount.getFacility());
         assertEquals(loans,loadedAccount.getLoans());

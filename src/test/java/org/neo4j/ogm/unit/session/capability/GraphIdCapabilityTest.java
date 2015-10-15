@@ -122,4 +122,14 @@ public class GraphIdCapabilityTest {
 		assertNull(session.resolveGraphIdFor(ReleaseFormat.VINYL));
 	}
 
+	/**
+	 * @see Issue 69
+	 */
+	@Test
+	public void idShouldReturnNullForNullsOrPrimitives() {
+		assertNull(session.resolveGraphIdFor(null));
+		assertNull(session.resolveGraphIdFor(true));
+		assertNull(session.resolveGraphIdFor(1));
+	}
+
 }

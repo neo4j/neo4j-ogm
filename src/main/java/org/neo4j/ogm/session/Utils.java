@@ -78,54 +78,95 @@ public class Utils {
      * @return converted value
      */
     public static Object coerceTypes(Class clazz, Object value) {
-        if("int".equals(clazz.getName()) || Integer.class.equals(clazz)) {
-            if(value.getClass().equals(Long.class)) {
-                Long longValue = (Long) value;
-                if (longValue < Integer.MIN_VALUE || longValue > Integer.MAX_VALUE) {
-                    throw new IllegalArgumentException(longValue + " cannot be cast to int without an overflow.");
+        if (clazz.isPrimitive() && value==null) {
+            return defaultForPrimitive(clazz,value);
+        }
+        if (value != null) {
+            String className = clazz.getName();
+            if ("int".equals(className) || Integer.class.equals(clazz)) {
+                if (value.getClass().equals(Long.class)) {
+                    Long longValue = (Long) value;
+                    if (longValue < Integer.MIN_VALUE || longValue > Integer.MAX_VALUE) {
+                        throw new IllegalArgumentException(longValue + " cannot be cast to int without an overflow.");
+                    }
+                    return longValue.intValue();
                 }
-                return longValue.intValue();
             }
-        }
-        if("float".equals(clazz.getName()) || (Float.class.equals(clazz))) {
-            if(value.getClass().equals(Double.class)) {
-                Double dblValue = (Double) value;
-                if (dblValue < -(Float.MAX_VALUE) || dblValue > Float.MAX_VALUE) {
-                    throw new IllegalArgumentException(dblValue + " cannot be cast to float without an overflow.");
+            if ("float".equals(className) || (Float.class.equals(clazz))) {
+                if (value.getClass().equals(Double.class)) {
+                    Double dblValue = (Double) value;
+                    if (dblValue < -(Float.MAX_VALUE) || dblValue > Float.MAX_VALUE) {
+                        throw new IllegalArgumentException(dblValue + " cannot be cast to float without an overflow.");
+                    }
+                    return dblValue.floatValue();
                 }
-                return dblValue.floatValue();
             }
-        }
-        if("byte".equals(clazz.getName()) || Byte.class.equals(clazz)) {
-            if(value.getClass().equals(Integer.class)) {
-                Integer intValue = (Integer) value;
-                if (intValue < Byte.MIN_VALUE || intValue > Byte.MAX_VALUE) {
-                    throw new IllegalArgumentException(intValue + " cannot be cast to byte without an overflow.");
+            if ("byte".equals(className) || Byte.class.equals(clazz)) {
+                if (value.getClass().equals(Integer.class)) {
+                    Integer intValue = (Integer) value;
+                    if (intValue < Byte.MIN_VALUE || intValue > Byte.MAX_VALUE) {
+                        throw new IllegalArgumentException(intValue + " cannot be cast to byte without an overflow.");
+                    }
+                    return intValue.byteValue();
                 }
-                return intValue.byteValue();
             }
-        }
-        if("double".equals(clazz.getName()) || Double.class.equals(clazz)) {
-            if(value.getClass().equals(Integer.class)) {
-                Integer intValue = (Integer) value;
-                if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
-                    throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
+            if ("double".equals(className) || Double.class.equals(clazz)) {
+                if (value.getClass().equals(Integer.class)) {
+                    Integer intValue = (Integer) value;
+                    if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
+                        throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
+                    }
+                    return (double) intValue;
                 }
-                return (double) intValue;
             }
-        }
-        if("long".equals(clazz.getName()) || Long.class.equals(clazz)) {
-            if(value.getClass().equals(Integer.class)) {
-                Integer intValue = (Integer) value;
-                return (long) intValue;
+            if ("long".equals(className) || Long.class.equals(clazz)) {
+                if (value.getClass().equals(Integer.class)) {
+                    Integer intValue = (Integer) value;
+                    return (long) intValue;
+                }
             }
-        }
 
-        if("double".equals(clazz.getName()) || (Double.class.equals(clazz))) {
-            if(value.getClass().equals(Float.class)) {
-                Float floatValue = (Float) value;
-                return (double) floatValue;
+            if ("double".equals(className) || (Double.class.equals(clazz))) {
+                if (value.getClass().equals(Float.class)) {
+                    Float floatValue = (Float) value;
+                    return (double) floatValue;
+                }
             }
+            if ("short".equals(className) || Short.class.equals(clazz)) {
+                if (value.getClass().equals(Long.class)) {
+                    Long longValue = (Long) value;
+                    if (longValue < Short.MIN_VALUE || longValue > Short.MAX_VALUE) {
+                        throw new IllegalArgumentException(longValue + " cannot be cast to short without an overflow.");
+                    }
+                    return longValue.shortValue();
+                }
+            }
+            if ("short".equals(className) || Short.class.equals(clazz)) {
+                if (value.getClass().equals(Integer.class)) {
+                    Integer intValue = (Integer) value;
+                    if (intValue < Short.MIN_VALUE || intValue > Short.MAX_VALUE) {
+                        throw new IllegalArgumentException(intValue + " cannot be cast to short without an overflow.");
+                    }
+                    return intValue.shortValue();
+                }
+            }
+        }
+        return value;
+    }
+
+    private static Object defaultForPrimitive(Class clazz, Object value) {
+        String className = clazz.getName();
+        if ("int".equals(className) || "byte".equals(className) || "short".equals(className)) {
+            return 0;
+        }
+        if ("double".equals(className)) {
+            return 0.0d;
+        }
+        if ("float".equals(className)) {
+            return 0.0f;
+        }
+        if ("long".equals(className)) {
+            return 0l;
         }
         return value;
     }

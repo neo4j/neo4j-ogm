@@ -29,6 +29,7 @@ public class Account {
     private BigInteger facility;
     private BigDecimal[] deposits;
     private List<BigInteger> loans;
+    private short code;
 
     public Account() {}
 
@@ -67,5 +68,13 @@ public class Account {
 
     public void setLoans(List<BigInteger> loans) {
         this.loans = loans;
+    }
+
+    public short getCode() {
+        return code;
+    }
+
+    public void setCode(short code) {
+        this.code = code;
     }
 }

@@ -34,19 +34,20 @@ public class GraphIdDelegate implements Capability.GraphId {
 
 	@Override
 	public Long resolveGraphIdFor(Object possibleEntity) {
-		ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
-		try {
-			if (classInfo != null) {
-				EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-				Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(possibleEntity);
-				if (id != null) {
-					return (long) id;
+		if (possibleEntity!=null) {
+			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
+			try {
+				if (classInfo != null) {
+					EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
+					Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(possibleEntity);
+					if (id != null) {
+						return (long) id;
+					}
 				}
+			} catch (MappingException me) {
+				//Possibly no identity field on the entity. One example is an Enum- it won't have an identity field.
+				return null;
 			}
-		}
-		catch (MappingException me) {
-			//Possibly no identity field on the entity. One example is an Enum- it won't have an identity field.
-			return null;
 		}
 		return null;
 	}

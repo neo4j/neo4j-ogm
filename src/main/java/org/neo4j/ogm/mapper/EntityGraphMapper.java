@@ -22,6 +22,7 @@ import org.neo4j.ogm.api.compiler.NodeEmitter;
 import org.neo4j.ogm.api.compiler.RelationshipEmitter;
 import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.cypher.compiler.SingleStatementCypherCompiler;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -74,7 +75,12 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             throw new NullPointerException("Cannot map null object");
         }
 
+
         Compiler compiler = Components.compiler();
+
+        // hack!!
+        ((SingleStatementCypherCompiler) compiler).setMetaData(metaData);
+
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.

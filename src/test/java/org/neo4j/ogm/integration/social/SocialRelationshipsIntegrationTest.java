@@ -225,8 +225,42 @@ public class SocialRelationshipsIntegrationTest {
 		assertEquals(2, userA.getFollowing().size());
 	}
 
+	/**
+	 * @see Issue #61
+	 */
+	@Test
+	public void shouldUseOptimizedQueryToSaveExistingRelations() {
+		SocialUser userA = new SocialUser("A");
+		SocialUser userB = new SocialUser("B");
+		SocialUser userE = new SocialUser("E");
+		session.save(userA);
+		session.save(userB);
+		session.save(userE);
 
+		Set<SocialUser> friends = new HashSet<>();
+		friends.add(userB);
+		friends.add(userE);
 
+		Set<SocialUser> following = new HashSet<>();
+		following.add(userB);
+		following.add(userE);
 
+		Set<SocialUser> followers = new HashSet<>();
+		followers.add(userB);
+		followers.add(userE);
+
+		userA.setFollowers(followers);
+		userA.setFriends(friends);
+		userA.setFollowing(following);
+
+		session.save(userA);
+
+		session.clear();
+
+		userA = session.load(SocialUser.class, userA.getId());
+		assertEquals(2, userA.getFriends().size());
+		assertEquals(2, userA.getFollowers().size());
+		assertEquals(2, userA.getFollowing().size());
+	}
 
 }

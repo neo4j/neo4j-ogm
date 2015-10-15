@@ -52,7 +52,7 @@ class NewNodeBuilder extends NodeBuilder {
         for (String label : this.labels) {
             queryBuilder.append(":`").append(label).append('`');
         }
-        if (!this.props.isEmpty()) {
+        if (!this.props.isEmpty()) { //TODO this syntax will be deprecated in Neo4j 2.3
             queryBuilder.append('{').append(this.reference()).append("_props}");
             parameters.put(this.reference() + "_props", this.props);
         }

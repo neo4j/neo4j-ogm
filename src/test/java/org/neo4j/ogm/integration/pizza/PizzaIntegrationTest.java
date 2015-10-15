@@ -209,5 +209,38 @@ public class PizzaIntegrationTest {
 		assertEquals(Quantity.DOUBLE, loadedPizza.getCheeses().iterator().next().getQuantity());
 	}
 
+	/**
+	 * @see Issue #61
+	 */
+	@Test
+	public void shouldUseOptimizedCypherWhenSavingRelationships() {
+		Crust crust = new Crust("Thin Crust");
+		session.save(crust);
+		Topping mushroom = new Topping("Mushroom");
+		session.save(mushroom);
+		Topping pepperoni = new Topping("Pepperoni");
+		session.save(pepperoni);
+		Pizza pizza = new Pizza();
+		pizza.setName("Mushroom & Pepperoni");
+		session.save(pizza);
+
+		pizza.setCrust(crust);
+		pizza.setToppings(Arrays.asList(mushroom, pepperoni));
+		session.save(pizza);
+
+		session.clear();
+
+		Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
+		assertNotNull(loadedPizza);
+		assertEquals(pizza.getName(), loadedPizza.getName());
+		assertNotNull(loadedPizza.getCrust());
+		assertEquals(crust.getName(), loadedPizza.getCrust().getName());
+		assertNotNull(loadedPizza.getToppings());
+		assertEquals(2, loadedPizza.getToppings().size());
+		assertTrue(loadedPizza.getToppings().contains(mushroom));
+		assertTrue(loadedPizza.getToppings().contains(pepperoni));
+	}
+
+
 
 }

@@ -637,10 +637,10 @@ public class CypherCompilerTest {
     }
 
     /**
-     * @see Issue #65
+     * @see Issue #61
      */
     @Test
-    public void doNotUpdateNodesNotChanged() {
+    public void shouldUseOptimizedQueryWhenOnlyNewRelsAreCreated() {
         SocialUser user1 = new SocialUser("x");
         user1.setId(0l);
         SocialUser user2 = new SocialUser("x");
@@ -655,13 +655,12 @@ public class CypherCompilerTest {
         mappingContext.remember(user2);
         mappingContext.remember(user3);
 
-        //Check that none of the nodes are updated and only the relationship is created
         String cypher =
-                "MATCH ($2) WHERE id($2)={$2} MATCH ($0) WHERE id($0)={$0} MERGE ($2)-[_0:`IS_FOLLOWED_BY`]->($0) RETURN id(_0) AS _0";
+                "UNWIND {rowsIS_FOLLOWED_BY} as row " +
+                        "MATCH (startNode) WHERE ID(startNode)=row.startNodeId " +
+                        "MATCH (endNode) WHERE ID(endNode)=row.endNodeId " +
+                        "MERGE (startNode)-[rel:`IS_FOLLOWED_BY`]->(endNode) RETURN row.relRef as relRef, ID(rel) as relId";
         expectOnSave(user1, cypher);
-
-
-
     }
 
 

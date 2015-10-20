@@ -18,16 +18,12 @@ package org.neo4j.ogm.compiler.v2;
 import org.neo4j.ogm.api.compiler.*;
 import org.neo4j.ogm.api.compiler.Compiler;
 import org.neo4j.ogm.api.request.Statement;
-import org.neo4j.ogm.cypher.statement.CypherStatement;
+import org.neo4j.ogm.compiler.v2.parameters.NewRelationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.Map.Entry;
-
-import org.neo4j.ogm.cypher.compiler.parameters.NewRelationship;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link org.neo4j.ogm.api.compiler.Compiler} that builds a single query for the object graph.
@@ -47,20 +43,20 @@ public class SingleStatementCypherCompiler implements Compiler {
     private final CypherEmitter returnClause = new ReturnClauseBuilder();
     private final CompileContext context = new CypherContext();
 
-    private MetaData metaData; //TODO in OGM 2.0, we should remove this dependency on the MetaData when we refactor the compiler
+//    private MetaData metaData; //TODO in OGM 2.0, we should remove this dependency on the MetaData when we refactor the compiler
 
     private final Logger logger = LoggerFactory.getLogger(SingleStatementCypherCompiler.class);
 
 
-    /**
-     * This compiler has a temporary dependency on MetaData, which must be removed. Compilers should not have
-     * any dependencies on internal OGM components.
-     *
-     * @param metaData
-     */
-    public void setMetaData(MetaData metaData) {
-        this.metaData = metaData;
-    }
+//    /**
+//     * This compiler has a temporary dependency on MetaData, which must be removed. Compilers should not have
+//     * any dependencies on internal OGM components.
+//     *
+//     * @param metaData
+//     */
+//    public void setMetaData(MetaData metaData) {
+//        this.metaData = metaData;
+//    }
 
     @Deprecated
     @Override
@@ -117,17 +113,17 @@ public class SingleStatementCypherCompiler implements Compiler {
     @Override
     public List<Statement> getStatements() {
 
-        StringBuilder queryBuilder = new StringBuilder();
+        final StringBuilder queryBuilder = new StringBuilder();
+        final Map<String, Object> parameters = new HashMap<>();
+
 
         Set<String> varStack = new TreeSet<>();
         Set<String> newStack = new TreeSet<>();
 
-        Map<String, Object> parameters = new HashMap<>();
-
         boolean optimizedCypher = false;
-        if (existingRelationshipQuery()) {
-            optimizedCypher = buildOptimizedCypher(queryBuilder, varStack, newStack, parameters);
-        }
+//        if (existingRelationshipQuery()) {
+//            optimizedCypher = buildOptimizedCypher(queryBuilder, varStack, newStack, parameters);
+//        }
 
         if(!optimizedCypher) {
             // all create statements can be done in a single clause.
@@ -165,7 +161,19 @@ public class SingleStatementCypherCompiler implements Compiler {
             returnClause.emit(queryBuilder, parameters, newStack);
         }
 
-        return Collections.singletonList((Statement) new CypherStatement(queryBuilder.toString(), parameters));
+        Statement statement = new Statement() {
+            @Override
+            public String getStatement() {
+                return queryBuilder.toString().trim();
+            }
+
+            @Override
+            public Map<String, Object> getParameters() {
+                return parameters;
+            }
+        };
+
+        return Collections.singletonList(statement);
     }
 
     private boolean buildOptimizedCypher(StringBuilder queryBuilder, Set<String> varStack, Set<String> newStack, Map<String, Object> parameters) {
@@ -225,41 +233,41 @@ public class SingleStatementCypherCompiler implements Compiler {
         return identifiers.nextIdentifier();
     }
 
-    private boolean existingRelationshipQuery() {
-        if (this.newNodes.isEmpty()
-                && this.updatedRelationships.isEmpty()
-                && this.deletedRelationships.isEmpty()
-                && !this.newRelationships.isEmpty()) {
-
-            //Check that there are no nodes to be updated
-            for (CypherEmitter emitter : updatedNodes) {
-                if (!((ExistingNodeBuilder) emitter).props.isEmpty()) {//TODO we should not have such updated nodes in the first place if there are no properties to update
-                    return false;
-                }
-            }
-
-            for (CypherEmitter newRelationship : this.newRelationships) {
-                //Check no bidirectional relationships
-                if (newRelationship instanceof NewBiDirectionalRelationshipBuilder) {
-                    return false;
-                }
-
-                //Check no relationship entities
-                RelationshipBuilder relationshipBuilder = (NewRelationshipBuilder) newRelationship;
-                Set<ClassInfo> classInfos = metaData.classInfoByLabelOrType(relationshipBuilder.type);
-                for (ClassInfo classInfo : classInfos) {
-                    if (metaData.isRelationshipEntity(classInfo.name())) {
-                        return false;
-                    }
-                }
-                if (relationshipBuilder.props.size() > 0) {
-                    return false;
-                }
-            }
-            return true;
-
-        }
-        return false;
-    }
+//    private boolean existingRelationshipQuery() {
+//        if (this.newNodes.isEmpty()
+//                && this.updatedRelationships.isEmpty()
+//                && this.deletedRelationships.isEmpty()
+//                && !this.newRelationships.isEmpty()) {
+//
+//            //Check that there are no nodes to be updated
+//            for (CypherEmitter emitter : updatedNodes) {
+//                if (!((ExistingNodeBuilder) emitter).props.isEmpty()) {//TODO we should not have such updated nodes in the first place if there are no properties to update
+//                    return false;
+//                }
+//            }
+//
+//            for (CypherEmitter newRelationship : this.newRelationships) {
+//                //Check no bidirectional relationships
+//                if (newRelationship instanceof NewBiDirectionalRelationshipBuilder) {
+//                    return false;
+//                }
+//
+//                //Check no relationship entities
+//                RelationshipBuilder relationshipBuilder = (NewRelationshipBuilder) newRelationship;
+//                Set<ClassInfo> classInfos = metaData.classInfoByLabelOrType(relationshipBuilder.type);
+//                for (ClassInfo classInfo : classInfos) {
+//                    if (metaData.isRelationshipEntity(classInfo.name())) {
+//                        return false;
+//                    }
+//                }
+//                if (relationshipBuilder.props.size() > 0) {
+//                    return false;
+//                }
+//            }
+//            return true;
+//
+//        }
+//        return false;
+//    }
 
 }

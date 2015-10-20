@@ -15,8 +15,6 @@
 package org.neo4j.ogm.compiler.v2;
 
 import org.neo4j.ogm.api.compiler.NodeEmitter;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
-import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,8 +46,8 @@ public abstract class NodeBuilder implements NodeEmitter {
         return this;
     }
 
-
-    NodeBuilder addProperty(String propertyName, Object value) {
+    @Override
+    public NodeEmitter addProperty(String propertyName, Object value) {
         this.props.put(propertyName, value);
         return this;
     }
@@ -60,8 +58,6 @@ public abstract class NodeBuilder implements NodeEmitter {
         }
         return this;
     }
-
-    public abstract NodeEmitter mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy);
 
     @Override
     public String toString() {

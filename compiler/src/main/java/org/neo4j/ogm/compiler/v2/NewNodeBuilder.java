@@ -14,11 +14,6 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.api.compiler.NodeEmitter;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.PropertyReader;
-import org.neo4j.ogm.metadata.info.ClassInfo;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -31,17 +26,6 @@ class NewNodeBuilder extends NodeBuilder {
 
     NewNodeBuilder(String variableName) {
         super(variableName);
-    }
-
-    @Override
-    public NodeEmitter mapProperties(Object toPersist, ClassInfo classInfo, EntityAccessStrategy objectAccessStrategy) {
-        for (PropertyReader propertyReader : objectAccessStrategy.getPropertyReaders(classInfo)) {
-            Object value = propertyReader.read(toPersist);
-            if (value != null) {
-                addProperty(propertyReader.propertyName(), value);
-            }
-        }
-        return this;
     }
 
     @Override

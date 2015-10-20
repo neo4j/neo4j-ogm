@@ -2,11 +2,11 @@ package org.neo4j.ogm.drivers.embedded.driver;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.ogm.api.config.Configuration;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
-import org.neo4j.ogm.config.ComponentConfiguration;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 
@@ -20,7 +20,7 @@ public class EmbeddedDriver implements Driver {
 
     private static GraphDatabaseService transport;
 
-    private ComponentConfiguration driverConfig;
+    private Configuration driverConfig;
     private TransactionManager transactionManager;
 
     /**
@@ -28,7 +28,7 @@ public class EmbeddedDriver implements Driver {
      * using the default properties file.
      */
     public EmbeddedDriver() {
-        configure(new ComponentConfiguration("embedded.driver.properties"));
+        configure(new Configuration("embedded.driver.properties"));
     }
 
     /**
@@ -40,7 +40,7 @@ public class EmbeddedDriver implements Driver {
      */
     public EmbeddedDriver(GraphDatabaseService transport) {
         this.transport = transport;
-        configure(new ComponentConfiguration("driver.properties.embedded"));
+        configure(new Configuration("driver.properties.embedded"));
     }
 
     /**
@@ -60,7 +60,7 @@ public class EmbeddedDriver implements Driver {
     }
 
     @Override
-    public synchronized void configure(ComponentConfiguration config) {
+    public synchronized void configure(Configuration config) {
 
         this.driverConfig = config;
 

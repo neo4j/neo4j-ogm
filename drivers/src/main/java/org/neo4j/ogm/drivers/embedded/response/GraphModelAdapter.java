@@ -6,8 +6,8 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.result.ResultAdapter;
-import org.neo4j.ogm.drivers.impl.result.ResultGraphModel;
-import org.neo4j.ogm.drivers.impl.result.ResultProcessingException;
+import org.neo4j.ogm.api.result.ResultGraphModel;
+import org.neo4j.ogm.exception.ResultProcessingException;
 
 import java.util.HashSet;
 import java.util.Iterator;

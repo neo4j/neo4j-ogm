@@ -6,9 +6,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.api.transaction.TransactionManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.drivers.impl.transaction.AbstractTransaction;
-import org.neo4j.ogm.drivers.impl.transaction.TransactionException;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.api.transaction.AbstractTransaction;
+import org.neo4j.ogm.exception.TransactionException;
 
 /**
  * @author vince

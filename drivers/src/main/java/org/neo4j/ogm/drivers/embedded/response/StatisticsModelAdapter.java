@@ -2,8 +2,8 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.api.result.ResultAdapter;
-import org.neo4j.ogm.drivers.impl.model.StatisticsModel;
-import org.neo4j.ogm.drivers.impl.result.ResultProcessingException;
+import org.neo4j.ogm.api.response.model.StatisticsModel;
+import org.neo4j.ogm.exception.ResultProcessingException;
 
 /**
  * @author vince

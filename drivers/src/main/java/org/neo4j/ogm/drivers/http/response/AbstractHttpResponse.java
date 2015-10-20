@@ -1,7 +1,6 @@
 package org.neo4j.ogm.drivers.http.response;
 
-import org.neo4j.ogm.drivers.impl.result.ResultProcessingException;
-import org.neo4j.ogm.drivers.impl.result.ResultProcessingException;
+import org.neo4j.ogm.exception.ResultProcessingException;
 
 import java.io.InputStream;
 import java.util.NoSuchElementException;

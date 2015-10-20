@@ -37,11 +37,9 @@ import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.http.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowStatisticsModelResponse;
-import org.neo4j.ogm.drivers.impl.request.Statements;
-import org.neo4j.ogm.drivers.impl.response.EmptyResponse;
-import org.neo4j.ogm.drivers.impl.result.ResultProcessingException;
-import org.neo4j.ogm.drivers.impl.response.EmptyResponse;
-import org.neo4j.ogm.metadata.MappingException;
+import org.neo4j.ogm.api.request.Statements;
+import org.neo4j.ogm.api.response.EmptyResponse;
+import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +138,7 @@ public class HttpRequest implements Request {
         try {
             return mapper.writeValueAsString(new Statements(statementList));
         } catch (JsonProcessingException jpe) {
-            throw new MappingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
+            throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
         }
     }
 

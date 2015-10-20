@@ -15,12 +15,7 @@ import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowStatisticsModelResponse;
-import org.neo4j.ogm.drivers.impl.response.EmptyResponse;
-import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
-import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
-import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
-import org.neo4j.ogm.drivers.embedded.response.RowStatisticsModelResponse;
-import org.neo4j.ogm.drivers.impl.response.EmptyResponse;
+import org.neo4j.ogm.api.response.EmptyResponse;
 
 import java.util.HashMap;
 

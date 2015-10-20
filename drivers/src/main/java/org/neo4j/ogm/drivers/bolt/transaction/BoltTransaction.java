@@ -3,7 +3,7 @@ package org.neo4j.ogm.drivers.bolt.transaction;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
-import org.neo4j.ogm.drivers.impl.transaction.AbstractTransaction;
+import org.neo4j.ogm.api.transaction.AbstractTransaction;
 
 /**
  * @author vince

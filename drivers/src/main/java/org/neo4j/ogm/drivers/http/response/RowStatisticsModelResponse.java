@@ -7,11 +7,9 @@ import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.drivers.impl.json.JSONArray;
 import org.neo4j.ogm.drivers.impl.json.JSONException;
 import org.neo4j.ogm.drivers.impl.json.JSONObject;
-import org.neo4j.ogm.drivers.impl.model.RowStatisticsModel;
-import org.neo4j.ogm.drivers.impl.model.StatisticsModel;
-import org.neo4j.ogm.drivers.impl.result.ResultProcessingException;
-import org.neo4j.ogm.drivers.impl.json.JSONArray;
-import org.neo4j.ogm.drivers.impl.json.JSONException;
+import org.neo4j.ogm.api.response.model.RowStatisticsModel;
+import org.neo4j.ogm.api.response.model.StatisticsModel;
+import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

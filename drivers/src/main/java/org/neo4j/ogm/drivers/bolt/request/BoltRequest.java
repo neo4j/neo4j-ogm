@@ -1,5 +1,6 @@
 package org.neo4j.ogm.drivers.bolt.request;
 
+
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
@@ -10,7 +11,7 @@ import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.api.model.RowStatistics;
 import org.neo4j.ogm.api.request.*;
 import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.drivers.impl.response.EmptyResponse;
+import org.neo4j.ogm.api.response.EmptyResponse;
 
 import java.util.Map;
 

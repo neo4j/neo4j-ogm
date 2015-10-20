@@ -4,8 +4,8 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.model.GraphRows;
-import org.neo4j.ogm.drivers.impl.model.RowModel;
-import org.neo4j.ogm.drivers.impl.result.ResultGraphRowsModel;
+import org.neo4j.ogm.api.response.model.RowModel;
+import org.neo4j.ogm.api.result.ResultGraphRowsModel;
 
 import java.util.Map;
 

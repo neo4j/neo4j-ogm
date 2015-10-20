@@ -3,8 +3,8 @@ package org.neo4j.ogm.drivers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.spi.DriverService;
-import org.neo4j.ogm.spi.ServiceNotFoundException;
+import org.neo4j.ogm.api.service.DriverService;
+import org.neo4j.ogm.exception.ServiceNotFoundException;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -15,7 +15,7 @@ public class DriverServiceTest {
 
     @Test
     public void shouldLoadHttpDriver() {
-        Driver driver = DriverService.load("org.neo4j.ogm.driver.http.driver.HttpDriver");
+        Driver driver = DriverService.load("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         assertNotNull(driver);
     }
 
@@ -27,7 +27,7 @@ public class DriverServiceTest {
 
     @Test
     public void shouldLoadEmbeddedDriver() {
-        Driver driver = DriverService.load("org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver");
+        Driver driver = DriverService.load("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
         assertNotNull(driver);
     }
 
@@ -40,7 +40,7 @@ public class DriverServiceTest {
     @Test
     @Ignore // until we can switch to 3.0 in memory
     public void loadLoadBoltDriver() {
-        Driver driver = DriverService.load("org.neo4j.ogm.driver.bolt.driver.BoltDriver");
+        Driver driver = DriverService.load("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
         assertNotNull(driver);
     }
 

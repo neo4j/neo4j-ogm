@@ -16,7 +16,7 @@ package org.neo4j.ogm.cypher;
 
 /**
  * A parameter along with filter information to be added to a query.
-
+ *
  * @author Luanne Misquitta
  */
 public class Filter {
@@ -188,4 +188,15 @@ public class Filter {
 	public void setNestedRelationshipEntity(boolean nestedRelationshipEntity) {
 		this.nestedRelationshipEntity = nestedRelationshipEntity;
 	}
+
+    /**
+     * Returns the result of passing the property value through the transformer associated with the comparison operator
+     * on this {@link Filter}.
+     *
+     * @return The transformed property value
+     */
+    public Object getTransformedPropertyValue() {
+       return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.propertyValue);
+    }
+
 }

@@ -166,7 +166,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
                 uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
             }
 			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
-            properties.put(uniquePropertyName,filter.getPropertyValue());
+            properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
 		}
     }
 

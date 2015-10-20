@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
@@ -152,11 +153,11 @@ public class CineastsRelationshipEntityTest{
 
 	@Test
 	public void shouldLoadActorsForAPersistedMovie() {
-		session.execute(
+		session.query(
 				"CREATE " +
 						"(dh:Movie {title:'Die Hard'}), " +
 						"(bw:Actor {name: 'Bruce Willis'}), " +
-						"(bw)-[:ACTS_IN {role : 'John'}]->(dh)");
+						"(bw)-[:ACTS_IN {role : 'John'}]->(dh)", Collections.<String, Object>emptyMap());
 
 
 		//Movie dieHard = IteratorUtil.firstOrNull(session.loadByProperty(Movie.class, new Parameter("title", "Die Hard")));
@@ -236,6 +237,30 @@ public class CineastsRelationshipEntityTest{
 	}
 
 	/**
+	 * For DATAGRAPH-761
+	 */
+	@Test
+    public void shouldLoadFilmsByTitleUsingCaseInsensitiveWildcardBasedLikeExpression() {
+        Movie firstFilm = new Movie();
+        firstFilm.setTitle("Dirty Harry");
+        Movie secondFilm = new Movie();
+        secondFilm.setTitle("Harry Potter and the Order of the Phoenix");
+        Movie thirdFilm = new Movie();
+        thirdFilm.setTitle("Delhi Belly");
+
+        session.save(firstFilm);
+        session.save(secondFilm);
+        session.save(thirdFilm);
+
+        Filter filter = new Filter("title", "harry*");
+        filter.setComparisonOperator(ComparisonOperator.LIKE);
+
+        Collection<Movie> allFilms = session.loadAll(Movie.class, filter);
+        assertEquals("The wrong-sized collection of films was returned", 1, allFilms.size());
+        assertEquals("Harry Potter and the Order of the Phoenix", allFilms.iterator().next().getTitle());
+    }
+
+	/**
 	 * @see DATAGRAPH-567
 	 */
 	@Test
@@ -265,11 +290,11 @@ public class CineastsRelationshipEntityTest{
 	@Test
 	public void shouldSaveAndRetrieveRelationshipEntitiesDirectly() {
 		// we need some guff in the database
-		session.execute(
+		session.query(
 				"CREATE " +
 						"(nc:NotAClass {name:'Colin'}), " +
 						"(g:NotAClass {age: 39}), " +
-						"(g)-[:TEST {comment : 'test'}]->(nc)");
+						"(g)-[:TEST {comment : 'test'}]->(nc)", Collections.<String, Object>emptyMap());
 
 		User critic = new User();
 		critic.setName("Gary");
@@ -299,11 +324,11 @@ public class CineastsRelationshipEntityTest{
 	@Test
 	public void shouldSaveAndRetrieveRelationshipEntitiesPreExistingDirectly() {
 
-		session.execute(
+		session.query(
 				"CREATE " +
 						"(ff:Movie {title:'Fast and Furious XVII'}), " +
 						"(g:User {name: 'Gary'}), " +
-						"(g)-[:RATED {comment : 'Too many of these films!'}]->(ff)");
+						"(g)-[:RATED {comment : 'Too many of these films!'}]->(ff)", Collections.<String, Object>emptyMap());
 
 		Rating loadedRating = session.load(Rating.class, 0l);
 		Assert.assertNotNull("The loaded rating shouldn't be null", loadedRating);

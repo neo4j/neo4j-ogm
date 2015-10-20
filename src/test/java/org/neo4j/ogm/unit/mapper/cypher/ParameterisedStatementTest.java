@@ -17,9 +17,11 @@ package org.neo4j.ogm.unit.mapper.cypher;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
 
+import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.statement.ParameterisedStatement;
@@ -83,6 +85,14 @@ public class ParameterisedStatementTest {
         statement = new VariableDepthQuery().findByProperties("Asteroid", new Filters().add(new Filter("ref", "45 Eugenia")), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`ref` = { `ref` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"ref\":\"45 Eugenia\"}", mapper.writeValueAsString(statement.getParameters()));
+    }
+
+    @Test
+    public void findByPropertyWildcardLike() throws JsonProcessingException {
+        Filter filter = new Filter("ref", "*nia");
+        filter.setComparisonOperator(ComparisonOperator.LIKE);
+        statement = new VariableDepthQuery().findByProperties("Asteroid", new Filters().add(filter), 1);
+        assertEquals("{\"ref\":\"(?i).*nia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test

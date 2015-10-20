@@ -21,7 +21,17 @@
 
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
+    <packaging>pom</packaging>
     <version>2.0.0-SNAPSHOT</version>
+    <modules>
+        <module>api</module>
+        <module>compiler</module>
+        <module>drivers</module>
+        <module>core</module>
+        <module>annotations</module>
+        <module>exceptions</module>
+
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,6 +48,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -193,6 +204,7 @@
 
             </plugin>
 
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -222,6 +234,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
 
         </plugins>
         <resources>

@@ -145,7 +145,7 @@ public interface Capability {
          * This method allows a cypher statement with a modification statement to be executed.
          *
          * <p>Parameters may be scalars or domain objects themselves.</p>
-         * @deprecated Use {@link org.neo4j.ogm.session.Capability.ExecuteQueries}.query() to return both results as well as query statistics.
+         * @deprecated Use {@link org.neo4j.ogm.session.Capability.ExecuteQueries#query(String, Map)} to return both results as well as query statistics.
          * @param cypher The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher. These may be domain objects or scalars. Note that
          *                   if a complex domain object is provided only the properties of that object will be set.
@@ -156,6 +156,9 @@ public interface Capability {
         @Deprecated
         QueryStatistics execute(String cypher, Map<String, Object> parameters);
 
+        /**
+         * @deprecated Use {@link org.neo4j.ogm.session.Capability.ExecuteQueries#query(String, Map)} to return both results as well as query statistics.
+         */
         @Deprecated
         QueryStatistics execute(String jsonStatements);
 

@@ -17,13 +17,14 @@ package org.neo4j.ogm.core.integration.cineasts.partial;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.cineasts.partial.Actor;
-import org.neo4j.ogm.core.domain.cineasts.partial.Movie;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.cineasts.partial.Actor;
+import org.neo4j.ogm.domain.cineasts.partial.Movie;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * The purpose of these tests is to describe the behaviour of the
@@ -38,7 +39,7 @@ import static junit.framework.Assert.assertEquals;
 public class RelationshipEntityPartialMappingTest {
 
     @Rule
-    public final IntegrationTestRule testServer = new IntegrationTestRule();
+    public final IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
     private Session session;
 

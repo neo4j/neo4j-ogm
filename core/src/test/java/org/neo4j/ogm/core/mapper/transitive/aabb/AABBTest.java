@@ -19,11 +19,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.core.mapper.direct.RelationshipTrait;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.mapper.direct.RelationshipTrait;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -48,7 +47,7 @@ public class AABBTest extends RelationshipTrait
 
     @Before
     public void init() throws IOException {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.unit.mapper.transitive.aabb");
+        sessionFactory = new SessionFactory("org.neo4j.ogm.core.mapper.transitive.aabb");
         session = sessionFactory.openSession(driver);
         setUpEntityModel();
     }

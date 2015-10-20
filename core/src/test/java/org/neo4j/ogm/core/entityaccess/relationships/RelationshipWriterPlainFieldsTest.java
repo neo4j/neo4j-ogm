@@ -17,15 +17,17 @@ package org.neo4j.ogm.core.entityaccess.relationships;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.FieldWriter;
-import org.neo4j.ogm.entityaccess.RelationalWriter;
+import org.neo4j.ogm.core.entityaccess.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.core.entityaccess.FieldWriter;
+import org.neo4j.ogm.core.entityaccess.RelationalWriter;
 import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.core.metadata.DomainInfo;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Vince Bickers
@@ -46,6 +48,8 @@ public class RelationshipWriterPlainFieldsTest {
         assertEquals("LIST", objectAccess.relationshipName());
 
     }
+
+
 
     @Test
     public void shouldFindWriterForScalar() {

@@ -17,17 +17,18 @@ package org.neo4j.ogm.core.entityaccess.relationships;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.core.domain.entityMapping.PlainUser;
-import org.neo4j.ogm.entityaccess.*;
+import org.neo4j.ogm.core.entityaccess.*;
 import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.core.metadata.DomainInfo;
+import org.neo4j.ogm.domain.entityMapping.PlainUser;
+import org.neo4j.ogm.domain.entityMapping.iterables.*;
+
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-
 /**
  * @author Luanne Misquitta
  */

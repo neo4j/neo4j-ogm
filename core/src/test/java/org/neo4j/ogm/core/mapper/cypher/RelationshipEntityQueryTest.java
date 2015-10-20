@@ -14,13 +14,13 @@
 package org.neo4j.ogm.core.mapper.cypher;
 
 import org.junit.Test;
-import org.neo4j.ogm.cypher.BooleanOperator;
-import org.neo4j.ogm.cypher.ComparisonOperator;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.core.cypher.BooleanOperator;
+import org.neo4j.ogm.core.cypher.ComparisonOperator;
+import org.neo4j.ogm.core.cypher.Filter;
+import org.neo4j.ogm.core.cypher.Filters;
+import org.neo4j.ogm.core.session.request.strategy.QueryStatements;
+import org.neo4j.ogm.core.session.request.strategy.VariableDepthRelationshipQuery;
 import org.neo4j.ogm.exception.InvalidDepthException;
-import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 
 import java.util.Arrays;
 

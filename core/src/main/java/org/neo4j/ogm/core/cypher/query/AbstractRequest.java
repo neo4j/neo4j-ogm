@@ -15,14 +15,13 @@ package org.neo4j.ogm.core.cypher.query;
 
 import org.neo4j.ogm.api.request.Statement;
 import org.neo4j.ogm.core.cypher.Filters;
-import org.neo4j.ogm.core.cypher.statement.CypherStatement;
 
 import java.util.Map;
 
 /**
  * @author Vince Bickers
  */
-public abstract class AbstractRequest extends CypherStatement implements Statement, FilteringPagingAndSorting {
+public abstract class AbstractRequest extends CypherQuery implements Statement, FilteringPagingAndSorting {
 
     protected AbstractRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);

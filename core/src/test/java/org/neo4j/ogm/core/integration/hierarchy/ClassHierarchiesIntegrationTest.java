@@ -21,10 +21,14 @@ import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
+import org.neo4j.ogm.domain.hierarchy.domain.people.*;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.*;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -52,9 +56,9 @@ import static org.neo4j.ogm.core.testutil.GraphTestUtils.assertSameGraph;
 public class ClassHierarchiesIntegrationTest {
 
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.hierarchy.domain");
+    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.hierarchy.domain");
 
     private Session session;
 
@@ -418,7 +422,7 @@ public class ClassHierarchiesIntegrationTest {
         assertSameGraph(getDatabase(), "CREATE (:AnnotatedChildWithAnnotatedInterface:AnnotatedInterfaceWithSingleImpl)");
         assertNotNull(session.load(AnnotatedChildWithAnnotatedInterface.class, 0L));
         assertNotNull(session.load(AnnotatedInterfaceWithSingleImpl.class, 0L)); //AnnotatedInterfaceWithSingleImpl has a single implementation so we should be able to load it
-        assertEquals("org.neo4j.ogm.integration.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface",session.load(AnnotatedInterfaceWithSingleImpl.class, 0L).getClass().getName());
+        assertEquals("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface",session.load(AnnotatedInterfaceWithSingleImpl.class, 0L).getClass().getName());
     }
 
     /**
@@ -737,7 +741,7 @@ public class ClassHierarchiesIntegrationTest {
     public void shouldFailWithConflictingHierarchies() {
         new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})");
 
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.integration.hierarchy.conflicting");
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.hierarchy.conflicting");
         session = sessionFactory.openSession(testServer.driver());
 
         assertEquals(0, session.loadAll(Female.class).size());

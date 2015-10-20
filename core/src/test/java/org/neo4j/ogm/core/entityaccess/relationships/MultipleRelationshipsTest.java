@@ -16,17 +16,16 @@ package org.neo4j.ogm.core.entityaccess.relationships;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.entityMapping.Movie;
+import org.neo4j.ogm.core.cypher.Filter;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.core.domain.entityMapping.Movie;
-import org.neo4j.ogm.core.domain.entityMapping.Person;
-import org.neo4j.ogm.core.domain.entityMapping.Rating;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.entityMapping.Movie;
+import org.neo4j.ogm.domain.entityMapping.Person;
+import org.neo4j.ogm.domain.entityMapping.Rating;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,8 +38,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class MultipleRelationshipsTest {
 
-	@Rule
-	public IntegrationTestRule testServer = new IntegrationTestRule();
+	@ClassRule
+	public static IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
 	private Session session;
 

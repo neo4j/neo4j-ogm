@@ -18,8 +18,8 @@ package org.neo4j.ogm.core.entityaccess;
 import org.neo4j.ogm.api.model.Edge;
 import org.neo4j.ogm.api.model.Node;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 

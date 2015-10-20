@@ -16,14 +16,12 @@ package org.neo4j.ogm.core.mapper;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.canonical.hierarchies.A;
-import org.neo4j.ogm.core.domain.canonical.hierarchies.B;
-import org.neo4j.ogm.core.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.core.domain.canonical.hierarchies.A;
-import org.neo4j.ogm.core.domain.canonical.hierarchies.B;
-import org.neo4j.ogm.core.domain.canonical.hierarchies.CR;
-import org.neo4j.ogm.core.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.core.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.canonical.hierarchies.A;
+import org.neo4j.ogm.domain.canonical.hierarchies.B;
+import org.neo4j.ogm.domain.canonical.hierarchies.CR;
+import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+
 
 /**
  * @author Vince Bickers

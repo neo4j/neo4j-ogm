@@ -17,17 +17,14 @@ package org.neo4j.ogm.core.integration.mappings;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.mappings.Category;
-import org.neo4j.ogm.core.domain.mappings.Event;
-import org.neo4j.ogm.core.domain.mappings.Tag;
+import org.neo4j.ogm.core.cypher.Filter;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.core.domain.mappings.Category;
-import org.neo4j.ogm.core.domain.mappings.Event;
-import org.neo4j.ogm.core.domain.mappings.Tag;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.mappings.Category;
+import org.neo4j.ogm.domain.mappings.Event;
+import org.neo4j.ogm.domain.mappings.Tag;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -35,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Nils Dr\u00F6ge
@@ -44,7 +41,7 @@ import static junit.framework.TestCase.assertNotNull;
 public class DualTargetEntityRelationshipTest
 {
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
     private Session session;
 

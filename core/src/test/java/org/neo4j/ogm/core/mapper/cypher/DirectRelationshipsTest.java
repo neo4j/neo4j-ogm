@@ -18,15 +18,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
-import org.neo4j.ogm.core.domain.filesystem.Document;
-import org.neo4j.ogm.core.domain.filesystem.Folder;
-import org.neo4j.ogm.core.domain.filesystem.Document;
-import org.neo4j.ogm.core.domain.filesystem.Folder;
-import org.neo4j.ogm.driver.impl.request.Statements;
-import org.neo4j.ogm.mapper.EntityGraphMapper;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.api.request.Statements;
 import org.neo4j.ogm.core.MetaData;
+import org.neo4j.ogm.core.mapper.EntityGraphMapper;
+import org.neo4j.ogm.core.mapper.MappedRelationship;
+import org.neo4j.ogm.core.mapper.MappingContext;
+import org.neo4j.ogm.domain.filesystem.Document;
+import org.neo4j.ogm.domain.filesystem.Folder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -341,8 +339,9 @@ public class DirectRelationshipsTest {
 
     private void expectOnSave(Object object, String... cypher) {
         Statements statements = new Statements(this.mapper.map(object).getStatements());
-        for (String s : cypher) {
-            if (s.equals(statements.getStatements().get(0).getStatement())) {
+        String actual = statements.getStatements().get(0).getStatement();
+        for (String expected : cypher) {
+            if (expected.equals(actual)) {
                 return;
             }
         }

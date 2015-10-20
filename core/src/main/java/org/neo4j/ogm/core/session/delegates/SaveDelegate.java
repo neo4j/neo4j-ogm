@@ -21,7 +21,7 @@ import org.neo4j.ogm.core.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.core.mapper.EntityGraphMapper;
 import org.neo4j.ogm.core.session.Capability;
 import org.neo4j.ogm.core.session.Neo4jSession;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 
 import java.util.Arrays;
 import java.util.List;

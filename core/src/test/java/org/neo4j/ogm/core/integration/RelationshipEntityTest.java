@@ -17,11 +17,11 @@ package org.neo4j.ogm.core.integration;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.core.MappingException;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.spi.DriverService;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.core.session.Utils;
+import org.neo4j.ogm.exception.MappingException;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -39,7 +39,7 @@ public class RelationshipEntityTest {
     private M m;
     private R r1;
 
-    private static final Session session = new SessionFactory("org.neo4j.ogm.integration").openSession(DriverService.load("org.neo4j.ogm.driver.embedded.driver.EmbeddedDriver"));
+    private static final Session session = new SessionFactory("org.neo4j.ogm.core.integration").openSession(Components.driver());
 
     @Before
     public void init() throws IOException {

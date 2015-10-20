@@ -19,7 +19,7 @@ import org.neo4j.ogm.api.request.GraphRowModelRequest;
 import java.util.Map;
 
 /**
- * A {@link org.neo4j.ogm.core.cypher.statement.CypherStatement} which returns data in both row and graph formats.
+ * A {@link CypherQuery} which returns data in both row and graph formats.
  *
  * @author Luanne Misquitta
  */

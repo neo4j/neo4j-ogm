@@ -17,7 +17,7 @@ package org.neo4j.ogm.core.typeconversion;
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
 

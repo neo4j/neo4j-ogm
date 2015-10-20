@@ -17,11 +17,10 @@ package org.neo4j.ogm.core.integration.blog;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.config.Components;
-import org.neo4j.ogm.core.domain.blog.Post;
-import org.neo4j.ogm.core.domain.blog.Post;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.domain.blog.Post;
 
 import java.io.IOException;
 

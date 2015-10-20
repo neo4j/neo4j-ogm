@@ -15,9 +15,9 @@ package org.neo4j.ogm.core.mapper.cypher;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+import org.neo4j.ogm.core.cypher.Filters;
+import org.neo4j.ogm.core.cypher.query.SortOrder;
+import org.neo4j.ogm.core.session.request.strategy.VariableDepthQuery;
 
 import java.util.Arrays;
 

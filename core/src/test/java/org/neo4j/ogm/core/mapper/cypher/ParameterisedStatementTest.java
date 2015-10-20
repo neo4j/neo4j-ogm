@@ -17,12 +17,12 @@ package org.neo4j.ogm.core.mapper.cypher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.api.request.Statement;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
+import org.neo4j.ogm.core.cypher.Filter;
+import org.neo4j.ogm.core.cypher.Filters;
+import org.neo4j.ogm.core.session.request.strategy.DeleteNodeStatements;
+import org.neo4j.ogm.core.session.request.strategy.DeleteRelationshipStatements;
+import org.neo4j.ogm.core.session.request.strategy.VariableDepthQuery;
+import org.neo4j.ogm.core.session.request.strategy.VariableDepthRelationshipQuery;
 
 import java.util.Arrays;
 import java.util.List;

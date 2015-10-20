@@ -22,9 +22,9 @@ import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.core.mapper.DirectedRelationship;
 import org.neo4j.ogm.core.mapper.DirectedRelationshipForType;
 import org.neo4j.ogm.core.ClassUtils;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
-import org.neo4j.ogm.core.info.MethodInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
+import org.neo4j.ogm.core.metadata.MethodInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

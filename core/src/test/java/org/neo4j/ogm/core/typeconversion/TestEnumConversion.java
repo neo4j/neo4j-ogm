@@ -18,9 +18,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.domain.convertible.enums.*;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
-import org.neo4j.ogm.core.info.MethodInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
+import org.neo4j.ogm.core.metadata.MethodInfo;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 import java.util.ArrayList;

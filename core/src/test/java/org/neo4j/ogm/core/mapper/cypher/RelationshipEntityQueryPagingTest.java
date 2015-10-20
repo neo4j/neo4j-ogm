@@ -14,11 +14,11 @@
 package org.neo4j.ogm.core.mapper.cypher;
 
 import org.junit.Test;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
+import org.neo4j.ogm.core.cypher.Filter;
+import org.neo4j.ogm.core.cypher.Filters;
+import org.neo4j.ogm.core.cypher.query.Pagination;
+import org.neo4j.ogm.core.session.request.strategy.QueryStatements;
+import org.neo4j.ogm.core.session.request.strategy.VariableDepthRelationshipQuery;
 
 import java.util.Arrays;
 

@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.core.metadata;
 
-import org.neo4j.ogm.core.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.core.typeconversion.*;
 import org.neo4j.ogm.typeconversion.*;
 

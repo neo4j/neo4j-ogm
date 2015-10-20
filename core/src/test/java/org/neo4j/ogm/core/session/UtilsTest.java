@@ -14,7 +14,6 @@ package org.neo4j.ogm.core.session;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.neo4j.ogm.session.Utils;
 
 /**
  * @author Luanne Misquitta

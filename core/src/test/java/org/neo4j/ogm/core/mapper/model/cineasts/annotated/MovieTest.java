@@ -15,14 +15,12 @@
 package org.neo4j.ogm.core.mapper.model.cineasts.annotated;
 
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.cineasts.annotated.Rating;
-import org.neo4j.ogm.core.domain.cineasts.annotated.Movie;
-import org.neo4j.ogm.core.domain.cineasts.annotated.Rating;
-import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Neo4jSession;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Michal Bachman

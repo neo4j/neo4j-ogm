@@ -15,7 +15,7 @@
 package org.neo4j.ogm.core.scanner;
 
 import org.neo4j.ogm.core.ClassUtils;
-import org.neo4j.ogm.core.info.ClassFileProcessor;
+import org.neo4j.ogm.core.metadata.ClassFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

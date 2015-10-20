@@ -18,11 +18,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.config.Components;
-import org.neo4j.ogm.core.domain.social.Individual;
-import org.neo4j.ogm.core.domain.social.Individual;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.exception.MappingException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -101,7 +101,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForPrimitiveIntOverflow() {
 		session.execute("CREATE (i:Individual {name: 'Gary', age:" + Integer.MAX_VALUE + 1 + "})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
@@ -110,7 +110,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForPrimitiveFloatOverflow() {
 		session.execute("CREATE (i:Individual {name: 'Gary', bankBalance:" + Double.MAX_VALUE + "})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
@@ -119,7 +119,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForPrimitiveByteOverflow() {
 		session.execute("CREATE (i:Individual {name: 'Gary', code:" + Byte.MAX_VALUE + 1 + "})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
@@ -128,7 +128,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForIntegerOverflow() {
 		session.execute("CREATE (i:Individual {name: 'Gary', numberOfPets:" + Integer.MAX_VALUE + 1 + "})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
@@ -137,7 +137,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForFloatOverflow() {
 		session.execute("CREATE (i:Individual {name: 'Gary', distanceFromZoo:" + Double.MAX_VALUE + "})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
@@ -146,7 +146,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForByteOverflow() {
 		session.execute("CREATE (i:Individual {name: 'Gary', numberOfShoes:" + Byte.MAX_VALUE + 1 + "})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();
@@ -155,7 +155,7 @@ public class NumericConversionTest
 	/**
 	 * @see DATAGRAPH-600
 	 */
-	@Test(expected = org.neo4j.ogm.core.MappingException.class)
+	@Test(expected = MappingException.class)
 	public void shouldFailForByteAsFloat() {
 		session.execute("CREATE (i:Individual {name: 'Gary', numberOfShoes: 3.5})", Collections.EMPTY_MAP);
 		session.loadAll(Individual.class).iterator().next();

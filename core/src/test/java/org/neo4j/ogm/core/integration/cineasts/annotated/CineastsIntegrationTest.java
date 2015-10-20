@@ -16,11 +16,12 @@ package org.neo4j.ogm.core.integration.cineasts.annotated;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.core.cypher.Filter;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.core.session.Utils;
 import org.neo4j.ogm.core.testutil.TestUtils;
+import org.neo4j.ogm.domain.cineasts.annotated.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

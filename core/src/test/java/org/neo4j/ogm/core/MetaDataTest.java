@@ -25,9 +25,9 @@ import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
-import org.neo4j.ogm.core.info.MethodInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
+import org.neo4j.ogm.core.metadata.MethodInfo;
 
 import java.util.Arrays;
 import java.util.Collection;

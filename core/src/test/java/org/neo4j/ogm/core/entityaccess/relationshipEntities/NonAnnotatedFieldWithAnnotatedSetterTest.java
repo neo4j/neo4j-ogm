@@ -19,9 +19,9 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.MethodWriter;
-import org.neo4j.ogm.entityaccess.RelationalWriter;
+import org.neo4j.ogm.core.entityaccess.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.core.entityaccess.MethodWriter;
+import org.neo4j.ogm.core.entityaccess.RelationalWriter;
 import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.core.metadata.DomainInfo;
 
@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 public class NonAnnotatedFieldWithAnnotatedSetterTest {
 
     private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-    private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.unit.entityaccess.relationshipEntities");
+    private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.core.entityaccess.relationshipEntities");
 
 
     @Test

@@ -15,9 +15,9 @@
 package org.neo4j.ogm.core.mapper.cypher;
 
 import org.junit.Test;
-import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteStatements;
+import org.neo4j.ogm.core.session.request.strategy.DeleteNodeStatements;
+import org.neo4j.ogm.core.session.request.strategy.DeleteRelationshipStatements;
+import org.neo4j.ogm.core.session.request.strategy.DeleteStatements;
 
 import java.util.Arrays;
 

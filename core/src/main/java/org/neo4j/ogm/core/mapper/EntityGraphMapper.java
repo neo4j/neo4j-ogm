@@ -21,20 +21,19 @@ import org.neo4j.ogm.api.compiler.Compiler;
 import org.neo4j.ogm.api.compiler.NodeEmitter;
 import org.neo4j.ogm.api.compiler.RelationshipEmitter;
 import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.ClassUtils;
+import org.neo4j.ogm.core.MetaData;
 import org.neo4j.ogm.core.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.core.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.core.entityaccess.PropertyReader;
 import org.neo4j.ogm.core.entityaccess.RelationalReader;
-import org.neo4j.ogm.core.spi.Components;
+import org.neo4j.ogm.core.metadata.AnnotationInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.core.ClassUtils;
-import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.info.AnnotationInfo;
-import org.neo4j.ogm.core.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.Iterator;
 
 /**
@@ -78,17 +77,17 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         Compiler compiler = Components.compiler();
 
-        // terrible hack!!
-        // we have to use reflection here, to avoid creating a cyclic dependency
-        // between the compiler, core and metadata modules. The real problem
-        // is that the compiler module as an external component should not have any
-        // knowledge of any other components, except the api module.
-        try {
-            Method method = compiler.getClass().getMethod("setMetaData", MetaData.class);
-            method.invoke(compiler, metaData);
-        } catch (Exception e) {
-            throw new RuntimeException("Compiler is not valid", e);
-        }
+//        // terrible hack!!
+//        // we have to use reflection here, to avoid creating a cyclic dependency
+//        // between the compiler, core and metadata modules. The real problem
+//        // is that the compiler module as an external component should not have any
+//        // knowledge of any other components, except the api module.
+//        try {
+//            Method method = compiler.getClass().getMethod("setMetaData", MetaData.class);
+//            method.invoke(compiler, metaData);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Compiler is not valid", e);
+//        }
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.

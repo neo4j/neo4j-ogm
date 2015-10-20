@@ -28,8 +28,8 @@ import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.core.ClassUtils;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

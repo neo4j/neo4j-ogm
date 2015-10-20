@@ -3,14 +3,12 @@ package org.neo4j.ogm.core.integration.election;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.election.Candidate;
-import org.neo4j.ogm.core.domain.election.Voter;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.domain.election.Candidate;
-import org.neo4j.ogm.core.domain.election.Voter;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.election.Candidate;
+import org.neo4j.ogm.domain.election.Voter;
 
 import java.io.IOException;
 
@@ -29,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
 public class ElectionTest {
 
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.election");
 

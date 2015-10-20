@@ -16,11 +16,9 @@ package org.neo4j.ogm.core.mapper;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.policy.Person;
-import org.neo4j.ogm.core.domain.policy.Policy;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.core.MetaData;
+import org.neo4j.ogm.domain.policy.Person;
+import org.neo4j.ogm.domain.policy.Policy;
 
 import java.util.ArrayList;
 import java.util.List;

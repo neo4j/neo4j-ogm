@@ -15,6 +15,7 @@
 package org.neo4j.ogm.core.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.api.config.Configuration;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.model.GraphRows;
@@ -22,15 +23,15 @@ import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.api.model.RowStatistics;
 import org.neo4j.ogm.api.request.*;
 import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.api.response.model.GraphRowsModel;
+import org.neo4j.ogm.api.response.model.RowModel;
+import org.neo4j.ogm.api.response.model.RowStatisticsModel;
+import org.neo4j.ogm.api.result.ResultGraphModel;
+import org.neo4j.ogm.api.result.ResultRowModel;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.api.transaction.TransactionManager;
-import org.neo4j.ogm.config.ComponentConfiguration;
-import org.neo4j.ogm.driver.impl.model.GraphRowsModel;
-import org.neo4j.ogm.driver.impl.model.RowModel;
-import org.neo4j.ogm.driver.impl.model.RowStatisticsModel;
-import org.neo4j.ogm.driver.impl.result.ResultGraphModel;
-import org.neo4j.ogm.driver.impl.result.ResultProcessingException;
-import org.neo4j.ogm.driver.impl.result.ResultRowModel;
+import org.neo4j.ogm.exception.ResultProcessingException;
+
 
 /**
  * @author Vince Bickers
@@ -47,7 +48,7 @@ public abstract class StubHttpDriver implements Driver {
     }
 
     @Override
-    public void configure(ComponentConfiguration config) {
+    public void configure(Configuration config) {
         throw new RuntimeException("not implemented");
     }
 

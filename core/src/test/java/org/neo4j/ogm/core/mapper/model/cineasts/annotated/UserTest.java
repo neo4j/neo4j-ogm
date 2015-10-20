@@ -15,9 +15,9 @@
 package org.neo4j.ogm.core.mapper.model.cineasts.annotated;
 
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.cineasts.annotated.User;
-import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Neo4jSession;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.domain.cineasts.annotated.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

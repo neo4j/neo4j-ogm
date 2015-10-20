@@ -15,7 +15,7 @@
 package org.neo4j.ogm.core.entityaccess;
 
 
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 
 import java.util.Collection;
 

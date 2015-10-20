@@ -16,8 +16,8 @@ package org.neo4j.ogm.core.integration.identity;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class IdentityTest {
 
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.integration.identity");
+    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.core.integration.identity");
 
     private Session session;
 

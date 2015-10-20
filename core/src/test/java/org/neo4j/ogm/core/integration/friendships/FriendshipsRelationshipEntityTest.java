@@ -17,20 +17,20 @@ package org.neo4j.ogm.core.integration.friendships;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.domain.friendships.Friendship;
-import org.neo4j.ogm.core.domain.friendships.Person;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.friendships.Friendship;
+import org.neo4j.ogm.domain.friendships.Person;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vince Bickers
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 public class FriendshipsRelationshipEntityTest {
 
 	@Rule
-	public IntegrationTestRule testServer = new IntegrationTestRule();
+	public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
 	private Session session;
 

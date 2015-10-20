@@ -16,7 +16,7 @@ package org.neo4j.ogm.core.scanner;
 
 
 import org.junit.Test;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;

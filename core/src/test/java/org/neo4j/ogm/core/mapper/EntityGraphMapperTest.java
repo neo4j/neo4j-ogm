@@ -20,25 +20,20 @@ import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.api.request.Statement;
-import org.neo4j.ogm.core.domain.education.Course;
-import org.neo4j.ogm.core.domain.education.School;
-import org.neo4j.ogm.core.domain.policy.Policy;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.domain.education.Course;
-import org.neo4j.ogm.core.domain.education.School;
-import org.neo4j.ogm.core.domain.education.Student;
-import org.neo4j.ogm.core.domain.education.Teacher;
-import org.neo4j.ogm.core.domain.forum.Forum;
-import org.neo4j.ogm.core.domain.forum.ForumTopicLink;
-import org.neo4j.ogm.core.domain.forum.Topic;
-import org.neo4j.ogm.core.domain.policy.Person;
-import org.neo4j.ogm.core.domain.policy.Policy;
-import org.neo4j.ogm.core.domain.social.Individual;
-import org.neo4j.ogm.driver.impl.request.Statements;
-import org.neo4j.ogm.mapper.EntityGraphMapper;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.api.request.Statements;
 import org.neo4j.ogm.core.MetaData;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.education.Course;
+import org.neo4j.ogm.domain.education.School;
+import org.neo4j.ogm.domain.education.Student;
+import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.domain.forum.Forum;
+import org.neo4j.ogm.domain.forum.ForumTopicLink;
+import org.neo4j.ogm.domain.forum.Topic;
+import org.neo4j.ogm.domain.policy.Person;
+import org.neo4j.ogm.domain.policy.Policy;
+import org.neo4j.ogm.domain.social.Individual;
 
 import java.util.*;
 
@@ -55,7 +50,7 @@ public class EntityGraphMapperTest {
     private EntityToGraphMapper mapper;
 
     @ClassRule
-    public static IntegrationTestRule testRule = new IntegrationTestRule();
+    public static IntegrationTestRule testRule = new IntegrationTestRule(Components.driver());
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;

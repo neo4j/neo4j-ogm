@@ -21,10 +21,6 @@ import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.ogm.api.config.Configuration;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.request.Request;
-import org.neo4j.ogm.api.transaction.Transaction;
-import org.neo4j.ogm.api.transaction.TransactionManager;
-import org.neo4j.ogm.core.spi.Components;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
@@ -35,21 +31,24 @@ import java.nio.file.Path;
  * @author Vince Bickers
  */
 @SuppressWarnings("deprecation")
-public class TestServer implements Driver {
+public class TestServer {
 
     private AbstractNeoServer server;
     private GraphDatabaseService database;
     private ServerControls controls;
     private Driver driver;
 
-    public TestServer() {
+    public TestServer(Driver driver) {
 
         try {
-            controls = TestServerBuilders.newInProcessBuilder()
+
+            this.driver = driver;
+            this.controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(TestUtils.getAvailablePort()))
                     .withConfig("dbms.security.auth_store.location", authStoreLocation())
                     .newServer();
+
 
             initialise(controls);
 
@@ -59,9 +58,10 @@ public class TestServer implements Driver {
 
     }
 
-    public TestServer(int port) {
+    public TestServer(Driver driver, int port) {
 
         try {
+            this.driver = driver;
             controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
@@ -96,9 +96,6 @@ public class TestServer implements Driver {
         field.setAccessible(true);
         server = (AbstractNeoServer) field.get(controls);
         database = server.getDatabase().getGraph();
-
-        // should be an http driver
-        driver = Components.driver();
 
         configure(new Configuration());
     }
@@ -164,34 +161,13 @@ public class TestServer implements Driver {
     }
 
 
-    @Override
     public void configure(Configuration config) {
         config.setConfig("server", url());
         driver.configure(config);
     }
 
-    @Override
-    public Object getConfig(String key) {
-        return driver.getConfig(key);
-    }
-
-    @Override
-    public Transaction newTransaction() {
-        return driver.newTransaction();
-    }
-
-    @Override
     public void close() {
         shutdown();
     }
 
-    @Override
-    public Request requestHandler() {
-        return driver.requestHandler();
-    }
-
-    @Override
-    public void setTransactionManager(TransactionManager tx) {
-        driver.setTransactionManager(tx);
-    }
 }

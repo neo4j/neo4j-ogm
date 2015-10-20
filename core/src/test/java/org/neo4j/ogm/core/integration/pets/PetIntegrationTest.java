@@ -18,18 +18,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.config.Components;
-import org.neo4j.ogm.core.domain.pets.Dog;
-import org.neo4j.ogm.core.domain.pets.DomesticDog;
-import org.neo4j.ogm.core.domain.pets.Kid;
-import org.neo4j.ogm.core.domain.pets.Mammal;
-import org.neo4j.ogm.core.domain.pets.Dog;
-import org.neo4j.ogm.core.domain.pets.DomesticDog;
-import org.neo4j.ogm.core.domain.pets.Kid;
-import org.neo4j.ogm.core.domain.pets.Mammal;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.domain.pets.Dog;
+import org.neo4j.ogm.domain.pets.DomesticDog;
+import org.neo4j.ogm.domain.pets.Kid;
+import org.neo4j.ogm.domain.pets.Mammal;
 
 import java.io.IOException;
 

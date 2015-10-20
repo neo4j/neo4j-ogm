@@ -18,7 +18,7 @@ package org.neo4j.ogm.core.metadata;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.core.RelationshipUtils;
-import org.neo4j.ogm.core.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 import java.util.Collection;

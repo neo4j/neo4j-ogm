@@ -18,10 +18,11 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.social.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -37,7 +38,7 @@ import static org.neo4j.ogm.core.testutil.GraphTestUtils.assertSameGraph;
 public class SocialRelationshipsIntegrationTest {
 
     @ClassRule
-    public static IntegrationTestRule testServer = new IntegrationTestRule(7879);
+    public static IntegrationTestRule testServer = new IntegrationTestRule(Components.driver(), 7879);
 
 	private Session session;
 

@@ -31,9 +31,9 @@ import org.neo4j.ogm.core.session.Capability;
 import org.neo4j.ogm.core.session.Neo4jSession;
 import org.neo4j.ogm.core.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.core.RelationshipUtils;
-import org.neo4j.ogm.core.info.AnnotationInfo;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
+import org.neo4j.ogm.core.metadata.AnnotationInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
 
 import java.util.Collection;
 

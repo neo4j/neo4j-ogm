@@ -17,11 +17,11 @@ package org.neo4j.ogm.core.integration.linkedlist;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.domain.linkedlist.Item;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.linkedlist.Item;
 
 import java.io.IOException;
 
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertNull;
 public class BidirectionalMappingTest {
 
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule();
+    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
     private Session session;
 

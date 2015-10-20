@@ -15,10 +15,9 @@
 package org.neo4j.ogm.core.mapper;
 
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.education.School;
-import org.neo4j.ogm.core.domain.education.Teacher;
-import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.core.MetaData;
+import org.neo4j.ogm.domain.education.School;
+import org.neo4j.ogm.domain.education.Teacher;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -17,8 +17,8 @@ package org.neo4j.ogm.core.mapper;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.policy.Person;
-import org.neo4j.ogm.core.domain.policy.Policy;
+import org.neo4j.ogm.domain.policy.Person;
+import org.neo4j.ogm.domain.policy.Policy;
 
 /**
  * @author Mark Angrish

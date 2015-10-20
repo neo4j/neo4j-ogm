@@ -20,22 +20,19 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.core.domain.forum.activity.Comment;
-import org.neo4j.ogm.core.domain.forum.activity.Post;
-import org.neo4j.ogm.core.domain.satellites.Location;
-import org.neo4j.ogm.core.domain.satellites.Program;
-import org.neo4j.ogm.core.domain.forum.ForumTopicLink;
-import org.neo4j.ogm.core.domain.forum.Member;
-import org.neo4j.ogm.core.domain.forum.Topic;
-import org.neo4j.ogm.core.domain.forum.activity.Activity;
-import org.neo4j.ogm.core.domain.forum.activity.Comment;
-import org.neo4j.ogm.core.domain.forum.activity.Post;
-import org.neo4j.ogm.core.domain.satellites.Location;
-import org.neo4j.ogm.core.domain.satellites.Program;
-import org.neo4j.ogm.core.domain.satellites.Satellite;
-import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.core.metadata.DomainInfo;
+import org.neo4j.ogm.domain.forum.ForumTopicLink;
+import org.neo4j.ogm.domain.forum.Member;
+import org.neo4j.ogm.domain.forum.Topic;
+import org.neo4j.ogm.domain.forum.activity.Activity;
+import org.neo4j.ogm.domain.forum.activity.Comment;
+import org.neo4j.ogm.domain.forum.activity.Post;
+import org.neo4j.ogm.domain.satellites.Location;
+import org.neo4j.ogm.domain.satellites.Program;
+import org.neo4j.ogm.domain.satellites.Satellite;
+
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -51,7 +48,7 @@ public class DefaultEntityAccessStrategyTest {
     @Before
     public void setup() {
         entityAccessStrategy = new DefaultEntityAccessStrategy();
-        domainInfo = new DomainInfo("org.neo4j.ogm.unit.entityaccess",
+        domainInfo = new DomainInfo("org.neo4j.ogm.core.entityaccess",
                 "org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.satellites");
     }
     @Test

@@ -29,7 +29,7 @@ public class ObjectConstructionTest {
     @Test
     public void shouldCreateReflectionInstance() {
 
-        String fqn = "org.neo4j.ogm.unit.entityaccess.ObjectConstructionTest$A";
+        String fqn = "org.neo4j.ogm.core.entityaccess.ObjectConstructionTest$A";
         try {
             Class<?> loadedClass = Class.forName(fqn);
             Constructor<?> defaultConstructor = loadedClass.getDeclaredConstructor();

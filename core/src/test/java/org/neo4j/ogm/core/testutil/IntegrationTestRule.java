@@ -19,6 +19,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.api.driver.Driver;
 
 /**
  * JUnit {@link TestRule} that provides a {@link GraphDatabaseService} to its enclosing test harness via both the object itself
@@ -30,7 +31,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
  * public class MyJUnitTest {
  *
  *     &#064;ClassRule
- *     public static IntegrationTestRule testServer = new IntegrationTestRule();
+ *     public static IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
  *
  * }
  * </pre>
@@ -39,7 +40,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
  * public class MyOtherJUnitTest {
  *
  *     &#064;Rule
- *     public IntegrationTestRule testServer = new IntegrationTestRule();
+ *     public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
  *
  * }
  * </pre>
@@ -50,12 +51,12 @@ import org.neo4j.graphdb.GraphDatabaseService;
  */
 public class IntegrationTestRule extends TestServer implements TestRule {
 
-    public IntegrationTestRule() {
-        super();
+    public IntegrationTestRule(Driver driver) {
+        super(driver);
     }
 
-    public IntegrationTestRule(int portNumber) {
-        super(portNumber);
+    public IntegrationTestRule(Driver driver, int portNumber) {
+        super(driver, portNumber);
     }
 
     @Override

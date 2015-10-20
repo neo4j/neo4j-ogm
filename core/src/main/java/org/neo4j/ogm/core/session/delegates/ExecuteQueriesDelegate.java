@@ -25,7 +25,7 @@ import org.neo4j.ogm.core.cypher.query.DefaultRowModelStatisticsRequest;
 import org.neo4j.ogm.core.mapper.EntityRowModelMapper;
 import org.neo4j.ogm.core.mapper.MapRowModelMapper;
 import org.neo4j.ogm.core.mapper.RowModelMapper;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.core.session.Capability;
 import org.neo4j.ogm.core.session.Neo4jSession;
 import org.neo4j.ogm.core.session.Utils;

@@ -16,13 +16,12 @@ package org.neo4j.ogm.core.entityaccess;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.canonical.ArbitraryRelationshipEntity;
-import org.neo4j.ogm.core.domain.social.Individual;
-import org.neo4j.ogm.driver.impl.model.NodeModel;
-import org.neo4j.ogm.driver.impl.model.RelationshipModel;
-import org.neo4j.ogm.entityaccess.EntityFactory;
-import org.neo4j.ogm.core.MappingException;
+import org.neo4j.ogm.api.response.model.NodeModel;
+import org.neo4j.ogm.api.response.model.RelationshipModel;
 import org.neo4j.ogm.core.MetaData;
+import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
+import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.exception.MappingException;
 
 import static org.junit.Assert.assertNotNull;
 

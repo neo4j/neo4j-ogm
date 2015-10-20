@@ -15,11 +15,10 @@
 package org.neo4j.ogm.core.mapper.model.bike;
 
 import org.junit.Test;
-import org.neo4j.ogm.core.domain.bike.Wheel;
-import org.neo4j.ogm.core.domain.bike.Bike;
-import org.neo4j.ogm.core.domain.bike.Wheel;
-import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.core.session.Neo4jSession;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.domain.bike.Bike;
+import org.neo4j.ogm.domain.bike.Wheel;
 
 import java.util.Collection;
 

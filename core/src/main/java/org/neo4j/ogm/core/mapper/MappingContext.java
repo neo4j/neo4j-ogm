@@ -19,8 +19,8 @@ import org.neo4j.ogm.core.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.core.entityaccess.PropertyReader;
 import org.neo4j.ogm.core.entityaccess.RelationalReader;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

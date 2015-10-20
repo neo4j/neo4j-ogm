@@ -14,11 +14,11 @@ package org.neo4j.ogm.core.integration.friendships;
 import org.junit.Test;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.transaction.Transaction;
-import org.neo4j.ogm.config.Components;
-import org.neo4j.ogm.core.domain.friendships.Person;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.core.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.domain.friendships.Person;
 
 import static org.junit.Assert.assertEquals;
 

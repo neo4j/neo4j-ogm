@@ -1,6 +1,7 @@
 package org.neo4j.ogm.core.testutil;
 
 import org.apache.commons.io.IOUtils;
+import org.neo4j.ogm.api.driver.Driver;
 
 import java.io.FileWriter;
 import java.io.Writer;
@@ -12,12 +13,12 @@ import java.nio.file.Path;
  */
 public class AuthenticatingTestServer extends TestServer {
 
-    public AuthenticatingTestServer() {
-        super();
+    public AuthenticatingTestServer(Driver driver) {
+        super(driver);
     }
 
-    public AuthenticatingTestServer(int portNumber) {
-        super(portNumber);
+    public AuthenticatingTestServer(Driver driver, int portNumber) {
+        super(driver, portNumber);
     }
 
     public boolean enableAuthentication() {

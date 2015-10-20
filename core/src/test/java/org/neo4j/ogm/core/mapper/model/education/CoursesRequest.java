@@ -15,8 +15,7 @@
 package org.neo4j.ogm.core.mapper.model.education;
 
 
-import org.neo4j.ogm.core.unit.drivers.StubHttpDriver;
-import org.neo4j.ogm.core.unit.drivers.StubHttpDriver;
+import org.neo4j.ogm.core.mapper.StubHttpDriver;
 
 /**
  * @author Vince Bickers

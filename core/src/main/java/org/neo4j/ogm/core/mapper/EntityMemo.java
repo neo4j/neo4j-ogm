@@ -16,8 +16,8 @@ package org.neo4j.ogm.core.mapper;
 
 import org.neo4j.ogm.core.entityaccess.FieldWriter;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
 
 import java.lang.reflect.Field;
 import java.util.Map;

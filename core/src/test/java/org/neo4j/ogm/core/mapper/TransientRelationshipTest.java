@@ -2,7 +2,6 @@ package org.neo4j.ogm.core.mapper;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.neo4j.ogm.mapper.TransientRelationship;
 
 import java.util.HashMap;
 import java.util.Map;

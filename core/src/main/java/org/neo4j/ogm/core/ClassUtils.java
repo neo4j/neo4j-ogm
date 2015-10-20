@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.core;
 
-import org.neo4j.ogm.core.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
 
 import java.io.File;
 import java.io.IOException;

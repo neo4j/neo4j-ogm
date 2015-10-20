@@ -20,7 +20,7 @@ import org.neo4j.ogm.core.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.core.session.Capability;
 import org.neo4j.ogm.core.session.Neo4jSession;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.core.info.ClassInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
 
 /**
  * @author Luanne Misquitta

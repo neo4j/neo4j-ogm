@@ -19,11 +19,11 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
+import org.neo4j.ogm.core.session.Session;
+import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.domain.bike.WheelWithUUID;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.domain.bike.WheelWithUUID;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 public class TxHandlerIntegrationTest {
 
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule(7577);
+    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver(), 7577);
 
     private static SessionFactory sessionFactory;
     private Session session;

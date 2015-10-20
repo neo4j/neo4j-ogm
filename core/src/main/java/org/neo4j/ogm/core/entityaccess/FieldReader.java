@@ -16,10 +16,10 @@ package org.neo4j.ogm.core.entityaccess;
 
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.core.info.AnnotationInfo;
-import org.neo4j.ogm.core.info.ClassInfo;
-import org.neo4j.ogm.core.info.FieldInfo;
-import org.neo4j.ogm.core.info.ObjectAnnotations;
+import org.neo4j.ogm.core.metadata.AnnotationInfo;
+import org.neo4j.ogm.core.metadata.ClassInfo;
+import org.neo4j.ogm.core.metadata.FieldInfo;
+import org.neo4j.ogm.core.metadata.ObjectAnnotations;
 
 /**
  * @author Adam George

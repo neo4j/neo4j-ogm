@@ -1,6 +1,6 @@
 package org.neo4j.ogm.api.model;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author vince
@@ -14,5 +14,5 @@ public interface Edge {
 
     Long getId();
 
-    Map<String, Object> getProperties();
+    List<Property<String, Object>> getPropertyList();
 }

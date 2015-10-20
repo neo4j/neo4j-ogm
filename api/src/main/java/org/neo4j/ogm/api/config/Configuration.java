@@ -1,5 +1,6 @@
 package org.neo4j.ogm.api.config;
 
+import org.neo4j.ogm.api.classloader.ClassLoaderResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class Configuration {
 
     private void configure(String propertiesFileName) {
 
-        try(InputStream is = this.getClass().getClassLoader().getResourceAsStream(propertiesFileName)) {
+        try(InputStream is = ClassLoaderResolver.resolve().getResourceAsStream(propertiesFileName)) {
 
             Properties properties = new Properties();
             properties.load(is);

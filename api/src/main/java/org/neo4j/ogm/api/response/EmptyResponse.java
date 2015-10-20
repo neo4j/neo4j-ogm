@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.api.response;
 
-import org.neo4j.ogm.api.response.Response;
-
 /**
  * @author Vince Bickers
  */

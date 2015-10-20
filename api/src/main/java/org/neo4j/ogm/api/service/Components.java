@@ -1,8 +1,8 @@
 package org.neo4j.ogm.api.service;
 
+import org.neo4j.ogm.api.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.api.compiler.Compiler;
 import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.core.classloader.ClassLoaderResolver;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

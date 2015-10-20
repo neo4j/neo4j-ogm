@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.api.authentication;
 
-import org.neo4j.ogm.api.authentication.Credentials;
-
 /**
  * @author Vince Bickers
  */

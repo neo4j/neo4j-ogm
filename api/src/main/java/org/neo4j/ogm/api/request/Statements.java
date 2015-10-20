@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.api.request;
 
-import org.neo4j.ogm.api.request.Statement;
-
 import java.util.List;
 
 /**

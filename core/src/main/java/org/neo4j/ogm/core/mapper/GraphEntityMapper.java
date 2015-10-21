@@ -23,19 +23,17 @@ import org.neo4j.ogm.api.model.Edge;
 import org.neo4j.ogm.api.model.Graph;
 import org.neo4j.ogm.api.model.Node;
 import org.neo4j.ogm.api.model.Property;
-import org.neo4j.ogm.core.entityaccess.*;
-import org.neo4j.ogm.exception.BaseClassNotFoundException;
-import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.core.ClassUtils;
 import org.neo4j.ogm.core.MetaData;
+import org.neo4j.ogm.core.entityaccess.*;
 import org.neo4j.ogm.core.metadata.ClassInfo;
 import org.neo4j.ogm.core.metadata.FieldInfo;
+import org.neo4j.ogm.exception.BaseClassNotFoundException;
+import org.neo4j.ogm.exception.MappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -212,11 +210,12 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 
 		//Try mapping the incoming relation on the end node, target
 		oneToOne &= tryMappingAsSingleton(target, source, edge, Relationship.INCOMING);
-		if (!oneToOne) {
+
+        // if its not one->one on BOTH sides, we'll try a one->many | many->one | many->many mapping later.
+        if (!oneToOne) {
 			oneToMany.add(edge);
 		} else {
 			RelationalWriter writer = entityAccessStrategy.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
-
 			mappingContext.registerRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
 		}
 	}
@@ -299,6 +298,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 
 		EntityCollector entityCollector = new EntityCollector();
 		List<MappedRelationship> relationshipsToRegister = new ArrayList<>();
+        Set<Edge> registeredEdges = new HashSet<>();
 
 		// first, build the full set of related entities of each type and direction for each source entity in the relationship
 		for (Edge edge : oneToManyRelationships) {
@@ -310,28 +310,34 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 			Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
 			if (relationshipEntity != null) {
 				// establish a relationship between
-				RelationalWriter iterableWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), Relationship.OUTGOING);
-				if (iterableWriter!=null) {
+				RelationalWriter outgoingWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), Relationship.OUTGOING);
+				if (outgoingWriter!=null) {
 					entityCollector.recordTypeRelationship(edge.getStartNode(), relationshipEntity, edge.getType(), Relationship.OUTGOING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
+					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
 				}
-				iterableWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), Relationship.INCOMING);
-				if (iterableWriter!=null) {
+				RelationalWriter incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), Relationship.INCOMING);
+				if (incomingWriter!=null) {
 					entityCollector.recordTypeRelationship(edge.getEndNode(), relationshipEntity, edge.getType(), Relationship.INCOMING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
+					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
 				}
+                if (incomingWriter != null || outgoingWriter != null) {
+                    registeredEdges.add(edge) ;
+                }
 			} else {
-				RelationalWriter iterableWriter = findIterableWriter(instance, parameter, edge.getType(), Relationship.OUTGOING);
-				if (iterableWriter!=null) {
+				RelationalWriter outgoingWriter = findIterableWriter(instance, parameter, edge.getType(), Relationship.OUTGOING);
+				if (outgoingWriter!=null) {
 					entityCollector.recordTypeRelationship(edge.getStartNode(), parameter, edge.getType(), Relationship.OUTGOING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
+					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
 				}
-				iterableWriter = findIterableWriter(parameter, instance, edge.getType(), Relationship.INCOMING);
-				if (iterableWriter!=null) {
+				RelationalWriter incomingWriter = findIterableWriter(parameter, instance, edge.getType(), Relationship.INCOMING);
+				if (incomingWriter!=null) {
 					entityCollector.recordTypeRelationship(edge.getEndNode(), instance, edge.getType(), Relationship.INCOMING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
+					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
 
 				}
+                if (incomingWriter != null || outgoingWriter != null) {
+                    registeredEdges.add(edge) ;
+                }
 			}
 		}
 
@@ -348,10 +354,26 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 			}
 		}
 
-		// finally register all the relationships we've mapped into the mapping context
+		// now register all the relationships we've mapped as iterable types into the mapping context
 		for (MappedRelationship mappedRelationship : relationshipsToRegister) {
 			mappingContext.registerRelationship(mappedRelationship);
 		}
+        // finally, register anything left over. These will be singleton relationships that
+        // were not mapped during one->one mapping, or one->many mapping.
+        for (Edge edge : oneToManyRelationships) {
+            if (!registeredEdges.contains(edge)) {
+                Object source = mappingContext.getNodeEntity(edge.getStartNode());
+                Object target = mappingContext.getNodeEntity(edge.getEndNode());
+                RelationalWriter writer = entityAccessStrategy.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
+                // ensures its tracked in the domain
+                if (writer != null) {
+                    MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor()));
+                    if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
+                        mappingContext.registerRelationship(mappedRelationship);
+                    }
+                }
+            }
+        }
 	}
 
 	/**

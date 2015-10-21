@@ -17,8 +17,17 @@ package org.neo4j.ogm.core.mapper;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.ogm.domain.education.Course;
+import org.neo4j.ogm.domain.education.Student;
+import org.neo4j.ogm.domain.election.Candidate;
+import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
+
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mark Angrish
@@ -29,7 +38,7 @@ public class RelationshipMappingTest extends MappingTrait
 
     @BeforeClass
     public static void setUp() {
-        setUp( "org.neo4j.ogm.domain.policy" );
+        setUp( "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election" );
     }
 
     @Test
@@ -102,4 +111,47 @@ public class RelationshipMappingTest extends MappingTrait
     }
 
 
+    @Test
+    public void shouldAllowVoterToChangeHerMind() {
+
+        // create the graph
+        ExecutionResult executionResult = executionEngine.execute(
+                "CREATE " +
+                    "(a:Voter:Candidate {name:'A'}), " +
+                    "(b:Voter:Candidate {name:'B'}), " +
+                    "(v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(b) " +
+                    "RETURN id(a) AS a_id, id(b) AS b_id, id(v) AS v_id");
+
+        // build the object map
+        Map<String, ?> results = executionResult.iterator().next();
+
+        Long aid = (Long) results.get("a_id");
+        Long bid = (Long) results.get("b_id");
+        Long vid = (Long) results.get("v_id");
+
+        Candidate a = new Candidate("A");
+        a.setId(aid);
+
+        Candidate b = new Candidate("B");
+        b.setId(bid);
+
+        Voter v = new Voter("V");
+        v.setId(vid);
+
+        // we're not using a session object in these tests, so we must maintain the mapping context manually
+        mappingContext.remember(a);
+        mappingContext.remember(b);
+        mappingContext.remember(v);
+        mappingContext.registerRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class));
+
+        // voter changes her mind
+        v.candidateVotedFor = a;
+        saveAndVerify(v,
+                "CREATE (a:Voter:Candidate {name:'A'}) " +
+                "CREATE (b:Voter:Candidate {name:'B'}) " +
+                "CREATE (v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a)");
+
+
+
+    }
 }

@@ -38,9 +38,9 @@ public abstract class MappingTrait
     protected EntityToGraphMapper mapper;
 
     private static GraphDatabaseService graphDatabase;
-    private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;
-    private static MappingContext mappingContext;
+    protected static MappingContext mappingContext;
+    protected static ExecutionEngine executionEngine;
 
     public static void setUp(String... packages) {
         graphDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
@@ -82,7 +82,7 @@ public abstract class MappingTrait
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
 
         for (Statement query : cypher.getStatements()) {
-            System.out.println("compiled: " + query.getStatement());
+            System.out.println("compiled: " + query.getStatement() + ", props: " + query.getParameters());
             executionEngine.execute(query.getStatement(), query.getParameters());
         }
     }

@@ -12,6 +12,8 @@
 
 package org.neo4j.ogm.cypher;
 
+import java.util.regex.Pattern;
+
 /**
  * Implementation of {@link PropertyValueTransformer} that transforms a traditional "LIKE" expression with asterisk wildcards
  * into a case-insensitive regular expression compatible with Cypher.
@@ -20,9 +22,18 @@ package org.neo4j.ogm.cypher;
  */
 public class CaseInsensitiveLikePropertyValueTransformer implements PropertyValueTransformer {
 
+    // NB: wildcard character * is absent
+    private static final Pattern CHARS_TO_ESCAPE = Pattern.compile("([{}\\(\\)\\[\\]^$?.+\\\\|!])");
+
     @Override
     public Object transformPropertyValue(Object propertyValue) {
-        return propertyValue != null ? "(?i)" + propertyValue.toString().replaceAll("\\*", ".*") : null;
+        return propertyValue != null
+            ? "(?i)" + escapeRegexCharacters(propertyValue.toString()).replaceAll("\\*", ".*")
+            : null;
+    }
+
+    private static String escapeRegexCharacters(String propertyValue) {
+        return CHARS_TO_ESCAPE.matcher(propertyValue).replaceAll("\\\\$1");
     }
 
 }

@@ -14,11 +14,6 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map.Entry;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
@@ -35,6 +30,9 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.model.RelationshipModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * @author Vince Bickers
@@ -298,61 +296,85 @@ public class GraphEntityMapper implements GraphToEntityMapper<GraphModel> {
 
 	private void mapOneToMany(Collection<RelationshipModel> oneToManyRelationships) {
 
-		EntityCollector entityCollector = new EntityCollector();
-		List<MappedRelationship> relationshipsToRegister = new ArrayList<>();
+        EntityCollector entityCollector = new EntityCollector();
+        List<MappedRelationship> relationshipsToRegister = new ArrayList<>();
+        Set<RelationshipModel> registeredEdges = new HashSet<>();
 
-		// first, build the full set of related entities of each type and direction for each source entity in the relationship
-		for (RelationshipModel edge : oneToManyRelationships) {
+        // first, build the full set of related entities of each type and direction for each source entity in the relationship
+        for (RelationshipModel edge : oneToManyRelationships) {
 
-			Object instance = mappingContext.getNodeEntity(edge.getStartNode());
-			Object parameter = mappingContext.getNodeEntity(edge.getEndNode());
+            Object instance = mappingContext.getNodeEntity(edge.getStartNode());
+            Object parameter = mappingContext.getNodeEntity(edge.getEndNode());
 
-			// is this a relationship entity we're trying to map?
-			Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
-			if (relationshipEntity != null) {
-				// establish a relationship between
-				RelationalWriter iterableWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), Relationship.OUTGOING);
-				if (iterableWriter!=null) {
-					entityCollector.recordTypeRelationship(edge.getStartNode(), relationshipEntity, edge.getType(), Relationship.OUTGOING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
-				}
-				iterableWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), Relationship.INCOMING);
-				if (iterableWriter!=null) {
-					entityCollector.recordTypeRelationship(edge.getEndNode(), relationshipEntity, edge.getType(), Relationship.INCOMING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
-				}
-			} else {
-				RelationalWriter iterableWriter = findIterableWriter(instance, parameter, edge.getType(), Relationship.OUTGOING);
-				if (iterableWriter!=null) {
-					entityCollector.recordTypeRelationship(edge.getStartNode(), parameter, edge.getType(), Relationship.OUTGOING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
-				}
-				iterableWriter = findIterableWriter(parameter, instance, edge.getType(), Relationship.INCOMING);
-				if (iterableWriter!=null) {
-					entityCollector.recordTypeRelationship(edge.getEndNode(), instance, edge.getType(), Relationship.INCOMING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(iterableWriter.typeParameterDescriptor())));
+            // is this a relationship entity we're trying to map?
+            Object relationshipEntity = mappingContext.getRelationshipEntity(edge.getId());
+            if (relationshipEntity != null) {
+                // establish a relationship between
+                RelationalWriter outgoingWriter = findIterableWriter(instance, relationshipEntity, edge.getType(), Relationship.OUTGOING);
+                if (outgoingWriter!=null) {
+                    entityCollector.recordTypeRelationship(edge.getStartNode(), relationshipEntity, edge.getType(), Relationship.OUTGOING);
+                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
+                }
+                RelationalWriter incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), Relationship.INCOMING);
+                if (incomingWriter!=null) {
+                    entityCollector.recordTypeRelationship(edge.getEndNode(), relationshipEntity, edge.getType(), Relationship.INCOMING);
+                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
+                }
+                if (incomingWriter != null || outgoingWriter != null) {
+                    registeredEdges.add(edge) ;
+                }
+            } else {
+                RelationalWriter outgoingWriter = findIterableWriter(instance, parameter, edge.getType(), Relationship.OUTGOING);
+                if (outgoingWriter!=null) {
+                    entityCollector.recordTypeRelationship(edge.getStartNode(), parameter, edge.getType(), Relationship.OUTGOING);
+                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(outgoingWriter.typeParameterDescriptor())));
+                }
+                RelationalWriter incomingWriter = findIterableWriter(parameter, instance, edge.getType(), Relationship.INCOMING);
+                if (incomingWriter!=null) {
+                    entityCollector.recordTypeRelationship(edge.getEndNode(), instance, edge.getType(), Relationship.INCOMING);
+                    relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
 
-				}
-			}
-		}
+                }
+                if (incomingWriter != null || outgoingWriter != null) {
+                    registeredEdges.add(edge) ;
+                }
+            }
+        }
 
-		// then set the entire collection at the same time for each owning type
-		for (Long instanceId : entityCollector.getOwningTypes()) {
-			//get all relationship types for which we're trying to set collections of instances
-			for (String relationshipType : entityCollector.getOwningRelationshipTypes(instanceId)) {
-				//for each relationship type, get all the directions for which we're trying to set collections of instances
-				for (String relationshipDirection : entityCollector.getRelationshipDirectionsForOwningTypeAndRelationshipType(instanceId, relationshipType)) {
-					Collection<?> entities = entityCollector.getCollectiblesForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
-					Class entityType = entityCollector.getCollectibleTypeForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
-					mapOneToMany(mappingContext.getNodeEntity(instanceId), entityType, entities, relationshipType, relationshipDirection);
-				}
-			}
-		}
+        // then set the entire collection at the same time for each owning type
+        for (Long instanceId : entityCollector.getOwningTypes()) {
+            //get all relationship types for which we're trying to set collections of instances
+            for (String relationshipType : entityCollector.getOwningRelationshipTypes(instanceId)) {
+                //for each relationship type, get all the directions for which we're trying to set collections of instances
+                for (String relationshipDirection : entityCollector.getRelationshipDirectionsForOwningTypeAndRelationshipType(instanceId, relationshipType)) {
+                    Collection<?> entities = entityCollector.getCollectiblesForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
+                    Class entityType = entityCollector.getCollectibleTypeForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
+                    mapOneToMany(mappingContext.getNodeEntity(instanceId), entityType, entities, relationshipType, relationshipDirection);
+                }
+            }
+        }
 
-		// finally register all the relationships we've mapped into the mapping context
-		for (MappedRelationship mappedRelationship : relationshipsToRegister) {
-			mappingContext.registerRelationship(mappedRelationship);
-		}
+        // now register all the relationships we've mapped as iterable types into the mapping context
+        for (MappedRelationship mappedRelationship : relationshipsToRegister) {
+            mappingContext.registerRelationship(mappedRelationship);
+        }
+        // finally, register anything left over. These will be singleton relationships that
+        // were not mapped during one->one mapping, or one->many mapping.
+        for (RelationshipModel edge : oneToManyRelationships) {
+            if (!registeredEdges.contains(edge)) {
+                Object source = mappingContext.getNodeEntity(edge.getStartNode());
+                Object target = mappingContext.getNodeEntity(edge.getEndNode());
+                RelationalWriter writer = entityAccessStrategy.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
+                // ensures its tracked in the domain
+                if (writer != null) {
+                    MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor()));
+                    if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
+                        mappingContext.registerRelationship(mappedRelationship);
+                    }
+                }
+            }
+        }
+
 	}
 
 	/**

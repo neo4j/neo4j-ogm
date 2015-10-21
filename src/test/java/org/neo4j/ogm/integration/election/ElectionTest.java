@@ -1,18 +1,21 @@
 package org.neo4j.ogm.integration.election;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
+import org.neo4j.ogm.mapper.MappedRelationship;
+import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * These tests assert that we can create loop edges in the graph, to support use cases
@@ -85,6 +88,47 @@ public class ElectionTest {
 
     }
 
+    @Test
+    public void shouldAllowVoterToChangeHerMind() {
+
+        Candidate a = new Candidate("A");
+        Candidate b = new Candidate("B");
+        Voter v = new Voter("V");
+
+        v.candidateVotedFor = b;
+
+        session.save(a);
+        session.save(v);
+
+        MappingContext context = ((Neo4jSession) session).context();
+
+        assertTrue(context.isRegisteredRelationship(new MappedRelationship(v.getId(),"CANDIDATE_VOTED_FOR",  b.getId(), Voter.class, Candidate.class)));
+        session.clear();
+
+        a = session.load(Candidate.class, a.getId());
+        v = session.load(Voter.class, v.getId());
+
+        assertEquals(b.getId(), v.candidateVotedFor.getId());
+
+        assertTrue(context.isRegisteredRelationship(new MappedRelationship(v.getId(),"CANDIDATE_VOTED_FOR",  b.getId(), Voter.class, Candidate.class)));
+
+
+        v.candidateVotedFor = a;
+
+        session.save(v);
+
+        session.clear();
+        session.load(Candidate.class, b.getId());
+        session.load(Voter.class, v.getId());
+
+        assertEquals(a.getId(), v.candidateVotedFor.getId());
+
+        assertTrue(context.isRegisteredRelationship(new MappedRelationship(v.getId(),"CANDIDATE_VOTED_FOR",  a.getId(), Voter.class, Candidate.class)));
+        assertFalse(context.isRegisteredRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)));
+
+        session.clear();
+
+    }
 
 
 }

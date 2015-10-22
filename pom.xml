@@ -28,9 +28,6 @@
         <module>compiler</module>
         <module>drivers</module>
         <module>core</module>
-        <module>annotations</module>
-        <module>exceptions</module>
-
     </modules>
 
     <properties>

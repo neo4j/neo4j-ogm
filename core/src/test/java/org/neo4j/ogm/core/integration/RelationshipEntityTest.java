@@ -17,7 +17,6 @@ package org.neo4j.ogm.core.integration;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;

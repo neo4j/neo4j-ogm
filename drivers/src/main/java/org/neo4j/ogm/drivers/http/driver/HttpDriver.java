@@ -14,14 +14,12 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.api.authentication.Credentials;
 import org.neo4j.ogm.api.config.Configuration;
-import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
-import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpAuthorization;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
 import org.neo4j.ogm.drivers.http.transaction.HttpTransaction;
-import org.neo4j.ogm.api.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.exception.ResultErrorsException;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
@@ -31,12 +29,10 @@ import org.slf4j.LoggerFactory;
  * @author vince
  */
 
-public final class HttpDriver implements Driver {
+public final class HttpDriver extends AbstractConfigurableDriver {
 
     private final CloseableHttpClient transport = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
-    private Configuration driverConfig;
-    private TransactionManager transactionManager;
 
     public HttpDriver() {
         configure(new Configuration("http.driver.properties"));
@@ -56,23 +52,6 @@ public final class HttpDriver implements Driver {
         String url = requestUrl();
         return new HttpRequest(transport, url, (Credentials) driverConfig.getConfig("credentials"));
     }
-
-    @Override
-    public void setTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
-
-    @Override
-    public void configure(Configuration config) {
-        this.driverConfig = config;
-        setCredentials();
-    }
-
-    @Override
-    public Object getConfig(String key) {
-        return driverConfig.getConfig(key);
-    }
-
 
     @Override
     public Transaction newTransaction() {
@@ -148,19 +127,6 @@ public final class HttpDriver implements Driver {
             url += "/";
         }
         return url + "db/data/transaction";
-    }
-
-    private void setCredentials() {
-        if (driverConfig.getConfig("credentials") == null) {
-            String username = (String) driverConfig.getConfig("username");
-            String password = (String) driverConfig.getConfig("password");
-            if (username != null && password != null) {
-                driverConfig.setConfig("credentials", new UsernamePasswordCredentials(username, password));
-
-            }
-        } else {
-            logger.warn("Driver credentials missing");
-        }
     }
 
     private String requestUrl() {

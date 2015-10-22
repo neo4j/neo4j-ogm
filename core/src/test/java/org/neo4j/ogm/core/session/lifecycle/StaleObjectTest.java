@@ -15,11 +15,14 @@
 package org.neo4j.ogm.core.session.lifecycle;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 
@@ -53,7 +56,8 @@ import static org.junit.Assert.assertEquals;
 public class StaleObjectTest {
 
     private static final Driver driver = Components.driver();
-
+    @ClassRule
+    public static final TestRule server = new IntegrationTestRule(driver);
 
     private Folder f;
     private Document a;

@@ -14,7 +14,8 @@
 
 package org.neo4j.ogm.core.session;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
+
+import org.neo4j.ogm.api.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.api.config.Configuration;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.service.Components;

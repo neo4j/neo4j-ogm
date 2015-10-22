@@ -21,6 +21,7 @@ import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.exception.MappingException;
 
 import java.io.IOException;
@@ -33,13 +34,13 @@ import static org.junit.Assert.*;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class RelationshipEntityTest {
+public class RelationshipEntityTest extends IntegrationTestRule {
 
     private U u;
     private M m;
     private R r1;
 
-    private static final Session session = new SessionFactory("org.neo4j.ogm.core.integration").openSession(Components.driver());
+    private final Session session = new SessionFactory("org.neo4j.ogm.core.integration").openSession(driver());
 
     @Before
     public void init() throws IOException {

@@ -14,10 +14,12 @@
 package org.neo4j.ogm.core.integration.identity;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,13 +34,15 @@ import static org.junit.Assert.assertNotNull;
 
 public class IdentityTest {
 
+    @ClassRule
+    public static final IntegrationTestRule server = new IntegrationTestRule();
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.core.integration.identity");
 
     private Session session;
 
     @Before
     public void init() {
-        session = sessionFactory.openSession();
+        session = sessionFactory.openSession(server.driver());
     }
 
     @Test

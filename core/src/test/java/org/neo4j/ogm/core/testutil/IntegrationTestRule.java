@@ -20,6 +20,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.service.Components;
 
 /**
  * JUnit {@link TestRule} that provides a {@link GraphDatabaseService} to its enclosing test harness via both the object itself
@@ -50,6 +51,10 @@ import org.neo4j.ogm.api.driver.Driver;
  * @author Adam George
  */
 public class IntegrationTestRule extends TestServer implements TestRule {
+
+    public IntegrationTestRule() {
+        super(Components.driver());
+    }
 
     public IntegrationTestRule(Driver driver) {
         super(driver);

@@ -15,11 +15,16 @@
 package org.neo4j.ogm.core.integration.cineasts.annotated;
 
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.cypher.Filter;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.core.testutil.TestUtils;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 
@@ -39,13 +44,15 @@ import static org.junit.Assert.*;
  */
 public class CineastsIntegrationTest {
 
-    //private static final Driver driver = Components.driver();
+    private static final Driver driver = Components.driver();
+    @ClassRule
+    public static final TestRule server = new IntegrationTestRule(driver);
 
     private static Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver);
         importCineasts();
     }
 

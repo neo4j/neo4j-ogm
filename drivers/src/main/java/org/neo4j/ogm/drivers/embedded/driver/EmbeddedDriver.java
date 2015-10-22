@@ -3,25 +3,22 @@ package org.neo4j.ogm.drivers.embedded.driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.api.config.Configuration;
-import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.request.Request;
 import org.neo4j.ogm.api.transaction.Transaction;
-import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 
 /**
  * @author vince
  */
-public class EmbeddedDriver implements Driver {
+public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     // a single instance of the driver's transport must be shared among all instances of the driver
     // so that we do not run into locking problems.
 
     private static GraphDatabaseService transport;
 
-    private Configuration driverConfig;
-    private TransactionManager transactionManager;
 
     /**
      * The default constructor will start a new embedded instance
@@ -62,7 +59,7 @@ public class EmbeddedDriver implements Driver {
     @Override
     public synchronized void configure(Configuration config) {
 
-        this.driverConfig = config;
+        super.configure(config);
 
         if (transport == null) {
             String storeDir = (String) config.getConfig("neo4j.store");
@@ -93,13 +90,4 @@ public class EmbeddedDriver implements Driver {
         return new EmbeddedRequest(transport);
     }
 
-    @Override
-    public Object getConfig(String key) {
-        return driverConfig.getConfig(key);
-    }
-
-    @Override
-    public void setTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
 }

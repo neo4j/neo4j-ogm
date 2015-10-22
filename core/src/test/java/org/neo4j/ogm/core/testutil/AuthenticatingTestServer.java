@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
+ * This test server will only authenticate requests with username 'neo4j' and password 'password'
  * @author vince
  */
 public class AuthenticatingTestServer extends TestServer {

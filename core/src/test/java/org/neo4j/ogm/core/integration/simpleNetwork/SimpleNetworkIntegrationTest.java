@@ -1,13 +1,12 @@
 package org.neo4j.ogm.core.integration.simpleNetwork;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestRule;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.simpleNetwork.classes.IdentityNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
@@ -22,6 +21,10 @@ import java.util.Set;
 public class SimpleNetworkIntegrationTest {
 
     private static final Driver driver = Components.driver();
+
+    @ClassRule
+    public static final TestRule server = new IntegrationTestRule(driver);
+
     private Session session;
 
     @Before

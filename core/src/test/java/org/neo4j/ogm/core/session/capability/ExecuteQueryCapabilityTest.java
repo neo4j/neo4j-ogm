@@ -16,14 +16,16 @@ package org.neo4j.ogm.core.session.capability;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.model.MapStatistics;
+import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.core.testutil.TestUtils;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 
@@ -35,15 +37,13 @@ import static org.junit.Assert.*;
 /**
  * @author Luanne Misquitta
  */
-public class ExecuteQueryCapabilityTest {
-
-    private static final Driver driver = Components.driver();
+public class ExecuteQueryCapabilityTest extends IntegrationTestRule {
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver);
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(this.driver());
 		importCineasts();
 	}
 

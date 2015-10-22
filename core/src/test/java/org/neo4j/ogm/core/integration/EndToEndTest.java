@@ -16,10 +16,11 @@ package org.neo4j.ogm.core.integration;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
-import org.neo4j.ogm.api.service.DriverService;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
@@ -38,11 +39,13 @@ import static org.junit.Assert.*;
 public class EndToEndTest {
 
     private static Session session;
+    @ClassRule
+    public static final IntegrationTestRule server = new IntegrationTestRule();
 
     @BeforeClass
     public static void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession(DriverService.lookup("http"));
+        session = sessionFactory.openSession(server.driver());
     }
 
     @Before

@@ -13,6 +13,7 @@ public interface Driver extends LoadableService {
 
     public void configure(Configuration config);
     public Object getConfig(String key);
+    public void setConfig(String key, Object value);
     public Transaction newTransaction();
     public void close();
     public Request requestHandler();

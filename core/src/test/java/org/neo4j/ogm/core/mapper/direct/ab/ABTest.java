@@ -15,7 +15,9 @@
 package org.neo4j.ogm.core.mapper.direct.ab;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.api.driver.Driver;
@@ -23,6 +25,7 @@ import org.neo4j.ogm.core.mapper.direct.RelationshipTrait;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -37,6 +40,8 @@ public class ABTest extends RelationshipTrait
 {
 
     private static final Driver driver = Components.driver();
+    @ClassRule
+    public static final TestRule server = new IntegrationTestRule(driver);
 
     private Session session;
 

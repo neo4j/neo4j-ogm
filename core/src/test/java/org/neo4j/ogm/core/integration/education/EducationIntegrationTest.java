@@ -16,12 +16,15 @@ package org.neo4j.ogm.core.integration.education;
 
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.core.cypher.Filter;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -40,6 +43,8 @@ import static org.junit.Assert.assertEquals;
 public class EducationIntegrationTest
 {
     private static final Driver driver = Components.driver();
+    @ClassRule
+    public static final TestRule server = new IntegrationTestRule(driver);
 
     private Session session;
 

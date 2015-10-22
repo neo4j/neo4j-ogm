@@ -24,6 +24,8 @@ import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
 import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.core.testutil.TestServer;
 import org.neo4j.ogm.core.testutil.TestUtils;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 
@@ -36,15 +38,13 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Luanne Misquitta
  */
-public class ExecuteStatementQueryCapabilityTest {
-
-    private static final Driver driver = Components.driver();
+public class ExecuteStatementQueryCapabilityTest extends IntegrationTestRule {
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver);
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(driver());
 		importCineasts();
 	}
 

@@ -106,6 +106,7 @@ public class ConvertibleIntegrationTest {
         memo.setImplementations(implementations);
         memo.setEscalations(escalations);
         memo.setActioned(actioned.getTime());
+        memo.setClosed(new Date());
         session.save(memo);
 
         Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", "theMemo")).iterator().next();
@@ -169,6 +170,20 @@ public class ConvertibleIntegrationTest {
         assertSameArray(deposits,loadedAccount.getDeposits());
 
     }
+
+    /**
+     * @see issue #72
+     */
+    @Test
+    public void shouldSaveAndRetrieveIntegerDates() {
+        Memo memo = new Memo();
+        memo.setClosed(new Date(0));
+        session.save(memo);
+
+        memo = session.load(Memo.class, memo.getId());
+        assertEquals(new Date(0).getTime(), memo.getClosed().getTime());
+    }
+
 
     public void assertSameArray(Object[] as, Object[] bs) {
 

@@ -1,5 +1,6 @@
 1.1.4-SNAPSHOT
 --------------
+o Fixes issue where @DateLong could not handle dates with values < INTEGER.MAX_VALUE
 o Fixes relationship mapping issue when one-sided singleton relationships are reloaded after session clear
 o Added support for case-insensitive, wildcard-based LIKE queries via filters
 o Fixes null pointer exceptions when nulls are sent as parameters and returned from custom queries

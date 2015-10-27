@@ -23,13 +23,13 @@ import org.neo4j.ogm.core.cypher.Filter;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.convertible.enums.Gender;
 import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
-import org.neo4j.ogm.typeconversion.DateString;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import java.io.IOException;
 import java.math.BigDecimal;

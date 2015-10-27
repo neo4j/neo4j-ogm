@@ -15,9 +15,9 @@
 package org.neo4j.ogm.domain.convertible.date;
 
 
-import org.neo4j.ogm.typeconversion.Convert;
-import org.neo4j.ogm.typeconversion.DateLong;
-import org.neo4j.ogm.typeconversion.DateString;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import java.util.Date;
 import java.util.Set;

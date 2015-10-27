@@ -22,7 +22,7 @@ import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
 import org.neo4j.ogm.api.request.Statement;
 import org.neo4j.ogm.api.request.Statements;
 import org.neo4j.ogm.core.MetaData;
-import org.neo4j.ogm.core.testutil.GraphTestUtils;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.test.TestGraphDatabaseFactory;

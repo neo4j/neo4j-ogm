@@ -344,7 +344,7 @@ public class Neo4jSession implements Session {
         deleteDelegate.purgeDatabase();
     }
 
-    @Override
+    @Override // Why is this here?
     public void clear() {
         deleteDelegate.clear();
     }

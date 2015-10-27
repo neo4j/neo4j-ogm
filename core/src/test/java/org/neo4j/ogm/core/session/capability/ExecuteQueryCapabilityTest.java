@@ -16,17 +16,14 @@ package org.neo4j.ogm.core.session.capability;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.api.model.MapStatistics;
-import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.testutil.TestUtils;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 
 import java.io.IOException;

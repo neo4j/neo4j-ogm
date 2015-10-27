@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.core.testutil;
+package org.neo4j.ogm.testutil;
 
 import java.io.IOException;
 import java.net.ServerSocket;

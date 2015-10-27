@@ -22,7 +22,7 @@ import org.neo4j.ogm.core.metadata.FieldInfo;
 import org.neo4j.ogm.core.metadata.MethodInfo;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
-import org.neo4j.ogm.typeconversion.DateString;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

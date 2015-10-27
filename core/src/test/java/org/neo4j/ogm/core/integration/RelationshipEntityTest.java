@@ -20,7 +20,7 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.exception.MappingException;
 
 import java.io.IOException;

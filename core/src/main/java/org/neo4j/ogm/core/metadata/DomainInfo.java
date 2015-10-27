@@ -19,7 +19,7 @@ import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.core.scanner.ClassPathScanner;
 import org.neo4j.ogm.core.ClassUtils;
 import org.neo4j.ogm.core.typeconversion.*;
-import org.neo4j.ogm.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

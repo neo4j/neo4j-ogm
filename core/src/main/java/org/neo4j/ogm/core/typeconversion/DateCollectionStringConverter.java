@@ -26,10 +26,10 @@ import java.util.*;
  * Users can override this behaviour for Date objects using
  * the appropriate annotations:
  *
- * {@link org.neo4j.ogm.typeconversion.DateString#FORMAT} will convert between dates and strings
+ * {@link org.neo4j.ogm.annotation.typeconversion.DateString#FORMAT} will convert between dates and strings
  * using a user defined date format, e.g. "yy-MM-dd"
  *
- * {@link org.neo4j.ogm.typeconversion.DateLong} will read and write dates as Long values in the database.
+ * {@link org.neo4j.ogm.annotation.typeconversion.DateLong} will read and write dates as Long values in the database.
  *
  * @author Luanne Misquitta
  */

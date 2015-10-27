@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.core.testutil;
+package org.neo4j.ogm.testutil;
 
 import org.junit.Assert;
 import org.junit.rules.TestRule;
@@ -46,7 +46,6 @@ import org.neo4j.ogm.api.service.Components;
  * }
  * </pre>
  * You can call methods on this rule from within your test methods to facilitate writing integration tests.
- * </p>
  *
  * @author Adam George
  */

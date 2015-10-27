@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.typeconversion;
+package org.neo4j.ogm.annotation.typeconversion;
 
 import java.lang.annotation.*;
 
@@ -22,11 +22,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Inherited
-public @interface NumberString {
+public @interface EnumString {
 
-    static final String CLASS = "org.neo4j.ogm.typeconversion.NumberString";
+    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.EnumString";
     static final String TYPE = "value";
 
-    Class<? extends Number> value();
+    Class<? extends Enum> value();
 }
 

@@ -9,7 +9,7 @@ import org.neo4j.ogm.core.mapper.MappingContext;
 import org.neo4j.ogm.core.session.Neo4jSession;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 

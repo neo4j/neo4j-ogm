@@ -25,8 +25,7 @@ import org.neo4j.ogm.core.cypher.query.Pagination;
 import org.neo4j.ogm.core.cypher.query.SortOrder;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.testutil.TestServer;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 

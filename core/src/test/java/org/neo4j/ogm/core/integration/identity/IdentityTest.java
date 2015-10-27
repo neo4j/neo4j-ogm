@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.util.HashSet;
 import java.util.Set;

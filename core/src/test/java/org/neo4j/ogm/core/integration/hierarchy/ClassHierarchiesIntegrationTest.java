@@ -24,7 +24,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
 import org.neo4j.ogm.domain.hierarchy.domain.people.*;
 import org.neo4j.ogm.domain.hierarchy.domain.plain.*;
@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static org.junit.Assert.*;
-import static org.neo4j.ogm.core.testutil.GraphTestUtils.assertSameGraph;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * Integration test for label-based mapping of class hierarchies.

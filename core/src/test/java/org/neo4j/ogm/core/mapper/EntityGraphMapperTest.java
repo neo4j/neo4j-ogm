@@ -23,7 +23,7 @@ import org.neo4j.ogm.api.request.Statement;
 import org.neo4j.ogm.api.request.Statements;
 import org.neo4j.ogm.core.MetaData;
 import org.neo4j.ogm.api.service.Components;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -38,7 +38,7 @@ import org.neo4j.ogm.domain.social.Individual;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.neo4j.ogm.core.testutil.GraphTestUtils.assertSameGraph;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George

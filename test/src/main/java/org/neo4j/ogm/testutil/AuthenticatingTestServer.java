@@ -1,4 +1,4 @@
-package org.neo4j.ogm.core.testutil;
+package org.neo4j.ogm.testutil;
 
 import org.apache.commons.io.IOUtils;
 import org.neo4j.ogm.api.driver.Driver;

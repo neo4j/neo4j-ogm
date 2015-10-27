@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.typeconversion;
+package org.neo4j.ogm.annotation.typeconversion;
 
 import java.lang.annotation.*;
 
@@ -22,14 +22,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Inherited
-public @interface DateString {
+public @interface NumberString {
 
-    static final String CLASS = "org.neo4j.ogm.typeconversion.DateString";
-    static final String FORMAT = "value";
+    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.NumberString";
+    static final String TYPE = "value";
 
-    static final String ISO_8601 ="yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-
-    String value() default ISO_8601;
-
+    Class<? extends Number> value();
 }
 

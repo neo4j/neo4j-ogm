@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.core.testutil;
+package org.neo4j.ogm.testutil;
 
 import org.junit.Assert;
 import org.neo4j.cypher.javacompat.ExecutionEngine;

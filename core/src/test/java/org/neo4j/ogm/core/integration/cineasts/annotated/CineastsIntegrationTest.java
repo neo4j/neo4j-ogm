@@ -24,8 +24,8 @@ import org.neo4j.ogm.core.cypher.Filter;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.core.session.Utils;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
-import org.neo4j.ogm.core.testutil.TestUtils;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 
 import java.io.IOException;

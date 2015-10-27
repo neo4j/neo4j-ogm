@@ -12,7 +12,9 @@
  *
  */
 
-package org.neo4j.ogm.typeconversion;
+package org.neo4j.ogm.annotation.typeconversion;
+
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 import java.lang.annotation.*;
 
@@ -29,12 +31,12 @@ import java.lang.annotation.*;
 @Inherited
 public @interface Convert {
 
-    static final String CLASS = "org.neo4j.ogm.typeconversion.Convert";
+    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.Convert";
     static final String CONVERTER = "value";
     static final String GRAPH_TYPE = "graphPropertyType";
 
     /**
-     * The type of {@link AttributeConverter} implementation to use on this property.
+     * The type of {@link org.neo4j.ogm.typeconversion.AttributeConverter} implementation to use on this property.
      */
     Class<? extends AttributeConverter<?, ?>> value() default Unset.class;
 

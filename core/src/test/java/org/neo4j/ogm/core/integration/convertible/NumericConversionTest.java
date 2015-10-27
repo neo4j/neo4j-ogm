@@ -23,7 +23,7 @@ import org.neo4j.ogm.api.driver.Driver;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.exception.MappingException;
 

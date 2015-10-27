@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
 import org.neo4j.ogm.api.service.Components;
-import org.neo4j.ogm.core.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 import org.neo4j.ogm.domain.mappings.Article;
 import org.neo4j.ogm.domain.mappings.Person;
 import org.neo4j.ogm.domain.mappings.RichRelation;

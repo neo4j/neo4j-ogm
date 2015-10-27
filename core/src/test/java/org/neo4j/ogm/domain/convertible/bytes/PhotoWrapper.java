@@ -16,7 +16,7 @@ package org.neo4j.ogm.domain.convertible.bytes;
 
 
 import org.neo4j.ogm.core.typeconversion.ByteArrayWrapperBase64Converter;
-import org.neo4j.ogm.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author Vince Bickers

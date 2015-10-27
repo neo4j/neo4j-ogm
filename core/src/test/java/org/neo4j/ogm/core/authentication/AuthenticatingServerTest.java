@@ -26,7 +26,7 @@ import org.neo4j.ogm.api.service.Components;
 import org.neo4j.ogm.api.transaction.Transaction;
 import org.neo4j.ogm.core.session.Session;
 import org.neo4j.ogm.core.session.SessionFactory;
-import org.neo4j.ogm.core.testutil.AuthenticatingTestServer;
+import org.neo4j.ogm.testutil.AuthenticatingTestServer;
 import org.neo4j.ogm.exception.ResultProcessingException;
 
 import static org.junit.Assert.*;

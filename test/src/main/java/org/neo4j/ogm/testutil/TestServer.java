@@ -12,7 +12,7 @@
  *
  */
 
-package org.neo4j.ogm.core.testutil;
+package org.neo4j.ogm.testutil;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -118,9 +118,9 @@ public class TestServer {
     }
 
     /**
-     *
-     * @param timeout
-     * @return
+     * Waits for a period of time and checks the database availability afterwards
+     * @param timeout milliseconds to wait
+     * @return true if the database is available, false otherwise
      */
     public boolean isRunning(long timeout) {
         return database.isAvailable(timeout);

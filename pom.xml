@@ -28,6 +28,7 @@
         <module>compiler</module>
         <module>drivers</module>
         <module>core</module>
+        <module>test</module>
     </modules>
 
     <properties>

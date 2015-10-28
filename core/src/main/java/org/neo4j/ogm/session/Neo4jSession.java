@@ -16,7 +16,7 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.model.MapStatistics;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.Statistics;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
@@ -314,12 +314,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public MapStatistics query(String cypher, Map<String, ?> parameters) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
 
     @Override
-    public MapStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 

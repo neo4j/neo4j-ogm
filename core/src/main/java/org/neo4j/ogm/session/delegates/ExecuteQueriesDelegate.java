@@ -15,7 +15,6 @@ package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.model.*;
-import org.neo4j.ogm.model.*;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.request.RowModelStatisticsRequest;
 import org.neo4j.ogm.response.Response;
@@ -67,7 +66,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public MapStatistics query(String cypher, Map<String, ?> parameters) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
         return query(cypher, parameters, isReadOnly(cypher));
     }
 
@@ -81,13 +80,13 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public MapStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
         validateQuery(cypher, parameters, readOnly);
 
         //If readOnly=true, just execute the query. If false, execute the query and return stats as well
         if(readOnly) {
-            return new MapStatisticsModel(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
+            return new QueryStatisticsModel(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
             RowModelStatisticsRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
@@ -99,7 +98,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
                     List next =  (List) iterator.next();
                     rowModelMapper.mapIntoResult(rowResult, next.toArray(), response.columns());
                 }
-                return new MapStatisticsModel(rowResult, result.getStats());
+                return new QueryStatisticsModel(rowResult, result.getStats());
 
             }
         }
@@ -172,12 +171,12 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
     }
 
-    private class MapStatisticsModel implements MapStatistics {
+    private class QueryStatisticsModel implements QueryStatistics {
 
         private Iterable<Map<String,Object>> result;
         private Statistics queryStatistics;
 
-        public MapStatisticsModel(Iterable<Map<String, Object>> result, Statistics queryStatistics) {
+        public QueryStatisticsModel(Iterable<Map<String, Object>> result, Statistics queryStatistics) {
             this.result = result;
             this.queryStatistics = queryStatistics;
         }

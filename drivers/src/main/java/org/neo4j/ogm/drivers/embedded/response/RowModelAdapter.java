@@ -1,9 +1,9 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
-import org.neo4j.ogm.api.result.ResultAdapter;
 import org.neo4j.ogm.api.response.model.RowModel;
-import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.api.result.ResultAdapter;
 import org.neo4j.ogm.api.result.ResultRowModel;
+import org.neo4j.ogm.exception.ResultProcessingException;
 
 import java.util.Iterator;
 import java.util.List;

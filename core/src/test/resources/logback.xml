@@ -15,7 +15,7 @@
 
 <configuration>
 
-	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+	<appender name="console" class="ch.qos.logback.ConsoleAppender">
 		<encoder>
 			<pattern>%d %5p %40.40c:%4L - %m%n</pattern>
 		</encoder>

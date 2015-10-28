@@ -77,7 +77,7 @@ public class JsonResponseTest {
                 "\"results\": [{\"columns\": [\"_0\"],\"data\": [{\"row\": []," +
                 "\"errors\": [{\"code\": \"Neo.DatabaseError.Statement.ExecutionFailure\"," +
                 "\"message\": \"Could not create token\"," +
-                "\"stackTrace\": \"org.neo4j.graphdb.TransactionFailureException: Could not create token\\\tat org.neo4j.kernel.impl.core.TokenHolder.getOrCreateId(TokenHolder.java:121)\\\tat" +
+                "\"stackTrace\": \"org.neo4j.graphdb.TransactionFailureException: Could not create token\\\tat org.neo4j.kernel.impl.TokenHolder.getOrCreateId(TokenHolder.java:121)\\\tat" +
                 "...}]}";
 
         return new ByteArrayInputStream(s.getBytes());

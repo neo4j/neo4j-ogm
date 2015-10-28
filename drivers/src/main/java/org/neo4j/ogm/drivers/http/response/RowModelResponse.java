@@ -5,8 +5,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.api.response.model.RowModel;
-import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.api.result.ResultRowModel;
+import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,12 +10,12 @@ import org.neo4j.ogm.api.model.GraphRows;
 import org.neo4j.ogm.api.model.Row;
 import org.neo4j.ogm.api.model.RowStatistics;
 import org.neo4j.ogm.api.request.*;
+import org.neo4j.ogm.api.response.EmptyResponse;
 import org.neo4j.ogm.api.response.Response;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowStatisticsModelResponse;
-import org.neo4j.ogm.api.response.EmptyResponse;
 
 import java.util.HashMap;
 

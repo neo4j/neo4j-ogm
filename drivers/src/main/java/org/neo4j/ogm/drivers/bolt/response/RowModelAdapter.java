@@ -3,9 +3,9 @@ package org.neo4j.ogm.drivers.bolt.response;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Value;
 import org.neo4j.ogm.api.result.ResultAdapter;
+import org.neo4j.ogm.api.result.ResultRowModel;
 import org.neo4j.ogm.drivers.embedded.response.JsonAdapter;
 import org.neo4j.ogm.exception.ResultProcessingException;
-import org.neo4j.ogm.api.result.ResultRowModel;
 
 import java.util.Iterator;
 

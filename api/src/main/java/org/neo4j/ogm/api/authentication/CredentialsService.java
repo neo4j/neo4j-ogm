@@ -14,7 +14,6 @@
 
 package org.neo4j.ogm.api.authentication;
 
-import org.neo4j.ogm.api.authentication.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

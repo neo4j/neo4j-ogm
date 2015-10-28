@@ -15,7 +15,6 @@
 package org.neo4j.ogm.api.authentication;
 
 import org.apache.commons.codec.binary.Base64;
-import org.neo4j.ogm.api.authentication.Credentials;
 
 /**
  * @author Vince Bickers

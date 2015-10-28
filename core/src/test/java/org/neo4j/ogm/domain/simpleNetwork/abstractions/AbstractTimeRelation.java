@@ -17,8 +17,8 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceStateNode;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceIdentityNode;
+import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceStateNode;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
 
 /**

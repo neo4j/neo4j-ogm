@@ -15,18 +15,19 @@
 package org.neo4j.ogm.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.model.GraphRows;
-import org.neo4j.ogm.api.model.Row;
-import org.neo4j.ogm.api.model.RowStatistics;
-import org.neo4j.ogm.api.request.*;
-import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.api.response.model.GraphRowsModel;
-import org.neo4j.ogm.api.response.model.RowModel;
-import org.neo4j.ogm.api.response.model.RowStatisticsModel;
-import org.neo4j.ogm.api.result.ResultGraphModel;
-import org.neo4j.ogm.api.result.ResultRowModel;
-import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.model.GraphRows;
+import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.GraphRowsModel;
+import org.neo4j.ogm.response.model.RowModel;
+import org.neo4j.ogm.response.model.RowStatisticsModel;
+import org.neo4j.ogm.result.ResultGraphModel;
+import org.neo4j.ogm.result.ResultRowModel;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.exception.ResultProcessingException;
 

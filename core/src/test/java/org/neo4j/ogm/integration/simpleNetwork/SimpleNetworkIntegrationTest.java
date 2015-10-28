@@ -2,8 +2,8 @@ package org.neo4j.ogm.integration.simpleNetwork;
 
 import org.junit.*;
 import org.junit.rules.TestRule;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.simpleNetwork.classes.IdentityNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;

@@ -16,7 +16,7 @@ package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

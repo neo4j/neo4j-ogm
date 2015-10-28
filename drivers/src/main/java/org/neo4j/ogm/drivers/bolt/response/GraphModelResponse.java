@@ -1,8 +1,8 @@
 package org.neo4j.ogm.drivers.bolt.response;
 
 import org.neo4j.driver.Result;
-import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.response.Response;
 
 import java.util.ArrayList;
 import java.util.Iterator;

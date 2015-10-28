@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.api.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.request.RowModelStatisticsRequest;
 
 import java.util.Map;
 

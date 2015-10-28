@@ -15,8 +15,8 @@
 package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.request.Request;
-import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
 
 
 /**
@@ -31,7 +31,7 @@ public interface GraphCallback<T> {
     /**
      * Called by the OGM {@link Session} in a transaction to perform some arbitrary database operation.
      *
-     * @param requestHandler The {@link org.neo4j.ogm.api.request.Request} for communication with the database
+     * @param requestHandler The {@link org.neo4j.ogm.request.Request} for communication with the database
      * @param transaction The {@link Transaction} in which the database communication is taking place
      * @param metaData The mapping {@link org.neo4j.ogm.MetaData} that pertains to the current session
      * @return An arbitrary result (or <code>null</code>) based on the desired behaviour of this callback function

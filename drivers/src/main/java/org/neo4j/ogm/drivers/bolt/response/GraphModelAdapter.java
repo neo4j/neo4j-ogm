@@ -1,8 +1,8 @@
 package org.neo4j.ogm.drivers.bolt.response;
 
 import org.neo4j.driver.*;
-import org.neo4j.ogm.api.result.ResultAdapter;
-import org.neo4j.ogm.api.result.ResultGraphModel;
+import org.neo4j.ogm.result.ResultAdapter;
+import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.drivers.embedded.response.JsonAdapter;
 import org.neo4j.ogm.exception.ResultProcessingException;
 

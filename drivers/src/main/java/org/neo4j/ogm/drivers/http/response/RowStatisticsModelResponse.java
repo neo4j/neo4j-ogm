@@ -2,10 +2,10 @@ package org.neo4j.ogm.drivers.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.api.model.RowStatistics;
-import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.api.response.model.RowStatisticsModel;
-import org.neo4j.ogm.api.response.model.StatisticsModel;
+import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.RowStatisticsModel;
+import org.neo4j.ogm.response.model.StatisticsModel;
 import org.neo4j.ogm.drivers.impl.json.JSONArray;
 import org.neo4j.ogm.drivers.impl.json.JSONException;
 import org.neo4j.ogm.drivers.impl.json.JSONObject;

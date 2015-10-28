@@ -5,13 +5,13 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
-import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.model.GraphRows;
-import org.neo4j.ogm.api.model.Row;
-import org.neo4j.ogm.api.model.RowStatistics;
-import org.neo4j.ogm.api.request.*;
-import org.neo4j.ogm.api.response.EmptyResponse;
-import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.model.GraphRows;
+import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.response.EmptyResponse;
+import org.neo4j.ogm.response.Response;
 
 import java.util.Map;
 

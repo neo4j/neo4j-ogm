@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.api.compiler.RelationshipEmitter;
+import org.neo4j.ogm.compiler.RelationshipEmitter;
 
 import java.util.HashMap;
 import java.util.Map;

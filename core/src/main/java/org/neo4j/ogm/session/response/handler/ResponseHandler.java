@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.session.response.handler;
 
-import org.neo4j.ogm.api.compiler.CompileContext;
-import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.model.GraphRows;
-import org.neo4j.ogm.api.model.Row;
-import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.compiler.CompileContext;
+import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.model.GraphRows;
+import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.response.Response;
 
 import java.util.Collection;
 

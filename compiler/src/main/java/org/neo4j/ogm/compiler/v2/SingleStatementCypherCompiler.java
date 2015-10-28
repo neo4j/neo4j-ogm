@@ -15,10 +15,10 @@
 package org.neo4j.ogm.compiler.v2;
 
 
-import org.neo4j.ogm.api.compiler.*;
-import org.neo4j.ogm.api.compiler.Compiler;
-import org.neo4j.ogm.api.request.Statement;
+import org.neo4j.ogm.compiler.*;
+import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.compiler.v2.parameters.NewRelationship;
+import org.neo4j.ogm.request.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * Implementation of {@link org.neo4j.ogm.api.compiler.Compiler} that builds a single query for the object graph.
+ * Implementation of {@link org.neo4j.ogm.compiler.Compiler} that builds a single query for the object graph.
  *
  * @author Vince Bickers
  */

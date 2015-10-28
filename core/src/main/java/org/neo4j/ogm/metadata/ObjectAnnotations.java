@@ -15,7 +15,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.*;
 
 import java.util.HashMap;

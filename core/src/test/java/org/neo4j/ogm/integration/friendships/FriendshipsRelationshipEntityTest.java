@@ -17,7 +17,7 @@ package org.neo4j.ogm.integration.friendships;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.friendships.Friendship;
 import org.neo4j.ogm.domain.friendships.Person;
 import org.neo4j.ogm.session.Session;

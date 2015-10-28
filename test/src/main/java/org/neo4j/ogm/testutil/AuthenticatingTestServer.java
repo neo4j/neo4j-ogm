@@ -1,7 +1,7 @@
 package org.neo4j.ogm.testutil;
 
 import org.apache.commons.io.IOUtils;
-import org.neo4j.ogm.api.driver.Driver;
+import org.neo4j.ogm.driver.Driver;
 
 import java.io.FileWriter;
 import java.io.Writer;

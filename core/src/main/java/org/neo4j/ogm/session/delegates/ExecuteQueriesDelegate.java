@@ -14,10 +14,11 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
-import org.neo4j.ogm.api.model.*;
-import org.neo4j.ogm.api.request.GraphModelRequest;
-import org.neo4j.ogm.api.request.RowModelStatisticsRequest;
-import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.model.*;
+import org.neo4j.ogm.model.*;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
@@ -174,7 +175,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     private class MapStatisticsModel implements MapStatistics {
 
         private Iterable<Map<String,Object>> result;
-        private org.neo4j.ogm.api.model.Statistics queryStatistics;
+        private Statistics queryStatistics;
 
         public MapStatisticsModel(Iterable<Map<String, Object>> result, Statistics queryStatistics) {
             this.result = result;

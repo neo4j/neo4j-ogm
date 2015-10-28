@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.api.compiler.CompileContext;
-import org.neo4j.ogm.api.compiler.NodeEmitter;
-import org.neo4j.ogm.api.mapper.Mappable;
-import org.neo4j.ogm.api.request.Statement;
+import org.neo4j.ogm.compiler.CompileContext;
+import org.neo4j.ogm.compiler.NodeEmitter;
+import org.neo4j.ogm.mapper.Mappable;
+import org.neo4j.ogm.request.Statement;
 
 import java.util.*;
 

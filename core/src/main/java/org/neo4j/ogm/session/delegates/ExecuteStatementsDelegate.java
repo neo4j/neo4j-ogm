@@ -14,10 +14,10 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
-import org.neo4j.ogm.api.model.RowStatistics;
-import org.neo4j.ogm.api.model.Statistics;
-import org.neo4j.ogm.api.request.RowModelStatisticsRequest;
-import org.neo4j.ogm.api.response.Response;
+import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.model.Statistics;
+import org.neo4j.ogm.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;

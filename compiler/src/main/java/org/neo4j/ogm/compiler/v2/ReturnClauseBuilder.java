@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.api.compiler.CypherEmitter;
+import org.neo4j.ogm.compiler.CypherEmitter;
 
 import java.util.Iterator;
 import java.util.Map;

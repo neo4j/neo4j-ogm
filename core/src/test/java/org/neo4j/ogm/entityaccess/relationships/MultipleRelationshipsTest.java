@@ -18,7 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.entityMapping.Movie;
 import org.neo4j.ogm.domain.entityMapping.Person;

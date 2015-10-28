@@ -4,8 +4,8 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.neo4j.ogm.api.transaction.AbstractTransaction;
-import org.neo4j.ogm.api.transaction.TransactionManager;
+import org.neo4j.ogm.transaction.AbstractTransaction;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.exception.TransactionException;
 

@@ -1,9 +1,9 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import org.neo4j.driver.Session;
-import org.neo4j.ogm.api.config.Configuration;
-import org.neo4j.ogm.api.request.Request;
-import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;

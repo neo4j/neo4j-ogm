@@ -2,9 +2,9 @@ package org.neo4j.ogm.drivers.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.api.result.ResultGraphModel;
+import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

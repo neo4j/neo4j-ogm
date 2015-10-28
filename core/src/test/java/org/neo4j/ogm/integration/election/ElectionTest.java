@@ -3,7 +3,7 @@ package org.neo4j.ogm.integration.election;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.mapper.MappedRelationship;

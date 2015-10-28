@@ -16,10 +16,10 @@ package org.neo4j.ogm.session;
 
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.authentication.UsernamePasswordCredentials;
-import org.neo4j.ogm.api.config.Configuration;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
 
 import java.net.URI;
 import java.net.URISyntaxException;

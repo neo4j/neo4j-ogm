@@ -15,7 +15,7 @@
 package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.model.Row;
+import org.neo4j.ogm.model.Row;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;

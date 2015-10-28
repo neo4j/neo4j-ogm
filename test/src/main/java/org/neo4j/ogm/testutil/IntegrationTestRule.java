@@ -19,8 +19,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
 
 /**
  * JUnit {@link TestRule} that provides a {@link GraphDatabaseService} to its enclosing test harness via both the object itself

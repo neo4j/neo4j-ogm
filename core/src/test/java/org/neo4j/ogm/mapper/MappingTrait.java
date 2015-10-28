@@ -21,9 +21,8 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
-import org.neo4j.ogm.api.request.Statement;
-import org.neo4j.ogm.api.request.Statements;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.test.TestGraphDatabaseFactory;
 

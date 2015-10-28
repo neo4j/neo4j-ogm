@@ -15,9 +15,9 @@ package org.neo4j.ogm.drivers.http.response;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.neo4j.ogm.api.response.Response;
-import org.neo4j.ogm.api.response.model.RowModel;
-import org.neo4j.ogm.api.result.ResultRowModel;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.RowModel;
+import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.exception.ResultProcessingException;
 
 import java.io.ByteArrayInputStream;
@@ -65,8 +65,8 @@ public class JsonResponseTest {
         String s = "{" +
                 "\"results\": [{\"columns\": [\"_0\"],\"data\": [{\"row\": [0]}]}]," +
                 "\"errors\": [{\"code\": \"Neo.DatabaseError.Transaction.CouldNotCommit\"," +
-                "\"message\": \"org.neo4j.kernel.api.exceptions.TransactionFailureException: \"," +
-                "\"stackTrace\": \"java.lang.RuntimeException: org.neo4j.kernel.api.exceptions.TransactionFailureException: \\\tat" +
+                "\"message\": \"org.neo4j.kernel.exceptions.TransactionFailureException: \"," +
+                "\"stackTrace\": \"java.lang.RuntimeException: org.neo4j.kernel.exceptions.TransactionFailureException: \\\tat" +
                 "...}]}";
 
         return new ByteArrayInputStream(s.getBytes());

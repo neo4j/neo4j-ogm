@@ -16,8 +16,8 @@ package org.neo4j.ogm.mapper.cypher;
 
 import org.junit.*;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
-import org.neo4j.ogm.api.request.Statements;
+import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;

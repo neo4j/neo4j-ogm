@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.api.compiler.NodeEmitter;
+import org.neo4j.ogm.compiler.NodeEmitter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

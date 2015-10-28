@@ -2,9 +2,9 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.api.response.model.RowModel;
-import org.neo4j.ogm.api.response.model.RowStatisticsModel;
-import org.neo4j.ogm.api.response.model.StatisticsModel;
+import org.neo4j.ogm.response.model.RowModel;
+import org.neo4j.ogm.response.model.RowStatisticsModel;
+import org.neo4j.ogm.response.model.StatisticsModel;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -16,8 +16,8 @@ package org.neo4j.ogm.mapper.cypher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.neo4j.ogm.api.request.Statement;
-import org.neo4j.ogm.api.request.Statements;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 
 import java.util.ArrayList;

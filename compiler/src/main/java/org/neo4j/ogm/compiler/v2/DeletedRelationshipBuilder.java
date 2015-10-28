@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.api.compiler.DeletedRelationshipEmitter;
+import org.neo4j.ogm.compiler.DeletedRelationshipEmitter;
 
 import java.util.Map;
 import java.util.Set;

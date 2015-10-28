@@ -2,9 +2,9 @@ package org.neo4j.ogm.drivers.embedded.driver;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.ogm.api.config.Configuration;
-import org.neo4j.ogm.api.request.Request;
-import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;

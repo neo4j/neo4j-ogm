@@ -13,9 +13,9 @@
  */
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.api.model.MapStatistics;
-import org.neo4j.ogm.api.model.Statistics;
-import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.model.MapStatistics;
+import org.neo4j.ogm.model.Statistics;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -152,7 +152,7 @@ public interface Capability {
          *                   if a complex domain object is provided only the properties of that object will be set.
          *                   If relationships of a provided object also need to be set then the cypher should reflect this
          *                   and further domain object parameters provided.
-         * @return {@link org.neo4j.ogm.api.model.Statistics} representing statistics about graph modifications as a result of the cypher execution.
+         * @return {@link org.neo4j.ogm.model.Statistics} representing statistics about graph modifications as a result of the cypher execution.
          */
         @Deprecated
         Statistics execute(String cypher, Map<String, Object> parameters);
@@ -205,7 +205,7 @@ public interface Capability {
          * @param cypher  The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher.
          *
-         * @return A {@link org.neo4j.ogm.api.model.MapStatistics} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.api.model.Statistics} if applicable.
+         * @return A {@link org.neo4j.ogm.model.MapStatistics} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.model.Statistics} if applicable.
          */
         MapStatistics query(String cypher, Map<String, ?> parameters);
 
@@ -221,7 +221,7 @@ public interface Capability {
          * @param parameters Any parameters to attach to the cypher.
          * @param readOnly true if the query is readOnly, false otherwise
          *
-         * @return A {@link org.neo4j.ogm.api.model.MapStatistics} of {@link Iterable}s with each entry representing a neo4j object's properties.
+         * @return A {@link org.neo4j.ogm.model.MapStatistics} of {@link Iterable}s with each entry representing a neo4j object's properties.
          */
         MapStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly);
 

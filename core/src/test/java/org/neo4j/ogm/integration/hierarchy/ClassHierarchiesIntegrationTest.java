@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
 import org.neo4j.ogm.domain.hierarchy.domain.people.*;
 import org.neo4j.ogm.domain.hierarchy.domain.plain.*;

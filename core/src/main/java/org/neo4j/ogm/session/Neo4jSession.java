@@ -15,11 +15,11 @@
 package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.model.MapStatistics;
-import org.neo4j.ogm.api.model.Statistics;
-import org.neo4j.ogm.api.request.Request;
-import org.neo4j.ogm.api.transaction.Transaction;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.model.MapStatistics;
+import org.neo4j.ogm.model.Statistics;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;

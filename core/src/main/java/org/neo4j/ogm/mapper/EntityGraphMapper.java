@@ -18,12 +18,11 @@ import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.api.compiler.CompileContext;
-import org.neo4j.ogm.api.compiler.Compiler;
-import org.neo4j.ogm.api.compiler.NodeEmitter;
-import org.neo4j.ogm.api.compiler.RelationshipEmitter;
-import org.neo4j.ogm.api.mapper.EntityToGraphMapper;
-import org.neo4j.ogm.api.service.Components;
+import org.neo4j.ogm.compiler.CompileContext;
+import org.neo4j.ogm.compiler.Compiler;
+import org.neo4j.ogm.compiler.NodeEmitter;
+import org.neo4j.ogm.compiler.RelationshipEmitter;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 
 /**
- * Implementation of {@link org.neo4j.ogm.api.mapper.EntityToGraphMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
+ * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -117,7 +116,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * Detects object references (including from lists) that have been deleted in the domain.
      * These must be persisted as explicit requests to delete the corresponding relationship in the graph
      *
-     * @param compiler the {@link org.neo4j.ogm.api.compiler.Compiler} instance.
+     * @param compiler the {@link org.neo4j.ogm.compiler.Compiler} instance.
      */
     private void deleteObsoleteRelationships(Compiler compiler) {
         CompileContext context=compiler.context();
@@ -156,7 +155,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     /**
      * Builds Cypher to save the specified object and all its composite objects into the graph database.
      *
-     * @param compiler The {@link org.neo4j.ogm.api.compiler.Compiler} used to construct the query
+     * @param compiler The {@link org.neo4j.ogm.compiler.Compiler} used to construct the query
      * @param entity The object to persist into the graph database as a node
      * @return The "root" node of the object graph that matches
      */
@@ -212,7 +211,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     /**
      * Returns a {@link NodeEmitter} responsible for handling new or updated nodes
      *
-     * @param compiler the {@link org.neo4j.ogm.api.compiler.Compiler}
+     * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
      * @param entity the object to save
      * @return a {@link NodeEmitter} object for either a new node or an existing one
      */
@@ -250,7 +249,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * @param entity  the node whose relationships will be updated
      * @param nodeBuilder a {@link NodeEmitter} that knows how to create node create/update cypher phrases
      * @param horizon the depth in the tree. If this reaches 0, we stop mapping any deeper
-     * @param compiler the {@link org.neo4j.ogm.api.compiler.Compiler}
+     * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
      */
     private void mapEntityReferences(final Object entity, NodeEmitter nodeBuilder, int horizon, Compiler compiler) {
 
@@ -354,7 +353,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * In the event that the relationship being managed is represented by an instance of RelationshipEntity
      * then the target will always be a RelationshipEntity, and the actual relationship will be
      * established between the relevant start and end nodes.
-     * @param cypherCompiler     the {@link org.neo4j.ogm.api.compiler.Compiler}
+     * @param cypherCompiler     the {@link org.neo4j.ogm.compiler.Compiler}
      * @param directedRelationship  the {@link DirectedRelationship} representing the relationship type and direction
      * @param nodeBuilder        a {@link NodeEmitter} that knows how to create cypher node phrases
      * @param horizon            the current depth we have mapped the domain model to.
@@ -393,7 +392,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * In the event that the domain object is a {@link RelationshipEntity}, we create a new relationship, collect
      * its properties and return a builder associated to the RE's end node instead
      *
-     * @param cypherBuilder the {@link org.neo4j.ogm.api.compiler.Compiler}
+     * @param cypherBuilder the {@link org.neo4j.ogm.compiler.Compiler}
      * @param entity  an object representing a node or relationship entity in the graph
      * @param directedRelationship the {@link DirectedRelationship} representing the relationship type and direction we want to establish
      * @param mapBothDirections whether the nodes should be linked in both directions
@@ -616,7 +615,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
      * is traversed in depth-first order, and the relationships between the leaf nodes are created
      * first.
      *
-     * @param compiler the {@link org.neo4j.ogm.api.compiler.Compiler}
+     * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
      * @param srcNodeBuilder  a {@link NodeEmitter} that knows how to create cypher phrases about nodes
      * @param relationshipBuilder a {@link RelationshipEmitter} that knows how to create cypher phrases about relationships
      * @param horizon  a value representing how deep we are mapping

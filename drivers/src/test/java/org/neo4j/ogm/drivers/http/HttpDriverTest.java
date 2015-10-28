@@ -1,8 +1,8 @@
 package org.neo4j.ogm.drivers.http;
 
 import org.junit.Test;
-import org.neo4j.ogm.api.driver.Driver;
-import org.neo4j.ogm.api.service.DriverService;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.DriverService;
 
 /**
  * @author vince

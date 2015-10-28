@@ -4,9 +4,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.ogm.api.model.Graph;
-import org.neo4j.ogm.api.result.ResultAdapter;
-import org.neo4j.ogm.api.result.ResultGraphModel;
+import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.result.ResultAdapter;
+import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.exception.ResultProcessingException;
 
 import java.util.HashSet;

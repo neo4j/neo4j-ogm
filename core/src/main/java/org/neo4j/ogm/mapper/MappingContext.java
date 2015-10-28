@@ -15,7 +15,7 @@
 package org.neo4j.ogm.mapper;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.api.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;

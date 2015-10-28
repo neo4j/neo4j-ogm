@@ -48,7 +48,7 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setPagination(pagination);
 
         try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-            return session.responseHandler().loadAll(type, response);
+            return session.responseHandler().loadGraphResponse(type, response);
         }
     }
 

@@ -15,9 +15,8 @@
 package org.neo4j.ogm.session.response.handler;
 
 import org.neo4j.ogm.compiler.CompileContext;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.mapper.RowMapper;
+import org.neo4j.ogm.model.*;
 import org.neo4j.ogm.response.Response;
 
 import java.util.Collection;
@@ -28,9 +27,16 @@ import java.util.Collection;
  */
 public interface ResponseHandler {
 
-    <T> T loadById(Class<T> type, Response<Graph> stream, Long id);
-    <T> Collection<T> loadAll(Class<T> type, Response<Graph> stream);
+    <T> Collection<T> loadGraphResponse(Class<T> type, Response<Graph> stream);
+    <T> Collection<T> loadRowResponse(Class<T> type, Response<Row> response, RowMapper mapper);
+
+
+    QueryResult loadQueryResult(Response<RowStatistics> response);
+
     <T> Collection<T> loadByProperty(Class<T> type, Response<GraphRows> stream);
+    <T> T loadById(Class<T> type, Response<Graph> stream, Long id);
+
 
     void updateObjects(CompileContext context, Response<Row> response);
+
 }

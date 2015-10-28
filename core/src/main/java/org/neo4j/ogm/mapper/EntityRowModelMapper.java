@@ -17,15 +17,15 @@ package org.neo4j.ogm.mapper;
 import java.util.Collection;
 
 /**
- * {@link RowModelMapper} that maps each row value onto
+ * {@link RowMapper} that maps each row value onto
  *
  * @param <T> The type of entity to which the row is to be mapped
  */
-public class EntityRowModelMapper<T> implements RowModelMapper<T> {
+public class EntityRowModelMapper<T> implements RowMapper<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void mapIntoResult(Collection<T> result, Object[] rowValues, String[] responseVariables) {
+    public void map(Collection<T> result, Object[] rowValues, String[] responseVariables) {
         if (responseVariables.length > 1) {
             throw new RuntimeException(
                     "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");

@@ -17,11 +17,11 @@ package org.neo4j.ogm.mapper;
 import java.util.Collection;
 
 /**
- * Utility to map a row-based graph result onto an object.
+ * Interface to map a row-based response into one or more objects
  *
- * @param <T> The type of object onto which the row model should be mapped
+ * @param <T> The type of object onto which the response should be mapped
  */
-public interface RowModelMapper<T> {
+public interface RowMapper<T> {
 
     /**
      * Appends elements to the given result for each of the row values.
@@ -30,6 +30,6 @@ public interface RowModelMapper<T> {
      * @param rowValues The value in the row returned from the graph database
      * @param responseColumns The names of the columns in the row
      */
-    void mapIntoResult(Collection<T> result, Object[] rowValues, String[] responseColumns);
+    void map(Collection<T> result, Object[] rowValues, String[] responseColumns);
 
 }

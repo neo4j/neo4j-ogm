@@ -18,17 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.CompileContext;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRow;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
-import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.entityaccess.FieldWriter;
-import org.neo4j.ogm.mapper.GraphEntityMapper;
-import org.neo4j.ogm.mapper.MappedRelationship;
-import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.TransientRelationship;
+import org.neo4j.ogm.mapper.*;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.model.*;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.QueryResultModel;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -189,7 +184,7 @@ public class SessionResponseHandler implements ResponseHandler {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Response<Graph> response) {
+    public <T> Collection<T> loadGraphResponse(Class<T> type, Response<Graph> response) {
 
         Set<T> objects = new LinkedHashSet<>();
 
@@ -202,5 +197,39 @@ public class SessionResponseHandler implements ResponseHandler {
         response.close();
         return objects;
     }
+
+    @Override
+    public <T> Collection<T> loadRowResponse(Class<T> type, Response<Row> response, RowMapper mapper) {
+
+        String[] variables = response.columns();
+
+        Collection<T> result = new ArrayList<>();
+        Row rowModel;
+        while ((rowModel = response.next()) != null) {
+            mapper.map(result, rowModel.getValues(), variables);
+        }
+
+        return result;
+
+    }
+
+    @Override
+    public QueryResult loadQueryResult(Response<RowStatistics> response) {
+
+        RowMapper mapper = new MapRowModelMapper();
+
+        RowStatistics result = response.next();
+        Collection rowResult = new LinkedHashSet();
+
+        for (Iterator<Object> iterator = result.getRows().iterator(); iterator.hasNext(); ) {
+            List next =  (List) iterator.next();
+            mapper.map(rowResult, next.toArray(), response.columns());
+        }
+        return new QueryResultModel(rowResult, result.getStats());
+
+
+    }
+
+
 
 }

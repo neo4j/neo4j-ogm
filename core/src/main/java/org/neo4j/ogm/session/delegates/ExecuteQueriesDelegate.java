@@ -14,18 +14,19 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.apache.commons.lang.StringUtils;
-import org.neo4j.ogm.model.*;
-import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.request.RowModelStatisticsRequest;
-import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
 import org.neo4j.ogm.mapper.EntityRowModelMapper;
 import org.neo4j.ogm.mapper.MapRowModelMapper;
-import org.neo4j.ogm.mapper.RowModelMapper;
+import org.neo4j.ogm.mapper.RowMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.model.*;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
@@ -86,65 +87,41 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
         //If readOnly=true, just execute the query. If false, execute the query and return stats as well
         if(readOnly) {
-            return new QueryStatisticsModel(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
+            return new QueryResultModel(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
         }
         else {
             RowModelStatisticsRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
             try (Response<RowStatistics> response = session.requestHandler().execute(parameterisedStatement)) {
-                RowStatistics result = response.next();
-                RowModelMapper rowModelMapper = new MapRowModelMapper();
-                Collection rowResult = new LinkedHashSet();
-                for (Iterator<Object> iterator = result.getRows().iterator(); iterator.hasNext(); ) {
-                    List next =  (List) iterator.next();
-                    rowModelMapper.mapIntoResult(rowResult, next.toArray(), response.columns());
-                }
-                return new QueryStatisticsModel(rowResult, result.getStats());
-
+                return session.responseHandler().loadQueryResult(response);
             }
         }
 
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, RowModelMapper<T> rowModelMapper) {
-        if (StringUtils.isEmpty(cypher)) {
-            throw new RuntimeException("Supplied cypher statement must not be null or empty.");
-        }
-
-        if (parameters == null) {
-            throw new RuntimeException("Supplied Parameters cannot be null.");
-        }
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, RowMapper<T> rowModelMapper) {
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
-            AbstractRequest qry = new DefaultGraphModelRequest(cypher, parameters);
-            try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                return session.responseHandler().loadAll(type, response);
+            GraphModelRequest qry = new DefaultGraphModelRequest(cypher, parameters);
+            try (Response<Graph> response = session.requestHandler().execute(qry)) {
+                return session.responseHandler().loadGraphResponse(type, response);
             }
         } else {
-            DefaultRowModelRequest qry = new DefaultRowModelRequest(cypher, parameters);
+            RowModelRequest qry = new DefaultRowModelRequest(cypher, parameters);
             try (Response<Row> response = session.requestHandler().execute(qry)) {
-
-                String[] variables = response.columns();
-
-                Collection<T> result = new ArrayList<>();
-                Row rowModel;
-                while ((rowModel = response.next()) != null) {
-                    rowModelMapper.mapIntoResult(result, rowModel.getValues(), variables);
-                }
-
-                return result;
+                return session.responseHandler().loadRowResponse(type, response, rowModelMapper);
             }
         }
     }
 
     @Override
     public long countEntitiesOfType(Class<?> entity) {
+
         ClassInfo classInfo = session.metaData().classInfo(entity.getName());
         if (classInfo == null) {
             return 0;
         }
 
         DefaultRowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
-//        session.ensureTransaction();
 
         try (Response<Row> response = session.requestHandler().execute(countStatement)) {
             Row queryResult = response.next();
@@ -158,6 +135,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
+
         if(readOnly && !isReadOnly(cypher)) {
             throw new RuntimeException("Cypher query must not modify the graph if readOnly=true");
         }
@@ -171,29 +149,4 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
     }
 
-    private class QueryStatisticsModel implements QueryResult {
-
-        private Iterable<Map<String,Object>> result;
-        private Statistics queryStatistics;
-
-        public QueryStatisticsModel(Iterable<Map<String, Object>> result, Statistics queryStatistics) {
-            this.result = result;
-            this.queryStatistics = queryStatistics;
-        }
-
-        @Override
-        public Iterator<Map<String,Object>> iterator() {
-            return result.iterator();
-        }
-
-        @Override
-        public Iterable<Map<String,Object>> model() {
-            return result;
-        }
-
-        @Override
-        public Statistics statistics() {
-            return queryStatistics;
-        }
-    }
 }

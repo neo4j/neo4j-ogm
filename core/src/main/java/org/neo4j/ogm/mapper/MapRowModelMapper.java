@@ -19,12 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@code Map}-based implementation of {@link RowModelMapper}.
+ * A {@code Map}-based implementation of {@link RowMapper}.
  */
-public class MapRowModelMapper implements RowModelMapper<Map<String, Object>> {
+public class MapRowModelMapper implements RowMapper<Map<String, Object>> {
 
     @Override
-    public void mapIntoResult(Collection<Map<String, Object>> result, Object[] rowValues, String[] responseVariables) {
+    public void map(Collection<Map<String, Object>> result, Object[] rowValues, String[] responseVariables) {
+
         Map<String, Object> element = new HashMap<>();
         for (int i = 0; i < responseVariables.length; i++) {
             element.put(responseVariables[i], rowValues[i]);

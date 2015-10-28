@@ -67,7 +67,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setPagination(pagination);
 
             try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                return session.responseHandler().loadAll(type, response);
+                return session.responseHandler().loadGraphResponse(type, response);
             }
         } else {
 
@@ -83,7 +83,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                 }
             } else {
                 try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                    return session.responseHandler().loadAll(type, response);
+                    return session.responseHandler().loadGraphResponse(type, response);
                 }
             }
         }

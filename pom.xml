@@ -17,286 +17,236 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm</artifactId>
-    <packaging>pom</packaging>
-    <version>2.0.0-SNAPSHOT</version>
-    <modules>
-        <module>api</module>
-        <module>compiler</module>
-        <module>drivers</module>
-        <module>core</module>
-        <module>test</module>
-    </modules>
+  <groupId>org.neo4j</groupId>
+  <artifactId>neo4j-ogm</artifactId>
+  <packaging>pom</packaging>
+  <version>2.0.0-SNAPSHOT</version>
+  <modules>
+    <module>api</module>
+    <module>compiler</module>
+    <module>drivers</module>
+    <module>core</module>
+    <module>test</module>
+  </modules>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <neo4j>2.2.5</neo4j>
-        <neo4j-io>2.2.5</neo4j-io>
-        <commonslang>2.6</commonslang>
-        <jackson>2.5.1</jackson>
-        <httpclient>4.3.6</httpclient>
-        <junit>4.12</junit>
-        <slf4j>1.7.5</slf4j>
-        <logback>1.1.3</logback>
-    </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <neo4j>2.2.5</neo4j>
+    <bolt>1.0-SNAPSHOT</bolt>
+    <commonslang>2.6</commonslang>
+    <commonscodec>1.10</commonscodec>
+    <jackson>2.5.1</jackson>
+    <httpclient>4.3.6</httpclient>
+    <junit>4.12</junit>
+    <slf4j>1.7.5</slf4j>
+    <logback>1.1.3</logback>
+  </properties>
 
+  <dependencyManagement>
     <dependencies>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commonslang}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- this is only required to support the embedded driver -->
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-            <version>${neo4j}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j.test</groupId>
-            <artifactId>neo4j-harness</artifactId>
-            <version>${neo4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- for bolt -->
-        <dependency>
-            <groupId>org.neo4j.driver</groupId>
-            <artifactId>neo4j-java-driver</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${commonslang}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commonscodec}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j</artifactId>
+        <version>${neo4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.neo4j.test</groupId>
+        <artifactId>neo4j-harness</artifactId>
+        <version>${neo4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.neo4j.driver</groupId>
+        <artifactId>neo4j-java-driver</artifactId>
+        <version>${bolt}</version>
+      </dependency>
     </dependencies>
+  </dependencyManagement>
 
-    <!-- for bolt -->
-    <repositories>
-        <repository>
-            <id>neo4j-snapshot-repository</id>
-            <name>Neo4j Maven 2 snapshot repository</name>
-            <url>http://m2.neo4j.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
+  <!-- for bolt -->
+  <repositories>
+    <repository>
+      <id>neo4j-snapshot-repository</id>
+      <name>Neo4j Maven 2 snapshot repository</name>
+      <url>http://m2.neo4j.org/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
+  </repositories>
 
-    <build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.7</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.8</version>
+        <configuration>
+          <outputDirectory>${project.build.directory}/dependency/${neo4j}</outputDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.18.1</version>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <configuration>
+              <forkMode>once</forkMode>
+              <includes>
+                <include>**/*.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/defects/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <includes>
+          <include>CHANGES.txt</include>
+          <include>README.md</include>
+        </includes>
+        <targetPath>META-INF</targetPath>
+      </resource>
+    </resources>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>2.1</id>
+      <properties>
+        <neo4j>2.1.8</neo4j>
+      </properties>
+    </profile>
+    <profile>
+      <id>defects</id>
+      <build>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.8</version>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18.1</version>
+            <executions>
+              <execution>
+                <id>default-test</id>
                 <configuration>
-                    <outputDirectory>${project.build.directory}/dependency/${neo4j}</outputDirectory>
+                  <includes>
+                    <include>**/defects/**</include>
+                  </includes>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
-                <executions>
-                    <execution>
-                        <id>default-test</id>
-                        <configuration>
-                            <forkMode>once</forkMode>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <excludes>
-                                <exclude>**/defects/**</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-
-                </executions>
-
-            </plugin>
-
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
-
-                    <excludes>
-                        <exclude>**/auth/**</exclude>
-                        <exclude>**/defects/**</exclude>
-                        <exclude>**/domain/**</exclude>
-                        <exclude>**/integration/**</exclude>
-                        <exclude>**/unit/**</exclude>
-                        <exclude>**/cql/**</exclude>
-                        <exclude>*.jar</exclude>
-                        <exclude>*.xml</exclude>
-                    </excludes>
-
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
-
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>${project.basedir}</directory>
-                <includes>
-                    <include>CHANGES.txt</include>
-                    <include>README.md</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-        </resources>
-    </build>
+      </build>
+    </profile>
+  </profiles>
 
-    <profiles>
-
-        <profile>
-            <id>2.1</id>
-            <properties>
-                <neo4j>2.1.8</neo4j>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>defects</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.18.1</version>
-                        <executions>
-                            <execution>
-                                <id>default-test</id>
-                                <configuration>
-                                    <includes>
-                                        <include>**/defects/**</include>
-                                    </includes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-    </profiles>
-
-    <!-- Stuff Maven Central needs -->
-    <name>Neo4j Object-Graph Mapper</name>
-    <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support</description>
-    <organization>
-        <name>Neo Technology, Inc.</name>
-        <url>http://neotechnology.com/</url>
-    </organization>
-    <developers>
-        <developer>
-            <id>neo-technology</id>
-        </developer>
-    </developers>
+  <!-- Stuff Maven Central needs -->
+  <name>Neo4j Object-Graph Mapper</name>
+  <description>Annotation based Object Graph Mapper for Neo4j Server with Repository and Conversion support</description>
+  <organization>
+    <name>Neo Technology, Inc.</name>
+    <url>http://neotechnology.com/</url>
+  </organization>
+  <developers>
+    <developer>
+      <id>neo-technology</id>
+    </developer>
+  </developers>
+  <url>http://github.com/neo4j/neo4j-ogm/</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
     <url>http://github.com/neo4j/neo4j-ogm/</url>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>http://github.com/neo4j/neo4j-ogm/</url>
-    </scm>
+  </scm>
 
 </project>

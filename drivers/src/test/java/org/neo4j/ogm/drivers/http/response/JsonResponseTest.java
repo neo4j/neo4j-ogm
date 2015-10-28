@@ -13,7 +13,7 @@
  */
 package org.neo4j.ogm.drivers.http.response;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.RowModel;
@@ -58,6 +58,7 @@ public class JsonResponseTest {
     }
 
     private void parseResponse(Response<RowModel> rsp) {
+        //noinspection StatementWithEmptyBody
         while (rsp.next() != null);
     }
 

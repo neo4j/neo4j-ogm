@@ -25,6 +25,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.tree.Entity;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
@@ -87,7 +88,7 @@ public class TreeIntegrationTest {
 	@Test
 	public void shouldLoadTreeProperly() {
 		String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
-		session.execute(cypher);
+		session.query(cypher, Utils.map());
 		session.clear();
 		Entity parent = session.loadAll(Entity.class, new Filter("name","parent")).iterator().next();
 		assertNotNull(parent);

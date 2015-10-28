@@ -15,16 +15,14 @@
 package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.model.QueryStatistics;
-import org.neo4j.ogm.model.Statistics;
-import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.mapper.MappingContext;
+import org.neo4j.ogm.model.QueryResult;
+import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
@@ -32,6 +30,7 @@ import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 import org.neo4j.ogm.session.response.handler.ResponseHandler;
 import org.neo4j.ogm.session.response.handler.SessionResponseHandler;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +56,6 @@ public class Neo4jSession implements Session {
     private final SaveDelegate saveDelegate = new SaveDelegate(this);
     private final DeleteDelegate deleteDelegate = new DeleteDelegate(this);
     private final ExecuteQueriesDelegate executeQueriesDelegate = new ExecuteQueriesDelegate(this);
-    private final ExecuteStatementsDelegate executeStatementsDelegate = new ExecuteStatementsDelegate(this);
     private final TransactionsDelegate transactionsDelegate = new TransactionsDelegate(this);
     private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
@@ -314,12 +312,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
+    public QueryResult query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryResult query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 
@@ -374,21 +372,6 @@ public class Neo4jSession implements Session {
         saveDelegate.save(object, depth);
     }
 
-
-    /*
-    *----------------------------------------------------------------------------------------------------------
-    * ExecuteStatementsDelegate
-    *----------------------------------------------------------------------------------------------------------
-    */
-    @Override
-    public Statistics execute(String cypher, Map<String, Object> parameters) {
-        return executeStatementsDelegate.execute(cypher, parameters);
-    }
-
-    @Override
-    public Statistics execute(String statement) {
-        return executeStatementsDelegate.execute(statement);
-    }
 
     /*
     *----------------------------------------------------------------------------------------------------------

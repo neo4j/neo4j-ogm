@@ -19,11 +19,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
@@ -153,11 +154,11 @@ public class CineastsRelationshipEntityTest{
 
 	@Test
 	public void shouldLoadActorsForAPersistedMovie() {
-		session.execute(
+		session.query(
 				"CREATE " +
 						"(dh:Movie {title:'Die Hard'}), " +
 						"(bw:Actor {name: 'Bruce Willis'}), " +
-						"(bw)-[:ACTS_IN {role : 'John'}]->(dh)");
+						"(bw)-[:ACTS_IN {role : 'John'}]->(dh)", Utils.map());
 
 
 		//Movie dieHard = IteratorUtil.firstOrNull(session.loadByProperty(Movie.class, new Parameter("title", "Die Hard")));
@@ -266,11 +267,11 @@ public class CineastsRelationshipEntityTest{
 	@Test
 	public void shouldSaveAndRetrieveRelationshipEntitiesDirectly() {
 		// we need some guff in the database
-		session.execute(
+		session.query(
 				"CREATE " +
 						"(nc:NotAClass {name:'Colin'}), " +
 						"(g:NotAClass {age: 39}), " +
-						"(g)-[:TEST {comment : 'test'}]->(nc)");
+						"(g)-[:TEST {comment : 'test'}]->(nc)", Utils.map());
 
 		User critic = new User();
 		critic.setName("Gary");
@@ -300,11 +301,11 @@ public class CineastsRelationshipEntityTest{
 	@Test
 	public void shouldSaveAndRetrieveRelationshipEntitiesPreExistingDirectly() {
 
-		session.execute(
+		session.query(
 				"CREATE " +
 						"(ff:Movie {title:'Fast and Furious XVII'}), " +
 						"(g:User {name: 'Gary'}), " +
-						"(g)-[:RATED {comment : 'Too many of these films!'}]->(ff)");
+						"(g)-[:RATED {comment : 'Too many of these films!'}]->(ff)", Utils.map());
 
 		Rating loadedRating = session.load(Rating.class, 0l);
 		Assert.assertNotNull("The loaded rating shouldn't be null", loadedRating);

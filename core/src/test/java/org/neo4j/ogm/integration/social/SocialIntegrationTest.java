@@ -64,7 +64,7 @@ public class SocialIntegrationTest
 	 */
 	@Test
 	public void shouldFetchOnlyPeopleILike() {
-		session.execute("create (p1:Person {name:'A'}) create (p2:Person {name:'B'}) create (p3:Person {name:'C'})" +
+		session.query("create (p1:Person {name:'A'}) create (p2:Person {name:'B'}) create (p3:Person {name:'C'})" +
 				" create (p4:Person {name:'D'}) create (p1)-[:LIKES]->(p2) create (p1)-[:LIKES]->(p3) create (p4)-[:LIKES]->(p1)", Collections.EMPTY_MAP);
 
 		Person personA = session.loadAll(Person.class, new Filter("name", "A")).iterator().next();
@@ -83,7 +83,7 @@ public class SocialIntegrationTest
 	 */
 	@Test
 	public void shouldFetchFriendsInBothDirections() {
-		session.execute("create (p1:Individual {name:'A'}) create (p2:Individual {name:'B'}) create (p3:Individual {name:'C'})" +
+		session.query("create (p1:Individual {name:'A'}) create (p2:Individual {name:'B'}) create (p3:Individual {name:'C'})" +
 				" create (p4:Individual {name:'D'}) create (p1)-[:FRIENDS]->(p2) create (p1)-[:FRIENDS]->(p3) create (p4)-[:FRIENDS]->(p1)", Collections.EMPTY_MAP);
 
 		Individual individualA = session.loadAll(Individual.class, new Filter("name", "A")).iterator().next();
@@ -97,7 +97,7 @@ public class SocialIntegrationTest
 	 */
 	@Test
 	public void shouldFetchFriendsForUndirectedRelationship() {
-		session.execute("create (p1:User {name:'A'}) create (p2:User {name:'B'}) create (p3:User {name:'C'})" +
+		session.query("create (p1:User {name:'A'}) create (p2:User {name:'B'}) create (p3:User {name:'C'})" +
 				" create (p4:User {name:'D'}) create (p1)-[:FRIEND]->(p2) create (p1)-[:FRIEND]->(p3) create (p4)-[:FRIEND]->(p1)", Collections.EMPTY_MAP);
 
 		User userA = session.loadAll(User.class, new Filter("name", "A")).iterator().next();
@@ -218,7 +218,7 @@ public class SocialIntegrationTest
 	 */
 	@Test
 	public void shouldFetchIncomingKnownMortals() {
-		session.execute("create (m1:Mortal {name:'A'}) create (m2:Mortal {name:'B'}) create (m3:Mortal {name:'C'})" +
+		session.query("create (m1:Mortal {name:'A'}) create (m2:Mortal {name:'B'}) create (m3:Mortal {name:'C'})" +
 				" create (m4:Mortal {name:'D'}) create (m1)<-[:KNOWN_BY]-(m2) create (m1)<-[:KNOWN_BY]-(m3) create (m4)<-[:KNOWN_BY]-(m1)", Collections.EMPTY_MAP);
 
 		Mortal mortalA = session.loadAll(Mortal.class, new Filter("name", "A")).iterator().next();

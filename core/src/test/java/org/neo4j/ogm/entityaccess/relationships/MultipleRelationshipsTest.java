@@ -66,7 +66,7 @@ public class MultipleRelationshipsTest {
 	 */
 	@Test
 	public void shouldMapFromGraphToEntitiesCorrectly() {
-		session.execute("create (_5:`Person` {`name`:\"Jim\"})\n" +
+		session.query("create (_5:`Person` {`name`:\"Jim\"})\n" +
 				"create (_6:`Person` {`name`:\"Mary\"})\n" +
 				"create (_7:`Person` {`name`:\"Bill\"})\n" +
 				"create (_8:`Movie` {`name`:\"Die Hard\"})\n" +

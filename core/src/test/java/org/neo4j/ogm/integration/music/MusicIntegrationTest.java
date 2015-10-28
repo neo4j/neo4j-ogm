@@ -19,16 +19,17 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.domain.music.Studio;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.io.IOException;
@@ -103,7 +104,7 @@ public class MusicIntegrationTest {
 	 */
 	@Test
 	public void shouldLoadStudioWithLocationMissingInDomainModel() {
-		session.execute("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})");
+		session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Utils.map());
 		Studio studio = session.loadAll(Studio.class, new Filter("name", "Abbey Road Studios")).iterator().next();
 		assertNotNull(studio);
 

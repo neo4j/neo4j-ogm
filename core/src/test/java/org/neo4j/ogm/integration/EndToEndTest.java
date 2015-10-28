@@ -144,7 +144,7 @@ public class EndToEndTest {
         parameters.put("brand", "Huffy");
         parameters.put("saddle", newSaddle);
 
-        session.execute("MATCH (bike:Bike{brand:{brand}})-[r]-(s:Saddle) SET s = {saddle}", parameters);
+        session.query("MATCH (bike:Bike{brand:{brand}})-[r]-(s:Saddle) SET s = {saddle}", parameters);
 
         HashMap<String, Object> parameters2 = new HashMap<>();
         parameters2.put("brand", "Huffy");

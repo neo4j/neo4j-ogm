@@ -66,7 +66,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
+    public QueryResult query(String cypher, Map<String, ?> parameters) {
         return query(cypher, parameters, isReadOnly(cypher));
     }
 
@@ -80,7 +80,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryResult query(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
         validateQuery(cypher, parameters, readOnly);
 
@@ -171,7 +171,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
     }
 
-    private class QueryStatisticsModel implements QueryStatistics {
+    private class QueryStatisticsModel implements QueryResult {
 
         private Iterable<Map<String,Object>> result;
         private Statistics queryStatistics;

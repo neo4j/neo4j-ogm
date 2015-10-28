@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -56,7 +57,7 @@ public class SatelliteIntegrationTest
     }
 
     private static void importSatellites() {
-        session.execute(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString());
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Utils.map());
     }
 
     @Test

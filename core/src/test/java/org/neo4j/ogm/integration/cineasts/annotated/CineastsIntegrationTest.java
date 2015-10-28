@@ -57,7 +57,7 @@ public class CineastsIntegrationTest {
     }
 
     private static void importCineasts() {
-        session.execute(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+        session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
     }
 
     @Test

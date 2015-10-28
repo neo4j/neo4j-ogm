@@ -31,7 +31,6 @@ public interface Session extends
         Capability.Save,
         Capability.Delete,
         Capability.Transactions,
-        Capability.ExecuteStatements,
         Capability.ExecuteQueries,
         Capability.GraphId {
 }

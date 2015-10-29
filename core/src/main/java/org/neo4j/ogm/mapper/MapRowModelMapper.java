@@ -23,19 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@code Map}-based implementation of {@link RowMapper}.
+ * @author luanne
+ * @author vince
  */
-public class MapRowModelMapper implements RowMapper<Map<String, Object>>, Mapper<Response<RowModel>> {
-
-    @Override
-    public void map(Collection<Map<String, Object>> result, Object[] rowValues, String[] responseVariables) {
-
-        Map<String, Object> element = new HashMap<>();
-        for (int i = 0; i < responseVariables.length; i++) {
-            element.put(responseVariables[i], rowValues[i]);
-        }
-        result.add(element);
-    }
+public class MapRowModelMapper implements ResponseMapper<RowModel> {
 
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {

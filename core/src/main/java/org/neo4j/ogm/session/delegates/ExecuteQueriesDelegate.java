@@ -94,7 +94,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         else {
             RowStatisticsModelRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
             try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
-                Mapper mapper = new RowStatisticsModelMapper();
+                ResponseMapper mapper = new RowStatisticsModelMapper();
                 RowStatisticsModel model = (RowStatisticsModel) mapper.map(Object.class, response);
                 return new QueryResultModel(model, model.getStats());
             }
@@ -102,7 +102,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, Mapper mapper) {
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, ResponseMapper mapper) {
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
             GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);

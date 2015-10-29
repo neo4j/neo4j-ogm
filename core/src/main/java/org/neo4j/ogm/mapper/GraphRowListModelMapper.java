@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * @author vince
  */
-public class GraphRowListModelMapper implements Mapper<Response<GraphRowListModel>>{
+public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel> {
 
     private final MetaData metaData;
     private final MappingContext mappingContext;

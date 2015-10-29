@@ -4,26 +4,28 @@ import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author vince
  */
-public class RowStatisticsModelMapper implements Mapper<Response<RowStatisticsModel>> {
+public class RowStatisticsModelMapper implements ResponseMapper<RowStatisticsModel> {
 
     public <T> Iterable<T> map(Class<T> type, Response<RowStatisticsModel> response) {
 
-        RowMapper mapper = new MapRowModelMapper();
-
         RowStatisticsModel result = response.next();
-        Collection rowResult = new LinkedHashSet();
+        Set<Map<String, Object>> rowResult = new LinkedHashSet();
 
         for (Iterator iterator = result.getRows().iterator(); iterator.hasNext(); ) {
-            List next =  (List) iterator.next();
-            mapper.map(rowResult, next.toArray(), response.columns());
+
+            Object[] model =  ((List)iterator.next()).toArray();
+
+            Map<String, Object> element = new HashMap<>();
+            for (int i = 0; i < model.length; i++) {
+                element.put(response.columns()[i], model[i]);
+            }
+
+            rowResult.add(element);
         }
 
         DefaultRowStatisticsModel rowStatisticsModel = new DefaultRowStatisticsModel();

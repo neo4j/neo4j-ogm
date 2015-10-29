@@ -21,25 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * {@link RowMapper} that maps each row value onto
  *
  * @param <T> The type of entity to which the row is to be mapped
  */
-public class EntityRowModelMapper<T> implements RowMapper<T>, Mapper<Response<RowModel>> {
-
-    @Override
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public void map(Collection<T> result, Object[] rowValues, String[] responseVariables) {
-        if (responseVariables.length > 1) {
-            throw new RuntimeException(
-                    "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
-        }
-
-        for (int i = 0; i < responseVariables.length; i++) {
-            result.add((T) rowValues[i]);
-        }
-    }
+public class EntityRowModelMapper<T> implements ResponseMapper<RowModel> {
 
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {

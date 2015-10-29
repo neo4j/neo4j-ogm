@@ -39,7 +39,7 @@ import java.util.*;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class GraphEntityMapper implements Mapper<Response<GraphModel>> {
+public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 	private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 

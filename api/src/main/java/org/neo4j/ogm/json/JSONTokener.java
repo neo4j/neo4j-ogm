@@ -53,10 +53,10 @@ SOFTWARE.
  * @author JSON.org
  * @version 2008-09-18
  */
-public class JSONTokener {
+class JSONTokener {
 
     private int index;
-    private Reader reader;
+    private final Reader reader;
     private char lastChar;
     private boolean useLastChar;
 
@@ -66,7 +66,7 @@ public class JSONTokener {
      *
      * @param reader     A reader.
      */
-    public JSONTokener(Reader reader) {
+    private JSONTokener(Reader reader) {
         this.reader = reader.markSupported() ?
                 reader : new BufferedReader(reader);
         this.useLastChar = false;
@@ -190,7 +190,7 @@ public class JSONTokener {
      *   Substring bounds error if there are not
      *   n characters remaining in the source string.
      */
-    public String next(int n) throws JSONException {
+    String next(int n) throws JSONException {
         if (n == 0) {
             return "";
         }
@@ -249,9 +249,9 @@ public class JSONTokener {
      * @return      A String.
      * @throws JSONException Unterminated string.
      */
-    public String nextString(char quote) throws JSONException {
+    String nextString(char quote) throws JSONException {
         char c;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (;;) {
             c = next();
             switch (c) {
@@ -307,7 +307,7 @@ public class JSONTokener {
      * @return   A string.
      */
     public String nextTo(char d) throws JSONException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (;;) {
             char c = next();
             if (c == d || c == 0 || c == '\n' || c == '\r') {
@@ -329,7 +329,7 @@ public class JSONTokener {
      */
     public String nextTo(String delimiters) throws JSONException {
         char c;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (;;) {
             c = next();
             if (delimiters.indexOf(c) >= 0 || c == 0 ||
@@ -377,7 +377,7 @@ public class JSONTokener {
          * formatting character.
          */
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (c >= ' ' && ",:]}/\\\"[{;=#".indexOf(c) < 0) {
             sb.append(c);
             c = next();

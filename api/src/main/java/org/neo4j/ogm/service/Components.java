@@ -23,9 +23,9 @@ import java.util.Properties;
  */
 public class Components {
 
-    private Components() {};
+    private Components() {}
 
-    private static final Map<String, String> config = new HashMap();
+    private static final Map<String, String> config = new HashMap<>();
 
     static {
         configure();

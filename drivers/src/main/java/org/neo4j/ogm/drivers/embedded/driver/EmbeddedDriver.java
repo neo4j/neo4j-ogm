@@ -33,10 +33,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * Graph database service, e.g. if user code is running as an extension inside
      * an existing Neo4j server
      *
-     * @param transport
+     * @param transport the embedded database instance
      */
     public EmbeddedDriver(GraphDatabaseService transport) {
-        this.transport = transport;
+        EmbeddedDriver.transport = transport;
         configure(new Configuration("driver.properties.embedded"));
     }
 

@@ -24,7 +24,7 @@ import java.util.ServiceLoader;
  *
  * @author vince
  */
-public abstract class CompilerService {
+abstract class CompilerService {
 
     private static final Logger logger = LoggerFactory.getLogger(CompilerService.class);
 
@@ -35,7 +35,7 @@ public abstract class CompilerService {
      * @param className the fully qualified class name of the required Driver
      * @return the named Driver if found, otherwise throws a ServiceNotFoundException
      */
-    public static org.neo4j.ogm.compiler.Compiler load(String className) {
+    private static org.neo4j.ogm.compiler.Compiler load(String className) {
 
         Iterator<Compiler> iterator = ServiceLoader.load(Compiler.class).iterator();
 

@@ -2,7 +2,7 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.response.model.DefaultRowModel;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.result.ResultAdapter;
 
 import java.util.Map;
@@ -10,9 +10,9 @@ import java.util.Map;
 /**
  * @author vince
  */
-public class RowModelResponse extends EmbeddedResponse<DefaultRowModel> {
+public class RowModelResponse extends EmbeddedResponse<RowModel> {
 
-    private final ResultAdapter<Map<String, Object>, DefaultRowModel> adapter = new RowModelAdapter();
+    private final ResultAdapter<Map<String, Object>, RowModel> adapter = new RowModelAdapter();
 
     public RowModelResponse(Transaction tx, Result result) {
         super(tx, result);
@@ -20,7 +20,7 @@ public class RowModelResponse extends EmbeddedResponse<DefaultRowModel> {
     }
 
     @Override
-    public DefaultRowModel next() {
+    public RowModel next() {
         if (result.hasNext()) {
             return adapter.adapt(result.next());
         }

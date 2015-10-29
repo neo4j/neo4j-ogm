@@ -886,6 +886,7 @@ public class ClassInfo {
      *
      * @param iteratedType      the type of iterable
      * @param relationshipType  the relationship type
+     * @param relationshipDirection the relationship direction
      * @param strict            if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
@@ -1062,7 +1063,7 @@ public class ClassInfo {
      * Returns true if this classInfo is in the subclass hierarchy of b, or if this classInfo is the same as b, false otherwise
      *
      * @param classInfo the classInfo at the toplevel of a type hierarchy to search through
-     * @return
+     * @return true if this classInfo is in the subclass hierarchy of classInfo, false otherwise
      */
     public boolean isSubclassOf(ClassInfo classInfo) {
 

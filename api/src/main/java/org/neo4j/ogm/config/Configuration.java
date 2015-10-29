@@ -17,7 +17,7 @@ public class Configuration {
 
     private final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
-    private final Map<String, Object> config = new HashMap();
+    private final Map<String, Object> config = new HashMap<>();
 
     public Configuration() {}
 

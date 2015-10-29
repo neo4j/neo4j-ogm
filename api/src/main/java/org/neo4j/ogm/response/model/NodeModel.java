@@ -75,9 +75,8 @@ public class NodeModel implements Node {
 
         NodeModel nodeModel = (NodeModel) o;
 
-        if (!id.equals(nodeModel.id)) return false;
+        return id.equals(nodeModel.id);
 
-        return true;
     }
 
     @Override

@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class Statements {
 
-    private List<Statement> statements;
+    private final List<Statement> statements;
 
     public Statements(List<Statement> statements) {
         this.statements = statements;

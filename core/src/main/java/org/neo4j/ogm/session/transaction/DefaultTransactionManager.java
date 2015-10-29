@@ -40,7 +40,7 @@ public class DefaultTransactionManager implements TransactionManager {
      *
      * Instantiation of the TRANSACTION_THREAD_LOCAL is left to the driver
      *
-     * @return
+     * @return a new {@link Transaction}
      */
     public Transaction openTransaction() {
         if (TRANSACTION_THREAD_LOCAL.get() == null) {

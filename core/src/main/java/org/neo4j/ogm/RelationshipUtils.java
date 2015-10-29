@@ -87,7 +87,7 @@ public class RelationshipUtils {
      *
      * @param sb The StringBuilder object which will hold the converted string
      * @param name the string Value to convert.
-     * @return
+     * @return a {@link StringBuilder}
      */
     private static StringBuilder toQuasiCamelCase(StringBuilder sb, String name) {
         if (name != null && name.length() > 0) {
@@ -120,7 +120,7 @@ public class RelationshipUtils {
      * toUpperSnakeCase(toUpperCamelCase("SNAKE_CASE")) will return "SNAKE_CASE"
      *
      * @param name the string Value to convert.
-     * @return
+     * @return a {@link StringBuilder}
      */
     private static StringBuilder toUpperSnakeCase(String name) {
         StringBuilder sb = new StringBuilder();

@@ -29,7 +29,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
      * an intermediate JSON representation, but, at least its working.
      *
      * @param data the data to transform, given as a map
-     * @return
+     * @return the data transformed to an {@link GraphModel}
      */
 
     public GraphModel adapt(Map<String, Object> data) {

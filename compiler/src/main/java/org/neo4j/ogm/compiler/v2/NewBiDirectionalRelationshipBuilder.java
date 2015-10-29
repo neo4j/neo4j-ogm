@@ -22,7 +22,7 @@ import java.util.Set;
  */
 class NewBiDirectionalRelationshipBuilder extends RelationshipBuilder {
 
-	String otherReference; //in order to create a relationship in the opposite direction as well
+	private final String otherReference; //in order to create a relationship in the opposite direction as well
 
 	public NewBiDirectionalRelationshipBuilder(String reference1, String otherReference) {
 		super(reference1);

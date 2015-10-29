@@ -113,9 +113,8 @@ class DeletedRelationshipBuilder implements DeletedRelationshipEmitter {
         if (!rid.equals(that.rid)) return false;
         if (!src.equals(that.src)) return false;
         if (!tgt.equals(that.tgt)) return false;
-        if (!type.equals(that.type)) return false;
+        return type.equals(that.type);
 
-        return true;
     }
 
     @Override

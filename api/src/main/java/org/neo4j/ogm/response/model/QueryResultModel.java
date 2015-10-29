@@ -11,8 +11,8 @@ import java.util.Map;
  */
 public class QueryResultModel implements QueryResult {
 
-    private Iterable<Map<String,Object>> result;
-    private Statistics queryStatistics;
+    private final Iterable<Map<String,Object>> result;
+    private final Statistics queryStatistics;
 
     public QueryResultModel(Iterable<Map<String, Object>> result, Statistics queryStatistics) {
         this.result = result;

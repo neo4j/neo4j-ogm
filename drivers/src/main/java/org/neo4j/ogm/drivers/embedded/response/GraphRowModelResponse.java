@@ -4,7 +4,7 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
-import org.neo4j.ogm.response.model.DefaultRowModel;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.result.ResultGraphRowListModel;
 
 import java.util.Map;
@@ -36,11 +36,8 @@ public class GraphRowModelResponse extends EmbeddedResponse<GraphRowListModel> {
 
         ResultGraphRowListModel graphRowModelResult = new ResultGraphRowListModel();
 
-        // interface
         GraphModel graphModel = graphModelAdapter.adapt(data);
-
-        // class!
-        DefaultRowModel rowModel = rowModelAdapter.adapt(data);
+        RowModel rowModel = rowModelAdapter.adapt(data);
 
         graphRowModelResult.addGraphRowResult(graphModel, rowModel);
 

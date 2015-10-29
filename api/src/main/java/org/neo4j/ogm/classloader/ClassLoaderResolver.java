@@ -21,7 +21,7 @@ package org.neo4j.ogm.classloader;
  */
 public abstract class ClassLoaderResolver {
 
-    private static Strategy strategy;
+    private static final Strategy strategy;
     private static final CallerResolver CALLER_RESOLVER;
 
     static {

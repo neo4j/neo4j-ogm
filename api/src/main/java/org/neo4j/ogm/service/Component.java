@@ -8,7 +8,7 @@ public enum Component {
     DRIVER("driver"),
     COMPILER("compiler");
 
-    private String name;
+    private final String name;
 
     Component(String name) {
         this.name = name;

@@ -54,6 +54,7 @@ public class SingleUseEntityMapper {
     /**
      * Maps a row-based result onto a new instance of the specified type.
      *
+     * @param <T> The class of object to return
      * @param type The {@link Class} denoting the type of object to create
      * @param columnNames The names of the columns in each row of the result
      * @param rowModel The {@link org.neo4j.ogm.model.RowModel} containing the data to map

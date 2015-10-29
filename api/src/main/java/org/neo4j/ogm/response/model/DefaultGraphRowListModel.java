@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class DefaultGraphRowListModel implements GraphRowListModel {
 
-    List<GraphRowModel> model = new ArrayList();
+    private final List<GraphRowModel> model = new ArrayList<>();
 
     @Override
     public List<GraphRowModel> model() {

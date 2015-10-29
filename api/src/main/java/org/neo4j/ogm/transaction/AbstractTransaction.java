@@ -13,7 +13,7 @@ public abstract class AbstractTransaction implements Transaction {
     private final Logger logger = LoggerFactory.getLogger(Transaction.class);
 
     protected final TransactionManager transactionManager;
-    protected Transaction.Status status = Transaction.Status.OPEN;
+    private Transaction.Status status = Transaction.Status.OPEN;
 
     public AbstractTransaction(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;

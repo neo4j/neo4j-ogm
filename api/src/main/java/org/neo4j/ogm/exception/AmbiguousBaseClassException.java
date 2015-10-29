@@ -17,9 +17,6 @@ package org.neo4j.ogm.exception;
  * @author Vince Bickers
  */
 public class AmbiguousBaseClassException extends MappingException {
-    public AmbiguousBaseClassException(String taxa, Exception cause) {
-        super("Multiple classes found in type hierarchy that map to: " + taxa, cause);
-    }
 
     public AmbiguousBaseClassException(String taxa) {
         super("Multiple classes found in type hierarchy that map to: " + taxa);

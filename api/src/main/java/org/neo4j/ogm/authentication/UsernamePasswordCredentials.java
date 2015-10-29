@@ -21,7 +21,7 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class UsernamePasswordCredentials implements Credentials<String> {
 
-    private String credentials;
+    private final String credentials;
 
     public UsernamePasswordCredentials(String userName, String password) {
         this.credentials = Base64.encodeBase64String(userName.concat(":").concat(password).getBytes());

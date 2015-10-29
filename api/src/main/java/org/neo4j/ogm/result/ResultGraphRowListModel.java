@@ -3,9 +3,9 @@ package org.neo4j.ogm.result;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.Query;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowModel;
-import org.neo4j.ogm.response.model.DefaultRowModel;
 
 /**
  *  The results of a query, modelled as a collection of GraphRow objects (both both graph and row data).
@@ -14,7 +14,7 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
  */
 public class ResultGraphRowListModel implements Query<GraphRowListModel> {
 
-    DefaultGraphRowListModel model;
+    private final DefaultGraphRowListModel model;
 
     public ResultGraphRowListModel() {
         model = new DefaultGraphRowListModel();
@@ -24,7 +24,7 @@ public class ResultGraphRowListModel implements Query<GraphRowListModel> {
         return model;
     }
 
-    public void addGraphRowResult(GraphModel graphModel, DefaultRowModel rowModel) {
+    public void addGraphRowResult(GraphModel graphModel, RowModel rowModel) {
         model.add(new DefaultGraphRowModel(graphModel, rowModel.getValues()));
     }
 

@@ -44,7 +44,7 @@ class ExistingNodeBuilder extends NodeBuilder {
         varStack.add(this.reference());
 
         queryBuilder.append(" MATCH (").append(this.reference()).append(")");
-        queryBuilder.append(" WHERE id(").append(this.reference()).append(")={").append(this.reference() + "}");
+        queryBuilder.append(" WHERE id(").append(this.reference()).append(")={").append(this.reference()).append("}");
         parameters.put(this.reference(), Long.parseLong(this.reference().substring(1)));
 
         if (!this.labels.isEmpty() && !this.props.isEmpty()) {

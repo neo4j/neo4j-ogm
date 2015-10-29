@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * @author Vince Bickers
  */
-public abstract class NodeBuilder implements NodeEmitter {
+abstract class NodeBuilder implements NodeEmitter {
 
     private final String cypherReference;
 

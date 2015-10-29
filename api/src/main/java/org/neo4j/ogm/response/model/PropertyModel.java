@@ -21,8 +21,8 @@ import org.neo4j.ogm.model.Property;
  */
 public class PropertyModel<K, V> implements Property<K, V> {
 
-    K key;
-    V value;
+    private K key;
+    private V value;
 
     /**
      * Constructs a new {@link PropertyModel} inferring the generic type arguments of the key and the value.
@@ -32,7 +32,7 @@ public class PropertyModel<K, V> implements Property<K, V> {
      * @return A new {@link PropertyModel} based on the given arguments
      */
     public static <K, V> PropertyModel<K, V> with(K key, V value) {
-        return new PropertyModel<K, V>(key, value);
+        return new PropertyModel<>(key, value);
     }
 
     public PropertyModel() {}
@@ -87,10 +87,8 @@ public class PropertyModel<K, V> implements Property<K, V> {
 
         PropertyModel property = (PropertyModel) o;
 
-        if (!key.equals(property.key)) return false;
-        if (!value.equals(property.value)) return false;
+        return key.equals(property.key) && value.equals(property.value);
 
-        return true;
     }
 
     @Override

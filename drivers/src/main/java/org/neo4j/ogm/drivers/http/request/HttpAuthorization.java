@@ -23,7 +23,7 @@ import org.neo4j.ogm.authentication.Credentials;
 public class HttpAuthorization {
 
     /**
-     * Sets the authorization header on the request, if credentials are present.
+     * Sets the authorisation header on the request, if credentials are present.
      * This code is backwards-compatible with versions of Neo4j prior to 2.2
      * that do not require users to be authenticated in order to connect.
      *
@@ -34,6 +34,7 @@ public class HttpAuthorization {
      * but for now, this will do.
      *
      * @param request The HttpRequest that may need an auth header.
+     * @param credentials the {@link Credentials} with which to authorise the session
      */
     public static void authorize(HttpRequestBase request, Credentials credentials) {
         if (credentials != null) {

@@ -28,11 +28,11 @@ import java.util.Map;
  */
 abstract class RelationshipBuilder implements RelationshipEmitter {
 
-    protected Long id;
-    protected String type;
-    protected String startNodeIdentifier;
-    protected String endNodeIdentifier;
-    protected String reference;
+    private Long id;
+    String type;
+    String startNodeIdentifier;
+    String endNodeIdentifier;
+    final String reference;
     private Boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
     private String direction;
 
@@ -46,7 +46,7 @@ abstract class RelationshipBuilder implements RelationshipEmitter {
         this.singleton = singleton;
     }
 
-    protected RelationshipBuilder(String variableName) {
+    RelationshipBuilder(String variableName) {
         this.reference = variableName;
     }
 
@@ -76,7 +76,7 @@ abstract class RelationshipBuilder implements RelationshipEmitter {
         return id;
     }
 
-    public void setId(Long id) {
+    void setId(Long id) {
         this.id = id;
     }
 

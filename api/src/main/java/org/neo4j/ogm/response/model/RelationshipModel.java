@@ -100,9 +100,8 @@ public class RelationshipModel implements Edge {
 
         RelationshipModel that = (RelationshipModel) o;
 
-        if (!id.equals(that.id)) return false;
+        return id.equals(that.id);
 
-        return true;
     }
 
     @Override

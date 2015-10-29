@@ -23,8 +23,8 @@ import org.neo4j.ogm.model.RowModel;
  */
 public class DefaultRowModel implements RowModel {
 
-    private Object[] values;
-    private String[] variables;
+    private final Object[] values;
+    private final String[] variables;
 
     public DefaultRowModel(Object[] values, String[] variables) {
         this.values = values;

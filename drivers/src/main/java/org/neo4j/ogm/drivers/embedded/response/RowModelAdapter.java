@@ -1,9 +1,10 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
+import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultAdapter;
 import org.neo4j.ogm.result.ResultRowModel;
-import org.neo4j.ogm.exception.ResultProcessingException;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Map;
  *
  * @author vince
  */
-public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, DefaultRowModel> {
+public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, RowModel> {
 
 
     private List<String> columns;
@@ -24,9 +25,9 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
      * compatible with the "row" type response from Neo's Http transactional end point.
      *
      * @param data the data to transform, given as a map
-     * @return
+     * @return @return the data transformed to an {@link RowModel}
      */
-    public DefaultRowModel adapt(Map<String, Object> data) {
+    public RowModel adapt(Map<String, Object> data) {
 
         StringBuilder sb = new StringBuilder();
 

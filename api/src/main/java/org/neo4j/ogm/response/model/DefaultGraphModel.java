@@ -33,8 +33,8 @@ public class DefaultGraphModel implements GraphModel {
     private final Map<Long, NodeModel> nodeMap = new HashMap<>();
     private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
 
-    private Set<Node> nodes = new LinkedHashSet<>();
-    private Set<Edge> relationships = new LinkedHashSet<>();
+    private final Set<Node> nodes = new LinkedHashSet<>();
+    private final Set<Edge> relationships = new LinkedHashSet<>();
 
     public Set<Node> getNodes() {
         return nodes;

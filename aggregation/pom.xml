@@ -9,7 +9,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>ogm-drivers</artifactId>
+  <artifactId>aggregation</artifactId>
 
   <dependencies>
     <dependency>
@@ -19,24 +19,23 @@
     </dependency>
     <dependency>
       <groupId>org.neo4j</groupId>
-      <artifactId>neo4j</artifactId>
+      <artifactId>ogm-compiler</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.neo4j.driver</groupId>
-      <artifactId>neo4j-java-driver</artifactId>
+      <groupId>org.neo4j</groupId>
+      <artifactId>ogm-core</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>org.neo4j</groupId>
+      <artifactId>ogm-drivers</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <groupId>org.neo4j</groupId>
+      <artifactId>ogm-test</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -47,10 +46,13 @@
         <artifactId>ease-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>freeze-artifacts</id>
+            <id>aggregate-artifacts</id>
             <goals>
-              <goal>freeze</goal>
+              <goal>aggregate</goal>
             </goals>
+            <configuration>
+              <excludeTransitive>true</excludeTransitive>
+            </configuration>
           </execution>
         </executions>
       </plugin>

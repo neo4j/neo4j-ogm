@@ -34,14 +34,6 @@ public class NodeModel implements Node {
         return properties;
     }
 
-//    public Map<String, Object> getProperties() {
-//        Map<String, Object> map = new HashMap<>();
-//        for (Property<String, Object> property : properties) {
-//            map.put(property.getKey(), property.getValue());
-//        }
-//        return map;
-//    }
-
     public void setProperties(Map<String, Object> properties) {
         this.properties = new ArrayList<>();
         for (Map.Entry<String, Object> entry : properties.entrySet()) {

@@ -13,7 +13,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.mapper.GraphEntityMapper;
+import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
@@ -47,8 +48,8 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 
-        try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-            return session.responseHandler().loadGraphResponse(type, response);
+        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+            return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
         }
     }
 

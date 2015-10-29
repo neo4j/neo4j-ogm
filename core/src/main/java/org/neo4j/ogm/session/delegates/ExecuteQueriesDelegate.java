@@ -17,14 +17,15 @@ import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
-import org.neo4j.ogm.mapper.EntityRowModelMapper;
-import org.neo4j.ogm.mapper.MapRowModelMapper;
-import org.neo4j.ogm.mapper.RowMapper;
+import org.neo4j.ogm.mapper.*;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.model.*;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.QueryResult;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.request.RowModelRequest;
-import org.neo4j.ogm.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.request.RowStatisticsModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Capability;
@@ -32,7 +33,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 
-import java.util.*;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,28 +88,31 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
         //If readOnly=true, just execute the query. If false, execute the query and return stats as well
         if(readOnly) {
-            return new QueryResultModel(executeAndMap(null, cypher, parameters, new MapRowModelMapper()),null);
+            Iterable<Map<String, Object>> results = executeAndMap(null, cypher, parameters, new MapRowModelMapper());
+            return new QueryResultModel(results, null);
         }
         else {
-            RowModelStatisticsRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
-            try (Response<RowStatistics> response = session.requestHandler().execute(parameterisedStatement)) {
-                return session.responseHandler().loadQueryResult(response);
+            RowStatisticsModelRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
+            try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
+                Mapper mapper = new RowStatisticsModelMapper();
+                RowStatisticsModel model = (RowStatisticsModel) mapper.map(Object.class, response);
+                return new QueryResultModel(model, model.getStats());
             }
         }
 
     }
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, RowMapper<T> rowModelMapper) {
+    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, Mapper mapper) {
 
         if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
-            GraphModelRequest qry = new DefaultGraphModelRequest(cypher, parameters);
-            try (Response<Graph> response = session.requestHandler().execute(qry)) {
-                return session.responseHandler().loadGraphResponse(type, response);
+            GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
+            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+                return new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
             }
         } else {
-            RowModelRequest qry = new DefaultRowModelRequest(cypher, parameters);
-            try (Response<Row> response = session.requestHandler().execute(qry)) {
-                return session.responseHandler().loadRowResponse(type, response, rowModelMapper);
+            RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
+            try (Response<RowModel> response = session.requestHandler().execute(request)) {
+                return mapper.map(type, response);
             }
         }
     }
@@ -122,9 +126,8 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         }
 
         DefaultRowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
-
-        try (Response<Row> response = session.requestHandler().execute(countStatement)) {
-            Row queryResult = response.next();
+        try (Response<RowModel> response = session.requestHandler().execute(countStatement)) {
+            RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
         }
     }

@@ -16,7 +16,7 @@ package org.neo4j.ogm.mapper.cypher;
 
 import org.junit.*;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.mapper.EntityMapper;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
  */
 public class CypherCompilerTest {
 
-    private EntityToGraphMapper mapper;
+    private EntityMapper mapper;
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 

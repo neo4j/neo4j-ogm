@@ -36,12 +36,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 
 /**
- * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
+ * Implementation of {@link EntityMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class EntityGraphMapper implements EntityToGraphMapper {
+public class EntityGraphMapper implements EntityMapper {
 
     private final Logger logger = LoggerFactory.getLogger(EntityGraphMapper.class);
 

@@ -21,7 +21,7 @@ import org.neo4j.ogm.compiler.CompileContext;
  *
  * @author Adam George
  */
-public interface EntityToGraphMapper {
+public interface EntityMapper {
 
     /**
      * Processes the given object and any of its composite persistent objects and produces Cypher queries to persist their state

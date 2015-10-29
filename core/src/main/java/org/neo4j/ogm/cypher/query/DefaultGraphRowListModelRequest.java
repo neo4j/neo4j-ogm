@@ -12,31 +12,28 @@
  *
  */
 
-package org.neo4j.ogm.response.model;
+package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRow;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+
+import java.util.Map;
 
 /**
- * Represents a single row in a query response which returns both graph and row data.
+ * A {@link CypherQuery} which returns data in both row and graph formats.
  *
  * @author Luanne Misquitta
  */
-public class GraphRowModel implements GraphRow {
+public class DefaultGraphRowListModelRequest extends AbstractRequest implements GraphRowListModelRequest {
 
-    private Graph graph;
-    private Object[] row;
+    private final static String[] resultDataContents = new String[] {"graph", "row"};
 
-    public GraphRowModel(Graph graph, Object[] row) {
-        this.graph = graph;
-        this.row = row;
+	public DefaultGraphRowListModelRequest(String cypher, Map<String, ?> parameters) {
+		super(cypher, parameters);
+	}
+
+    // used by object mapper
+    public String[] getResultDataContents() {
+        return resultDataContents;
     }
 
-    public Graph getGraph() {
-        return graph;
-    }
-
-    public Object[] getRow() {
-        return row;
-    }
 }

@@ -15,10 +15,10 @@
 package org.neo4j.ogm.request;
 
 
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
-import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.response.Response;
 
 /**
@@ -27,9 +27,9 @@ import org.neo4j.ogm.response.Response;
  */
 public interface Request {
 
-    Response<Graph> execute(GraphModelRequest query);
-    Response<Row> execute(RowModelRequest query);
-    Response<GraphRows> execute(GraphRowModelRequest query);
-    Response<RowStatistics> execute(RowModelStatisticsRequest query);
+    Response<GraphModel> execute(GraphModelRequest query);
+    Response<RowModel> execute(RowModelRequest query);
+    Response<GraphRowListModel> execute(GraphRowListModelRequest query);
+    Response<RowStatisticsModel> execute(RowStatisticsModelRequest query);
 
 }

@@ -21,7 +21,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
-import org.neo4j.ogm.cypher.query.DefaultGraphRowModelRequest;
+import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.session.Utils;
 
 import java.util.*;
@@ -108,7 +108,7 @@ public class VariableDepthQuery implements QueryStatements {
             Map<String,Object> properties = new HashMap<>();
             StringBuilder query = constructQuery(label, parameters, properties);
             query.append(String.format("WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p, ID(n)",min,max));
-            return new DefaultGraphRowModelRequest(query.toString(), properties);
+            return new DefaultGraphRowListModelRequest(query.toString(), properties);
         } else {
             return DepthZeroReadStrategy.findByProperties(label, parameters);
         }
@@ -291,11 +291,11 @@ public class VariableDepthQuery implements QueryStatements {
             return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map());
         }
 
-        public static DefaultGraphRowModelRequest findByProperties(String label, Filters parameters) {
+        public static DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
             Map<String,Object> properties = new HashMap<>();
             StringBuilder query = constructQuery(label, parameters, properties);
             query.append(" WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
-            return new DefaultGraphRowModelRequest(query.toString(), properties);
+            return new DefaultGraphRowListModelRequest(query.toString(), properties);
         }
 
     }

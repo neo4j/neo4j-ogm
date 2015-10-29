@@ -14,7 +14,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.compiler.CompileContext;
-import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
@@ -69,8 +69,8 @@ public class SaveDelegate implements Capability.Save {
                 Statement statement = context.getStatements().get(0);
 
                 DefaultRowModelRequest qry = new DefaultRowModelRequest(statement.getStatement(), statement.getParameters() );
-                try (Response<Row> response = session.requestHandler().execute(qry)) {
-                    session.responseHandler().updateObjects(context, response);
+                try (Response<RowModel> response = session.requestHandler().execute(qry)) {
+                    session.updateObjects(context, response);
                 }
             } else {
                 session.info(object.getClass().getName() + " is not an instance of a persistable class");

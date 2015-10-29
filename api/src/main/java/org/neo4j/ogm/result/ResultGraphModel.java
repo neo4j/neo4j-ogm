@@ -1,24 +1,24 @@
 package org.neo4j.ogm.result;
 
-import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Query;
-import org.neo4j.ogm.response.model.GraphModel;
+import org.neo4j.ogm.response.model.DefaultGraphModel;
 
 /**
  * A result encapsulated in a GraphModel
  *
  * @author Vince Bickers
  */
-public class ResultGraphModel implements Query<Graph> {
+public class ResultGraphModel implements Query<GraphModel> {
 
-    private Graph graph;
+    private GraphModel graph;
 
-    public Graph model() {
+    public GraphModel model() {
         return graph;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public void setGraph(GraphModel graph) {
+    public void setGraph(DefaultGraphModel graph) {
         this.graph = graph;
     }
 

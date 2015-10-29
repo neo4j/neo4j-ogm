@@ -20,15 +20,16 @@ import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.model.Edge;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.Node;
-import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.model.Edge;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.Node;
+import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ import java.util.*;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
+public class GraphEntityMapper implements Mapper<Response<GraphModel>> {
 
 	private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
@@ -54,8 +55,20 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 		this.entityAccessStrategy = new DefaultEntityAccessStrategy();
 	}
 
-	@Override
-	public <T> List<T> map(Class<T> type, Graph graphModel) {
+    @Override
+    public <T> Iterable<T> map(Class<T> type, Response<GraphModel> model) {
+
+        Set<T> objects = new LinkedHashSet<>();
+
+        GraphModel graphModel;
+        while ((graphModel = model.next()) != null) {
+            objects.addAll(map(type, graphModel));
+        }
+        model.close();
+        return objects;
+    }
+
+	public <T> List<T> map(Class<T> type, GraphModel graphModel) {
 
         /*
 		 * these two lists will contain the node ids and edge ids from the response, in the order
@@ -87,7 +100,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 		return results;
 	}
 
-	private <T> void mapEntities(Class<T> type, Graph graphModel, List<Long> nodeIds, List<Long> edgeIds) {
+	private <T> void mapEntities(Class<T> type, GraphModel graphModel, List<Long> nodeIds, List<Long> edgeIds) {
 		try {
 			mapNodes(graphModel, nodeIds);
 			mapRelationships(graphModel, edgeIds);
@@ -96,7 +109,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 		}
 	}
 
-	private void mapNodes(Graph graphModel, List<Long> nodeIds) {
+	private void mapNodes(GraphModel graphModel, List<Long> nodeIds) {
 
 		for (Node node : graphModel.getNodes()) {
 			Object entity = mappingContext.getNodeEntity(node.getId());
@@ -175,7 +188,7 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 		return false;
 	}
 
-	private void mapRelationships(Graph graphModel, List<Long> edgeIds) {
+	private void mapRelationships(GraphModel graphModel, List<Long> edgeIds) {
 
 		final List<Edge> oneToMany = new ArrayList<>();
 
@@ -455,4 +468,5 @@ public class GraphEntityMapper implements GraphToEntityMapper<Graph> {
 		}
 		return false;
 	}
+
 }

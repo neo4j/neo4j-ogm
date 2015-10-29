@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.response.Response;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +25,7 @@ import java.util.Map;
 /**
  * A {@code Map}-based implementation of {@link RowMapper}.
  */
-public class MapRowModelMapper implements RowMapper<Map<String, Object>> {
+public class MapRowModelMapper implements RowMapper<Map<String, Object>>, Mapper<Response<RowModel>> {
 
     @Override
     public void map(Collection<Map<String, Object>> result, Object[] rowValues, String[] responseVariables) {
@@ -33,4 +37,21 @@ public class MapRowModelMapper implements RowMapper<Map<String, Object>> {
         result.add(element);
     }
 
+    @Override
+    public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {
+
+        Collection<Map<String, Object>> result = new ArrayList<>();
+
+        RowModel model;
+
+        while ((model = response.next()) != null) {
+            Map<String, Object> element = new HashMap<>();
+            for (int i = 0; i < model.variables().length; i++) {
+                element.put(model.variables()[i], model.getValues()[i]);
+            }
+            result.add(element);
+        }
+
+        return (Iterable<T>) result;
+    }
 }

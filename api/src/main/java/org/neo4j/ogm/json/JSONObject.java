@@ -38,7 +38,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package org.neo4j.ogm.drivers.impl.json;
+package org.neo4j.ogm.json;
 
 import java.io.IOException;
 import java.io.Writer;

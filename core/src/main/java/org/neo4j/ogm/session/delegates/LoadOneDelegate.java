@@ -13,7 +13,10 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.mapper.GraphEntityMapper;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
@@ -42,10 +45,27 @@ public class LoadOneDelegate implements Capability.LoadOne {
         QueryStatements queryStatements = session.queryStatementsFor(type);
         AbstractRequest qry = queryStatements.findOne(id,depth);
 
-        try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-            return session.responseHandler().loadById(type, response, id);
+        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+            new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            return lookup(type, id);
         }
     }
 
+    private <T> T lookup(Class<T> type, Long id) {
+        Object ref;
+        ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+        if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+            ref = session.context().getNodeEntity(id);
+        } else {
+            ref = session.context().getRelationshipEntity(id);
+        }
+        try {
+            return type.cast(ref);
+        }
+        catch (ClassCastException cce) {
+            return null;
+        }
+
+    }
 
 }

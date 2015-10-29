@@ -62,9 +62,9 @@ public class EntityFactory {
     }
 
     /**
-     * Constructs a new object based on the class mapped to the type in the given {@link Edge}.
+     * Constructs a new object based on the class mapped to the type in the given {@link org.neo4j.ogm.model.Edge}.
      *
-     * @param edgeModel The {@link Edge} from which to determine the type
+     * @param edgeModel The {@link org.neo4j.ogm.model.Edge} from which to determine the type
      * @return A new instance of the class that corresponds to the relationship type, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
      */

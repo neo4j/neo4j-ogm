@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public abstract class MappingTrait
 {
-    protected EntityToGraphMapper mapper;
+    protected EntityMapper mapper;
 
     private static GraphDatabaseService graphDatabase;
     private static MetaData mappingMetadata;

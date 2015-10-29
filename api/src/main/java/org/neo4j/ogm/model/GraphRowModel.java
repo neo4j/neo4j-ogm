@@ -3,9 +3,9 @@ package org.neo4j.ogm.model;
 /**
  * @author vince
  */
-public interface GraphRow {
+public interface GraphRowModel {
 
-    public Graph getGraph();
+    public GraphModel getGraph();
 
     public Object[] getRow();
 

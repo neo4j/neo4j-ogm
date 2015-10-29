@@ -24,7 +24,7 @@
  * @author JSON.org
  * @version 2008-09-18
  */
-package org.neo4j.ogm.drivers.impl.json;
+package org.neo4j.ogm.json;
 
 public class JSONException extends Exception {
     private Throwable cause;

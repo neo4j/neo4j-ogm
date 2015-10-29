@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.mapper.EntityToGraphMapper;
+import org.neo4j.ogm.mapper.EntityMapper;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
@@ -40,7 +40,7 @@ import static org.junit.Assert.fail;
  */
 public class DirectRelationshipsTest {
 
-    private EntityToGraphMapper mapper;
+    private EntityMapper mapper;
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 

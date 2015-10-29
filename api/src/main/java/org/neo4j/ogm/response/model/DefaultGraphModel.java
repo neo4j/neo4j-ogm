@@ -15,7 +15,7 @@
 package org.neo4j.ogm.response.model;
 
 import org.neo4j.ogm.model.Edge;
-import org.neo4j.ogm.model.Graph;
+import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.Set;
  *
  *  @author Michal Bachman
  */
-public class GraphModel implements Graph {
+public class DefaultGraphModel implements GraphModel {
 
     private final Map<Long, NodeModel> nodeMap = new HashMap<>();
     private final Map<Long, RelationshipModel> relationshipMap = new HashMap<>();
@@ -63,10 +63,10 @@ public class GraphModel implements Graph {
     }
 
     /**
-     * Determines whether or not this {@link GraphModel} contains a {@link NodeModel} that matches the specified ID.
+     * Determines whether or not this {@link DefaultGraphModel} contains a {@link NodeModel} that matches the specified ID.
      *
      * @param nodeId The graph node ID to match against a {@link NodeModel}
-     * @return <code>true</code> if this {@link GraphModel} contains a node identified by the given argument, <code>false</code>
+     * @return <code>true</code> if this {@link DefaultGraphModel} contains a node identified by the given argument, <code>false</code>
      *         if it doesn't
      */
     public boolean containsNodeWithId(Long nodeId) {

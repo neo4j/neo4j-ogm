@@ -14,22 +14,28 @@
 
 package org.neo4j.ogm.response.model;
 
-import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.model.RowModel;
 
 /**
  * The results of a query, modelled as row data.
  *
  * @author Vince Bickers
  */
-public class RowModel implements Row {
+public class DefaultRowModel implements RowModel {
 
     private Object[] values;
+    private String[] variables;
 
-    public RowModel(Object[] values) {
+    public DefaultRowModel(Object[] values, String[] variables) {
         this.values = values;
+        this.variables = variables;
     }
 
     public Object[] getValues() {
         return values;
+    }
+
+    public String[] variables() {
+        return variables;
     }
 }

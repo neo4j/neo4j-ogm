@@ -27,16 +27,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.authentication.Credentials;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
-import org.neo4j.ogm.model.RowStatistics;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
-import org.neo4j.ogm.drivers.http.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowStatisticsModelResponse;
 import org.neo4j.ogm.exception.ResultProcessingException;
@@ -69,7 +68,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<Graph> execute(GraphModelRequest request) {
+    public Response<GraphModel> execute(GraphModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -84,7 +83,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<Row> execute(RowModelRequest request) {
+    public Response<RowModel> execute(RowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -99,14 +98,14 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<GraphRows> execute(GraphRowModelRequest request) {
+    public Response<GraphRowListModel> execute(GraphRowListModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
         else {
             String cypher = cypherRequest(request);
             try {
-                return new GraphRowModelResponse(executeRequest(cypher));
+                return new GraphRowsModelResponse(executeRequest(cypher));
             } catch (Exception e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
@@ -115,7 +114,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Response<RowStatistics> execute(RowModelStatisticsRequest request) {
+    public Response<RowStatisticsModel> execute(RowStatisticsModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }

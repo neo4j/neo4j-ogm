@@ -2,8 +2,8 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.response.model.RowModel;
-import org.neo4j.ogm.response.model.RowStatisticsModel;
+import org.neo4j.ogm.response.model.DefaultRowModel;
+import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.response.model.StatisticsModel;
 
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author vince
  */
-public class RowStatisticsModelResponse extends EmbeddedResponse<RowStatisticsModel> {
+public class RowStatisticsModelResponse extends EmbeddedResponse<DefaultRowStatisticsModel> {
 
     private final RowModelAdapter rowModelAdapter = new RowModelAdapter();
     private final StatisticsModel statisticsModel;
@@ -23,7 +23,7 @@ public class RowStatisticsModelResponse extends EmbeddedResponse<RowStatisticsMo
     }
 
     @Override
-    public RowStatisticsModel next() {
+    public DefaultRowStatisticsModel next() {
         if (result.hasNext()) {
             return parse(result.next());
         }
@@ -31,10 +31,10 @@ public class RowStatisticsModelResponse extends EmbeddedResponse<RowStatisticsMo
         return null;
     }
 
-    private RowStatisticsModel parse(Map<String, Object> data) {
+    private DefaultRowStatisticsModel parse(Map<String, Object> data) {
 
-        RowStatisticsModel rowStatisticsModel = new RowStatisticsModel();
-        RowModel rowModel = rowModelAdapter.adapt(data);
+        DefaultRowStatisticsModel rowStatisticsModel = new DefaultRowStatisticsModel();
+        DefaultRowModel rowModel = rowModelAdapter.adapt(data);
 
         rowStatisticsModel.setStats(statisticsModel);
         rowStatisticsModel.setRows(Arrays.asList(rowModel.getValues()));

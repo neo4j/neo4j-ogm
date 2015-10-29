@@ -15,16 +15,15 @@
 package org.neo4j.ogm.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
-import org.neo4j.ogm.model.RowStatistics;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.GraphRowsModel;
-import org.neo4j.ogm.response.model.RowModel;
-import org.neo4j.ogm.response.model.RowStatisticsModel;
+import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
+import org.neo4j.ogm.response.model.DefaultRowModel;
+import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
@@ -70,12 +69,12 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
 
 
             @Override
-            public Response<Graph> execute(GraphModelRequest qry) {
+            public Response<GraphModel> execute(GraphModelRequest qry) {
 
-                return new Response<Graph>() {
+                return new Response<GraphModel>() {
 
                     @Override
-                    public Graph next() {
+                    public GraphModel next() {
                         String r = nextRecord();
                         if (r != null) {
                             try {
@@ -99,15 +98,15 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
             }
 
             @Override
-            public Response<Row> execute(RowModelRequest query) {
-                return new Response<Row>() {
+            public Response<RowModel> execute(RowModelRequest query) {
+                return new Response<RowModel>() {
 
                     @Override
-                    public Row next() {
+                    public RowModel next() {
                         String r = nextRecord();
                         if (r != null) {
                             try {
-                                return new RowModel(mapper.readValue(r, ResultRowModel.class).model());
+                                return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).model(), columns());
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }
@@ -127,11 +126,11 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
             }
 
             @Override
-            public Response<GraphRows> execute(GraphRowModelRequest query) {
-                return new Response<GraphRows>() {
+            public Response<GraphRowListModel> execute(GraphRowListModelRequest query) {
+                return new Response<GraphRowListModel>() {
 
                     @Override
-                    public GraphRowsModel next() {
+                    public DefaultGraphRowListModel next() {
                         throw new RuntimeException("not implemented");
                     }
 
@@ -147,11 +146,11 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
             }
 
             @Override
-            public Response<RowStatistics> execute(RowModelStatisticsRequest query) {
-                return new Response<RowStatistics>() {
+            public Response<RowStatisticsModel> execute(RowStatisticsModelRequest query) {
+                return new Response<RowStatisticsModel>() {
 
                     @Override
-                    public RowStatisticsModel next() {
+                    public DefaultRowStatisticsModel next() {
                         throw new RuntimeException("not implemented");
                     }
 

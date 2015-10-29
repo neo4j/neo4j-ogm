@@ -13,7 +13,7 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
@@ -73,7 +73,7 @@ public class DeleteDelegate implements Capability.Delete {
                 if (identity != null) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    try (Response<Row> response = session.requestHandler().execute(query)) {
+                    try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
                     }
                 }
@@ -89,7 +89,7 @@ public class DeleteDelegate implements Capability.Delete {
         if (classInfo != null) {
             Statement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-            try (Response<Row> response = session.requestHandler().execute(query)) {
+            try (Response<RowModel> response = session.requestHandler().execute(query)) {
                 session.context().clear(type);
             }
         } else {

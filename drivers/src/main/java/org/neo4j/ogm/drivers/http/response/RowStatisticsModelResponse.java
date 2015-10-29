@@ -2,13 +2,13 @@ package org.neo4j.ogm.drivers.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.RowStatisticsModel;
+import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.response.model.StatisticsModel;
-import org.neo4j.ogm.drivers.impl.json.JSONArray;
-import org.neo4j.ogm.drivers.impl.json.JSONException;
-import org.neo4j.ogm.drivers.impl.json.JSONObject;
+import org.neo4j.ogm.json.JSONArray;
+import org.neo4j.ogm.json.JSONException;
+import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * @author vince
  */
-public class RowStatisticsModelResponse extends AbstractHttpResponse implements Response<RowStatistics> {
+public class RowStatisticsModelResponse extends AbstractHttpResponse implements Response<RowStatisticsModel> {
 
     protected static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(RowStatisticsModelResponse.class);
@@ -34,13 +34,13 @@ public class RowStatisticsModelResponse extends AbstractHttpResponse implements 
     }
 
     @Override
-    public RowStatistics next() {
+    public RowStatisticsModel next() {
 
         String json = super.nextRecord();
 
         if (json != null) {
             try {
-                RowStatisticsModel rowQueryStatisticsResult = new RowStatisticsModel();
+                DefaultRowStatisticsModel rowQueryStatisticsResult = new DefaultRowStatisticsModel();
                 JSONObject jsonObject = getOuterObject(json);
                 JSONArray columnsObject = jsonObject.getJSONArray("results").getJSONObject(0).getJSONArray("columns");
                 columns = mapper.readValue(columnsObject.toString(), String[].class);

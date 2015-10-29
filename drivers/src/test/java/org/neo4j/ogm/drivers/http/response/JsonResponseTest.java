@@ -16,7 +16,7 @@ package org.neo4j.ogm.drivers.http.response;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.RowModel;
+import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.exception.ResultProcessingException;
 
@@ -31,33 +31,33 @@ public class JsonResponseTest {
 
     @Test(expected = ResultProcessingException.class)
     public void shouldHandleNoResultsAndErrors() {
-        try( Response<RowModel> rsp = new TestRowHttpResponse(noResultsAndErrors()) ) {
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(noResultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test(expected = ResultProcessingException.class)
     public void shouldHandleResultsAndErrors() {
-        try( Response<RowModel> rsp = new TestRowHttpResponse(resultsAndErrors()) ) {
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(resultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test
     public void shouldHandleNoResultsAndNoErrors() {
-        try( Response<RowModel> rsp = new TestRowHttpResponse(noResultsAndNoErrors()) ) {
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(noResultsAndNoErrors()) ) {
             parseResponse(rsp);
         }
     }
 
     @Test
     public void shouldHandleResultsAndNoErrors() {
-        try( Response<RowModel> rsp = new TestRowHttpResponse(resultsAndNoErrors()) ) {
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(resultsAndNoErrors()) ) {
             parseResponse(rsp);
         }
     }
 
-    private void parseResponse(Response<RowModel> rsp) {
+    private void parseResponse(Response<DefaultRowModel> rsp) {
         //noinspection StatementWithEmptyBody
         while (rsp.next() != null);
     }
@@ -98,7 +98,7 @@ public class JsonResponseTest {
         return new ByteArrayInputStream(s.getBytes());
     }
 
-    static class TestRowHttpResponse extends AbstractHttpResponse implements Response<RowModel> {
+    static class TestRowHttpResponse extends AbstractHttpResponse implements Response<DefaultRowModel> {
 
         private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -112,13 +112,13 @@ public class JsonResponseTest {
         }
 
         @Override
-        public RowModel next() {
+        public DefaultRowModel next() {
 
             String json = super.nextRecord();
 
             if (json != null) {
                 try {
-                    return new RowModel(mapper.readValue(json, ResultRowModel.class).model());
+                    return new DefaultRowModel(mapper.readValue(json, ResultRowModel.class).model(), columns());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

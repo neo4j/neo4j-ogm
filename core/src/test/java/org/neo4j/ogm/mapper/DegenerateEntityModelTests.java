@@ -49,7 +49,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class DegenerateEntityModelTests {
 
-    private EntityToGraphMapper mapper;
+    private EntityMapper mapper;
 
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;

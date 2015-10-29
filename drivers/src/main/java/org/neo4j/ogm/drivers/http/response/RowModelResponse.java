@@ -2,9 +2,9 @@ package org.neo4j.ogm.drivers.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.model.Row;
+import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.RowModel;
+import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author vince
  */
-public class RowModelResponse extends AbstractHttpResponse implements Response<Row> {
+public class RowModelResponse extends AbstractHttpResponse implements Response<RowModel> {
 
     protected static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(RowModelResponse.class);
@@ -29,13 +29,13 @@ public class RowModelResponse extends AbstractHttpResponse implements Response<R
     }
 
     @Override
-    public Row next() {
+    public RowModel next() {
 
         String json = super.nextRecord();
 
         if (json != null) {
             try {
-                return new RowModel(mapper.readValue(json, ResultRowModel.class).model());
+                return new DefaultRowModel(mapper.readValue(json, ResultRowModel.class).model(), columns());
             } catch (Exception e) {
                 LOGGER.error("failed to parse: " + json);
                 throw new RuntimeException(e);

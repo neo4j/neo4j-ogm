@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.mapper;
 
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.response.Response;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -21,9 +25,10 @@ import java.util.Collection;
  *
  * @param <T> The type of entity to which the row is to be mapped
  */
-public class EntityRowModelMapper<T> implements RowMapper<T> {
+public class EntityRowModelMapper<T> implements RowMapper<T>, Mapper<Response<RowModel>> {
 
     @Override
+    @Deprecated
     @SuppressWarnings("unchecked")
     public void map(Collection<T> result, Object[] rowValues, String[] responseVariables) {
         if (responseVariables.length > 1) {
@@ -36,4 +41,23 @@ public class EntityRowModelMapper<T> implements RowMapper<T> {
         }
     }
 
+    @Override
+    public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {
+
+        Collection<T> result = new ArrayList<>();
+
+        RowModel model;
+        while ((model = response.next()) != null) {
+
+            if (model.variables().length > 1) {
+                throw new RuntimeException(
+                        "Scalar response queries must only return one column. Make sure your cypher query only returns one item.");
+            }
+            for (int i = 0; i < model.variables().length; i++) {
+                result.add((T) model.getValues()[0]);
+            }
+        }
+
+        return result;
+    }
 }

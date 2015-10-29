@@ -20,7 +20,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
-import org.neo4j.ogm.cypher.query.DefaultGraphRowModelRequest;
+import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
 
@@ -92,7 +92,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
 			Map<String, Object> properties = new HashMap<>();
             StringBuilder query = constructQuery(type, parameters, properties);
 			query.append(String.format("WITH n,r MATCH p=(n)-[*%d..%d]-() RETURN p, ID(r)", min, max));
-			return new DefaultGraphRowModelRequest(query.toString(), properties);
+			return new DefaultGraphRowListModelRequest(query.toString(), properties);
 		} else {
 			throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
 		}

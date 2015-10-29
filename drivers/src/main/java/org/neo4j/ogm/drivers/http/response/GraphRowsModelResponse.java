@@ -2,13 +2,13 @@ package org.neo4j.ogm.drivers.http.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.model.GraphRows;
+import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.GraphModel;
-import org.neo4j.ogm.result.ResultGraphRowsModel;
-import org.neo4j.ogm.drivers.impl.json.JSONArray;
-import org.neo4j.ogm.drivers.impl.json.JSONException;
-import org.neo4j.ogm.drivers.impl.json.JSONObject;
+import org.neo4j.ogm.response.model.DefaultGraphModel;
+import org.neo4j.ogm.result.ResultGraphRowListModel;
+import org.neo4j.ogm.json.JSONArray;
+import org.neo4j.ogm.json.JSONException;
+import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,27 +18,27 @@ import java.io.IOException;
 /**
  * @author vince
  */
-public class GraphRowModelResponse extends AbstractHttpResponse implements Response<GraphRows> {
+public class GraphRowsModelResponse extends AbstractHttpResponse implements Response<GraphRowListModel> {
 
     protected static final ObjectMapper mapper = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphRowModelResponse.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphRowsModelResponse.class);
     private static final String SCAN_TOKEN = "\"data";
 
     private final CloseableHttpResponse response;
 
-    public GraphRowModelResponse(CloseableHttpResponse httpResponse) throws IOException {
+    public GraphRowsModelResponse(CloseableHttpResponse httpResponse) throws IOException {
         super(httpResponse.getEntity().getContent());
         this.response = httpResponse;
     }
 
     @Override
-    public GraphRows next() {
+    public GraphRowListModel next() {
 
         String json = super.nextRecord();
 
         if (json != null) {
             try {
-                ResultGraphRowsModel graphRowModelResult = new ResultGraphRowsModel();
+                ResultGraphRowListModel graphRowModelResult = new ResultGraphRowListModel();
 
                 JSONObject jsonObject = getOuterObject(json);
 
@@ -47,7 +47,7 @@ public class GraphRowModelResponse extends AbstractHttpResponse implements Respo
                 for (int i = 0; i < dataObject.length(); i++) {
                     String graphJson = dataObject.getJSONObject(i).getString("graph");
                     String rowJson = dataObject.getJSONObject(i).getString("row");
-                    GraphModel graphModel = mapper.readValue(graphJson, GraphModel.class);
+                    DefaultGraphModel graphModel = mapper.readValue(graphJson, DefaultGraphModel.class);
                     Object[] rows = mapper.readValue(rowJson, Object[].class);
                     graphRowModelResult.addGraphRowResult(graphModel, rows);
                 }

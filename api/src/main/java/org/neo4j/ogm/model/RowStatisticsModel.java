@@ -5,8 +5,8 @@ import java.util.Collection;
 /**
  * @author vince
  */
-public interface RowStatistics {
+public interface RowStatisticsModel extends Iterable {
 
-    public Collection<Object> getRows();
+    public Collection getRows();
     public Statistics getStats();
 }

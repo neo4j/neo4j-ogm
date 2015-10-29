@@ -1,24 +1,25 @@
 package org.neo4j.ogm.response.model;
 
-import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.model.Statistics;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Encapsulates {@link StatisticsModel} and row data returned by a query.
  * @author Luanne Misquitta
  */
-public class RowStatisticsModel implements RowStatistics {
+public class DefaultRowStatisticsModel implements RowStatisticsModel {
 
-    private Collection<Object> rows;
+    private Collection rows;
     private Statistics stats;
 
     public Statistics getStats() {
         return stats;
     }
 
-    public void setRows(Collection<Object> rows) {
+    public void setRows(Collection rows) {
         this.rows = rows;
     }
 
@@ -26,7 +27,12 @@ public class RowStatisticsModel implements RowStatistics {
         this.stats = stats;
     }
 
-    public Collection<Object> getRows() {
+    public Collection getRows() {
         return rows;
+    }
+
+    @Override
+    public Iterator iterator() {
+        return rows.iterator();
     }
 }

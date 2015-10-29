@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
-import org.neo4j.ogm.model.RowStatistics;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
@@ -34,7 +33,7 @@ public class EmbeddedRequest implements Request {
     }
 
     @Override
-    public Response<Graph> execute(GraphModelRequest request) {
+    public Response<GraphModel> execute(GraphModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -42,7 +41,7 @@ public class EmbeddedRequest implements Request {
     }
 
     @Override
-    public Response<Row> execute(RowModelRequest request) {
+    public Response<RowModel> execute(RowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -50,7 +49,7 @@ public class EmbeddedRequest implements Request {
     }
 
     @Override
-    public Response<GraphRows> execute(GraphRowModelRequest request) {
+    public Response<GraphRowListModel> execute(GraphRowListModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -58,7 +57,7 @@ public class EmbeddedRequest implements Request {
     }
 
     @Override
-    public Response<RowStatistics> execute(RowModelStatisticsRequest request) {
+    public Response<RowStatisticsModel> execute(RowStatisticsModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }

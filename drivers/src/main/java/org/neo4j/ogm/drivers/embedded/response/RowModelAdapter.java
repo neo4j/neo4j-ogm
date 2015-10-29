@@ -1,6 +1,6 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
-import org.neo4j.ogm.response.model.RowModel;
+import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultAdapter;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.exception.ResultProcessingException;
@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author vince
  */
-public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, RowModel> {
+public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, DefaultRowModel> {
 
 
     private List<String> columns;
@@ -26,7 +26,7 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
      * @param data the data to transform, given as a map
      * @return
      */
-    public RowModel adapt(Map<String, Object> data) {
+    public DefaultRowModel adapt(Map<String, Object> data) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -57,7 +57,7 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
         CLOSE_OBJECT(sb);
 
         try {
-            return new RowModel(mapper.readValue(sb.toString(), ResultRowModel.class).model());
+            return new DefaultRowModel(mapper.readValue(sb.toString(), ResultRowModel.class).model(), columns.toArray(new String[] {}));
         } catch (Exception e) {
             throw new ResultProcessingException("Could not parse result", e);
         }

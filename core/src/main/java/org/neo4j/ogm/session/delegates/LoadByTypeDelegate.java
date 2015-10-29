@@ -18,10 +18,12 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
+import org.neo4j.ogm.mapper.GraphEntityMapper;
+import org.neo4j.ogm.mapper.GraphRowListModelMapper;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.request.GraphRowModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -66,8 +68,8 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                return session.responseHandler().loadGraphResponse(type, response);
+            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+                return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
             }
         } else {
 
@@ -78,12 +80,12 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setPagination(pagination);
 
             if (depth != 0) {
-                try (Response<GraphRows> response = session.requestHandler().execute((GraphRowModelRequest) qry)) {
-                    return session.responseHandler().loadByProperty(type, response);
+                try (Response<GraphRowListModel> response = session.requestHandler().execute((GraphRowListModelRequest) qry)) {
+                    return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context()).map(type, response);
                 }
             } else {
-                try (Response<Graph> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                    return session.responseHandler().loadGraphResponse(type, response);
+                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
                 }
             }
         }

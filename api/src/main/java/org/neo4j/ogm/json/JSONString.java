@@ -27,7 +27,7 @@
  * <code>toJSONString</code> method will be used instead of the default behavior
  * of using the Object's <code>toString()</code> method and quoting the result.
  */
-package org.neo4j.ogm.drivers.impl.json;
+package org.neo4j.ogm.json;
 
 public interface JSONString {
     /**

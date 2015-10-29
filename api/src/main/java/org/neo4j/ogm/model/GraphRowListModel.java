@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @author vince
  */
-public interface GraphRows {
+public interface GraphRowListModel {
 
-    List<GraphRow> model();
+    List<GraphRowModel> model();
 }

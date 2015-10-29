@@ -14,14 +14,14 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.request.RowModelStatisticsRequest;
+import org.neo4j.ogm.request.RowStatisticsModelRequest;
 
 import java.util.Map;
 
 /**
  * @author Luanne Misquitta
  */
-public class DefaultRowModelStatisticsRequest extends DefaultRowModelRequest implements RowModelStatisticsRequest {
+public class DefaultRowModelStatisticsRequest extends DefaultRowModelRequest implements RowStatisticsModelRequest {
 
 	public DefaultRowModelStatisticsRequest(String cypher, Map<String, ?> parameters) {
 		super(cypher, parameters);

@@ -5,10 +5,10 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
-import org.neo4j.ogm.model.Graph;
-import org.neo4j.ogm.model.GraphRows;
-import org.neo4j.ogm.model.Row;
-import org.neo4j.ogm.model.RowStatistics;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
@@ -27,7 +27,7 @@ public class BoltRequest implements Request {
     }
 
     @Override
-    public Response<Graph> execute(GraphModelRequest request) {
+    public Response<GraphModel> execute(GraphModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -36,7 +36,7 @@ public class BoltRequest implements Request {
 
     @Override
 
-    public Response<Row> execute(RowModelRequest request) {
+    public Response<RowModel> execute(RowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -44,7 +44,7 @@ public class BoltRequest implements Request {
     }
 
     @Override
-    public Response<GraphRows> execute(GraphRowModelRequest request) {
+    public Response<GraphRowListModel> execute(GraphRowListModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
@@ -52,7 +52,7 @@ public class BoltRequest implements Request {
     }
 
     @Override
-    public Response<RowStatistics> execute(RowModelStatisticsRequest request) {
+    public Response<RowStatisticsModel> execute(RowStatisticsModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }

@@ -46,7 +46,7 @@ import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 public class EntityGraphMapperTest {
 
 
-    private EntityToGraphMapper mapper;
+    private EntityMapper mapper;
 
     @ClassRule
     public static IntegrationTestRule testRule = new IntegrationTestRule(Components.driver());

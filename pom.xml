@@ -226,6 +226,18 @@
       </properties>
     </profile>
     <profile>
+      <id>2.2</id>
+      <properties>
+        <neo4j>2.2.6</neo4j>
+      </properties>
+    </profile>
+    <profile>
+      <id>2.3</id>
+      <properties>
+        <neo4j>2.3.0</neo4j>
+      </properties>
+    </profile>
+    <profile>
       <id>defects</id>
       <build>
         <plugins>

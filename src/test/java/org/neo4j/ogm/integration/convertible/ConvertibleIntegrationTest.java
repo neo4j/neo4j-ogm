@@ -184,6 +184,24 @@ public class ConvertibleIntegrationTest {
         assertEquals(new Date(0).getTime(), memo.getClosed().getTime());
     }
 
+    /**
+     * @see Issue #77
+     */
+    @Test
+    public void shouldSaveAndRetrieveIntegerFloats() {
+        Account account = new Account();
+        account.setLimit(10f);
+        session.save(account);
+
+        Account loadedAccount =  session.load(Account.class, account.getId());
+        assertEquals(account.getLimit(), loadedAccount.getLimit());
+
+        account.setLimit(18277.55f);
+        session.save(account);
+        loadedAccount =  session.load(Account.class, account.getId());
+        assertEquals(account.getLimit(), loadedAccount.getLimit());
+    }
+
 
     public void assertSameArray(Object[] as, Object[] bs) {
 

@@ -100,6 +100,13 @@ public class Utils {
                     }
                     return dblValue.floatValue();
                 }
+                if (value.getClass().equals(Integer.class)) {
+                    Integer intValue = (Integer) value;
+                    if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
+                        throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
+                    }
+                    return (float) intValue;
+                }
             }
             if ("byte".equals(className) || Byte.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
@@ -118,6 +125,10 @@ public class Utils {
                     }
                     return (double) intValue;
                 }
+                if (value.getClass().equals(Float.class)) {
+                    Float floatValue = (Float) value;
+                    return (double) floatValue;
+                }
             }
             if ("long".equals(className) || Long.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
@@ -126,12 +137,6 @@ public class Utils {
                 }
             }
 
-            if ("double".equals(className) || (Double.class.equals(clazz))) {
-                if (value.getClass().equals(Float.class)) {
-                    Float floatValue = (Float) value;
-                    return (double) floatValue;
-                }
-            }
             if ("short".equals(className) || Short.class.equals(clazz)) {
                 if (value.getClass().equals(Long.class)) {
                     Long longValue = (Long) value;
@@ -140,8 +145,6 @@ public class Utils {
                     }
                     return longValue.shortValue();
                 }
-            }
-            if ("short".equals(className) || Short.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;
                     if (intValue < Short.MIN_VALUE || intValue > Short.MAX_VALUE) {

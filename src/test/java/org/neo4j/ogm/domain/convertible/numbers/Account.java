@@ -30,6 +30,7 @@ public class Account {
     private BigDecimal[] deposits;
     private List<BigInteger> loans;
     private short code;
+    private Float limit;
 
     public Account() {}
 
@@ -76,5 +77,17 @@ public class Account {
 
     public void setCode(short code) {
         this.code = code;
+    }
+
+    public Float getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Float limit) {
+        this.limit = limit;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

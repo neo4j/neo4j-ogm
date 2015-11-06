@@ -37,7 +37,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      */
     public EmbeddedDriver(GraphDatabaseService transport) {
         EmbeddedDriver.transport = transport;
-        configure(new Configuration("driver.properties.embedded"));
+        configure(new Configuration("embedded.driver.properties"));
     }
 
     /**

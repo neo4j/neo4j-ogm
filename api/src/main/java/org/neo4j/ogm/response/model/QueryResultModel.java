@@ -1,6 +1,6 @@
 package org.neo4j.ogm.response.model;
 
-import org.neo4j.ogm.model.QueryResult;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.Statistics;
 
 import java.util.Iterator;
@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author vince
  */
-public class QueryResultModel implements QueryResult {
+public class QueryResultModel implements QueryStatistics {
 
     private final Iterable<Map<String,Object>> result;
     private final Statistics queryStatistics;

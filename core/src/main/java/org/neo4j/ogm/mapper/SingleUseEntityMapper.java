@@ -84,7 +84,7 @@ public class SingleUseEntityMapper {
             return classInfo;
         }
         throw new MappingException("Error mapping to ad-hoc " + type +
-                ".  At present, only @QueryResult types that are discovered by the domain entity package scanning can be mapped.");
+                ".  At present, only @QueryStatistics types that are discovered by the domain entity package scanning can be mapped.");
     }
 
     // TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored

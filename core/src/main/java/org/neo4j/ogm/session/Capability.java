@@ -17,7 +17,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.model.QueryResult;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.transaction.Transaction;
 
 import java.util.Collection;
@@ -184,9 +184,9 @@ public interface Capability {
          * @param cypher  The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher.
          *
-         * @return A {@link org.neo4j.ogm.model.QueryResult} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.model.Statistics} if applicable.
+         * @return A {@link QueryStatistics} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.model.Statistics} if applicable.
          */
-        QueryResult query(String cypher, Map<String, ?> parameters);
+        QueryStatistics query(String cypher, Map<String, ?> parameters);
 
         /**
          * Given a cypher statement this method will return a Result object containing a collection of Map's which represent Neo4j
@@ -200,9 +200,9 @@ public interface Capability {
          * @param parameters Any parameters to attach to the cypher.
          * @param readOnly true if the query is readOnly, false otherwise
          *
-         * @return A {@link org.neo4j.ogm.model.QueryResult} of {@link Iterable}s with each entry representing a neo4j object's properties.
+         * @return A {@link QueryStatistics} of {@link Iterable}s with each entry representing a neo4j object's properties.
          */
-        QueryResult query(String cypher, Map<String, ?> parameters, boolean readOnly);
+        QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly);
 
         /**
          * Counts all the <em>node</em> entities of the specified type.

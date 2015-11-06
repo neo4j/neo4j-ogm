@@ -42,6 +42,8 @@ public class DriverService {
             try {
                 Driver driver = iterator.next();
                 if (driver.getClass().getName().equals(className)) {
+                    System.out.println("Using driver: " + className);
+                    logger.info("Using driver: " + className);
                     return driver;
                 }
             } catch (ServiceConfigurationError sce) {

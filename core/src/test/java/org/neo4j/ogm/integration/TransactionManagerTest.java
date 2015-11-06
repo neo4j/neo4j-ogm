@@ -31,8 +31,8 @@ import static org.junit.Assert.assertEquals;
  * Transactions managed by a Transaction Manager will automatically:
  *
  *  1)  maintain single per-thread transaction instances
- *  2)  ...
- *  3)  ...
+ *  2)  manage the calls to the appropriate driver to implement the relevant transaction semantics
+ *  3)  manage transaction lifecycle and state correctly
  *
  * A free transaction is one obtained directly from a relevant driver, that the user must manage themselves.
  * The use of free transactions is not recommended in user code.
@@ -88,5 +88,13 @@ public class TransactionManagerTest {
         tx.rollback();
     }
 
+    @Test
+    public void shouldRollbackManagedTransaction() {
+        try (Transaction tx = transactionManager.openTransaction()) {
+            assertEquals(Transaction.Status.OPEN, tx.status());
+            tx.rollback();
+            assertEquals(Transaction.Status.ROLLEDBACK, tx.status());
+        }
+    }
 
 }

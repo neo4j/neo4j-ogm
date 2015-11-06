@@ -47,6 +47,7 @@ public class RelationshipEntityPartialMappingTest {
     public void init() {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.partial");
         session = sessionFactory.openSession(testServer.driver());
+        session.purgeDatabase();
     }
 
     @Test

@@ -9,12 +9,12 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>ogm-test</artifactId>
+  <artifactId>neo4j-ogm-test</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>org.neo4j</groupId>
-      <artifactId>ogm-drivers</artifactId>
+      <artifactId>neo4j-ogm-drivers</artifactId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>

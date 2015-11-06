@@ -13,18 +13,22 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.mapper.GraphEntityMapper;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.mapper.GraphEntityMapper;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Vince Bickers
@@ -49,7 +53,8 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setPagination(pagination);
 
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-            return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            return lookup(type, ids);
         }
     }
 
@@ -88,4 +93,26 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }
 
+    private <T> Collection<T> lookup(Class<T> type, Collection<Long> ids) {
+
+        Set<T> results = new HashSet<T>();
+        ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+
+        for (Long id : ids) {
+
+            Object ref;
+
+            if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+                ref = session.context().getNodeEntity(id);
+            } else {
+                ref = session.context().getRelationshipEntity(id);
+            }
+            try {
+                results.add(type.cast(ref));
+            } catch (ClassCastException cce) {
+                // do nothing, the object is not loadable in the domain;
+            }
+        }
+        return results;
+    }
 }

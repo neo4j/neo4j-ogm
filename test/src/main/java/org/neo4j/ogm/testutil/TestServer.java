@@ -112,7 +112,7 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
-        driver.close();
+        //driver.close();
         controls.close();
         database.shutdown();
     }

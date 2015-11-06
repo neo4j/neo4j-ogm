@@ -57,6 +57,7 @@ public class IntegrationTestRule extends TestServer implements TestRule {
 
     public IntegrationTestRule(Driver driver) {
         super(driver);
+        clearDatabase();
     }
 
     public IntegrationTestRule(Driver driver, int portNumber) {

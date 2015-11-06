@@ -27,7 +27,7 @@ import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.model.QueryResult;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.response.Response;
@@ -320,12 +320,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public QueryResult query(String cypher, Map<String, ?> parameters) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
 
     @Override
-    public QueryResult query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 

@@ -3,6 +3,7 @@
 *.iml
 *target
 /neo4j
+*.db
 data
 out
 .classpath

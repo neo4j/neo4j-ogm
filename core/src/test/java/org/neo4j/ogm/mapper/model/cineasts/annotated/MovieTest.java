@@ -34,7 +34,7 @@ public class MovieTest {
         MoviesRequest movieRequest = new MoviesRequest();
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession("dummy-url"));
+        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
         session.setDriver(movieRequest);
 
         Movie movie = session.load(Movie.class, 15L, 1);

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class EducationTest {
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.education");
-    private static final Neo4jSession session = (Neo4jSession) sessionFactory.openSession("dummy-url");
+    private static final Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
 
     @Test
     public void testTeachers() throws Exception {

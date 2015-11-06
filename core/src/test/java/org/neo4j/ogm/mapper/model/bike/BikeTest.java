@@ -35,7 +35,7 @@ public class BikeTest {
         BikeRequest bikeRequest = new BikeRequest();
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession("dummy-url"));
+        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
         session.setDriver(bikeRequest);
 
         long now = -System.currentTimeMillis();
@@ -76,7 +76,7 @@ public class BikeTest {
         BikeRequest bikeRequest = new BikeRequest();
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession("dummy-url"));
+        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
         session.setDriver(bikeRequest);
 
         Collection<Bike> bikes = session.loadAll(Bike.class);

@@ -34,7 +34,7 @@ public class UserTest {
         UsersRequest userRequest = new UsersRequest();
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession("dummy-url"));
+        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
         session.setDriver(userRequest);
 
         User user = session.load(User.class, 15L, 1);

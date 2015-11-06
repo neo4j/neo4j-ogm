@@ -29,7 +29,6 @@
     <module>drivers</module>
     <module>core</module>
     <module>test</module>
-    <module>aggregation</module>
   </modules>
 
   <properties>
@@ -123,15 +122,6 @@
   </repositories>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.neo4j.build.plugins</groupId>
-          <artifactId>ease-maven-plugin</artifactId>
-          <version>1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -196,6 +186,7 @@
           <archive>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
+          <skipIfEmpty>true</skipIfEmpty>
         </configuration>
         <executions>
           <execution>

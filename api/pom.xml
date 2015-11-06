@@ -34,21 +34,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.neo4j.build.plugins</groupId>
-        <artifactId>ease-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>freeze-artifacts</id>
-            <goals>
-              <goal>freeze</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>

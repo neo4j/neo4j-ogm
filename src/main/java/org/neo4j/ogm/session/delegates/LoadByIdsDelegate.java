@@ -13,16 +13,20 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.Collection;
-
+import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Vince Bickers
@@ -48,7 +52,8 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setPagination(pagination);
 
         try (Neo4jResponse<GraphModel> response = session.requestHandler().execute(qry, url)) {
-            return session.responseHandler().loadAll(type, response);
+            session.responseHandler().loadAll(type, response);
+            return lookup(type, ids);
         }
     }
 
@@ -85,6 +90,29 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination) {
         return loadAll(type, ids, sortOrder, pagination, 1);
+    }
+
+    private <T> Collection<T> lookup(Class<T> type, Collection<Long> ids) {
+
+        Set<T> results = new HashSet<T>();
+        ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+
+        for (Long id : ids) {
+
+            Object ref;
+
+            if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+                ref = session.context().getNodeEntity(id);
+            } else {
+                ref = session.context().getRelationshipEntity(id);
+            }
+            try {
+                results.add(type.cast(ref));
+            } catch (ClassCastException cce) {
+                // do nothing, the object is not loadable in the domain;
+            }
+        }
+        return results;
     }
 
 }

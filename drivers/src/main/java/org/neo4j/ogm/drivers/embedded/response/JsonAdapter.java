@@ -70,7 +70,23 @@ public abstract class JsonAdapter {
 
     protected static final String KEY_VALUES(String k, Iterable i) {
 
-        String r = KEY(k).concat(OPEN_BRACKET);
+        String r = KEY(k);
+        return r.concat(convert(i));
+    }
+
+    protected static Iterable<Object> convertToIterable(Object array) {
+        List list = new ArrayList();
+        int length = Array.getLength(array);
+        for (int i = 0; i < length; i++) {
+            list.add(Array.get(array, i));
+        }
+        return list;
+    }
+
+    protected static String convert(Iterable i) {
+
+        String r = new String();
+        r = r.concat(OPEN_BRACKET);
         Iterator iter = i.iterator();
 
         while (iter.hasNext()) {
@@ -84,15 +100,5 @@ public abstract class JsonAdapter {
         r = r.concat(CLOSE_BRACKET);
         return r;
     }
-
-    protected static Iterable<Object> convertToIterable(Object array) {
-        List list = new ArrayList();
-        int length = Array.getLength(array);
-        for (int i = 0; i < length; i++) {
-            list.add(Array.get(array, i));
-        }
-        return list;
-    }
-
 
 }

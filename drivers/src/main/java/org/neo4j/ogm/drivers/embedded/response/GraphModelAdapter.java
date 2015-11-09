@@ -82,7 +82,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
                 }
             }
             else {
-                throw new RuntimeException("Not handled: " + mapEntry.getValue().getClass());
+                //throw new RuntimeException("Not handled: " + mapEntry.getValue().getClass());
             }
         }
 

@@ -19,6 +19,7 @@ public class GraphRowModelResponse extends EmbeddedResponse<GraphRowListModel> {
 
     public GraphRowModelResponse(Transaction tx, Result result) {
         super(tx, result);
+        rowModelAdapter.setColumns(result.columns());
     }
 
     @Override

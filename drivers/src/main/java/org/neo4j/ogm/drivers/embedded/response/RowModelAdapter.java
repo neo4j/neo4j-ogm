@@ -6,6 +6,7 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultAdapter;
 import org.neo4j.ogm.result.ResultRowModel;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, RowModel> {
 
 
-    private List<String> columns;
+    private List<String> columns = new ArrayList<>();
 
     /**
      * Reads the next row from the result object and transforms it into a JSON representation
@@ -40,11 +41,27 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
         // there is no guarantee that the objects in the data are ordered the same way as required by the columns
         // so we use the columns information to extract them in the correct order for post-processing.
         Iterator<String> iterator = columns.iterator();
+
         while (iterator.hasNext()) {
             String key = iterator.next();
             Object value = data.get(key);
-            if (value instanceof Long) {
+
+            if (value == null) {
+                sb.append(value);
+            }
+            else if (value instanceof Long) {
                 buildIntegral((Long) value, sb);
+            }
+            else if (value instanceof String) {
+                sb.append("\"");
+                sb.append(value.toString());
+                sb.append("\"");
+            }
+            else if (value.getClass().isArray()) {
+                sb.append(convert(convertToIterable(value)));
+            }
+            else if (value instanceof Iterable) {
+                sb.append(convert((Iterable) value));
             }
             else {
                 throw new RuntimeException("Not handled: " + value.getClass());

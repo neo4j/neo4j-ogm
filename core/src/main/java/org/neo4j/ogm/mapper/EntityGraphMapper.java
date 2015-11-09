@@ -22,7 +22,6 @@ import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.compiler.NodeEmitter;
 import org.neo4j.ogm.compiler.RelationshipEmitter;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -30,6 +29,7 @@ import org.neo4j.ogm.entityaccess.RelationalReader;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.service.Components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,20 +73,7 @@ public class EntityGraphMapper implements EntityMapper {
             throw new NullPointerException("Cannot map null object");
         }
 
-
         Compiler compiler = Components.compiler();
-
-//        // terrible hack!!
-//        // we have to use reflection here, to avoid creating a cyclic dependency
-//        // between the compiler, core and metadata modules. The real problem
-//        // is that the compiler module as an external component should not have any
-//        // knowledge of any other components, except the api module.
-//        try {
-//            Method method = compiler.getClass().getMethod("setMetaData", MetaData.class);
-//            method.invoke(compiler, metaData);
-//        } catch (Exception e) {
-//            throw new RuntimeException("Compiler is not valid", e);
-//        }
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.
@@ -97,15 +84,53 @@ public class EntityGraphMapper implements EntityMapper {
 
         logger.debug("context initialised with {} relationships", mappingContext.mappedRelationships().size());
 
-        // if the map request is rooted on a relationship entity, we re-root it on the start node
+        // if the object is a RelationshipEntity, persist it by persisting both the start node and the end node
+        // and then ensure the relationship between the two is created or updated as necessary
         if (isRelationshipEntity(entity)) {
-            entity = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity)).read(entity);
-            if (entity == null) {
+
+            ClassInfo reInfo = metaData.classInfo(entity);
+
+            Object startNode = entityAccessStrategy.getStartNodeReader(reInfo).read(entity);
+            if (startNode == null) {
                 throw new RuntimeException("@StartNode of relationship entity may not be null");
             }
+
+            Object endNode = entityAccessStrategy.getEndNodeReader(reInfo).read(entity);
+            if (endNode == null) {
+                throw new RuntimeException("@EndNode of relationship entity may not be null");
+            }
+
+            // map both sides as far as the specified horizon
+            NodeEmitter startNodeBuilder = mapEntity(startNode, horizon, compiler);
+            NodeEmitter endNodeBuilder = mapEntity(endNode, horizon, compiler);
+
+            // create or update the relationship if its not already been visited in the current compile context
+            if (!compiler.context().visitedRelationshipEntity(identity(entity))) {
+
+                AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+                String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
+                DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, Relationship.OUTGOING);
+
+                RelationshipEmitter relationshipEmitter = getRelationshipBuilder(compiler, entity, directedRelationship, false);
+
+                // 2. create or update the actual relationship (edge) in the graph
+                updateRelationshipEntity(compiler.context(), entity, relationshipEmitter, reInfo);
+
+                ClassInfo targetInfo = metaData.classInfo(endNode);
+                ClassInfo startInfo = metaData.classInfo(startNode);
+
+                Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startNode);
+                Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(endNode);
+
+                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
+
+                // 2. update the fact of the relationship in the compile context
+                updateRelationship(compiler.context(), startNodeBuilder, endNodeBuilder, relationshipEmitter, relNodes);
+            }
+        } else { // not an RE, simply map the entity
+            mapEntity(entity, horizon, compiler);
         }
 
-        mapEntity(entity, horizon, compiler);
         deleteObsoleteRelationships(compiler);
 
         return compiler.compile();
@@ -471,6 +496,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         ClassInfo relEntityClassInfo = metaData.classInfo(relationshipEntity);
 
+        // create or update the re's properties
         updateRelationshipEntity(context, relationshipEntity, relationshipBuilder, relEntityClassInfo);
 
         Object startEntity = getStartEntity(relEntityClassInfo, relationshipEntity);
@@ -482,6 +508,10 @@ public class EntityGraphMapper implements EntityMapper {
         Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
         Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startEntity);
 
+
+        // create or update the relationship mapping register between the start and end nodes. Note, this
+        // merely reflects how we're navigating the object graph at this point, it doesn't reflect the direction
+        // of the relationship in the underlying graph - we deal with that later.
         RelationshipNodes relNodes;
         if(parent == targetEntity) { //We always created a mapped relationship from the true start node to the end node.
             relNodes = new RelationshipNodes(tgtIdentity, srcIdentity, startNodeType, endNodeType);
@@ -490,6 +520,7 @@ public class EntityGraphMapper implements EntityMapper {
             relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNodeType, endNodeType);
         }
 
+        // TODO : move this to a common function
         if (mappingContext.isDirty(relationshipEntity)) {
             context.register(relationshipEntity);
             if (tgtIdentity != null && srcIdentity!=null) {
@@ -504,15 +535,19 @@ public class EntityGraphMapper implements EntityMapper {
             logger.debug("RE is new or has not changed");
         }
 
+
+        // finally we continue mapping the object graph, creating/updating the edge in the graph from START->END nodes.
+        // If we approached the RE from its END-NODE, we then continue mapping the object graph from the START_NODE,
+        // or, if we approached the RE from its START_NODE, we continue mapping the object graph from the END_NODE.
         Long startIdentity = identity(startEntity);
         Long targetIdentity = identity(targetEntity);
 
         NodeEmitter srcNodeBuilder = context.nodeEmitter(startIdentity);
         NodeEmitter tgtNodeBuilder = context.nodeEmitter(targetIdentity);
 
-        if (parent == targetEntity) {
-            if(!context.visited(startIdentity)) {
-                relNodes.source = targetEntity;
+        if (parent == targetEntity) {  // we approached this RE from its END-NODE during object mapping.
+            if(!context.visited(startIdentity)) { // skip if we already visited the START_NODE
+                relNodes.source = targetEntity; // set up the nodes to link
                 relNodes.target = startEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
@@ -520,9 +555,9 @@ public class EntityGraphMapper implements EntityMapper {
                 updateRelationship(context, tgtNodeBuilder, srcNodeBuilder, relationshipBuilder, relNodes);
             }
         }
-        else { //parent=startEntity
-            if(!context.visited(targetIdentity)) {
-                relNodes.source = startEntity;
+        else { // we approached this RE from its START_NODE during object mapping.
+            if(!context.visited(targetIdentity)) {  // skip if we already visited the END_NODE
+                relNodes.source = startEntity;  // set up the nodes to link
                 relNodes.target = targetEntity;
                 mapRelatedEntity(cypherCompiler, nodeBuilder, relationshipBuilder, horizon, relNodes);
             }
@@ -577,7 +612,7 @@ public class EntityGraphMapper implements EntityMapper {
      *
      * aNode and bNode here represent the ends of the relationship, and there is no implied understanding
      * of relationship direction between them. Consequently we need to look at the relationshipBuilder's direction
-     * property to determine whether to create a mapping from a->b or from a->b.
+     * property to determine whether to create a mapping from a->b or from b->a.
      *
      * In the event that the relationshipBuilder's direction is UNDIRECTED, and the relationship pre-exists in the
      * graph, it is critical to return the mapping that represents the existing relationship, or the detection of

@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.Iterator;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
@@ -30,6 +28,8 @@ import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
 
 /**
  * Implementation of {@link EntityToGraphMapper} that is driven by an instance of {@link MetaData}.
@@ -80,20 +80,58 @@ public class EntityGraphMapper implements EntityToGraphMapper {
 
         logger.debug("context initialised with {} relationships", mappingContext.mappedRelationships().size());
 
-        // if the map request is rooted on a relationship entity, we re-root it on the start node
+
+        // if the object is a RelationshipEntity, persist it by persisting both the start node and the end node
+        // and then ensure the relationship between the two is created or updated as necessary
         if (isRelationshipEntity(entity)) {
-            entity = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity)).read(entity);
-            if (entity == null) {
+
+            ClassInfo reInfo = metaData.classInfo(entity);
+
+            Object startNode = entityAccessStrategy.getStartNodeReader(reInfo).read(entity);
+            if (startNode == null) {
                 throw new RuntimeException("@StartNode of relationship entity may not be null");
             }
+
+            Object endNode = entityAccessStrategy.getEndNodeReader(reInfo).read(entity);
+            if (endNode == null) {
+                throw new RuntimeException("@EndNode of relationship entity may not be null");
+            }
+
+            // map both sides as far as the specified horizon
+            NodeBuilder startNodeBuilder = mapEntity(startNode, horizon, compiler);
+            NodeBuilder endNodeBuilder = mapEntity(endNode, horizon, compiler);
+
+            // create or update the relationship if its not already been visited in the current compile context
+            if (!compiler.context().visitedRelationshipEntity(identity(entity))) {
+
+                AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+                String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
+                DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, Relationship.OUTGOING);
+
+                RelationshipBuilder relationshipEmitter = getRelationshipBuilder(compiler, entity, directedRelationship, false);
+
+                // 2. create or update the actual relationship (edge) in the graph
+                updateRelationshipEntity(compiler.context(), entity, relationshipEmitter, reInfo);
+
+                ClassInfo targetInfo = metaData.classInfo(endNode);
+                ClassInfo startInfo = metaData.classInfo(startNode);
+
+                Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startNode);
+                Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(endNode);
+
+                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
+
+                // 2. update the fact of the relationship in the compile context
+                updateRelationship(compiler.context(), startNodeBuilder, endNodeBuilder, relationshipEmitter, relNodes);
+            }
+        } else { // not an RE, simply map the entity
+            mapEntity(entity, horizon, compiler);
         }
 
-        mapEntity(entity, horizon, compiler);
         deleteObsoleteRelationships(compiler);
 
         return compiler.compile();
     }
-
 
     /**
      * Detects object references (including from lists) that have been deleted in the domain.
@@ -640,6 +678,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
     private void updateRelationship(CypherContext context, NodeBuilder srcNodeBuilder, NodeBuilder tgtNodeBuilder, RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
         if (relNodes.targetId == null || relNodes.sourceId == null) {
+            //
             maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
         } else {
             MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);

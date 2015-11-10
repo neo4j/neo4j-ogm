@@ -13,11 +13,6 @@
  */
 package org.neo4j.ogm.integration.mappings;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +23,14 @@ import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Nils Dr\u00F6ge
@@ -91,5 +94,95 @@ public class RichRelationTest {
         updateArticle = session.load(Article.class, article1.getNodeId(), 1);
         assertSame(updateArticle, ((RichRelation)updateArticle.relations.toArray()[0]).article);
         session.save(updateArticle, 1);
+    }
+
+    /**
+     * @see DATAGRAPH-730
+     */
+    @Test
+    public void shouldSaveRelationshipEntityWhenNoReferencesToRelationshipEntityOnEitherStartOrEndNode() {
+
+        RichRelation relation = new RichRelation();
+        Person person = new Person();
+        Article article = new Article();
+
+        relation.person = person;
+        relation.article = article;
+
+        session.save(relation);
+
+        assertNotNull(person.getNodeId());
+        assertNotNull(article.getNodeId());
+
+        session.clear();
+
+        Person savedPerson = session.load(Person.class, person.getNodeId());
+        Article savedArticle = session.load(Article.class, article.getNodeId());
+
+        assertNotNull(savedPerson);
+        assertNotNull(savedArticle);
+
+    }
+
+    /**
+     * @see DATAGRAPH-730
+     */
+    @Test
+    public void shouldSaveRelationshipEntityWhenReferenceToRelationshipEntityOnStartNodeOnly() {
+
+        RichRelation relation = new RichRelation();
+
+        Person person = new Person();
+        Article article = new Article();
+
+        relation.person = person;
+        relation.article = article;
+
+        person.relations.add(relation);
+
+        session.save(relation);
+
+        assertNotNull(person.getNodeId());
+        assertNotNull(article.getNodeId());
+
+        session.clear();
+
+        Person savedPerson = session.load(Person.class, person.getNodeId());
+        Article savedArticle = session.load(Article.class, article.getNodeId());
+
+        assertNotNull(savedPerson);
+        assertNotNull(savedArticle);
+
+    }
+
+    /**
+     * @see DATAGRAPH-730
+     */
+    @Test
+    public void shouldSaveRelationshipEntityWhenReferenceToRelationshipEntityOnEndNodeOnly() {
+
+        RichRelation relation = new RichRelation();
+
+        Person person = new Person();
+        Article article = new Article();
+
+        relation.person = person;
+        relation.article = article;
+
+        article.relations.add(relation);
+
+        session.save(relation);
+
+        assertNotNull(person.getNodeId());
+        assertNotNull(article.getNodeId());
+
+        session.clear();
+
+        Person savedPerson = session.load(Person.class, person.getNodeId());
+        Article savedArticle = session.load(Article.class, article.getNodeId());
+
+        assertNotNull(savedPerson);
+        assertNotNull(savedArticle);
+
     }
 }

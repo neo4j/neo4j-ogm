@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
+import java.util.*;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -22,9 +24,8 @@ import org.neo4j.ogm.cypher.query.GraphModelQuery;
 import org.neo4j.ogm.cypher.query.GraphRowModelQuery;
 import org.neo4j.ogm.cypher.query.Query;
 import org.neo4j.ogm.exception.InvalidDepthException;
+import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.Utils;
-
-import java.util.*;
 
 /**
  * @author Luanne Misquitta
@@ -104,6 +105,8 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
         List<Filter> relationshipFilters = new ArrayList<>(); //All filters that apply to the relationship
         String startNodeLabel = null;
         String endNodeLabel = null;
+        boolean noneOperatorEncounteredInStartFilters=false;
+        boolean noneOperatorEncounteredInEndFilters = false;
 
         for(Filter filter : filters) {
             if(filter.isNested()) {
@@ -111,6 +114,12 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
                     throw new UnsupportedOperationException("OR is not supported for nested properties on a relationship entity");
                 }
                 if(filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+                    if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+                        if(noneOperatorEncounteredInStartFilters) {
+                            throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName());
+                        }
+                        noneOperatorEncounteredInStartFilters = true;
+                    }
                     if(startNodeLabel==null) {
                         startNodeLabel = filter.getNestedEntityTypeLabel();
                         filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the start node
@@ -118,6 +127,12 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
                     startNodeFilters.add(filter);
                 }
                 else {
+                    if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+                        if(noneOperatorEncounteredInEndFilters) {
+                            throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName());
+                        }
+                        noneOperatorEncounteredInEndFilters = true;
+                    }
                     if(endNodeLabel==null) {
                         endNodeLabel = filter.getNestedEntityTypeLabel();
                         filter.setBooleanOperator(BooleanOperator.NONE); //the first filter for the end node
@@ -128,6 +143,11 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
             else {
                 if(relationshipFilters.size()==0) {
                     filter.setBooleanOperator(BooleanOperator.NONE); //TODO think about the importance of the first filter and stop using this as a condition to test against
+                }
+                else {
+                    if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+                        throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName());
+                    }
                 }
                 relationshipFilters.add(filter);
             }

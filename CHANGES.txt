@@ -1,5 +1,6 @@
 1.1.4-SNAPSHOT
 --------------
+o Throw MissingOperatorException when BooleanOperators are not specified in any filters except the first
 o Fixes an issue where LoadByIdsDelegate returned more than the collection of requested ids
 o Allows saving a relationship entity directly even when there is no reference from the relationship entity to the start node
 o Fixes issue where integers returned by queries were not converted correctly to numeric wrapper classes like Float

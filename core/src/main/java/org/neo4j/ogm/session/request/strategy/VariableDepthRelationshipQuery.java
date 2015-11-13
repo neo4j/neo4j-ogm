@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
+import java.util.*;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -23,8 +25,6 @@ import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.exception.InvalidDepthException;
 import org.neo4j.ogm.session.Utils;
-
-import java.util.*;
 
 /**
  * @author Luanne Misquitta
@@ -166,7 +166,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
                 uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
             }
 			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
-            properties.put(uniquePropertyName,filter.getPropertyValue());
+            properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
 		}
     }
 

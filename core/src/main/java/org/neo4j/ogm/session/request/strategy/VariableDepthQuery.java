@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
+import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -23,8 +24,6 @@ import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.session.Utils;
-
-import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -196,7 +195,7 @@ public class VariableDepthQuery implements QueryStatements {
             }
         }
         query.append(String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
-        properties.put(uniquePropertyName, filter.getPropertyValue());
+        properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
     }
 
     /**

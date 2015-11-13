@@ -14,11 +14,17 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.*;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.service.Components;
@@ -26,11 +32,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
-
-import java.io.IOException;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -641,6 +642,30 @@ public class CineastsRelationshipEntityTest{
 		session.loadAll(User.class, new Filter("name", "Michal")).iterator().next();
 
 		assertEquals(2, movie.getRatings().size()); //should not lose one rating because Michal is loaded; ratings should me merged and not overwritten
+	}
+
+	/**
+	 * For DATAGRAPH-761
+	 */
+	@Test
+	public void shouldLoadFilmsByTitleUsingCaseInsensitiveWildcardBasedLikeExpression() {
+		Movie firstFilm = new Movie();
+		firstFilm.setTitle("Dirty Harry");
+		Movie secondFilm = new Movie();
+		secondFilm.setTitle("Harry Potter and the Order of the Phoenix");
+		Movie thirdFilm = new Movie();
+		thirdFilm.setTitle("Delhi Belly");
+
+		session.save(firstFilm);
+		session.save(secondFilm);
+		session.save(thirdFilm);
+
+		Filter filter = new Filter("title", "harry*");
+		filter.setComparisonOperator(ComparisonOperator.LIKE);
+
+		Collection<Movie> allFilms = session.loadAll(Movie.class, filter);
+		assertEquals("The wrong-sized collection of films was returned", 1, allFilms.size());
+		assertEquals("Harry Potter and the Order of the Phoenix", allFilms.iterator().next().getTitle());
 	}
 
 }

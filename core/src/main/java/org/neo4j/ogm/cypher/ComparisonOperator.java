@@ -16,21 +16,41 @@ package org.neo4j.ogm.cypher;
 
 /**
  * Comparison operators used in queries.
+ *
  * @author Luanne Misquitta
+ * @author Adam George
  */
 public enum ComparisonOperator {
 	EQUALS("="),
 	MATCHES("=~"),
+	LIKE("=~", new CaseInsensitiveLikePropertyValueTransformer()),
 	GREATER_THAN(">"),
 	LESS_THAN("<");
 
-	private String value;
+    private final String value;
+    private final PropertyValueTransformer valueTransformer;
 
-	ComparisonOperator(String value) {
-		this.value = value;
-	}
+    ComparisonOperator(String value) {
+        this(value, new NoOpPropertyValueTransformer());
+    }
 
-	public String getValue() {
-		return value;
-	}
+    ComparisonOperator(String value, PropertyValueTransformer propertyValueTransformer) {
+        this.value = value;
+        this.valueTransformer = propertyValueTransformer;
+    }
+
+    /**
+     * @return The textual comparison operator to use in the Cypher query
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * @return The {@link PropertyValueTransformer} required for this {@link ComparisonOperator} to work
+     */
+    public PropertyValueTransformer getPropertyValueTransformer() {
+        return valueTransformer;
+    }
+
 }

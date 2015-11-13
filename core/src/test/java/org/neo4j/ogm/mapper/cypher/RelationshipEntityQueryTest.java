@@ -13,18 +13,19 @@
  */
 package org.neo4j.ogm.mapper.cypher;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.exception.InvalidDepthException;
+import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -283,7 +284,6 @@ public class RelationshipEntityQueryTest {
         planetFilter.setRelationshipDirection("INCOMING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         Filter time = new Filter("time",3600);
-        time.setBooleanOperator(BooleanOperator.AND);
         assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(planetFilter,time), 4).getStatement());
     }
 
@@ -317,5 +317,43 @@ public class RelationshipEntityQueryTest {
         time.setBooleanOperator(BooleanOperator.AND);
 
         assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time` } WITH n,r MATCH p=(n)-[*0..4]-() RETURN p, ID(r)", query.findByProperties("ORBITS", new Filters().add(moonFilter,planetFilter,time), 4).getStatement());
+    }
+
+    /**
+     * @throws Exception
+     * @see Issue #73
+     */
+    @Test(expected = MissingOperatorException.class)
+    public void testFindByPropertiesAndedWithMissingBooleanOperator() throws Exception {
+        Filter distance = new Filter("distance", 60.2);
+        Filter time = new Filter("time", 3600);
+        query.findByProperties("ORBITS", new Filters().add(distance, time), 4).getStatement();
+    }
+
+    /**
+     * @throws Exception
+     * @see Issue #73
+     */
+    @Test(expected = MissingOperatorException.class)
+    public void testFindByMultipleNestedPropertiesMissingBooleanOperator() throws Exception {
+        Filter planetNameFilter = new Filter();
+        planetNameFilter.setNestedPropertyName("world");
+        planetNameFilter.setNestedEntityTypeLabel("Planet");
+        planetNameFilter.setPropertyValue("Earth");
+        planetNameFilter.setPropertyName("name");
+        planetNameFilter.setRelationshipType("ORBITS");
+        planetNameFilter.setRelationshipDirection("OUTGOING");
+        planetNameFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        Filter planetMoonsFilter = new Filter();
+        planetMoonsFilter.setNestedPropertyName("moons");
+        planetMoonsFilter.setNestedEntityTypeLabel("Planet");
+        planetMoonsFilter.setPropertyValue("Earth");
+        planetMoonsFilter.setPropertyName("moons");
+        planetMoonsFilter.setRelationshipType("ORBITS");
+        planetMoonsFilter.setRelationshipDirection("OUTGOING");
+        planetMoonsFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+
+        query.findByProperties("ORBITS", new Filters().add(planetNameFilter, planetMoonsFilter), 4).getStatement();
     }
 }

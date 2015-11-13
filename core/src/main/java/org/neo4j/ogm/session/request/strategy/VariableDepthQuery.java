@@ -23,6 +23,7 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
+import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.Utils;
 
 /**
@@ -118,6 +119,7 @@ public class VariableDepthQuery implements QueryStatements {
         Map<String, String> matchClauseIdentifiers = new HashMap<>(); //Mapping of the node label to the identifier used in the query
         List<StringBuilder> relationshipClauses = new ArrayList<>(); //All relationship clauses
         int matchClauseId = 0;
+        boolean noneOperatorEncountered = false;
         String nodeIdentifier="n";
 
         //Create a match required to support the node entity we're supposed to return
@@ -125,6 +127,12 @@ public class VariableDepthQuery implements QueryStatements {
 
         for (Filter filter : filters) {
             StringBuilder matchClause;
+            if (filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+                if (noneOperatorEncountered) {
+                    throw new MissingOperatorException("BooleanOperator missing for filter with property name " + filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
+                }
+                noneOperatorEncountered = true;
+            }
             if(filter.isNested()) {
                 if(filter.getBooleanOperator().equals(BooleanOperator.OR)) {
                     throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");

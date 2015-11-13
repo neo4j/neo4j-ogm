@@ -14,18 +14,19 @@
 
 package org.neo4j.ogm.mapper.cypher;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -528,6 +529,17 @@ public class NodeEntityQueryTest {
         moonParam.setRelationshipDirection("OUTGOING");
         moonParam.setBooleanOperator(BooleanOperator.AND);
         assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name` } AND m0.`size` = { `collidesWith_size` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", queryStatements.findByProperties("Asteroid", new Filters().add(planetParam).add(moonParam), 1).getStatement());
+    }
+
+    /**
+     * @see Issue 73
+     */
+    @Test(expected = MissingOperatorException.class)
+    public void testFindByMultipleAndPropertiesWithMissingBooleanOperator() {
+        Filter nameParam = new Filter("name", "AST-1");
+        Filter diameterParam = new Filter("diameter", 60);
+        diameterParam.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        queryStatements.findByProperties("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement();
     }
 
 }

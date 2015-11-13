@@ -42,7 +42,8 @@ public class Filter {
 	private ComparisonOperator comparisonOperator = ComparisonOperator.EQUALS;
 
 	/**
-	 * The boolean operator used to append this parameter to the previous ones
+	 * The boolean operator used to append this filter to the previous ones.
+	 * Mandatory if the filter is not the first and only filter in the list.
 	 */
 	private BooleanOperator booleanOperator = BooleanOperator.NONE;
 
@@ -52,7 +53,7 @@ public class Filter {
 	private boolean negated;
 
 	/**
-	 * The parent entity which owns this parameter
+	 * The parent entity which owns this filter
 	 */
 	private Class<?> ownerEntityType;
 

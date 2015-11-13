@@ -25,6 +25,7 @@ import org.neo4j.ogm.mapper.GraphEntityMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
 import org.neo4j.ogm.mapper.TransientRelationship;
+import org.neo4j.ogm.metadata.EntityUtils;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -49,7 +50,7 @@ public class SessionResponseHandler implements ResponseHandler {
     @Override
     public <T> Collection<T> loadByProperty(Class<T> type, Neo4jResponse<GraphRowModel> response) {
 
-        Set<T> result = new LinkedHashSet<>();
+        List<T> result = new ArrayList<>();
         Set<Long> resultEntityIds = new LinkedHashSet<>();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         GraphRowModel graphRowModel = response.next();
@@ -183,16 +184,25 @@ public class SessionResponseHandler implements ResponseHandler {
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Neo4jResponse<GraphModel> response) {
 
-        Set<T> objects = new LinkedHashSet<>();
+        List<T> objects = new ArrayList<>();
+        List<Long> objectIds = new ArrayList<>();
 
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
 
         GraphModel graphModel;
         while ((graphModel = response.next()) != null) {
-            objects.addAll(ogm.map(type, graphModel));
+            List<T> mappedEntities = ogm.map(type, graphModel);
+            for (T entity :mappedEntities) {
+                Long identity = EntityUtils.identity(entity, metaData);
+                if(!objectIds.contains(identity)) {
+                    objects.add(entity);
+                    objectIds.add(identity);
+                }
+            }
         }
         response.close();
         return objects;
     }
+
 
 }

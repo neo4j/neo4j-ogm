@@ -188,15 +188,14 @@ public class CineastsIntegrationTest {
 
     @Test
     public void shouldQueryForActorByIdUsingBespokeParameterisedCypherQuery() {
-        session.save(new Actor("Helen Mirren"));
-        Actor alec = new Actor("Alec Baldwin");
-        session.save(alec);
-        session.save(new Actor("Matt Damon"));
+        session.save(new Actor("Keanu Reeves"));
+        Actor carrie = new Actor("Carrie-Ann Moss");
+        session.save(carrie);
+        session.save(new Actor("Laurence Fishburne"));
 
         Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE ID(a)={param} RETURN a",
-                Collections.<String, Object>singletonMap("param", alec.getId()));
+                Collections.<String, Object>singletonMap("param", carrie.getId()));
         assertNotNull("The entity wasn't loaded", loadedActor);
-        assertEquals("Alec Baldwin", loadedActor.getName());
+        assertEquals("Carrie-Ann Moss", loadedActor.getName());
     }
-
 }

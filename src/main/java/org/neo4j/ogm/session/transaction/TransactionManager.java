@@ -102,11 +102,7 @@ public class TransactionManager {
             StatusLine statusLine = response.getStatusLine();
 
             logger.debug("Status code: " + statusLine.getStatusCode());
-            if (statusLine.getStatusCode() >= 300) {
-                throw new HttpResponseException(
-                        statusLine.getStatusCode(),
-                        statusLine.getReasonPhrase());
-            }
+
             // close the content stream/release the connection
             HttpEntity responseEntity = response.getEntity();
 
@@ -120,6 +116,12 @@ public class TransactionManager {
             }
             else {
                 request.releaseConnection();
+            }
+
+            if (statusLine.getStatusCode() >= 300) {
+                throw new HttpResponseException(
+                        statusLine.getStatusCode(),
+                        statusLine.getReasonPhrase());
             }
             return response;
         }

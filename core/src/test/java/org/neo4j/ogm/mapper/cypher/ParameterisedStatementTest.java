@@ -14,20 +14,21 @@
 
 package org.neo4j.ogm.mapper.cypher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Test;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.json.ObjectMapperFactory;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
+import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
+import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
 
 /**
  * @author Vince Bickers
@@ -35,7 +36,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ParameterisedStatementTest {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
     private Statement statement;
 
     @Test

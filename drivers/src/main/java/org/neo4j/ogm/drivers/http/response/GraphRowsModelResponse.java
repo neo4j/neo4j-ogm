@@ -1,88 +1,54 @@
-package org.neo4j.ogm.drivers.http.response;
+/*
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.neo4j.ogm.model.GraphRowListModel;
-import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.response.model.DefaultGraphModel;
-import org.neo4j.ogm.result.ResultGraphRowListModel;
-import org.neo4j.ogm.json.JSONArray;
-import org.neo4j.ogm.json.JSONException;
-import org.neo4j.ogm.json.JSONObject;
-import org.neo4j.ogm.exception.ResultProcessingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.neo4j.ogm.drivers.http.response;
 
 import java.io.IOException;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.GraphRowModel;
+import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
+import org.neo4j.ogm.result.ResultGraphRowListModel;
+
 /**
  * @author vince
+ * @author Luanne Misquitta
  */
-public class GraphRowsModelResponse extends AbstractHttpResponse implements Response<GraphRowListModel> {
+public class GraphRowsModelResponse extends AbstractHttpResponse<ResultGraphRowListModel> implements Response<GraphRowListModel> {
 
-    protected static final ObjectMapper mapper = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphRowsModelResponse.class);
-    private static final String SCAN_TOKEN = "\"data";
+	public GraphRowsModelResponse(CloseableHttpResponse httpResponse) throws IOException {
+		super(httpResponse.getEntity().getContent(), ResultGraphRowListModel.class);
+	}
 
-    private final CloseableHttpResponse response;
+	@Override
+	public GraphRowListModel next() {
+		ResultGraphRowListModel graphRowModel = nextDataRecord("data");
 
-    public GraphRowsModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-        super(httpResponse.getEntity().getContent());
-        this.response = httpResponse;
-    }
+		if (graphRowModel != null) {
+			DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
+			for (GraphRowModel model : graphRowModel.getData()) {
+				graphRowListModel.add(model);
+			}
+			return graphRowListModel;
+		}
+		return null;
+	}
 
-    @Override
-    public GraphRowListModel next() {
-
-        String json = super.nextRecord();
-
-        if (json != null) {
-            try {
-                ResultGraphRowListModel graphRowModelResult = new ResultGraphRowListModel();
-
-                JSONObject jsonObject = getOuterObject(json);
-
-                JSONArray dataObject = jsonObject.getJSONArray("data");
-
-                for (int i = 0; i < dataObject.length(); i++) {
-                    String graphJson = dataObject.getJSONObject(i).getString("graph");
-                    String rowJson = dataObject.getJSONObject(i).getString("row");
-                    DefaultGraphModel graphModel = mapper.readValue(graphJson, DefaultGraphModel.class);
-                    Object[] rows = mapper.readValue(rowJson, Object[].class);
-                    graphRowModelResult.addGraphRowResult(graphModel, rows);
-                }
-                return graphRowModelResult.model();
-            } catch (Exception e) {
-                LOGGER.error("failed to parse: " + json);
-                throw new RuntimeException(e);
-            }
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public void close() {
-        super.close();
-        try {
-            response.close();
-        } catch (IOException e) {
-            throw new ResultProcessingException("Could not close response", e);
-        }
-    }
-
-    @Override
-    public String scanToken() {
-        return SCAN_TOKEN;
-    }
-
-    protected JSONObject getOuterObject(String json) throws JSONException {
-        JSONObject outerObject;
-        try {
-            outerObject = new JSONObject(json);
-        } catch (JSONException e) {
-            outerObject = new JSONObject(json + "]}"); //TODO enhance the JSONParser to not strip off these 2 characters
-        }
-        return outerObject;
-    }
+	@Override
+	public void close() {
+		//Nothing to do, the response has been closed already
+	}
 }

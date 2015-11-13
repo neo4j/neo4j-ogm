@@ -24,11 +24,14 @@ import org.neo4j.ogm.model.GraphRowModel;
  */
 public class DefaultGraphRowModel implements GraphRowModel {
 
-    private final GraphModel graph;
-    private final Object[] row;
+    public DefaultGraphRowModel() {
+    }
+
+    private DefaultGraphModel graph;
+    private Object[] row;
 
     public DefaultGraphRowModel(GraphModel graph, Object[] row) {
-        this.graph = graph;
+        this.graph = (DefaultGraphModel)graph;
         this.row = row;
     }
 

@@ -1,12 +1,27 @@
-package org.neo4j.ogm.drivers.embedded.response;
+/*
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.graphdb.Label;
+package org.neo4j.ogm.drivers.embedded.response;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.graphdb.Label;
+import org.neo4j.ogm.json.ObjectMapperFactory;
 
 /**
  * this class should probably go, and we should build our response objects directly
@@ -15,7 +30,7 @@ import java.util.List;
  */
 public abstract class JsonAdapter {
 
-    protected static final ObjectMapper mapper = new ObjectMapper();
+    protected static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     protected static final String QUOTE = "\"";
     protected static final String OPEN_BRACE = "{";

@@ -15,6 +15,9 @@
 package org.neo4j.ogm.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
+import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RowModel;
@@ -27,8 +30,6 @@ import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
-import org.neo4j.ogm.exception.ResultProcessingException;
 
 
 /**
@@ -36,7 +37,7 @@ import org.neo4j.ogm.exception.ResultProcessingException;
  */
 public abstract class StubHttpDriver extends AbstractConfigurableDriver {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     protected abstract String[] getResponse();
 

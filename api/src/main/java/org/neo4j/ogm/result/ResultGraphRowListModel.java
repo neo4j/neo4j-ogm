@@ -1,9 +1,25 @@
+/*
+ * Copyright (c) 2002-2015 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ */
+
 package org.neo4j.ogm.result;
 
-import org.neo4j.ogm.model.GraphModel;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.model.Query;
-import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowModel;
 
@@ -14,6 +30,9 @@ import org.neo4j.ogm.response.model.DefaultGraphRowModel;
  */
 public class ResultGraphRowListModel implements Query<GraphRowListModel> {
 
+    private List<DefaultGraphRowModel> data = new ArrayList<>();
+
+
     private final DefaultGraphRowListModel model;
 
     public ResultGraphRowListModel() {
@@ -21,15 +40,20 @@ public class ResultGraphRowListModel implements Query<GraphRowListModel> {
     }
 
     public GraphRowListModel model() {
-        return model;
+        DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
+        graphRowListModel.addAll(data);
+        return graphRowListModel;
     }
 
-    public void addGraphRowResult(GraphModel graphModel, RowModel rowModel) {
-        model.add(new DefaultGraphRowModel(graphModel, rowModel.getValues()));
+    public void addGraphRowResult(GraphRowModel graphRowModel) {
+        model.add(graphRowModel);
     }
 
-    public void addGraphRowResult(GraphModel graphModel, Object[] rowModel) {
-        model.add(new DefaultGraphRowModel(graphModel, rowModel));
+    public List<DefaultGraphRowModel> getData() {
+        return data;
     }
 
+    public void setData(List<DefaultGraphRowModel> data) {
+        this.data = data;
+    }
 }

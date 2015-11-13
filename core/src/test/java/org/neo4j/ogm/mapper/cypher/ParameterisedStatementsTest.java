@@ -14,23 +14,24 @@
 
 package org.neo4j.ogm.mapper.cypher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.request.Statements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Test;
+import org.neo4j.ogm.json.ObjectMapperFactory;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
+import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 
 /**
  * @author Vince Bickers
  */
 public class ParameterisedStatementsTest {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     @Test
     public void testStatement() throws Exception {

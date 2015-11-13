@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
@@ -27,7 +31,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.authentication.Credentials;
+import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
+import org.neo4j.ogm.drivers.http.response.RowModelResponse;
+import org.neo4j.ogm.drivers.http.response.RowStatisticsModelResponse;
+import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RowModel;
@@ -35,16 +44,8 @@ import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
-import org.neo4j.ogm.drivers.http.response.RowModelResponse;
-import org.neo4j.ogm.drivers.http.response.RowStatisticsModelResponse;
-import org.neo4j.ogm.exception.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -53,7 +54,7 @@ import java.util.List;
  */
 public class HttpRequest implements Request {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     private final String url;
     private final CloseableHttpClient httpClient;

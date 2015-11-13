@@ -130,3 +130,8 @@ Iterable<World> worlds = session.loadAll(World.class,
 Iterable<World> worlds = session.loadAll(World.class,
                                         new SortOrder().add("name"), new Pagination(pageNumber,itemsPerPage))
 ----
+
+[NOTE]
+====
+Neo4j OGM does not yet support sorting and paging on custom queries.
+====

@@ -13,6 +13,13 @@
  */
 package org.neo4j.ogm.integration.identity;
 
+import static org.junit.Assert.*;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -20,12 +27,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author vince
@@ -43,6 +44,11 @@ public class IdentityTest {
     @Before
     public void init() {
         session = sessionFactory.openSession(server.driver());
+    }
+
+    @After
+    public void tearDown() {
+        session.purgeDatabase();
     }
 
     @Test
@@ -83,6 +89,45 @@ public class IdentityTest {
 
     }
 
+    @Test
+    public void shouldBeAbleToLoadAllNodesOfATypeEvenIfTheyAreConsideredEqual() {
+        Node nodeA = new Node();
+        session.save(nodeA);
+
+        Node nodeB = new Node();
+        session.save(nodeB);
+
+        session.clear();
+        Collection<Node> allNodes = session.loadAll(Node.class);
+        assertEquals(2, allNodes.size());
+    }
+
+    @Test
+    public void shouldBeAbleToLoadAllREsEvenIfTheyAreConsideredEqual() {
+        Node nodeA = new Node();
+        session.save(nodeA);
+
+        Node nodeB = new Node();
+        session.save(nodeB);
+
+        Node nodeC = new Node();
+        session.save(nodeC);
+
+        Edge edge1 = new Edge();
+        edge1.start = nodeA;
+        edge1.end = nodeB;
+        session.save(edge1);
+
+        Edge edge2 = new Edge();
+        edge2.start = nodeB;
+        edge2.end = nodeC;
+        session.save(edge2);
+
+        session.clear();
+        Collection<Edge> allEdges = session.loadAll(Edge.class);
+        assertEquals(2, allEdges.size());
+    }
+
     @NodeEntity(label="NODE")
     public static class Node {
 
@@ -118,6 +163,20 @@ public class IdentityTest {
         @EndNode
         Node end;
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (this == o) return true;
+
+            if (o == null || getClass() != o.getClass()) return false;
+
+            return true; // all Edge objects are the same, from perspective of client code
+        }
+
+        @Override
+        public int hashCode() {
+            return 1;
+        }
     }
 
 }

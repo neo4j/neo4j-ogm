@@ -1,14 +1,16 @@
 package org.neo4j.ogm.mapper;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * @author vince
@@ -25,7 +27,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
 
     public <T> Iterable<T> map(Class<T> type, Response<GraphRowListModel> response) {
 
-        Set<T> result = new LinkedHashSet<>();
+        List<T> result = new ArrayList<>();
         Set<Long> resultEntityIds = new LinkedHashSet<>();
         ClassInfo classInfo = metaData.classInfo(type.getName());
 

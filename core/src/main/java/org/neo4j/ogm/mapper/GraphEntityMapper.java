@@ -15,7 +15,10 @@
 package org.neo4j.ogm.mapper;
 
 
+import java.util.*;
+
 import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
@@ -32,8 +35,6 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -58,13 +59,22 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<GraphModel> model) {
 
-        Set<T> objects = new LinkedHashSet<>();
+        List<T> objects = new ArrayList<>();
+		List<Long> objectIds = new ArrayList<>();
 
-        GraphModel graphModel;
-        while ((graphModel = model.next()) != null) {
-            objects.addAll(map(type, graphModel));
-        }
-        model.close();
+		GraphModel graphModel;
+		while ((graphModel = model.next()) != null) {
+			List<T> mappedEntities = map(type, graphModel);
+			for (T entity : mappedEntities) {
+				Long identity = EntityUtils.identity(entity, metadata);
+				if (!objectIds.contains(identity)) {
+					objects.add(entity);
+					objectIds.add(identity);
+				}
+			}
+		}
+
+	model.close();
         return objects;
     }
 
@@ -74,15 +84,15 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		 * these two lists will contain the node ids and edge ids from the response, in the order
          * they were presented to us.
          */
-		List<Long> nodeIds = new ArrayList<>();
-		List<Long> edgeIds = new ArrayList<>();
+		Set<Long> nodeIds = new LinkedHashSet<>();
+		Set<Long> edgeIds = new LinkedHashSet<>();
 
 		mapEntities(type, graphModel, nodeIds, edgeIds);
 		List<T> results = new ArrayList<>();
 
 		for (Long id : nodeIds) {
 			Object o = mappingContext.getNodeEntity(id);
-			if (o != null && type.isAssignableFrom(o.getClass()) && !results.contains(o)) {
+			if (o != null && type.isAssignableFrom(o.getClass())) {
 				results.add(type.cast(o));
 			}
 		}
@@ -91,7 +101,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		if (results.isEmpty()) {
 			for (Long id : edgeIds) {
 				Object o = mappingContext.getRelationshipEntity(id);
-				if (o != null && type.isAssignableFrom(o.getClass()) && !results.contains(o)) {
+				if (o != null && type.isAssignableFrom(o.getClass())) {
 					results.add(type.cast(o));
 				}
 			}
@@ -100,7 +110,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		return results;
 	}
 
-	private <T> void mapEntities(Class<T> type, GraphModel graphModel, List<Long> nodeIds, List<Long> edgeIds) {
+	private <T> void mapEntities(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
 		try {
 			mapNodes(graphModel, nodeIds);
 			mapRelationships(graphModel, edgeIds);
@@ -109,7 +119,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		}
 	}
 
-	private void mapNodes(GraphModel graphModel, List<Long> nodeIds) {
+	private void mapNodes(GraphModel graphModel, Set<Long> nodeIds) {
 
 		for (Node node : graphModel.getNodes()) {
 			Object entity = mappingContext.getNodeEntity(node.getId());
@@ -188,7 +198,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		return false;
 	}
 
-	private void mapRelationships(GraphModel graphModel, List<Long> edgeIds) {
+	private void mapRelationships(GraphModel graphModel, Set<Long> edgeIds) {
 
 		final List<Edge> oneToMany = new ArrayList<>();
 

@@ -14,19 +14,7 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.*;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
-import org.neo4j.ogm.testutil.TestUtils;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,7 +22,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.cineasts.annotated.*;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.TestUtils;
 
 /**
  * Simple integration test based on cineasts that exercises relationship entities.
@@ -194,15 +194,16 @@ public class CineastsIntegrationTest {
 
     @Test
     public void shouldQueryForActorByIdUsingBespokeParameterisedCypherQuery() {
-        session.save(new Actor("Helen Mirren"));
-        Actor alec = new Actor("Alec Baldwin");
-        session.save(alec);
-        session.save(new Actor("Matt Damon"));
+        session.save(new Actor("Keanu Reeves"));
+        Actor carrie = new Actor("Carrie-Ann Moss");
+        session.save(carrie);
+        session.save(new Actor("Laurence Fishburne"));
 
         Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE ID(a)={param} RETURN a",
-                Collections.<String, Object>singletonMap("param", alec.getId()));
+                Collections.<String, Object>singletonMap("param", carrie.getId()));
         assertNotNull("The entity wasn't loaded", loadedActor);
-        assertEquals("Alec Baldwin", loadedActor.getName());
+        assertEquals("Carrie-Ann Moss", loadedActor.getName());
     }
+
 
 }

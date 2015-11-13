@@ -165,7 +165,10 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
                 //Nested entities may have the same property name, so we make them unique by qualifying them with the nested property name on the owning entity
                 uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
             }
-			query.append(String.format("%s.`%s` %s { `%s` } ",nodeIdentifier,filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
+            String propertyExpressionPattern = filter.isNegated()
+                    ? "NOT(%s.`%s` %s { `%s` }) "
+                    : "%s.`%s` %s { `%s` } ";
+            query.append(String.format(propertyExpressionPattern, nodeIdentifier, filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
             properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
 		}
     }

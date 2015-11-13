@@ -47,6 +47,11 @@ public class Filter {
 	private BooleanOperator booleanOperator = BooleanOperator.NONE;
 
 	/**
+	 * Determines whether or not this filter condition should be negated when added to the query.
+	 */
+	private boolean negated;
+
+	/**
 	 * The parent entity which owns this parameter
 	 */
 	private Class<?> ownerEntityType;
@@ -136,6 +141,22 @@ public class Filter {
 	public void setBooleanOperator(BooleanOperator booleanOperator) {
 		this.booleanOperator = booleanOperator;
 	}
+
+	/**
+	 * @return <code>true</code> if this filter expression is to be negated when it's appended to the query, <code>false</code>
+	 * if not
+	 */
+	public boolean isNegated() {
+		return negated;
+	}
+
+	/**
+	 * @param negated Whether or not the filter expression is to be negated
+	 */
+	public void setNegated(boolean negated) {
+		this.negated = negated;
+	}
+
 
 	public Class<?> getOwnerEntityType() {
 		return ownerEntityType;

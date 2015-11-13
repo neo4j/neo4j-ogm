@@ -194,14 +194,17 @@ public class VariableDepthQuery implements QueryStatements {
                 query.append(filter.getBooleanOperator().getValue()).append(" ");
             }
         }
-        query.append(String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
+        String propertyExpressionPattern = filter.isNegated()
+                ? "NOT(%s.`%s` %s { `%s` }) "
+                : "%s.`%s` %s { `%s` } ";
+        query.append(String.format(propertyExpressionPattern, nodeIdentifier, filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
         properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
     }
 
     /**
      * Construct a relationship match clause for a filter
      * @param filter the {@link Filter}
-     * @param nodeIdentifier the node identifier used for the other node of the realtionship
+     * @param nodeIdentifier the node identifier used for the other node of the relationship
      * @return the relationship clause
      */
     private static StringBuilder constructRelationshipClause(Filter filter, String nodeIdentifier) {

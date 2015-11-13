@@ -14,22 +14,7 @@
 package org.neo4j.ogm.integration.convertible;
 
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.neo4j.ogm.annotation.typeconversion.DateString;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.convertible.date.Memo;
-import org.neo4j.ogm.domain.convertible.enums.Education;
-import org.neo4j.ogm.domain.convertible.enums.Gender;
-import org.neo4j.ogm.domain.convertible.enums.Person;
-import org.neo4j.ogm.domain.convertible.numbers.Account;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -38,7 +23,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.convertible.date.Memo;
+import org.neo4j.ogm.domain.convertible.enums.Education;
+import org.neo4j.ogm.domain.convertible.enums.Gender;
+import org.neo4j.ogm.domain.convertible.enums.Person;
+import org.neo4j.ogm.domain.convertible.numbers.Account;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Luanne Misquitta
@@ -111,6 +111,7 @@ public class ConvertibleIntegrationTest {
         memo.setImplementations(implementations);
         memo.setEscalations(escalations);
         memo.setActioned(actioned.getTime());
+        memo.setClosed(new Date());
         session.save(memo);
 
         Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", "theMemo")).iterator().next();
@@ -173,6 +174,19 @@ public class ConvertibleIntegrationTest {
         assertEquals(loans,loadedAccount.getLoans());
         assertSameArray(deposits,loadedAccount.getDeposits());
 
+    }
+
+    /**
+     * @see issue #72
+     */
+    @Test
+    public void shouldSaveAndRetrieveIntegerDates() {
+        Memo memo = new Memo();
+        memo.setClosed(new Date(0));
+        session.save(memo);
+
+        memo = session.load(Memo.class, memo.getId());
+        assertEquals(new Date(0).getTime(), memo.getClosed().getTime());
     }
 
     public void assertSameArray(Object[] as, Object[] bs) {

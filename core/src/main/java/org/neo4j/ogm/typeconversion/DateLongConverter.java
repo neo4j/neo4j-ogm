@@ -17,9 +17,13 @@ package org.neo4j.ogm.typeconversion;
 import java.util.Date;
 
 /**
+ * Converter to convert {@link java.util.Date} to {@link java.lang.Long}.
+ * Since the value as represented in JSON loses type information and is just numeric, the converted type used is {@link java.lang.Number}
+ *
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
-public class DateLongConverter implements AttributeConverter<Date, Long> {
+public class DateLongConverter implements AttributeConverter<Date, Number> {
 
     @Override
     public Long toGraphProperty(Date value) {
@@ -28,8 +32,8 @@ public class DateLongConverter implements AttributeConverter<Date, Long> {
     }
 
     @Override
-    public Date toEntityAttribute(Long value) {
+    public Date toEntityAttribute(Number value) {
         if (value == null) return null;
-        return new Date(value);
+        return new Date(value.longValue());
     }
 }

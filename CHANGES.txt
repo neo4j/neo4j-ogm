@@ -1,6 +1,17 @@
-1.1.3-SNAPSHOT
+2.0.0-SNAPSHOT
 --------------
+o Fixes issue where loadAll was dependent on the entities implementation of equals()
+o Throw MissingOperatorException when BooleanOperators are not specified in any filters except the first
+o Fixes an issue where LoadByIdsDelegate returned more than the collection of requested ids
+o Allows saving a relationship entity directly even when there is no reference from the relationship entity to the start node
+o Fixes issue where integers returned by queries were not converted correctly to numeric wrapper classes like Float
+o Fixes issue where @DateLong could not handle dates with values < INTEGER.MAX_VALUE
+o Fixes relationship mapping issue when one-sided singleton relationships are reloaded after session clear
+o Added support for case-insensitive, wildcard-based LIKE queries via filters
 o Fixes null pointer exceptions when nulls are sent as parameters and returned from custom queries
+
+1.1.3
+--------------
 o Fixes issue when entity identity was based on equals/hashcode when traversing object graph
 o Performance improvements when
   - updating existing relationships by id

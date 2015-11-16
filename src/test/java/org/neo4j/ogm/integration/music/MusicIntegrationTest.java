@@ -17,7 +17,7 @@ package org.neo4j.ogm.integration.music;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,12 +39,12 @@ import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
  */
 public class MusicIntegrationTest {
 
-    @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+	@ClassRule
+	public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
 
-    private static Session session;
+	private static Session session;
 
-    @Before
+	@Before
 	public void init() throws IOException {
 		session = new SessionFactory("org.neo4j.ogm.domain.music").openSession(neo4jRule.url());
 	}
@@ -53,6 +53,7 @@ public class MusicIntegrationTest {
 	public void clear() {
 		session.purgeDatabase();
 	}
+
 	/**
 	 * @see DATAGRAPH-589
 	 */
@@ -103,7 +104,6 @@ public class MusicIntegrationTest {
 		new ExecutionEngine(neo4jRule.getGraphDatabaseService()).execute("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})");
 		Studio studio = session.loadAll(Studio.class, new Filter("name", "Abbey Road Studios")).iterator().next();
 		assertNotNull(studio);
-
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class MusicIntegrationTest {
 		session.clear();
 
 		please = session.loadAll(Album.class, new Filter("name", "Please Please Me"), 0).iterator().next();
-		assertEquals("Please Please Me",please.getName());
+		assertEquals("Please Please Me", please.getName());
 		assertNull(please.getArtist());
 		assertNull(please.getRecording());
 	}
@@ -151,7 +151,6 @@ public class MusicIntegrationTest {
 		slowhand.setRecording(slowRecording);
 		slowhand.setArtist(eric);
 		session.save(slowhand);
-
 
 		session.clear();
 		Album theBeatlesAlbum = new Album("The Beatles");
@@ -175,5 +174,41 @@ public class MusicIntegrationTest {
 		assertNotNull(loadedEric);
 		assertEquals("The Beatles", loadedEric.getGuestAlbums().iterator().next().getName());
 		assertEquals("Slowhand", loadedEric.getAlbums().iterator().next().getName());
+	}
+
+	/**
+	 * Issue #83
+	 */
+	@Test
+	public void shouldBeAbleToQueryForLiteralMap() {
+		Studio emi = new Studio("EMI Studios, London");
+		Artist theBeatles = new Artist("The Beatles");
+
+		Album theBeatlesAlbum = new Album("The Beatles");
+		Recording theBeatlesRec = new Recording(theBeatlesAlbum, emi, 1968);
+		theBeatlesAlbum.setRecording(theBeatlesRec);
+		theBeatles.getAlbums().add(theBeatlesAlbum);
+		theBeatlesAlbum.setArtist(theBeatles);
+		session.save(theBeatlesAlbum);
+
+		Album please = new Album("Please Please Me");
+		Recording pleaseRecording = new Recording(please, emi, 1963);
+		please.setRecording(pleaseRecording);
+		theBeatles.getAlbums().add(please);
+		please.setArtist(theBeatles);
+		session.save(theBeatles);
+
+		Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)} as result", Collections.EMPTY_MAP).queryResults().iterator();
+		assertTrue(resultIterator.hasNext());
+		Map<String, Object> row = resultIterator.next();
+		Map data = (Map) row.get("result");
+		List<String> albums = (List<String>) data.get("albums");
+		List<String> artist = (List<String>) data.get("artist");
+		assertEquals(1, artist.size());
+		assertEquals("The Beatles", artist.get(0));
+		assertEquals(2, albums.size());
+		assertTrue(albums.contains("The Beatles"));
+		assertTrue(albums.contains("Please Please Me"));
+		assertFalse(resultIterator.hasNext());
 	}
 }

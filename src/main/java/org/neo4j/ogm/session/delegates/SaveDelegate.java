@@ -13,8 +13,9 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.neo4j.ogm.cypher.compiler.CypherContext;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
@@ -45,13 +46,18 @@ public class SaveDelegate implements Capability.Save {
     }
 
     private <T> void saveAll(T object, int depth) {
-        List<T> list;
+        Collection<T> objects;
         if (object.getClass().isArray()) {
-            list = Arrays.asList(object);
+            int length = Array.getLength(object);
+            objects = new ArrayList<>(length);
+            for (int i = 0; i < length; i ++) {
+                T arrayElement = (T) Array.get(object, i);
+                objects.add(arrayElement);
+            }
         } else {
-            list = (List<T>) object;
+            objects = (Collection<T>) object;
         }
-        for (T element : list) {
+        for (Object element : objects) {
             save(element, depth);
         }
     }

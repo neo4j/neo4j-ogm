@@ -14,10 +14,14 @@
 
 package org.neo4j.ogm.mapper.cypher;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.*;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.mapper.EntityMapper;
-import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -31,14 +35,10 @@ import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.domain.social.SocialUser;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
+import org.neo4j.ogm.mapper.EntityMapper;
 import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.*;
+import org.neo4j.ogm.request.Statements;
 
 /**
  * @author Vince Bickers
@@ -637,7 +637,6 @@ public class CypherCompilerTest {
      * @see Issue #61
      */
     @Test
-    @Ignore // not yet fixed in 2.0
     public void shouldUseOptimizedQueryWhenOnlyNewRelsAreCreated() {
         SocialUser user1 = new SocialUser("x");
         user1.setId(0l);

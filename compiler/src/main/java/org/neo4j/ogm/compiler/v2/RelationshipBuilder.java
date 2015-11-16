@@ -14,10 +14,10 @@
 
 package org.neo4j.ogm.compiler.v2;
 
-import org.neo4j.ogm.compiler.RelationshipEmitter;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.compiler.RelationshipEmitter;
 
 /**
  * Used to compile Cypher that holds information about a relationship
@@ -35,6 +35,8 @@ abstract class RelationshipBuilder implements RelationshipEmitter {
     final String reference;
     private Boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
     private String direction;
+    private boolean relationshipEntity = false;
+
 
     final Map<String, Object> props = new HashMap<>();
 
@@ -100,5 +102,13 @@ abstract class RelationshipBuilder implements RelationshipEmitter {
 
     public boolean isBidirectional() {
         return false;
+    }
+
+    public boolean isRelationshipEntity() {
+        return relationshipEntity;
+    }
+
+    public void setRelationshipEntity(boolean relationshipEntity) {
+        this.relationshipEntity = relationshipEntity;
     }
 }

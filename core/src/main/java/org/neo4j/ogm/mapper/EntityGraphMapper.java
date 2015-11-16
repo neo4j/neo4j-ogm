@@ -447,6 +447,7 @@ public class EntityGraphMapper implements EntityMapper {
         relationshipBuilder.direction(directedRelationship.direction());
         if (isRelationshipEntity(entity)) {
             relationshipBuilder.setSingleton(false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
+            relationshipBuilder.setRelationshipEntity(true);
         }
         return relationshipBuilder;
     }

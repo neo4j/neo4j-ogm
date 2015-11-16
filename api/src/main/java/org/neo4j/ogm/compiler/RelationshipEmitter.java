@@ -27,6 +27,9 @@ public interface RelationshipEmitter extends CypherEmitter, Comparable<Relations
 
     RelationshipEmitter direction(String direction);
 
-
     boolean isBidirectional();
+
+    boolean isRelationshipEntity();
+
+    void setRelationshipEntity(boolean relationshipEntity);
 }

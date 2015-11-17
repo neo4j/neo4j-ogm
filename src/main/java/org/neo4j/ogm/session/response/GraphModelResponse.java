@@ -15,12 +15,11 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.session.result.GraphModelResult;
 import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -51,7 +50,7 @@ public class GraphModelResponse implements Neo4jResponse<GraphModel> {
             try {
                 return objectMapper.readValue(json, GraphModelResult.class).getGraph();
             } catch (Exception e) {
-                LOGGER.error("failed to parse: " + json);
+                LOGGER.error("failed to parse: {}", json);
                 throw new RuntimeException(e);
             }
         } else {

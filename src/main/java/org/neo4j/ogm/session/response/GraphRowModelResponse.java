@@ -15,14 +15,13 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.session.result.GraphRowModel;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.result.GraphRowModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link Neo4jResponse} that contains data in both graph and row formats.
@@ -64,7 +63,7 @@ public class GraphRowModelResponse implements Neo4jResponse<GraphRowModel> {
 				}
 				return graphRowModel;
 			} catch (Exception e) {
-				LOGGER.error("failed to parse: " + json);
+				LOGGER.error("failed to parse: {}", json);
 				throw new RuntimeException(e);
 			}
 		} else {

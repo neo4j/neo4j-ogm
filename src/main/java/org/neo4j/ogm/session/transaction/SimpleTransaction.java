@@ -46,7 +46,7 @@ public class SimpleTransaction implements Transaction {
     }
 
     public final void append(CypherContext context) {
-        logger.debug("Appending transaction context " + context);
+        logger.debug("Appending transaction context {}", context);
         if (status == Status.OPEN || status == Status.PENDING) {
             contexts.add(context);
             status = Status.PENDING;
@@ -94,10 +94,10 @@ public class SimpleTransaction implements Transaction {
 
         for (CypherContext cypherContext : contexts) {
 
-            logger.debug("Synchronizing transaction context " + cypherContext + " with session context");
+            logger.debug("Synchronizing transaction context {} with session context", cypherContext);
 
             for (Object o : cypherContext.log())  {
-                logger.debug("checking cypher context object: " + o);
+                logger.debug("checking cypher context object: {}",  o);
                 if (o instanceof MappedRelationship) {
                     MappedRelationship mappedRelationship = (MappedRelationship) o;
                     if (mappedRelationship.isActive()) {
@@ -108,11 +108,11 @@ public class SimpleTransaction implements Transaction {
                         mappingContext.mappedRelationships().remove(mappedRelationship);
                     }
                 } else if (!(o instanceof TransientRelationship)) {
-                    logger.debug("remembering " + o);
+                    logger.debug("remembering {}", o);
                     mappingContext.remember(o);
                 }
             }
-            logger.debug("number of objects: " + cypherContext.log().size());
+            logger.debug("number of objects: {}", cypherContext.log().size());
         }
 
         contexts.clear();

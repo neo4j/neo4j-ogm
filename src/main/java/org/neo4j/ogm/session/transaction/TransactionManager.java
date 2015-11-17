@@ -65,14 +65,14 @@ public class TransactionManager {
 
     public Transaction openTransaction(MappingContext mappingContext) {
         String transactionEndpoint = newTransactionEndpointUrl();
-        logger.debug("Creating new transaction with endpoint " + transactionEndpoint);
+        logger.debug("Creating new transaction with endpoint {}", transactionEndpoint);
         transaction.set(new LongTransaction(mappingContext, transactionEndpoint, this));
         return transaction.get();
     }
 
     public void rollback(Transaction tx) {
         String url = tx.url();
-        logger.debug("DELETE " + url);
+        logger.debug("DELETE {}", url);
         HttpDelete request = new HttpDelete(url);
         executeRequest(request);
         transaction.remove();
@@ -80,7 +80,7 @@ public class TransactionManager {
 
     public void commit(Transaction tx) {
         String url = tx.url() + "/commit";
-        logger.debug("POST " + url);
+        logger.debug("POST {}", url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
         executeRequest(request);
@@ -101,7 +101,7 @@ public class TransactionManager {
             HttpResponse response = httpClient.execute(request);
             StatusLine statusLine = response.getStatusLine();
 
-            logger.debug("Status code: " + statusLine.getStatusCode());
+            logger.debug("Status code: {}", statusLine.getStatusCode());
             if (statusLine.getStatusCode() >= 300) {
                 throw new HttpResponseException(
                         statusLine.getStatusCode(),
@@ -130,7 +130,7 @@ public class TransactionManager {
     }
 
     private String newTransactionEndpointUrl() {
-        logger.debug("POST " + url);
+        logger.debug("POST {}", url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
         HttpResponse response = executeRequest(request);

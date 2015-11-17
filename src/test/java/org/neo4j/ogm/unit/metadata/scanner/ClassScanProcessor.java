@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.neo4j.ogm.metadata.info.ClassFileProcessor;
 import org.neo4j.ogm.metadata.info.ClassInfo;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class ClassScanProcessor implements ClassFileProcessor {
 	public void process(InputStream inputStream) throws IOException {
 		ClassInfo classInfo = new ClassInfo(inputStream);
 		domainClassInfos.add(classInfo);
-                LOGGER.debug("ClassScanProcessor added: " + classInfo.name());
+                LOGGER.debug("ClassScanProcessor added: {}", classInfo.name());
 	}
 
 	@Override

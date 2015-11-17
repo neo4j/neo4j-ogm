@@ -58,7 +58,7 @@ public class DomainInfo implements ClassFileProcessor {
         long now = -System.currentTimeMillis();
         load(packages);
 
-        LOGGER.info(classNameToClassInfo.entrySet().size() + " classes loaded in " + (now + System.currentTimeMillis()) + " milliseconds");
+        LOGGER.info("{} classes loaded in {} milliseconds",classNameToClassInfo.entrySet().size(), (now + System.currentTimeMillis()));
     }
 
     private void buildAnnotationNameToClassInfoMap() {
@@ -76,15 +76,15 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void buildInterfaceNameToClassInfoMap() {
-        LOGGER.info("Building interface class map for " + classNameToClassInfo.values().size() + " classes");
+        LOGGER.info("Building interface class map for {} classes", classNameToClassInfo.values().size());
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            LOGGER.debug(" - " + classInfo.simpleName() + " implements " + classInfo.interfacesInfo().list().size() + " interfaces");
+            LOGGER.debug(" - {} implements {} interfaces", classInfo.simpleName(), classInfo.interfacesInfo().list().size());
             for (InterfaceInfo iface : classInfo.interfacesInfo().list()) {
                 ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(iface.name());
                 if (classInfoList == null) {
                     interfaceNameToClassInfo.put(iface.name(), classInfoList = new ArrayList<>());
                 }
-                LOGGER.debug("   - " + iface.name());
+                LOGGER.debug("   - {}", iface.name());
                 classInfoList.add(classInfo);
             }
         }
@@ -121,10 +121,10 @@ public class DomainInfo implements ClassFileProcessor {
 
             if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
 
-            LOGGER.debug("Post-processing: " + classInfo.name());
+            LOGGER.debug("Post-processing: {}", classInfo.name());
 
             if (classInfo.isTransient()) {
-                LOGGER.debug(" - Registering @Transient baseclass: " + classInfo.name());
+                LOGGER.debug(" - Registering @Transient baseclass: {}", classInfo.name());
                 transientClasses.add(classInfo);
                 continue;
             }
@@ -145,7 +145,7 @@ public class DomainInfo implements ClassFileProcessor {
         for (ArrayList<ClassInfo> classInfos : interfaceInfos) {
             for (ClassInfo classInfo : classInfos) {
                 if(classInfo.isTransient()) {
-                    LOGGER.debug("Registering @Transient baseclass: " + classInfo.name());
+                    LOGGER.debug("Registering @Transient baseclass: {}", classInfo.name());
                     transientClasses.add(classInfo);
                 }
             }
@@ -162,7 +162,7 @@ public class DomainInfo implements ClassFileProcessor {
 
     private void removeTransientClass(ClassInfo transientClass) {
         if (transientClass != null && !transientClass.name().equals("java.lang.Object")) {
-            LOGGER.debug("Removing @Transient class: " + transientClass.name());
+            LOGGER.debug("Removing @Transient class: {}", transientClass.name());
             classNameToClassInfo.remove(transientClass.name());
             for (ClassInfo transientChild : transientClass.directSubclasses()) {
                 removeTransientClass(transientChild);
@@ -188,7 +188,7 @@ public class DomainInfo implements ClassFileProcessor {
 
         if (interfaceClass != null) {
             if (!implementingClass.directInterfaces().contains(interfaceClass)) {
-                LOGGER.debug(" - Setting " + implementingClass.simpleName() + " implements " + interfaceClass.simpleName());
+                LOGGER.debug(" - Setting {} implements {}", implementingClass.simpleName(), interfaceClass.simpleName());
                 implementingClass.directInterfaces().add(interfaceClass);
             }
 
@@ -201,7 +201,7 @@ public class DomainInfo implements ClassFileProcessor {
             }
 
         } else {
-            LOGGER.debug(" - No ClassInfo found for interface class: " + interfaceInfo.name());
+            LOGGER.debug(" - No ClassInfo found for interface class: {}",  interfaceInfo.name());
         }
 
     }
@@ -214,7 +214,7 @@ public class DomainInfo implements ClassFileProcessor {
         String className = classInfo.name();
         String superclassName = classInfo.superclassName();
 
-        LOGGER.debug("Processing: " + className + " -> " + superclassName);
+        LOGGER.debug("Processing: {} -> {}", className, superclassName);
 
         if (className != null) {
 
@@ -238,7 +238,7 @@ public class DomainInfo implements ClassFileProcessor {
             }
 
             if (thisClassInfo.isEnum()) {
-                LOGGER.debug("Registering enum class: " + thisClassInfo.name());
+                LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
                 enumTypes.add(thisClassInfo.getUnderlyingClass());
             }
         }

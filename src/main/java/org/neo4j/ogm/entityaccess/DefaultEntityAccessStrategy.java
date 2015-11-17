@@ -483,7 +483,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
                 return new FieldReader(relationshipEntityClassInfo, fieldInfo);
             }
         }
-        logger.warn("Failed to find an @EndNode on " + relationshipEntityClassInfo);
+        logger.warn("Failed to find an @EndNode on {}", relationshipEntityClassInfo);
         return null;
     }
 
@@ -494,7 +494,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
                 return new FieldReader(relationshipEntityClassInfo, fieldInfo);
             }
         }
-        logger.warn("Failed to find an @StartNode on " + relationshipEntityClassInfo);
+        logger.warn("Failed to find an @StartNode on {}", relationshipEntityClassInfo);
         return null;
     }
 

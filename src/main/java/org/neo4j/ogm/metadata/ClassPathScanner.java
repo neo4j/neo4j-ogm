@@ -25,10 +25,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import org.neo4j.ogm.metadata.info.ClassFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.metadata.info.ClassFileProcessor;
 
 /**
  * @author Vince Bickers
@@ -70,7 +69,7 @@ public class ClassPathScanner {
 
 
     private void scanZipFile(final ZipFile zipFile) throws IOException {
-        LOGGER.debug("Scanning zipFile " + zipFile.getName());
+        LOGGER.debug("Scanning zipFile {}", zipFile.getName());
         for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
             final ZipEntry entry = entries.nextElement();
             if (!entry.isDirectory()) {
@@ -89,13 +88,13 @@ public class ClassPathScanner {
 
         String name = entry.getName();
 
-        LOGGER.debug("Scanning class entry: " + name);
+        LOGGER.debug("Scanning class entry: {}", name);
         int i = name.lastIndexOf("/");
         String path = (i == -1) ? "" : name.substring(0, i);
 
         for (String pathToScan : classPaths) {
             if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
-                LOGGER.debug(pathToScan + " admits '" + path + "' for entry: " + name);
+                LOGGER.debug("{} admits '{}' for entry: {}", new Object[]{pathToScan, path, name});
                 processor.process(inputStream);
                 break;
             }
@@ -106,7 +105,7 @@ public class ClassPathScanner {
 
         String name = entry.getName();
 
-        LOGGER.debug("Scanning zipped entry: " + name);
+        LOGGER.debug("Scanning zipped entry: {}", name);
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
         ZipEntry zipEntry = zipInputStream.getNextEntry();

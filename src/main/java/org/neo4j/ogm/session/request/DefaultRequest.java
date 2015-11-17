@@ -62,7 +62,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
         try {
 
-            LOGGER.debug("POST " + url + ", request: " + cypherQuery);
+            LOGGER.debug("POST {}, request: {}", url, cypherQuery);
 
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypherQuery,"UTF-8");
@@ -98,7 +98,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
         }
         // the primary exception handler, will ensure all resources are properly closed
         catch (Exception e) {
-            LOGGER.warn("Caught response exception: " + e.getLocalizedMessage());
+            LOGGER.warn("Caught response exception: {}", e.getLocalizedMessage());
             if (jsonResponse != null) {
                 jsonResponse.close();
             }

@@ -15,11 +15,10 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowModelResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -44,7 +43,7 @@ public class RowModelResponse implements Neo4jResponse<RowModel> {
             try {
                 return new RowModel(objectMapper.readValue(json, RowModelResult.class).getRow());
             } catch (Exception e) {
-                LOGGER.error("failed to parse: " + json);
+                LOGGER.error("failed to parse: {}", json);
                 throw new RuntimeException(e);
             }
         } else {

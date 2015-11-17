@@ -14,6 +14,9 @@
 
 package org.neo4j.ogm.session.response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
@@ -22,9 +25,6 @@ import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Luanne Misquitta
@@ -68,7 +68,7 @@ public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsRe
 				rowQueryStatisticsResult.setRows(rows);
 				return rowQueryStatisticsResult;
 			} catch (Exception e) {
-				LOGGER.error("failed to parse: " + json);
+				LOGGER.error("failed to parse: {}", json);
 				throw new RuntimeException(e);
 			}
 		} else {

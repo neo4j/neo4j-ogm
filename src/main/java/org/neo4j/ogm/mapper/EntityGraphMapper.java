@@ -290,7 +290,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
             if (srcIdentity != null) {
                 boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
                 if (!cleared) {
-                    logger.debug("this relationship is already being managed: {}");
+                    logger.debug("this relationship is already being managed: {}-{}-{}-()", new Object[] {entity, relationshipType, relationshipDirection});
                     continue;
                 }
             }
@@ -314,7 +314,7 @@ public class EntityGraphMapper implements EntityToGraphMapper {
                     }
                 }
 
-                logger.debug("mapping reference type: " + relationshipType);
+                logger.debug("mapping reference type: {}", relationshipType);
 
                 RelationshipNodes relNodes = new RelationshipNodes(entity,relatedObject,startNodeType,endNodeType);
                 relNodes.sourceId = srcIdentity;

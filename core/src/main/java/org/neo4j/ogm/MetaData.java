@@ -15,6 +15,8 @@
 package org.neo4j.ogm;
 
 
+import java.util.*;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
@@ -24,8 +26,6 @@ import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 
 /**
@@ -125,7 +125,7 @@ public class MetaData {
             Set<ClassInfo> resolved = new HashSet<>();
 
             for (String taxon : taxa) {
-                LOGGER.debug("looking for concrete class to resolve label: " + taxon);
+                LOGGER.debug("looking for concrete class to resolve label: {}", taxon);
                 ClassInfo taxonClassInfo = classInfo(taxon);
 
                 // ignore any foreign labels
@@ -148,15 +148,15 @@ public class MetaData {
                 // if its a superclass, we discard it.
                 // if its a subclass, we replace the previously found class with this one.
                 if (taxonClassInfo != null) {
-                    LOGGER.debug("concrete class found: " + taxonClassInfo + ". comparing with what's already been found previously...");
+                    LOGGER.debug("concrete class found: {}. comparing with what's already been found previously...", taxonClassInfo);
                     for (ClassInfo found : resolved) {
                         if (taxonClassInfo.isSubclassOf(found)) {
-                            LOGGER.debug(taxonClassInfo + " is a subclass of " + found + " and will replace it.");
+                            LOGGER.debug("{} is a subclass of {} and will replace it.",taxonClassInfo,found);
                             resolved.remove(found);
                             break; // there will only be one
                         }
                         if (found.isSubclassOf(taxonClassInfo)) {
-                            LOGGER.debug(taxonClassInfo + " is a superclass of " + found + " and will be ignored.");
+                            LOGGER.debug("{} is a superclass of {} and will be ignored", taxonClassInfo, found);
                             taxonClassInfo = null;  // discard it
                             break; // no need to look further, already discarded
                         }
@@ -167,7 +167,7 @@ public class MetaData {
 
                 // finally, we can add the taxonClassInfo - if it is still valid
                 if (taxonClassInfo != null) {
-                    LOGGER.debug(taxon + " resolving class: " + taxonClassInfo);
+                    LOGGER.debug("{} resolving class: {}", taxon,taxonClassInfo);
                     resolved.add(taxonClassInfo);
                 }
             }
@@ -226,7 +226,7 @@ public class MetaData {
 
         // if there are more than one direct subclasses, we won't know which to use
         if (classInfoList.size() > 1) {
-            LOGGER.debug("More than one class subclasses " + root);
+            LOGGER.debug("More than one class subclasses {}", root);
             return null;
         }
 

@@ -1,14 +1,14 @@
 package org.neo4j.ogm.config;
 
-import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
@@ -46,7 +46,7 @@ public class Configuration {
                 config.put(propertyName, properties.getProperty(propertyName));
             }
         } catch (Exception e) {
-            logger.warn("Could not load " + propertiesFileName);
+            logger.warn("Could not load {}",propertiesFileName);
         }
     }
 

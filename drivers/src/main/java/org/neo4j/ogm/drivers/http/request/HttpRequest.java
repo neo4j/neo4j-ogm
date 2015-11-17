@@ -152,7 +152,7 @@ public class HttpRequest implements Request {
 
             assert(url != null);
 
-            logger.debug("POST " + url + ", request: " + cypher);
+            logger.debug("POST {}, request {}", url, cypher);
 
             HttpPost request = new HttpPost(url);
             HttpEntity entity = new StringEntity(cypher,"UTF-8");
@@ -186,7 +186,7 @@ public class HttpRequest implements Request {
         }
         // the primary exception handler, will ensure all resources are properly closed
         catch (Exception e) {
-            logger.warn("Caught response exception: " + e.getLocalizedMessage());
+            logger.warn("Caught response exception: {}", e.getLocalizedMessage());
             if (response != null) {
                 try {
                     response.close();

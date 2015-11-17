@@ -1,14 +1,14 @@
 package org.neo4j.ogm.service;
 
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
+
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 
 /**
  * Loads a Cypher Compiler for use by the OGM to construct Cypher statements when mapping entities
@@ -46,7 +46,7 @@ abstract class CompilerService {
                     return compiler;
                 }
             } catch (ServiceConfigurationError sce) {
-                logger.warn(sce.getLocalizedMessage() + ", reason: " + sce.getCause());
+                logger.warn("{}, reason: {}",sce.getLocalizedMessage(), sce.getCause());
             }
         }
 

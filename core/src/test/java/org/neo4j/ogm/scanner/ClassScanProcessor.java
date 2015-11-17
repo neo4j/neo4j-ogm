@@ -14,15 +14,15 @@
 
 package org.neo4j.ogm.scanner;
 
-import org.neo4j.ogm.metadata.ClassFileProcessor;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.neo4j.ogm.metadata.ClassFileProcessor;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link ClassFileProcessor} that exists solely to record information about classes scanned for test purposes.
@@ -38,7 +38,7 @@ public class ClassScanProcessor implements ClassFileProcessor {
 	public void process(InputStream inputStream) throws IOException {
 		ClassInfo classInfo = new ClassInfo(inputStream);
 		domainClassInfos.add(classInfo);
-                LOGGER.debug("ClassScanProcessor added: " + classInfo.name());
+                LOGGER.debug("ClassScanProcessor added: {}", classInfo.name());
 	}
 
 	@Override

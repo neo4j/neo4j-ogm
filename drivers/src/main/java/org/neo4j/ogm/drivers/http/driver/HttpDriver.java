@@ -14,14 +14,14 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpAuthorization;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
 import org.neo4j.ogm.drivers.http.transaction.HttpTransaction;
 import org.neo4j.ogm.exception.ResultErrorsException;
 import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +74,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
             CloseableHttpResponse response = transport.execute(request);
             StatusLine statusLine = response.getStatusLine();
 
-            logger.debug("Status code: " + statusLine.getStatusCode());
+            logger.debug("Status code: {}", statusLine.getStatusCode());
             if (statusLine.getStatusCode() >= 300) {
                 throw new HttpResponseException(
                         statusLine.getStatusCode(),
@@ -105,7 +105,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
     private String newTransactionUrl() {
         String url = transactionEndpoint((String) driverConfig.getConfig("server"));
-        logger.debug("POST " + url);
+        logger.debug("POST {}", url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
         org.apache.http.HttpResponse response = executeHttpRequest(request);
@@ -133,7 +133,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
-                logger.debug("request url " + ((HttpTransaction) tx).url());
+                logger.debug("request url {}", ((HttpTransaction) tx).url());
                 return ((HttpTransaction) tx).url();
             } else {
                 logger.debug("no current transaction");
@@ -141,7 +141,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
         } else {
             logger.debug("no transaction manager");
         }
-        logger.debug("request url " + autoCommitUrl());
+        logger.debug("request url {}", autoCommitUrl());
         return autoCommitUrl();
     }
 }

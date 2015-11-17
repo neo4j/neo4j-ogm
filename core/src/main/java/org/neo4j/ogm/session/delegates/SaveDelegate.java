@@ -13,18 +13,19 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.neo4j.ogm.compiler.CompileContext;
-import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Vince Bickers
@@ -47,13 +48,18 @@ public class SaveDelegate implements Capability.Save {
     }
 
     private <T> void saveAll(T object, int depth) {
-        List<T> list;
+        Collection<T> objects;
         if (object.getClass().isArray()) {
-            list = Arrays.asList(object);
+            int length = Array.getLength(object);
+            objects = new ArrayList<>(length);
+            for (int i = 0; i < length; i ++) {
+                T arrayElement = (T) Array.get(object, i);
+                objects.add(arrayElement);
+            }
         } else {
-            list = (List<T>) object;
+            objects = (Collection<T>) object;
         }
-        for (T element : list) {
+        for (Object element : objects) {
             save(element, depth);
         }
     }

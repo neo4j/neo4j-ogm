@@ -59,6 +59,14 @@ public class Neo4jIntegrationTestRule extends TestServer implements TestRule {
         super(portNumber);
     }
 
+    public Neo4jIntegrationTestRule(String transactionTimeoutSeconds) {
+        super(transactionTimeoutSeconds);
+    }
+
+    public Neo4jIntegrationTestRule(int portNumber, String transactionTimeoutSeconds) {
+        super(portNumber, transactionTimeoutSeconds);
+    }
+
     @Override
     public Statement apply(final Statement baseStatement, Description description) {
 

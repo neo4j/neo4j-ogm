@@ -14,15 +14,15 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.lang.reflect.Field;
-import java.util.Scanner;
-
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.server.AbstractNeoServer;
+
+import java.lang.reflect.Field;
+import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -54,6 +54,35 @@ public class TestServer {
             ServerControls controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
+                    .newServer();
+
+            initialise(controls);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error starting in-process server",e);
+        }
+    }
+
+    public TestServer(String transactionTimeoutSeconds) {
+        try {
+            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+                    .withConfig("dbms.security.auth_enabled", "false")
+                    .withConfig("org.neo4j.server.transaction.timeout", transactionTimeoutSeconds)
+                    .newServer();
+
+            initialise(controls);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error starting in-process server",e);
+        }
+    }
+
+    public TestServer(int port, String transactionTimeoutSeconds) {
+        try {
+            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+                    .withConfig("dbms.security.auth_enabled", "false")
+                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
+                    .withConfig("org.neo4j.server.transaction.timeout", transactionTimeoutSeconds)
                     .newServer();
 
             initialise(controls);
@@ -132,6 +161,5 @@ public class TestServer {
     public GraphDatabaseService getGraphDatabaseService() {
         return this.database;
     }
-
 
 }

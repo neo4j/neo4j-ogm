@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.integration;
 
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.ClassRule;
@@ -27,7 +28,12 @@ import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Michal Bachman
@@ -36,7 +42,7 @@ public class TransactionRequestHandlerTest
 {
 
     @ClassRule
-    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule();
+    public static Neo4jIntegrationTestRule neo4jRule = new Neo4jIntegrationTestRule("2"); // idle tx killed after 2 secs
 
     private Session session;
 
@@ -80,6 +86,66 @@ public class TransactionRequestHandlerTest
         TransactionManager txRequestHandler = new TransactionManager(httpClient, neo4jRule.url());
         Transaction tx = new LongTransaction(null, neo4jRule.url(), txRequestHandler);
         tx.commit();
+    }
+
+    @Test
+    public void shouldBeAbleToStartMultipleConcurrentLongRunningTransactions() throws InterruptedException {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession(neo4jRule.url());
+
+        int numThreads = 100;
+
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        CountDownLatch latch = new CountDownLatch( numThreads );
+
+        for (int i = 0; i < numThreads; i++) {
+            executor.submit(new TransactionStarter(latch));
+        }
+        latch.await(); // pause until the count reaches 0
+        System.out.println("all threads running");
+        executor.shutdown();
+    }
+
+    @Test
+    public void shouldRollbackExplicitTransactionWhenServerTransactionTimeout() throws InterruptedException {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession(neo4jRule.url());
+
+        try (Transaction tx = session.beginTransaction()) {
+            // Wait for transaction to timeout on server
+            Thread.sleep(3000);
+            // Try to purge database using timed-out transaction
+            session.purgeDatabase();
+            fail("Should have caught exception");
+        } catch (ResultProcessingException rpe) {
+            HttpResponseException cause = (HttpResponseException) rpe.getCause();
+            assertEquals("Not Found", cause.getMessage());
+            assertEquals(404, cause.getStatusCode());
+        }
+        // should pass, because previous transaction will be closed by try block
+        session.purgeDatabase();
+    }
+
+    class TransactionStarter implements Runnable {
+
+        private final CountDownLatch latch;
+
+        public TransactionStarter(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void run() {
+
+            final Transaction tx = session.beginTransaction();
+            System.out.println("opened a transaction: " + tx);
+            latch.countDown();
+
+            // now loop so this thread simulates a long running transaction
+            for (;;);
+        }
     }
 
 

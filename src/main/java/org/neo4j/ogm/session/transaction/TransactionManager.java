@@ -75,7 +75,6 @@ public class TransactionManager {
         logger.debug("DELETE {}", url);
         HttpDelete request = new HttpDelete(url);
         executeRequest(request);
-        transaction.remove();
     }
 
     public void commit(Transaction tx) {
@@ -84,7 +83,6 @@ public class TransactionManager {
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
         executeRequest(request);
-        transaction.remove();
     }
 
     public Transaction getCurrentTransaction() {
@@ -102,14 +100,14 @@ public class TransactionManager {
             StatusLine statusLine = response.getStatusLine();
 
             logger.debug("Status code: {}", statusLine.getStatusCode());
+
             if (statusLine.getStatusCode() >= 300) {
                 throw new HttpResponseException(
                         statusLine.getStatusCode(),
                         statusLine.getReasonPhrase());
             }
-            // close the content stream/release the connection
-            HttpEntity responseEntity = response.getEntity();
 
+            HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
                 String responseText = EntityUtils.toString(responseEntity);
                 logger.debug(responseText);
@@ -118,14 +116,17 @@ public class TransactionManager {
                     throw new ErrorsException(responseText);
                 }
             }
-            else {
-                request.releaseConnection();
-            }
             return response;
         }
 
         catch (Exception e) {
             throw new ResultProcessingException("Failed to execute request: ", e);
+        }
+
+        // always clean up the connection and the thread-local transaction instance;
+        finally {
+            request.releaseConnection();
+            transaction.remove();
         }
     }
 

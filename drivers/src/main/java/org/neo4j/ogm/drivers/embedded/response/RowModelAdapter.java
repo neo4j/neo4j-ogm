@@ -1,10 +1,11 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
-import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultAdapter;
-import org.neo4j.ogm.result.ResultRowModel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,19 +23,12 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
     private List<String> columns = new ArrayList<>();
 
     /**
-     * Reads the next row from the result object and transforms it into a JSON representation
-     * compatible with the "row" type response from Neo's Http transactional end point.
+     * Reads the next row from the result object and transforms it into a RowModel object
      *
      * @param data the data to transform, given as a map
      * @return @return the data transformed to an {@link RowModel}
      */
     public RowModel adapt(Map<String, Object> data) {
-
-        StringBuilder sb = new StringBuilder();
-
-        OPEN_OBJECT(sb);
-
-        OPEN_ARRAY("row", sb);
 
         assert (columns != null);
 
@@ -42,47 +36,34 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
         // so we use the columns information to extract them in the correct order for post-processing.
         Iterator<String> iterator = columns.iterator();
 
+        List<String> variables = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
+
         while (iterator.hasNext()) {
+
             String key = iterator.next();
             Object value = data.get(key);
 
-            if (value == null) {
-                sb.append(value);
+            if (value instanceof Path) {
+                continue;
             }
-            else if (value instanceof Long) {
-                buildIntegral((Long) value, sb);
+            if (value instanceof Node) {
+                continue;
             }
-            else if (value instanceof String) {
-                sb.append("\"");
-                sb.append(value.toString());
-                sb.append("\"");
+            if (value instanceof Relationship) {
+                continue;
             }
-            else if (value.getClass().isArray()) {
-                sb.append(convert(convertToIterable(value)));
+            variables.add(key);
+
+            if (value.getClass().isArray()) {
+                value = convertToIterable(value);
             }
-            else if (value instanceof Iterable) {
-                sb.append(convert((Iterable) value));
-            }
-            else {
-                throw new RuntimeException("Not handled: " + value.getClass());
-            }
-            if (iterator.hasNext()) {
-                sb.append(COMMA);
-            }
+
+
+            values.add(value);
         }
 
-        CLOSE_ARRAY(sb);
-        CLOSE_OBJECT(sb);
-
-        try {
-            return new DefaultRowModel(mapper.readValue(sb.toString(), ResultRowModel.class).model(), columns.toArray(new String[] {}));
-        } catch (Exception e) {
-            throw new ResultProcessingException("Could not parse result", e);
-        }
-    }
-
-    private void buildIntegral(Long value, StringBuilder sb) {
-        sb.append(value.toString());
+        return new DefaultRowModel(values.toArray(new Object[] {}), variables.toArray(new String[] {}));
     }
 
     public void setColumns(List<String> columns) {

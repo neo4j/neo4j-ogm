@@ -27,7 +27,7 @@ public class RowStatisticsModelResponse extends EmbeddedResponse<DefaultRowStati
         if (result.hasNext()) {
             return parse(result.next());
         }
-        close();
+        //close();
         return null;
     }
 

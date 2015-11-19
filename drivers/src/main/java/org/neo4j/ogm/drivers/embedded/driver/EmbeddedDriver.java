@@ -75,6 +75,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Transaction newTransaction() {
+        System.out.println("explicit transaction created");
         return new EmbeddedTransaction(transactionManager, transport);
     }
 
@@ -87,6 +88,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request requestHandler() {
+//        Transaction tx = transactionManager.getCurrentTransaction();
+//        if (tx == null) {
+//            tx = newTransaction();
+//        }
         return new EmbeddedRequest(transport);
     }
 

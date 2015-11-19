@@ -21,7 +21,7 @@
 		</encoder>
 	</appender>
 
-  <logger name="org.neo4j.ogm" level="info" />
+  <logger name="org.neo4j.ogm" level="warn" />
 
 
   <root level="warn">

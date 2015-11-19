@@ -1,6 +1,5 @@
 package org.neo4j.ogm.drivers.http.driver;
 
-import jdk.internal.org.objectweb.asm.Handle;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;

@@ -14,52 +14,35 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
-import java.util.Map;
-
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
-import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.response.model.DefaultGraphRowModel;
-import org.neo4j.ogm.result.ResultGraphRowListModel;
+import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 
 /**
  * @author vince
  */
 public class GraphRowModelResponse extends EmbeddedResponse<GraphRowListModel> {
 
-    private GraphModelAdapter graphModelAdapter = new GraphModelAdapter();
-    private RowModelAdapter rowModelAdapter = new RowModelAdapter();
+    private GraphRowModelAdapter adapter = new GraphRowModelAdapter();
 
     public GraphRowModelResponse(Transaction tx, Result result) {
         super(tx, result);
-        rowModelAdapter.setColumns(result.columns());
+        adapter.setColumns(result.columns());
     }
 
     @Override
     public GraphRowListModel next() {
+
         if (result.hasNext()) {
-            return parse(result.next());
+            DefaultGraphRowListModel model = new DefaultGraphRowListModel();
+
+            while (result.hasNext()) {
+                model.add(adapter.adapt(result.next()));
+            }
+            //close();
+            return model;
         }
-        close();
         return null;
     }
-
-    // this is most likely wrong. we should collect all the results. I don't know why this is different from
-    // all the others though.
-    private GraphRowListModel parse(Map<String, Object> data) {
-
-        ResultGraphRowListModel graphRowModelResult = new ResultGraphRowListModel();
-
-        GraphModel graphModel = graphModelAdapter.adapt(data);
-        RowModel rowModel = rowModelAdapter.adapt(data);
-
-        graphRowModelResult.addGraphRowResult(new DefaultGraphRowModel(graphModel, rowModel.getValues()));
-
-        return graphRowModelResult.model();
-
-    }
-
-
 }

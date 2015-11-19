@@ -14,8 +14,6 @@
 
 package org.neo4j.ogm.drivers.embedded.request;
 
-import java.util.HashMap;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -34,6 +32,8 @@ import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 
+import java.util.HashMap;
+
 /**
  * @author vince
  */
@@ -42,6 +42,7 @@ public class EmbeddedRequest implements Request {
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     private final GraphDatabaseService graphDatabaseService;
+
 
     public EmbeddedRequest(GraphDatabaseService graphDatabaseService) {
         this.graphDatabaseService = graphDatabaseService;
@@ -52,7 +53,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphModelResponse(startTransaction(), executeRequest(request));
+        return new GraphModelResponse(startInsuranceTransaction(), executeRequest(request));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowModelResponse(startTransaction(), executeRequest(request));
+        return new RowModelResponse(startInsuranceTransaction(), executeRequest(request));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphRowModelResponse(startTransaction(), executeRequest(request));
+        return new GraphRowModelResponse(startInsuranceTransaction(), executeRequest(request));
     }
 
     @Override
@@ -76,7 +77,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowStatisticsModelResponse(startTransaction(), executeRequest(request));
+        return new RowStatisticsModelResponse(startInsuranceTransaction(), executeRequest(request));
     }
 
     private Result executeRequest(Statement statement) {
@@ -93,8 +94,9 @@ public class EmbeddedRequest implements Request {
 
     }
 
-    private Transaction startTransaction() {
-        return graphDatabaseService.beginTx();
+    private Transaction startInsuranceTransaction() {
+        Transaction tx = graphDatabaseService.beginTx();
+        return tx;
     }
 
 }

@@ -18,7 +18,7 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     @Override
     public void rollback() {
-
+        //System.out.println("explicit transaction rolled back");
         nativeTransaction.failure();
         super.rollback();
         nativeTransaction.close();
@@ -26,7 +26,7 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     @Override
     public void commit() {
-
+        //System.out.println("explicit transaction committed");
         nativeTransaction.success();
         super.commit();
         nativeTransaction.close();

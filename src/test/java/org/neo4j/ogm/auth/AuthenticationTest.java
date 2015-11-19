@@ -20,8 +20,8 @@ import static org.junit.Assume.*;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
-import org.neo4j.kernel.Version;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -88,7 +87,7 @@ public class AuthenticationTest
     }
 
     @Test
-    public void testUnauthorizedSession() {
+    public void testUnauthorizedSession() throws Exception {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
         init( NO_AUTH, "org.neo4j.ogm.domain.bike" );
@@ -109,13 +108,29 @@ public class AuthenticationTest
     }
 
     // good enough for now: ignore test if we are not on something better than 2.1
-    private boolean isRunningWithNeo4j2Dot2OrLater() {
-        BigDecimal version = new BigDecimal(Version.getKernelRevision().substring(0,3));
+    private boolean isRunningWithNeo4j2Dot2OrLater() throws Exception{
+        Class<?> versionClass = null;
+        BigDecimal version = new BigDecimal(2.1);
+        try {
+            versionClass = Class.forName("org.neo4j.kernel.Version");
+            Method kernelVersion23x = versionClass.getDeclaredMethod("getKernelVersion", null);
+            version = new BigDecimal(((String)kernelVersion23x.invoke(null)).substring(0,3));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            try {
+                Method kernelVersion22x = versionClass.getDeclaredMethod("getKernelRevision", null);
+                version = new BigDecimal(((String)kernelVersion22x.invoke(null)).substring(0,3));
+            } catch (NoSuchMethodException e1) {
+                throw new RuntimeException("Unable to find a method to get Neo4js kernel version");
+            }
+
+        }
         return version.compareTo(new BigDecimal("2.1")) > 0;
     }
 
     @Test
-    public void testAuthorizedSession() {
+    public void testAuthorizedSession() throws Exception {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
         init(AUTH, "org.neo4j.ogm.domain.bike");
@@ -132,7 +147,7 @@ public class AuthenticationTest
      * @see issue #35
      */
     @Test
-    public void testAuthorizedSessionWithSuppliedCredentials() {
+    public void testAuthorizedSessionWithSuppliedCredentials() throws Exception {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
         initWithSuppliedCredentials("neo4j", "password", "org.neo4j.ogm.domain.bike");
@@ -149,7 +164,7 @@ public class AuthenticationTest
      * @see issue #35
      */
     @Test
-    public void testUnauthorizedSessionWithSuppliedCredentials() {
+    public void testUnauthorizedSessionWithSuppliedCredentials() throws Exception {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
         initWithSuppliedCredentials("neo4j", "incorrectPassword", "org.neo4j.ogm.domain.bike");
@@ -173,7 +188,7 @@ public class AuthenticationTest
      * @see issue #35
      */
     @Test
-    public void testAuthorizedSessionWithURI() throws URISyntaxException {
+    public void testAuthorizedSessionWithURI() throws Exception {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
         initWithEmbeddedCredentials("http://neo4j:password@" + neoServer.baseUri().getHost() + ":" + neoServer.baseUri().getPort(), "org.neo4j.ogm.domain.bike");
@@ -190,7 +205,7 @@ public class AuthenticationTest
      * @see issue #35
      */
     @Test
-    public void testUnauthorizedSessionWithURI() {
+    public void testUnauthorizedSessionWithURI() throws Exception {
         assumeTrue(isRunningWithNeo4j2Dot2OrLater());
 
         initWithEmbeddedCredentials(neoServer.baseUri().toString(), "org.neo4j.ogm.domain.bike");

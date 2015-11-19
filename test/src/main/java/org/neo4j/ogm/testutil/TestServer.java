@@ -39,32 +39,25 @@ public class TestServer {
     private Driver driver;
 
     public TestServer(Driver driver) {
-
-        try {
-
-            this.driver = driver;
-            this.controls = TestServerBuilders.newInProcessBuilder()
-                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
-                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(TestUtils.getAvailablePort()))
-                    .withConfig("dbms.security.auth_store.location", authStoreLocation())
-                    .newServer();
-
-
-            initialise(controls);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error starting in-process server",e);
-        }
-
+        this(driver, TestUtils.getAvailablePort(), "60");
     }
 
     public TestServer(Driver driver, int port) {
+        this(driver, port, "60");
+    }
+
+    public TestServer(Driver driver, String transactionTimeoutSeconds) {
+        this(driver, TestUtils.getAvailablePort(), transactionTimeoutSeconds);
+    }
+
+    public TestServer(Driver driver, int port, String transactionTimeoutSeconds) {
 
         try {
             this.driver = driver;
             controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
+                    .withConfig("org.neo4j.server.transaction.timeout", transactionTimeoutSeconds)
                     .withConfig("dbms.security.auth_store.location", authStoreLocation())
                     .newServer();
 

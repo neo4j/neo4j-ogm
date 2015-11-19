@@ -20,7 +20,7 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     public void rollback() {
-        logger.debug("rollback invoked");
+        logger.debug("Rollback invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
             if (transactionManager != null) {
                 transactionManager.rollback(this);
@@ -32,7 +32,7 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     public void commit() {
-        logger.debug("commit invoked");
+        logger.debug("Commit invoked");
         if (status == Status.OPEN || status == Status.PENDING) {
             if (transactionManager != null) {
                 transactionManager.commit(this);

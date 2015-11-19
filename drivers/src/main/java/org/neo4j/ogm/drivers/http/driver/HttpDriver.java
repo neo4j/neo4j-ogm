@@ -1,5 +1,6 @@
 package org.neo4j.ogm.drivers.http.driver;
 
+import jdk.internal.org.objectweb.asm.Handle;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
@@ -65,9 +66,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) {
 
         try {
-
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
-
 
             HttpAuthorization.authorize(request, (Credentials) driverConfig.getConfig("credentials"));
 
@@ -76,11 +75,11 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
             logger.debug("Status code: {}", statusLine.getStatusCode());
             if (statusLine.getStatusCode() >= 300) {
+
                 throw new HttpResponseException(
                         statusLine.getStatusCode(),
                         statusLine.getReasonPhrase());
             }
-            // close the content stream/release the connection
             HttpEntity responseEntity = response.getEntity();
 
             if (responseEntity != null) {
@@ -100,7 +99,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
         finally {
             request.releaseConnection();
-        }
+            logger.debug("Connection released");        }
     }
 
     private String newTransactionUrl() {
@@ -119,7 +118,7 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
     private String transactionEndpoint(String server) {
         if (server == null) {
-            return server;
+            return null;
         }
         String url = server;
 
@@ -136,10 +135,10 @@ public final class HttpDriver extends AbstractConfigurableDriver {
                 logger.debug("request url {}", ((HttpTransaction) tx).url());
                 return ((HttpTransaction) tx).url();
             } else {
-                logger.debug("no current transaction");
+                logger.debug("No current transaction, using auto-commit");
             }
         } else {
-            logger.debug("no transaction manager");
+            logger.debug("No transaction manager available, using auto-commit");
         }
         logger.debug("request url {}", autoCommitUrl());
         return autoCommitUrl();

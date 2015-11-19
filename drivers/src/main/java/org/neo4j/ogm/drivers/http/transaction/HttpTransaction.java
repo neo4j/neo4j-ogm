@@ -26,32 +26,35 @@ public class HttpTransaction extends AbstractTransaction {
     @Override
     public void rollback() {
 
-        if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
-            try {
+        try {
+            if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
                 HttpDelete request = new HttpDelete(url);
                 driver.executeHttpRequest(request);
-            } catch (Exception e) {
-                throw new TransactionException(e.getLocalizedMessage());
             }
         }
-
-        super.rollback();
+        catch (Exception e) {
+            throw new TransactionException(e.getLocalizedMessage());
+        }
+        finally {
+            super.rollback();
+        }
     }
 
     @Override
     public void commit() {
 
-        if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
-            try {
+        try {
+            if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
                 HttpPost request = new HttpPost(url + "/commit");
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
                 driver.executeHttpRequest(request);
-            } catch (Exception e) {
-                throw new TransactionException(e.getLocalizedMessage());
             }
+            super.commit();
         }
-
-        super.commit();
+        catch (Exception e) {
+            super.close();
+            throw new TransactionException(e.getLocalizedMessage());
+        }
     }
 
     public String url() {

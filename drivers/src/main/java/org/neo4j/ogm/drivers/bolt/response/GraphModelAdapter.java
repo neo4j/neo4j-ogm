@@ -173,7 +173,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Resu
         if (item.isInteger()) {
              return item.javaLong();
         }
-        if (item.isText()) {
+        if (item.isString()) {
              return item.javaString();
         }
         else {

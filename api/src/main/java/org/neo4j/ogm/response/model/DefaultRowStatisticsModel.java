@@ -14,12 +14,12 @@
 
 package org.neo4j.ogm.response.model;
 
+import org.neo4j.ogm.model.RowStatisticsModel;
+import org.neo4j.ogm.model.Statistics;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.neo4j.ogm.model.RowStatisticsModel;
-import org.neo4j.ogm.model.Statistics;
 
 /**
  * Encapsulates {@link StatisticsModel} and row data returned by a query.
@@ -28,7 +28,7 @@ import org.neo4j.ogm.model.Statistics;
 public class DefaultRowStatisticsModel implements RowStatisticsModel {
 
     private Collection<Object[]> rows = new ArrayList<>();
-    private Statistics stats;
+    private Statistics stats = new StatisticsModel();
 
     public Statistics getStats() {
         return stats;

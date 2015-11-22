@@ -27,7 +27,7 @@ public class HttpTransaction extends AbstractTransaction {
     public void rollback() {
 
         try {
-            if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
+            if (transactionManager.canRollback()) {
                 HttpDelete request = new HttpDelete(url);
                 driver.executeHttpRequest(request);
             }
@@ -44,16 +44,21 @@ public class HttpTransaction extends AbstractTransaction {
     public void commit() {
 
         try {
-            if (transactionManager != null && transactionManager.getCurrentTransaction() != null) {
+            if (transactionManager.canCommit()) {
                 HttpPost request = new HttpPost(url + "/commit");
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
                 driver.executeHttpRequest(request);
+            } else {
+                if (transactionManager.isExtended(transactionManager.getCurrentTransaction())) {
+                    throw new TransactionException("Transaction is marked for rollback");
+                }
             }
-            super.commit();
         }
         catch (Exception e) {
-            super.close();
             throw new TransactionException(e.getLocalizedMessage());
+        }
+        finally {
+            super.commit();
         }
     }
 

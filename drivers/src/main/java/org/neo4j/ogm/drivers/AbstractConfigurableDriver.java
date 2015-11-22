@@ -21,6 +21,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
     @Override
     public void setTransactionManager(TransactionManager transactionManager) {
+        assert(transactionManager != null);
         this.transactionManager = transactionManager;
     }
 

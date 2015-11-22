@@ -36,7 +36,7 @@ public interface Transaction extends AutoCloseable {
     Status status();
 
     public enum Status {
-        OPEN, PENDING, ROLLEDBACK, COMMITTED, CLOSED
+        OPEN, PENDING, ROLLEDBACK, COMMITTED, CLOSED, ROLLBACK_PENDING, COMMIT_PENDING
     }
 
     /**

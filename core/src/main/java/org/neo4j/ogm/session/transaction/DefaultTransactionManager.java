@@ -15,9 +15,10 @@
 package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.TransactionManagerException;
+import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
-import org.neo4j.ogm.exception.TransactionManagerException;
 
 /**
  * @author Vince Bickers
@@ -45,10 +46,10 @@ public class DefaultTransactionManager implements TransactionManager {
     public Transaction openTransaction() {
         if (TRANSACTION_THREAD_LOCAL.get() == null) {
             TRANSACTION_THREAD_LOCAL.set(driver.newTransaction());
-            return TRANSACTION_THREAD_LOCAL.get();
         } else {
-            throw new TransactionManagerException("Nested transactions not supported");
+            ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend();
         }
+        return TRANSACTION_THREAD_LOCAL.get();
     }
 
 
@@ -96,4 +97,35 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
 
+    /**
+     *
+     */
+    public boolean isExtended(Transaction tx) {
+        if (tx == getCurrentTransaction()) {
+            if ( ((AbstractTransaction) tx).extensions() == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canCommit()  {
+        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+        if (tx.extensions() == 0) {
+            if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canRollback()  {
+        AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+        if (tx.extensions() == 0) {
+            if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

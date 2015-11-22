@@ -46,4 +46,14 @@ public interface TransactionManager {
      * @return this thread's transaction
      */
     public Transaction getCurrentTransaction();
+
+    /**
+     *  Indicates whether or not the supplied transaction is at the root of
+     *  a transaction "hierarchy"
+     */
+    public boolean isExtended(Transaction tx);
+
+    boolean canCommit();
+
+    boolean canRollback();
 }

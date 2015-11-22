@@ -5,6 +5,8 @@ import org.neo4j.ogm.exception.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @author vince
  */
@@ -13,6 +15,8 @@ public abstract class AbstractTransaction implements Transaction {
     private final Logger logger = LoggerFactory.getLogger(Transaction.class);
 
     protected final TransactionManager transactionManager;
+    protected final AtomicLong extendsCount = new AtomicLong();
+
     private Transaction.Status status = Transaction.Status.OPEN;
 
     public AbstractTransaction(TransactionManager transactionManager) {
@@ -20,40 +24,81 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     public void rollback() {
-        logger.debug("Rollback invoked");
-        if (status == Status.OPEN || status == Status.PENDING) {
+
+        long extensions = extendsCount.get();
+
+        // is this the root transaction ?
+        if (extensions == 0) {
+            // transaction can always be rolled back
             if (transactionManager != null) {
+                logger.debug("Rollback invoked");
                 transactionManager.rollback(this);
+                status = Status.ROLLEDBACK;
             }
-            status = Status.ROLLEDBACK;
-        } else {
-            throw new TransactionException("Transaction is no longer open. Cannot rollback");
+        } else { 
+            logger.debug("Rollback pending");
+            status = Status.ROLLBACK_PENDING;  // a rollback-pending will eventually rollback the entire transaction
         }
     }
 
     public void commit() {
-        logger.debug("Commit invoked");
-        if (status == Status.OPEN || status == Status.PENDING) {
-            if (transactionManager != null) {
-                transactionManager.commit(this);
 
+        long extensions = extendsCount.get();
+
+        if (extensions == 0) {
+            if (status == Status.OPEN || status == Status.PENDING || status == Status.COMMIT_PENDING) {
+                if (transactionManager != null) {
+                    logger.debug("Commit invoked");
+                    transactionManager.commit(this);
+                    status = Status.COMMITTED;
+                }
+            } else {
+                throw new TransactionException("Transaction cannot commit");
             }
-            status = Status.COMMITTED;
         } else {
-            throw new TransactionException("Transaction is no longer open. Cannot commit");
+            if (status == Status.ROLLBACK_PENDING) {
+                throw new TransactionException("Transaction cannot commit: rollback pending");
+            }
+            else {
+                logger.debug("Commit pending");
+                status = Status.COMMIT_PENDING;
+            }
         }
+    }
+
+    /**
+     * Extends the current transaction. 
+     */
+    public void extend() {
+        extendsCount.incrementAndGet();
+        logger.debug("Transaction extended: {}", extendsCount.get());
     }
 
     public final Status status() {
         return status;
     }
 
-    public void close() {
-        if (status == Status.PENDING || status == Status.OPEN) {
-            rollback();
+    public void close()
+    {
+        long extensions = extendsCount.get();
+
+        if (extensions == 0) {
+            logger.debug("Closing transaction");
+
+            if (status == Status.ROLLBACK_PENDING) {
+                rollback();
+            } else if (status == Status.COMMIT_PENDING) {
+                commit();
+            }
+            else if (status == Status.PENDING || status == Status.OPEN) {
+                rollback();
+            }
+            status = Status.CLOSED;
         }
-        status = Status.CLOSED;
+        extendsCount.getAndDecrement();
     }
 
-
+    public long extensions() {
+        return extendsCount.get();
+    }
 }

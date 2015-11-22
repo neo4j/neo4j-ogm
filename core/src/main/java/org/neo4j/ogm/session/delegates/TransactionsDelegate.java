@@ -37,7 +37,7 @@ public class TransactionsDelegate implements Capability.Transactions {
 
         Transaction tx = session.transactionManager().openTransaction();
 
-        session.debug("Obtained new transaction, tx id: " + tx);
+        session.debug("Transaction, tx id: " + tx);
         return tx;
     }
 

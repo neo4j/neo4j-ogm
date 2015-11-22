@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * Transactions in the OGM can be free or managed.
+ * Transactions in the OGM
  *
  * A managed transaction is one whose lifecycle is managed via a TransactionManager instance
  *
@@ -43,8 +43,6 @@ import static org.junit.Assert.fail;
  *  2)  manage the calls to the appropriate driver to implement the relevant transaction semantics
  *  3)  manage transaction lifecycle and state correctly
  *
- * A free transaction is one obtained directly from a relevant driver, that the user must manage themselves.
- * The use of free transactions is not recommended in user code.
  *
  * @author Michal Bachman
  * @author Vince Bickers
@@ -62,8 +60,7 @@ public class TransactionManagerTest {
         }
     }
 
-    @Test(expected = TransactionManagerException.class)
-    public void shouldNotBeAbleToCreateConcurrentOrNestedManagedTransactions() {
+    public void shouldBeAbleToExtendTransactions() {
         try (Transaction tx1 = transactionManager.openTransaction()) {
             try (Transaction tx2 = transactionManager.openTransaction()) {
                 assertEquals(Transaction.Status.OPEN, tx1.status());
@@ -84,20 +81,20 @@ public class TransactionManagerTest {
         transactionManager.rollback(tx);
     }
 
-    @Test
-    public void shouldCommitFreeTransaction() {
-        driver.setTransactionManager(null);
-        Transaction tx = driver.newTransaction();
-        tx.commit();
-    }
-
-    @Test
-    public void shouldRollbackFreeTransaction() {
-        driver.setTransactionManager(null);
-        Transaction tx = driver.newTransaction();
-        tx.rollback();
-    }
-
+//    @Test
+//    public void shouldCommitFreeTransaction() {
+//        driver.setTransactionManager(null);
+//        Transaction tx = driver.newTransaction();
+//        tx.commit();
+//    }
+//
+//    @Test
+//    public void shouldRollbackFreeTransaction() {
+//        driver.setTransactionManager(null);
+//        Transaction tx = driver.newTransaction();
+//        tx.rollback();
+//    }
+//
     @Test
     public void shouldRollbackManagedTransaction() {
         try (Transaction tx = transactionManager.openTransaction()) {

@@ -1,6 +1,6 @@
 package org.neo4j.ogm.drivers.embedded.transaction;
 
-import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -13,37 +13,71 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     private final org.neo4j.graphdb.Transaction nativeTransaction;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedTransaction.class);
+    private boolean autoCommit;
 
     /**
      * Request a new transaction.
      *
      * Creates a new user transaction for the current thread, and associates it with
-     * a native transaction in the underlying database. All commit and rollback operations
+     * a new or existing native transaction in the underlying database. All commit and rollback operations
      * on the user transaction are delegated to the native transaction.
      *
-     * If no native transaction exists for this thread, a new TopLevel transaction will be created.
-     * If a native transaction is already open, a "placebo" transaction is returned instead.
-     *
      * @param transactionManager an instance of {@link TransactionManager}
-     * @param databaseService an in-memory Neo4j database
+     * @param nativeTransaction the {@link org.neo4j.graphdb.Transaction} backing this Transaction object
      */
-    public EmbeddedTransaction(TransactionManager transactionManager, GraphDatabaseService databaseService) {
+    public EmbeddedTransaction(TransactionManager transactionManager, org.neo4j.graphdb.Transaction nativeTransaction) {
         super(transactionManager);
-        this.nativeTransaction = databaseService.beginTx();
-        logger.debug("Transaction: {}, native: ", this, nativeTransaction);
+        this.nativeTransaction = nativeTransaction;
     }
 
     @Override
     public void rollback() {
-        nativeTransaction.failure();
-        super.rollback();
-        nativeTransaction.close();
+
+        try {
+            if (transactionManager.canRollback()) {
+                logger.debug("rolling back native transaction: {}", nativeTransaction );
+                nativeTransaction.failure();
+                nativeTransaction.close();
+            }
+        }
+        catch (Exception e) {
+            throw new TransactionException(e.getLocalizedMessage());
+        }
+        finally {
+            super.rollback();
+        }
     }
 
     @Override
     public void commit() {
-        //System.out.println("explicit transaction committed");nativeTransaction.success();
-        super.commit();
-        nativeTransaction.close();
+        try {
+            if (transactionManager.canCommit()) {
+                logger.debug("Committing native transaction: {}", nativeTransaction);
+                nativeTransaction.success();
+                nativeTransaction.close();
+            } else {
+                if (transactionManager.isExtended(transactionManager.getCurrentTransaction())) {
+                    throw new TransactionException("Transaction is marked for rollback");
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new TransactionException(e.getLocalizedMessage());
+        }
+        finally {
+            super.commit();
+        }
+    }
+
+    public org.neo4j.graphdb.Transaction getNativeTransaction() {
+        return nativeTransaction;
+    }
+
+    public void setAutoCommit(boolean autoCommit) {
+        this.autoCommit = autoCommit;
+    }
+
+    public boolean isAutoCommit() {
+        return autoCommit;
     }
 }

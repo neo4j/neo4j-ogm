@@ -3,11 +3,13 @@ package org.neo4j.ogm.drivers.embedded.driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
@@ -18,6 +20,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     // so that we do not run into locking problems.
 
     private static GraphDatabaseService transport;
+    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
 
     /**
@@ -74,9 +77,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction() {
-        System.out.println("explicit transaction created");
-        return new EmbeddedTransaction(transactionManager, transport);
+    public Transaction newTransaction() {   // return a new, or join an existing transaction
+        return new EmbeddedTransaction(transactionManager, nativeTransaction());
     }
 
     @Override
@@ -88,11 +90,22 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public Request requestHandler() {
-//        Transaction tx = transactionManager.getCurrentTransaction();
-//        if (tx == null) {
-//            tx = newTransaction();
-//        }
-        return new EmbeddedRequest(transport);
+        return new EmbeddedRequest(transport, transactionManager);
     }
 
+    private org.neo4j.graphdb.Transaction nativeTransaction() {
+
+        org.neo4j.graphdb.Transaction nativeTransaction;
+
+        Transaction tx = transactionManager.getCurrentTransaction();
+        if (tx != null) {
+            logger.debug("Using current transaction: {}", tx);
+            nativeTransaction =((EmbeddedTransaction) tx).getNativeTransaction();
+        } else {
+            logger.debug("No current transaction, starting a new one");
+            nativeTransaction = transport.beginTx();
+        }
+        logger.debug("Native transaction: {}", nativeTransaction);
+        return nativeTransaction;
+    }
 }

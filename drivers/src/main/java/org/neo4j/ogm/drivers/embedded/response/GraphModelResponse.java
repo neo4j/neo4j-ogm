@@ -1,9 +1,9 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.result.ResultAdapter;
+import org.neo4j.ogm.transaction.TransactionManager;
 
 import java.util.Map;
 
@@ -14,8 +14,8 @@ public class GraphModelResponse extends EmbeddedResponse<GraphModel> {
 
     private final ResultAdapter<Map<String, Object>, GraphModel> adapter = new GraphModelAdapter();
 
-    public GraphModelResponse(Transaction tx, Result result) {
-        super(tx, result);
+    public GraphModelResponse(Result result, TransactionManager transactionManager) {
+        super(result, transactionManager);
     }
 
     @Override
@@ -23,7 +23,6 @@ public class GraphModelResponse extends EmbeddedResponse<GraphModel> {
         if (result.hasNext()) {
             return adapter.adapt(result.next());
         }
-        //close();
         return null;
     }
 

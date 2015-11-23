@@ -1,8 +1,9 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +13,13 @@ import org.slf4j.LoggerFactory;
 public abstract class EmbeddedResponse<T> implements Response {
 
     protected final Result result;
-    private final Transaction tx;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedResponse.class);
+    private final TransactionManager transactionManager;
 
-    public EmbeddedResponse(Transaction tx, Result result) {
+    public EmbeddedResponse(Result result, TransactionManager transactionManager) {
+        logger.debug("Response opened: {}", this);
+        this.transactionManager = transactionManager;
         this.result = result;
-        this.tx = tx;
     }
 
     @Override
@@ -25,11 +27,21 @@ public abstract class EmbeddedResponse<T> implements Response {
 
     @Override
     public void close() {
-        result.close();
-        tx.success();
-        tx.close();
-        logger.debug("Response closed and transaction {} committed", tx);
 
+        // if there is no current transaction available, the response is already closed.
+        // it is not an error to call close() multiple times, and in certain circumstances
+        // it may be unavoidable.
+        if (transactionManager.getCurrentTransaction() != null) {
+            // release the response resource
+            result.close();
+            logger.debug("Response closed: {}", this);
+            // if the current transaction is an autocommit one, we should commit and close it now,
+            EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
+            if (tx.isAutoCommit()) {
+                tx.commit();
+                tx.close();
+            }
+        }
     }
 
     @Override

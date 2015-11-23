@@ -18,11 +18,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowStatisticsModelResponse;
+import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
@@ -31,6 +31,7 @@ import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +46,11 @@ public class EmbeddedRequest implements Request {
 
     private final GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedRequest.class);
+    private final TransactionManager transactionManager;
 
-    public EmbeddedRequest(GraphDatabaseService graphDatabaseService) {
+    public EmbeddedRequest(GraphDatabaseService graphDatabaseService, TransactionManager transactionManager) {
         this.graphDatabaseService = graphDatabaseService;
+        this.transactionManager = transactionManager;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphModelResponse(startInsuranceTransaction(), executeRequest(request));
+        return new GraphModelResponse(executeRequest(request), transactionManager);
     }
 
     @Override
@@ -63,7 +66,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowModelResponse(startInsuranceTransaction(), executeRequest(request));
+        return new RowModelResponse(executeRequest(request), transactionManager);
     }
 
     @Override
@@ -71,7 +74,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new GraphRowModelResponse(startInsuranceTransaction(), executeRequest(request));
+        return new GraphRowModelResponse(executeRequest(request), transactionManager);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class EmbeddedRequest implements Request {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowStatisticsModelResponse(startInsuranceTransaction(), executeRequest(request));
+        return new RowStatisticsModelResponse(executeRequest(request), transactionManager);
     }
 
     private Result executeRequest(Statement statement) {
@@ -92,22 +95,25 @@ public class EmbeddedRequest implements Request {
 
             logger.debug("Request: {}", cypher);
 
+            // If we don't have a current transactional context for this operation
+            // we must create one, and mark the transaction as autoCommit. This will ensure the
+            // transaction is closed on the database as soon as the response has been consumed.
+            // An EmbeddedTransaction marked as autoCommit will then function the same way
+            // as the generic autoCommit http endpoint from the perspective of user code.
+            // From an implementation perspective in the OGM, the difference is that the server
+            // looks after committing and closing the http endpoint "/commit", whereas in embedded
+            // mode, the OGM has to do this. See {@link EmbeddedResponse} for where this is done.
+            if (transactionManager.getCurrentTransaction() == null) {
+                transactionManager.openTransaction();
+                EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
+                tx.setAutoCommit(true);
+            }
             return graphDatabaseService.execute(cypher, parameterMap);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-    }
-
-    // An insurance transaction is created to ensure that
-    // the requested operation will succeed, regardless of whether a user has requested
-    // an explicit transaction or not. In the case that a transaction is already associated with
-    // this thread, a "placebo" transaction is created. In the event that no prior
-    // transaction exists, a "top-level" transaction is created.
-    private Transaction startInsuranceTransaction() {
-        Transaction tx = graphDatabaseService.beginTx();
-        logger.debug("Insurance transaction {} ", tx);
-        return tx;
     }
 
 }

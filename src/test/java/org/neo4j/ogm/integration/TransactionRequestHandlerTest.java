@@ -104,7 +104,7 @@ public class TransactionRequestHandlerTest
         }
         latch.await(); // pause until the count reaches 0
         System.out.println("all threads running");
-        executor.shutdown();
+        executor.shutdownNow();
     }
 
     @Test
@@ -143,8 +143,18 @@ public class TransactionRequestHandlerTest
             System.out.println("opened a transaction: " + tx);
             latch.countDown();
 
-            // now loop so this thread simulates a long running transaction
-            for (;;);
+            // run forever
+            // but let the executor interrupt us to shut us down
+            while(!Thread.currentThread().isInterrupted()){
+                //do stuff
+                try{
+                    Thread.sleep(100);
+                }catch(InterruptedException e){
+                    System.out.println("Stopping thread");
+                    tx.rollback();
+                    Thread.currentThread().interrupt(); //propagate interrupt
+                }
+            }
         }
     }
 

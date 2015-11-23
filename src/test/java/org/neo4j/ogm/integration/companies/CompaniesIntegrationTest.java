@@ -50,6 +50,9 @@ public class CompaniesIntegrationTest {
 		session.purgeDatabase();
 	}
 
+	/**
+	 * @see issue #85
+	 */
 	@Test
 	public void employeesShouldNotBeSetAsOwnersWhenLoadingCompanies() {
 		Company company = new Company("GraphAware");
@@ -74,6 +77,9 @@ public class CompaniesIntegrationTest {
 
 	}
 
+	/**
+	 * @see issue #85
+	 */
 	@Test
 	public void employeesAndOwnersShouldBeLoaded() {
 		Company company = new Company("GraphAware");

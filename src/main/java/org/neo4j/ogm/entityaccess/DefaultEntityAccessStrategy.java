@@ -23,6 +23,7 @@ import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.mapper.DirectedRelationship;
 import org.neo4j.ogm.mapper.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.ClassUtils;
+import org.neo4j.ogm.metadata.info.AnnotationInfo;
 import org.neo4j.ogm.metadata.info.ClassInfo;
 import org.neo4j.ogm.metadata.info.FieldInfo;
 import org.neo4j.ogm.metadata.info.MethodInfo;
@@ -535,6 +536,13 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
         if (methodInfos.size() == 1) {
             MethodInfo candidateMethodInfo = methodInfos.iterator().next();
+            //If the method is annotated, then the relationship type must match
+            if (candidateMethodInfo.hasAnnotation(Relationship.CLASS)) {
+                AnnotationInfo relationshipAnnotation = candidateMethodInfo.getAnnotations().get(Relationship.CLASS);
+                if(!relationshipType.equals(relationshipAnnotation.get(Relationship.TYPE, null))) {
+                   return null;
+                }
+            }
             //If the relationshipDirection is incoming and the candidateMethodInfo is also incoming or undirected
             if(relationshipDirection.equals(Relationship.INCOMING) &&
                     (candidateMethodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)) ||
@@ -564,6 +572,12 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
         if (methodInfos.size() == 1) {
             MethodInfo candidateMethodInfo = methodInfos.iterator().next();
+            if (candidateMethodInfo.hasAnnotation(Relationship.CLASS)) {
+                AnnotationInfo relationshipAnnotation = candidateMethodInfo.getAnnotations().get(Relationship.CLASS);
+                if(!relationshipType.equals(relationshipAnnotation.get(Relationship.TYPE, null))) {
+                    return null;
+                }
+            }
             //If the relationshipDirection is incoming and the candidateMethodInfo is also incoming or undirected
             if(relationshipDirection.equals(Relationship.INCOMING) &&
                     (candidateMethodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)) ||
@@ -592,6 +606,12 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
         if (fieldInfos.size() == 1) {
             FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
+            if (candidateFieldInfo.hasAnnotation(Relationship.CLASS)) {
+                AnnotationInfo relationshipAnnotation = candidateFieldInfo.getAnnotations().get(Relationship.CLASS);
+                if(!relationshipType.equals(relationshipAnnotation.get(Relationship.TYPE, null))) {
+                    return null;
+                }
+            }
             //If the relationshipDirection is incoming and the candidateFieldInfo is also incoming or undirected
             if(relationshipDirection.equals(Relationship.INCOMING) &&
                     (candidateFieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)) ||

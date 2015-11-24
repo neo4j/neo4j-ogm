@@ -1,5 +1,6 @@
-2.0.0-SNAPSHOT
+1.1.4-SNAPSHOT
 --------------
+o Fixes issue where the relationship type specified via an annotation on an iterable setter was ignored if the parameter type matched
 o Fixes issue where long transaction times out and results in application hanging
 o Fixes issue where loadAll was dependent on the entities implementation of equals()
 o Throw MissingOperatorException when BooleanOperators are not specified in any filters except the first

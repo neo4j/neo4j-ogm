@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  */
 public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE)\\b");
+    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
     
     private final Neo4jSession session;
 

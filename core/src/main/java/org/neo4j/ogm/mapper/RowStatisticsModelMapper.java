@@ -32,21 +32,24 @@ public class RowStatisticsModelMapper implements ResponseMapper<RowStatisticsMod
         RowStatisticsModel result = response.next();
         Set<Map<String, Object>> rowResult = new LinkedHashSet();
 
-        if (result != null) {
+        if (result.getRows() != null) {
+            // each row in the response is a sequence of data values, passed in an Object[] array
             for (Iterator<Object[]> iterator = result.getRows().iterator(); iterator.hasNext(); ) {
 
                 Object[] model = iterator.next();
-
+                // for each element in the data array, put it and its name into a map.
                 Map<String, Object> element = new HashMap<>();
                 for (int i = 0; i < model.length; i++) {
                     element.put(response.columns()[i], model[i]);
                 }
 
+                // add the map to the result
                 rowResult.add(element);
             }
             rowStatisticsModel.setRows(rowResult);
-            rowStatisticsModel.setStats(result.getStats());
-        } // some drivers return an empty response
+        }
+
+        rowStatisticsModel.setStats(result.getStats());
 
         return (Iterable<T>) rowStatisticsModel;
 

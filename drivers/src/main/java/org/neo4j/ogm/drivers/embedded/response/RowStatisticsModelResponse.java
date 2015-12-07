@@ -4,9 +4,9 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.response.model.StatisticsModel;
+import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.TransactionManager;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -20,28 +20,30 @@ public class RowStatisticsModelResponse extends EmbeddedResponse<DefaultRowStati
     public RowStatisticsModelResponse(Result result, TransactionManager transactionManager) {
         super(result, transactionManager);
         statisticsModel = new StatisticsModelAdapter().adapt(result);
+        rowModelAdapter.setColumns(result.columns());
     }
 
     @Override
     public DefaultRowStatisticsModel next() {
-        if (result.hasNext()) {
-            return parse(result.next());
+        DefaultRowStatisticsModel rowQueryStatisticsResult = new DefaultRowStatisticsModel();
+        ResultRowModel rowModel = parse();
+        while (rowModel != null) {
+            rowQueryStatisticsResult.addRow(rowModel.model());
+            rowModel = parse();
         }
-        //close();
+        rowQueryStatisticsResult.setStats(statisticsModel);
+        return rowQueryStatisticsResult;
+    }
+
+    private ResultRowModel parse() {
+        if (result.hasNext()) {
+            ResultRowModel model = new ResultRowModel();
+            Map<String, Object> data = result.next();
+            RowModel rowModel = rowModelAdapter.adapt(data);
+            model.setRow(rowModel.getValues());
+            return model;
+        }
         return null;
     }
-
-    private DefaultRowStatisticsModel parse(Map<String, Object> data) {
-
-        DefaultRowStatisticsModel rowStatisticsModel = new DefaultRowStatisticsModel();
-        RowModel rowModel = rowModelAdapter.adapt(data);
-
-        rowStatisticsModel.setStats(statisticsModel);
-        rowStatisticsModel.setRows(Arrays.asList(rowModel.getValues()));
-
-        return rowStatisticsModel;
-
-    }
-
 
 }

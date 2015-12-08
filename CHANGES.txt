@@ -1,4 +1,8 @@
-1.1.4-SNAPSHOT
+1.1.5-SNAPSHOT
+--------------
+
+
+1.1.4
 --------------
 o Fixes issue where the relationship type specified via an annotation on an iterable setter was ignored if the parameter type matched
 o Fixes issue where long transaction times out and results in application hanging

@@ -39,7 +39,7 @@ public class RelationshipEntityTest extends IntegrationTestRule {
     private M m;
     private R r1;
 
-    private final Session session = new SessionFactory("org.neo4j.ogm.integration").openSession(driver());
+    private final Session session = new SessionFactory("org.neo4j.ogm.integration").openSession();
 
     @Before
     public void init() throws IOException {

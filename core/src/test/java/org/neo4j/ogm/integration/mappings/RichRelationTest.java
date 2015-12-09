@@ -36,13 +36,13 @@ import static org.junit.Assert.assertSame;
  */
 public class RichRelationTest {
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession(testServer.driver());
+        session =  new SessionFactory("org.neo4j.ogm.domain.mappings").openSession();
     }
 
     /**

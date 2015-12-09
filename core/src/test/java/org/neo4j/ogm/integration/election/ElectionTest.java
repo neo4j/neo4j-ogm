@@ -3,7 +3,6 @@ package org.neo4j.ogm.integration.election;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.mapper.MappedRelationship;
@@ -29,7 +28,7 @@ import static org.junit.Assert.*;
 public class ElectionTest {
 
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.election");
 
@@ -37,7 +36,7 @@ public class ElectionTest {
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession(testServer.driver());
+        session = sessionFactory.openSession();
     }
 
     @Test

@@ -1,10 +1,13 @@
 package org.neo4j.ogm.service;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.CompilerConfiguration;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -36,26 +39,47 @@ public class Components {
 
     private Components() {}
 
+    private static final Logger logger = LoggerFactory.getLogger(Components.class);
+
     private static Configuration configuration = new Configuration();
+    private static Driver driver;
 
     static {
-        configure();
+        autoConfigure();
+        loadDriver();
     }
 
     public static void configure(Configuration configuration) {
         Components.configuration = configuration;
+        loadDriver();
     }
 
-    public static Driver driver() {
-        return DriverService.load(new DriverConfiguration(configuration));
+    private static void loadDriver() {
+        driver = DriverService.load(new DriverConfiguration(configuration));
     }
 
-
-    public static org.neo4j.ogm.compiler.Compiler compiler() {
+    private static Compiler loadCompiler() {
         return CompilerService.load(new CompilerConfiguration(configuration));
     }
 
-    private static void configure() {
+    // only one instance of the driver exists for the lifetime of the application
+    public static Driver driver() {
+        return driver;
+    }
+
+    // new instance of the compiler is returned every time
+    public static Compiler compiler() {
+        return loadCompiler();
+    }
+
+    /**
+     * The OGM Components can be auto-configured from a properties file, "ogm.properties", or
+     * a similar configuration file, specified by a system property or environment variable called "OGM_CONFIG".
+     *
+     * If an auto-configure properties file is not available by any of these means, the Components class should be configured
+     * by passing in a Configuration object to the configure method.
+     */
+    private static void autoConfigure() {
 
         try(InputStream is = configurationFile()) {
 
@@ -68,7 +92,7 @@ public class Components {
                 configuration.set(propertyName, properties.getProperty(propertyName));
             }
         } catch (Exception e) {
-            throw new RuntimeException("Could not configure OGM", e);
+            logger.warn("Could not autoconfigure the OGM");
         }
     }
 
@@ -98,5 +122,9 @@ public class Components {
 
     private static InputStream classPathResource(String name) {
         return ClassLoaderResolver.resolve().getResourceAsStream(name);
+    }
+
+    public static void setDriver(Driver driver) {
+        Components.driver = driver;
     }
 }

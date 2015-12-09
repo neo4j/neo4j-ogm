@@ -39,13 +39,13 @@ public class PizzaIntegrationTest {
     private static final Driver driver = Components.driver();
 
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.pizza").openSession(driver);
+		session = new SessionFactory("org.neo4j.ogm.domain.pizza").openSession();
 	}
 
 	@After

@@ -17,7 +17,6 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.Components;
 
 /**
@@ -45,6 +44,21 @@ public class SessionFactory {
         this.metaData = new MetaData(packages);
     }
 
+    /**
+     * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
+     * object packages, and also sets the configuration to be used.
+     * <p>
+     * The package names passed to this constructor should not contain wildcards or trailing full stops, for example,
+     * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
+     * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
+     * </p>
+     *
+     * @param packages The packages to scan for domain objects
+     */
+    public SessionFactory(Configuration configuration, String... packages) {
+        Components.configure(configuration);
+        this.metaData = new MetaData(packages);
+    }
 
     /**
      * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.
@@ -55,17 +69,17 @@ public class SessionFactory {
         return metaData;
     }
 
-    /**
-     * Opens a new Neo4j mapping {@link Session} using the specified Driver
-     * The driver should be configured to connect to the database using the appropriate
-     * DriverConfig
-     *
-     * @param driver The driver to use to connect to Neo4j
-     * @return A new {@link Session}
-     */
-    public Session openSession(Driver driver) {
-        return new Neo4jSession(metaData, driver);
-    }
+//    /**
+//     * Opens a new Neo4j mapping {@link Session} using the specified Driver
+//     * The driver should be configured to connect to the database using the appropriate
+//     * DriverConfig
+//     *
+//     * @param driver The driver to use to connect to Neo4j
+//     * @return A new {@link Session}
+//     */
+//    public Session openSession(Driver driver) {
+//        return new Neo4jSession(metaData, driver);
+//    }
 
     /**
      * Opens a new Neo4j mapping {@link Session} using the Driver specified in the OGM configuration
@@ -76,17 +90,6 @@ public class SessionFactory {
      */
     public Session openSession() {
         return new Neo4jSession(metaData, Components.driver());
-    }
-
-    /**
-     * Opens a new {@link Session} using the {@link Configuration} supplied.
-     * @param configuration the Configuration to use
-     * @return A new {@link Session}
-     */
-    public Session openSession(Configuration configuration) {
-        Components.configure(configuration);
-        return new Neo4jSession(metaData, Components.driver());
-
     }
 
 }

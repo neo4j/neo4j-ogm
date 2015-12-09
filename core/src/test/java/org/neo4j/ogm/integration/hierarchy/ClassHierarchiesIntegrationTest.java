@@ -56,7 +56,7 @@ import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 public class ClassHierarchiesIntegrationTest {
 
     @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+    public IntegrationTestRule testServer = new IntegrationTestRule();
 
     private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.hierarchy.domain");
 
@@ -64,7 +64,7 @@ public class ClassHierarchiesIntegrationTest {
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession(testServer.driver());
+        session = sessionFactory.openSession();
     }
 
     private GraphDatabaseService getDatabase() {
@@ -742,7 +742,7 @@ public class ClassHierarchiesIntegrationTest {
         new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})");
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.hierarchy.conflicting");
-        session = sessionFactory.openSession(testServer.driver());
+        session = sessionFactory.openSession();
 
         assertEquals(0, session.loadAll(Female.class).size());
     }

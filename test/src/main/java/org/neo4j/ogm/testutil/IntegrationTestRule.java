@@ -32,7 +32,7 @@ import org.neo4j.ogm.service.Components;
  * public class MyJUnitTest {
  *
  *     &#064;ClassRule
- *     public static IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+ *     public static IntegrationTestRule testServer = new IntegrationTestRule()
  *
  * }
  * </pre>
@@ -41,7 +41,7 @@ import org.neo4j.ogm.service.Components;
  * public class MyOtherJUnitTest {
  *
  *     &#064;Rule
- *     public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+ *     public IntegrationTestRule testServer = new IntegrationTestRule()
  *
  * }
  * </pre>
@@ -62,6 +62,7 @@ public class IntegrationTestRule extends TestServer implements TestRule {
 
     public IntegrationTestRule(Driver driver, int portNumber) {
         super(driver, portNumber);
+        clearDatabase();
     }
 
     @Override

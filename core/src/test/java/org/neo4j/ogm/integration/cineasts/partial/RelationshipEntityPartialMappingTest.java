@@ -17,7 +17,6 @@ package org.neo4j.ogm.integration.cineasts.partial;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.domain.cineasts.partial.Movie;
 import org.neo4j.ogm.session.Session;
@@ -39,14 +38,14 @@ import static org.junit.Assert.assertEquals;
 public class RelationshipEntityPartialMappingTest {
 
     @Rule
-    public final IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+    public final IntegrationTestRule testServer = new IntegrationTestRule();
 
     private Session session;
 
     @Before
     public void init() {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.partial");
-        session = sessionFactory.openSession(testServer.driver());
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 

@@ -40,13 +40,13 @@ import org.neo4j.ogm.testutil.IntegrationTestRule;
 public class CineastsRelationshipEntityTest{
 
 	@Rule
-	public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+	public IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
 	}
 
 	@Test

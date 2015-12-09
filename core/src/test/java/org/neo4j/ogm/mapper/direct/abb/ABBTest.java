@@ -20,8 +20,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.mapper.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -37,9 +35,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class ABBTest extends RelationshipTrait
 {
-    private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
     private Session session;
 
@@ -51,7 +48,7 @@ public class ABBTest extends RelationshipTrait
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.direct.abb");
-        session = sessionFactory.openSession(driver);
+        session = sessionFactory.openSession();
         setUpEntityModel();
     }
 

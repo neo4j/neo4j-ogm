@@ -40,7 +40,7 @@ public class QueryCapabilityTest extends IntegrationTestRule {
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(this.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
 		importCineasts();
 	}
 

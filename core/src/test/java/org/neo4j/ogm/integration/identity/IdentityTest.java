@@ -13,12 +13,6 @@
  */
 package org.neo4j.ogm.integration.identity;
 
-import static org.junit.Assert.*;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,6 +21,13 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author vince
@@ -43,7 +44,7 @@ public class IdentityTest {
 
     @Before
     public void init() {
-        session = sessionFactory.openSession(server.driver());
+        session = sessionFactory.openSession();
     }
 
     @After

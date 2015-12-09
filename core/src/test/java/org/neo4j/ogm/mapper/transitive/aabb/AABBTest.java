@@ -41,7 +41,7 @@ public class AABBTest extends RelationshipTrait
 
     private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
     private Session session;
     private static SessionFactory sessionFactory;
@@ -53,7 +53,7 @@ public class AABBTest extends RelationshipTrait
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.transitive.aabb");
-        session = sessionFactory.openSession(driver);
+        session = sessionFactory.openSession();
         setUpEntityModel();
     }
 

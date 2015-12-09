@@ -114,7 +114,7 @@ public class TransactionManagerTest {
     public void shouldRollbackExplicitTransactionWhenServerTransactionTimeout() throws InterruptedException {
 
         SessionFactory sessionFactory = new SessionFactory();
-        Session session = sessionFactory.openSession(driver);
+        Session session = sessionFactory.openSession();
 
         // the transaction manager must manage transactions
         try (Transaction tx = transactionManager.openTransaction()) {

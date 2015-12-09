@@ -57,7 +57,7 @@ public class StaleObjectTest {
 
     private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
     private Folder f;
     private Document a;
@@ -68,7 +68,7 @@ public class StaleObjectTest {
     @Before
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem");
-        session = sessionFactory.openSession(driver);
+        session = sessionFactory.openSession();
 
         a = new Document();
         a.setName("a");

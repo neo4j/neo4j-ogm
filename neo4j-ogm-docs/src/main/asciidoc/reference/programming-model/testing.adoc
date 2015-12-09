@@ -19,7 +19,7 @@ public class ActorTest{
   	public void init()  {
   		SessionFactory sessionFactory =
   			new SessionFactory("org.neo4j.example.domain");
-  		session = sessionFactory.openSession(testServer.driver());
+  		session = sessionFactory.openSession();
   	}
 
   	@After

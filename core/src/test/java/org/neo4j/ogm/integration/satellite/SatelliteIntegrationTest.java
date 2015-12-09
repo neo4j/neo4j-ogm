@@ -45,14 +45,14 @@ public class SatelliteIntegrationTest
 {
     private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
     private static Session session;
 
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession(driver);
+        session = new SessionFactory("org.neo4j.ogm.domain.satellites").openSession();
         importSatellites();
     }
 

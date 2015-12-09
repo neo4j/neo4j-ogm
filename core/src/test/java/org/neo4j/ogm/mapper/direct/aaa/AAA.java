@@ -37,9 +37,8 @@ import static org.junit.Assert.assertNull;
  */
 public class AAA extends RelationshipTrait
 {
-    private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
     private Session session;
 
@@ -51,7 +50,7 @@ public class AAA extends RelationshipTrait
 	@Before
 	public void init() throws IOException {
 		sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.direct.aaa");
-		session = sessionFactory.openSession(driver);
+		session = sessionFactory.openSession();
 		setUpEntityModel();
 
 	}

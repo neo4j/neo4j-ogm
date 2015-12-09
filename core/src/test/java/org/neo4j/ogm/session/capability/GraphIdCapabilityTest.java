@@ -40,7 +40,7 @@ public class GraphIdCapabilityTest {
     private static final Driver driver = Components.driver();
 
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
 	private Session session;
 	private Long pleaseId;
@@ -53,7 +53,7 @@ public class GraphIdCapabilityTest {
 	@Before
 	public void init() throws IOException {
 		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
-		session = sessionFactory.openSession(driver);
+		session = sessionFactory.openSession();
 
 		//Create some data
 		theBeatles = new Artist("The Beatles");

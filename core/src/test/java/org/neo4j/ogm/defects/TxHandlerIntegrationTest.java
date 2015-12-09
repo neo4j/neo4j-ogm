@@ -59,7 +59,7 @@ public class TxHandlerIntegrationTest {
                 return null;
             }
         });
-        session = sessionFactory.openSession(testServer.driver());
+        session = sessionFactory.openSession();
     }
 
     @Test

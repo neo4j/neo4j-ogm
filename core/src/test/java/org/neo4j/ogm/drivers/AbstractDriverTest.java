@@ -7,6 +7,7 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -28,12 +29,14 @@ import static org.junit.Assert.*;
 public abstract class AbstractDriverTest {
 
     private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
-    private Session session = sessionFactory.openSession(getDriver());
+    private Session session;
 
     public abstract Driver getDriver();
 
     @Before
     public void init() {
+        Components.setDriver(getDriver());
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 

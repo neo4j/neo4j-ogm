@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 public class MultipleRelationshipsTest {
 
 	@ClassRule
-	public static IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+	public static IntegrationTestRule testServer = new IntegrationTestRule();
 
 	private Session session;
 
@@ -51,7 +51,7 @@ public class MultipleRelationshipsTest {
 
 	@Before
 	public void init() throws IOException {
-		session = new SessionFactory("org.neo4j.ogm.domain.entityMapping").openSession(testServer.driver());
+		session = new SessionFactory("org.neo4j.ogm.domain.entityMapping").openSession();
 	}
 
 	@After

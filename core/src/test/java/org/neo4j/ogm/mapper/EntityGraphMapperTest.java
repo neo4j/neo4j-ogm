@@ -19,9 +19,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.request.Statements;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -32,6 +29,8 @@ import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 import java.util.*;
@@ -49,7 +48,7 @@ public class EntityGraphMapperTest {
     private EntityMapper mapper;
 
     @ClassRule
-    public static IntegrationTestRule testRule = new IntegrationTestRule(Components.driver());
+    public static IntegrationTestRule testRule = new IntegrationTestRule();
     private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;

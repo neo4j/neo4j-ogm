@@ -40,7 +40,7 @@ public class ABTest
 
     private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
     private Session session;
 
@@ -53,7 +53,7 @@ public class ABTest
     @Before
     public void init() throws IOException {
         sessionFactory = new SessionFactory("org.neo4j.ogm.mapper.transitive.ab");
-        session = sessionFactory.openSession(driver);
+        session = sessionFactory.openSession();
         setUpEntityModel();
     }
 

@@ -46,7 +46,7 @@ public class AuthenticatingServerTest {
 
     @Before
     public void setUp() {
-        testServer= new AuthenticatingTestServer(new HttpDriver(new DriverConfiguration()));
+        testServer= new AuthenticatingTestServer(Components.driver());
     }
 
     @After
@@ -58,7 +58,7 @@ public class AuthenticatingServerTest {
     public void testUnauthorizedDriver() {
 
         testServer.driver().getConfiguration().setCredentials(null);
-        session = new SessionFactory("dummy").openSession(testServer.driver());
+        session = new SessionFactory("dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");
@@ -78,7 +78,7 @@ public class AuthenticatingServerTest {
     @Test
     public void testAuthorizedDriver() {
 
-        session = new SessionFactory("dummy").openSession(testServer.driver());
+        session = new SessionFactory("dummy").openSession();
 
         try (Transaction ignored = session.beginTransaction()) {
             assertNotNull(ignored);
@@ -95,7 +95,7 @@ public class AuthenticatingServerTest {
     public void testInvalidCredentials() {
 
         testServer.driver().getConfiguration().setCredentials("neo4j", "invalid_password");
-        session = new SessionFactory("dummy").openSession(testServer.driver());
+        session = new SessionFactory("dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");

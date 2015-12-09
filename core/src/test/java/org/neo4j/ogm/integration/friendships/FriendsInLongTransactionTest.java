@@ -32,9 +32,9 @@ public class FriendsInLongTransactionTest {
 
     private static final Driver driver = Components.driver();
     @ClassRule
-    public static final TestRule server = new IntegrationTestRule(driver);
+    public static final TestRule server = new IntegrationTestRule();
 
-	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession(driver);
+	Session session =  new SessionFactory("org.neo4j.ogm.domain.friendships").openSession();
 
 	/**
 	 * @see DATAGRAPH-703

@@ -440,7 +440,7 @@ public class Neo4jSession implements Session {
     }
 
     public Request requestHandler() {
-        return driver.requestHandler();
+        return driver.request();
     }
 
     public DefaultTransactionManager transactionManager() {

@@ -2,8 +2,7 @@ package org.neo4j.ogm.drivers;
 
 import org.junit.Test;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.config.DriverConfiguration;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,23 +13,20 @@ import static org.junit.Assert.assertEquals;
 public class DriverConfigTest {
 
     @Test
-    public void shouldLoadConfigFromPropertiesFile() {
-
-        Configuration driverConfig = new Configuration("http.driver.properties");
-
-        assertEquals("http://localhost:7474", driverConfig.getConfig("server"));
-        assertEquals("neo4j", driverConfig.getConfig("username"));
-        assertEquals("password", driverConfig.getConfig("password"));
+    public void shouldLoadHttpDriverConfigFromPropertiesFile() {
+        DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("http.driver.properties"));
+        assertEquals("http://neo4j:password@localhost:7474", driverConfig.getURI());
     }
 
     @Test
-    public void shouldAutoConfigureDriver() {
-
-        Driver driver = new HttpDriver();
-
-        assertEquals("http://localhost:7474", driver.getConfig("server"));
-        assertEquals("neo4j", driver.getConfig("username"));
-        assertEquals("password", driver.getConfig("password"));
+    public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
+        DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("embedded.driver.properties"));
+        assertEquals("file:///tmp/neo4j.db", driverConfig.getURI());
     }
 
+    @Test
+    public void shouldLoadBoltDriverConfigFromPropertiesFile() {
+        DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("bolt.driver.properties"));
+        assertEquals("bolt://neo4j:password@localhost", driverConfig.getURI());
+    }
 }

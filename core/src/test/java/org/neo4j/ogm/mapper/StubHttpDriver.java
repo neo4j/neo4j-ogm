@@ -52,7 +52,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Request requestHandler() {
+    public Request request() {
 
         return new Request() {
 

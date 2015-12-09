@@ -1,16 +1,20 @@
 package org.neo4j.ogm.config;
 
+import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
+ *
+ * A generic configuration class that can be set up programmatically
+ * or via a properties file.
+ *
  * @author vince
  */
 public class Configuration {
@@ -25,11 +29,11 @@ public class Configuration {
         configure(propertiesFilename);
     }
 
-    public void setConfig(String key, Object value) {
+    public void set(String key, Object value) {
         config.put(key, value);
     }
 
-    public Object getConfig(String key) {
+    public Object get(String key) {
         return config.get(key);
     }
 

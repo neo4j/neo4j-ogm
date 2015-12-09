@@ -16,6 +16,7 @@ package org.neo4j.ogm.session;
 
 
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.Components;
 
@@ -75,6 +76,17 @@ public class SessionFactory {
      */
     public Session openSession() {
         return new Neo4jSession(metaData, Components.driver());
+    }
+
+    /**
+     * Opens a new {@link Session} using the {@link Configuration} supplied.
+     * @param configuration the Configuration to use
+     * @return A new {@link Session}
+     */
+    public Session openSession(Configuration configuration) {
+        Components.configure(configuration);
+        return new Neo4jSession(metaData, Components.driver());
+
     }
 
 }

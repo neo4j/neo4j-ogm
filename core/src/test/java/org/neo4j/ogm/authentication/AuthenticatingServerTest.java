@@ -20,13 +20,17 @@ import org.apache.http.conn.HttpHostConnectException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.service.DriverService;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.AuthenticatingTestServer;
+import org.neo4j.ogm.transaction.Transaction;
 
 import static org.junit.Assert.*;
 
@@ -37,14 +41,12 @@ import static org.junit.Assert.*;
 
 public class AuthenticatingServerTest {
 
-    private Driver driver;
     private AuthenticatingTestServer testServer;
     private Session session;
 
     @Before
     public void setUp() {
-        driver = Components.driver();
-        testServer= new AuthenticatingTestServer(driver);
+        testServer= new AuthenticatingTestServer(new HttpDriver(new DriverConfiguration()));
     }
 
     @After
@@ -55,35 +57,32 @@ public class AuthenticatingServerTest {
     @Test
     public void testUnauthorizedDriver() {
 
-        driver.setConfig("credentials", null);
-
-        session = new SessionFactory("dummy").openSession(driver);
+        testServer.driver().getConfiguration().setCredentials(null);
+        session = new SessionFactory("dummy").openSession(testServer.driver());
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");
-        } catch (ResultProcessingException rpe) {
+        } catch (Exception rpe) {
             Throwable cause = rpe.getCause();
             if (cause instanceof HttpHostConnectException) {
                 fail("Please start Neo4j 2.2.0 or later to run these tests");
             } else {
-                assertTrue(cause instanceof HttpResponseException);
+                while (cause instanceof HttpResponseException == false) {
+                    cause = cause.getCause();
+                }
                 assertEquals("Unauthorized", cause.getMessage());
             }
-        } finally {
-
         }
     }
 
     @Test
     public void testAuthorizedDriver() {
 
-        driver.setConfig("credentials", new UsernamePasswordCredentials("neo4j", "password"));
-
-        session = new SessionFactory("dummy").openSession(driver);
+        session = new SessionFactory("dummy").openSession(testServer.driver());
 
         try (Transaction ignored = session.beginTransaction()) {
             assertNotNull(ignored);
-        } catch (ResultProcessingException rpe) {
+        } catch (Exception rpe) {
             fail("'" + rpe.getCause().getLocalizedMessage() + "' was not expected here");
         }
 
@@ -95,22 +94,22 @@ public class AuthenticatingServerTest {
     @Test
     public void testInvalidCredentials() {
 
-        driver.setConfig("credentials", new UsernamePasswordCredentials("neo4j", "invalid_password"));
-
-        session = new SessionFactory("dummy").openSession(driver);
+        testServer.driver().getConfiguration().setCredentials("neo4j", "invalid_password");
+        session = new SessionFactory("dummy").openSession(testServer.driver());
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");
-        } catch (ResultProcessingException rpe) {
+        } catch (Exception rpe) {
             Throwable cause = rpe.getCause();
             if (cause instanceof HttpHostConnectException) {
                 fail("Please start Neo4j 2.2.0 or later to run these tests");
             } else {
-                assertTrue(cause instanceof HttpResponseException);
+                while (cause instanceof HttpResponseException == false) {
+                    cause = cause.getCause();
+                }
                 assertEquals("Unauthorized", cause.getMessage());
             }
         }
-
     }
 
 

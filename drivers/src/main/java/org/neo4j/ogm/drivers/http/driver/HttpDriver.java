@@ -14,6 +14,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpAuthorization;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
@@ -31,26 +32,38 @@ import org.slf4j.LoggerFactory;
 
 public final class HttpDriver extends AbstractConfigurableDriver {
 
-    private final CloseableHttpClient transport = HttpClients.createDefault();
+    private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
 
+    /**
+     * Create a new driver, and auto-configure
+     */
     public HttpDriver() {
-        configure(new Configuration("http.driver.properties"));
+        configure(new DriverConfiguration(new Configuration("http.driver.properties")));
+    }
+
+
+    /**
+     * Create a new driver and configure via the specified DriverConfiguration
+     * @param configuration
+     */
+    public HttpDriver(DriverConfiguration configuration) {
+        configure(configuration);
     }
 
     @Override
     public void close() {
         try {
-            transport.close();
+            httpClient.close();
         } catch (Exception e) {
-            logger.warn("Unexpected Exception when closing http client transport: ", e);
+            logger.warn("Unexpected Exception when closing http client httpClient: ", e);
         }
     }
 
     @Override
-    public Request requestHandler() {
+    public Request request() {
         String url = requestUrl();
-        return new HttpRequest(transport, url, (Credentials) driverConfig.getConfig("credentials"));
+        return new HttpRequest(httpClient, url, driverConfig.getCredentials());
     }
 
     @Override
@@ -66,10 +79,10 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
         try {
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
+            Credentials credentials = driverConfig.getCredentials();
+            HttpAuthorization.authorize(request, credentials);
 
-            HttpAuthorization.authorize(request, (Credentials) driverConfig.getConfig("credentials"));
-
-            CloseableHttpResponse response = transport.execute(request);
+            CloseableHttpResponse response = httpClient.execute(request);
             StatusLine statusLine = response.getStatusLine();
 
             logger.debug("Status code: {}", statusLine.getStatusCode());
@@ -102,17 +115,23 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     }
 
     private String newTransactionUrl() {
-        String url = transactionEndpoint((String) driverConfig.getConfig("server"));
-        logger.debug("POST {}", url);
-        HttpPost request = new HttpPost(url);
-        request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
-        org.apache.http.HttpResponse response = executeHttpRequest(request);
-        Header location = response.getHeaders("Location")[0];
-        return location.getValue();
+        String url = transactionEndpoint(driverConfig.getURI());
+        try {
+            //URI uri = new URI(transactionEndpoint(driverConfig.getURI()));
+
+            logger.debug("POST {}", url);
+            HttpPost request = new HttpPost(url);
+            request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
+            org.apache.http.HttpResponse response = executeHttpRequest(request);
+            Header location = response.getHeaders("Location")[0];
+            return location.getValue();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String autoCommitUrl() {
-        return transactionEndpoint((String) driverConfig.getConfig("server")).concat("/commit");
+        return transactionEndpoint(driverConfig.getURI()).concat("/commit");
     }
 
     private String transactionEndpoint(String server) {

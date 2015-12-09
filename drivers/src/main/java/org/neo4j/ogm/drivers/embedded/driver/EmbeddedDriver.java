@@ -3,6 +3,7 @@ package org.neo4j.ogm.drivers.embedded.driver;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
@@ -11,24 +12,35 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.net.URI;
+
 /**
  * @author vince
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
-    // a single instance of the driver's transport must be shared among all instances of the driver
+    // a single instance of the driver's graphDatabaseService must be shared among all instances of the driver
     // so that we do not run into locking problems.
 
-    private static GraphDatabaseService transport;
+    private static GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
 
     /**
      * The default constructor will start a new embedded instance
-     * using the default properties file.
+     * configured via the embedded.driver.properties file.
      */
     public EmbeddedDriver() {
-        configure(new Configuration("embedded.driver.properties"));
+        configure(new DriverConfiguration(new Configuration("embedded.driver.properties")));
+    }
+
+    /**
+     * Configure a new embedded driver according to the supplied driver configuration
+     * @param driverConfiguration the {@link DriverConfiguration} to use
+     */
+    public EmbeddedDriver(DriverConfiguration driverConfiguration) {
+        configure(driverConfiguration);
     }
 
     /**
@@ -36,11 +48,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * Graph database service, e.g. if user code is running as an extension inside
      * an existing Neo4j server
      *
-     * @param transport the embedded database instance
+     * @param graphDatabaseService the embedded database instance
      */
-    public EmbeddedDriver(GraphDatabaseService transport) {
-        EmbeddedDriver.transport = transport;
-        configure(new Configuration("embedded.driver.properties"));
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        EmbeddedDriver.graphDatabaseService = graphDatabaseService;
     }
 
     /**
@@ -60,20 +71,22 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public synchronized void configure(Configuration config) {
+    public synchronized void configure(DriverConfiguration config) {
 
         super.configure(config);
 
-        if (transport == null) {
-            String storeDir = (String) config.getConfig("neo4j.store");
-            transport = new GraphDatabaseFactory()
-                    .newEmbeddedDatabaseBuilder( storeDir )
-                    .newGraphDatabase();
-
-            registerShutdownHook(transport);
+        if (graphDatabaseService == null) {
+            try {
+                String fileStoreUri = config.getURI();
+                File file = new File(new URI(fileStoreUri));
+                graphDatabaseService = new GraphDatabaseFactory()
+                        .newEmbeddedDatabaseBuilder(file.getAbsolutePath())
+                        .newGraphDatabase();
+                registerShutdownHook(graphDatabaseService);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        config.setConfig("transport", transport);
     }
 
     @Override
@@ -83,14 +96,14 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     @Override
     public void close() {
-        if (transport != null) {
-            transport.shutdown();
+        if (graphDatabaseService != null) {
+            graphDatabaseService.shutdown();
         }
     }
 
     @Override
-    public Request requestHandler() {
-        return new EmbeddedRequest(transport, transactionManager);
+    public Request request() {
+        return new EmbeddedRequest(graphDatabaseService, transactionManager);
     }
 
     private org.neo4j.graphdb.Transaction nativeTransaction() {
@@ -103,7 +116,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             nativeTransaction =((EmbeddedTransaction) tx).getNativeTransaction();
         } else {
             logger.debug("No current transaction, starting a new one");
-            nativeTransaction = transport.beginTx();
+            nativeTransaction = graphDatabaseService.beginTx();
         }
         logger.debug("Native transaction: {}", nativeTransaction);
         return nativeTransaction;

@@ -1,14 +1,14 @@
 package org.neo4j.ogm.service;
 
-import java.util.Iterator;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
-
 import org.neo4j.ogm.compiler.Compiler;
-import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.CompilerConfiguration;
 import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
 /**
  * Loads a Cypher Compiler for use by the OGM to construct Cypher statements when mapping entities
@@ -55,21 +55,15 @@ abstract class CompilerService {
     }
 
     /**
-     * Using this method you can load a Driver using its registered name.
-     * The registered name for a driver is specified by the "class" property in the Driver's config file,
-     * and the value should be the fully qualified class name of the implementing Driver class.
+     * Loads and initialises a Cypher Compiler using the specified CompilerConfiguration
      *
-     * @param registeredName the Driver's registered name
-     * @return the required Driver if found, otherwise throws a ServiceNotFoundException
+     * @param configuration an instance of {@link CompilerConfiguration} with which to configure the driver
+     * @return the named {@link Compiler} if found, otherwise throws a ServiceNotFoundException
      */
-    public static Compiler lookup(String registeredName) {
-
-        Configuration config = new Configuration(registeredName + ".compiler.properties");
-        String fqn = (String) config.getConfig("class");
-        if (fqn != null) {
-            return load(fqn);
-        }
-
-        throw new ServiceNotFoundException(registeredName);
+    public static Compiler load(CompilerConfiguration configuration) {
+        String compilerClassName = configuration.getCompilerClassName();
+        Compiler compiler = load(compilerClassName);
+        return compiler;
     }
+
 }

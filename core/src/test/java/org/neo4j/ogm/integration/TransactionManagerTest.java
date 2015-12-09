@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.exception.TransactionManagerException;
-import org.neo4j.ogm.service.DriverService;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
@@ -49,7 +49,7 @@ import static org.junit.Assert.fail;
  */
 public class TransactionManagerTest {
 
-    private static final Driver driver = DriverService.lookup("http");
+    private static final Driver driver = Components.driver();
     private static final DefaultTransactionManager transactionManager = new DefaultTransactionManager(driver);
     private static final TestServer server = new TestServer(driver, "2");
 
@@ -81,20 +81,6 @@ public class TransactionManagerTest {
         transactionManager.rollback(tx);
     }
 
-//    @Test
-//    public void shouldCommitFreeTransaction() {
-//        driver.setTransactionManager(null);
-//        Transaction tx = driver.newTransaction();
-//        tx.commit();
-//    }
-//
-//    @Test
-//    public void shouldRollbackFreeTransaction() {
-//        driver.setTransactionManager(null);
-//        Transaction tx = driver.newTransaction();
-//        tx.rollback();
-//    }
-//
     @Test
     public void shouldRollbackManagedTransaction() {
         try (Transaction tx = transactionManager.openTransaction()) {

@@ -19,7 +19,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.server.AbstractNeoServer;
 
@@ -89,8 +88,7 @@ public class TestServer {
         field.setAccessible(true);
         server = (AbstractNeoServer) field.get(controls);
         database = server.getDatabase().getGraph();
-
-        configure(new Configuration());
+        driver.getConfiguration().setURI(url());
     }
 
     public Driver driver() {
@@ -153,11 +151,6 @@ public class TestServer {
         return this.database;
     }
 
-
-    public void configure(Configuration config) {
-        config.setConfig("server", url());
-        driver.configure(config);
-    }
 
     public void close() {
         shutdown();

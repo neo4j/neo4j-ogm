@@ -1,23 +1,34 @@
 package org.neo4j.ogm.service;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.neo4j.ogm.config.CompilerConfiguration;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
- *
  * This class is responsible for ensuring that the various pluggable components
- * required by the OGM can be found when required. The configuration is loaded
- * in a static initialiser block, but the individual components are not statically
- * loaded, they are provided "on demand" when requested.
+ * required by the OGM can be loaded.
  *
+ * The Components class can be explicitly configured via an {@link Configuration} instance.
  *
+ * If no explicit configuration is supplied, the class will attempt to auto-configure.
+ *
+ * Auto-configuration is accomplished using a properties file. By default, this file
+ * is called "ogm.properties" and it must be available on the class path.
+ *
+ * You can supply a different configuration properties file, by specifying a system property
+ * "OGM_CONFIG_FILE" that refers to the configuration file you want to use. Your alternative
+ * configuration file must be on the class path.
+ *
+ * The properties file should contain the desired configuration values for each of the
+ * various components - Driver, Compiler, etc. Please refer to the relevant configuration
+ * for each of these.
  *
  * @author vince
  */
@@ -25,19 +36,23 @@ public class Components {
 
     private Components() {}
 
-    private static final Map<String, String> config = new HashMap<>();
+    private static Configuration configuration = new Configuration();
 
     static {
         configure();
     }
 
+    public static void configure(Configuration configuration) {
+        Components.configuration = configuration;
+    }
+
     public static Driver driver() {
-        return DriverService.lookup(config.get(Component.DRIVER.toString()));
+        return DriverService.load(new DriverConfiguration(configuration));
     }
 
 
     public static org.neo4j.ogm.compiler.Compiler compiler() {
-        return CompilerService.lookup(config.get(Component.COMPILER.toString()));
+        return CompilerService.load(new CompilerConfiguration(configuration));
     }
 
     private static void configure() {
@@ -50,7 +65,7 @@ public class Components {
 
             while (propertyNames.hasMoreElements()) {
                 String propertyName = (String) propertyNames.nextElement();
-                config.put(propertyName, properties.getProperty(propertyName));
+                configuration.set(propertyName, properties.getProperty(propertyName));
             }
         } catch (Exception e) {
             throw new RuntimeException("Could not configure OGM", e);
@@ -71,7 +86,7 @@ public class Components {
         if (configFileName == null) {
             configFileName = System.getProperty("OGM_CONFIG");
             if (configFileName == null) {
-                return classPathResource("default.ogm.properties");
+                return classPathResource("ogm.properties");
             }
         }
         return fileSystemResource(configFileName);
@@ -79,7 +94,6 @@ public class Components {
 
     private static InputStream fileSystemResource(String name) throws Exception {
         return new FileInputStream(name);
-
     }
 
     private static InputStream classPathResource(String name) {

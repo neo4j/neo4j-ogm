@@ -34,6 +34,7 @@ public class AuthenticatingTestServer extends TestServer {
             try (Writer authStoreWriter = new FileWriter( authStore.toFile() )) {
                 IOUtils.write("neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:", authStoreWriter);
             }
+            driver().getConfiguration().setCredentials("neo4j", "password");
             return authStore.toAbsolutePath().toString();
         } catch (Exception e) {
             throw new RuntimeException(e);

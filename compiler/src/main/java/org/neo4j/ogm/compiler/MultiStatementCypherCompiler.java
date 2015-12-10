@@ -301,7 +301,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 	private Map<String, Set<Node>> groupNodesByLabel(List<NodeBuilder> nodeBuilders) {
 		Map<String, Set<Node>> nodesByLabels = new HashMap<>();
 		for (NodeBuilder nodeBuilder : nodeBuilders) {
-			String joinedLabels = String.join(",", nodeBuilder.labels());
+			//String joinedLabels = String.join(",", nodeBuilder.labels());
+			String joinedLabels = join(nodeBuilder.labels());
 			if (!nodesByLabels.containsKey(joinedLabels)) {
 				nodesByLabels.put(joinedLabels, new HashSet<Node>());
 			}
@@ -324,5 +325,16 @@ public class MultiStatementCypherCompiler implements Compiler {
 			relsByType.get(relationshipBuilder.type()).add(edge);
 		}
 		return relsByType;
+	}
+
+	private String join(String[] parts) { //TODO drop when we start compiling with Java 8
+		StringBuilder str = new StringBuilder();
+		for (String part : parts) {
+			if (str.length() > 0) {
+				str.append(",");
+			}
+			str.append(part);
+		}
+		return str.toString();
 	}
 }

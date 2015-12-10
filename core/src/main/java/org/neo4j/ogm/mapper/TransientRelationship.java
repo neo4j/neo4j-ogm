@@ -14,9 +14,7 @@
 
 package org.neo4j.ogm.mapper;
 
-import org.neo4j.ogm.compiler.RelationshipEmitter;
-
-import java.util.Map;
+import org.neo4j.ogm.compiler.RelationshipBuilder;
 
 /**
  * A TransientRelationship represents a relationship that is not yet
@@ -40,14 +38,14 @@ import java.util.Map;
  */
 public class TransientRelationship {
 
-    private final String src;
-    private final String tgt;
-    private final String ref;
+    private final Long src;
+    private final Long tgt;
+    private final Long ref;
     private final String rel;
     private final Class srcClass;
     private final Class tgtClass;
 
-    public TransientRelationship(String src, String ref, String rel, String tgt, Class srcClass, Class tgtClass) {
+    public TransientRelationship(Long src, Long ref, String rel, Long tgt, Class srcClass, Class tgtClass) {
         this.src = src;
         this.tgt = tgt;
         this.ref = ref;
@@ -56,36 +54,9 @@ public class TransientRelationship {
         this.tgtClass = tgtClass;
     }
 
-    /**
-     * Creates a MappedRelationship from a TransientRelationship
-     * using the supplied refMap to lookup and replace the correct start and end node ids
-     * @param refMap A Map containing refs to the src/tgt ids
-     * @return the MappedRelationship
-     */
-    public MappedRelationship convert(Map<String, Long> refMap) {
-
-        Long srcIdentity = src.startsWith("_") ? refMap.get(src) : (Long)Long.parseLong(src.substring(1));
-        Long tgtIdentity = tgt.startsWith("_") ? refMap.get(tgt) : (Long)Long.parseLong(tgt.substring(1));
-        Long relIdentity = ref.startsWith("_") ? refMap.get(ref) : (Long)Long.parseLong(ref.substring(1));
-
-        if (srcIdentity == null) {
-            throw new RuntimeException("Couldn't get identity for " + src);
-        }
-
-        if (tgtIdentity == null) {
-            throw new RuntimeException("Couldn't get identity for " + tgt);
-        }
-
-        if (relIdentity == null) {
-            throw new RuntimeException("Couldn't get identity for " + ref);
-        }
-
-        return new MappedRelationship(srcIdentity, rel, tgtIdentity, relIdentity, srcClass, tgtClass);
-    }
-
-    public boolean equalsIgnoreDirection(String src, RelationshipEmitter builder, String tgt) {
+    public boolean equalsIgnoreDirection(Long src, RelationshipBuilder builder, Long tgt) {
         Boolean singleton = builder.isSingleton();
-        if (this.rel.equals(builder.getType())) {
+        if (this.rel.equals(builder.type())) {
             if (singleton) {
                 if (this.src.equals(src) && this.tgt.equals(tgt)) {
                     return true;
@@ -96,5 +67,29 @@ public class TransientRelationship {
             }
         }
         return false;
+    }
+
+    public Long getSrc() {
+        return src;
+    }
+
+    public Long getTgt() {
+        return tgt;
+    }
+
+    public Long getRef() {
+        return ref;
+    }
+
+    public String getRel() {
+        return rel;
+    }
+
+    public Class getSrcClass() {
+        return srcClass;
+    }
+
+    public Class getTgtClass() {
+        return tgtClass;
     }
 }

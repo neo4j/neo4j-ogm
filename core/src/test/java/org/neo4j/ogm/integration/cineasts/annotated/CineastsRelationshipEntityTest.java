@@ -668,4 +668,47 @@ public class CineastsRelationshipEntityTest{
 		assertEquals("Harry Potter and the Order of the Phoenix", allFilms.iterator().next().getTitle());
 	}
 
+
+	@Test
+	public void shouldSaveAndUpdateRelationshipEntities() {
+		Movie movie = new Movie();
+		movie.setTitle("Pulp Fiction");
+
+		User michal = new User();
+		michal.setName("Michal");
+
+		Rating awesome = new Rating();
+		awesome.setMovie(movie);
+		awesome.setUser(michal);
+		awesome.setStars(5);
+		michal.setRatings(Collections.singleton(awesome));
+		session.save(michal);
+
+		//Check that Pulp Fiction has one rating from Michal
+		Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", "Pulp Fiction"));
+		assertEquals(1, films.size());
+
+		Movie film = films.iterator().next();
+		Assert.assertNotNull(film);
+		assertEquals(1, film.getRatings().size());
+		assertEquals("Michal",film.getRatings().iterator().next().getUser().getName());
+
+		awesome.setStars(1);
+		session.save(awesome);
+
+		session.clear();
+		Rating loadedRating = session.load(Rating.class, awesome.getId());
+		assertEquals(1, loadedRating.getStars());
+
+		michal.getRatings().clear();
+		session.save(michal);
+
+		films = session.loadAll(Movie.class, new Filter("title", "Pulp Fiction"));
+		assertEquals(1, films.size());
+
+		film = films.iterator().next();
+		Assert.assertNotNull(film);
+		assertNull(film.getRatings());
+	}
+
 }

@@ -14,12 +14,12 @@
 
 package org.neo4j.ogm.domain.cineasts.partial;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers
@@ -57,6 +57,9 @@ public class Actor {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
 }
 
 

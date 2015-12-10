@@ -14,14 +14,20 @@
 
 package org.neo4j.ogm.mapper;
 
-import org.junit.*;
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+
+import java.util.*;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.request.Statements;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -32,12 +38,14 @@ import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.request.RowStatementFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George
@@ -48,17 +56,21 @@ public class EntityGraphMapperTest {
 
     private EntityMapper mapper;
 
-    @ClassRule
-    public static IntegrationTestRule testRule = new IntegrationTestRule(Components.driver());
-    private static GraphDatabaseService graphDatabase;
     private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 
+    @ClassRule
+    public static IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
+
+    private static SessionFactory sessionFactory;
+    private Session session;
+
+
     @BeforeClass
     public static void setUpTestDatabase() {
-        graphDatabase = testRule.getGraphDatabaseService();
-        executionEngine = new ExecutionEngine(graphDatabase);
+
+        executionEngine = new ExecutionEngine(getDatabase());
         mappingMetadata = new MetaData(
                 "org.neo4j.ogm.domain.education",
                 "org.neo4j.ogm.domain.forum",
@@ -68,21 +80,21 @@ public class EntityGraphMapperTest {
 
     }
 
-    @AfterClass
-    public static void shutDownDatabase() {
-        graphDatabase.shutdown();
-    }
-
     @Before
     public void setUpMapper() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.policy",
+                "org.neo4j.ogm.domain.election", "org.neo4j.ogm.domain.forum",
+                "org.neo4j.ogm.domain.education");
+        mappingContext.clear();
         this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
+        session = sessionFactory.openSession(testServer.driver());
+        session.purgeDatabase();
     }
 
-    @After
-    public void cleanGraph() {
-        executionEngine.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
-        mappingContext.clear();
+    private static GraphDatabaseService getDatabase() {
+        return testServer.getGraphDatabaseService();
     }
+
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionOnAttemptToMapNullObjectToCypherQuery() {
@@ -93,14 +105,10 @@ public class EntityGraphMapperTest {
     public void createObjectWithLabelsAndProperties() {
 
         Student newStudent = new Student("Gary");
-        Statements cypher = new Statements(this.mapper.map(newStudent).getStatements());
 
-        assertNull(newStudent.getId());
+        session.save(newStudent);
 
-        expect( "CREATE (_0:`Student`:`DomainObject`{_0_props}) " +
-                "RETURN id(_0) AS _0", cypher);
-
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:\"Gary\"})");
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Student:DomainObject {name:\"Gary\"})");
     }
 
     @Test
@@ -109,23 +117,14 @@ public class EntityGraphMapperTest {
         ExecutionResult executionResult = executionEngine.execute("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id");
         Long sid = Long.valueOf(executionResult.iterator().next().get("id").toString());
 
-        Student sheila = new Student("Sheila Smythe");
-        sheila.setId(sid);
-
-        mappingContext.remember(sheila);
-
-        String sheilaNode = var(sid);
+        Student sheila = session.load(Student.class, sid);
 
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
 
-        Statements cypher = new Statements(this.mapper.map(sheila).getStatements());
+        session.save(sheila);
 
-        expect( "MATCH (" + sheilaNode + ") " +
-                "WHERE id(" + sheilaNode + ")={" +sheilaNode + "} " +
-                "SET " + sheilaNode + ":`Student`:`DomainObject`, " + sheilaNode + "+={" + sheilaNode + "_props}", cypher);
-
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (s:DomainObject:Student {name:'Sheila Smythe-Jones'})");
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (s:DomainObject:Student {name:'Sheila Smythe-Jones'})");
     }
 
     @Test
@@ -139,10 +138,11 @@ public class EntityGraphMapperTest {
         sheila.setName("Sheila Smythe");
         mappingContext.remember(sheila);
 
+        Compiler compiler = this.mapper.map(sheila).getCompiler();
+        compiler.useStatementFactory(new RowStatementFactory());
+        Statements cypher = new Statements(compiler.getAllStatements());
 
-        Statements cypher = new Statements(this.mapper.map(sheila).getStatements());
-
-        expect("", cypher);
+        assertEquals(0, cypher.getStatements().size());
     }
 
     @Test
@@ -157,14 +157,8 @@ public class EntityGraphMapperTest {
         Long studentId = Long.valueOf(resultSetRow.get("student_id").toString());
         Long courseId = Long.valueOf(resultSetRow.get("course_id").toString());
 
-        Student gianFranco = new Student("Gianfranco");
-        gianFranco.setId(studentId);
-        Course bscComputerScience = new Course("BSc Computer Science");
-        bscComputerScience.setId(courseId);
-
-        mappingContext.remember(gianFranco);
-        mappingContext.remember(bscComputerScience);
-        mappingContext.registerRelationship(new MappedRelationship(courseId, "STUDENTS", studentId, Course.class, Student.class));
+        Student gianFranco = session.load(Student.class, studentId);
+        Course bscComputerScience = session.load(Course.class, courseId);
 
         // create a new student and set both students on the course
         Student lakshmipathy = new Student("Lakshmipathy");
@@ -172,9 +166,9 @@ public class EntityGraphMapperTest {
         bscComputerScience.setStudents(Arrays.asList(lakshmipathy, gianFranco));
 
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
-        Statements cypher = new Statements(this.mapper.map(bscComputerScience).getStatements());
+        session.save(bscComputerScience);
 
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (c:Course {name:'BSc Computer Science'}), " +
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
     }
@@ -190,16 +184,10 @@ public class EntityGraphMapperTest {
         Long wallerId = Long.valueOf(resultSetRow.get("school_id").toString());
         Long maryId = Long.valueOf(resultSetRow.get("teacher_id").toString());
 
-        School waller = new School("Waller");
-        waller.setId(wallerId);
+        School waller = session.load(School.class, wallerId);
 
-        Teacher mary = new Teacher("Mary");
+        Teacher mary = session.load(Teacher.class, maryId);
         mary.setId(maryId);
-        mary.setSchool(waller);
-
-        mappingContext.remember(mary);
-        mappingContext.remember(waller);
-        mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
         // create a new teacher and add him to the school
         Teacher jim = new Teacher("Jim");
@@ -208,9 +196,9 @@ public class EntityGraphMapperTest {
         // ensure that the domain objects are mutually established by the code
         assertTrue(waller.getTeachers().contains(jim));
 
-        Statements cypher = new Statements(this.mapper.map(jim).getStatements());
+        session.save(jim);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE " +
                 "(s:School:DomainObject {name:'Waller'}), " +
                 "(m:Teacher {name:'Mary'}), " +
@@ -229,9 +217,9 @@ public class EntityGraphMapperTest {
         School school = new School("Hilly Fields");
         school.setTeachers(Arrays.asList(missJones, mrWhite));
 
-        Statements cypher = new Statements(this.mapper.map(school).getStatements());
+        session.save(school);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (j:Teacher {name:'Miss Jones'}), " +
                         "(w:Teacher {name:'Mr White'}), " +
                         "(s:School:DomainObject {name:'Hilly Fields'}), " +
@@ -259,26 +247,9 @@ public class EntityGraphMapperTest {
         teacher.setName("Mrs Kapoor");
         teacher.setCourses(Arrays.asList(physics, maths));
 
-        Statements cypher = new Statements(this.mapper.map(teacher).getStatements());
+        session.save(teacher);
 
-//        // todo: too many with clauses for merge statements
-//        // todo: we can build larger merge paths from single-hop merge fragments (but check behaviour of partial paths?)
-//        expect("CREATE " +
-//                "(_0:`Teacher`{_0_props}), " +
-//                "(_1:`Course`{_1_props}), " +
-//                "(_2:`Student`:`DomainObject`{_2_props}), " +
-//                "(_3:`Student`:`DomainObject`{_3_props}), " +
-//                "(_4:`Course`{_4_props}), " +
-//                "(_5:`Student`:`DomainObject`{_5_props}) " +
-//                "WITH _0,_1,_2,_3,_4,_5 MERGE (_1)-[:STUDENTS]->(_2) " +
-//                "WITH _0,_1,_2,_3,_4,_5 MERGE (_1)-[:STUDENTS]->(_3) " +
-//                "WITH _0,_1,_2,_3,_4,_5 MERGE (_0)-[:COURSES]->(_1) " +
-//                "WITH _0,_1,_2,_3,_4,_5 MERGE (_4)-[:STUDENTS]->(_3) " +
-//                "WITH _0,_1,_2,_3,_4,_5 MERGE (_4)-[:STUDENTS]->(_5) " +
-//                "WITH _0,_1,_2,_3,_4,_5 MERGE (_0)-[:COURSES]->(_4) " +
-//                "RETURN id(_0) AS _0, id(_1) AS _1, id(_2) AS _2, id(_3) AS _3, id(_4) AS _4, id(_5) AS _5", cypher);
-
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Mrs Kapoor'}), "
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (t:Teacher {name:'Mrs Kapoor'}), "
                 + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
                 + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
                 + "(g:Student:DomainObject {name:'Gary Jones'}), "
@@ -302,26 +273,13 @@ public class EntityGraphMapperTest {
         Long yid = (Long) results.get("yid");
         Long zid = (Long) results.get("zid");
 
-        Course music = new Course("GCSE Music");
-        music.setId(mid);
+        Course music = session.load(Course.class, mid);
 
-        Student xavier = new Student("xavier");
-        xavier.setId(xid);
+        Student xavier = session.load(Student.class, xid);
 
-        Student yvonne = new Student("Yvonne");
-        yvonne.setId(yid);
+        Student yvonne = session.load(Student.class, yid);
 
-        Student zack = new Student("Zack");
-        zack.setId(zid);
-
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", xid, Course.class, Student.class));
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid, Course.class, Student.class));
-        mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid, Course.class, Student.class));
-
-        mappingContext.remember(xavier);
-        mappingContext.remember(yvonne);
-        mappingContext.remember(zack);
-        mappingContext.remember(music);
+        Student zack = session.load(Student.class, zid);
 
         music.setStudents(Arrays.asList(yvonne, xavier, zack));
 
@@ -329,9 +287,9 @@ public class EntityGraphMapperTest {
         // now, update the domain model, setting yvonne as the only music student (i.e remove zack and xavier)
         music.setStudents(Arrays.asList(yvonne));
 
-        Statements cypher = new Statements(this.mapper.map(music).getStatements());
+        session.save(music);
 
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Student:DomainObject {name:'Xavier'}), "
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Student:DomainObject {name:'Xavier'}), "
                 + "(:Student:DomainObject {name:'Zack'}), "
                 + "(:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'})");
     }
@@ -353,37 +311,21 @@ public class EntityGraphMapperTest {
         Long designTechnologyCourseId = (Long) results.get("dt_id");
         Long studentId = (Long) results.get("s_id");
 
-        Course designTech = new Course("GCSE Design & Technology");
-        designTech.setId(designTechnologyCourseId);
+        Course designTech = session.load(Course.class, designTechnologyCourseId);
 
-        Course businessStudies = new Course("GNVQ Business Studies");
-        businessStudies.setId(businessStudiesCourseId);
+        Course businessStudies = session.load(Course.class, businessStudiesCourseId);
 
-        Teacher msThompson = new Teacher();
-        msThompson.setId(teacherId);
-        msThompson.setName("Ms Thompson");
-        msThompson.setCourses(Arrays.asList(businessStudies, designTech));
+        Teacher msThompson = session.load(Teacher.class, teacherId);
 
-        Student shivani = new Student("Shivani");
-        shivani.setId(studentId);
-
-        // NB: this simulates the graph not being fully hydrated, so Jeff's enrolment on GCSE D+T should remain untouched
-        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, Teacher.class, Course.class));
-        mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, Teacher.class, Course.class));
-        mappingContext.registerRelationship(new MappedRelationship(businessStudiesCourseId, "STUDENTS", studentId, Course.class, Student.class));
-
-        mappingContext.remember(msThompson);
-        mappingContext.remember(businessStudies);
-        mappingContext.remember(designTech);
-        mappingContext.remember(shivani);
+        Student shivani = session.load(Student.class, studentId);
 
         // move student from one course to the other
         businessStudies.setStudents(Collections.<Student>emptyList());
-        designTech.setStudents(Arrays.asList(shivani));
+        designTech.getStudents().add(shivani);
 
-        Statements cypher = new Statements(this.mapper.map(msThompson).getStatements());
+        session.save(msThompson);
 
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (t:Teacher {name:'Ms Thompson'}), " +
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
                 "(dt)-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
                 "(dt)-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
@@ -404,34 +346,19 @@ public class EntityGraphMapperTest {
         Long whiteId = (Long) results.get("white_id");
         Long jonesId = (Long) results.get("jones_id");
 
-        School hillsRoad = new School("Hills Road Sixth Form College");
-        hillsRoad.setId(schoolId);
+        School hillsRoad = session.load(School.class, schoolId);
 
-        Teacher mrWhite = new Teacher("Mr White");
-        mrWhite.setId(whiteId);
+        Teacher mrWhite = session.load(Teacher.class, whiteId);
 
-        Teacher missJones = new Teacher("Miss Jones");
-        missJones.setId(jonesId);
-
-        // need to ensure teachers list is mutable
-        hillsRoad.setTeachers(new ArrayList<>(Arrays.asList(missJones, mrWhite)));
-
-        mappingContext.remember(hillsRoad);
-        mappingContext.remember(mrWhite);
-        mappingContext.remember(missJones);
-
-        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, School.class, Teacher.class));
-        mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, School.class, Teacher.class));
-        mappingContext.registerRelationship(new MappedRelationship(whiteId, "SCHOOL", schoolId, School.class, School.class));
-        mappingContext.registerRelationship(new MappedRelationship(jonesId, "SCHOOL", schoolId, School.class, School.class));
+        Teacher missJones = session.load(Teacher.class, jonesId);
 
         // Fire Mr White:
         mrWhite.setSchool(null);
 
-        Statements cypher = new Statements(this.mapper.map(hillsRoad).getStatements());
+        session.save(hillsRoad);
 
-        executeStatementsAndAssertSameGraph(cypher,
-                "CREATE (w:Teacher {name:'Mr White'}), (s:School:DomainObject)-[:TEACHERS]->(:Teacher {name:'Miss Jones'})");
+        GraphTestUtils.assertSameGraph(getDatabase(),
+                "CREATE (w:Teacher {name:'Mr White'}), (t:Teacher {name:'Miss Jones'}), (s:School:DomainObject), (s)-[:TEACHERS]->(t), (t)-[:SCHOOL]->(s)");
     }
 
 
@@ -444,23 +371,25 @@ public class EntityGraphMapperTest {
 
         coalHillSchool.setTeachers(Arrays.asList(claraOswald, dannyPink));
 
-        Statements cypher = new Statements(this.mapper.map(coalHillSchool, 0).getStatements());
+        session.save(coalHillSchool,0);
 
         // we don't expect the teachers to be persisted when persisting the school to depth 0
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
     }
 
     @Test
     public void shouldGenerateCypherToPersistArraysOfPrimitives() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+        session = sessionFactory.openSession(testServer.driver());
         Individual individual = new Individual();
         individual.setName("Jeff");
         individual.setAge(41);
         individual.setBankBalance(1000.50f);
         individual.setPrimitiveIntArray(new int[]{1, 6, 4, 7, 2});
 
-        Statements cypher = new Statements(this.mapper.map(individual).getStatements());
+        session.save(individual);
 
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {name:'Jeff', age:41, bankBalance: 1000.50, code:0, primitiveIntArray:[1,6,4,7,2]})");
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Individual {name:'Jeff', age:41, bankBalance: 1000.50, code:0, primitiveIntArray:[1,6,4,7,2]})");
 
         ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveIntArray AS ints");
         for (Map<String, Object> result : executionResult) {
@@ -470,15 +399,15 @@ public class EntityGraphMapperTest {
 
     @Test
     public void shouldGenerateCypherToPersistByteArray() {
-
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+        session = sessionFactory.openSession(testServer.driver());
         Individual individual = new Individual();
         individual.setAge(41);
         individual.setBankBalance(1000.50f);
         individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
 
-        Statements cypher = new Statements(this.mapper.map(individual).getStatements());
-
-        executeStatementsAndAssertSameGraph(cypher, "CREATE (:Individual {age:41, bankBalance: 1000.50, code:0, primitiveByteArray:'AQIDBAU='})");
+        session.save(individual);
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Individual {age:41, bankBalance: 1000.50, code:0, primitiveByteArray:'AQIDBAU='})");
 
         ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
         for (Map<String, Object> result : executionResult) {
@@ -488,14 +417,16 @@ public class EntityGraphMapperTest {
 
     @Test
     public void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+        session = sessionFactory.openSession(testServer.driver());
         Individual individual = new Individual();
         individual.setName("Gary");
         individual.setAge(36);
         individual.setBankBalance(99.99f);
-        individual.setFavouriteRadioStations(new Vector<Double>(Arrays.asList(97.4, 105.4, 98.2)));
+        individual.setFavouriteRadioStations(new Vector<>(Arrays.asList(97.4, 105.4, 98.2)));
 
-        Statements cypher = new Statements(this.mapper.map(individual).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(individual);
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (:Individual {name:'Gary', age:36, bankBalance:99.99, code:0, favouriteRadioStations:[97.4, 105.4, 98.2]})");
     }
 
@@ -517,10 +448,10 @@ public class EntityGraphMapperTest {
         claraOswald.setCourses(Arrays.asList(english));
         dannyPink.setCourses(Arrays.asList(maths));
 
-        Statements cypher = new Statements(this.mapper.map(coalHillSchool, 1).getStatements());
+        session.save(coalHillSchool, 1);
 
         // we ONLY expect the school and its teachers to be persisted when persisting the school to depth 1
-        executeStatementsAndAssertSameGraph(cypher, "CREATE " +
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE " +
                 "(s:School:DomainObject {name:'Coal Hill'}), " +
                 "(c:Teacher {name:'Clara Oswald'}), " +
                 "(d:Teacher {name:'Danny Pink'}), " +
@@ -547,10 +478,10 @@ public class EntityGraphMapperTest {
         claraOswald.setCourses(Arrays.asList(english));
         dannyPink.setCourses(Arrays.asList(maths));
 
-        Statements cypher = new Statements(this.mapper.map(coalHillSchool, 2).getStatements());
+        session.save(coalHillSchool, 2);
 
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
-        executeStatementsAndAssertSameGraph(cypher, "CREATE " +
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE " +
                 "(school:School:DomainObject {name:'Coal Hill'}), " +
                 "(clara:Teacher {name:'Clara Oswald'}), " +
                 "(danny:Teacher {name:'Danny Pink'}), " +
@@ -573,36 +504,29 @@ public class EntityGraphMapperTest {
         link.setTimestamp(1647209L);
         forum.setTopicsInForum(Arrays.asList(link));
 
-        Statements cypher = new Statements(this.mapper.map(forum).getStatements());
-        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+        session.save(forum);
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE "
                 + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
     }
 
     @Test
     public void shouldProduceCypherForUpdatingExistingRichRelationshipBetweenNodes() {
         ExecutionResult executionResult = executionEngine.execute(
-                "CREATE (f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:20000}]->(t:Topic) " +
+                "CREATE (f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:20000}]->(t:Topic {inActive:false}) " +
                 "RETURN id(f) AS forumId, id(t) AS topicId, ID(r) AS relId");
         Map<String, Object> rs = executionResult.iterator().next();
         Long forumId = (Long) rs.get("forumId");
         Long topicId = (Long) rs.get("topicId");
         Long relationshipId = (Long) rs.get("relId");
 
-        Forum forum = new Forum();
-        forum.setId(forumId);
-        forum.setName("Spring Data Neo4j");
-        Topic topic = new Topic();
-        topic.setTopicId(topicId);
-        topic.setInActive(Boolean.FALSE);
-        ForumTopicLink link = new ForumTopicLink();
-        link.setId(relationshipId);
-        link.setForum(forum);
-        link.setTopic(topic);
+        Forum forum = session.load(Forum.class, forumId);
+        Topic topic = session.load(Topic.class, topicId);
+        ForumTopicLink link = session.load(ForumTopicLink.class, relationshipId);
         link.setTimestamp(327790L);
         forum.setTopicsInForum(Arrays.asList(link));
 
-        Statements cypher = new Statements(this.mapper.map(forum).getStatements());
-        executeStatementsAndAssertSameGraph(cypher, "CREATE "
+        session.save(forum);
+        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE "
                 + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
     }
 
@@ -643,7 +567,7 @@ public class EntityGraphMapperTest {
         List<ForumTopicLink> linksToSave = Arrays.asList(firstRelationshipEntity, secondRelationshipEntity, thirdRelationshipEntity);
 
         // FIXME: currently fails straight away, but do we even support mapping collections in this way?
-        Statements cypher = new Statements(this.mapper.map(linksToSave).getStatements());
+        Statements cypher = new Statements(this.mapper.map(linksToSave).getCompiler().getAllStatements());
         System.err.println(cypher.getStatements().get(0).getStatement());
         System.err.println(cypher.getStatements().get(0).getParameters());
         executeStatementsAndAssertSameGraph(cypher, "CREATE "
@@ -661,8 +585,8 @@ public class EntityGraphMapperTest {
 
         person1.getWritten().add(policy1);
 
-        Statements cypher = new Statements(this.mapper.map(person1).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(person1);
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
 
     }
@@ -673,11 +597,10 @@ public class EntityGraphMapperTest {
         Person person1 = new Person("jim");
         Policy policy1 = new Policy("health");
 
-
         policy1.getWriters().add(person1);
 
-        Statements cypher = new Statements(this.mapper.map(policy1).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(policy1);
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
 
     }
@@ -696,15 +619,10 @@ public class EntityGraphMapperTest {
         Long jid = (Long) resultSet.get("jid");
         Long hid = (Long) resultSet.get("hid");
 
-        Person person = new Person("jim");
-        person.setId(jid);
+        Person person = session.load(Person.class, jid);
 
-        Policy policy = new Policy("health");
+        Policy policy = session.load(Policy.class, hid);
         policy.setId(hid);
-
-        mappingContext.registerNodeEntity(policy, policy.getId());
-        mappingContext.registerNodeEntity(person, person.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
 
         // ensure domain model is set up
         policy.getWriters().add(person);
@@ -713,8 +631,8 @@ public class EntityGraphMapperTest {
         // now remove the relationship from the person side
         person.getWritten().clear();
 
-        Statements cypher = new Statements(this.mapper.map(person).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(person);
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
                 "CREATE (:Policy:DomainObject { name: 'health' })");
 
@@ -735,22 +653,13 @@ public class EntityGraphMapperTest {
         Long jid = (Long) resultSet.get("jid");
         Long hid = (Long) resultSet.get("hid");
 
-        Person person = new Person("jim");
-        person.setId(jid);
+        Person person = session.load(Person.class, jid);
 
-        Policy policy = new Policy("health");
-        policy.setId(hid);
+        Policy policy = session.load(Policy.class, hid);
 
         // ensure domain model is set up
         policy.getWriters().add(person);
         person.getWritten().add(policy);
-
-        mappingContext.registerNodeEntity(policy, policy.getId());
-        mappingContext.registerNodeEntity(person, person.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
-
-
-
 
         // now remove the object from the policy
         policy.getWriters().clear();
@@ -758,8 +667,8 @@ public class EntityGraphMapperTest {
         person.getWritten().clear();
 
         //No relations are
-        Statements cypher = new Statements(this.mapper.map(policy).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(policy);
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
                 "CREATE (:Policy:DomainObject { name: 'health' })");
 
@@ -782,28 +691,19 @@ public class EntityGraphMapperTest {
         Long hid = (Long) resultSet.get("hid");
         Long iid = (Long) resultSet.get("iid");
 
-        Person jim = new Person("jim");
-        jim.setId(jid);
+        Person jim = session.load(Person.class, jid);
 
-        Policy health = new Policy("health");
-        health.setId(hid);
+        Policy health = session.load(Policy.class, hid);
 
-        Policy immigration = new Policy("immigration");
-        immigration.setId(iid);
-
-        mappingContext.registerNodeEntity(immigration, immigration.getId());
-        mappingContext.registerNodeEntity(health, health.getId());
-        mappingContext.registerNodeEntity(jim, jim.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
+        Policy immigration = session.load(Policy.class, iid);
 
         // set jim as the writer of the health policy and expect the new relationship to be established
         // alongside the existing one.
         jim.getWritten().add(health);
         jim.getWritten().add(immigration);
 
-
-        Statements cypher = new Statements(this.mapper.map(jim).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(jim);
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (j:Person:DomainObject { name :'jim' }) " +
                 "CREATE (h:Policy:DomainObject { name: 'health' }) " +
                 "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
@@ -829,19 +729,11 @@ public class EntityGraphMapperTest {
         Long hid = (Long) resultSet.get("hid");
         Long iid = (Long) resultSet.get("iid");
 
-        Person jim = new Person("jim");
-        jim.setId(jid);
+        Person jim = session.load(Person.class, jid);
 
-        Policy health = new Policy("health");
-        health.setId(hid);
+        Policy health = session.load(Policy.class, hid);
 
-        Policy immigration = new Policy("immigration");
-        immigration.setId(iid);
-
-        mappingContext.registerNodeEntity(immigration, immigration.getId());
-        mappingContext.registerNodeEntity(health, health.getId());
-        mappingContext.registerNodeEntity(jim, jim.getId());
-        mappingContext.registerRelationship(new MappedRelationship(jid, "WRITES_POLICY", hid, Person.class, Policy.class));
+        Policy immigration = session.load(Policy.class, iid);
 
         // ensure the graph reflects the mapping context
         jim.getWritten().add(health);
@@ -851,8 +743,9 @@ public class EntityGraphMapperTest {
         immigration.getWriters().add(jim);
 
         // note that we save the graph to the same depth as we hydrate it.
-        Statements cypher = new Statements(this.mapper.map(immigration, 2).getStatements());
-        executeStatementsAndAssertSameGraph(cypher,
+        session.save(immigration, 2);
+       // Statements cypher = new Statements(this.mapper.map(immigration, 2).getCompiler().getAllStatements());
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (j:Person:DomainObject { name :'jim' }) " +
                         "CREATE (h:Policy:DomainObject { name: 'health' }) " +
                         "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
@@ -871,7 +764,7 @@ public class EntityGraphMapperTest {
         for (Statement query : cypher.getStatements()) {
             executionEngine.execute(query.getStatement(), query.getParameters());
         }
-        assertSameGraph(graphDatabase, sameGraphCypher);
+        assertSameGraph(getDatabase(), sameGraphCypher);
     }
 
     private void expect(String expected, Statements cypher) {

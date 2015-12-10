@@ -15,27 +15,27 @@
 package org.neo4j.ogm.integration.education;
 
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.education.Course;
-import org.neo4j.ogm.domain.education.School;
-import org.neo4j.ogm.domain.education.Student;
-import org.neo4j.ogm.domain.education.Teacher;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.education.Course;
+import org.neo4j.ogm.domain.education.School;
+import org.neo4j.ogm.domain.education.Student;
+import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Luanne Misquitta

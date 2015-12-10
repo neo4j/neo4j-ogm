@@ -11,17 +11,25 @@
  * conditions of the subcomponent's license, as noted in the LICENSE file.
  *
  */
-package org.neo4j.ogm.domain.convertible.enums;
 
-import java.util.Set;
+package org.neo4j.ogm.session.request;
 
-import org.neo4j.ogm.annotation.Relationship;
+import java.util.List;
+
+import org.neo4j.ogm.request.Statement;
 
 /**
  * @author Luanne Misquitta
  */
-public class TagEntity {
-	Long id;
-	@Relationship(type="TAGGED_WITH")
-	Set<TagModel> tags;
+public class DefaultRequest implements org.neo4j.ogm.request.DefaultRequest {
+
+	List<Statement> statements;
+
+	public List<Statement> getStatements() {
+		return statements;
+	}
+
+	public void setStatements(List<Statement> statements) {
+		this.statements = statements;
+	}
 }

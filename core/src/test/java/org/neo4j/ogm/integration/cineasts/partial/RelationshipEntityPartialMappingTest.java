@@ -14,17 +14,17 @@
 
 package org.neo4j.ogm.integration.cineasts.partial;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.domain.cineasts.partial.Movie;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.IntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * The purpose of these tests is to describe the behaviour of the
@@ -59,7 +59,7 @@ public class RelationshipEntityPartialMappingTest {
 
         session.save(keanu);
 
-        Actor keanu2 = session.load(Actor.class, 0L);
+        Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(1, keanu2.roles().size());
 
@@ -77,14 +77,14 @@ public class RelationshipEntityPartialMappingTest {
 
         session.save(keanu);
 
-        Actor keanu2 = session.load(Actor.class, 0L);
+        Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(2, keanu2.roles().size());
 
         keanu2.addRole("John Constantine", new Movie("Constantine"));
         session.save(keanu2);
 
-        Actor keanu3 = session.load(Actor.class, 0L);
+        Actor keanu3 = session.load(Actor.class, keanu2.getId());
         assertEquals(3, keanu3.roles().size());
 
     }
@@ -101,7 +101,7 @@ public class RelationshipEntityPartialMappingTest {
 
         session.save(keanu);
 
-        Actor keanu2 = session.load(Actor.class, 0L);
+        Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(2, keanu2.roles().size());
 
@@ -109,7 +109,7 @@ public class RelationshipEntityPartialMappingTest {
 
         session.save(keanu2);
 
-        Actor keanu3 = session.load(Actor.class, 0L);
+        Actor keanu3 = session.load(Actor.class, keanu2.getId());
         assertEquals(1, keanu3.roles().size());
 
 

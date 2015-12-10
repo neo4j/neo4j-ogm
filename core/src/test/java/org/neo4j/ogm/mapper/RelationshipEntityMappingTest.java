@@ -14,66 +14,86 @@
 
 package org.neo4j.ogm.mapper;
 
-import org.junit.BeforeClass;
+import java.io.IOException;
+
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.domain.canonical.hierarchies.A;
 import org.neo4j.ogm.domain.canonical.hierarchies.B;
 import org.neo4j.ogm.domain.canonical.hierarchies.CR;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 
 /**
  * @author Vince Bickers
  */
-public class RelationshipEntityMappingTest extends MappingTrait
-{
+public class RelationshipEntityMappingTest {
 
-    @BeforeClass
-    public static void setUp() {
-        MappingTrait.setUp( "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.canonical.hierarchies");
-    }
+	@Rule
+	public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver());
 
-    @Test
-    public void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
-        Movie hp = new Movie();
-        hp.setTitle("Goblet of Fire");
-        hp.setYear(2005);
+	private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.canonical.hierarchies");
 
-        Actor daniel = new Actor("Daniel Radcliffe");
-        daniel.playedIn(hp, "Harry Potter");
-        saveAndVerify(daniel, "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
+	private Session session;
 
-    }
+	@Before
+	public void init() throws IOException {
+		session = sessionFactory.openSession(testServer.driver());
+		session.purgeDatabase();
+	}
 
-    @Test
-    public void testThatRelationshipEntityNameIsUsedAsRelationshipTypeWhenTypeIsNotDefined() {
-        Movie hp = new Movie();
-        hp.setTitle("Goblet of Fire");
-        hp.setYear(2005);
+	private GraphDatabaseService getDatabase() {
+		return testServer.getGraphDatabaseService();
+	}
 
-        Actor daniel = new Actor("Daniel Radcliffe");
-        daniel.nominatedFor(hp, "Saturn Award", 2005);
-        saveAndVerify(daniel, "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
-        //Not quite sure if the relationship type should be the field name or the RelationshipEntity class name?
-    }
+	@Test
+	public void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
+		Movie hp = new Movie();
+		hp.setTitle("Goblet of Fire");
+		hp.setYear(2005);
 
-    @Test
-    public void shouldUseCorrectTypeFromHierarchyOfRelationshipEntities() {
+		Actor daniel = new Actor("Daniel Radcliffe");
+		daniel.playedIn(hp, "Harry Potter");
+		session.save(daniel);
+		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
+	}
 
-        A a = new A();
-        B b = new B();
+	@Test
+	public void testThatRelationshipEntityNameIsUsedAsRelationshipTypeWhenTypeIsNotDefined() {
+		Movie hp = new Movie();
+		hp.setTitle("Goblet of Fire");
+		hp.setYear(2005);
 
-        CR r = new CR();
-        r.setA(a);
-        r.setB(b);
+		Actor daniel = new Actor("Daniel Radcliffe");
+		daniel.nominatedFor(hp, "Saturn Award", 2005);
+		session.save(daniel);
+		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
+	}
 
-        a.setR(r);
+	@Test
+	public void shouldUseCorrectTypeFromHierarchyOfRelationshipEntities() {
 
-        saveAndVerify(a,
-                "CREATE (a:A) " +
-                "CREATE (b:B) " +
-                "CREATE (a)-[:CR]->(b)");
-    }
+		A a = new A();
+		B b = new B();
 
+		CR r = new CR();
+		r.setA(a);
+		r.setB(b);
+
+		a.setR(r);
+
+		session.save(a);
+		GraphTestUtils.assertSameGraph(getDatabase(),
+				"CREATE (a:A) " +
+						"CREATE (b:B) " +
+						"CREATE (a)-[:CR]->(b)");
+	}
 }

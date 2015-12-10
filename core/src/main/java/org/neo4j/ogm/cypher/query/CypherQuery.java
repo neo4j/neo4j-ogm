@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.cypher.Filters;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.request.Statement;
 
 /**
  * Simple encapsulation of a Cypher query and its parameters and other optional parts (paging/sort).
@@ -100,6 +100,16 @@ public class CypherQuery implements Statement {
 
     public Map<String, Object> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public String[] getResultDataContents() {
+        return new String[0];
+    }
+
+    @Override
+    public boolean isIncludeStats() {
+        return false;
     }
 
     public Pagination page() {

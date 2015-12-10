@@ -11,17 +11,27 @@
  * conditions of the subcomponent's license, as noted in the LICENSE file.
  *
  */
-package org.neo4j.ogm.domain.convertible.enums;
 
-import java.util.Set;
+package org.neo4j.ogm.compiler;
 
-import org.neo4j.ogm.annotation.Relationship;
+import java.util.Collection;
+
+import org.neo4j.ogm.model.Node;
 
 /**
+ * Builds a node to be persisted in the database.
+ *
  * @author Luanne Misquitta
  */
-public class TagEntity {
-	Long id;
-	@Relationship(type="TAGGED_WITH")
-	Set<TagModel> tags;
+public interface NodeBuilder {
+
+	Long reference();
+
+	NodeBuilder addProperty(String key, Object value);
+
+	NodeBuilder setLabels(Collection<String> labels);
+
+	String[] labels();
+
+	Node node();
 }

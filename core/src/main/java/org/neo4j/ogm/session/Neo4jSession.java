@@ -14,23 +14,18 @@
 
 package org.neo4j.ogm.session;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.entityaccess.FieldWriter;
-import org.neo4j.ogm.mapper.MappedRelationship;
 import org.neo4j.ogm.mapper.MappingContext;
-import org.neo4j.ogm.mapper.TransientRelationship;
-import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.QueryStatistics;
-import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
@@ -39,11 +34,6 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Vince Bickers
@@ -463,70 +453,4 @@ public class Neo4jSession implements Session {
         logger.error(msg);
     }
 
-    public void updateObjects(CompileContext context, Response<RowModel> response) {
-
-        String[] variables = response.columns();
-        RowModel rowModel;
-
-        Map<String, Long> directRefMap = new HashMap<>();
-
-        while ((rowModel = response.next()) != null) {
-            Object[] results = rowModel.getValues();
-
-            for (int i = 0; i < variables.length; i++) {
-
-                String variable = variables[i];
-
-                //Temporary changes to support the different result data in queries optimized for performance
-                //TODO refactor in OGM 2.0
-                if (variable.equalsIgnoreCase("relRef")) {
-                    for (int j=0; j<variables.length;j++) {
-                        if (variables[j].equalsIgnoreCase("relId")) {
-                            directRefMap.put(results[i].toString(),Long.parseLong(results[j].toString()));
-                        }
-                    }
-                    continue;
-                }
-
-                // create the mapping between the cypher variable and the newly created domain object's
-                // identity, as returned by the database
-                Long identity = Long.parseLong(results[i].toString());
-                directRefMap.put(variable, identity);
-
-                // find the newly created domain object in the context log
-                Object persisted = context.getNewObject(variable);
-
-                if (persisted != null) {  // it will be null if the variable represents a simple relationship.
-
-                    // set the id field of the newly created domain object
-                    ClassInfo classInfo = metaData.classInfo(persisted);
-                    Field identityField = classInfo.getField(classInfo.identityField());
-                    FieldWriter.write(identityField, persisted, identity);
-
-                    // ensure the newly created domain object is added into the mapping context
-                    if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-                        mappingContext.registerNodeEntity(persisted, identity);
-                    } else {
-                        mappingContext.registerRelationshipEntity(persisted, identity);
-                    }
-                    mappingContext.remember(persisted); //remember the persisted entity so it isn't marked for rewrite just after it's been retrieved and had it's id set
-
-                }
-            }
-        }
-
-        // finally, all new relationships just established in the graph need to be added to the mapping context.
-        if(directRefMap.size() > 0) {
-            for (Object object : context.registry()) {
-                if (object instanceof TransientRelationship) {
-                    MappedRelationship relationship = (((TransientRelationship) object).convert(directRefMap));
-                    if(mappingContext.getRelationshipEntity(relationship.getRelationshipId()) == null) {
-                        relationship.setRelationshipId(null);
-                    }
-                    mappingContext.mappedRelationships().add(relationship);
-                }
-            }
-        }
-
-    }
 }

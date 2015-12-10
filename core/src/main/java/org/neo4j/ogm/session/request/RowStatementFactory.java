@@ -11,17 +11,20 @@
  * conditions of the subcomponent's license, as noted in the LICENSE file.
  *
  */
-package org.neo4j.ogm.domain.convertible.enums;
 
-import java.util.Set;
+package org.neo4j.ogm.session.request;
 
-import org.neo4j.ogm.annotation.Relationship;
+import java.util.Map;
+
+import org.neo4j.ogm.request.StatementFactory;
 
 /**
  * @author Luanne Misquitta
  */
-public class TagEntity {
-	Long id;
-	@Relationship(type="TAGGED_WITH")
-	Set<TagModel> tags;
+public class RowStatementFactory implements StatementFactory<RowDataStatement> {
+
+	@Override
+	public RowDataStatement statement(String statement, Map<String, Object> parameters) {
+		return new RowDataStatement(statement, parameters);
+	}
 }

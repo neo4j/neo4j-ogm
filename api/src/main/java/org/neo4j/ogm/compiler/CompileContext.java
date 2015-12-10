@@ -1,17 +1,16 @@
 package org.neo4j.ogm.compiler;
 
-import org.neo4j.ogm.mapper.Mappable;
-import org.neo4j.ogm.request.Statement;
-
 import java.util.Collection;
-import java.util.List;
+
+import org.neo4j.ogm.mapper.Mappable;
 
 /**
+ * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
+ *
  * @author vince
+ * @author Luanne Misquitta
  */
 public interface CompileContext {
-
-    void setStatements(List<Statement> statements);
 
     void registerRelationship(Mappable mappable);
 
@@ -19,17 +18,17 @@ public interface CompileContext {
 
     boolean visited(Long identity);
 
-    NodeEmitter nodeEmitter(Long identity);
+    NodeBuilder visitedNode(Long identity);
 
     void register(Object entity);
 
-    void registerNewObject(String reference, Object relationshipEntity);
+    void registerNewObject(Long reference, Object relationshipEntity);
 
     void visitRelationshipEntity(Long relationshipIdentity);
 
     Collection<Object> registry();
 
-    void visit(Long identity, NodeEmitter nodeBuilder);
+    void visit(Long identity, NodeBuilder nodeBuilder);
 
     boolean visitedRelationshipEntity(Long relationshipIdentity);
 
@@ -37,7 +36,14 @@ public interface CompileContext {
 
     boolean deregisterOutgoingRelationships(Long identity, String type, Class endNodeType);
 
-    List<Statement> getStatements();
+    Object getNewObject(Long id);
 
-    Object getNewObject(String variable);
+    Compiler getCompiler();
+
+    Long newNodeId(Long reference);
+
+    void registerNewNodeId(Long reference, Long id);
+
+    void deregister(NodeBuilder nodeBuilder);
+
 }

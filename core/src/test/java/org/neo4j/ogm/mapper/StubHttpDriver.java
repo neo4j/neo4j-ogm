@@ -127,6 +127,11 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
             }
 
             @Override
+            public Response<RowModel> execute(DefaultRequest query) {
+                return null;
+            }
+
+            @Override
             public Response<GraphRowListModel> execute(GraphRowListModelRequest query) {
                 return new Response<GraphRowListModel>() {
 

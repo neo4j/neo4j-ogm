@@ -13,24 +13,24 @@
 
 package org.neo4j.ogm.integration.social;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.domain.social.*;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.domain.social.*;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.IntegrationTestRule;
 
 /**
  * @author Luanne Misquitta
@@ -263,5 +263,26 @@ public class SocialRelationshipsIntegrationTest {
 		assertEquals(2, userA.getFollowers().size());
 		assertEquals(2, userA.getFollowing().size());
 	}
+
+
+	/**
+	 * @see DATAGRAPH-594
+	 */
+	@Test
+	public void shouldRemoveRelationship() {
+		User userA = new User("A");
+		User userB = new User("B");
+		userA.getFriends().add(userB);
+		session.save(userA);
+
+		assertSameGraph(getDatabase(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
+
+		userA.getFriends().clear();
+		session.save(userA);
+		assertSameGraph(getDatabase(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'})");
+
+
+	}
+
 
 }

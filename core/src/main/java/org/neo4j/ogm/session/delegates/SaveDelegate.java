@@ -18,24 +18,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.neo4j.ogm.compiler.CompileContext;
-import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.mapper.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.request.RequestExecutor;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class SaveDelegate implements Capability.Save {
 
     private final Neo4jSession session;
+    private final RequestExecutor requestExecutor;
 
     public SaveDelegate(Neo4jSession neo4jSession) {
         this.session = neo4jSession;
+        requestExecutor = new RequestExecutor(neo4jSession);
     }
 
     @Override
@@ -72,12 +72,7 @@ public class SaveDelegate implements Capability.Save {
             ClassInfo classInfo = session.metaData().classInfo(object);
             if (classInfo != null) {
                 CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
-                Statement statement = context.getStatements().get(0);
-
-                DefaultRowModelRequest qry = new DefaultRowModelRequest(statement.getStatement(), statement.getParameters() );
-                try (Response<RowModel> response = session.requestHandler().execute(qry)) {
-                    session.updateObjects(context, response);
-                }
+                requestExecutor.executeSave(context);
             } else {
                 session.info(object.getClass().getName() + " is not an instance of a persistable class");
             }

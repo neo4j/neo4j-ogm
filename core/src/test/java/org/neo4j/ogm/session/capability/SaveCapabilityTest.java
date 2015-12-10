@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.Components;
@@ -99,4 +100,31 @@ public class SaveCapabilityTest {
 		session.clear();
 		assertEquals(3, session.countEntitiesOfType(Artist.class));
 	}
+
+	@Test
+	public void shouldSaveNewNodesAndNewRelationships() {
+		Artist leann = new Artist("Leann Rimes");
+		Album lost = new Album("Lost Highway");
+		lost.setArtist(bonJovi);
+		lost.setGuestArtist(leann);
+		session.save(lost);
+		session.clear();
+
+		Artist loadedLeann = session.load(Artist.class, leann.getId());
+		assertNotNull(loadedLeann);
+		assertEquals("Leann Rimes", loadedLeann.getName());
+		assertEquals(lost.getName(), loadedLeann.getGuestAlbums().iterator().next().getName());
+
+		Artist loadedBonJovi = session.load(Artist.class, bonJovi.getId());
+		assertNotNull(loadedBonJovi);
+		assertEquals("Bon Jovi", loadedBonJovi.getName());
+		assertEquals(lost.getName(), loadedBonJovi.getAlbums().iterator().next().getName());
+
+		Album loadedLost = session.load(Album.class, lost.getId());
+		assertNotNull(loadedLost);
+		assertEquals("Lost Highway", loadedLost.getName());
+		assertEquals(loadedLeann, loadedLost.getGuestArtist());
+		assertEquals(loadedBonJovi.getName(), loadedLost.getArtist().getName());
+	}
+
 }

@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.domain.policy;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Mark Angrish
@@ -33,6 +33,9 @@ public class Policy extends DomainObject {
 
     @Relationship(type = "AUTHORIZED_POLICY", direction = Relationship.INCOMING)
     private Person authorized;
+
+    public Policy() {
+    }
 
     public Policy(String name) {
         setName(name);

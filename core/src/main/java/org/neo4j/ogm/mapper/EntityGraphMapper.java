@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.mapper;
 
+import java.lang.reflect.Field;
 import java.util.Iterator;
 
 import org.neo4j.ogm.ClassUtils;
@@ -23,12 +24,9 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
-import org.neo4j.ogm.compiler.NodeEmitter;
-import org.neo4j.ogm.compiler.RelationshipEmitter;
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.PropertyReader;
-import org.neo4j.ogm.entityaccess.RelationalReader;
+import org.neo4j.ogm.compiler.NodeBuilder;
+import org.neo4j.ogm.compiler.RelationshipBuilder;
+import org.neo4j.ogm.entityaccess.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -102,8 +100,8 @@ public class EntityGraphMapper implements EntityMapper {
             }
 
             // map both sides as far as the specified horizon
-            NodeEmitter startNodeBuilder = mapEntity(startNode, horizon, compiler);
-            NodeEmitter endNodeBuilder = mapEntity(endNode, horizon, compiler);
+            NodeBuilder startNodeBuilder = mapEntity(startNode, horizon, compiler);
+            NodeBuilder endNodeBuilder = mapEntity(endNode, horizon, compiler);
 
             // create or update the relationship if its not already been visited in the current compile context
             if (!compiler.context().visitedRelationshipEntity(EntityUtils.identity(entity,metaData))) {
@@ -112,10 +110,10 @@ public class EntityGraphMapper implements EntityMapper {
                 String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
                 DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, Relationship.OUTGOING);
 
-                RelationshipEmitter relationshipEmitter = getRelationshipBuilder(compiler, entity, directedRelationship, false);
+                RelationshipBuilder relationshipBuilder = getRelationshipBuilder(compiler, entity, directedRelationship, false);
 
                 // 2. create or update the actual relationship (edge) in the graph
-                updateRelationshipEntity(compiler.context(), entity, relationshipEmitter, reInfo);
+                updateRelationshipEntity(compiler.context(), entity, relationshipBuilder, reInfo);
 
                 ClassInfo targetInfo = metaData.classInfo(endNode);
                 ClassInfo startInfo = metaData.classInfo(startNode);
@@ -126,7 +124,7 @@ public class EntityGraphMapper implements EntityMapper {
                 RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
 
                 // 2. update the fact of the relationship in the compile context
-                updateRelationship(compiler.context(), startNodeBuilder, endNodeBuilder, relationshipEmitter, relNodes);
+                updateRelationship(compiler.context(), startNodeBuilder, endNodeBuilder, relationshipBuilder, relNodes);
             }
         } else { // not an RE, simply map the entity
             mapEntity(entity, horizon, compiler);
@@ -134,7 +132,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         deleteObsoleteRelationships(compiler);
 
-        return compiler.compile();
+        return compiler.context();
     }
 
 
@@ -152,7 +150,7 @@ public class EntityGraphMapper implements EntityMapper {
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
             if (!context.removeRegisteredRelationship(mappedRelationship)) {
                 logger.debug("context-del: (${})-[{}:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                compiler.unrelate("$" + mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), "$" + mappedRelationship.getEndNodeId(), mappedRelationship.getRelationshipId());
+                compiler.unrelate(mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId(), mappedRelationship.getRelationshipId());
                 clearRelatedObjects(mappedRelationship.getStartNodeId());
                 mappedRelationshipIterator.remove();
             }
@@ -185,7 +183,7 @@ public class EntityGraphMapper implements EntityMapper {
      * @param entity The object to persist into the graph database as a node
      * @return The "root" node of the object graph that matches
      */
-    private NodeEmitter mapEntity(Object entity, int horizon, Compiler compiler) {
+    private NodeBuilder mapEntity(Object entity, int horizon, Compiler compiler) {
 
         CompileContext context=compiler.context();
        // if this object is transient it won't have a classinfo, and isn't persistable
@@ -196,10 +194,10 @@ public class EntityGraphMapper implements EntityMapper {
         Long identity = EntityUtils.identity(entity,metaData);
         if (context.visited(identity)) {
             logger.debug("already visited: {}", entity);
-            return context.nodeEmitter(identity);
+            return context.visitedNode(identity);
         }
 
-        NodeEmitter nodeBuilder = getNodeBuilder(compiler, entity);
+        NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity);
         if (nodeBuilder != null) {
             updateNode(entity, context, nodeBuilder);
             if (horizon != 0) {
@@ -216,9 +214,9 @@ public class EntityGraphMapper implements EntityMapper {
      *
      * @param entity the domain object to be persisted
      * @param context  the current {@link CompileContext}
-     * @param nodeBuilder a {@link NodeEmitter} that knows how to compile node create/update cypher phrases
+     * @param nodeBuilder a {@link NodeBuilder} that knows how to compile node create/update cypher phrases
      */
-    private void updateNode(Object entity, CompileContext context, NodeEmitter nodeBuilder) {
+    private void updateNode(Object entity, CompileContext context, NodeBuilder nodeBuilder) {
         if (mappingContext.isDirty(entity)) {
             logger.debug("{} has changed", entity);
             context.register(entity);
@@ -230,18 +228,19 @@ public class EntityGraphMapper implements EntityMapper {
                 }
             }
         } else {
+            context.deregister(nodeBuilder);
             logger.debug("{}, has not changed", entity);
         }
     }
 
     /**
-     * Returns a {@link NodeEmitter} responsible for handling new or updated nodes
+     * Returns a {@link NodeBuilder} responsible for handling new or updated nodes
      *
      * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
      * @param entity the object to save
-     * @return a {@link NodeEmitter} object for either a new node or an existing one
+     * @return a {@link NodeBuilder} object for either a new node or an existing one
      */
-    private NodeEmitter getNodeBuilder(Compiler compiler, Object entity) {
+    private NodeBuilder getNodeBuilder(Compiler compiler, Object entity) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
 
@@ -253,12 +252,13 @@ public class EntityGraphMapper implements EntityMapper {
         CompileContext context=compiler.context();
 
         Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
-        NodeEmitter nodeBuilder;
+        NodeBuilder nodeBuilder;
         if (id == null) {
-            nodeBuilder = compiler.newNode().addLabels(classInfo.labels());
-            context.registerNewObject(nodeBuilder.reference(), entity);
+            Long entityIdRef = EntityUtils.identity(entity, metaData);
+            nodeBuilder = compiler.newNode(entityIdRef).setLabels(classInfo.labels());
+            context.registerNewObject(entityIdRef, entity);
         } else {
-            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).addLabels(classInfo.labels());
+            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).setLabels(classInfo.labels());
         }
         Long identity = EntityUtils.identity(entity,metaData);
         context.visit(identity, nodeBuilder);
@@ -273,11 +273,11 @@ public class EntityGraphMapper implements EntityMapper {
      * This includes objects that are directly linked, as well as objects linked via a relationship entity
      *
      * @param entity  the node whose relationships will be updated
-     * @param nodeBuilder a {@link NodeEmitter} that knows how to create node create/update cypher phrases
+     * @param nodeBuilder a {@link NodeBuilder} that knows how to create node create/update cypher phrases
      * @param horizon the depth in the tree. If this reaches 0, we stop mapping any deeper
      * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
      */
-    private void mapEntityReferences(final Object entity, NodeEmitter nodeBuilder, int horizon, Compiler compiler) {
+    private void mapEntityReferences(final Object entity, NodeBuilder nodeBuilder, int horizon, Compiler compiler) {
 
         logger.debug("mapping references declared by: {} ", entity);
 
@@ -381,19 +381,19 @@ public class EntityGraphMapper implements EntityMapper {
      * established between the relevant start and end nodes.
      * @param cypherCompiler     the {@link org.neo4j.ogm.compiler.Compiler}
      * @param directedRelationship  the {@link DirectedRelationship} representing the relationship type and direction
-     * @param nodeBuilder        a {@link NodeEmitter} that knows how to create cypher node phrases
+     * @param nodeBuilder        a {@link NodeBuilder} that knows how to create cypher node phrases
      * @param horizon            the current depth we have mapped the domain model to.
      * @param mapBothDirections  whether the nodes should be linked in both directions
      * @param relNodes          {@link EntityGraphMapper.RelationshipNodes} representing the nodes to be linked
      */
-    private void link(Compiler cypherCompiler, DirectedRelationship directedRelationship, NodeEmitter nodeBuilder, int horizon, boolean mapBothDirections, RelationshipNodes relNodes) {
+    private void link(Compiler cypherCompiler, DirectedRelationship directedRelationship, NodeBuilder nodeBuilder, int horizon, boolean mapBothDirections, RelationshipNodes relNodes) {
 
         logger.debug("linking to entity {} in {} direction", relNodes.target, mapBothDirections ? "both" : "one");
 
         if (relNodes.target != null) {
             CompileContext context = cypherCompiler.context();
 
-            RelationshipEmitter relationshipBuilder = getRelationshipBuilder(cypherCompiler, relNodes.target, directedRelationship, mapBothDirections);
+            RelationshipBuilder relationshipBuilder = getRelationshipBuilder(cypherCompiler, relNodes.target, directedRelationship, mapBothDirections);
 
             if (isRelationshipEntity(relNodes.target)) {
                 Long reIdentity = EntityUtils.identity(relNodes.target, metaData);
@@ -412,7 +412,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     /**
-     * Fetches and initialises an appropriate {@link RelationshipEmitter} for the specified relationship type
+     * Fetches and initialises an appropriate {@link RelationshipBuilder} for the specified relationship type
      * and direction to the supplied domain object, which may be a node or relationship in the graph.
      *
      * In the event that the domain object is a {@link RelationshipEntity}, we create a new relationship, collect
@@ -422,11 +422,11 @@ public class EntityGraphMapper implements EntityMapper {
      * @param entity  an object representing a node or relationship entity in the graph
      * @param directedRelationship the {@link DirectedRelationship} representing the relationship type and direction we want to establish
      * @param mapBothDirections whether the nodes should be linked in both directions
-     * @return The appropriate {@link RelationshipEmitter}
+     * @return The appropriate {@link RelationshipBuilder}
      */
-    private RelationshipEmitter getRelationshipBuilder(Compiler cypherBuilder, Object entity, DirectedRelationship directedRelationship, boolean mapBothDirections) {
+    private RelationshipBuilder getRelationshipBuilder(Compiler cypherBuilder, Object entity, DirectedRelationship directedRelationship, boolean mapBothDirections) {
 
-        RelationshipEmitter relationshipBuilder;
+        RelationshipBuilder relationshipBuilder;
 
         if (isRelationshipEntity(entity)) {
             Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
@@ -434,19 +434,23 @@ public class EntityGraphMapper implements EntityMapper {
             boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
 
             if(relId == null || relationshipEndsChanged) { //if the RE itself is new, or it exists but has one of it's end nodes changed
-                relationshipBuilder = cypherBuilder.newRelationship();
+                relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type());
+                if(relationshipEndsChanged) {
+                    Field identityField = metaData.classInfo(entity).getField(metaData.classInfo(entity).identityField());
+                    FieldWriter.write(identityField, entity, null); //reset the ID to null
+                }
             }
             else {
-                relationshipBuilder = cypherBuilder.existingRelationship(relId);
+                relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.type());
             }
-            relationshipBuilder.type(directedRelationship.type());
         } else {
-            relationshipBuilder = mapBothDirections ? cypherBuilder.newBiDirectionalRelationship().type(directedRelationship.type()) : cypherBuilder.newRelationship().type(directedRelationship.type());
+            relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type(), mapBothDirections);
         }
 
         relationshipBuilder.direction(directedRelationship.direction());
         if (isRelationshipEntity(entity)) {
             relationshipBuilder.setSingleton(false);  // indicates that this relationship type can be mapped multiple times between 2 nodes
+            relationshipBuilder.setReference(EntityUtils.identity(entity, metaData));
             relationshipBuilder.setRelationshipEntity(true);
         }
         return relationshipBuilder;
@@ -489,10 +493,10 @@ public class EntityGraphMapper implements EntityMapper {
      * relationship in the graph.
      *
      * @param relationshipEntity the relationship entity to create or update the relationship from
-     * @param relationshipBuilder a {@link RelationshipEmitter} that knows how to build cypher phrases about relationships
+     * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to build cypher phrases about relationships
      * @param context the {@link CompileContext} for the compiler.
      */
-    private void mapRelationshipEntity(Object relationshipEntity, Object parent, RelationshipEmitter relationshipBuilder, CompileContext context, NodeEmitter nodeBuilder, Compiler cypherCompiler, int horizon, Class startNodeType, Class endNodeType) {
+    private void mapRelationshipEntity(Object relationshipEntity, Object parent, RelationshipBuilder relationshipBuilder, CompileContext context, NodeBuilder nodeBuilder, Compiler cypherCompiler, int horizon, Class startNodeType, Class endNodeType) {
 
         logger.debug("mapping relationshipEntity {}", relationshipEntity);
 
@@ -544,8 +548,8 @@ public class EntityGraphMapper implements EntityMapper {
         Long startIdentity = EntityUtils.identity(startEntity,metaData);
         Long targetIdentity = EntityUtils.identity(targetEntity, metaData);
 
-        NodeEmitter srcNodeBuilder = context.nodeEmitter(startIdentity);
-        NodeEmitter tgtNodeBuilder = context.nodeEmitter(targetIdentity);
+        NodeBuilder srcNodeBuilder = context.visitedNode(startIdentity);
+        NodeBuilder tgtNodeBuilder = context.visitedNode(targetIdentity);
 
         if (parent == targetEntity) {  // we approached this RE from its END-NODE during object mapping.
             if(!context.visited(startIdentity)) { // skip if we already visited the START_NODE
@@ -569,19 +573,19 @@ public class EntityGraphMapper implements EntityMapper {
         }
     }
 
-    private void updateRelationshipEntity(CompileContext context, Object relationshipEntity, RelationshipEmitter relationshipBuilder, ClassInfo relEntityClassInfo) {
+    private void updateRelationshipEntity(CompileContext context, Object relationshipEntity, RelationshipBuilder relationshipBuilder, ClassInfo relEntityClassInfo) {
 
         Long reIdentity = EntityUtils.identity(relationshipEntity, metaData);
         context.visitRelationshipEntity(reIdentity);
 
         AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
-        if (relationshipBuilder.getType() == null) {
-            relationshipBuilder.type(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
+        if (relationshipBuilder.type() == null) {
+            relationshipBuilder.setType(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
         }
 
         // if the RE is new, register it in the context so that we can set its ID correctly when it is created,
         if (entityAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).read(relationshipEntity) == null) {
-            context.registerNewObject(relationshipBuilder.reference(), relationshipEntity);
+            context.registerNewObject(reIdentity, relationshipEntity);
         }
 
         for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
@@ -625,11 +629,15 @@ public class EntityGraphMapper implements EntityMapper {
      * @param relNodes  {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of the relationship
      * @return a mappingContext representing a new or existing relationship between aNode and bNode
      */
-    private MappedRelationship createMappedRelationship(RelationshipEmitter relationshipBuilder, RelationshipNodes relNodes) {
+    private MappedRelationship createMappedRelationship(RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
-        MappedRelationship mappedRelationshipOutgoing = new MappedRelationship(relNodes.sourceId, relationshipBuilder.getType(), relNodes.targetId, relationshipBuilder.getId(), relNodes.sourceType, relNodes.targetType);
-        MappedRelationship mappedRelationshipIncoming = new MappedRelationship(relNodes.targetId, relationshipBuilder.getType(), relNodes.sourceId, relationshipBuilder.getId(), relNodes.sourceType, relNodes.targetType);
-
+        MappedRelationship mappedRelationshipOutgoing = new MappedRelationship(relNodes.sourceId, relationshipBuilder.type(), relNodes.targetId, relationshipBuilder.reference(), relNodes.sourceType, relNodes.targetType);
+        MappedRelationship mappedRelationshipIncoming = new MappedRelationship(relNodes.targetId, relationshipBuilder.type(), relNodes.sourceId, relationshipBuilder.reference(), relNodes.sourceType, relNodes.targetType);
+        if (!relationshipBuilder.isRelationshipEntity()) {
+            //Only track ids of relationship entities
+            mappedRelationshipIncoming.setRelationshipId(null);
+            mappedRelationshipOutgoing.setRelationshipId(null);
+        }
         if (relationshipBuilder.hasDirection(Relationship.UNDIRECTED)) {
             if (mappingContext.isRegisteredRelationship(mappedRelationshipIncoming)) {
                 return mappedRelationshipIncoming;
@@ -653,14 +661,14 @@ public class EntityGraphMapper implements EntityMapper {
      * first.
      *
      * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
-     * @param srcNodeBuilder  a {@link NodeEmitter} that knows how to create cypher phrases about nodes
-     * @param relationshipBuilder a {@link RelationshipEmitter} that knows how to create cypher phrases about relationships
+     * @param srcNodeBuilder  a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
      * @param horizon  a value representing how deep we are mapping
      * @param relNodes  {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of this relationship
      */
-    private void mapRelatedEntity(Compiler compiler, NodeEmitter srcNodeBuilder, RelationshipEmitter relationshipBuilder, int horizon, RelationshipNodes relNodes) {
+    private void mapRelatedEntity(Compiler compiler, NodeBuilder srcNodeBuilder, RelationshipBuilder relationshipBuilder, int horizon, RelationshipNodes relNodes) {
 
-        NodeEmitter tgtNodeBuilder = mapEntity(relNodes.target, horizon, compiler);
+        NodeBuilder tgtNodeBuilder = mapEntity(relNodes.target, horizon, compiler);
 
         // tgtNodeBuilder will be null if tgtObject is a transient class, or a subclass of a transient class
         if (tgtNodeBuilder != null) {
@@ -690,12 +698,12 @@ public class EntityGraphMapper implements EntityMapper {
      * was previously deleted from the compile context, but not from the mapping context, this brings both
      * mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
      * @param context  the {@link CompileContext} for the current statement compiler
-     * @param srcNodeBuilder  a {@link NodeEmitter} that knows how to create cypher phrases about nodes
-     * @param tgtNodeBuilder   a {@link NodeEmitter} that knows how to create cypher phrases about nodes
-     * @param relationshipBuilder a {@link RelationshipEmitter} that knows how to create cypher phrases about relationships
+     * @param srcNodeBuilder  a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param tgtNodeBuilder   a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
      * @param relNodes             {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the ends of this relationship
      */
-    private void updateRelationship(CompileContext context, NodeEmitter srcNodeBuilder, NodeEmitter tgtNodeBuilder, RelationshipEmitter relationshipBuilder, RelationshipNodes relNodes) {
+    private void updateRelationship(CompileContext context, NodeBuilder srcNodeBuilder, NodeBuilder tgtNodeBuilder, RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
         if (relNodes.targetId == null || relNodes.sourceId == null) {
             maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
@@ -727,14 +735,18 @@ public class EntityGraphMapper implements EntityMapper {
      *
      * @param context the current compiler {@link CompileContext}
      * @param src the compiler's reference to the domain object representing the start node
-     * @param relationshipBuilder a {@link RelationshipEmitter} that knows how to create cypher phrases about relationships
+     * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
      * @param tgt the compiler's reference to the domain object representing the end node
      */
-    private void maybeCreateRelationship(CompileContext context, String src, RelationshipEmitter relationshipBuilder, String tgt, Class srcClass, Class tgtClass) {
+    private void maybeCreateRelationship(CompileContext context, Long src, RelationshipBuilder relationshipBuilder, Long tgt, Class srcClass, Class tgtClass) {
 
-        //if (hasTransientRelationship(context, src, relationshipBuilder.getType(), tgt)) {
+        //if (hasTransientRelationship(context, src, relationshipBuilder.type(), tgt)) {
         if (hasTransientRelationship(context, src, relationshipBuilder, tgt)) {
             logger.debug("new relationship is already registered");
+            if(relationshipBuilder.isBidirectional()) {
+                relationshipBuilder.relate(src, tgt);
+                context.register(new TransientRelationship(src, relationshipBuilder.reference(), relationshipBuilder.type(), tgt, tgtClass, srcClass)); // we log the new relationship in the opposite direction as part of the transaction context.
+            }
             return;
         }
 
@@ -764,7 +776,7 @@ public class EntityGraphMapper implements EntityMapper {
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      * @return true of a transient relationship already exists, false otherwise
      */
-    private boolean hasTransientRelationship(CompileContext ctx, String src, RelationshipEmitter relationshipBuilder, String tgt) {
+    private boolean hasTransientRelationship(CompileContext ctx, Long src, RelationshipBuilder relationshipBuilder, Long tgt) {
         for (Object object : ctx.registry()) {
             if (object instanceof TransientRelationship) {
                 if (((TransientRelationship) object).equalsIgnoreDirection(src, relationshipBuilder, tgt)) {
@@ -781,18 +793,17 @@ public class EntityGraphMapper implements EntityMapper {
      *
      * @param ctx the compiler {@link CompileContext}
      * @param src the compiler's reference to the domain object representing the start (or end) node
-     * @param relBuilder a {@link RelationshipEmitter} that knows how to create cypher phrases about relationships
+     * @param relBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
      * @param tgt the compiler's reference to the domain object representing the end (or start) node
      */
-    private void reallyCreateRelationship(CompileContext ctx, String src, RelationshipEmitter relBuilder, String tgt, Class srcClass, Class tgtClass) {
+    private void reallyCreateRelationship(CompileContext ctx, Long src, RelationshipBuilder relBuilder, Long tgt, Class srcClass, Class tgtClass) {
 
         relBuilder.relate(src, tgt);
-        logger.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.reference(), relBuilder.getType(), tgt);
+        logger.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.reference(), relBuilder.type(), tgt);
 
         if(relBuilder.isNew()) {  //We only want to create or log new relationships
-            ctx.register(new TransientRelationship(src, relBuilder.reference(), relBuilder.getType(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
+            ctx.register(new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
             if (relBuilder.isBidirectional()) {
-                ctx.register(new TransientRelationship(tgt, relBuilder.reference(), relBuilder.getType(), src, tgtClass, srcClass)); // we log the new relationship in the opposite direction as part of the transaction context.
             }
         }
     }

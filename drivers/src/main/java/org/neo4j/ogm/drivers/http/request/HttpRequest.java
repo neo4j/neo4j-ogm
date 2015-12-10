@@ -99,6 +99,18 @@ public class HttpRequest implements Request {
     }
 
     @Override
+    public Response<RowModel> execute(DefaultRequest query) {
+        Statements statements = new Statements(query.getStatements());
+        String cypher = cypherRequest(statements);
+        try {
+            return new RowModelResponse(executeRequest(cypher));
+        }
+        catch (Exception e) {
+            throw new ResultProcessingException("Could not parse response", e);
+        }
+    }
+
+    @Override
     public Response<GraphRowListModel> execute(GraphRowListModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
@@ -138,6 +150,14 @@ public class HttpRequest implements Request {
         statementList.add(statement);
         try {
             return mapper.writeValueAsString(new Statements(statementList));
+        } catch (JsonProcessingException jpe) {
+            throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
+        }
+    }
+
+    private String cypherRequest(Statements statements) {
+        try {
+            return mapper.writeValueAsString(statements);
         } catch (JsonProcessingException jpe) {
             throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
         }

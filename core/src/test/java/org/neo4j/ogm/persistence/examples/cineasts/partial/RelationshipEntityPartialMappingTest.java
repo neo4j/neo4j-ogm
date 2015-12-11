@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * The purpose of these tests is to describe the behaviour of the
  * mapper when a RelationshipEntity object is not referenced by
  * both of its Related entities, both when writing and reading
- * <p/>
+ *
  * In this scenario, the Role relationship, which is a RelationshipEntity
  * linking Actors and Movies, is referenced only from the Actor entity.
  *
@@ -54,7 +54,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         session.save(keanu);
 
-        Actor keanu2 = session.load(Actor.class, keanu.id);
+        Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(1, keanu2.roles().size());
 
@@ -72,14 +72,14 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         session.save(keanu);
 
-        Actor keanu2 = session.load(Actor.class, keanu.id);
+        Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(2, keanu2.roles().size());
 
         keanu2.addRole("John Constantine", new Movie("Constantine"));
         session.save(keanu2);
 
-        Actor keanu3 = session.load(Actor.class, keanu.id);
+        Actor keanu3 = session.load(Actor.class, keanu2.getId());
         assertEquals(3, keanu3.roles().size());
 
     }
@@ -96,7 +96,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         session.save(keanu);
 
-        Actor keanu2 = session.load(Actor.class, keanu.id);
+        Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(2, keanu2.roles().size());
 
@@ -104,7 +104,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         session.save(keanu2);
 
-        Actor keanu3 = session.load(Actor.class, keanu.id);
+        Actor keanu3 = session.load(Actor.class, keanu2.getId());
         assertEquals(1, keanu3.roles().size());
 
 

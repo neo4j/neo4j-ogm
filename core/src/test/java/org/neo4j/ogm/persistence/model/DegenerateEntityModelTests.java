@@ -12,75 +12,57 @@
  *
  */
 
-package org.neo4j.ogm.persistence.model;
+package org.neo4j.ogm.mapper;
 
-import org.junit.*;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.domain.filesystem.Document;
-import org.neo4j.ogm.domain.filesystem.Folder;
-import org.neo4j.ogm.mappingcontext.EntityGraphMapper;
-import org.neo4j.ogm.mappingcontext.EntityMapper;
-import org.neo4j.ogm.mappingcontext.MappedRelationship;
-import org.neo4j.ogm.mappingcontext.MappingContext;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.request.Statements;
-import org.neo4j.ogm.testutil.GraphTestUtils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.domain.filesystem.Document;
+import org.neo4j.ogm.domain.filesystem.Folder;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * These tests are to establish the behaviour of degenerate entity models
- * <p/>
+ *
  * An entity model is considered degenerate if a relationship that should
  * exist between two entities is only established on one of them.
- * <p/>
+ *
  * For example if a parent object maintains a list of child objects
  * but a child object maintains a null (or incorrect) reference to its parent
  * the entity model is degenerate.
- * <p/>
+ *
  * The OGM is designed to cope with such models.
  *
  * @author Vince Bickers
+ * @author Luanne Misquitta
+ *
  */
 public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
-    private static GraphDatabaseService graphDatabase;
-    private static ExecutionEngine executionEngine;
-    private static MetaData mappingMetadata;
-    private static MappingContext mappingContext;
-    private EntityMapper mapper;
     private Folder f;
     private Document a;
     private Document b;
 
-    @BeforeClass
-    public static void setUpTestDatabase() {
-        graphDatabase = getGraphDatabaseService();
-        executionEngine = new ExecutionEngine(graphDatabase);
-        mappingMetadata = new MetaData(
-                "org.neo4j.ogm.domain.filesystem");
-        mappingContext = new MappingContext(mappingMetadata);
+    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem");
 
-    }
-
-    @After
-    public void cleanGraph() {
-        executionEngine.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
-        mappingContext.clear();
-    }
+    private Session session;
 
     @Before
-    public void setUp() {
-        this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
-
+    public void init() throws IOException {
+        session = sessionFactory.openSession();
+        session.purgeDatabase();
+        ExecutionEngine executionEngine = new ExecutionEngine(getDatabase());;
         ExecutionResult executionResult = executionEngine.execute(
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (a:Document { name: 'a' } ) " +
@@ -92,33 +74,21 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
         Map<String, Object> resultSet = executionResult.iterator().next();
 
-        a = new Document();
-        a.setId((Long) resultSet.get("aid"));
-        a.setName("a");
+        a = session.load(Document.class, (Long) resultSet.get("aid"));
 
-        b = new Document();
-        b.setId((Long) resultSet.get("bid"));
-        b.setName("b");
+        b = session.load(Document.class, (Long) resultSet.get("bid"));
 
-        f = new Folder();
-        f.setId((Long) resultSet.get("fid"));
-        f.setName("f");
+        f = session.load(Folder.class, (Long) resultSet.get("fid"));
 
         f.getDocuments().add(a);
         f.getDocuments().add(b);
 
         a.setFolder(f);
         b.setFolder(f);
+    }
 
-        mappingContext.clear();
-        mappingContext.registerNodeEntity(f, f.getId());
-        mappingContext.registerNodeEntity(a, a.getId());
-        mappingContext.registerNodeEntity(b, b.getId());
-        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", a.getId(), Folder.class, Document.class));
-        mappingContext.registerRelationship(new MappedRelationship(f.getId(), "CONTAINS", b.getId(), Folder.class, Document.class));
-        // mappingContext.registerRelationship(new MappedRelationship(a.getId(), "CONTAINS", b.getId(), Document.class, Folder.class));
-        //  mappingContext.registerRelationship(new MappedRelationship(b.getId(), "CONTAINS", b.getId(), Document.class, Folder.class));
-
+    private GraphDatabaseService getDatabase() {
+        return getGraphDatabaseService();
     }
 
     @Test
@@ -126,10 +96,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
         // set a's f to a new f, but don't remove from the current f's list of documents
         a.setFolder(null);
+        session.save(a);
 
-        Statements cypher = new Statements(mapper.map(a).getStatements());
-
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (f:Folder {name : 'f' } )" +
                         "CREATE (a:Document { name: 'a' } ) " +
                         "CREATE (b:Document { name: 'b' } ) " +
@@ -142,9 +111,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         // remove f's documents, but don't clear the documents' f reference
         f.setDocuments(new HashSet<Document>());
 
-        Statements cypher = new Statements(mapper.map(f).getStatements());
+        session.save(f);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (a:Document { name: 'a' } ) " +
                         "CREATE (b:Document { name: 'b' } ) ");
@@ -159,9 +128,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         clone.setName(a.getName());
         clone.setFolder(null);
 
-        Statements cypher = new Statements(mapper.map(clone).getStatements());
+        session.save(clone);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (a:Document { name: 'a'} ) " +
                         "CREATE (b:Document { name: 'b'} ) " +
@@ -176,9 +145,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         clone.setName(f.getName());
         clone.setDocuments(new HashSet<Document>());
 
-        Statements cypher = new Statements(mapper.map(clone).getStatements());
+        session.save(clone);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (a:Document { name: 'a' } ) " +
                         "CREATE (b:Document { name: 'b' } ) ");
@@ -191,9 +160,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         a.setFolder(new Folder());
         a.getFolder().setName("g");
 
-        Statements cypher = new Statements(mapper.map(a).getStatements());
+        session.save(a);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (g:Folder { name: 'g' } ) " +
                         "CREATE (a:Document { name: 'a' }) " +
@@ -212,9 +181,9 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         f.getDocuments().add(c);
         f.getDocuments().remove(a);
 
-        Statements cypher = new Statements(mapper.map(f).getStatements());
+        session.save(f);
 
-        executeStatementsAndAssertSameGraph(cypher,
+        GraphTestUtils.assertSameGraph(getDatabase(),
                 "CREATE (f:Folder { name: 'f' })" +
                         "CREATE (a:Document { name: 'a' } ) " +
                         "CREATE (b:Document { name: 'b' } ) " +
@@ -223,16 +192,4 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
                         "CREATE (f)-[:CONTAINS]->(c) ");
 
     }
-
-    private void executeStatementsAndAssertSameGraph(Statements cypher, String sameGraphCypher) {
-
-        assertNotNull("The resultant cypher statements shouldn't be null", cypher.getStatements());
-        assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
-
-        for (Statement query : cypher.getStatements()) {
-            executionEngine.execute(query.getStatement(), query.getParameters());
-        }
-        GraphTestUtils.assertSameGraph(graphDatabase, sameGraphCypher);
-    }
-
 }

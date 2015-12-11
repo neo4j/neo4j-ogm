@@ -29,6 +29,7 @@ public interface Request {
 
     Response<GraphModel> execute(GraphModelRequest query);
     Response<RowModel> execute(RowModelRequest query);
+    Response<RowModel> execute(DefaultRequest query);
     Response<GraphRowListModel> execute(GraphRowListModelRequest query);
     Response<RowStatisticsModel> execute(RowStatisticsModelRequest query);
 

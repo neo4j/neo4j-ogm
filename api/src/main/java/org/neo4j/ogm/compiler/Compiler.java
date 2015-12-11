@@ -14,11 +14,11 @@
 
 package org.neo4j.ogm.compiler;
 
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.service.LoadableService;
-
 import java.util.List;
-import java.util.Map;
+
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.StatementFactory;
+import org.neo4j.ogm.service.LoadableService;
 
 /**
  * Defines a simple API for building up Cypher queries programmatically.
@@ -29,87 +29,114 @@ import java.util.Map;
 public interface Compiler extends LoadableService {
 
     /**
-     * Defines a new relationship between the specified start node to end node with the given relationship type and direction
+     * Returns {@link NodeBuilder} that represents a new node to be created in the database.
      *
-     * @deprecated Setting relationships should now be done through the {@link RelationshipEmitter}
-     * @param startNode The {@link NodeEmitter} representation of the relationship start node
-     * @param relationshipType The type of relationship to create between the nodes
-     * @param relationshipProperties The (optional) {@code Map} containing the properties of the relationship
-     * @param endNode The {@link NodeEmitter} representation of the relationship end node
+     * @return A {@link NodeBuilder} representing a new node
      */
-    @Deprecated
-    void relate(String startNode, String relationshipType, Map<String, Object> relationshipProperties, String endNode);
+    NodeBuilder newNode(Long id);
+
+    /**
+     * Returns a {@link RelationshipBuilder} that represents a new relationship to be created in the database
+     * @param type          the relationship type
+     * @param bidirectional true if the relationship must be created in both incoming and outgoing directions, false otherwise
+     * @return A {@link RelationshipBuilder} representing a new relationship
+     */
+    RelationshipBuilder newRelationship(String type, boolean bidirectional);
+
+    /**
+     * Returns a {@link RelationshipBuilder} that represents a new relationship to be created in the database
+     * @param type  the relationship type
+     * @return A {@link RelationshipBuilder} representing a new relationship
+     */
+    RelationshipBuilder newRelationship(String type);
+
+    /**
+     * Returns a {@link NodeBuilder} that represents a node that already exists in the database and matches the given ID.
+     *
+     * @param existingNodeId The ID of the node in the database
+     * @return A {@link NodeBuilder} representing the node in the database that corresponds to the given ID
+     */
+    NodeBuilder existingNode(Long existingNodeId);
+
+    /**
+     * Returns a {@link RelationshipBuilder} that represents and existing relationship entity to be modified in the database
+     *
+     * @param existingRelationshipId The ID of the relationship in the database, which shouldn't be <code>null</code>
+     * @return A new {@link RelationshipBuilder} bound to the identified relationship entity
+     */
+    RelationshipBuilder existingRelationship(Long existingRelationshipId, String type);
+
 
     /**
      * Defines a relationship deletion between the specified start node to end node with the given relationship type and direction.
      *
-     * @param startNode The {@link NodeEmitter} representation of the relationship start node
+     * @param startNode The reference of the relationship start node
      * @param relationshipType The type of relationship between the nodes to delete
-     * @param endNode The {@link NodeEmitter} representation of the relationship end node
+     * @param endNode The reference of the relationship end node
      * @param relId The id of the relationship to unrelate
      */
-    void unrelate(String startNode, String relationshipType, String endNode, Long relId);
+    void unrelate(Long startNode, String relationshipType, Long endNode, Long relId);
 
-    /**
-     * Returns {@link NodeEmitter} that represents a new node to be created in the database.
-     *
-     * @return A {@link NodeEmitter} representing a new node
+	/**
+     * Remove a {@link NodeBuilder}
+     * @param nodeBuilder The {@link NodeBuilder}
      */
-    NodeEmitter newNode();
+    void unmap(NodeBuilder nodeBuilder);
 
     /**
-     * Returns a {@link NodeEmitter} that represents a node that already exists in the database and matches the given ID.
+     * Retrieves the Cypher statements that create nodes built up through this {@link Compiler}.
      *
-     * @param existingNodeId The ID of the node in the database
-     * @return A {@link NodeEmitter} representing the node in the database that corresponds to the given ID
+     * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    NodeEmitter existingNode(Long existingNodeId);
+    List<Statement> createNodesStatements();
 
     /**
-     * Returns a {@link RelationshipEmitter} to use for constructing Cypher for writing a new relationship to the database.
+     * Retrieves the Cypher statements that create relationships built up through this {@link Compiler}.
      *
-     * @return A new {@link RelationshipEmitter}
+     * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    RelationshipEmitter newRelationship();
+    List<Statement> createRelationshipsStatements();
 
     /**
-     * Returns a {@link RelationshipEmitter} to use for constructing Cypher for writing a new directed relationship in both directions to the database.
+     * Retrieves the Cypher statements that update nodes built up through this {@link Compiler}.
      *
-     * @return A new {@link RelationshipEmitter}
+     * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    RelationshipEmitter newBiDirectionalRelationship();
+    List<Statement> updateNodesStatements();
 
     /**
-     * Returns a {@link RelationshipEmitter} to use for constructing Cypher to update an existing relationship in the database
-     * that possesses the given ID.
+     * Retrieves the Cypher statements that update relationships built up through this {@link Compiler}.
      *
-     * @param existingRelationshipId The ID of the relationship in the database, which shouldn't be <code>null</code>
-     * @return A new {@link RelationshipEmitter} bound to the identified relationship
+     * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    RelationshipEmitter existingRelationship(Long existingRelationshipId);
+    List<Statement> updateRelationshipStatements();
 
     /**
-     * Retrieves the Cypher queries that have been built up through this {@link Compiler}.
+     * Retrieves the Cypher statements that delete relationships built up through this {@link Compiler}.
+     *
+     * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
+     */
+    List<Statement> deleteRelationshipStatements();
+
+    /**
+     * Retrieves the Cypher statements that delete relationship entities built up through this {@link Compiler}.
+     *
+     * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
+     */
+    List<Statement> deleteRelationshipEntityStatements();
+
+    /**
+     * Retrieves the Cypher statements that have been built up through this {@link Compiler}.
      * <p>
      * Please node that there is no requirement that implementations of {@link Compiler} provide an idempotent or
      * even deterministic implementation of this method.  Therefore, it's recommended to only call this method once
-     * after all query building has been completed.
+     * after all query building has been completed and to be aware that some statements may depend upon results of previous statements
      * </p>
      *
      * @return A {@link List} of Cypher queries to be executed or an empty list if there aren't any, never <code>null</code>
      */
-    List<Statement> getStatements();
+    List<Statement> getAllStatements();
 
-    /**
-     * Returns an unused relationship's reference to the ref pool
-     *
-     * This is to ensure that references are only created when needed
-     *
-     * @param relationshipBuilder the {@link RelationshipEmitter}
-     */
-    void release(RelationshipEmitter relationshipBuilder);
-
-    String nextIdentifier();
 
     /**
      * Returns this compiler's context
@@ -117,10 +144,15 @@ public interface Compiler extends LoadableService {
      */
     CompileContext context();
 
-    /**
-     * Compiles the current request and returns the compile context, which
-     * includes all the statements to be executed and related information
-     * @return the current compiler context
+	/**
+     * Whether there new relationships to be created that depend on nodes being created first
+     * @return true if there are any statements that depend on new nodes being created first
      */
-    CompileContext compile();
+    boolean hasStatementsDependentOnNewNodes();
+
+	/**
+     * Specify the {@link StatementFactory} that this {@link Compiler} will useto produce {@link Statement}s
+     * @param statementFactory The {@link StatementFactory}
+     */
+    void useStatementFactory(StatementFactory statementFactory);
 }

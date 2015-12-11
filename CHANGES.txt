@@ -1,3 +1,13 @@
+2.0.0-SNAPSHOT
+--------------
+o Performance improvements when
+  - creating, updating and deleting nodes
+  - creating, updating and deleting relationships and relationship entities
+o All create, update and delete Cypher queries are cacheable
+
+1.1.5-SNAPSHOT
+--------------
+
 1.1.4-SNAPSHOT
 --------------
 o Fixes issue where the relationship type specified via an annotation on an iterable setter was ignored if the parameter type matched

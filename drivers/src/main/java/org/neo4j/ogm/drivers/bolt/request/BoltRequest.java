@@ -1,6 +1,8 @@
 package org.neo4j.ogm.drivers.bolt.request;
 
 
+import java.util.Map;
+
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
@@ -12,8 +14,6 @@ import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
-
-import java.util.Map;
 
 /**
  * @author vince
@@ -41,6 +41,11 @@ public class BoltRequest implements Request {
             return new EmptyResponse();
         }
         return null;//new RowModelResponse(executeRequest(request));
+    }
+
+    @Override
+    public Response<RowModel> execute(DefaultRequest query) {
+        return null; //TODO
     }
 
     @Override

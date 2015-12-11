@@ -14,6 +14,10 @@
 
 package org.neo4j.ogm.drivers.embedded.request;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -34,8 +38,6 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
 
 /**
  * @author vince
@@ -67,6 +69,55 @@ public class EmbeddedRequest implements Request {
             return new EmptyResponse();
         }
         return new RowModelResponse(executeRequest(request), transactionManager);
+    }
+
+    @Override
+    public Response<RowModel> execute(DefaultRequest query) {
+        //TODO this is a hack to get the embedded driver to work with executing multiple statements
+        final List<RowModel> rowmodels = new ArrayList<>();
+        String[] columns = null;
+        for (Statement statement : query.getStatements()) {
+            Result result = executeRequest(statement);
+            if (columns == null) {
+                columns = result.columns().toArray(new String[result.columns().size()]);
+            }
+            RowModelResponse rowModelResponse = new RowModelResponse(result, transactionManager);
+            RowModel model;
+            while ((model = rowModelResponse.next()) != null) {
+                rowmodels.add(model);
+            }
+            result.close();
+        }
+
+        final String[] finalColumns = columns;
+        return new Response<RowModel>() {
+            int currentRow = 0;
+            @Override
+            public RowModel next() {
+                if (currentRow < rowmodels.size()) {
+                    return rowmodels.get(currentRow++);
+                }
+                return null;
+            }
+
+            @Override
+            public void close() {
+                if (transactionManager.getCurrentTransaction() != null) {
+                    logger.debug("Response closed: {}", this);
+                    // if the current transaction is an autocommit one, we should commit and close it now,
+                    EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
+                    if (tx.isAutoCommit()) {
+                        tx.commit();
+                        tx.close();
+                    }
+                }
+            }
+
+            @Override
+            public String[] columns() {
+               return finalColumns;
+            }
+        };
     }
 
     @Override

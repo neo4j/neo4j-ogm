@@ -29,18 +29,18 @@ public class Folder {
     private Collection<Document> documents = new ArrayList<>();
     private Collection<Document> archived = new ArrayList<>();
 
-    @Relationship(type = "CONTAINS", direction= Relationship.OUTGOING)
+    @Relationship(type = "CONTAINS", direction = Relationship.OUTGOING)
     public Collection<Document> getDocuments() {
         return documents;
     }
 
-    @Relationship(type = "ARCHIVED", direction= Relationship.OUTGOING)
-    public Collection<Document> getArchived() {
-        return archived;
-    }
-
     public void setDocuments(Collection<Document> documents) {
         this.documents = documents;
+    }
+
+    @Relationship(type = "ARCHIVED", direction = Relationship.OUTGOING)
+    public Collection<Document> getArchived() {
+        return archived;
     }
 
     public Long getId() {

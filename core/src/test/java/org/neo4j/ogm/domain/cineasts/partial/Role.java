@@ -33,7 +33,8 @@ public class Role {
     @EndNode
     Movie movie;
 
-    public Role() {}
+    public Role() {
+    }
 
     public Role(String character, Actor actor, Movie movie) {
         played = character;

@@ -28,7 +28,7 @@ public class Person extends DomainObject {
 
     private Set<Policy> influenced = new HashSet<>();
 
-    @Relationship(type="WRITES_POLICY")
+    @Relationship(type = "WRITES_POLICY")
     private Set<Policy> written = new HashSet<>();
 
     @JsonIgnore

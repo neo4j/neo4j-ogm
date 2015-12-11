@@ -19,10 +19,11 @@ import java.util.Set;
 
 /**
  * Only iterable field present, no methods. None annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV14 extends Entity {
 
-	public Set<UserV14> knows;
+    public Set<UserV14> knows;
 
 }

@@ -20,20 +20,21 @@ import java.util.Set;
 
 /**
  * No method or iterable field annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV13 extends Entity {
 
-	private Set<UserV13> knows;
+    private Set<UserV13> knows;
 
-	public UserV13() {
-	}
+    public UserV13() {
+    }
 
-	public Set<UserV13> getKnows() {
-		return knows;
-	}
+    public Set<UserV13> getKnows() {
+        return knows;
+    }
 
-	public void setKnows(Set<UserV13> knows) {
-		this.knows = knows;
-	}
+    public void setKnows(Set<UserV13> knows) {
+        this.knows = knows;
+    }
 }

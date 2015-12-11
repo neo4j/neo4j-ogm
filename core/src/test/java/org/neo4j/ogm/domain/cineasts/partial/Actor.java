@@ -26,13 +26,14 @@ import java.util.List;
  */
 public class Actor {
 
-    Long id;
+    public Long id;
     String name;
 
-    @Relationship(type="ACTS_IN")
+    @Relationship(type = "ACTS_IN")
     List<Role> roles = new ArrayList<>();
 
-    public Actor()  {}
+    public Actor() {
+    }
 
     public Actor(String name) {
         this.name = name;

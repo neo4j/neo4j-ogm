@@ -40,7 +40,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
                 buildNode((Node) mapEntry.getValue(), graphModel, nodeIdentities);
             }
             else if (mapEntry.getValue() instanceof Relationship) {
-                buildRelationship((Relationship) mapEntry.getValue(), graphModel, edgeIdentities);
+                buildRelationship((Relationship) mapEntry.getValue(), graphModel, nodeIdentities, edgeIdentities);
             }
 
             else if (mapEntry.getValue() instanceof Iterable) {
@@ -55,7 +55,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
                         buildNode((Node) element, graphModel, nodeIdentities);
                     }
                     else if (element instanceof Relationship) {
-                        buildRelationship((Relationship) element, graphModel, edgeIdentities);
+                        buildRelationship((Relationship) element, graphModel, nodeIdentities, edgeIdentities);
                     }
                     else {
                         throw new RuntimeException("Not handled:" + mapEntry.getValue().getClass());
@@ -73,7 +73,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
 
         while (relIterator.hasNext()) {
             Relationship rel = relIterator.next();
-            buildRelationship(rel, graphModel, edgeIdentities);
+            buildRelationship(rel, graphModel, nodeIdentities, edgeIdentities);
         }
 
         while (nodeIterator.hasNext()) {
@@ -101,7 +101,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
         }    
     }
 
-    void buildRelationship(Relationship relationship, GraphModel graphModel, Set edgeIdentities) {
+    void buildRelationship(Relationship relationship, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
 
         if (!edgeIdentities.contains(relationship.getId())) {
 
@@ -115,6 +115,9 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
 
             edgeModel.setProperties(buildProperties(relationship));
             graphModel.getRelationships().add(edgeModel);
+
+            buildNode(relationship.getStartNode(), graphModel, nodeIdentities);
+            buildNode(relationship.getEndNode(), graphModel, nodeIdentities);
         }
     }
 

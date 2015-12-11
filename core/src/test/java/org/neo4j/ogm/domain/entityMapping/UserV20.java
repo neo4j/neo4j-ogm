@@ -23,22 +23,22 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV20 {
 
-	@Relationship(type = "KNOWS",direction = "INCOMING")
-	UserV20 user;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    UserV20 user;
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	PlainUser plainUser;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    PlainUser plainUser;
 
-	public UserV20() {
-	}
+    public UserV20() {
+    }
 
-	@Relationship(type = "KNOWS",direction = "INCOMING")
-	public UserV20 getUser() {
-		return user;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public UserV20 getUser() {
+        return user;
+    }
 
-	@Relationship(type = "KNOWS",direction = "INCOMING")
-	public PlainUser getPlainUser() {
-		return plainUser;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public PlainUser getPlainUser() {
+        return plainUser;
+    }
 }

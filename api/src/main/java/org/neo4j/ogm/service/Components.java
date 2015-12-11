@@ -9,7 +9,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -46,7 +45,6 @@ public class Components {
 
     static {
         autoConfigure();
-        loadDriver();
     }
 
     public static void configure(Configuration configuration) {
@@ -55,7 +53,7 @@ public class Components {
     }
 
     private static void loadDriver() {
-        driver = DriverService.load(new DriverConfiguration(configuration));
+        setDriver (DriverService.load(new DriverConfiguration(configuration)));
     }
 
     private static Compiler loadCompiler() {
@@ -79,7 +77,7 @@ public class Components {
      * If an auto-configure properties file is not available by any of these means, the Components class should be configured
      * by passing in a Configuration object to the configure method.
      */
-    private static void autoConfigure() {
+    public static void autoConfigure() {
 
         try(InputStream is = configurationFile()) {
 
@@ -94,37 +92,42 @@ public class Components {
         } catch (Exception e) {
             logger.warn("Could not autoconfigure the OGM");
         }
+        loadDriver();
     }
 
-    /*
-     * looks for an environment variable OGM_CONFIG,
-     * looks for system property setting OGM_CONFIG
-     * or returns "default.ogm.properties"
-     *
-     * @return the name of the configuration file containing the configuration settings for the OGM
-     *
-     */
     private static InputStream configurationFile() throws Exception {
         String configFileName;
-        configFileName = System.getenv("OGM_CONFIG");
+        configFileName = System.getenv("ogm.properties");
+
         if (configFileName == null) {
-            configFileName = System.getProperty("OGM_CONFIG");
+            configFileName = System.getProperty("ogm.properties");
             if (configFileName == null) {
                 return classPathResource("ogm.properties");
             }
         }
-        return fileSystemResource(configFileName);
-    }
-
-    private static InputStream fileSystemResource(String name) throws Exception {
-        return new FileInputStream(name);
+        // load the config from the user-specified file
+        return classPathResource(configFileName);
     }
 
     private static InputStream classPathResource(String name) {
+        System.out.println("Configuring from: " + name);
         return ClassLoaderResolver.resolve().getResourceAsStream(name);
     }
 
     public static void setDriver(Driver driver) {
+        System.out.println(" *** Setting driver to: " + driver.getClass().getName());
         Components.driver = driver;
+    }
+
+    public static double neo4jVersion() {
+        String neo4jVersion = (String) configuration.get("neo4j.version");
+        if (neo4jVersion != null) {
+            try {
+                return new Double(neo4jVersion);
+            } catch (NumberFormatException nfe) {
+                logger.warn("Configuration property 'neo4j.version' is not in the correct form: expected something like '2.3'");
+            }
+        }
+        return 9.9; // unknown version
     }
 }

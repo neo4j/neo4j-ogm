@@ -25,50 +25,52 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "HAS")
 public class PizzaCheese {
 
-	private Long id;
-	@StartNode Pizza pizza;
-	@EndNode Cheese cheese;
-	Quantity quantity;
+    @StartNode
+    Pizza pizza;
+    @EndNode
+    Cheese cheese;
+    Quantity quantity;
+    private Long id;
 
-	public PizzaCheese() {
-	}
+    public PizzaCheese() {
+    }
 
-	public PizzaCheese(Pizza pizza, Cheese cheese, Quantity quantity) {
-		this.pizza = pizza;
-		this.cheese = cheese;
-		this.quantity = quantity;
-		this.pizza.getCheeses().add(this);
-	}
+    public PizzaCheese(Pizza pizza, Cheese cheese, Quantity quantity) {
+        this.pizza = pizza;
+        this.cheese = cheese;
+        this.quantity = quantity;
+        this.pizza.getCheeses().add(this);
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Pizza getPizza() {
-		return pizza;
-	}
+    public Pizza getPizza() {
+        return pizza;
+    }
 
-	public void setPizza(Pizza pizza) {
-		this.pizza = pizza;
-	}
+    public void setPizza(Pizza pizza) {
+        this.pizza = pizza;
+    }
 
-	public Cheese getCheese() {
-		return cheese;
-	}
+    public Cheese getCheese() {
+        return cheese;
+    }
 
-	public void setCheese(Cheese cheese) {
-		this.cheese = cheese;
-	}
+    public void setCheese(Cheese cheese) {
+        this.cheese = cheese;
+    }
 
-	public Quantity getQuantity() {
-		return quantity;
-	}
+    public Quantity getQuantity() {
+        return quantity;
+    }
 
-	public void setQuantity(Quantity quantity) {
-		this.quantity = quantity;
-	}
+    public void setQuantity(Quantity quantity) {
+        this.quantity = quantity;
+    }
 }

@@ -65,7 +65,7 @@ public class TransientObjectsTest {
         assertNull(fieldInfo);
     }
 
-    @NodeEntity(label="PersistableClass")
+    @NodeEntity(label = "PersistableClass")
     public class PersistableClass {
 
         private Long id;
@@ -73,7 +73,7 @@ public class TransientObjectsTest {
 
         @Transient
         private Integer chickenCounting;
-        
+
         @Transient
         public String getTransientObject() {
             return transientObject;

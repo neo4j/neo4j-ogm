@@ -23,46 +23,47 @@ import java.util.Set;
  * @author Luanne Misquitta
  */
 public class Entity {
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "REL", direction = "OUTGOING")
-	private Entity parent;
+    @Relationship(type = "REL", direction = "OUTGOING")
+    private Entity parent;
 
-	@Relationship(type = "REL", direction = "INCOMING")
-	private Set<Entity> children = new HashSet<>();
+    @Relationship(type = "REL", direction = "INCOMING")
+    private Set<Entity> children = new HashSet<>();
 
-	public Entity() {}
+    public Entity() {
+    }
 
-	public Entity(String name) {
-		this.name = name;
-	}
+    public Entity(String name) {
+        this.name = name;
+    }
 
-	public Entity setParent(Entity parent) {
-		parent.children.add(this);
-		this.parent = parent;
-		return this;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    @Relationship(type = "REL", direction = "INCOMING")
+    public Set<Entity> getChildren() {
+        return children;
+    }
 
-	@Relationship(type = "REL", direction = "INCOMING")
-	public Set<Entity> getChildren() {
-		return children;
-	}
+    @Relationship(type = "REL", direction = "INCOMING")
+    public void setChildren(Set<Entity> children) {
+        this.children = children;
+    }
 
-	@Relationship(type = "REL", direction = "INCOMING")
-	public void setChildren(Set<Entity> children) {
-		this.children = children;
-	}
+    public Entity getParent() {
+        return parent;
+    }
 
-	public Entity getParent() {
-		return parent;
-	}
+    public Entity setParent(Entity parent) {
+        parent.children.add(this);
+        this.parent = parent;
+        return this;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 }

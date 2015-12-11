@@ -21,7 +21,7 @@ import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainInterface;
  * @author Luanne Misquitta
  */
 @NodeEntity(label = "Child")
-public class AnnotatedNamedChildWithPlainInterfaceParent implements PlainInterface{
+public class AnnotatedNamedChildWithPlainInterfaceParent implements PlainInterface {
 
     Long id;
 }

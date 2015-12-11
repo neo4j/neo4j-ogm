@@ -24,6 +24,9 @@ public class Post {
 
     private Long id;
     private String title;
+    private Post next;
+    @Transient
+    private Post previous;
 
     public Post() {
     }
@@ -31,11 +34,6 @@ public class Post {
     public Post(String title) {
         this.title = title;
     }
-
-    private Post next;
-
-    @Transient
-    private Post previous;
 
     public Long getId() {
         return id;
@@ -57,7 +55,7 @@ public class Post {
         return next;
     }
 
-    @Relationship(type="NEXT", direction = Relationship.OUTGOING)
+    @Relationship(type = "NEXT", direction = Relationship.OUTGOING)
     public void setNext(Post next) {
         this.next = next;
         if (next != null) {

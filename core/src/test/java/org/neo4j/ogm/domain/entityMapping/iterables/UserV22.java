@@ -21,34 +21,35 @@ import java.util.List;
 
 /**
  * Two iterables, same relationship type and direction, outgoing, methods annotated
+ *
  * @author Luanne Misquitta
  */
 public class UserV22 {
 
-	public List<PlainUser> plainUsers;
+    public List<PlainUser> plainUsers;
 
-	public UserV22 user;
+    public UserV22 user;
 
-	public UserV22() {
-	}
+    public UserV22() {
+    }
 
-	@Relationship(type = "KNOWS")
-	public List<PlainUser> getPlainUsers() {
-		return plainUsers;
-	}
+    @Relationship(type = "KNOWS")
+    public List<PlainUser> getPlainUsers() {
+        return plainUsers;
+    }
 
-	@Relationship(type = "KNOWS")
-	public void setPlainUsers(List<PlainUser> plainUsers) {
-		this.plainUsers = plainUsers;
-	}
+    @Relationship(type = "KNOWS")
+    public void setPlainUsers(List<PlainUser> plainUsers) {
+        this.plainUsers = plainUsers;
+    }
 
-	@Relationship(type = "KNOWS")
-	public UserV22 getUser() {
-		return user;
-	}
+    @Relationship(type = "KNOWS")
+    public UserV22 getUser() {
+        return user;
+    }
 
-	@Relationship(type = "KNOWS")
-	public void setUser(UserV22 user) {
-		this.user = user;
-	}
+    @Relationship(type = "KNOWS")
+    public void setUser(UserV22 user) {
+        this.user = user;
+    }
 }

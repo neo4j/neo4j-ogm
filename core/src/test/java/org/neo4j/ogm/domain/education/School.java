@@ -25,7 +25,8 @@ public class School extends DomainObject {
     private Set<Teacher> teachers = new HashSet<>();
     private String name;
 
-    public School() {}
+    public School() {
+    }
 
     public School(String name) {
         setName(name);

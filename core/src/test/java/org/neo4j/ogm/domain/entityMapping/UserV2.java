@@ -18,21 +18,22 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Annotated outgoing field, non annotated getter and setter, relationship name same as property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV2 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "OUTGOING")
-	private UserV2 knows;
+    @Relationship(type = "KNOWS", direction = "OUTGOING")
+    private UserV2 knows;
 
-	public UserV2() {
-	}
+    public UserV2() {
+    }
 
-	public UserV2 getKnows() {
-		return knows;
-	}
+    public UserV2 getKnows() {
+        return knows;
+    }
 
-	public void setKnows(UserV2 knows) {
-		this.knows = knows;
-	}
+    public void setKnows(UserV2 knows) {
+        this.knows = knows;
+    }
 }

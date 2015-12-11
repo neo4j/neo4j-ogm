@@ -47,7 +47,7 @@ public class Artist {
 
     public void setAlbums(Set<Album> albums) {
         this.albums = albums;
-        for(Album album : albums) {
+        for (Album album : albums) {
             album.setArtist(this);
         }
     }
@@ -68,7 +68,7 @@ public class Artist {
     @Relationship(type = "GUEST_ALBUM")
     public void setGuestAlbums(Set<Album> guestAlbums) {
         this.guestAlbums = guestAlbums;
-        for (Album album :guestAlbums) {
+        for (Album album : guestAlbums) {
             album.setGuestArtist(this);
         }
     }

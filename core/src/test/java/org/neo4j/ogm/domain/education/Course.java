@@ -25,7 +25,8 @@ public class Course {
     private List<Student> students;
     private Long id;
 
-    public Course() {}
+    public Course() {
+    }
 
     public Course(String name) {
         setName(name);

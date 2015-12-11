@@ -24,43 +24,45 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "FOR")
 public class PizzaSauce {
 
-	private Long id;
-	@StartNode private Sauce sauce;
-	@EndNode private Pizza pizza;
-	private boolean spicy;
+    private Long id;
+    @StartNode
+    private Sauce sauce;
+    @EndNode
+    private Pizza pizza;
+    private boolean spicy;
 
-	public PizzaSauce() {
-	}
+    public PizzaSauce() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Sauce getSauce() {
-		return sauce;
-	}
+    public Sauce getSauce() {
+        return sauce;
+    }
 
-	public void setSauce(Sauce sauce) {
-		this.sauce = sauce;
-	}
+    public void setSauce(Sauce sauce) {
+        this.sauce = sauce;
+    }
 
-	public Pizza getPizza() {
-		return pizza;
-	}
+    public Pizza getPizza() {
+        return pizza;
+    }
 
-	public void setPizza(Pizza pizza) {
-		this.pizza = pizza;
-	}
+    public void setPizza(Pizza pizza) {
+        this.pizza = pizza;
+    }
 
-	public boolean isSpicy() {
-		return spicy;
-	}
+    public boolean isSpicy() {
+        return spicy;
+    }
 
-	public void setSpicy(boolean spicy) {
-		this.spicy = spicy;
-	}
+    public void setSpicy(boolean spicy) {
+        this.spicy = spicy;
+    }
 }

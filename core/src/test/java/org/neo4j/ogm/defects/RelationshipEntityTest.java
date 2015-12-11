@@ -18,8 +18,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.session.Session;
@@ -37,37 +35,38 @@ import static org.junit.Assert.assertNotNull;
 public class RelationshipEntityTest {
 
 
-	private Session session;
+    private Session session;
 
-	@Before
-	public void init() throws IOException {
+    @Before
+    public void init() throws IOException {
         session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
-	}
+    }
 
     @After
     public void clean() throws IOException {
         session.purgeDatabase();
     }
-	/**
-	 * @see DATAGRAPH-615
-	 */
-	@Test
-	public void testThatRelationshipEntityIsLoadedWhenWhenTypeIsNotDefined() {
-		Movie hp = new Movie();
-		hp.setTitle("Goblet of Fire");
-		hp.setYear(2005);
 
-		Actor daniel = new Actor("Daniel Radcliffe");
-		daniel.nominatedFor(hp, "Saturn Award", 2005);
+    /**
+     * @see DATAGRAPH-615
+     */
+    @Test
+    public void testThatRelationshipEntityIsLoadedWhenWhenTypeIsNotDefined() {
+        Movie hp = new Movie();
+        hp.setTitle("Goblet of Fire");
+        hp.setYear(2005);
 
-		session.save(daniel);
+        Actor daniel = new Actor("Daniel Radcliffe");
+        daniel.nominatedFor(hp, "Saturn Award", 2005);
 
-		session.clear();
+        session.save(daniel);
 
-		daniel = session.load(Actor.class,daniel.getId());
-		assertNotNull(daniel);
-		assertEquals(1, daniel.getNominations().size()); //fails
-	}
+        session.clear();
+
+        daniel = session.load(Actor.class, daniel.getId());
+        assertNotNull(daniel);
+        assertEquals(1, daniel.getNominations().size()); //fails
+    }
 
 
 }

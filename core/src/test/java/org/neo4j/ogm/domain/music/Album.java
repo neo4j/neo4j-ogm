@@ -23,59 +23,59 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity(label = "l'album")
 public class Album {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "HAS-ALBUM", direction = "INCOMING")
-	private Artist artist; //none of those compilations allowed
+    @Relationship(type = "HAS-ALBUM", direction = "INCOMING")
+    private Artist artist; //none of those compilations allowed
 
-	@Relationship(type = "RECORDED-AT")
-	private Recording recording;
+    @Relationship(type = "RECORDED-AT")
+    private Recording recording;
 
-	private Artist guestArtist; //we only tolerate one guest artist
+    private Artist guestArtist; //we only tolerate one guest artist
 
-	public Album() {
-	}
+    public Album() {
+    }
 
-	public Album(String name) {
-		this.name = name;
-	}
+    public Album(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Artist getArtist() {
-		return artist;
-	}
+    public Artist getArtist() {
+        return artist;
+    }
 
-	public void setArtist(Artist artist) {
-		this.artist = artist;
-	}
+    public void setArtist(Artist artist) {
+        this.artist = artist;
+    }
 
-	public Recording getRecording() {
-		return recording;
-	}
+    public Recording getRecording() {
+        return recording;
+    }
 
-	public void setRecording(Recording recording) {
-		this.recording = recording;
-	}
+    public void setRecording(Recording recording) {
+        this.recording = recording;
+    }
 
-	@Relationship(type = "GUEST_ALBUM", direction = "INCOMING")
-	public Artist getGuestArtist() {
-		return guestArtist;
-	}
+    @Relationship(type = "GUEST_ALBUM", direction = "INCOMING")
+    public Artist getGuestArtist() {
+        return guestArtist;
+    }
 
-	@Relationship(type = "GUEST_ALBUM", direction = "INCOMING")
-	public void setGuestArtist(Artist guestArtist) {
-		this.guestArtist = guestArtist;
-	}
+    @Relationship(type = "GUEST_ALBUM", direction = "INCOMING")
+    public void setGuestArtist(Artist guestArtist) {
+        this.guestArtist = guestArtist;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 }

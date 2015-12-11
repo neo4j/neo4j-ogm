@@ -21,23 +21,26 @@ import java.util.Set;
 
 /**
  * Annotated incoming iterable field with annotated getters and setters. Relationship type derived from property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV1 extends Entity {
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING")
-	private Set<UserV1> knownBy;
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    private Set<UserV1> knownBy;
 
-	public UserV1() {
-	}
+    public UserV1() {
+    }
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING") //We MUST annotate the getter if present and the relationship direction is incoming
-	public Set<UserV1> getKnownBy() {
-		return knownBy;
-	}
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    //We MUST annotate the getter if present and the relationship direction is incoming
+    public Set<UserV1> getKnownBy() {
+        return knownBy;
+    }
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING") //We MUST annotate the setter if present and the relationship direction is incoming
-	public void setKnownBy(Set<UserV1> knownBy) {
-		this.knownBy = knownBy;
-	}
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    //We MUST annotate the setter if present and the relationship direction is incoming
+    public void setKnownBy(Set<UserV1> knownBy) {
+        this.knownBy = knownBy;
+    }
 }

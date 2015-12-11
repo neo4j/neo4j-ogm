@@ -22,17 +22,17 @@ import java.util.List;
 /**
  * @author Luane Misquitta
  */
-public class TitleConverter implements AttributeConverter<List<Title>,String[]> {
+public class TitleConverter implements AttributeConverter<List<Title>, String[]> {
 
     @Override
     public String[] toGraphProperty(List<Title> value) {
-        if(value==null) {
+        if (value == null) {
             return null;
         }
         String[] values = new String[(value.size())];
-        int i=0;
-        for(Title title : value) {
-            values[i++]=title.name();
+        int i = 0;
+        for (Title title : value) {
+            values[i++] = title.name();
         }
         return values;
     }
@@ -40,8 +40,8 @@ public class TitleConverter implements AttributeConverter<List<Title>,String[]> 
     @Override
     public List<Title> toEntityAttribute(String[] value) {
         List<Title> titles = new ArrayList<>(value.length);
-        for(String role : value) {
-           titles.add(Title.valueOf(role));
+        for (String role : value) {
+            titles.add(Title.valueOf(role));
         }
         return titles;
     }

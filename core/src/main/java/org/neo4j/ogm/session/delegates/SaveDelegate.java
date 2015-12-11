@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.mapper.EntityGraphMapper;
+import org.neo4j.ogm.mappingcontext.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;

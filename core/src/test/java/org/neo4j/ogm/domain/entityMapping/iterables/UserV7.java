@@ -21,19 +21,20 @@ import java.util.Set;
 
 /**
  * Annotated getter and setter (implied outgoing), non annotated iterable field. Relationship type same as property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV7 extends Entity {
 
-	private Set<UserV7> knows;
+    private Set<UserV7> knows;
 
-	@Relationship(type = "KNOWS")
-	public Set<UserV7> getKnows() {
-		return knows;
-	}
+    @Relationship(type = "KNOWS")
+    public Set<UserV7> getKnows() {
+        return knows;
+    }
 
-	@Relationship(type = "KNOWS")
-	public void setKnows(Set<UserV7> knows) {
-		this.knows = knows;
-	}
+    @Relationship(type = "KNOWS")
+    public void setKnows(Set<UserV7> knows) {
+        this.knows = knows;
+    }
 }

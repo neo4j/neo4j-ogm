@@ -25,12 +25,12 @@ public class Orbit extends DomainObject {
 
     private String name;
 
-    @Property(name="orbit")
+    @Property(name = "orbit")
     public String getName() {
         return name;
     }
 
-    @Property(name="orbit")
+    @Property(name = "orbit")
     public void setName(String name) {
         this.name = name;
     }

@@ -29,43 +29,43 @@ public class Actor {
     private String name;
     private Set<Movie> filmography;
 
-    @Relationship(type="ACTS_IN", direction="OUTGOING")
+    @Relationship(type = "ACTS_IN", direction = "OUTGOING")
     private Set<Role> roles;
 
     private Set<Nomination> nominations;
 
     @Relationship(type = "KNOWS")
-    private Set<Knows> knows=new HashSet<>();
+    private Set<Knows> knows = new HashSet<>();
 
     Actor() {
         // default constructor for OGM
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Actor(String name) {
         this.name = name;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Role playedIn(Movie movie, String roleName) {
-        if(roles==null) {
+        if (roles == null) {
             roles = new HashSet<>();
         }
-        Role role = new Role(movie,this,roleName);
+        Role role = new Role(movie, this, roleName);
         roles.add(role);
         movie.getRoles().add(role);
         return role;
     }
 
     public Nomination nominatedFor(Movie movie, String nominationName, int year) {
-        if(nominations==null) {
+        if (nominations == null) {
             nominations = new HashSet<>();
         }
-        Nomination nomination = new Nomination(movie,this,nominationName,year);
+        Nomination nomination = new Nomination(movie, this, nominationName, year);
         nominations.add(nomination);
-        if(movie.getNominations() == null) {
+        if (movie.getNominations() == null) {
             movie.setNominations(new HashSet<Nomination>());
         }
         movie.getNominations().add(nomination);

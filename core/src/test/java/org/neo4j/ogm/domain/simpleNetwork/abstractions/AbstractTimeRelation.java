@@ -26,14 +26,13 @@ import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
  */
 
 /**
+ * @param <S> a class implementing InterfaceIdentityNode
+ * @param <T> a class implementing InterfaceStateNode
  * @see issue #42
- *
+ * <p/>
  * This class posed problems for the OGM because S and T are defined as classes that extend interfaces, rather
  * than concrete classes. Prior to the fix for this issue, this OGM would only work correctly if S and T were defined
  * as extending concrete classes.
- *
- * @param <S> a class implementing InterfaceIdentityNode
- * @param <T> a class implementing InterfaceStateNode
  */
 public abstract class AbstractTimeRelation<S extends InterfaceIdentityNode, T extends InterfaceStateNode> implements InterfaceTimeRelation<S, T> {
 
@@ -52,15 +51,18 @@ public abstract class AbstractTimeRelation<S extends InterfaceIdentityNode, T ex
     @Property
     private Long to;
 
-    @Override public S getSourceNode() {
+    @Override
+    public S getSourceNode() {
         return identity;
     }
 
-    @Override public void setSourceNode(S sourceNode) {
+    @Override
+    public void setSourceNode(S sourceNode) {
         this.identity = sourceNode;
     }
 
-    @Override public T getTargetNode() {
+    @Override
+    public T getTargetNode() {
         return state;
     }
 

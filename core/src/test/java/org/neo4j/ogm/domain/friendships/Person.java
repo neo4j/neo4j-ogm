@@ -27,7 +27,7 @@ public class Person {
     private Long id;
     private String name;
 
-    @Relationship(type="FRIEND_OF")
+    @Relationship(type = "FRIEND_OF")
     private List<Friendship> friends;
 
     public Person() {
@@ -52,7 +52,7 @@ public class Person {
     }
 
     public Friendship addFriend(Person newFriend) {
-        Friendship friendship = new Friendship(this, newFriend,5);
+        Friendship friendship = new Friendship(this, newFriend, 5);
         this.friends.add(friendship);
         return friendship;
     }

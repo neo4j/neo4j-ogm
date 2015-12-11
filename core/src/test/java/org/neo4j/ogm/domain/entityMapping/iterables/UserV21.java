@@ -21,15 +21,16 @@ import java.util.List;
 
 /**
  * Two iterables, same relationship type and direction, incoming. Fields annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV21 {
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public PlainUser plainUsers;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public PlainUser plainUsers;
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public List<UserV21> user;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public List<UserV21> user;
 
 
 }

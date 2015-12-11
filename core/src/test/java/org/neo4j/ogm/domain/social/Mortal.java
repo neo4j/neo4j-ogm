@@ -26,34 +26,34 @@ import java.util.Set;
  */
 public class Mortal {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING")
-	private Set<Mortal> knownBy = new HashSet<>();
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    private Set<Mortal> knownBy = new HashSet<>();
 
-	public Mortal() {
-	}
+    public Mortal() {
+    }
 
-	public Mortal(String name) {
-		this.name = name;
-	}
+    public Mortal(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING")
-	public Set<Mortal> getKnownBy() {
-		return knownBy;
-	}
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    public Set<Mortal> getKnownBy() {
+        return knownBy;
+    }
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING")
-	public void setKnownBy(Set<Mortal> knownBy) {
-		this.knownBy = knownBy;
-	}
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    public void setKnownBy(Set<Mortal> knownBy) {
+        this.knownBy = knownBy;
+    }
 }

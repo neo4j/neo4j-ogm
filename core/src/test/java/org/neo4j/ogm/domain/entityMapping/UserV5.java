@@ -18,22 +18,23 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Annotated getter and setter (implied outgoing), non annotated field. Relationship type different from property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV5 extends Entity {
 
-	private UserV5 friend;
+    private UserV5 friend;
 
-	public UserV5() {
-	}
+    public UserV5() {
+    }
 
-	@Relationship(type = "KNOWS")
-	public UserV5 getFriend() {
-		return friend;
-	}
+    @Relationship(type = "KNOWS")
+    public UserV5 getFriend() {
+        return friend;
+    }
 
-	@Relationship(type = "KNOWS")
-	public void setFriend(UserV5 friend) {
-		this.friend = friend;
-	}
+    @Relationship(type = "KNOWS")
+    public void setFriend(UserV5 friend) {
+        this.friend = friend;
+    }
 }

@@ -23,8 +23,7 @@ import java.util.Set;
 /**
  * @author Nils Dr\u00F6ge
  */
-public class Event extends Entity
-{
+public class Event extends Entity {
     private String title;
 
     @Relationship(type = "HAS")
@@ -34,49 +33,42 @@ public class Event extends Entity
     @Relationship(type = "HAS")
     private Set<Tag> tags = new HashSet<Tag>();
 
-    public Event() {}
+    public Event() {
+    }
 
-    public Event(String title)
-    {
+    public Event(String title) {
         this.title = title;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public Category getCategory()
-    {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Category category)
-    {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
-    public Set<Tag> getTags()
-    {
+    public Set<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Tag> tags)
-    {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Event{" +
-            "id:" + getNodeId() +
-            ", title:'" + title + "'" +
-            '}';
+                "id:" + getNodeId() +
+                ", title:'" + title + "'" +
+                '}';
     }
 }

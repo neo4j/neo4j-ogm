@@ -1,10 +1,10 @@
 package org.neo4j.ogm.drivers;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.service.Components;
@@ -31,14 +31,29 @@ public abstract class AbstractDriverTest {
     private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
     private Session session;
 
-    public abstract Driver getDriver();
+    @AfterClass
+    public static void restoreCurrentDriver() {
+        Components.autoConfigure();
+    }
+
+    public abstract void setUp();
 
     @Before
     public void init() {
-        Components.setDriver(getDriver());
+        setUp();
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }
+
+    // save test
+    @Test
+    public void shouldSaveObject() {
+        User user = new User("Bilbo Baggins");
+        assertNull(user.getId());
+        session.save(user);
+        assertNotNull(user.getId());
+    }
+
 
     // load tests
     @Test
@@ -294,7 +309,7 @@ public abstract class AbstractDriverTest {
         }
     }
 
-    private void doExtendedRollbackCommitRollback()  {
+    private void doExtendedRollbackCommitRollback() {
         try (Transaction tx = session.beginTransaction()) {
             m3(); // rollback_deferred
             m2(); // commit_deferred

@@ -30,12 +30,12 @@ import static org.junit.Assert.*;
 @Ignore
 public class MetaDataTest {
 
-	private MetaData metaData;
+    private MetaData metaData;
 
-	@Before
-	public void setUp() {
-		metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical","org.neo4j.ogm.integration.hierarchy.domain","org.neo4j.ogm.domain.cineasts.annotated");
-	}
+    @Before
+    public void setUp() {
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
+    }
 
     //@org.junit.Ignore("I do think we should implement this, but it's not really possible without loading classes")
     @Test

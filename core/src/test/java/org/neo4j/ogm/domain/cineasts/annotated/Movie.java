@@ -29,8 +29,8 @@ public class Movie {
     String title;
     int year;
 
-    @Relationship(type="ACTS_IN", direction="INCOMING")
-    Set<Role> roles=new HashSet<>();
+    @Relationship(type = "ACTS_IN", direction = "INCOMING")
+    Set<Role> roles = new HashSet<>();
 
     @Relationship(type = "RATED", direction = Relationship.INCOMING)
     Set<Rating> ratings;
@@ -66,12 +66,12 @@ public class Movie {
         return roles;
     }
 
-    @Relationship(type="RATED", direction=Relationship.INCOMING)
+    @Relationship(type = "RATED", direction = Relationship.INCOMING)
     public Set<Rating> getRatings() {
         return ratings;
     }
 
-    @Relationship(type="RATED", direction=Relationship.INCOMING)
+    @Relationship(type = "RATED", direction = Relationship.INCOMING)
     public void setRatings(Set<Rating> ratings) {
         this.ratings = ratings;
     }

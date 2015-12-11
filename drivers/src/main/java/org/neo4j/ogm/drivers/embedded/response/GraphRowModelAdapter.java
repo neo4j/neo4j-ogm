@@ -85,7 +85,7 @@ public class GraphRowModelAdapter extends JsonAdapter implements ResultAdapter<M
             graphModelAdapter.buildNode((Node) element, graphModel, nodeIdentities);
         }
         else if (element instanceof Relationship) {
-            graphModelAdapter.buildRelationship((Relationship) element, graphModel, edgeIdentities);
+            graphModelAdapter.buildRelationship((Relationship) element, graphModel, nodeIdentities, edgeIdentities);
         }
         else {
             values.add(element);

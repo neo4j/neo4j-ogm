@@ -23,49 +23,43 @@ import java.util.Set;
  * @author Nils Dr\u00F6ge
  * @author Luanne Misquitta
  */
-public class Tag extends Entity
-{
+public class Tag extends Entity {
     private String name;
 
     @Relationship(type = "HAS", direction = Relationship.INCOMING)
     private Set<Entity> entities = new HashSet<Entity>();
 
-    public Tag() {}
+    public Tag() {
+    }
 
-    public Tag(String name)
-    {
+    public Tag(String name) {
         this.name = name;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
 
     @Relationship(type = "HAS", direction = Relationship.INCOMING)
-    public Set<Entity> getEntities()
-    {
+    public Set<Entity> getEntities() {
         return entities;
     }
 
     @Relationship(type = "HAS", direction = Relationship.INCOMING)
-    public void setEntities(Set<Entity> entities)
-    {
+    public void setEntities(Set<Entity> entities) {
         this.entities = entities;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Tag{" +
-            "id:" + getNodeId() +
-            ", name:'" + name + "'" +
-            '}';
+                "id:" + getNodeId() +
+                ", name:'" + name + "'" +
+                '}';
     }
 }

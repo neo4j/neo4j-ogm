@@ -20,13 +20,14 @@ import java.util.List;
 
 /**
  * Represents a forum that contains a number of topics.
+ *
  * @author Vince Bickers
  */
 public class Forum {
 
     private Long id;
 
-    @Relationship(type="HAS_TOPIC")
+    @Relationship(type = "HAS_TOPIC")
     private List<ForumTopicLink> topicsInForum;
     private String name;
 

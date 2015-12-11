@@ -24,12 +24,12 @@ import java.util.List;
 /**
  * @author Vince Bickers
  */
-@NodeEntity(label ="User")
-public class Member extends Login  {
+@NodeEntity(label = "User")
+public class Member extends Login {
 
     private IMembership memberShip;
     private Date renewalDate;
-    @Relationship(type ="HAS_ACTIVITY")
+    @Relationship(type = "HAS_ACTIVITY")
     private Iterable<Activity> activityList;
     private List<Member> followers;
     private List<Member> followees;
@@ -52,12 +52,12 @@ public class Member extends Login  {
         this.renewalDate = renewalDate;
     }
 
-    @Relationship(type ="HAS_ACTIVITY")
+    @Relationship(type = "HAS_ACTIVITY")
     public Iterable<Activity> getActivityList() {
         return activityList;
     }
 
-    @Relationship(type ="HAS_ACTIVITY")
+    @Relationship(type = "HAS_ACTIVITY")
     public void setActivityList(Iterable<Activity> activityList) {
         this.activityList = activityList;
     }

@@ -13,8 +13,8 @@
  */
 package org.neo4j.ogm;
 
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.annotations.EntityAccessStrategy;
 import org.neo4j.ogm.metadata.ClassInfo;
 
 /**

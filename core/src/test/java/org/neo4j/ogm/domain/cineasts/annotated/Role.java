@@ -21,11 +21,13 @@ import org.neo4j.ogm.annotation.StartNode;
 /**
  * @author Michal Bachman
  */
-@RelationshipEntity(type="ACTS_IN")
+@RelationshipEntity(type = "ACTS_IN")
 public class Role {
     Long id;
-    @EndNode Movie movie;
-    @StartNode Actor actor;
+    @EndNode
+    Movie movie;
+    @StartNode
+    Actor actor;
     String role;
 
     public Role() {

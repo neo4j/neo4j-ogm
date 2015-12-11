@@ -18,22 +18,23 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Getter/Setter annotated with outgoing direction only. Relationship type is implied. Field not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV18 {
 
-	private UserV18 knows;
+    private UserV18 knows;
 
-	public UserV18() {
-	}
+    public UserV18() {
+    }
 
-	@Relationship(direction = "OUTGOING")
-	public UserV18 getKnows() {
-		return knows;
-	}
+    @Relationship(direction = "OUTGOING")
+    public UserV18 getKnows() {
+        return knows;
+    }
 
-	@Relationship(direction = "OUTGOING")
-	public void setKnows(UserV18 friend) {
-		this.knows = friend;
-	}
+    @Relationship(direction = "OUTGOING")
+    public void setKnows(UserV18 friend) {
+        this.knows = friend;
+    }
 }

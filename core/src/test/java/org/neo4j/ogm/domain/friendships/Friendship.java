@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author Vince Bickers
  */
-@RelationshipEntity(type="FRIEND_OF")
+@RelationshipEntity(type = "FRIEND_OF")
 public class Friendship {
 
     private Long id;
@@ -38,7 +38,8 @@ public class Friendship {
 
     private Set<String> sharedHobbies;
 
-    public Friendship() {}
+    public Friendship() {
+    }
 
     public Friendship(Person from, Person to, int strength) {
         this.person = from;

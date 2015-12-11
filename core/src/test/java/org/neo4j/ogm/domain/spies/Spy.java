@@ -23,53 +23,53 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class Spy {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "SPY", direction = Relationship.OUTGOING)
-	private Target spiesOn;
+    @Relationship(type = "SPY", direction = Relationship.OUTGOING)
+    private Target spiesOn;
 
-	@Relationship(type = "SPY", direction = Relationship.INCOMING)
-	private Target spiedOnBy;
+    @Relationship(type = "SPY", direction = Relationship.INCOMING)
+    private Target spiedOnBy;
 
-	public Spy() {
-	}
+    public Spy() {
+    }
 
-	public Spy(String name) {
-		this.name = name;
-	}
+    public Spy(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Target getSpiesOn() {
-		return spiesOn;
-	}
+    public Target getSpiesOn() {
+        return spiesOn;
+    }
 
-	public void setSpiesOn(Target spiesOn) {
-		this.spiesOn = spiesOn;
-	}
+    public void setSpiesOn(Target spiesOn) {
+        this.spiesOn = spiesOn;
+    }
 
-	@Relationship(type = "SPY", direction = Relationship.INCOMING)
-	public Target getSpiedOnBy() {
-		return spiedOnBy;
-	}
+    @Relationship(type = "SPY", direction = Relationship.INCOMING)
+    public Target getSpiedOnBy() {
+        return spiedOnBy;
+    }
 
-	@Relationship(type = "SPY", direction = Relationship.INCOMING)
-	public void setSpiedOnBy(Target spiedOnBy) {
-		this.spiedOnBy = spiedOnBy;
-	}
+    @Relationship(type = "SPY", direction = Relationship.INCOMING)
+    public void setSpiedOnBy(Target spiedOnBy) {
+        this.spiedOnBy = spiedOnBy;
+    }
 }

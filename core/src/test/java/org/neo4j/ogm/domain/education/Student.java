@@ -21,7 +21,8 @@ public class Student extends DomainObject {
 
     private String name;
 
-    public Student() {}
+    public Student() {
+    }
 
     public Student(String name) {
         setName(name);

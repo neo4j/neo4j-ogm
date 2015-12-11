@@ -25,6 +25,10 @@ import java.util.Vector;
  */
 public class Individual {
 
+    public float[] primitiveFloatArray;
+    public Integer[] integerArray;
+    public Float[] floatArray;
+    public List<Integer> integerCollection;
     private Long id;
     private String name;
     private int age;
@@ -34,14 +38,9 @@ public class Individual {
     private Float distanceFromZoo;
     private Byte numberOfShoes;
     private Double maxTemp;
-
     private List<Individual> friends;
     private int[] primitiveIntArray;
     private byte[] primitiveByteArray;
-    public float[] primitiveFloatArray;
-    public Integer[] integerArray;
-    public Float[] floatArray;
-    public List<Integer> integerCollection;
     private List<Float> floatCollection;
     private List<Byte> byteCollection;
 

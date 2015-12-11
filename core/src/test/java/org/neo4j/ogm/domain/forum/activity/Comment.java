@@ -23,12 +23,12 @@ public class Comment extends Activity {
 
     private String comment;
 
-    @Property(name="remark")
+    @Property(name = "remark")
     public String getComment() {
         return comment;
     }
 
-    @Property(name="remark")
+    @Property(name = "remark")
     public void setComment(String comment) {
         this.comment = comment;
     }

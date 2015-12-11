@@ -18,35 +18,36 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * One incoming and one outgoing relationship of the same type. Incoming field and methods annotated. Outgoing methods annotated, field not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV12 extends Entity {
 
-	private UserV12 friend;
+    private UserV12 friend;
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	private UserV12 friendOf;
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    private UserV12 friendOf;
 
-	public UserV12() {
-	}
+    public UserV12() {
+    }
 
-	@Relationship(type = "LIKES")
-	public UserV12 getFriend() {
-		return friend;
-	}
+    @Relationship(type = "LIKES")
+    public UserV12 getFriend() {
+        return friend;
+    }
 
-	@Relationship(type = "LIKES")
-	public void setFriend(UserV12 friend) {
-		this.friend = friend;
-	}
+    @Relationship(type = "LIKES")
+    public void setFriend(UserV12 friend) {
+        this.friend = friend;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	public UserV12 getFriendOf() {
-		return friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    public UserV12 getFriendOf() {
+        return friendOf;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	public void setFriendOf(UserV12 friendOf) {
-		this.friendOf = friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    public void setFriendOf(UserV12 friendOf) {
+        this.friendOf = friendOf;
+    }
 }

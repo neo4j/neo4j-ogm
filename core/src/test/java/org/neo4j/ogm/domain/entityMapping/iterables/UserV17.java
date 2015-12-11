@@ -21,11 +21,12 @@ import java.util.Set;
 
 /**
  * Iterable field annotated with incoming relationship. No methods present.
+ *
  * @author Luanne Misquitta
  */
 public class UserV17 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public Set<UserV17> knows;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public Set<UserV17> knows;
 
 }

@@ -28,7 +28,7 @@ public class Policy extends DomainObject {
 
     private Set<Person> influencers = new HashSet<>();
 
-    @Relationship(type="WRITES_POLICY", direction="INCOMING")
+    @Relationship(type = "WRITES_POLICY", direction = "INCOMING")
     private Set<Person> writers = new HashSet<>();
 
     @Relationship(type = "AUTHORIZED_POLICY", direction = Relationship.INCOMING)

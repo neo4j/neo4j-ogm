@@ -18,23 +18,26 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Annotated incoming field with annotated getters and setters. Relationship type derived from property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV1 extends Entity {
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING")
-	private UserV1 knownBy;
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    private UserV1 knownBy;
 
-	public UserV1() {
-	}
+    public UserV1() {
+    }
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING") //We MUST annotate the getter if present and the relationship direction is incoming
-	public UserV1 getKnownBy() {
-		return knownBy;
-	}
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    //We MUST annotate the getter if present and the relationship direction is incoming
+    public UserV1 getKnownBy() {
+        return knownBy;
+    }
 
-	@Relationship(type = "KNOWN_BY", direction = "INCOMING") //We MUST annotate the setter if present and the relationship direction is incoming
-	public void setKnownBy(UserV1 knownBy) {
-		this.knownBy = knownBy;
-	}
+    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
+    //We MUST annotate the setter if present and the relationship direction is incoming
+    public void setKnownBy(UserV1 knownBy) {
+        this.knownBy = knownBy;
+    }
 }

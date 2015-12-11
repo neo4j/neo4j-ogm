@@ -18,11 +18,12 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Field annotated with incoming relationship. No methods present.
+ *
  * @author Luanne Misquitta
  */
 public class UserV17 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public UserV17 knows;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public UserV17 knows;
 
 }

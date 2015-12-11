@@ -18,34 +18,37 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * One outgoing and one incoming relationship of the same type. Incoming field and methods annotated. Outgoing field annotated , methods not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV11 extends Entity {
 
-	@Relationship(type = "LIKES", direction = "OUTGOING")
-	private UserV11 friend;
+    @Relationship(type = "LIKES", direction = "OUTGOING")
+    private UserV11 friend;
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	private UserV11 friendOf;
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    private UserV11 friendOf;
 
-	public UserV11() {
-	}
+    public UserV11() {
+    }
 
-	public UserV11 getFriend() {
-		return friend;
-	}
+    public UserV11 getFriend() {
+        return friend;
+    }
 
-	public void setFriend(UserV11 friend) {
-		this.friend = friend;
-	}
+    public void setFriend(UserV11 friend) {
+        this.friend = friend;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING") //We MUST annotate the getter if present and the relationship direction is incoming
-	public UserV11 getFriendOf() {
-		return friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    //We MUST annotate the getter if present and the relationship direction is incoming
+    public UserV11 getFriendOf() {
+        return friendOf;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING") //We MUST annotate the getter if present and the relationship direction is incoming
-	public void setFriendOf(UserV11 friendOf) {
-		this.friendOf = friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    //We MUST annotate the getter if present and the relationship direction is incoming
+    public void setFriendOf(UserV11 friendOf) {
+        this.friendOf = friendOf;
+    }
 }

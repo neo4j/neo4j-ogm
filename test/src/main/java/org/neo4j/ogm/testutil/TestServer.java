@@ -20,6 +20,8 @@ import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
 
 import java.lang.reflect.Field;
@@ -35,28 +37,29 @@ public class TestServer {
     private AbstractNeoServer server;
     private GraphDatabaseService database;
     private ServerControls controls;
-    private Driver driver;
 
-    public TestServer(Driver driver) {
-        this(driver, TestUtils.getAvailablePort(), "60");
+    public TestServer() {
+        this(TestUtils.getAvailablePort(), "60");
     }
 
-    public TestServer(Driver driver, int port) {
-        this(driver, port, "60");
+    public TestServer(int port) {
+        this(port, "60");
     }
 
-    public TestServer(Driver driver, String transactionTimeoutSeconds) {
-        this(driver, TestUtils.getAvailablePort(), transactionTimeoutSeconds);
+    public TestServer(String transactionTimeoutSeconds) {
+        this(TestUtils.getAvailablePort(), transactionTimeoutSeconds);
     }
 
-    public TestServer(Driver driver, int port, String transactionTimeoutSeconds) {
+    private TestServer(int port, String transactionTimeoutSeconds) {
+
+        Components.setDriver(new HttpDriver());
 
         try {
-            this.driver = driver;
+
             controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
-                    .withConfig("org.neo4j.server.transaction.timeout", transactionTimeoutSeconds)
+                    .withConfig("org.neo4j.server.transaction.timeout", "2")
                     .withConfig("dbms.security.auth_store.location", authStoreLocation())
                     .newServer();
 
@@ -88,11 +91,11 @@ public class TestServer {
         field.setAccessible(true);
         server = (AbstractNeoServer) field.get(controls);
         database = server.getDatabase().getGraph();
-        driver.getConfiguration().setURI(url());
+        Components.driver().getConfiguration().setURI(url());
     }
 
     public Driver driver() {
-        return driver;
+        return Components.driver();
     }
 
     public synchronized void start() throws InterruptedException {
@@ -150,7 +153,6 @@ public class TestServer {
     public GraphDatabaseService getGraphDatabaseService() {
         return this.database;
     }
-
 
     public void close() {
         shutdown();

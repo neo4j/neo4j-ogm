@@ -18,23 +18,24 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Two annotated outgoing fields, same relationship type
+ *
  * @author Luanne Misquitta
  */
 public class UserV21 {
-	@Relationship(type = "KNOWS")
-	UserV21 user;
+    @Relationship(type = "KNOWS")
+    UserV21 user;
 
-	@Relationship(type = "KNOWS")
-	PlainUser plainUser;
+    @Relationship(type = "KNOWS")
+    PlainUser plainUser;
 
-	public UserV21() {
-	}
+    public UserV21() {
+    }
 
-	public UserV21 getUser() {
-		return user;
-	}
+    public UserV21 getUser() {
+        return user;
+    }
 
-	public PlainUser getPlainUser() {
-		return plainUser;
-	}
+    public PlainUser getPlainUser() {
+        return plainUser;
+    }
 }

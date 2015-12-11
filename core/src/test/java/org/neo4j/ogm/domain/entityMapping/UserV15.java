@@ -18,21 +18,22 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * One undirected relationship field annotated. Methods not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV15 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "UNDIRECTED")
-	private UserV15 knows;
+    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    private UserV15 knows;
 
-	public UserV15() {
-	}
+    public UserV15() {
+    }
 
-	public UserV15 getKnows() {
-		return knows;
-	}
+    public UserV15 getKnows() {
+        return knows;
+    }
 
-	public void setKnows(UserV15 knows) {
-		this.knows = knows;
-	}
+    public void setKnows(UserV15 knows) {
+        this.knows = knows;
+    }
 }

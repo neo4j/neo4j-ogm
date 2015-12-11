@@ -25,43 +25,45 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "SPY")
 public class Target {
 
-	private Long id;
-	@StartNode Spy spy;
-	@EndNode Spy target;
-	String code;
+    @StartNode
+    Spy spy;
+    @EndNode
+    Spy target;
+    String code;
+    private Long id;
 
-	public Target() {
-	}
+    public Target() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Spy getSpy() {
-		return spy;
-	}
+    public Spy getSpy() {
+        return spy;
+    }
 
-	public void setSpy(Spy spy) {
-		this.spy = spy;
-	}
+    public void setSpy(Spy spy) {
+        this.spy = spy;
+    }
 
-	public Spy getTarget() {
-		return target;
-	}
+    public Spy getTarget() {
+        return target;
+    }
 
-	public void setTarget(Spy target) {
-		this.target = target;
-	}
+    public void setTarget(Spy target) {
+        this.target = target;
+    }
 
-	public String getCode() {
-		return code;
-	}
+    public String getCode() {
+        return code;
+    }
 
-	public void setCode(String code) {
-		this.code = code;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

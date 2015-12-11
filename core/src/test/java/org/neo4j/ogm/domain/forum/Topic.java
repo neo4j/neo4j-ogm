@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Topic {
 
-    @Relationship(type ="HAS_POSTS")
+    @Relationship(type = "HAS_POSTS")
     private List<Post> posts;
     private Boolean inActive;
 

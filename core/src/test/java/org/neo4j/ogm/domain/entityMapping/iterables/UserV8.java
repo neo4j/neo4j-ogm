@@ -21,21 +21,22 @@ import java.util.Set;
 
 /**
  * Annotated incoming iterable field with annotated getters and setters. Relationship type same as property name
- *  @author Luanne Misquitta
+ *
+ * @author Luanne Misquitta
  */
-public class UserV8 extends Entity{
+public class UserV8 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	private Set<UserV8> knows;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    private Set<UserV8> knows;
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public Set<UserV8> getKnows() {
-		return knows;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public Set<UserV8> getKnows() {
+        return knows;
+    }
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public void setKnows(Set<UserV8> knows) {
-		this.knows = knows;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public void setKnows(Set<UserV8> knows) {
+        this.knows = knows;
+    }
 
 }

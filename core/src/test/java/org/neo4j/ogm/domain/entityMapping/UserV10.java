@@ -18,33 +18,34 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * One incoming and one outgoing relationship of the same type. Methods annotated, fields not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV10 extends Entity {
 
-	private UserV10 likes;
-	private UserV10 likedBy;
+    private UserV10 likes;
+    private UserV10 likedBy;
 
-	public UserV10() {
-	}
+    public UserV10() {
+    }
 
-	@Relationship(type = "LIKES")
-	public UserV10 getLikes() {
-		return likes;
-	}
+    @Relationship(type = "LIKES")
+    public UserV10 getLikes() {
+        return likes;
+    }
 
-	@Relationship(type = "LIKES")
-	public void setLikes(UserV10 likes) {
-		this.likes = likes;
-	}
+    @Relationship(type = "LIKES")
+    public void setLikes(UserV10 likes) {
+        this.likes = likes;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	public UserV10 getLikedBy() {
-		return likedBy;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    public UserV10 getLikedBy() {
+        return likedBy;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	public void setLikedBy(UserV10 likedBy) {
-		this.likedBy = likedBy;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    public void setLikedBy(UserV10 likedBy) {
+        this.likedBy = likedBy;
+    }
 }

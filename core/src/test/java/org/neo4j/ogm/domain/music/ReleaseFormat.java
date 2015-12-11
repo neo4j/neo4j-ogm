@@ -19,9 +19,9 @@ package org.neo4j.ogm.domain.music;
  */
 public enum ReleaseFormat {
 
-	VINYL,
-	TAPE_8_TRACK,
-	TAPE_CASSETTE,
-	CD,
-	DIGITAL
+    VINYL,
+    TAPE_8_TRACK,
+    TAPE_CASSETTE,
+    CD,
+    DIGITAL
 }

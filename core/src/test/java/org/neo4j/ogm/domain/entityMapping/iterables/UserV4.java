@@ -22,20 +22,23 @@ import java.util.Set;
 
 /**
  * Annotated incoming iterable field with annotated getters and setters. Relationship type different from property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV4 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	private Set<UserV4> friend;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    private Set<UserV4> friend;
 
-	@Relationship(type = "KNOWS", direction = "INCOMING") ////We MUST annotate the getter if present and the relationship direction is incoming
-	public Set<UserV4> getFriend() {
-		return friend;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    ////We MUST annotate the getter if present and the relationship direction is incoming
+    public Set<UserV4> getFriend() {
+        return friend;
+    }
 
-	@Relationship(type = "KNOWS", direction = "INCOMING") ////We MUST annotate the getter if present and the relationship direction is incoming
-	public void setFriend(Set<UserV4> friend) {
-		this.friend = friend;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    ////We MUST annotate the getter if present and the relationship direction is incoming
+    public void setFriend(Set<UserV4> friend) {
+        this.friend = friend;
+    }
 }

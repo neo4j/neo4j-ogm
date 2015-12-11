@@ -18,34 +18,35 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Two annotated methods, same relationship type, outgoing
+ *
  * @author Luanne Misquitta
  */
 public class UserV22 {
 
-	UserV22 user;
+    UserV22 user;
 
-	PlainUser plainUser;
+    PlainUser plainUser;
 
-	public UserV22() {
-	}
+    public UserV22() {
+    }
 
-	@Relationship(type = "KNOWS")
-	public UserV22 getUser() {
-		return user;
-	}
+    @Relationship(type = "KNOWS")
+    public UserV22 getUser() {
+        return user;
+    }
 
-	@Relationship(type = "KNOWS")
-	public PlainUser getPlainUser() {
-		return plainUser;
-	}
+    @Relationship(type = "KNOWS")
+    public void setUser(UserV22 user) {
+        this.user = user;
+    }
 
-	@Relationship(type = "KNOWS")
-	public void setUser(UserV22 user) {
-		this.user = user;
-	}
+    @Relationship(type = "KNOWS")
+    public PlainUser getPlainUser() {
+        return plainUser;
+    }
 
-	@Relationship(type = "KNOWS")
-	public void setPlainUser(PlainUser plainUser) {
-		this.plainUser = plainUser;
-	}
+    @Relationship(type = "KNOWS")
+    public void setPlainUser(PlainUser plainUser) {
+        this.plainUser = plainUser;
+    }
 }

@@ -14,16 +14,18 @@
 
 package org.neo4j.ogm.defects;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.domain.bike.WheelWithUUID;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.IntegrationTestRule;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -34,10 +36,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Michal Bachman
  */
-public class TxHandlerIntegrationTest {
-
-    @Rule
-    public IntegrationTestRule testServer = new IntegrationTestRule(Components.driver(), 7577);
+public class TxHandlerIntegrationTest extends MultiDriverTestClass {
 
     private static SessionFactory sessionFactory;
     private Session session;
@@ -49,7 +48,7 @@ public class TxHandlerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        testServer.getGraphDatabaseService().registerTransactionEventHandler(new TransactionEventHandler.Adapter<Object>() {
+        getGraphDatabaseService().registerTransactionEventHandler(new TransactionEventHandler.Adapter<Object>() {
             @Override
             public Object beforeCommit(TransactionData data) throws Exception {
                 for (Node createdNode : data.createdNodes()) {
@@ -73,8 +72,8 @@ public class TxHandlerIntegrationTest {
         long id = wheel.getId();
 
         String uuid;
-        try (Transaction tx = testServer.getGraphDatabaseService().beginTx()) {
-            uuid = testServer.getGraphDatabaseService().getNodeById(id).getProperty("uuid", "unknown").toString();
+        try (Transaction tx = getGraphDatabaseService().beginTx()) {
+            uuid = getGraphDatabaseService().getNodeById(id).getProperty("uuid", "unknown").toString();
             tx.success();
         }
 

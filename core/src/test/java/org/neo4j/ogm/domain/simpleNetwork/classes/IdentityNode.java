@@ -22,10 +22,10 @@ import java.util.Set;
 /**
  * @author vince
  */
-@NodeEntity(label="IdentityNode")
+@NodeEntity(label = "IdentityNode")
 public class IdentityNode extends AbstractIdentityNode<TimeRelation> {
 
-    @Relationship(direction="OUTGOING", type="IDENTITY_STATE")
+    @Relationship(direction = "OUTGOING", type = "IDENTITY_STATE")
     private Set<TimeRelation> identityStates;
 
     @Override

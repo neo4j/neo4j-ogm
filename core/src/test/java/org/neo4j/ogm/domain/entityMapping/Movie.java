@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * @author vince
  */
-@NodeEntity(label="Movie")
+@NodeEntity(label = "Movie")
 public class Movie extends Entity {
 
-    @Relationship(type="RATED", direction= Relationship.INCOMING)
+    @Relationship(type = "RATED", direction = Relationship.INCOMING)
     public List<Rating> ratings = new ArrayList<>();
 }

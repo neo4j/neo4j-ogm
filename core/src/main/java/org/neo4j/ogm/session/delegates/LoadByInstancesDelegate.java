@@ -15,7 +15,7 @@ package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;

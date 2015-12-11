@@ -23,85 +23,82 @@ import java.util.Set;
  */
 public class SocialUser {
 
-	private Long id;
-	private String name;
+    @Relationship(type = "HAS_AS_FRIEND", direction = Relationship.OUTGOING)
+    Set<SocialUser> friends;
+    @Relationship(type = "FOLLOWING", direction = Relationship.OUTGOING)
+    Set<SocialUser> following;
+    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
+    Set<SocialUser> followers;
+    private Long id;
+    private String name;
 
-	public SocialUser() {
-	}
+    public SocialUser() {
+    }
 
-	public SocialUser(String name) {
-		this.name = name;
-	}
+    public SocialUser(String name) {
+        this.name = name;
+    }
 
-	@Relationship(type = "HAS_AS_FRIEND", direction = Relationship.OUTGOING)
-	Set<SocialUser> friends;
+    public Set<SocialUser> getFriends() {
+        return friends;
+    }
 
-	@Relationship(type = "FOLLOWING", direction = Relationship.OUTGOING)
-	Set<SocialUser> following;
+    public void setFriends(Set<SocialUser> friends) {
+        this.friends = friends;
+    }
 
-	@Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
-	Set<SocialUser> followers;
+    public Set<SocialUser> getFollowing() {
+        return following;
+    }
 
-	public Set<SocialUser> getFriends() {
-		return friends;
-	}
+    public void setFollowing(Set<SocialUser> following) {
+        this.following = following;
+    }
 
-	public void setFriends(Set<SocialUser> friends) {
-		this.friends = friends;
-	}
+    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
+    public Set<SocialUser> getFollowers() {
+        return followers;
+    }
 
-	public Set<SocialUser> getFollowing() {
-		return following;
-	}
+    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
+    public void setFollowers(Set<SocialUser> followers) {
+        this.followers = followers;
+    }
 
-	public void setFollowing(Set<SocialUser> following) {
-		this.following = following;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	@Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
-	public Set<SocialUser> getFollowers() {
-		return followers;
-	}
+    /**
+     * For test purposes only
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	@Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
-	public void setFollowers(Set<SocialUser> followers) {
-		this.followers = followers;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	/**
-	 * For test purposes only
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+        SocialUser that = (SocialUser) o;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (friends != null ? !friends.equals(that.friends) : that.friends != null) return false;
+        if (following != null ? !following.equals(that.following) : that.following != null) return false;
+        return !(followers != null ? !followers.equals(that.followers) : that.followers != null);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		SocialUser that = (SocialUser) o;
-
-		if (name != null ? !name.equals(that.name) : that.name != null) return false;
-		if (friends != null ? !friends.equals(that.friends) : that.friends != null) return false;
-		if (following != null ? !following.equals(that.following) : that.following != null) return false;
-		return !(followers != null ? !followers.equals(that.followers) : that.followers != null);
-	}
-
-	@Override
-	public int hashCode() {
-		int result = 31 + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (friends != null ? friends.hashCode() : 0);
-		result = 31 * result + (following != null ? following.hashCode() : 0);
-		result = 31 * result + (followers != null ? followers.hashCode() : 0);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int result = 31 + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (friends != null ? friends.hashCode() : 0);
+        result = 31 * result + (following != null ? following.hashCode() : 0);
+        result = 31 * result + (followers != null ? followers.hashCode() : 0);
+        return result;
+    }
 }

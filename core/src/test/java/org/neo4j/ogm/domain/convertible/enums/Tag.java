@@ -15,5 +15,5 @@ package org.neo4j.ogm.domain.convertible.enums;
  * @author Luanne Misquitta
  */
 public enum Tag {
-	A,B,C
+    A, B, C
 }

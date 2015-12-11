@@ -21,21 +21,22 @@ import java.util.Set;
 
 /**
  * Annotated iterable field (implied outgoing), non annotated getter and setter, relationship type different from property name
+ *
  * @author Luanne Misquitta
  */
 public class UserV3 extends Entity {
 
-	@Relationship(type = "KNOWS")
-	private Set<UserV3> friend;
+    @Relationship(type = "KNOWS")
+    private Set<UserV3> friend;
 
-	public UserV3() {
-	}
+    public UserV3() {
+    }
 
-	public Set<UserV3> getFriend() {
-		return friend;
-	}
+    public Set<UserV3> getFriend() {
+        return friend;
+    }
 
-	public void setFriend(Set<UserV3> friend) {
-		this.friend = friend;
-	}
+    public void setFriend(Set<UserV3> friend) {
+        this.friend = friend;
+    }
 }

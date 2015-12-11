@@ -19,10 +19,10 @@ package org.neo4j.ogm.domain.pets;
  */
 public class Dog extends Mammal {
 
-	public Dog() {
-	}
+    public Dog() {
+    }
 
-	public Dog(String name) {
-		super(name);
-	}
+    public Dog(String name) {
+        super(name);
+    }
 }

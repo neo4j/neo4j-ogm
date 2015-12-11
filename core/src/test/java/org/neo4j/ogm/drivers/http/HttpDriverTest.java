@@ -1,8 +1,8 @@
 package org.neo4j.ogm.drivers.http;
 
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.AbstractDriverTest;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.testutil.TestServer;
 
 /**
@@ -10,11 +10,10 @@ import org.neo4j.ogm.testutil.TestServer;
  */
 public class HttpDriverTest extends AbstractDriverTest {
 
-    private static final TestServer server = new TestServer(new HttpDriver());
+    private static final TestServer server = new TestServer();
 
-    @Override
-    public Driver getDriver() {
-        return server.driver();
+    public void setUp() {
+        assert Components.driver() instanceof HttpDriver;
     }
 
 }

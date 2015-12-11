@@ -21,18 +21,18 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Document {
 
-    @Relationship(type = "CONTAINS", direction= Relationship.INCOMING)
+    @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     private Folder folder;
 
     private String name;
     private Long id;
 
-    @Relationship(type = "CONTAINS", direction= Relationship.INCOMING)
+    @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     public Folder getFolder() {
         return folder;
     }
 
-    @Relationship(type = "CONTAINS", direction= Relationship.INCOMING)
+    @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     public void setFolder(Folder folder) {
         this.folder = folder;
     }

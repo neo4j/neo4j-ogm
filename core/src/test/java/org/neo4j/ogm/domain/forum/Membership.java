@@ -23,7 +23,7 @@ import org.neo4j.ogm.annotation.Property;
 //@Label
 public abstract class Membership implements IMembership {
 
-    @Property(name="annualFees")
+    @Property(name = "annualFees")
     private Integer fees;
     private Long id;
 

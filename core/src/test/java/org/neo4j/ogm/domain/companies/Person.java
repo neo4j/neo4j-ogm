@@ -24,7 +24,8 @@ import java.util.Set;
  */
 public class Person {
 
-    @GraphId Long id;
+    @GraphId
+    Long id;
 
     private String name;
 

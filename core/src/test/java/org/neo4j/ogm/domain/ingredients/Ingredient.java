@@ -26,35 +26,35 @@ import java.util.Set;
 @NodeEntity
 public class Ingredient {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "PAIRS_WITH", direction = "UNDIRECTED")
-	private Set<Pairing> pairings = new HashSet<>();
+    @Relationship(type = "PAIRS_WITH", direction = "UNDIRECTED")
+    private Set<Pairing> pairings = new HashSet<>();
 
-	public Ingredient() {
-	}
+    public Ingredient() {
+    }
 
-	public Ingredient(String name) {
-		this.name = name;
-	}
+    public Ingredient(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
 
-	public Set<Pairing> getPairings() {
-		return pairings;
-	}
+    public Set<Pairing> getPairings() {
+        return pairings;
+    }
 
-	public void addPairing(Pairing pairing) {
-		pairing.getFirst().getPairings().add(pairing);
-		pairing.getSecond().getPairings().add(pairing);
-	}
+    public void addPairing(Pairing pairing) {
+        pairing.getFirst().getPairings().add(pairing);
+        pairing.getSecond().getPairings().add(pairing);
+    }
 
 }

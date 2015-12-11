@@ -21,19 +21,20 @@ import java.util.Set;
 
 /**
  * Methods annotated with undirected relationship. Iterable field not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV16 extends Entity {
 
-	private Set<UserV16> knows;
+    private Set<UserV16> knows;
 
-	@Relationship(type = "KNOWS", direction = "UNDIRECTED")
-	public Set<UserV16> getKnows() {
-		return knows;
-	}
+    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    public Set<UserV16> getKnows() {
+        return knows;
+    }
 
-	@Relationship(type = "KNOWS", direction = "UNDIRECTED")
-	public void setKnows(Set<UserV16> knows) {
-		this.knows = knows;
-	}
+    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    public void setKnows(Set<UserV16> knows) {
+        this.knows = knows;
+    }
 }

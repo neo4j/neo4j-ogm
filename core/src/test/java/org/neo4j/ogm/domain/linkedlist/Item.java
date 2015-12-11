@@ -21,14 +21,12 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Item {
 
+    @Relationship(type = "NEXT", direction = Relationship.OUTGOING)
+    public Item next;
+    @Relationship(type = "NEXT", direction = Relationship.INCOMING)
+    public Item previous;
     private Long id;
     private String name;
-
-    @Relationship(type = "NEXT", direction=Relationship.OUTGOING)
-    public Item next;
-
-    @Relationship(type = "NEXT", direction=Relationship.INCOMING)
-    public Item previous;
 
     public Item() {
     }

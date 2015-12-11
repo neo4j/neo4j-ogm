@@ -32,7 +32,8 @@ public class Account {
     private short code;
     private Float limit;
 
-    public Account() {}
+    public Account() {
+    }
 
     public Account(BigDecimal balance, BigInteger facility) {
         this.balance = balance;

@@ -25,7 +25,7 @@ import java.util.Set;
 public class Male extends Person {
 
     @Relationship(type = "CHILD")
-    private Set<Person> children=new HashSet<>();
+    private Set<Person> children = new HashSet<>();
 
     public Male() {
     }

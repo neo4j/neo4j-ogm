@@ -17,6 +17,6 @@ package org.neo4j.ogm.domain.entityMapping;
 /**
  * @author Luanne Misquitta
  */
-public class PlainUser extends Entity{
+public class PlainUser extends Entity {
 
 }

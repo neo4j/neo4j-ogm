@@ -27,9 +27,16 @@ public interface IMembership {
     // or for that matter, dates.
     Integer getFees();
 
-    @Transient boolean getCanPost();
-    @Transient boolean getCanComment();
-    @Transient boolean getCanFollow();
-    @Transient IMembership[] getUpgrades();
+    @Transient
+    boolean getCanPost();
+
+    @Transient
+    boolean getCanComment();
+
+    @Transient
+    boolean getCanFollow();
+
+    @Transient
+    IMembership[] getUpgrades();
 
 }

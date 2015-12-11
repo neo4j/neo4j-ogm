@@ -23,50 +23,50 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "RECORDED-AT")
 public class Recording {
 
-	private Long id;
+    private Long id;
 
-	@StartNode
-	private Album album;
+    @StartNode
+    private Album album;
 
-	@EndNode
-	private Studio studio;
+    @EndNode
+    private Studio studio;
 
-	private int year;
+    private int year;
 
-	public Recording() {
-	}
+    public Recording() {
+    }
 
-	public Recording(Album album, Studio studio, int year) {
-		this.album = album;
-		this.studio = studio;
-		this.year = year;
-	}
+    public Recording(Album album, Studio studio, int year) {
+        this.album = album;
+        this.studio = studio;
+        this.year = year;
+    }
 
-	public Album getAlbum() {
-		return album;
-	}
+    public Album getAlbum() {
+        return album;
+    }
 
-	public void setAlbum(Album album) {
-		this.album = album;
-	}
+    public void setAlbum(Album album) {
+        this.album = album;
+    }
 
-	public Studio getStudio() {
-		return studio;
-	}
+    public Studio getStudio() {
+        return studio;
+    }
 
-	public void setStudio(Studio studio) {
-		this.studio = studio;
-	}
+    public void setStudio(Studio studio) {
+        this.studio = studio;
+    }
 
-	public int getYear() {
-		return year;
-	}
+    public int getYear() {
+        return year;
+    }
 
-	public void setYear(int year) {
-		this.year = year;
-	}
+    public void setYear(int year) {
+        this.year = year;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 }

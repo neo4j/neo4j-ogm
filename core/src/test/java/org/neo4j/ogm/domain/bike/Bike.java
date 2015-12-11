@@ -28,13 +28,11 @@ public class Bike {
     private Saddle saddle;
     private String brand;
 
-    public String getBrand()
-    {
+    public String getBrand() {
         return brand;
     }
 
-    public void setBrand(String brand)
-    {
+    public void setBrand(String brand) {
         this.brand = brand;
     }
 
@@ -50,6 +48,10 @@ public class Bike {
         return colours;
     }
 
+    public void setColours(String[] colours) {
+        this.colours = colours;
+    }
+
     public List<Wheel> getWheels() {
         return wheels;
     }
@@ -58,24 +60,19 @@ public class Bike {
         this.wheels = wheels;
     }
 
-    public void setSaddle(Saddle saddle)
-    {
-        this.saddle = saddle;
-    }
-
     public Frame getFrame() {
         return frame;
+    }
+
+    public void setFrame(Frame frame) {
+        this.frame = frame;
     }
 
     public Saddle getSaddle() {
         return saddle;
     }
 
-    public void setColours(String[] colours) {
-        this.colours = colours;
-    }
-
-    public void setFrame(Frame frame) {
-        this.frame = frame;
+    public void setSaddle(Saddle saddle) {
+        this.saddle = saddle;
     }
 }

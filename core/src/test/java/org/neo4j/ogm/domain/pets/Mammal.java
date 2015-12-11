@@ -17,12 +17,12 @@ package org.neo4j.ogm.domain.pets;
 /**
  * @author Luanne Misquitta
  */
-public class Mammal extends Animal{
+public class Mammal extends Animal {
 
-	public Mammal() {
-	}
+    public Mammal() {
+    }
 
-	public Mammal(String name) {
-		super(name);
-	}
+    public Mammal(String name) {
+        super(name);
+    }
 }

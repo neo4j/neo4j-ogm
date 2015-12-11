@@ -23,7 +23,8 @@ import java.util.Set;
  */
 public class Company {
 
-    @GraphId Long id;
+    @GraphId
+    Long id;
     private String name;
 
     @Relationship(type = "OWNER", direction = "INCOMING")

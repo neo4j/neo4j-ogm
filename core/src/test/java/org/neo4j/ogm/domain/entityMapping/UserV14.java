@@ -16,10 +16,11 @@ package org.neo4j.ogm.domain.entityMapping;
 
 /**
  * Only field present, no methods. None annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV14 extends Entity {
 
-	public UserV14 knows;
+    public UserV14 knows;
 
 }

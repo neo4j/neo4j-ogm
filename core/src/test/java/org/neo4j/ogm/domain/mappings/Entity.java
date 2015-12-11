@@ -19,24 +19,20 @@ import org.neo4j.ogm.annotation.GraphId;
 /**
  * @author Nils Dr\u00F6ge
  */
-public abstract class Entity
-{
+public abstract class Entity {
     @GraphId
     private Long nodeId;
 
-    public Long getNodeId()
-    {
+    public Long getNodeId() {
         return nodeId;
     }
 
-    public void setNodeId(Long nodeId)
-    {
+    public void setNodeId(Long nodeId) {
         this.nodeId = nodeId;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || nodeId == null || getClass() != o.getClass()) return false;
 
@@ -48,8 +44,7 @@ public abstract class Entity
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return (nodeId == null) ? -1 : nodeId.hashCode();
     }
 }

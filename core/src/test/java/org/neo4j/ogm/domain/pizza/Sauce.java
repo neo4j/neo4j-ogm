@@ -22,30 +22,30 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity(label = "Sauce")
 public class Sauce {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	public Sauce() {
-	}
+    public Sauce() {
+    }
 
-	public Sauce(String name) {
-		this.name = name;
-	}
+    public Sauce(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
 }

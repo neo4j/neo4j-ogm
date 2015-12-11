@@ -22,44 +22,44 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity(label = "Topping")
 public class Topping {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	public Topping() {
-	}
+    public Topping() {
+    }
 
-	public Topping(String name) {
-		this.name = name;
-	}
+    public Topping(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		Topping topping = (Topping) o;
+        Topping topping = (Topping) o;
 
-		return !(name != null ? !name.equals(topping.name) : topping.name != null);
-	}
+        return !(name != null ? !name.equals(topping.name) : topping.name != null);
+    }
 
-	@Override
-	public int hashCode() {
-		return name != null ? name.hashCode() : 0;
-	}
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

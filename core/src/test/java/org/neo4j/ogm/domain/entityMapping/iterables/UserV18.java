@@ -20,22 +20,23 @@ import java.util.Set;
 
 /**
  * Getter/Setter annotated with outgoing direction only. Relationship type is implied. Iterable Field not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV18 {
 
-	private Set<UserV18> knows;
+    private Set<UserV18> knows;
 
-	public UserV18() {
-	}
+    public UserV18() {
+    }
 
-	@Relationship(direction = "OUTGOING")
-	public Set<UserV18> getKnows() {
-		return knows;
-	}
+    @Relationship(direction = "OUTGOING")
+    public Set<UserV18> getKnows() {
+        return knows;
+    }
 
-	@Relationship(direction = "OUTGOING")
-	public void setKnows(Set<UserV18> friend) {
-		this.knows = friend;
-	}
+    @Relationship(direction = "OUTGOING")
+    public void setKnows(Set<UserV18> friend) {
+        this.knows = friend;
+    }
 }

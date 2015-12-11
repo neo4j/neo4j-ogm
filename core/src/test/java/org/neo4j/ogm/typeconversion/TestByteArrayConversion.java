@@ -45,7 +45,7 @@ public class TestByteArrayConversion {
         Photo photo = new Photo();
         AttributeConverter converter = photoInfo.propertyGetter("image").converter();
 
-        photo.setImage(new byte[] {1,2,3,4});
+        photo.setImage(new byte[]{1, 2, 3, 4});
 
         assertEquals("AQIDBA==", converter.toGraphProperty(photo.getImage()));
     }

@@ -21,34 +21,37 @@ import java.util.Set;
 
 /**
  * One outgoing and one incoming relationship of the same type. Incoming iterable field and methods annotated. Outgoing iterable field annotated , methods not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV11 extends Entity {
 
-	@Relationship(type = "LIKES", direction = "OUTGOING")
-	private Set<UserV11> friend;
+    @Relationship(type = "LIKES", direction = "OUTGOING")
+    private Set<UserV11> friend;
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	private Set<UserV11> friendOf;
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    private Set<UserV11> friendOf;
 
-	public UserV11() {
-	}
+    public UserV11() {
+    }
 
-	public Set<UserV11> getFriend() {
-		return friend;
-	}
+    public Set<UserV11> getFriend() {
+        return friend;
+    }
 
-	public void setFriend(Set<UserV11> friend) {
-		this.friend = friend;
-	}
+    public void setFriend(Set<UserV11> friend) {
+        this.friend = friend;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING") //We MUST annotate the getter if present and the relationship direction is incoming
-	public Set<UserV11> getFriendOf() {
-		return friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    //We MUST annotate the getter if present and the relationship direction is incoming
+    public Set<UserV11> getFriendOf() {
+        return friendOf;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING") //We MUST annotate the getter if present and the relationship direction is incoming
-	public void setFriendOf(Set<UserV11> friendOf) {
-		this.friendOf = friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    //We MUST annotate the getter if present and the relationship direction is incoming
+    public void setFriendOf(Set<UserV11> friendOf) {
+        this.friendOf = friendOf;
+    }
 }

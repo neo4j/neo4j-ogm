@@ -20,10 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- *
- * @see DATAGRAPH-590 - Metadata resolves to an abstract class for an interface
- *
  * @author Vince Bickers
+ * @see DATAGRAPH-590 - Metadata resolves to an abstract class for an interface
  */
 public class DomainInfoTest {
 

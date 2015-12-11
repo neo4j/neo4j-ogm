@@ -22,8 +22,7 @@ import java.util.Set;
 /**
  * @author Nils Dr\u00F6ge
  */
-public class Person extends Entity
-{
+public class Person extends Entity {
     @Relationship(type = "RELATED_TO")
     public Set<RichRelation> relations = new HashSet<>();
 

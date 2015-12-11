@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Luanne Misquitta
  */
 public class TagEntity {
-	Long id;
-	@Relationship(type="TAGGED_WITH")
-	Set<TagModel> tags;
+    Long id;
+    @Relationship(type = "TAGGED_WITH")
+    Set<TagModel> tags;
 }

@@ -19,10 +19,10 @@ package org.neo4j.ogm.domain.pets;
  */
 public class DomesticDog extends Dog {
 
-	public DomesticDog() {
-	}
+    public DomesticDog() {
+    }
 
-	public DomesticDog(String name) {
-		super(name);
-	}
+    public DomesticDog(String name) {
+        super(name);
+    }
 }

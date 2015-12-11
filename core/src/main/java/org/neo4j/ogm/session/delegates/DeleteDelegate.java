@@ -18,7 +18,7 @@ import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.entityaccess.FieldWriter;
+import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;

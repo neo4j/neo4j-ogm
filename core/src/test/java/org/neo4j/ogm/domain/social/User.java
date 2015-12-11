@@ -26,37 +26,37 @@ import java.util.List;
  */
 public class User {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "FRIEND", direction = "UNDIRECTED")
-	private List<User> friends=new ArrayList<>();
+    @Relationship(type = "FRIEND", direction = "UNDIRECTED")
+    private List<User> friends = new ArrayList<>();
 
-	public User() {
-	}
+    public User() {
+    }
 
-	public User(String name) {
-		this.name = name;
-	}
+    public User(String name) {
+        this.name = name;
+    }
 
-	public List<User> getFriends() {
-		return friends;
-	}
+    public List<User> getFriends() {
+        return friends;
+    }
 
-	public void setFriends(List<User> friends) {
-		this.friends = friends;
-	}
+    public void setFriends(List<User> friends) {
+        this.friends = friends;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void befriend(User user) {
-		friends.add(user);
-		user.friends.add(this);
-	}
+    public void befriend(User user) {
+        friends.add(user);
+        user.friends.add(this);
+    }
 }

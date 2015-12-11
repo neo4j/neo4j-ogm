@@ -14,12 +14,12 @@
 
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.model.Property;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.neo4j.ogm.model.Property;
 
 /**
  * @author Vince Bickers
@@ -83,6 +83,7 @@ public class Utils {
         }
         if (value != null) {
             String className = clazz.getName();
+            // downcast to int from long
             if ("int".equals(className) || Integer.class.equals(clazz)) {
                 if (value.getClass().equals(Long.class)) {
                     Long longValue = (Long) value;
@@ -92,6 +93,7 @@ public class Utils {
                     return longValue.intValue();
                 }
             }
+            // downcast to float from double or cross-cast from int or long
             if ("float".equals(className) || (Float.class.equals(clazz))) {
                 if (value.getClass().equals(Double.class)) {
                     Double dblValue = (Double) value;
@@ -103,11 +105,19 @@ public class Utils {
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;
                     if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
-                        throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
+                        throw new IllegalArgumentException(intValue + " cannot be cast to float without an overflow.");
                     }
                     return (float) intValue;
                 }
+                if (value.getClass().equals(Long.class)) {
+                    Long longValue = (Long) value;
+                    if (longValue < -(Double.MAX_VALUE) || longValue > Double.MAX_VALUE) {
+                        throw new IllegalArgumentException(longValue + " cannot be cast to float without an overflow.");
+                    }
+                    return (float) longValue;
+                }
             }
+            // down-cast to byte from integer or long
             if ("byte".equals(className) || Byte.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;
@@ -116,7 +126,16 @@ public class Utils {
                     }
                     return intValue.byteValue();
                 }
+                if (value.getClass().equals(Long.class)) {
+                    Long longValue = (Long) value;
+                    if (longValue < Byte.MIN_VALUE || longValue > Byte.MAX_VALUE) {
+                        throw new IllegalArgumentException(longValue + " cannot be cast to byte without an overflow.");
+                    }
+                    return longValue.byteValue();
+                }
+
             }
+            // cross-cast to double from int or long or up-cast from float
             if ("double".equals(className) || Double.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;
@@ -125,11 +144,19 @@ public class Utils {
                     }
                     return (double) intValue;
                 }
+                if (value.getClass().equals(Long.class)) {
+                    Long testValue = (Long) value;
+                    if (testValue < -(Double.MAX_VALUE) || testValue > Double.MAX_VALUE) {
+                        throw new IllegalArgumentException(testValue + " cannot be cast to double without an overflow.");
+                    }
+                    return (double) testValue;
+                }
                 if (value.getClass().equals(Float.class)) {
                     Float floatValue = (Float) value;
                     return (double) floatValue;
                 }
             }
+            // up-cast to long from int
             if ("long".equals(className) || Long.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;
@@ -137,6 +164,7 @@ public class Utils {
                 }
             }
 
+            // down-cast to short from int or long
             if ("short".equals(className) || Short.class.equals(clazz)) {
                 if (value.getClass().equals(Long.class)) {
                     Long longValue = (Long) value;

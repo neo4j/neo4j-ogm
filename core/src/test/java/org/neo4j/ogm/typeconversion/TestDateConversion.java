@@ -137,7 +137,7 @@ public class TestDateConversion {
     @Test
     public void assertArrayFieldDateConversionToISO8601FormatByDefault() {//here
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date[] dates = new Date[]{new Date(0),new Date(20000)};
+        Date[] dates = new Date[]{new Date(0), new Date(20000)};
         FieldInfo fieldInfo = memoInfo.propertyField("escalations");
         assertTrue(fieldInfo.hasConverter());
         AttributeConverter attributeConverter = fieldInfo.converter();
@@ -153,7 +153,7 @@ public class TestDateConversion {
     @Test
     public void assertMethodGetterDateArrayConversionToISO8601FormatByDefault() {
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date[] dates = new Date[]{new Date(0),new Date(20000)};
+        Date[] dates = new Date[]{new Date(0), new Date(20000)};
 
         MethodInfo methodInfo = memoInfo.propertyGetter("escalations");
         assertTrue(methodInfo.hasConverter());
@@ -170,8 +170,8 @@ public class TestDateConversion {
     @Test
     public void assertMethodSetterDateArrayConversionToISO8601FormatByDefault() {
         simpleDateISO8601format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date[] dates = new Date[]{new Date(0),new Date(20000)};
-        String[] stringDates = new String[]{"1970-01-01T00:00:00.000Z",simpleDateISO8601format.format(new Date(20000))};
+        Date[] dates = new Date[]{new Date(0), new Date(20000)};
+        String[] stringDates = new String[]{"1970-01-01T00:00:00.000Z", simpleDateISO8601format.format(new Date(20000))};
 
         Memo memo = new Memo();
         MethodInfo methodInfo = memoInfo.propertySetter("escalations");
@@ -250,7 +250,7 @@ public class TestDateConversion {
         dates.add(new Date(0));
         dates.add(new Date(20000));
 
-        String[] stringDates = new String[]{"1970-01-01T00:00:00.000Z",simpleDateISO8601format.format(new Date(20000))};
+        String[] stringDates = new String[]{"1970-01-01T00:00:00.000Z", simpleDateISO8601format.format(new Date(20000))};
 
         Memo memo = new Memo();
         MethodInfo methodInfo = memoInfo.propertySetter("implementations");

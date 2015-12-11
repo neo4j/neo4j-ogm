@@ -20,10 +20,10 @@ import org.neo4j.ogm.domain.simpleNetwork.abstractions.AbstractStateNode;
 /**
  * @author vince
  */
-@NodeEntity(label="StateNode")
+@NodeEntity(label = "StateNode")
 public class StateNode extends AbstractStateNode<TimeRelation> {
 
-    @Relationship(direction="INCOMING", type="IDENTITY_STATE")
+    @Relationship(direction = "INCOMING", type = "IDENTITY_STATE")
     private TimeRelation identityRelation;
 
     @Relationship(direction = Relationship.OUTGOING, type = "PREV")

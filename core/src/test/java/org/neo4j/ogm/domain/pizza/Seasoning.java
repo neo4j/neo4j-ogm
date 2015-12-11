@@ -25,42 +25,42 @@ import java.util.Set;
  */
 public class Seasoning {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "HAS",direction = "INCOMING")
-	private Set<PizzaSeasoning> pizzas= new HashSet();
+    @Relationship(type = "HAS", direction = "INCOMING")
+    private Set<PizzaSeasoning> pizzas = new HashSet();
 
-	public Seasoning() {
-	}
+    public Seasoning() {
+    }
 
-	public Seasoning(String name) {
-		this.name = name;
-	}
+    public Seasoning(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Relationship(type = "HAS",direction = "INCOMING")
-	public Set<PizzaSeasoning> getPizzas() {
-		return pizzas;
-	}
+    @Relationship(type = "HAS", direction = "INCOMING")
+    public Set<PizzaSeasoning> getPizzas() {
+        return pizzas;
+    }
 
-	@Relationship(type = "HAS",direction = "INCOMING")
-	public void setPizzas(Set<PizzaSeasoning> pizzas) {
-		this.pizzas = pizzas;
-	}
+    @Relationship(type = "HAS", direction = "INCOMING")
+    public void setPizzas(Set<PizzaSeasoning> pizzas) {
+        this.pizzas = pizzas;
+    }
 }

@@ -21,42 +21,42 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class Animal {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "HAS_PET", direction = "INCOMING")
-	private Kid owner;
+    @Relationship(type = "HAS_PET", direction = "INCOMING")
+    private Kid owner;
 
-	public Animal() {
-	}
+    public Animal() {
+    }
 
-	public Animal(String name) {
-		this.name = name;
-	}
+    public Animal(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Relationship(type = "HAS_PET", direction = "INCOMING")
-	public Kid getOwner() {
-		return owner;
-	}
+    @Relationship(type = "HAS_PET", direction = "INCOMING")
+    public Kid getOwner() {
+        return owner;
+    }
 
-	@Relationship(type = "HAS_PET", direction = "INCOMING")
-	public void setOwner(Kid owner) {
-		this.owner = owner;
-	}
+    @Relationship(type = "HAS_PET", direction = "INCOMING")
+    public void setOwner(Kid owner) {
+        this.owner = owner;
+    }
 }

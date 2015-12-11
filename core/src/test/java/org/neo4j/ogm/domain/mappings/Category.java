@@ -22,39 +22,34 @@ import java.util.Set;
 /**
  * @author Nils Dr\u00F6ge
  */
-public class Category extends Entity
-{
+public class Category extends Entity {
     private String name;
 
     @Relationship(type = "HAS", direction = Relationship.INCOMING)
-    private Set<Event> events = new HashSet<Event>();;
+    private Set<Event> events = new HashSet<Event>();
+    ;
 
-    public Category()
-    {
+    public Category() {
     }
 
-    public Category(String name)
-    {
+    public Category(String name) {
         this();
         this.name = name;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Category{" +
-            "id:" + getNodeId() +
-            ", name:'" + name + "'" +
-            '}';
+                "id:" + getNodeId() +
+                ", name:'" + name + "'" +
+                '}';
     }
 }

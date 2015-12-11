@@ -19,7 +19,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 /**
  * @author Vince Bickers
  */
-@NodeEntity(label ="Bronze")
+@NodeEntity(label = "Bronze")
 public class BronzeMembership extends Membership {
 
     @Override
@@ -39,6 +39,6 @@ public class BronzeMembership extends Membership {
 
     @Override
     public IMembership[] getUpgrades() {
-        return new IMembership[] { new SilverMembership(), new GoldMembership()};
+        return new IMembership[]{new SilverMembership(), new GoldMembership()};
     }
 }

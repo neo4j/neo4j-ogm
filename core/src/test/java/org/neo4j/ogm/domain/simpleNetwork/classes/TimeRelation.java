@@ -19,7 +19,7 @@ import org.neo4j.ogm.domain.simpleNetwork.abstractions.AbstractTimeRelation;
 /**
  * @author vince
  */
-@RelationshipEntity(type="IDENTITY_STATE")
+@RelationshipEntity(type = "IDENTITY_STATE")
 public class TimeRelation extends AbstractTimeRelation<IdentityNode, StateNode> {
     // empty by design
 }

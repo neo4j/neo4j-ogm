@@ -101,6 +101,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
+    public GraphDatabaseService getGraphDatabaseService() {
+        return graphDatabaseService;
+    }
+
     @Override
     public Request request() {
         return new EmbeddedRequest(graphDatabaseService, transactionManager);

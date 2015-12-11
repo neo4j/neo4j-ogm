@@ -5,6 +5,8 @@ package org.neo4j.ogm.domain.election;
  */
 public class Voter extends Entity {
 
+    public Candidate candidateVotedFor;
+
     public Voter() {
         super();
     }
@@ -12,7 +14,5 @@ public class Voter extends Entity {
     public Voter(String s) {
         super(s);
     }
-
-    public Candidate candidateVotedFor;
 
 }

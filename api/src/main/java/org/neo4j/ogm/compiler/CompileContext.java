@@ -1,6 +1,6 @@
 package org.neo4j.ogm.compiler;
 
-import org.neo4j.ogm.mapper.Mappable;
+import org.neo4j.ogm.mappingcontext.Mappable;
 import org.neo4j.ogm.request.Statement;
 
 import java.util.Collection;

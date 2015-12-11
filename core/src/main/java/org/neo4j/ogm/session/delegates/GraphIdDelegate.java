@@ -15,8 +15,8 @@
 package org.neo4j.ogm.session.delegates;
 
 
-import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
+import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.annotations.EntityAccessStrategy;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;

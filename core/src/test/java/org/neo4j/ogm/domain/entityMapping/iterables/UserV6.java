@@ -21,20 +21,20 @@ import java.util.Set;
 
 /**
  * No matching setters or getters but the param type matches and the relationship direction is undirected.
- * 
+ *
  * @author Luanne Misquitta
  */
 public class UserV6 extends Entity {
 
-	private Set<UserV6> knowsPeople;
+    private Set<UserV6> knowsPeople;
 
-	@Relationship(type = "KNOWS", direction = "UNDIRECTED")
-	public Set<UserV6> getKnowsPeople() {
-		return knowsPeople;
-	}
+    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    public Set<UserV6> getKnowsPeople() {
+        return knowsPeople;
+    }
 
-	@Relationship(type = "KNOWS", direction = "UNDIRECTED")
-	public void setKnowsPeople(Set<UserV6> knowsPeople) {
-		this.knowsPeople = knowsPeople;
-	}
+    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
+    public void setKnowsPeople(Set<UserV6> knowsPeople) {
+        this.knowsPeople = knowsPeople;
+    }
 }

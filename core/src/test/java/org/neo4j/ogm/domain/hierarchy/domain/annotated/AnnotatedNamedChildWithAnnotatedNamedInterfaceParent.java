@@ -20,7 +20,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
  * @author Luanne Misquitta
  */
 @NodeEntity(label = "Child")
-public class AnnotatedNamedChildWithAnnotatedNamedInterfaceParent implements AnnotatedNamedInterfaceParent{
+public class AnnotatedNamedChildWithAnnotatedNamedInterfaceParent implements AnnotatedNamedInterfaceParent {
 
     Long id;
 }

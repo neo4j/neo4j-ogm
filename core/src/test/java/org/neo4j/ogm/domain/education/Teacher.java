@@ -26,7 +26,8 @@ public class Teacher {
     private Long id;
     private School school;
 
-    public Teacher() {}
+    public Teacher() {
+    }
 
     public Teacher(String name) {
         setName(name);

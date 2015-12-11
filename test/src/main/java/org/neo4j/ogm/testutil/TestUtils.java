@@ -48,7 +48,6 @@ public final class TestUtils {
         return cypher;
     }
 
-
     private TestUtils() {
     }
 }

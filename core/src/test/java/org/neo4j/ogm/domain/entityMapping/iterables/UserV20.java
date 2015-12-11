@@ -23,16 +23,17 @@ import java.util.List;
 
 /**
  * Two iterables with same relationship type and direction, outgoing. Fields annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV20 extends Entity {
 
-	@Relationship(type = "KNOWS")
-	public List<PlainUser> plainUsers;
+    @Relationship(type = "KNOWS")
+    public List<PlainUser> plainUsers;
 
-	@Relationship(type = "KNOWS")
-	public UserV20 user;
+    @Relationship(type = "KNOWS")
+    public UserV20 user;
 
-	public UserV20() {
-	}
+    public UserV20() {
+    }
 }

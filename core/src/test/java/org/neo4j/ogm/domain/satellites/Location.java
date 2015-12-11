@@ -23,7 +23,7 @@ import org.neo4j.ogm.annotation.Property;
  */
 public class Location extends DomainObject {
 
-    @Property(name="location")
+    @Property(name = "location")
     private String name;
 
     public String getName() {

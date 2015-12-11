@@ -22,18 +22,18 @@ import java.util.List;
 /**
  * @author Vince Bickers
  */
-@NodeEntity(label="Space_Program")
+@NodeEntity(label = "Space_Program")
 public class Program extends DomainObject {
 
     private String name;
     private List<Satellite> satellites;
 
-    @Property(name="program")
+    @Property(name = "program")
     public String getName() {
         return name;
     }
 
-    @Property(name="program")
+    @Property(name = "program")
     public void setName(String name) {
         this.name = name;
     }

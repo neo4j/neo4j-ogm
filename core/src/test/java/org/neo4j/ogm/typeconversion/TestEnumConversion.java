@@ -137,13 +137,13 @@ public class TestEnumConversion {
 
         Person bob = new Person();
         bob.setGender(Gender.MALE);
-        Education[] inProgress = new Education[] {Education.MASTERS,Education.PHD};
+        Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
         bob.setInProgressEducation(inProgress);
 
         FieldInfo fieldInfo = personInfo.propertyField("inProgressEducation");
 
         assertTrue(fieldInfo.hasConverter());
-        String[] converted = (String[])fieldInfo.converter().toGraphProperty(bob.getInProgressEducation());
+        String[] converted = (String[]) fieldInfo.converter().toGraphProperty(bob.getInProgressEducation());
         assertTrue("MASTERS".equals(converted[0]) || "MASTERS".equals(converted[1]));
         assertTrue("PHD".equals(converted[0]) || "PHD".equals(converted[1]));
 
@@ -155,7 +155,7 @@ public class TestEnumConversion {
     @Test
     public void testEducationArraySetterWithAutoDetectedConverter() {
         Person bob = new Person();
-        Education[] inProgress = new Education[] {Education.MASTERS,Education.PHD};
+        Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
         MethodInfo methodInfo = personInfo.propertySetter("inProgressEducation");
         assertTrue(methodInfo.hasConverter());
         bob.setInProgressEducation((Education[]) methodInfo.converter().toEntityAttribute(new String[]{"MASTERS", "PHD"}));
@@ -169,11 +169,11 @@ public class TestEnumConversion {
     @Test
     public void testEducationArrayGetterWithAutoDetectedConverter() {
         Person bob = new Person();
-        Education[] inProgress = new Education[] {Education.MASTERS,Education.PHD};
+        Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
         bob.setInProgressEducation(inProgress);
         MethodInfo methodInfo = personInfo.propertyGetter("inProgressEducation");
         assertTrue(methodInfo.hasConverter());
-        String[] converted = (String[])methodInfo.converter().toGraphProperty(bob.getInProgressEducation());
+        String[] converted = (String[]) methodInfo.converter().toGraphProperty(bob.getInProgressEducation());
         assertTrue("MASTERS".equals(converted[0]) || "MASTERS".equals(converted[1]));
         assertTrue("PHD".equals(converted[0]) || "PHD".equals(converted[1]));
     }
@@ -215,7 +215,7 @@ public class TestEnumConversion {
         FieldInfo fieldInfo = personInfo.propertyField("completedEducation");
 
         assertTrue(fieldInfo.hasConverter());
-        String[] converted = (String[])fieldInfo.converter().toGraphProperty(bob.getCompletedEducation());
+        String[] converted = (String[]) fieldInfo.converter().toGraphProperty(bob.getCompletedEducation());
         assertTrue("HIGHSCHOOL".equals(converted[0]) || "HIGHSCHOOL".equals(converted[1]));
         assertTrue("BACHELORS".equals(converted[0]) || "BACHELORS".equals(converted[1]));
     }
@@ -243,7 +243,7 @@ public class TestEnumConversion {
         bob.setCompletedEducation(completed);
         MethodInfo methodInfo = personInfo.propertySetter("completedEducation");
         assertTrue(methodInfo.hasConverter());
-        String[] converted = (String[])methodInfo.converter().toGraphProperty(bob.getCompletedEducation());
+        String[] converted = (String[]) methodInfo.converter().toGraphProperty(bob.getCompletedEducation());
         assertTrue("HIGHSCHOOL".equals(converted[0]) || "HIGHSCHOOL".equals(converted[1]));
         assertTrue("BACHELORS".equals(converted[0]) || "BACHELORS".equals(converted[1]));
     }

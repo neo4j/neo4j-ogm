@@ -8,15 +8,12 @@ import org.neo4j.ogm.annotation.StartNode;
  * @author Nils Dr\u00F6ge
  */
 @RelationshipEntity(type = "RELATED_TO")
-public class RichRelation
-{
-    Long id;
-
+public class RichRelation {
     @StartNode
     public Person person;
-
     @EndNode
     public Article article;
+    Long id;
 
     public RichRelation() {
     }

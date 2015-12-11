@@ -79,13 +79,13 @@ public class TestNumberConversion {
     @Test
     public void assertAccountDepositConverterWorks() {
         AttributeConverter converter = accountInfo.propertyGetter("deposits").converter();
-        BigDecimal[] deposits = new BigDecimal[] {new BigDecimal("12345.67"),new BigDecimal("34567.89")};
+        BigDecimal[] deposits = new BigDecimal[]{new BigDecimal("12345.67"), new BigDecimal("34567.89")};
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setDeposits(deposits);
-        String[] convertedDeposits = (String[])converter.toGraphProperty(account.getDeposits());
+        String[] convertedDeposits = (String[]) converter.toGraphProperty(account.getDeposits());
         assertEquals(2, convertedDeposits.length);
-        assertEquals("12345.67",convertedDeposits[0]);
-        assertEquals("34567.89",convertedDeposits[1]);
+        assertEquals("12345.67", convertedDeposits[0]);
+        assertEquals("34567.89", convertedDeposits[1]);
 
         account.setDeposits((BigDecimal[]) converter.toEntityAttribute(convertedDeposits));
         Assert.assertEquals(new BigDecimal("12345.67"), account.getDeposits()[0]);
@@ -103,9 +103,9 @@ public class TestNumberConversion {
         loans.add(BigInteger.valueOf(567890));
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setLoans(loans);
-        String[] convertedLoans = (String[])converter.toGraphProperty(account.getLoans());
+        String[] convertedLoans = (String[]) converter.toGraphProperty(account.getLoans());
         assertEquals(2, convertedLoans.length);
-        assertEquals("123456",convertedLoans[0]);
+        assertEquals("123456", convertedLoans[0]);
         assertEquals("567890", convertedLoans[1]);
 
         account.setLoans((List) converter.toEntityAttribute(convertedLoans));

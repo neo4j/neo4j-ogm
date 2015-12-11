@@ -18,29 +18,28 @@ import org.neo4j.ogm.annotation.Property;
 
 /**
  * This object is partially hydrated via its setter methods and partially via its fields
- *
+ * <p/>
  * A Satellite can be logically active or inactive. However this is not determined by
  * an attribute on the node, but instead by the relationship-type to the space program
  * that launched it (program)-[:ACTIVE]->(satellite) or (program-[:INACTIVE]-(satellite).
- *
+ * <p/>
  * The requirement to assign boolean attributes from the presence of absence of a relationship
  * between two nodes is a long-standing one. Currently no solution exists. One possibility
  * would be to add a new attribute @Infer. This would only apply to Boolean fields
  * and their related getters/setters, for example:
  *
- * @Infer(relationshipType="ACTIVE") Boolean active;
- *
- * Does the absence of an 'ACTIVE' relationship imply 'INACTIVE' and therefore active=False?
- *
  * @author Vince Bickers
+ * @Infer(relationshipType="ACTIVE") Boolean active;
+ * <p/>
+ * Does the absence of an 'ACTIVE' relationship imply 'INACTIVE' and therefore active=False?
  */
 public class Satellite extends DomainObject {
 
-    @Property(name="satellite")
+    @Property(name = "satellite")
     private String name;
 
     private String launched;
-    @Property(name="manned")
+    @Property(name = "manned")
     private String manned;
 
     private Location location;
@@ -53,17 +52,17 @@ public class Satellite extends DomainObject {
         return name;
     }
 
-    @Property(name="satellite")
+    @Property(name = "satellite")
     public void setName(String name) {
         this.name = name;
     }
 
-    @Property(name="launch_date")
+    @Property(name = "launch_date")
     public String getLaunched() {
         return launched;
     }
 
-    @Property(name="launch_date")
+    @Property(name = "launch_date")
     public void setLaunched(String launched) {
         this.launched = launched;
     }

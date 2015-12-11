@@ -19,26 +19,26 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 /**
  * @author Luanne Misquitta
  */
-public class SecurityRoleConverter implements AttributeConverter<SecurityRole[],String[]> {
+public class SecurityRoleConverter implements AttributeConverter<SecurityRole[], String[]> {
 
     @Override
     public String[] toGraphProperty(SecurityRole[] value) {
-        if(value==null) {
+        if (value == null) {
             return null;
         }
         String[] values = new String[(value.length)];
-        int i=0;
-        for(SecurityRole securityRole : value) {
-            values[i++]=securityRole.name();
+        int i = 0;
+        for (SecurityRole securityRole : value) {
+            values[i++] = securityRole.name();
         }
         return values;
     }
 
     @Override
     public SecurityRole[] toEntityAttribute(String[] value) {
-        SecurityRole[] roles =new SecurityRole[value.length];
-        int i=0;
-        for(String role : value) {
+        SecurityRole[] roles = new SecurityRole[value.length];
+        int i = 0;
+        for (String role : value) {
             roles[i++] = SecurityRole.valueOf(role);
         }
         return roles;

@@ -21,26 +21,26 @@ import org.neo4j.ogm.annotation.Property;
  */
 public class Studio {
 
-	private Long id;
-	@Property(name = "studio-name")
-	private String name;
+    private Long id;
+    @Property(name = "studio-name")
+    private String name;
 
-	public Studio() {
-	}
+    public Studio() {
+    }
 
-	public Studio(String name) {
-		this.name = name;
-	}
+    public Studio(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 }

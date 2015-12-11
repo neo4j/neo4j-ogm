@@ -18,21 +18,22 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Annotated incoming field with annotated getters and setters. Relationship type same as property name
- *  @author Luanne Misquitta
+ *
+ * @author Luanne Misquitta
  */
 public class UserV8 extends Entity {
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	private UserV8 knows;
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    private UserV8 knows;
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public UserV8 getKnows() {
-		return knows;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public UserV8 getKnows() {
+        return knows;
+    }
 
-	@Relationship(type = "KNOWS", direction = "INCOMING")
-	public void setKnows(UserV8 knows) {
-		this.knows = knows;
-	}
+    @Relationship(type = "KNOWS", direction = "INCOMING")
+    public void setKnows(UserV8 knows) {
+        this.knows = knows;
+    }
 
 }

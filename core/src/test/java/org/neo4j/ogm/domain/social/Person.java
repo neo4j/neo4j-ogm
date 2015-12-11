@@ -26,36 +26,36 @@ import java.util.List;
  */
 public class Person {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "LIKES", direction = "OUTGOING")
-	private List<Person> peopleILike=new ArrayList<>();
+    @Relationship(type = "LIKES", direction = "OUTGOING")
+    private List<Person> peopleILike = new ArrayList<>();
 
-	public Person() {
-	}
+    public Person() {
+    }
 
-	public Person(String name) {
-		this.name = name;
-	}
+    public Person(String name) {
+        this.name = name;
+    }
 
-	public List<Person> getPeopleILike() {
-		return peopleILike;
-	}
+    public List<Person> getPeopleILike() {
+        return peopleILike;
+    }
 
-	public void setPeopleILike(List<Person> peopleILike) {
-		this.peopleILike = peopleILike;
-	}
+    public void setPeopleILike(List<Person> peopleILike) {
+        this.peopleILike = peopleILike;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 }

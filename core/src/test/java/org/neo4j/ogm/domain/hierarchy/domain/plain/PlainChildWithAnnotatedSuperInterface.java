@@ -17,7 +17,7 @@ package org.neo4j.ogm.domain.hierarchy.domain.plain;
 /**
  * @author Luanne Misquitta
  */
-public class PlainChildWithAnnotatedSuperInterface implements PlainInterfaceChildWithAnnotatedParentInterface{
+public class PlainChildWithAnnotatedSuperInterface implements PlainInterfaceChildWithAnnotatedParentInterface {
 
     Long id;
 }

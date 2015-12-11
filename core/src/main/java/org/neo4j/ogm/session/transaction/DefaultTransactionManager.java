@@ -16,6 +16,7 @@ package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.TransactionManagerException;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -29,6 +30,10 @@ public class DefaultTransactionManager implements TransactionManager {
     private final Driver driver;
 
     private static final ThreadLocal<Transaction> TRANSACTION_THREAD_LOCAL = new ThreadLocal<>();
+
+    public DefaultTransactionManager() {
+        this(Components.driver());
+    }
 
     public DefaultTransactionManager(Driver driver) {
         this.driver = driver;

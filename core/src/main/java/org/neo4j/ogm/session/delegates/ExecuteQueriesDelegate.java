@@ -17,7 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
-import org.neo4j.ogm.mapper.*;
+import org.neo4j.ogm.mappingcontext.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.QueryStatistics;

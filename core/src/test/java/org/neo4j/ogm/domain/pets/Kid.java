@@ -24,25 +24,25 @@ import java.util.Set;
  */
 public class Kid {
 
-	private Long id;
-	private String name;
+    private Long id;
+    private String name;
 
-	@Relationship(type = "HAS_PET")
-	private Set<Mammal> pets = new HashSet<>();
+    @Relationship(type = "HAS_PET")
+    private Set<Mammal> pets = new HashSet<>();
 
-	public Kid() {
-	}
+    public Kid() {
+    }
 
-	public Kid(String name) {
-		this.name = name;
-	}
+    public Kid(String name) {
+        this.name = name;
+    }
 
-	public void hasPet(Mammal mammal) {
-		pets.add(mammal);
-		mammal.setOwner(this);
-	}
+    public void hasPet(Mammal mammal) {
+        pets.add(mammal);
+        mammal.setOwner(this);
+    }
 
-	public Set<Mammal> getPets() {
-		return pets;
-	}
+    public Set<Mammal> getPets() {
+        return pets;
+    }
 }

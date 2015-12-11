@@ -21,35 +21,36 @@ import java.util.Set;
 
 /**
  * One incoming and one outgoing relationship of the same type. Incoming iterable field and methods annotated. Outgoing methods annotated, iterable field not annotated.
+ *
  * @author Luanne Misquitta
  */
 public class UserV12 extends Entity {
 
-	private Set<UserV12> friend;
+    private Set<UserV12> friend;
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	private Set<UserV12> friendOf;
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    private Set<UserV12> friendOf;
 
-	public UserV12() {
-	}
+    public UserV12() {
+    }
 
-	@Relationship(type = "LIKES")
-	public Set<UserV12> getFriend() {
-		return friend;
-	}
+    @Relationship(type = "LIKES")
+    public Set<UserV12> getFriend() {
+        return friend;
+    }
 
-	@Relationship(type = "LIKES")
-	public void setFriend(Set<UserV12> friend) {
-		this.friend = friend;
-	}
+    @Relationship(type = "LIKES")
+    public void setFriend(Set<UserV12> friend) {
+        this.friend = friend;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	public Set<UserV12> getFriendOf() {
-		return friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    public Set<UserV12> getFriendOf() {
+        return friendOf;
+    }
 
-	@Relationship(type = "LIKES", direction = "INCOMING")
-	public void setFriendOf(Set<UserV12> friendOf) {
-		this.friendOf = friendOf;
-	}
+    @Relationship(type = "LIKES", direction = "INCOMING")
+    public void setFriendOf(Set<UserV12> friendOf) {
+        this.friendOf = friendOf;
+    }
 }

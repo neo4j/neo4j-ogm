@@ -16,6 +16,7 @@ package org.neo4j.ogm.context;
 
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.session.Utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,13 +41,7 @@ public class EntityRowModelMapper<T> implements ResponseMapper<RowModel> {
             }
             for (int i = 0; i < model.variables().length; i++) {
                 Object o = model.getValues()[0];
-                if (o instanceof Float && type.isAssignableFrom(Double.class)) {
-                    result.add((T) new Double(((Float) o).doubleValue()));
-                } else if (o instanceof Integer && type.isAssignableFrom(Long.class)) {
-                    result.add((T) new Long(((Integer) o).longValue()));
-                } else { // force a type cast and hope for the best...
-                    result.add(type.cast(o));
-                }
+                result.add((T) Utils.coerceTypes(type, o));
             }
         }
         return result;

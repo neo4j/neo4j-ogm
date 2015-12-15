@@ -13,8 +13,16 @@
  */
 package org.neo4j.ogm.drivers;
 
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.social.User;
+import org.neo4j.ogm.exception.TransactionException;
+import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,17 +32,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.social.User;
-import org.neo4j.ogm.exception.TransactionException;
-import org.neo4j.ogm.model.QueryStatistics;
-import org.neo4j.ogm.service.Components;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.transaction.Transaction;
+import static org.junit.Assert.*;
 
 /**
  * @author vince
@@ -43,11 +41,6 @@ public abstract class AbstractDriverTest {
 
     private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
     private Session session;
-
-    @AfterClass
-    public static void restoreCurrentDriver() {
-        Components.autoConfigure();
-    }
 
     public abstract void setUp();
 

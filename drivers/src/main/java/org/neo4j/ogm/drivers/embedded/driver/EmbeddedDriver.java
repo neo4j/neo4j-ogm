@@ -2,7 +2,6 @@ package org.neo4j.ogm.drivers.embedded.driver;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
@@ -26,13 +25,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private static GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
-
-    /**
-     * The default constructor will start a new embedded instance
-     * configured via the embedded.driver.properties file.
-     */
+    // required for service loader mechanism
     public EmbeddedDriver() {
-        configure(new DriverConfiguration(new Configuration("embedded.driver.properties")));
     }
 
     /**

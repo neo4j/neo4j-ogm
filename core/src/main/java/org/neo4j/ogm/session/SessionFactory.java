@@ -69,18 +69,6 @@ public class SessionFactory {
         return metaData;
     }
 
-//    /**
-//     * Opens a new Neo4j mapping {@link Session} using the specified Driver
-//     * The driver should be configured to connect to the database using the appropriate
-//     * DriverConfig
-//     *
-//     * @param driver The driver to use to connect to Neo4j
-//     * @return A new {@link Session}
-//     */
-//    public Session openSession(Driver driver) {
-//        return new Neo4jSession(metaData, driver);
-//    }
-
     /**
      * Opens a new Neo4j mapping {@link Session} using the Driver specified in the OGM configuration
      * The driver should be configured to connect to the database using the appropriate

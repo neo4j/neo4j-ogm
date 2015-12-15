@@ -25,7 +25,7 @@ import java.util.Properties;
  * is called "ogm.properties" and it must be available on the class path.
  *
  * You can supply a different configuration properties file, by specifying a system property
- * "OGM_CONFIG_FILE" that refers to the configuration file you want to use. Your alternative
+ * "ogm.properties" that refers to the configuration file you want to use. Your alternative
  * configuration file must be on the class path.
  *
  * The properties file should contain the desired configuration values for each of the
@@ -40,59 +40,84 @@ public class Components {
 
     private static final Logger logger = LoggerFactory.getLogger(Components.class);
 
-    private static Configuration configuration = new Configuration();
+    private static Configuration configuration;
     private static Driver driver;
 
-    static {
-        autoConfigure();
-    }
-
+    /**
+     * Configure the OGM from a pre-built Configuration class
+     * @param configuration The configuration to use
+     */
     public static void configure(Configuration configuration) {
+        driver = null;
         Components.configuration = configuration;
-        loadDriver();
     }
 
-    private static void loadDriver() {
-        setDriver (DriverService.load(new DriverConfiguration(configuration)));
-    }
+    /**
+     * Configure the OGM from the specified config file
+     * @param configurationFileName The config file to use
+     */
+    public static void configure(String configurationFileName) {
+        try (InputStream is = classPathResource(configurationFileName)) {
+            configure(is);
+        } catch (Exception e) {
+            logger.warn("Could not configure OGM from {}", configurationFileName);
+        }
 
-    private static Compiler loadCompiler() {
-        return CompilerService.load(new CompilerConfiguration(configuration));
     }
 
     // only one instance of the driver exists for the lifetime of the application
-    public static Driver driver() {
+    public synchronized static Driver driver() {
+        if (driver == null) {
+            loadDriver();
+        }
         return driver;
     }
 
     // new instance of the compiler is returned every time
-    public static Compiler compiler() {
+    public synchronized static Compiler compiler() {
         return loadCompiler();
     }
 
     /**
      * The OGM Components can be auto-configured from a properties file, "ogm.properties", or
-     * a similar configuration file, specified by a system property or environment variable called "OGM_CONFIG".
+     * a similar configuration file, specified by a system property or environment variable called "ogm.properties".
      *
      * If an auto-configure properties file is not available by any of these means, the Components class should be configured
-     * by passing in a Configuration object to the configure method.
+     * by passing in a Configuration object to the configure method, or an explicit configuration file name
      */
-    public static void autoConfigure() {
-
+    public synchronized static void autoConfigure() {
         try(InputStream is = configurationFile()) {
-
-            Properties properties = new Properties();
-            properties.load(is);
-            Enumeration propertyNames = properties.propertyNames();
-
-            while (propertyNames.hasMoreElements()) {
-                String propertyName = (String) propertyNames.nextElement();
-                configuration.set(propertyName, properties.getProperty(propertyName));
-            }
+            configure(is);
         } catch (Exception e) {
             logger.warn("Could not autoconfigure the OGM");
         }
-        loadDriver();
+
+    }
+
+    private static void configure(InputStream is) throws Exception {
+        configuration = new Configuration();
+        driver = null;
+        Properties properties = new Properties();
+        properties.load(is);
+        Enumeration propertyNames = properties.propertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = (String) propertyNames.nextElement();
+            configuration.set(propertyName, properties.getProperty(propertyName));
+        }
+    }
+
+    private static void loadDriver() {
+        if (configuration == null) {
+            autoConfigure();
+        }
+        setDriver (DriverService.load(new DriverConfiguration(configuration)));
+    }
+
+    private static Compiler loadCompiler() {
+        if (configuration == null) {
+            autoConfigure();
+        }
+        return CompilerService.load(new CompilerConfiguration(configuration));
     }
 
     private static InputStream configurationFile() throws Exception {
@@ -110,7 +135,7 @@ public class Components {
     }
 
     private static InputStream classPathResource(String name) {
-        System.out.println("Configuring from: " + name);
+        System.out.println("Trying to configure from: " + name);
         return ClassLoaderResolver.resolve().getResourceAsStream(name);
     }
 

@@ -20,7 +20,6 @@ import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
 
@@ -29,6 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
+ * This class will autoconfigure from the file ogm.properties, if it exists
+ *
  * @author Vince Bickers
  */
 @SuppressWarnings("deprecation")
@@ -51,8 +52,6 @@ public class TestServer {
     }
 
     private TestServer(int port, String transactionTimeoutSeconds) {
-
-        Components.setDriver(new HttpDriver());
 
         try {
 

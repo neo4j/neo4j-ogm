@@ -43,6 +43,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
     @Override
     public DriverConfiguration getConfiguration() {
+        assert(driverConfig != null);
         return driverConfig;
     }
 

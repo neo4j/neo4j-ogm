@@ -1,7 +1,6 @@
 package org.neo4j.ogm.drivers.bolt.driver;
 
 import org.neo4j.driver.Session;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
@@ -16,9 +15,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private Session boltSession;
 
-
+    // required for service loader mechanism
     public BoltDriver() {
-        configure(new DriverConfiguration(new Configuration("bolt.driver.properties")));
     }
 
     public BoltDriver(DriverConfiguration driverConfiguration) {

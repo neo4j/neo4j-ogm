@@ -13,7 +13,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.Credentials;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpAuthorization;
@@ -35,14 +34,9 @@ public final class HttpDriver extends AbstractConfigurableDriver {
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
 
-    /**
-     * Create a new driver, and auto-configure
-     */
+    // required for service loader mechanism
     public HttpDriver() {
-        configure(new DriverConfiguration(new Configuration("http.driver.properties")));
     }
-
-
     /**
      * Create a new driver and configure via the specified DriverConfiguration
      * @param configuration

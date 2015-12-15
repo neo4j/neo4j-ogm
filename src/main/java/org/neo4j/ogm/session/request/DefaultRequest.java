@@ -24,6 +24,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.CredentialsService;
 import org.neo4j.ogm.authentication.HttpRequestAuthorization;
 import org.neo4j.ogm.authentication.Neo4jCredentials;
@@ -83,6 +84,12 @@ public class DefaultRequest implements Neo4jRequest<String> {
             HttpEntity responseEntity = response.getEntity();
 
             if (statusLine.getStatusCode() >= 300) {
+				if (responseEntity != null) {
+					String responseText = EntityUtils.toString(responseEntity);
+					LOGGER.debug("Response Status: {} response: {}" , statusLine.getStatusCode(), responseText);
+					EntityUtils.consume(responseEntity);
+					
+				}
                 throw new HttpResponseException(
                         statusLine.getStatusCode(),
                         statusLine.getReasonPhrase());

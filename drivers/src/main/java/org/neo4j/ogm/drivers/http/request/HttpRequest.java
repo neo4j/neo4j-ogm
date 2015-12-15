@@ -14,10 +14,6 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
@@ -30,6 +26,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
@@ -46,6 +43,10 @@ import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -193,6 +194,11 @@ public class HttpRequest implements Request {
             HttpEntity responseEntity = response.getEntity();
 
             if (statusLine.getStatusCode() >= 300) {
+                if (responseEntity != null) {
+                    String responseText = EntityUtils.toString(responseEntity);
+                    logger.debug("Response Status: {} response: {}" , statusLine.getStatusCode(), responseText);
+                    EntityUtils.consume(responseEntity);
+                }
                 throw new HttpResponseException(
                         statusLine.getStatusCode(),
                         statusLine.getReasonPhrase());

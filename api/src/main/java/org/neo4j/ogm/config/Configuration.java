@@ -54,5 +54,11 @@ public class Configuration {
         }
     }
 
+    public DriverConfiguration driverConfiguration() {
+        return new DriverConfiguration(this);
+    }
 
+    public CompilerConfiguration compilerConfiguration() {
+        return new CompilerConfiguration(this);
+    }
 }

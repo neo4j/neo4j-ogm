@@ -155,4 +155,8 @@ public class Components {
         }
         return 9.9; // unknown version
     }
+
+    public static Configuration configuration() {
+        return configuration;
+    }
 }

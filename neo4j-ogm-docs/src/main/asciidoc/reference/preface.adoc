@@ -42,6 +42,14 @@ Supporting the smart object-mapping capability is the `Session` whose lifetime c
 The advantage of longer-running sessions is that you will be able to make more efficient requests to the database at the expense of the additional memory associated with the session.
 The advantage of shorter sessions is they impose almost no overhead on memory, but will result in less efficient requests to Neo4j when storing and retrieving data.
 
+=== Multiple driver implementations
+As of 2.0, the OGM provides suppport for connecting to Neo4j using different drivers. The following drivers are available.
+
+- Http driver
+- Embedded driver
+- Bolt driver (v3.0 Neo4j only - experimental)
+
+Please see the Setup guide for more details about how to configure the OGM to use the driver you require.
 
 = Overview
 

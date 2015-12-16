@@ -3,9 +3,11 @@ package org.neo4j.ogm.testutil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 /**
  * @author vince
@@ -13,6 +15,7 @@ import org.neo4j.ogm.service.Components;
 public class MultiDriverTestClass {
 
     private static TestServer testServer;
+    private static GraphDatabaseService impermanentDb;
 
     @BeforeClass
     public static void setupMultiDriverTestEnvironment() {
@@ -23,7 +26,15 @@ public class MultiDriverTestClass {
                 testServer = new AuthenticatingTestServer();
             }
         }
-        System.out.println("Driver URI: " + Components.driver().getConfiguration().getURI());
+        else {
+            impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase();
+            DriverConfiguration driverConfiguration = new DriverConfiguration();
+            driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+            driverConfiguration.setURI("file:///tmp/neo4j.db"); //this should not matter with an impermanent db
+            EmbeddedDriver embeddedDriver = new EmbeddedDriver(impermanentDb);
+            Components.setDriver(embeddedDriver);
+            Components.driver().configure(driverConfiguration);
+        }
     }
 
     @AfterClass
@@ -31,8 +42,9 @@ public class MultiDriverTestClass {
         if (testServer != null) {
             testServer.shutdown();
             testServer = null;
-        } else {
-            //((EmbeddedDriver) C)
+        }
+        if (impermanentDb != null) {
+            impermanentDb.shutdown();
         }
     }
 

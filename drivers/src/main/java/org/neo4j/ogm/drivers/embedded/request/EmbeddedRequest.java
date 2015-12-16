@@ -162,6 +162,8 @@ public class EmbeddedRequest implements Request {
             return graphDatabaseService.execute(cypher, parameterMap);
 
         } catch (Exception e) {
+            EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
+            tx.rollback();
             throw new RuntimeException(e);
         }
 

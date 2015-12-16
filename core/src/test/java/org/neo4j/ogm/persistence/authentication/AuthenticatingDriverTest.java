@@ -15,6 +15,8 @@
 package org.neo4j.ogm.persistence.authentication;
 
 
+import static org.junit.Assert.*;
+
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Test;
@@ -23,8 +25,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -39,7 +39,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testUnauthorizedDriver() {
 
-        if (Components.driver().getConfiguration().getURI().startsWith("http://")) {
+        if (Components.driver().getConfiguration().getDriverClassName().contains("http")) {
 
             Components.driver().getConfiguration().setCredentials(null);
             session = new SessionFactory("dummy").openSession();
@@ -63,7 +63,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testAuthorizedDriver() {
 
-        if (Components.driver().getConfiguration().getURI().startsWith("http://")) {
+        if (Components.driver().getConfiguration().getDriverClassName().contains("http")) {
 
             session = new SessionFactory("dummy").openSession();
 
@@ -81,7 +81,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testInvalidCredentials() {
 
-        if (Components.driver().getConfiguration().getURI().startsWith("http://")) {
+        if (Components.driver().getConfiguration().getDriverClassName().contains("http")) {
 
             Components.driver().getConfiguration().setCredentials("neo4j", "invalid_password");
             session = new SessionFactory("dummy").openSession();

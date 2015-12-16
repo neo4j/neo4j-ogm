@@ -1,16 +1,16 @@
 package org.neo4j.ogm.drivers.embedded.response;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultAdapter;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This adapter will transform an embedded response into a json response
@@ -55,10 +55,9 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
             }
             variables.add(key);
 
-            if (value.getClass().isArray()) {
+            if (value!=null && value.getClass().isArray()) {
                 value = convertToIterable(value);
             }
-
 
             values.add(value);
         }

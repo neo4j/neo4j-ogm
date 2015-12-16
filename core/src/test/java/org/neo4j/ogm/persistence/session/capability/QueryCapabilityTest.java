@@ -14,6 +14,11 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,11 +30,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
-
-import java.io.IOException;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -212,6 +212,14 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         assertTrue(names.contains("Jeff"));
         assertTrue(names.contains("John"));
         assertTrue(names.contains("Colin"));
+    }
+
+    @Test
+    public void shouldBeAbleToHandleNullValuesInQueryResults() {
+        session.save(new Actor("Jeff"));
+        Iterable<Map<String,Object>> results = session.query("MATCH (a:Actor) return a.nonExistent as nonExistent", Collections.EMPTY_MAP);
+        Map<String,Object> result = results.iterator().next();
+        assertNull(result.get("nonExistent"));
     }
 
 }

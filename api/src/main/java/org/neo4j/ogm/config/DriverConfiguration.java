@@ -3,6 +3,8 @@ package org.neo4j.ogm.config;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 
+import java.net.URL;
+
 /**
  * 
  * A wrapper class for a generic {@link Configuration} that exposes the configuration for a Driver via
@@ -32,6 +34,16 @@ public class DriverConfiguration {
 
     public void setURI(String uri) {
         configuration.set(URI, uri);
+        try { // if this URI is a genuine resource, see if it has an embedded userinfo and set credentials accordingly
+            URL url = new URL(uri);
+            String userInfo = url.getUserInfo();
+            if (userInfo != null) {
+                String[] userPass = userInfo.split(":");
+                setCredentials(userPass[0], userPass[1]);
+            }
+        } catch (Exception e) {
+            ; // do nothing here. user not obliged to supply a URL, or to pass in credentials
+        }
     }
 
     public void setCredentials(Credentials credentials) {
@@ -43,6 +55,9 @@ public class DriverConfiguration {
     }
 
     public Credentials getCredentials() {
+        if (configuration.get(CREDENTIALS) == null) {
+            setURI((String) configuration.get(URI)); // set from the URI?
+        }
         return (Credentials) configuration.get(CREDENTIALS);
     }
 

@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author vince
@@ -72,6 +74,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         if (graphDatabaseService == null) {
             try {
                 String fileStoreUri = config.getURI();
+                if (fileStoreUri == null) {
+                    fileStoreUri = createTemporaryEphemeralFileStore();
+                    config.setURI(fileStoreUri);
+                }
                 File file = new File(new URI(fileStoreUri));
                 graphDatabaseService = new GraphDatabaseFactory()
                         .newEmbeddedDatabaseBuilder(file.getAbsolutePath())
@@ -119,4 +125,19 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         logger.debug("Native transaction: {}", nativeTransaction);
         return nativeTransaction;
     }
+
+    private String createTemporaryEphemeralFileStore() {
+
+        try {
+            Path path = Files.createTempDirectory("neo4j.db");
+            File f = path.toFile();
+            f.deleteOnExit();
+            URI uri = f.toURI();
+            String fileStoreUri = uri.toString();
+            return fileStoreUri;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

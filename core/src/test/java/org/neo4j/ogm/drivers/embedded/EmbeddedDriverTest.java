@@ -32,4 +32,5 @@ public class EmbeddedDriverTest extends AbstractDriverTest {
         Components.setDriver(driver);
         assert Components.driver() instanceof EmbeddedDriver;
     }
+
 }

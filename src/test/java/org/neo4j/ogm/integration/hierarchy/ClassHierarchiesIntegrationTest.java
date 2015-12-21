@@ -18,8 +18,10 @@ import static org.junit.Assert.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -31,6 +33,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.integration.hierarchy.domain.annotated.*;
 import org.neo4j.ogm.integration.hierarchy.domain.people.*;
 import org.neo4j.ogm.integration.hierarchy.domain.plain.*;
+import org.neo4j.ogm.integration.hierarchy.domain.rels.*;
 import org.neo4j.ogm.integration.hierarchy.domain.trans.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -761,5 +764,48 @@ public class ClassHierarchiesIntegrationTest {
         assertNotNull(m1);
         assertEquals("m1", m1.getName());
         assertEquals("c1",m1.getChildren().iterator().next().getName());
+    }
+
+	/**
+	 * @see Issue 93
+     */
+    @Test
+    public void shouldLoadAllRelatedEntitiesWhenLoadingSuperclasses() {
+        ParentClass parent = new ParentClass();
+        ClassX classX = new ClassX();
+        classX.setName("x");
+        ClassY classY = new ClassY();
+        classY.setName("y");
+        ChildA childA = new ChildA();
+        childA.setFieldX(classX);
+        childA.setName("A");
+        ChildB childB = new ChildB();
+        childB.setFieldY(classY);
+        childB.setName("B");
+        session.save(parent);
+        session.save(childA);
+        session.save(childB);
+        List<ParentClass> allParentClasses = new ArrayList<>();
+        allParentClasses.add(parent);
+        allParentClasses.add(childA);
+        allParentClasses.add(childB);
+
+        session.clear();
+        Collection<ParentClass> all = session.loadAll(allParentClasses, 3);
+        assertEquals(3, all.size());
+        for (ParentClass parentClass : all) {
+            if (parentClass instanceof ChildA) {
+                ChildA a = (ChildA) parentClass;
+                assertEquals("A", a.getName());
+                assertNotNull(a.getFieldX());
+                assertEquals("x", a.getFieldX().getName());
+            }
+            if (parentClass instanceof ChildB) {
+                ChildB b = (ChildB) parentClass;
+                assertEquals("B", b.getName());
+                assertNotNull(b.getFieldY());
+                assertEquals("y", b.getFieldY().getName());
+            }
+        }
     }
 }

@@ -2,7 +2,6 @@ package org.neo4j.ogm.drivers;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
@@ -34,7 +33,6 @@ public class DriverConfigTest {
     }
 
     @Test
-    @Ignore //TODO temporarily ignored, fails on CI server
     public void shouldUseTemporaryEphemeralFileStoreForEmbeddedDriverIfNoURISpecified() {
 
         Configuration configuration = new Configuration();

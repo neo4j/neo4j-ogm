@@ -238,7 +238,7 @@
     <profile>
       <id>2.2</id>
       <properties>
-        <neo4j>2.2.7</neo4j>
+        <neo4j>2.2.8</neo4j>
         <ogm.properties>ogm-2.2.properties</ogm.properties>
       </properties>
     </profile>

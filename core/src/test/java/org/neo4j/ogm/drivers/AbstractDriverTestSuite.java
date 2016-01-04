@@ -36,8 +36,10 @@ import static org.junit.Assert.*;
 
 /**
  * @author vince
+ *
+ * Do not rename this class to end with *Test, or certain test packages might try to execute it.
  */
-public abstract class AbstractDriverTest {
+public abstract class AbstractDriverTestSuite {
 
     private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
     private Session session;

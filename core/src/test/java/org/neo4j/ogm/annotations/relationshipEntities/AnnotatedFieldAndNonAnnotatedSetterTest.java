@@ -20,11 +20,12 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.MethodWriter;
+import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.annotations.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,21 +33,26 @@ import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
+ * @author Vince Bickers
  */
-public class AnnotatedFieldAndSetterWithNonSetter {
+public class AnnotatedFieldAndNonAnnotatedSetterTest {
     private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
     private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.annotations.relationshipEntities");
 
 
     @Test
-    public void shouldPreferAnnotatedSetterOverAnnotatedFieldAndNonSetter() {
-        ClassInfo classInfo = this.domainInfo.getClass(End.class.getName());
-        Set<RelEntity> parameter = new HashSet<>();
-        parameter.add(new RelEntity());
+    public void shouldPreferAnnotatedFieldWithNonAnnotatedSetterForRelationshipEntity() {
 
-        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, new RelEntity());
+        ClassInfo classInfo = this.domainInfo.getClass(End.class.getName());
+
+        RelEntity relEntity = new RelEntity();
+        Set<RelEntity> parameter = new HashSet();
+        parameter.addAll(Arrays.asList(relEntity));
+
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
+
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the method", objectAccess instanceof MethodWriter);
+        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
         End end = new End();
         objectAccess.write(end, parameter);
         assertEquals(end.getRelEntities(), parameter);
@@ -103,15 +109,8 @@ public class AnnotatedFieldAndSetterWithNonSetter {
             return relEntities;
         }
 
-        @Relationship(type = "REL_ENTITY_TYPE", direction = "INCOMING")
         public void setRelEntities(Set<RelEntity> relEntities) {
             this.relEntities = relEntities;
         }
-
-        public void addRelEntity(RelEntity relEntity) {
-
-        }
-
-
     }
 }

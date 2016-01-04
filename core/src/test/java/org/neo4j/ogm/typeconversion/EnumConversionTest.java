@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class TestEnumConversion {
+public class EnumConversionTest {
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.enums");
 

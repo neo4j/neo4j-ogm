@@ -48,21 +48,12 @@ import static org.junit.Assert.fail;
  */
 public class TransactionManagerTest extends MultiDriverTestClass {
 
-    private static final DefaultTransactionManager transactionManager = new DefaultTransactionManager();
+    private DefaultTransactionManager transactionManager = new DefaultTransactionManager();
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
         try (Transaction tx = transactionManager.openTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
-        }
-    }
-
-    public void shouldBeAbleToExtendTransactions() {
-        try (Transaction tx1 = transactionManager.openTransaction()) {
-            try (Transaction tx2 = transactionManager.openTransaction()) {
-                assertEquals(Transaction.Status.OPEN, tx1.status());
-                assertEquals(Transaction.Status.OPEN, tx2.status());
-            }
         }
     }
 
@@ -99,7 +90,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
             executor.submit(new TransactionStarter(latch));
         }
         latch.await(); // pause until the count reaches 0
-        System.out.println("all threads running");
+        //System.out.println("all threads running");
 
         // force termination of all threads
         executor.shutdownNow();
@@ -125,7 +116,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
                 session.purgeDatabase();
                 fail("Should have caught exception");
             } catch (ResultProcessingException rpe) {
-                //HttpResponseException cause = (HttpResponseException) rpe.getCause();
+                //HttpResponseException cause = (HttpResponseException) rpe.getCause().getCause();
                 //assertEquals("Not Found", cause.getMessage());
                 //assertEquals(404, cause.getStatusCode());
             }
@@ -146,7 +137,6 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         public void run() {
 
             final Transaction tx = Components.driver().newTransaction();
-            System.out.println("opened a transaction: " + tx);
             latch.countDown();
 
             // run forever
@@ -156,7 +146,6 @@ public class TransactionManagerTest extends MultiDriverTestClass {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    System.out.println("Stopping thread");
                     transactionManager.rollback(tx);
                     Thread.currentThread().interrupt(); //propagate interrupt
                 }

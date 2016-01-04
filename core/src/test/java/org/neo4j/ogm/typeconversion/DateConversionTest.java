@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class TestDateConversion {
+public class DateConversionTest {
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.date");
     private static final ClassInfo memoInfo = metaData.classInfo("Memo");

@@ -35,22 +35,22 @@ import static org.junit.Assert.*;
  * @author Luanne Misquitta
  * @author Vince Bickers
  */
-public class AnnotatedFieldAndNonAnnotatedSetter {
+public class AnnotatedFieldWithNoSetterAndNonSetterTest {
+
     private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
     private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.annotations.relationshipEntities");
 
 
     @Test
-    public void shouldPreferAnnotatedFieldWithNonAnnotatedSetterForRelationshipEntity() {
-
+    public void shouldPreferAnnotatedFieldOverNonSetterInAbsenceOfSetterForRelationshipEntity() {
         ClassInfo classInfo = this.domainInfo.getClass(End.class.getName());
 
         RelEntity relEntity = new RelEntity();
         Set<RelEntity> parameter = new HashSet();
         parameter.addAll(Arrays.asList(relEntity));
 
-        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
 
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
         End end = new End();
@@ -100,7 +100,7 @@ public class AnnotatedFieldAndNonAnnotatedSetter {
         Long id;
         String name;
         @Relationship(type = "REL_ENTITY_TYPE", direction = "INCOMING")
-        Set<RelEntity> relEntities;
+        Set<RelEntity> relEntities = new HashSet<>();
 
         public End() {
         }
@@ -109,8 +109,9 @@ public class AnnotatedFieldAndNonAnnotatedSetter {
             return relEntities;
         }
 
-        public void setRelEntities(Set<RelEntity> relEntities) {
-            this.relEntities = relEntities;
+        public void addRelEntity(RelEntity relEntity) {
+
         }
+
     }
 }

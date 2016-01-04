@@ -4,7 +4,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.AbstractDriverTest;
+import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.test.TestGraphDatabaseFactory;
@@ -12,7 +12,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 /**
  * @author vince
  */
-public class EmbeddedDriverTest extends AbstractDriverTest {
+public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
 
     private static final GraphDatabaseService graphDatabaseService = new TestGraphDatabaseFactory().newImpermanentDatabase();

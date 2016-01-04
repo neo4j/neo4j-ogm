@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class TestNumberConversion {
+public class NumberConversionTest {
 
     private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.numbers");
     private static final ClassInfo accountInfo = metaData.classInfo("Account");

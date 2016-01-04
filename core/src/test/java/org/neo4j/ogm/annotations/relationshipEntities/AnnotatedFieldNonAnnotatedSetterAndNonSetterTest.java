@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
  * @author Luanne Misquitta
  * @author Vince Bickers
  */
-public class AnnotatedFieldNonAnnotatedSetterAndNonSetter {
+public class AnnotatedFieldNonAnnotatedSetterAndNonSetterTest {
     private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
     private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.annotations.relationshipEntities");
 

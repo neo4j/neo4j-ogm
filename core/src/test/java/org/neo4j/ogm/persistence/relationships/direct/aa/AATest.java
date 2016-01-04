@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Luanne Misquitta
  */
-public class AA extends RelationshipTrait {
+public class AATest extends RelationshipTrait {
 
     private static SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.persistence.relationships.direct.aa");
     private Session session;

@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * This class will autoconfigure from the file ogm.properties, if it exists
  *
  * @author Vince Bickers
  */
@@ -63,6 +62,19 @@ public class TestServer {
                     .newServer();
 
             initialise(controls);
+
+            System.out.println("Initialised test server: ");
+            System.out.println("\tAuthentication required: " + enableAuthentication());
+            System.out.println("\tURL: " + url());
+            System.out.println("\tTransaction timeout (seconds): 2");
+
+            // ensure we shutdown this server when the JVM terminates, if its not been shutdown by user code
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    shutdown();
+                }
+            });
 
         } catch (Exception e) {
             throw new RuntimeException("Error starting in-process server",e);
@@ -105,7 +117,6 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
-        //driver.close();
         controls.close();
         database.shutdown();
     }

@@ -49,6 +49,17 @@ public abstract class ClassUtils {
      */
     public static Class<?> getType(String descriptor) {
 
+        // user has defined a wild card parameter / return type in a generic signature.
+        // we can't handle this.
+        if (descriptor.startsWith("+") || descriptor.startsWith("-") || descriptor.contains(":")) {
+            throw new RuntimeException("The use of wild cards in generic return types of method parameters is not supported");
+        }
+
+        // generic type signature <S extends T> we want to get T
+        if (descriptor.contains(":")) {
+            return getType(descriptor.substring(descriptor.indexOf(":") + 1));
+        }
+
         if(descriptor.startsWith("()")) {
             return getType(descriptor.substring(2));
         }

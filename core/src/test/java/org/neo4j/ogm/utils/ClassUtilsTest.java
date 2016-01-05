@@ -14,7 +14,6 @@
 
 package org.neo4j.ogm.utils;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.domain.convertible.enums.Education;
@@ -32,7 +31,7 @@ public class ClassUtilsTest {
 
     @Test
     public void shouldResolveParameterTypeForSetterMethodFromSignatureString() {
-        Assert.assertEquals(Date.class, ClassUtils.getType("(Ljava/util/Date;)V"));
+        assertEquals(Date.class, ClassUtils.getType("(Ljava/util/Date;)V"));
         assertEquals(String[].class, ClassUtils.getType("([Ljava/lang/String;)V"));
         assertEquals(boolean.class, ClassUtils.getType("(Z)V"));
         assertEquals(byte.class, ClassUtils.getType("(B)V"));
@@ -50,6 +49,22 @@ public class ClassUtilsTest {
     @Test(expected = RuntimeException.class)
     public void shouldThrowRuntimeExceptionWhenClassCannotBeLoaded() {
         ClassUtils.getType("Lorg/mozilla/javascript/xml/impl/xmlbeans/XML$XScriptAnnotation;");
+    }
+
+    @Test(expected = RuntimeException.class) // <? extends Date>
+    public void shouldFailWithAnyWildCardExtendType() {
+        assertEquals(Date.class, ClassUtils.getType("+Ljava/util/Date;"));
+    }
+
+
+    @Test(expected = RuntimeException.class) // <? super Date>
+    public void shouldFailWithAnyWildCardSuperType() {
+        assertEquals(Date.class, ClassUtils.getType("-Ljava/util/Date;"));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldFailForGenericReturnType() { //<T extends Date>
+        assertEquals(Date.class, ClassUtils.getType("T:Ljava/util/Date;"));
     }
 
 }

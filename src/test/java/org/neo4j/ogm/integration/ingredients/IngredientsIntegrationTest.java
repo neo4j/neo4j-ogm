@@ -14,20 +14,22 @@
 
 package org.neo4j.ogm.integration.ingredients;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
-
+import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luanne Misquitta
@@ -78,7 +80,7 @@ public class IngredientsIntegrationTest {
 		pairing3.setSecond(butter);
 		pairing3.setAffinity("EXCELLENT");
 		carrot.addPairing(pairing3);
-		session.save(carrot); //NullPointerException
+		session.save(carrot);
 	}
 
     @Test
@@ -126,4 +128,48 @@ public class IngredientsIntegrationTest {
             assertEquals(i.getName(),0, i.getPairings().size());
         }
     }
+
+	/**
+	 * @see Issue 97
+	 */
+	@Test
+	@Ignore
+	public void shouldBeAbleToLoadIngredientsWithPagingAndDepth() {
+
+		Ingredient chicken = new Ingredient("Chicken");
+		session.save(chicken);
+
+		Ingredient carrot = new Ingredient("Carrot");
+		session.save(carrot);
+
+		Ingredient butter = new Ingredient("Butter");
+		session.save(butter);
+
+		Pairing pairing = new Pairing();
+		pairing.setFirst(chicken);
+		pairing.setSecond(carrot);
+		pairing.setAffinity("EXCELLENT");
+		carrot.addPairing(pairing);
+		session.save(chicken);
+
+		Pairing pairing2 = new Pairing();
+		pairing2.setFirst(chicken);
+		pairing2.setSecond(butter);
+		pairing2.setAffinity("EXCELLENT");
+		carrot.addPairing(pairing2);
+		session.save(chicken);
+
+		Pairing pairing3 = new Pairing();
+		pairing3.setFirst(carrot);
+		pairing3.setSecond(butter);
+		pairing3.setAffinity("EXCELLENT");
+		carrot.addPairing(pairing3);
+		session.save(carrot);
+
+
+		session.clear();
+
+		Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Pagination(0,1));
+		assertEquals(1, ingredients.size());
+	}
 }

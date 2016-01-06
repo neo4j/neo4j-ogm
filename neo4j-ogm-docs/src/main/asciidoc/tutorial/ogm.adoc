@@ -5,6 +5,10 @@
 To simplify development, we're going to use Neo4j OGM, an object-graph mapping library. Much like JPA, we'll be annotating our POJOs and this
 will map them to nodes, relationships and properties in the graph.
 
-Neo4j OGM works against server based installations of Neo4j and uses Cypher over the transactional HTTP endpoint.
+Neo4j OGM 1.x works against server based installations of Neo4j and uses Cypher over the transactional HTTP endpoint.
+Neo4j OGM 2.x supports both server mode (http) as well as embedded Neo4j.
+
+Our sample application will use server mode.
+
 While the OGM takes care of boilerplate CRUD operations, it also provides us with the flexibility of writing our own Cypher queries and controlling
 persistence depth as we shall see later in this tutorial.

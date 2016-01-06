@@ -1,4 +1,17 @@
 [[tutorial_session]]
+= Configuration
+Since the OGM 2.x works both against a remote server as well as embedded Neo4j, we'll need to configure it to use the appropriate driver.
+We'll allow the OGM to auto-configure itself by providing a file called `ogm.properties` in the classpath.
+
+```
+driver=org.neo4j.ogm.drivers.http.driver.HttpDriver
+URI=http://username:password@localhost:7474
+```
+Here, we're setting up the HTTP Driver to connect to our local Neo4j server.
+
+[NOTE]
+OGM 1.x does not require this configuration. Instead, the URL to the Neo4j server is provided to the `Session` described below.
+
 = Session
 
 So our domain entities are annotated, now we're ready persist them to the graph!
@@ -22,9 +35,15 @@ public class Neo4jSessionFactory {
 	}
 
 	public Session getNeo4jSession() {
-		return sessionFactory.openSession("http://localhost:7474");
+		return sessionFactory.openSession();
 	}
 }
+```
+
+OGM 1.x needs to provide the URL to the Neo4j Server to the `openSession` method like this
+
+```
+	sessionFactory.openSession("http://localhost:7474");
 ```
 
 The `SessionFactory` constructor accepts packages that are to be scanned for domain metadata. The domain objects in our university application are grouped under `school.domain`.
@@ -123,4 +142,4 @@ public class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements
 }
 ```
 
-The `query` provided by the `Session` can return a domain object, a collection of them, or a `org.neo4j.ogm.session.result.Result`.
+The `query` provided by the `Session` can return a domain object, a collection of them, or a `org.neo4j.ogm.model.Result`.

@@ -8,7 +8,26 @@ The framework will then apply conventions to decide what to do.
 
 Before we can use any Neo4j OGM annotations, we need to add the maven dependency.
 
-.Maven dependencies for Neo4j OGM
+.Maven dependencies for Neo4j OGM 2.x
+[source,xml]
+----
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-api</artifactId>
+    <version>{version}</version>
+</dependency>
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-core</artifactId>
+    <version>{version}</version>
+</dependency>
+----
+
+Refer to <<reference_setup>> for Gradle or Ivy dependencies.
+
+Note that the dependencies for Neo4j OGM 1.x differ -
+
+.Maven dependencies for Neo4j OGM 2.x
 [source,xml]
 ----
 <dependency>
@@ -17,8 +36,6 @@ Before we can use any Neo4j OGM annotations, we need to add the maven dependency
     <version>{version}</version>
 </dependency>
 ----
-
-Refer to <<reference_setup>> for Gradle or Ivy dependencies.
 
 == Nodes
 POJOs annotated with `@NodeEntity` will be represented as nodes in the graph. The label assigned to this node can be specified via the `label` property on the annotation;

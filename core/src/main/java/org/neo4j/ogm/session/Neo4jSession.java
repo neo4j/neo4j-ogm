@@ -14,17 +14,14 @@
 
 package org.neo4j.ogm.session;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.context.MappingContext;
-import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
@@ -34,6 +31,9 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Vince Bickers
@@ -310,12 +310,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
+    public Result query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
         return executeQueriesDelegate.query(cypher, parameters, readOnly);
     }
 

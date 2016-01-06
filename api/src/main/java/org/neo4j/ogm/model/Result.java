@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author Luanne Misquitta
  */
-public interface QueryStatistics extends Query<Iterable<Map<String, Object>>>, Iterable<Map<String,Object>>  {
+public interface Result extends Query<Iterable<Map<String, Object>>>, Iterable<Map<String,Object>>  {
 
 	Statistics statistics();
 

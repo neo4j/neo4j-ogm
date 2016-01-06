@@ -20,7 +20,7 @@ import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
 import org.neo4j.ogm.context.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.GraphModelRequest;
@@ -68,7 +68,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters) {
+    public Result query(String cypher, Map<String, ?> parameters) {
         return query(cypher, parameters, isReadOnly(cypher));
     }
 
@@ -82,7 +82,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
     }
 
     @Override
-    public QueryStatistics query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+    public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
         validateQuery(cypher, parameters, readOnly);
 

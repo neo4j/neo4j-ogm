@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.TransactionException;
-import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -149,9 +149,9 @@ public abstract class AbstractDriverTestSuite {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
-        QueryStatistics queryStatistics = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
-        assertEquals(2, queryStatistics.statistics().getPropertiesSet());
-        assertFalse(queryStatistics.model().iterator().hasNext());
+        Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
+        assertEquals(2, result.statistics().getPropertiesSet());
+        assertFalse(result.model().iterator().hasNext());
     }
 
     @Test
@@ -159,9 +159,9 @@ public abstract class AbstractDriverTestSuite {
         session.save(new User("Bilbo Baggins"));
         session.save(new User("Frodo Baggins"));
         session.clear();
-        QueryStatistics queryStatistics = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
-        assertEquals(2, queryStatistics.statistics().getPropertiesSet());
-        assertTrue(queryStatistics.model().iterator().hasNext());
+        Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
+        assertEquals(2, result.statistics().getPropertiesSet());
+        assertTrue(result.model().iterator().hasNext());
     }
 
     // concurrent access tests

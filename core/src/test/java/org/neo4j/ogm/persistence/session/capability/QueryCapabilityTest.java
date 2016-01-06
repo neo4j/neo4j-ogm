@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -70,7 +70,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         Map<String, Object> row = resultsIterable.iterator().next();
         assertEquals("Alec Baldwin", row.get("name"));
 
-        QueryStatistics results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
+        Result results = session.query("MATCH (a:Actor) WHERE ID(a)={param} RETURN a.name as name",
                 Collections.<String, Object>singletonMap("param", alec.getId()));
         assertNotNull("Results are empty", results);
         assertEquals("Alec Baldwin", results.iterator().next().get("name"));
@@ -95,7 +95,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
-        QueryStatistics result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
+        Result result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
         assertNotNull(result);
         assertNotNull(result.statistics());
         assertEquals(3, result.statistics().getPropertiesSet());
@@ -116,7 +116,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
-        QueryStatistics result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
+        Result result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
         assertNotNull(result);
         assertNotNull(result.statistics());
         assertEquals(3, result.statistics().getPropertiesSet());
@@ -159,7 +159,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Jeff"));
         session.save(new Actor("John"));
         session.save(new Actor("Colin"));
-        QueryStatistics result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
+        Result result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
         assertNotNull(result);
         assertNull(result.statistics());
 

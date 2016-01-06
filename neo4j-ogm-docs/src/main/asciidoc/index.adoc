@@ -53,6 +53,7 @@ your answers in this reference section. If you don't, please inform us about mis
 :leveloffset: +1
 
 include::reference/preface.adoc[]
+include::reference/configuration/ogmconfig.adoc[]
 include::reference/setup.adoc[]
 include::reference/programming-model/programming-model.adoc[]
 include::reference/configuration/ha.adoc[]

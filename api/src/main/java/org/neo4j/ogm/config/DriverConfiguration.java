@@ -28,11 +28,12 @@ public class DriverConfiguration {
         this.configuration = configuration;
     }
 
-    public void setDriverClassName(String driverClassName) {
+    public DriverConfiguration setDriverClassName(String driverClassName) {
         configuration.set(DRIVER, driverClassName);
+        return this;
     }
 
-    public void setURI(String uri) {
+    public DriverConfiguration setURI(String uri) {
         configuration.set(URI, uri);
         try { // if this URI is a genuine resource, see if it has an embedded userinfo and set credentials accordingly
             URL url = new URL(uri);
@@ -44,14 +45,17 @@ public class DriverConfiguration {
         } catch (Exception e) {
             ; // do nothing here. user not obliged to supply a URL, or to pass in credentials
         }
+        return this;
     }
 
-    public void setCredentials(Credentials credentials) {
+    public DriverConfiguration setCredentials(Credentials credentials) {
         configuration.set(CREDENTIALS, credentials);
+        return this;
     }
 
-    public void setCredentials(String username, String password) {
+    public DriverConfiguration setCredentials(String username, String password) {
         configuration.set(CREDENTIALS, new UsernamePasswordCredentials(username, password));
+        return this;
     }
 
     public Credentials getCredentials() {

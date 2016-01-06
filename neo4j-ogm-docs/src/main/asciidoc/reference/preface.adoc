@@ -49,25 +49,25 @@ As of 2.0, the OGM provides suppport for connecting to Neo4j using different dri
 - Embedded driver
 - Bolt driver (v3.0 Neo4j only - experimental)
 
-Please see the Setup guide for more details about how to configure the OGM to use the driver you require.
+Please see the <<reference_setup,Setup Guide>> for more details about how to configure the OGM to use the driver you require.
 
 = Overview
 
 The basic concepts of the Object-Graph Mapping (OGM) library are explained in this chapter.
 
 == Getting Started
-To get started with a simple application, you need only your domain model and (optionally) the annotations (see <<reference_programming-model_annotations>>) provided by the library.
+To get started with a simple application, you need only your domain model and (optionally) the <<reference_programming-model_annotations,annotations>> provided by the library.
 You use annotations to mark domain objects to be reflected by nodes and relationships of the graph database.
 For individual fields the annotations allow you to declare how they should be processed and mapped to the graph.
 For property fields and references to other entities this is straightforward.
 
 == Adding Neo4j Graph Queries
 To use advanced functionality like Cypher queries, a basic understanding of the graph data model is required.
-The graph data model is explained in the chapter about Neo4j, see <<neo4j>>.
+The graph data model is explained in the chapter about <<neo4j,Neo4j>>.
 
 == Managing Relationships
-Relationships between entities are first class citizens in a graph database and therefore worth a separate chapter
-(<<reference_programming-model_relationships>>) describing their usage in Neo4j OGM.
+Relationships between entities are first class citizens in a graph database and therefore worth a
+<<reference_programming-model_relationships,separate chapter>> describing their usage in Neo4j OGM.
 
 == Session
 Neo4j OGM offers a <<reference_programming-model_session,Session>> for interacting with the mapped entities and the Neo4j graph database.
@@ -78,7 +78,7 @@ How that works is explained here: <<reference_programming-model_typerepresentati
 
 == Transactional Support
 Neo4j uses transactions to guarantee the integrity of your data and Neo4j OGM supports this fully.
-The implications of this are described in <<reference_programming-model_transactions>>.
+The implications of this are described <<reference_programming-model_transactions,here>>.
 
 ////
 == Examples

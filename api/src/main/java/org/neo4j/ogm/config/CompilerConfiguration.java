@@ -18,8 +18,9 @@ public class CompilerConfiguration {
         this.configuration = configuration;
     }
 
-    public void setCompilerClassName(String compilerClassName) {
+    public CompilerConfiguration setCompilerClassName(String compilerClassName) {
         configuration.set(COMPILER, compilerClassName);
+        return this;
     }
 
     public String getCompilerClassName() {

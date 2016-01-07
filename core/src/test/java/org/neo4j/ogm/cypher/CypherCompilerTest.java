@@ -15,10 +15,29 @@
 package org.neo4j.ogm.cypher;
 
 
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
+import org.neo4j.ogm.context.EntityGraphMapper;
+import org.neo4j.ogm.context.EntityMapper;
+import org.neo4j.ogm.context.MappedRelationship;
+import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -30,16 +49,8 @@ import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
-import org.neo4j.ogm.context.EntityGraphMapper;
-import org.neo4j.ogm.context.EntityMapper;
-import org.neo4j.ogm.context.MappedRelationship;
-import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowStatementFactory;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -137,8 +148,9 @@ public class CypherCompilerTest {
         assertEquals(2, createStatements.size());
         assertTrue(createStatements.contains("UNWIND {rows} as row CREATE (n:`School`:`DomainObject`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
         assertTrue(createStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId",
-                compiler.createRelationshipsStatements().get(0).getStatement());
+        List<String> createRelStatements = cypherStatements(compiler.createRelationshipsStatements());
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
     }
 
     @Test

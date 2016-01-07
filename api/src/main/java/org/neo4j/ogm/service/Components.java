@@ -66,6 +66,8 @@ public class Components {
     }
 
     // only one instance of the driver exists for the lifetime of the application
+    // please note you cannot use this method to find out if a driver is initialised
+    // because it will attempt to initialise the driver if it is not.
     public synchronized static Driver driver() {
         if (driver == null) {
             loadDriver();

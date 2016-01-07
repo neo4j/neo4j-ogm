@@ -3,7 +3,6 @@ package org.neo4j.ogm.testutil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
@@ -28,12 +27,7 @@ public class MultiDriverTestClass {
         }
         else {
             impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase();
-            DriverConfiguration driverConfiguration = new DriverConfiguration();
-            driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
-            driverConfiguration.setURI("file:///tmp/neo4j.db"); //this should not matter with an impermanent db
-            EmbeddedDriver embeddedDriver = new EmbeddedDriver(impermanentDb);
-            Components.setDriver(embeddedDriver);
-            Components.driver().configure(driverConfiguration);
+            Components.setDriver(new EmbeddedDriver(impermanentDb));
         }
     }
 

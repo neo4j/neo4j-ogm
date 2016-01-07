@@ -15,16 +15,19 @@
 package org.neo4j.ogm.persistence.authentication;
 
 
-import static org.junit.Assert.*;
-
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
+import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
+
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Vince Bickers
@@ -33,29 +36,30 @@ import org.neo4j.ogm.transaction.Transaction;
 
 public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
-
     private Session session;
+
+    @Before
+    public void beforeMethod() {
+        assumeTrue(Components.driver() instanceof HttpDriver);
+    }
 
     @Test
     public void testUnauthorizedDriver() {
 
-        if (Components.driver().getConfiguration().getDriverClassName().contains("http")) {
+        Components.driver().getConfiguration().setCredentials(null);
+        session = new SessionFactory("dummy").openSession();
 
-            Components.driver().getConfiguration().setCredentials(null);
-            session = new SessionFactory("dummy").openSession();
-
-            try (Transaction tx = session.beginTransaction()) {
-                fail("Driver should not have authenticated");
-            } catch (Exception rpe) {
-                Throwable cause = rpe.getCause();
-                if (cause instanceof HttpHostConnectException) {
-                    fail("Please start Neo4j 2.2.0 or later to run these tests");
-                } else {
-                    while (cause instanceof HttpResponseException == false) {
-                        cause = cause.getCause();
-                    }
-                    assertEquals("Unauthorized", cause.getMessage());
+        try (Transaction tx = session.beginTransaction()) {
+            fail("Driver should not have authenticated");
+        } catch (Exception rpe) {
+            Throwable cause = rpe.getCause();
+            if (cause instanceof HttpHostConnectException) {
+                fail("Please start Neo4j 2.2.0 or later to run these tests");
+            } else {
+                while (cause instanceof HttpResponseException == false) {
+                    cause = cause.getCause();
                 }
+                assertEquals("Unauthorized", cause.getMessage());
             }
         }
     }
@@ -63,15 +67,12 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testAuthorizedDriver() {
 
-        if (Components.driver().getConfiguration().getDriverClassName().contains("http")) {
+        session = new SessionFactory("dummy").openSession();
 
-            session = new SessionFactory("dummy").openSession();
-
-            try (Transaction ignored = session.beginTransaction()) {
-                assertNotNull(ignored);
-            } catch (Exception rpe) {
-                fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
-            }
+        try (Transaction ignored = session.beginTransaction()) {
+            assertNotNull(ignored);
+        } catch (Exception rpe) {
+            fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
         }
     }
 
@@ -81,23 +82,20 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testInvalidCredentials() {
 
-        if (Components.driver().getConfiguration().getDriverClassName().contains("http")) {
+        Components.driver().getConfiguration().setCredentials("neo4j", "invalid_password");
+        session = new SessionFactory("dummy").openSession();
 
-            Components.driver().getConfiguration().setCredentials("neo4j", "invalid_password");
-            session = new SessionFactory("dummy").openSession();
-
-            try (Transaction tx = session.beginTransaction()) {
-                fail("Driver should not have authenticated");
-            } catch (Exception rpe) {
-                Throwable cause = rpe.getCause();
-                if (cause instanceof HttpHostConnectException) {
-                    fail("Please start Neo4j 2.2.0 or later to run these tests");
-                } else {
-                    while (cause instanceof HttpResponseException == false) {
-                        cause = cause.getCause();
-                    }
-                    assertEquals("Unauthorized", cause.getMessage());
+        try (Transaction tx = session.beginTransaction()) {
+            fail("Driver should not have authenticated");
+        } catch (Exception rpe) {
+            Throwable cause = rpe.getCause();
+            if (cause instanceof HttpHostConnectException) {
+                fail("Please start Neo4j 2.2.0 or later to run these tests");
+            } else {
+                while (cause instanceof HttpResponseException == false) {
+                    cause = cause.getCause();
                 }
+                assertEquals("Unauthorized", cause.getMessage());
             }
         }
     }

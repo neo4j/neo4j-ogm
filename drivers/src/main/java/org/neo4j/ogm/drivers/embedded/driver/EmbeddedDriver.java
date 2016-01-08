@@ -129,13 +129,26 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private String createTemporaryEphemeralFileStore() {
 
         try {
+            System.out.format("java tmpdir root: {}", System.getProperty("java.io.tmpdir"));
+
             Path path = Files.createTempDirectory("neo4j.db");
+            System.out.format("Check temporary directory {}", path.toString());
+
             File f = path.toFile();
+            System.out.format("Checking directory actually exists as a file {}", f.exists());
+
             f.deleteOnExit();
             URI uri = f.toURI();
+
+            System.out.format("Checking URI object is not null: {}", uri != null);
+            System.out.format("Checking URI as String {}", uri.toString());
+
             String fileStoreUri = uri.toString();
+
             return fileStoreUri;
         } catch (Exception e) {
+            System.out.println("Caught an exception:");
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

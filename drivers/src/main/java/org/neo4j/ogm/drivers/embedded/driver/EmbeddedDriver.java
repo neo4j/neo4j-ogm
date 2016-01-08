@@ -21,14 +21,12 @@ import java.nio.file.Path;
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
-    // a single instance of the driver's graphDatabaseService must be shared among all instances of the driver
-    // so that we do not run into locking problems.
-
-    private static GraphDatabaseService graphDatabaseService;
+    private GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
     // required for service loader mechanism
     public EmbeddedDriver() {
+        logger.debug("*** starting new embedded driver instance via service loader, (not yet configured) " + this);
     }
 
     /**
@@ -36,6 +34,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @param driverConfiguration the {@link DriverConfiguration} to use
      */
     public EmbeddedDriver(DriverConfiguration driverConfiguration) {
+        logger.debug("*** starting new embedded driver via explicit config " + this);
         configure(driverConfiguration);
     }
 
@@ -47,7 +46,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @param graphDatabaseService the embedded database instance
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        EmbeddedDriver.graphDatabaseService = graphDatabaseService;
+        this.graphDatabaseService = graphDatabaseService;
+        registerShutdownHook();
     }
 
     /**
@@ -55,13 +55,12 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * shuts down nicely when the VM exits (even if you "Ctrl-C" the
      * running application).
      *
-     * @param graphDb the embedded instance to shutdown
      */
-    private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+    private void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                graphDb.shutdown();
+                close();
             }
         });
     }
@@ -71,21 +70,26 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
         super.configure(config);
 
-        if (graphDatabaseService == null) {
-            try {
-                String fileStoreUri = config.getURI();
-                if (fileStoreUri == null) {
-                    fileStoreUri = createTemporaryEphemeralFileStore();
-                    config.setURI(fileStoreUri);
-                }
-                File file = new File(new URI(fileStoreUri));
-                graphDatabaseService = new GraphDatabaseFactory()
-                        .newEmbeddedDatabaseBuilder(file.getAbsolutePath())
-                        .newGraphDatabase();
-                registerShutdownHook(graphDatabaseService);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        close();  // force any existing graph database to shutdown
+
+        try {
+            String fileStoreUri = config.getURI();
+
+            // if no URI is set, create a temporary folder for the graph db
+            // that will persist only for the duration of the JVM
+            // This is effectively what the ImpermanentDatabase does.
+            if (fileStoreUri == null) {
+                fileStoreUri = createTemporaryEphemeralFileStore();
+                config.setURI(fileStoreUri);
             }
+
+            File file = new File(new URI(fileStoreUri));
+
+            graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file.getAbsolutePath());
+
+            registerShutdownHook();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -97,7 +101,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     @Override
     public void close() {
         if (graphDatabaseService != null) {
+            logger.debug(" *** Now shutting down embedded database instance: " + this);
             graphDatabaseService.shutdown();
+            //
+            graphDatabaseService = null;
         }
     }
 

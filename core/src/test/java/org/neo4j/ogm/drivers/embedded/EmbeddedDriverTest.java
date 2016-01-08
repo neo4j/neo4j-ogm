@@ -25,6 +25,7 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
     @AfterClass
     public static void reset() {
+        Components.driver().close();
         Components.autoConfigure();
     }
 

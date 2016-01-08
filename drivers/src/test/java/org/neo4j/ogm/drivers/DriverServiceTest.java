@@ -22,14 +22,16 @@ public class DriverServiceTest {
         driverConfiguration.setURI("http://neo4j:password@localhost:7474");
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
+        driver.close();
     }
 
     @Test
     public void shouldLoadEmbeddedDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
-        driverConfiguration.setURI("file:///tmp/neo4j.db");
+        driverConfiguration.setURI("file:///var/tmp/neo4j.db");
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
+        driver.close();
     }
 
     @Test
@@ -39,6 +41,9 @@ public class DriverServiceTest {
         driverConfiguration.setURI("bolt://neo4j:password@localhost");
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
+        driver.close();
     }
+
+
 
 }

@@ -259,6 +259,13 @@
     </profile>
 
     <profile>
+      <id>default</id>
+      <properties>
+        <ogm.properties>ogm-http.properties</ogm.properties>
+      </properties>
+    </profile>
+
+    <profile>
       <id>defects</id>
       <build>
         <plugins>

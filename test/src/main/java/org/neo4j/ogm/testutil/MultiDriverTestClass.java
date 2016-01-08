@@ -39,6 +39,7 @@ public class MultiDriverTestClass {
         }
         if (impermanentDb != null) {
             impermanentDb.shutdown();
+            //Components.driver().close();
         }
     }
 

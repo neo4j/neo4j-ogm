@@ -2,17 +2,17 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.exception.ResultProcessingException;
-import org.neo4j.ogm.response.model.StatisticsModel;
+import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.result.ResultAdapter;
 
 /**
  * @author vince
  */
-public class StatisticsModelAdapter extends JsonAdapter implements ResultAdapter<Result, StatisticsModel> {
+public class StatisticsModelAdapter extends JsonAdapter implements ResultAdapter<Result, QueryStatisticsModel> {
 
 
     @Override
-    public StatisticsModel adapt(Result response) {
+    public QueryStatisticsModel adapt(Result response) {
         try {
             org.neo4j.graphdb.QueryStatistics statistics = response.getQueryStatistics();
             String stats = mapper.writeValueAsString(statistics);
@@ -30,7 +30,7 @@ public class StatisticsModelAdapter extends JsonAdapter implements ResultAdapter
             int closingBraceIndex = stats.lastIndexOf("}");
             stats = stats.substring(0, closingBraceIndex) + containsUpdates + "}";
 
-            return mapper.readValue(stats,StatisticsModel.class);
+            return mapper.readValue(stats,QueryStatisticsModel.class);
 
         } catch (Exception e) {
             throw new ResultProcessingException("Could not read response statistics", e);

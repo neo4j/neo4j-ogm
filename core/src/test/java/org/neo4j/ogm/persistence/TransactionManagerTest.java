@@ -90,7 +90,6 @@ public class TransactionManagerTest extends MultiDriverTestClass {
             executor.submit(new TransactionStarter(latch));
         }
         latch.await(); // pause until the count reaches 0
-        //System.out.println("all threads running");
 
         // force termination of all threads
         executor.shutdownNow();

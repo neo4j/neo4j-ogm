@@ -321,7 +321,7 @@ public class JsonGraphResponseTest {
             ResultGraphModel graphModel = nextDataRecord("graph");
 
             if (graphModel != null) {
-                return graphModel.model();
+                return graphModel.queryResults();
             }
             return null;
         }

@@ -5,5 +5,5 @@ package org.neo4j.ogm.model;
  */
 public interface Query<T> {
 
-    T model();
+    T queryResults();
 }

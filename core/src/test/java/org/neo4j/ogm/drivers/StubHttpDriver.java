@@ -78,7 +78,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                         String r = nextRecord();
                         if (r != null) {
                             try {
-                                return mapper.readValue(r, ResultGraphModel.class).model();
+                                return mapper.readValue(r, ResultGraphModel.class).queryResults();
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }
@@ -106,7 +106,7 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
                         String r = nextRecord();
                         if (r != null) {
                             try {
-                                return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).model(), columns());
+                                return new DefaultRowModel(mapper.readValue(r, ResultRowModel.class).queryResults(), columns());
                             } catch (Exception e) {
                                 throw new ResultProcessingException("Could not parse response", e);
                             }

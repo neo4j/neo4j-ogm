@@ -26,7 +26,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     // required for service loader mechanism
     public EmbeddedDriver() {
-        logger.debug("*** starting new embedded driver instance via service loader, (not yet configured) " + this);
     }
 
     /**
@@ -34,7 +33,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @param driverConfiguration the {@link DriverConfiguration} to use
      */
     public EmbeddedDriver(DriverConfiguration driverConfiguration) {
-        logger.debug("*** starting new embedded driver via explicit config " + this);
         configure(driverConfiguration);
     }
 
@@ -101,9 +99,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     @Override
     public void close() {
         if (graphDatabaseService != null) {
-            logger.debug(" *** Now shutting down embedded database instance: " + this);
             graphDatabaseService.shutdown();
-            //
             graphDatabaseService = null;
         }
     }
@@ -136,26 +132,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     private String createTemporaryEphemeralFileStore() {
 
         try {
-            System.out.format("java tmpdir root: %s\n", System.getProperty("java.io.tmpdir"));
-
             Path path = Files.createTempDirectory("neo4j.db");
-            System.out.format("Check temporary directory %s\n", path.toString());
-
             File f = path.toFile();
-            System.out.format("Checking directory actually exists as a file %s\n", f.exists());
-
             f.deleteOnExit();
             URI uri = f.toURI();
-
-            System.out.format("Checking URI object is not null: %s\n", uri != null);
-            System.out.format("Checking URI as String %s\n", uri.toString());
-
             String fileStoreUri = uri.toString();
-
             return fileStoreUri;
         } catch (Exception e) {
-            System.out.println("Caught an exception:");
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

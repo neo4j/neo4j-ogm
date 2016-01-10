@@ -150,8 +150,8 @@ public abstract class AbstractDriverTestSuite {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit'", Utils.map());
-        assertEquals(2, result.statistics().getPropertiesSet());
-        assertFalse(result.model().iterator().hasNext());
+        assertEquals(2, result.queryStatistics().getPropertiesSet());
+        assertFalse(result.queryResults().iterator().hasNext());
     }
 
     @Test
@@ -160,8 +160,8 @@ public abstract class AbstractDriverTestSuite {
         session.save(new User("Frodo Baggins"));
         session.clear();
         Result result = session.query("MATCH (u:User) WHERE u.name =~ '.*Baggins' SET u.species = 'Hobbit' RETURN u.name", Utils.map());
-        assertEquals(2, result.statistics().getPropertiesSet());
-        assertTrue(result.model().iterator().hasNext());
+        assertEquals(2, result.queryStatistics().getPropertiesSet());
+        assertTrue(result.queryResults().iterator().hasNext());
     }
 
     // concurrent access tests

@@ -22,5 +22,5 @@ import java.util.Collection;
 public interface RowStatisticsModel extends Iterable {
 
     Collection<Object[]> getRows();
-    Statistics getStats();
+    QueryStatistics getStats();
 }

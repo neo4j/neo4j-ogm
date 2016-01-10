@@ -39,7 +39,7 @@ public class ResultGraphRowListModel implements Query<GraphRowListModel> {
         model = new DefaultGraphRowListModel();
     }
 
-    public GraphRowListModel model() {
+    public GraphRowListModel queryResults() {
         DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
         graphRowListModel.addAll(data);
         return graphRowListModel;

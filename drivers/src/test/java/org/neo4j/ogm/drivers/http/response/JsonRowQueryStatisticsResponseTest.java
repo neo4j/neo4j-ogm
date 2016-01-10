@@ -25,8 +25,8 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.json.ObjectMapperFactory;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RowStatisticsModel;
-import org.neo4j.ogm.model.Statistics;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.result.ResultRowModel;
@@ -34,7 +34,7 @@ import org.neo4j.ogm.result.ResultRowModel;
 /**
  * @author Luanne Misquitta
  */
-public class JsonRowStatisticsResponseTest {
+public class JsonRowQueryStatisticsResponseTest {
 
     @Test
     public void shouldParseDataInUpdateQueryWithNodesReturnedAndStatisticsCorrectly() {
@@ -58,7 +58,7 @@ public class JsonRowStatisticsResponseTest {
             assertEquals(30,row2Data.get("age"));
             assertEquals("GraphAware",row2Data.get("name"));
 
-            Statistics stats = rowStatisticsModel.getStats();
+            QueryStatistics stats = rowStatisticsModel.getStats();
             assertNotNull(stats);
             assertTrue(stats.containsUpdates());
             assertEquals(0,stats.getNodesCreated());
@@ -83,7 +83,7 @@ public class JsonRowStatisticsResponseTest {
             Object[] row2 = rowsIt.next();
             assertEquals(30,row2[0]);
 
-            Statistics stats = rowStatisticsModel.getStats();
+            QueryStatistics stats = rowStatisticsModel.getStats();
             assertNotNull(stats);
             assertTrue(stats.containsUpdates());
             assertEquals(0,stats.getNodesCreated());
@@ -100,7 +100,7 @@ public class JsonRowStatisticsResponseTest {
             Collection<Object[]> rows = rowStatisticsModel.getRows();
             assertEquals(0,rows.size());
 
-            Statistics stats = rowStatisticsModel.getStats();
+            QueryStatistics stats = rowStatisticsModel.getStats();
             assertNotNull(stats);
             assertTrue(stats.containsUpdates());
             assertEquals(0,stats.getNodesCreated());
@@ -235,7 +235,7 @@ public class JsonRowStatisticsResponseTest {
             DefaultRowStatisticsModel rowQueryStatisticsResult = new DefaultRowStatisticsModel();
             ResultRowModel rowModel = nextDataRecord("row");
             while (rowModel != null) {
-                rowQueryStatisticsResult.addRow(rowModel.model());
+                rowQueryStatisticsResult.addRow(rowModel.queryResults());
                 rowModel = nextDataRecord("row");
             }
             rowQueryStatisticsResult.setStats(statistics());

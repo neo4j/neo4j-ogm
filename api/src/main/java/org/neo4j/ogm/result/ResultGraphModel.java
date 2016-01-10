@@ -13,7 +13,7 @@ public class ResultGraphModel implements Query<GraphModel> {
 
     private GraphModel graph;
 
-    public GraphModel model() {
+    public GraphModel queryResults() {
         return graph;
     }
 

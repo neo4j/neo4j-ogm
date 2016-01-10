@@ -41,7 +41,7 @@ public class RowStatisticsModelResponse extends AbstractHttpResponse<ResultRowMo
 		DefaultRowStatisticsModel rowQueryStatisticsResult = new DefaultRowStatisticsModel();
 		ResultRowModel rowModel = nextDataRecord("row");
 		while (rowModel != null) {
-			rowQueryStatisticsResult.addRow(rowModel.model());
+			rowQueryStatisticsResult.addRow(rowModel.queryResults());
 			rowModel = nextDataRecord("row");
 		}
 		rowQueryStatisticsResult.setStats(statistics());

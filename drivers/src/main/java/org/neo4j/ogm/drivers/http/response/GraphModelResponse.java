@@ -36,7 +36,7 @@ public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> i
 		ResultGraphModel graphModel = nextDataRecord("graph");
 
 		if (graphModel != null) {
-			return graphModel.model();
+			return graphModel.queryResults();
 		}
 		return null;
 	}

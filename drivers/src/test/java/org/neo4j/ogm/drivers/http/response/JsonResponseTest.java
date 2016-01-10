@@ -128,7 +128,7 @@ public class JsonResponseTest {
             ResultRowModel rowModel = nextDataRecord("row");
 
             if (rowModel != null) {
-                return new DefaultRowModel(rowModel.model(), columns());
+                return new DefaultRowModel(rowModel.queryResults(), columns());
             }
             return null;
         }

@@ -1,7 +1,7 @@
 package org.neo4j.ogm.response.model;
 
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.model.Statistics;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -12,11 +12,11 @@ import java.util.Map;
 public class QueryResultModel implements Result {
 
     private final Iterable<Map<String,Object>> result;
-    private final Statistics queryStatistics;
+    private final QueryStatistics queryQueryStatistics;
 
-    public QueryResultModel(Iterable<Map<String, Object>> result, Statistics queryStatistics) {
+    public QueryResultModel(Iterable<Map<String, Object>> result, QueryStatistics queryQueryStatistics) {
         this.result = result;
-        this.queryStatistics = queryStatistics;
+        this.queryQueryStatistics = queryQueryStatistics;
     }
 
     @Override
@@ -25,12 +25,12 @@ public class QueryResultModel implements Result {
     }
 
     @Override
-    public Iterable<Map<String,Object>> model() {
+    public Iterable<Map<String,Object>> queryResults() {
         return result;
     }
 
     @Override
-    public Statistics statistics() {
-        return queryStatistics;
+    public QueryStatistics queryStatistics() {
+        return queryQueryStatistics;
     }
 }

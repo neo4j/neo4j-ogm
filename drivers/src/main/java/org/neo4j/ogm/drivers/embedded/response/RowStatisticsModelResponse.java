@@ -3,7 +3,7 @@ package org.neo4j.ogm.drivers.embedded.response;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
-import org.neo4j.ogm.response.model.StatisticsModel;
+import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.TransactionManager;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 public class RowStatisticsModelResponse extends EmbeddedResponse<DefaultRowStatisticsModel> {
 
     private final RowModelAdapter rowModelAdapter = new RowModelAdapter();
-    private final StatisticsModel statisticsModel;
+    private final QueryStatisticsModel statisticsModel;
 
     public RowStatisticsModelResponse(Result result, TransactionManager transactionManager) {
         super(result, transactionManager);
@@ -28,7 +28,7 @@ public class RowStatisticsModelResponse extends EmbeddedResponse<DefaultRowStati
         DefaultRowStatisticsModel rowQueryStatisticsResult = new DefaultRowStatisticsModel();
         ResultRowModel rowModel = parse();
         while (rowModel != null) {
-            rowQueryStatisticsResult.addRow(rowModel.model());
+            rowQueryStatisticsResult.addRow(rowModel.queryResults());
             rowModel = parse();
         }
         rowQueryStatisticsResult.setStats(statisticsModel);

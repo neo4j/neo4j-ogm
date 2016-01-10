@@ -15,7 +15,7 @@
 package org.neo4j.ogm.response.model;
 
 
-import org.neo4j.ogm.model.Statistics;
+import org.neo4j.ogm.model.QueryStatistics;
 
 /**
  * Holds read only statistics about query execution.
@@ -23,7 +23,7 @@ import org.neo4j.ogm.model.Statistics;
  *
  * @author Luanne Misquitta
  */
-public class StatisticsModel implements Statistics {
+public class QueryStatisticsModel implements QueryStatistics {
 
 	private boolean contains_updates;
 	private int nodes_created;

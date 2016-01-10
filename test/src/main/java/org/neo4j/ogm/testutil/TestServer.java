@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.testutil;
 
+import org.apache.commons.io.IOUtils;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
@@ -23,6 +24,8 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
 
+import java.io.FileWriter;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,39 +37,35 @@ import java.nio.file.Path;
 @SuppressWarnings("deprecation")
 public class TestServer {
 
+    private final Integer port;
+    private final Integer transactionTimeoutSeconds;
+    private final Boolean enableAuthentication;
+
     private AbstractNeoServer server;
     private GraphDatabaseService database;
     private ServerControls controls;
 
-    public TestServer() {
-        this(TestUtils.getAvailablePort(), "60");
+    private TestServer(Builder builder) {
+
+        this.port = builder.port == null ? TestUtils.getAvailablePort() : builder.port;
+        this.transactionTimeoutSeconds = builder.transactionTimeoutSeconds;
+        this.enableAuthentication = builder.enableAuthentication;
+
+        startServer();
+
     }
 
-    public TestServer(int port) {
-        this(port, "60");
-    }
-
-    public TestServer(String transactionTimeoutSeconds) {
-        this(TestUtils.getAvailablePort(), transactionTimeoutSeconds);
-    }
-
-    private TestServer(int port, String transactionTimeoutSeconds) {
-
+    private void startServer() {
         try {
 
             controls = TestServerBuilders.newInProcessBuilder()
-                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication()))
+                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
-                    .withConfig("org.neo4j.server.transaction.timeout", "2")
-                    .withConfig("dbms.security.auth_store.location", authStoreLocation())
+                    .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
+                    .withConfig("dbms.security.auth_store.location", createAuthStore())
                     .newServer();
 
             initialise(controls);
-
-            System.out.println("Initialised test server: ");
-            System.out.println("\tAuthentication required: " + enableAuthentication());
-            System.out.println("\tURL: " + url());
-            System.out.println("\tTransaction timeout (seconds): 2");
 
             // ensure we shutdown this server when the JVM terminates, if its not been shutdown by user code
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -79,17 +78,22 @@ public class TestServer {
         } catch (Exception e) {
             throw new RuntimeException("Error starting in-process server",e);
         }
+
     }
 
-    public boolean enableAuthentication() {
-        return false;
-    }
-
-    public String authStoreLocation() {
-        // creates an empty auth store, as this is a non-authenticating instance
+    private String createAuthStore() {
+        // creates a temp auth store, with encrypted credentials "neo4j:password" if the server is authenticating connections
         try {
             Path authStore = Files.createTempFile("neo4j", "credentials");
             authStore.toFile().deleteOnExit();
+
+            if (enableAuthentication) {
+                try (Writer authStoreWriter = new FileWriter(authStore.toFile())) {
+                    IOUtils.write("neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:", authStoreWriter);
+                }
+                driver().getConfiguration().setCredentials("neo4j", "password");
+            }
+
             return authStore.toAbsolutePath().toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -166,6 +170,36 @@ public class TestServer {
 
     public void close() {
         shutdown();
+    }
+
+    public static class Builder {
+
+        private Integer port = null;
+        private Integer transactionTimeoutSeconds = 60;
+        private boolean enableAuthentication = false;
+
+        public Builder() {
+        }
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder transactionTimeoutSeconds(int transactionTimeoutSeconds) {
+            this.transactionTimeoutSeconds = transactionTimeoutSeconds;
+            return this;
+        }
+
+        public Builder enableAuthentication(boolean enableAuthentication) {
+            this.enableAuthentication = enableAuthentication;
+            return this;
+        }
+
+        public TestServer build() {
+            return new TestServer(this);
+        }
+
     }
 
 }

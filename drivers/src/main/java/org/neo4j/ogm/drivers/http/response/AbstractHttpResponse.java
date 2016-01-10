@@ -27,8 +27,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
-import org.neo4j.ogm.model.Statistics;
-import org.neo4j.ogm.response.model.StatisticsModel;
+import org.neo4j.ogm.model.QueryStatistics;
+import org.neo4j.ogm.response.model.QueryStatisticsModel;
 
 /**
  * @author vince
@@ -43,7 +43,7 @@ public abstract class AbstractHttpResponse<T> {
 	private final Class<T> resultClass;
 
 	private String[] columns;
-	private Statistics statistics;
+	private QueryStatistics queryStatistics;
 	private JsonNode responseNode;
 
 
@@ -118,20 +118,20 @@ public abstract class AbstractHttpResponse<T> {
 
 	/**
 	 * Extract stats from the response if present
-	 * @return statistics or null if the response does not contain it
+	 * @return queryStatistics or null if the response does not contain it
 	 */
-	public Statistics statistics() {
-		if (statistics==null) {
+	public QueryStatistics statistics() {
+		if (queryStatistics ==null) {
 			List<JsonNode> statsNodes = responseNode.findValues("stats");
 			try {
 				if (statsNodes != null && statsNodes.size() > 0) {
-					statistics = mapper.treeToValue(statsNodes.get(0), StatisticsModel.class);
+					queryStatistics = mapper.treeToValue(statsNodes.get(0), QueryStatisticsModel.class);
 				}
 			} catch (JsonProcessingException jsonException) {
 				throw new RuntimeException(jsonException);
 			}
 		}
-		return statistics;
+		return queryStatistics;
 	}
 
 	private void close() {

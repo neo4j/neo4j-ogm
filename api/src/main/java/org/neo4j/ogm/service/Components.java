@@ -137,12 +137,12 @@ public class Components {
     }
 
     private static InputStream classPathResource(String name) {
-        System.out.println("Trying to configure from: " + name);
+        logger.debug("Trying to configure from {} ", name);
         return ClassLoaderResolver.resolve().getResourceAsStream(name);
     }
 
     public static void setDriver(Driver driver) {
-        System.out.println(" *** Setting driver to: " + driver.getClass().getName());
+        logger.info("Setting driver to: {}", driver.getClass().getName());
         Components.driver = driver;
     }
 

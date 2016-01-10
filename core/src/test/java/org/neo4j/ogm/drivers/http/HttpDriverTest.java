@@ -13,25 +13,23 @@ import org.neo4j.ogm.testutil.TestServer;
  */
 public class HttpDriverTest extends AbstractDriverTestSuite {
 
-//    private TestServer server;
+    private static TestServer testServer;
 
     @BeforeClass
     public static void configure() {
         Components.configure("ogm-http.properties");
-        new TestServer();
+        testServer = new TestServer.Builder().build();
     }
 
     @AfterClass
     public static void reset() {
+        testServer.shutdown();
         Components.autoConfigure();
     }
 
     @Before
     public void setUp() {
         assert Components.driver() instanceof HttpDriver;
-//        if (server == null) {
-//            server = new TestServer();
-//        }
     }
 
 }

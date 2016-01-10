@@ -3,7 +3,7 @@ package org.neo4j.ogm.model;
 /**
  * @author vince
  */
-public interface Statistics {
+public interface QueryStatistics {
 
     boolean containsUpdates();
 

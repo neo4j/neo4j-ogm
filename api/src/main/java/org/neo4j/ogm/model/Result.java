@@ -21,6 +21,6 @@ import java.util.Map;
  */
 public interface Result extends Query<Iterable<Map<String, Object>>>, Iterable<Map<String,Object>>  {
 
-	Statistics statistics();
+	QueryStatistics queryStatistics();
 
 }

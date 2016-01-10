@@ -18,11 +18,18 @@ public class MultiDriverTestClass {
 
     @BeforeClass
     public static void setupMultiDriverTestEnvironment() {
+
         if (Components.driver() instanceof HttpDriver) {
             if (Components.neo4jVersion() < 2.2) {
-                testServer = new TestServer();
+                testServer = new TestServer.Builder()
+                        .enableAuthentication(false)
+                        .transactionTimeoutSeconds(2)
+                        .build();
             } else {
-                testServer = new AuthenticatingTestServer();
+                testServer = new TestServer.Builder()
+                        .enableAuthentication(true)
+                        .transactionTimeoutSeconds(2)
+                        .build();
             }
         }
         else {
@@ -39,7 +46,7 @@ public class MultiDriverTestClass {
         }
         if (impermanentDb != null) {
             impermanentDb.shutdown();
-            //Components.driver().close();
+            impermanentDb = null;
         }
     }
 
@@ -47,6 +54,6 @@ public class MultiDriverTestClass {
         if (testServer != null) {
             return testServer.getGraphDatabaseService();
         }
-        return ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
+        return impermanentDb;
     }
 }

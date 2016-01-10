@@ -9,7 +9,7 @@ public class ResultRowModel implements Query<Object[]> {
 
     private Object[] row;
 
-    public Object[] model() {
+    public Object[] queryResults() {
         return row;
     }
 

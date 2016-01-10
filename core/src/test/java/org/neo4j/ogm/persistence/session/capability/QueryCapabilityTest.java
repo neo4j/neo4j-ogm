@@ -97,14 +97,14 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Colin"));
         Result result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5), false);
         assertNotNull(result);
-        assertNotNull(result.statistics());
-        assertEquals(3, result.statistics().getPropertiesSet());
+        assertNotNull(result.queryStatistics());
+        assertEquals(3, result.queryStatistics().getPropertiesSet());
 
 
         result = session.query("MATCH (a:Actor) SET a.age={age}", MapUtil.map("age", 5));
         assertNotNull(result);
-        assertNotNull(result.statistics());
-        assertEquals(3, result.statistics().getPropertiesSet());
+        assertNotNull(result.queryStatistics());
+        assertEquals(3, result.queryStatistics().getPropertiesSet());
 
     }
 
@@ -118,11 +118,11 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Colin"));
         Result result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name", MapUtil.map("age", 5), false);
         assertNotNull(result);
-        assertNotNull(result.statistics());
-        assertEquals(3, result.statistics().getPropertiesSet());
+        assertNotNull(result.queryStatistics());
+        assertEquals(3, result.queryStatistics().getPropertiesSet());
         List<String> names = new ArrayList<>();
 
-        Iterator<Map<String, Object>> namesIterator = result.model().iterator();
+        Iterator<Map<String, Object>> namesIterator = result.queryResults().iterator();
         while (namesIterator.hasNext()) {
             names.add((String) namesIterator.next().get("a.name"));
         }
@@ -134,11 +134,11 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
         result = session.query("MATCH (a:Actor) SET a.age={age} RETURN a.name, a.age", MapUtil.map("age", 5));
         assertNotNull(result);
-        assertNotNull(result.statistics());
-        assertEquals(3, result.statistics().getPropertiesSet());
+        assertNotNull(result.queryStatistics());
+        assertEquals(3, result.queryStatistics().getPropertiesSet());
         names = new ArrayList<>();
 
-        namesIterator = result.model().iterator();
+        namesIterator = result.queryResults().iterator();
         while (namesIterator.hasNext()) {
             Map<String, Object> row = namesIterator.next();
             names.add((String) row.get("a.name"));
@@ -161,11 +161,11 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         session.save(new Actor("Colin"));
         Result result = session.query("MATCH (a:Actor) RETURN a.name", Collections.EMPTY_MAP, true);
         assertNotNull(result);
-        assertNull(result.statistics());
+        assertNull(result.queryStatistics());
 
         List<String> names = new ArrayList<>();
 
-        Iterator<Map<String, Object>> namesIterator = result.model().iterator();
+        Iterator<Map<String, Object>> namesIterator = result.queryResults().iterator();
         while (namesIterator.hasNext()) {
             names.add((String) namesIterator.next().get("a.name"));
         }

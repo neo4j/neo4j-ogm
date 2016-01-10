@@ -17,6 +17,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.transaction.Transaction;
 
@@ -184,7 +185,7 @@ public interface Capability {
          * @param cypher  The parametrisable cypher to execute.
          * @param parameters Any parameters to attach to the cypher.
          *
-         * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link org.neo4j.ogm.model.Statistics} if applicable.
+         * @return A {@link Result} containing an {@link Iterable} map representing query results and {@link QueryStatistics} if applicable.
          */
         Result query(String cypher, Map<String, ?> parameters);
 

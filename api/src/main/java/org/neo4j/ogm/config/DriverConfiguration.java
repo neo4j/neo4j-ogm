@@ -58,9 +58,27 @@ public class DriverConfiguration {
         return this;
     }
 
+    /**
+     * Returns the driver connection credentials, if they have been provided.
+     * If a Credentials object exists, it will be returned
+     * If a Credentials object does not exist, it will be created from the URI's authentication part
+     * If the URI does not contain an authentication part, Credentials will be created from username/password properties
+     * if they have been set.
+     *
+     * @return a Credentials object if one exists or can be created, null otherwise
+     */
     public Credentials getCredentials() {
+
         if (configuration.get(CREDENTIALS) == null) {
             setURI((String) configuration.get(URI)); // set from the URI?
+        }
+
+        if (configuration.get(CREDENTIALS) == null) {
+            String username = (String) configuration.get("username");
+            String password = (String) configuration.get("password");
+            if (username != null && password != null) {
+                setCredentials(username, password); // set from username/password pair
+            }
         }
         return (Credentials) configuration.get(CREDENTIALS);
     }

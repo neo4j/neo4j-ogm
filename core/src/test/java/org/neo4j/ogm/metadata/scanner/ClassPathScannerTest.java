@@ -54,7 +54,7 @@ public class ClassPathScannerTest {
         ClassScanProcessor processor = new ClassScanProcessor();
 
         classPathScanner.scan(Collections.singletonList("org/neo4j/ogm/domain/convertible"), processor);
-        assertEquals(14, processor.domainClassInfos.size());
+        assertEquals(16, processor.domainClassInfos.size());
 
         List<String> classNames = extractClassNames(processor.domainClassInfos);
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo"));

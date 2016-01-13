@@ -88,6 +88,11 @@ public abstract class ClassUtils {
             return PRIMITIVE_TYPE_MAP.get(typeName);
         }
 
+        // if class is parametrized, obtain simple class signature.
+        if (typeName.contains("<T")) {
+            typeName = typeName.substring(0, typeName.indexOf("<T"));
+        }
+
         try {
             return MetaDataClassLoader.loadClass(typeName);//Class.forName(typeName);
         } catch (Throwable e) {

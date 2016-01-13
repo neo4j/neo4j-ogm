@@ -15,16 +15,17 @@
 package org.neo4j.ogm.unit.metadata.scanner;
 
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.neo4j.ogm.metadata.ClassPathScanner;
+import org.neo4j.ogm.metadata.info.ClassInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
-import org.neo4j.ogm.metadata.ClassPathScanner;
-import org.neo4j.ogm.metadata.info.ClassInfo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luanne Misquitta
@@ -53,7 +54,7 @@ public class ClassPathScannerTest {
 		ClassScanProcessor processor = new ClassScanProcessor();
 
 		classPathScanner.scan(Collections.singletonList("org/neo4j/ogm/domain/convertible"), processor);
-		assertEquals(14, processor.domainClassInfos.size());
+		assertEquals(16, processor.domainClassInfos.size());
 
 		List<String> classNames = extractClassNames(processor.domainClassInfos);
 		assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo"));

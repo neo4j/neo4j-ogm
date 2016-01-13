@@ -108,9 +108,9 @@ URI=http://user:password@localhost:7474
 [source,java]
 ----
 Components.configuration()
-             .getDriverConfiguration();
-             .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-             .setURI("http://user:password@localhost:7474");
+             .driverConfiguration()
+             .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+             .setURI("http://user:password@localhost:7474")
 ----
 
 _Note: Please see the section below describing the different ways you can pass credentials to the Http Driver_
@@ -136,8 +136,8 @@ driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 [source,java]
 ----
 Components.configuration()
-             .getDriverConfiguration();
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+             .driverConfiguration()
+             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
              .setURI("file://home/bilbo");
 ----
 
@@ -145,8 +145,8 @@ Components.configuration()
 [source,java]
 ----
 Components.configuration()
-             .getDriverConfiguration();
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+             .driverConfiguration()
+             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
 ----
 
 As you can see to use an impermanent data store, you just omit the URI attribute.
@@ -180,7 +180,7 @@ URI=bolt://bilbo:baggins@localhost
 ----
 Components.configuration()
              .getDriverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+             .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
              .setURI("bolt://user:password@localhost");
 ----
 
@@ -203,18 +203,18 @@ password="password"
 ----
 // embedded
 Components.configuration()
-             .getDriverConfiguration();
+             .driverConfiguration()
              .setURI("bolt://user:password@localhost");
 
 // separately as plain text
 Components.configuration()
-             .getDriverConfiguration();
+             .driverConfiguration()
              .setCredentials("user", "password);
 
 // using a Credentials object
 Credentials credentials = new UsernameAndPasswordCredentials("user", "password");
 Components.configuration()
-             .getDriverConfiguration();
+             .driverConfiguration()
              .setCredentials(credentials);
 ----
 
@@ -236,7 +236,7 @@ compiler=org.neo4j.ogm.compiler.MultiStatementCypherCompiler
 [source,java]
 ----
 Components.configuration()
-             .getCompilerConfiguration()
+             .compilerConfiguration()
              .setCompilerClassName("org.neo4j.ogm.compiler.MultiStatementCypherCompiler");
 ----
 
@@ -318,10 +318,10 @@ If you want to explicitly configure the SessionFactory you must supply a Configu
 [source,java]
 ----
 Configuration configuration = Components.configuration();
-configuration.getDriverConfiguration();
-             .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-             .setURI("http://localhost:7474") ;
-             .setCredentials("user", "password");
+configuration.driverConfiguration()
+             .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+             .setURI("http://localhost:7474")
+             .setCredentials("user", "password")
 SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.example.domain");
 Session session = sessionFactory.openSession();
 ----

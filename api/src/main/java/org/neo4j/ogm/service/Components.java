@@ -40,7 +40,7 @@ public class Components {
 
     private static final Logger logger = LoggerFactory.getLogger(Components.class);
 
-    private static Configuration configuration;
+    private static Configuration configuration = new Configuration();
     private static Driver driver;
 
     /**

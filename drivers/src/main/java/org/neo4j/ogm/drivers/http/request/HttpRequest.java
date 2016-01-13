@@ -17,11 +17,13 @@ package org.neo4j.ogm.drivers.http.request;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
@@ -56,12 +58,11 @@ import java.util.List;
 public class HttpRequest implements Request {
 
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     private final String url;
     private final CloseableHttpClient httpClient;
     private final Credentials credentials;
-
-    private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     public HttpRequest(CloseableHttpClient httpClient, String url, Credentials credentials) {
         this.httpClient = httpClient;
@@ -73,8 +74,7 @@ public class HttpRequest implements Request {
     public Response<GraphModel> execute(GraphModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
-        }
-        else {
+        } else {
             String cypher = cypherRequest(request);
             try {
                 return new GraphModelResponse(executeRequest(cypher));
@@ -88,8 +88,7 @@ public class HttpRequest implements Request {
     public Response<RowModel> execute(RowModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
-        }
-        else {
+        } else {
             String cypher = cypherRequest(request);
             try {
                 return new RowModelResponse(executeRequest(cypher));
@@ -105,8 +104,7 @@ public class HttpRequest implements Request {
         String cypher = cypherRequest(statements);
         try {
             return new RowModelResponse(executeRequest(cypher));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ResultProcessingException("Could not parse response", e);
         }
     }
@@ -115,8 +113,7 @@ public class HttpRequest implements Request {
     public Response<GraphRowListModel> execute(GraphRowListModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
-        }
-        else {
+        } else {
             String cypher = cypherRequest(request);
             try {
                 return new GraphRowsModelResponse(executeRequest(cypher));
@@ -131,8 +128,7 @@ public class HttpRequest implements Request {
     public Response<RowStatisticsModel> execute(RowStatisticsModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
-        }
-        else {
+        } else {
             String cypher = cypherRequest(request);
             try {
                 return new RowStatisticsModelResponse(executeRequest(cypher));
@@ -152,7 +148,7 @@ public class HttpRequest implements Request {
         try {
             return mapper.writeValueAsString(new Statements(statementList));
         } catch (JsonProcessingException jpe) {
-            throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
+            throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(), jpe);
         }
     }
 
@@ -160,69 +156,136 @@ public class HttpRequest implements Request {
         try {
             return mapper.writeValueAsString(statements);
         } catch (JsonProcessingException jpe) {
-            throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(),jpe);
+            throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(), jpe);
         }
     }
 
     private CloseableHttpResponse executeRequest(String cypher) {
 
-        CloseableHttpResponse response = null;
+        String url = this.url;
 
-        try {
-            String url = this.url;
+        assert (url != null);
 
-            assert(url != null);
+        logger.debug("POST {}, request {}", url, cypher);
 
-            logger.debug("POST {}, request {}", url, cypher);
+        HttpPost request = new HttpPost(url);
+        request.setEntity(new StringEntity(cypher, "UTF-8"));
 
-            HttpPost request = new HttpPost(url);
-            HttpEntity entity = new StringEntity(cypher,"UTF-8");
-
-            request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
-            request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
-
-            // http://tools.ietf.org/html/rfc7231#section-5.5.3
-            request.setHeader(new BasicHeader("User-Agent", "neo4j-ogm.java/1.0"));
-
-            HttpAuthorization.authorize(request, credentials);
-
-            request.setEntity(entity);
-
-            response = httpClient.execute(request);
-
-            StatusLine statusLine = response.getStatusLine();
-            HttpEntity responseEntity = response.getEntity();
-
-            if (statusLine.getStatusCode() >= 300) {
-                if (responseEntity != null) {
-                    String responseText = EntityUtils.toString(responseEntity);
-                    logger.debug("Response Status: {} response: {}" , statusLine.getStatusCode(), responseText);
-                    EntityUtils.consume(responseEntity);
-                }
-                throw new HttpResponseException(
-                        statusLine.getStatusCode(),
-                        statusLine.getReasonPhrase());
-            }
-            if (responseEntity == null) {
-                throw new ClientProtocolException("Response contains no content");
-            }
-
-            logger.debug("Response is OK");
-            return response;
-        }
-        // the primary exception handler, will ensure all resources are properly closed
-        catch (Exception e) {
-            logger.warn("Caught response exception: {}", e.getLocalizedMessage());
-            if (response != null) {
-                try {
-                    response.close();
-                } catch (IOException ioe) {
-                    throw new ResultProcessingException("Failed to close response: ", e);
-                }
-            }
-            throw new ResultProcessingException("Failed to execute request: " + cypher, e);
-        }
+        return execute(httpClient, request, credentials);
     }
 
+    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) {
 
+        CloseableHttpResponse response = null;
+
+        request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
+        request.setHeader(new BasicHeader(HTTP.USER_AGENT, "neo4j-ogm.java/2.0"));
+        request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
+
+        HttpAuthorization.authorize(request, credentials);
+
+        // use defaults: 3 retries, 2 second wait between attempts
+        RetryOnExceptionStrategy retryStrategy = new RetryOnExceptionStrategy();
+
+        while (retryStrategy.shouldRetry()) {
+
+            try {
+
+                response = httpClient.execute(request);
+
+                StatusLine statusLine = response.getStatusLine();
+                HttpEntity responseEntity = response.getEntity();
+
+                if (statusLine.getStatusCode() >= 300) {
+                    if (responseEntity != null) {
+                        String responseText = EntityUtils.toString(responseEntity);
+                        logger.debug("Response Status: {} response: {}", statusLine.getStatusCode(), responseText);
+                        EntityUtils.consume(responseEntity);
+                    }
+                    throw new HttpResponseException(
+                            statusLine.getStatusCode(),
+                            statusLine.getReasonPhrase());
+                }
+                if (responseEntity == null) {
+                    throw new ClientProtocolException("Response contains no content");
+                }
+
+                logger.debug("Response is OK");
+                return response;
+
+            } catch (NoHttpResponseException nhre) {
+                try {
+                    logger.debug("No response from server.  Retrying in {} milliseconds, retries left: {}", retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
+                    retryStrategy.errorOccured();
+                } catch (Exception e) {
+                    throw new ResultProcessingException("Request retry has failed", e);
+                }
+            }
+            // the catch-all exception handler, will ensure all resources are properly closed in the event we cannot proceed
+            // or there is a problem parsing the response from the server.
+            catch (Exception e) {
+                request.releaseConnection();
+                logger.warn("Caught response exception: {}", e.getLocalizedMessage());
+                if (response != null) {
+                    try {
+                        response.close();
+                    } catch (IOException ioe) {
+                        throw new ResultProcessingException("Failed to close response: ", e);
+                    }
+                }
+
+                throw new ResultProcessingException("Failed to execute request", e);
+            }
+        }
+        request.releaseConnection();
+        throw new RuntimeException("Fatal Exception: Should not have occurred!");
+    }
+
+    static class RetryOnExceptionStrategy {
+
+        public static final int DEFAULT_RETRIES = 3;
+        public static final long DEFAULT_WAIT_TIME_IN_MILLI = 2000;
+
+        private int numberOfRetries;
+        private int numberOfTriesLeft;
+        private long timeToWait;
+
+        public RetryOnExceptionStrategy() {
+            this(DEFAULT_RETRIES, DEFAULT_WAIT_TIME_IN_MILLI);
+        }
+
+        public RetryOnExceptionStrategy(int numberOfRetries, long timeToWait) {
+            this.numberOfRetries = numberOfRetries;
+            numberOfTriesLeft = numberOfRetries;
+            this.timeToWait = timeToWait;
+        }
+
+        /**
+         * @return true if there are tries left
+         */
+        public boolean shouldRetry() {
+            return numberOfTriesLeft > 0;
+        }
+
+        public void errorOccured() throws Exception {
+            numberOfTriesLeft--;
+            if (!shouldRetry()) {
+                throw new Exception("Retry Failed: Total " + numberOfRetries
+                        + " attempts made at interval " + getTimeToWait()
+                        + "ms");
+            }
+            waitUntilNextTry();
+        }
+
+        public long getTimeToWait() {
+            return timeToWait;
+        }
+
+        private void waitUntilNextTry() {
+            try {
+                Thread.sleep(getTimeToWait());
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
 }

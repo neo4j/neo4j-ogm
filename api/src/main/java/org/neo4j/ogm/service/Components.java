@@ -1,5 +1,9 @@
 package org.neo4j.ogm.service;
 
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Properties;
+
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.CompilerConfiguration;
@@ -8,10 +12,6 @@ import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Properties;
 
 /**
  * This class is responsible for ensuring that the various pluggable components
@@ -109,14 +109,14 @@ public class Components {
     }
 
     private static void loadDriver() {
-        if (configuration == null) {
+        if (configuration.driverConfiguration().getDriverClassName() == null) {
             autoConfigure();
         }
         setDriver (DriverService.load(new DriverConfiguration(configuration)));
     }
 
     private static Compiler loadCompiler() {
-        if (configuration == null) {
+        if (configuration.compilerConfiguration().getCompilerClassName() == null) {
             autoConfigure();
         }
         return CompilerService.load(new CompilerConfiguration(configuration));

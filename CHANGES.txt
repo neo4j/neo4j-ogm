@@ -1,6 +1,8 @@
 1.1.5-SNAPSHOT
 --------------
-
+o Retry http requests in the event of NoHttpResponseException
+o Converters using parametrized types now work correctly
+o Fixes http-client connection leak when request returns a 300/400/500 response code
 
 1.1.4
 --------------

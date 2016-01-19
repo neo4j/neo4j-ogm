@@ -16,8 +16,6 @@ include::node-entities.adoc[]
 
 include::relationships.adoc[]
 
-//include::indexing.adoc[]
-
 include::session.adoc[]
 
 include::conversion.adoc[]
@@ -25,8 +23,6 @@ include::conversion.adoc[]
 include::transactions.adoc[]
 
 include::attachdetach.adoc[]
-
-include::testing.adoc[]
 
 :leveloffset: -1
 

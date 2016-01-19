@@ -65,20 +65,22 @@ dependencies {
 
 == OGM 2.x Configuration
 
-The new Components framework in OGM 2.0 allow you to configure your application by specifying which driver you want to use to connect to Neo4j (Http, Embedded, Bolt) and optionally, which Cypher compiler you want to use.
+In previous versions, you could only connect to the database over Http.
+2.0 now provides support for connecting to Neo4j by configuring one of the following Drivers:
+
+- Http driver
+- Embedded driver
+
 There are two basic ways to supply this configuration information: via a single properties file, or programmatically.
 
 ==== Properties file Configuration
 
-.Using the default configuration file: "ogm.properties"
 Unless you supply an explicit Configuration object to the SessionFactory (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the classpath.
-
-.Using an alternative configuration file
-If you want to configure the OGM using a _different_ properties file, you must either set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
+If you want to configure the OGM using a properties file, but with a _different_ filename, you must set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
 
 ==== Java Configuration
 
-In some cases you won't want to, or will not be able to provide configuration information via a properties file. In this case you can configure the OGM programmatically instead.
+In some cases you won't want to, or will not be able to provide configuration information using a properties file. In this case you can configure the OGM programmatically instead.
 
 The `Components` class provides access to the various Configuration classes:
 
@@ -96,9 +98,9 @@ The following sections describe how to configure the OGM using either a properti
 
 ==== Configuring the Http Driver
 
-The Http Driver connects to and communicates with a Neo4j server via Http. An Http Driver (or a Bolt Driver) must be used if your application is running in client-server mode.
+The Http Driver connects to and communicates with a Neo4j server via Http. An Http Driver must be used if your application is running in client-server mode.
 
-.Properties file
+.ogm.properties
 ```
 driver=org.neo4j.ogm.drivers.http.driver.HttpDriver
 URI=http://user:password@localhost:7474
@@ -121,13 +123,13 @@ The Embedded Driver connects directly to the Neo4j database engine. There is no 
 You should use the Embedded driver if you don't want to use a client-server model, or if your application is running as a Neo4j Unmanaged Extension.
 You can specify a permanent data store location to provide durability of your data after your application shuts down, or you can use an impermanent data store, which will only exist while your application is running.
 
-.Properties file (permanent data store)
+.ogm.properties (permanent data store)
 ```
 driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
-URI=file:///tmp/neo4j.db
+URI=file:///var/tmp/neo4j.db
 ```
 
-.Properties file (impermanent data store)
+.ogm.properties (impermanent data store)
 ```
 driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 ```
@@ -153,7 +155,7 @@ As you can see to use an impermanent data store, you just omit the URI attribute
 
 ==== Configuring the Embedded Driver in an Unmanaged Extension
 
-When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up the configuration slightly differently.
+When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up the Driver configuration slightly differently.
 In this situation, an existing `GraphDatabaseService` will already be available via a `@Context` annotation, and you must configure the Components framework to enable the OGM to use the provided instance.
 Note your application should typically do this only once.
 
@@ -162,33 +164,11 @@ Note your application should typically do this only once.
     Components.setDriver(new EmbeddedDriver(graphDatabaseService));
 ----
 
-
-==== Bolt driver
-
-The Bolt driver is still in an experimental phase, and won't be officially supported by the OGM until 3.0 Neo4j is released. The information given below is subject
-to change.
-
-.Properties file
-
-```
-driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
-URI=bolt://bilbo:baggins@localhost
-```
-
-.Java Configuration
-[source,java]
-----
-Components.configuration()
-             .getDriverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-             .setURI("bolt://user:password@localhost");
-----
-
 ==== Credentials
 
-If you are using the Bolt or Http Driver you have a number of different ways to supply credentials to the Driver Configuration.
+If you are using the Http Driver you have a number of different ways to supply credentials to the Driver Configuration.
 
-.Properties file options:
+.ogm.properties:
 ```
 # embedded
 URI=http://user:password@localhost:7474
@@ -198,7 +178,7 @@ username="user"
 password="password"
 ```
 
-.Java Configuration options
+.Java Configuration
 [source,java]
 ----
 // embedded
@@ -220,26 +200,111 @@ Components.configuration()
 
 _Note: Currently only Basic Authentication is supported by Neo4j, so the only Credentials implementation supplied by the OGM is `UsernameAndPasswordCredentials`_
 
-=== Configuring the Cypher compiler
+== Testing
 
-You can _optionally_ specify which cypher compiler the OGM should use when generating cypher queries.
-If you don't specify a compiler option, the OGM will *always* use an appropriate one. So unless you have a specific reason for using a different Cypher compiler, you don't need to configure this yourself.
+In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
 
-_Note: As of OGM 2.0 only one official compiler implementation is available, so you can't do much with this setting anyway. But future releases are expected to provide different compilers explicitly tuned for the version of Neo4j you are using_
+In previous versions this class provided access to an underlying `GraphDatabaseService` instance, allowing you to independently verify your code was working correctly.
+However it is incompatible with the Driver interfaces in 2.0, as it always requires you to connect using Http.
 
-.Properties file
-```
-compiler=org.neo4j.ogm.compiler.MultiStatementCypherCompiler
-```
+The recommended approach is to configure an Embedded Driver for testing as described above, although you can still use an in-process Http server if you wish (see below).
+Please note that if you're just using the Embedded Driver for your tests you do not need to include any additional test jars in your pom.
 
-.Java Configuration
+=== Log levels
+
+When running unit tests, it can be useful to see what the OGM is doing, and in particular to see the Cypher requests being transferred between your application and the database.
+The OGM uses `slf4j` along with `Logback` as its logging framework and by default the log level for all the OGM components is set to WARN, which does not include any Cypher output.
+To change the OGM log level, create a file *logback-test.xml* in your test resources folder, configured as shown below:
+
+.logback-test.xml
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d %5p %40.40c:%4L - %m%n</pattern>
+		</encoder>
+	</appender>
+
+    <!--
+      ~ Set the required log level for the OGM components here.
+      ~ To just see Cypher statements set the level to "info"
+      ~ For finer-grained diagnostics, set the level to "debug".
+    -->
+    <logger name="org.neo4j.ogm" level="info" />
+
+    <root level="warn">
+		<appender-ref ref="console" />
+	</root>
+
+</configuration>
+----
+
+==== Production
+In production, you can set the log level in exactly the same way, but the file should be called *logback.xml*, not *logback-test.xml*.
+Please see the <<http://logback.qos.ch/manual/,Logback manual>> for further details.
+
+=== Using an in-process server for testing
+
+If you want don't want to use the Embedded Driver to run your tests, it is still possible to create an in-process Http server instead.
+Just like the Embedded Driver, a TestServer exposes a GraphDatabaseService instance which you can use in your tests.
+You should always close the server when you're done with it.
+
+You'll first need to add the OGM test-jar dependency to your pom:
+
+[source,xml]
+----
+        <dependency>
+           <groupId>org.neo4j</groupId>
+           <artifactId>neo4j-ogm-test</artifactId>
+           <version>{version}</version>
+           <type>test-jar</type>
+           <scope>test</scope>
+        </dependency>
+----
+
+Next, create a TestServer instance:
 [source,java]
 ----
-Components.configuration()
-             .compilerConfiguration()
-             .setCompilerClassName("org.neo4j.ogm.compiler.MultiStatementCypherCompiler");
+      testServer = new TestServer.Builder()
+                        .enableAuthentication(true)    // defaults to false
+                        .transactionTimeoutSeconds(10) // defaults to 30 seconds
+                        .port(2222)                    // defaults to a random non-privileged port
+                        .build();
 ----
 
+A TestServer is backed by an impermanent database store, and configures the OGM to use an HttpDriver. The driver authenticates automatically if you have requested an authenticating server so you don't have to do provide additional credentials.
+
+.Example test class using an in-process Http server
+[source,java]
+----
+private static TestServer testServer;
+
+@BeforeClass
+public static setupTestServer() {
+      testServer = new TestServer.Builder().build();
+}
+
+@AfterClass
+public static teardownTestServer() {
+    testServer.close();
+}
+
+@Test
+public void shouldCreateUser() {
+
+    session.save(new User("Bilbo Baggins"));
+
+    GraphDatabaseService db = testServer.getGraphDatabaseService();
+    try (Transaction tx = db.beginTx()) {
+        Result r = db.execute("MATCH (u:User {name: 'Bilbo Baggins'}) RETURN u");
+        assertTrue(r.hasNext());
+        tx.success();
+    }
+}
+----
 
 === Migrating from OGM 1.x to 2.x
 
@@ -247,52 +312,9 @@ OGM 2.0 introduces a few minor changes that you will need to take into account w
 These changes are a consequence of the support for different database drivers. In 1.x, the only connectivity to Neo4j was over Http, and the code reflected this in its design, as it closely coupled the session with the Http client.
 In 2.0 this design is no longer appropriate, and the connection to the database is abstracted via a Driver interface.
 
-This has an impact on your application code in two areas, testing and session configuration.
+This has an impact on your application code in two areas, testing (discussed above) and session configuration.
 
-=== Testing
-
-In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
-
-The main advantage of this TestRule is that it provided access to an underlying `GraphDatabaseService` instance, allowing you to independently verify your code was working correctly.
-However it is incompatible with the Driver interfaces in 2.0, as it always requires you to connect using Http.
-The OGM integration tests have been refactored to remove this dependency and to run using any driver, by extending `MultiDriverTestClass` instead.
-This class is available in the test-jar and you can use it to make your own tests driver-agnostic as the following examples shows.
-
-
-[source,java]
-----
-import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.domain.test.User;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
-
-/*
- * This test will run using either the embedded or the http driver without requiring any changes
- */
-public class MyTest extends MultiDriverTestClass {
-
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.test");
-    private Session session;
-
-    @Before
-    public void init() throws IOException {
-        session = sessionFactory.openSession();
-        session.purgeDatabase();
-    }
-
-    @Test
-    public void shouldCreateUser() {
-        session.save(new User("bilbo baggins"));
-        assertSameGraph(getGraphDatabaseService(), "CREATE (:User {name: 'bilbo', surname:'baggins'})");
-    }
-}
-----
-
-=== Session Configuration
+=== Session Configuration differences between 1.x and 2.x
 
 In 2.0, the SessionFactory API has been considerably simplified. There is now only one method to open a session: `openSession()`.
 You can no longer pass in any credentials or other attributes as arguments: this information is now part of the Configuration as discussed above.
@@ -332,8 +354,7 @@ Refer to the Java Configuration section above for more details about the various
 
 .Driver configuration
 
-_Note: OGM 1.x only supports Http (server-based) connectivity to Neo4j. If you want to use an Embedded database or use
-the Bolt protocol to connect with a Neo4j server, you'll need to upgrade to OGM 2.0_
+_Note: OGM 1.x only supports Http (server-based) connectivity to Neo4j. If you want to use an Embedded database to connect with a Neo4j server, you'll need to upgrade to OGM 2.0_
 
 If you're running against Neo4j 2.2 or later and authentication is enabled, you will need to supply connection credentials.
 This can be accomplished by supplying the username and password as parameters to the `SessionFactory.openSession` method,

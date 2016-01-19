@@ -11,15 +11,33 @@ Neo4j OGM aims to simplify development with the Neo4j graph database.
 Like JPA, it uses annotations on simple POJO domain objects.
 Together with metadata, the annotations drive mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
 
-== Design Considerations
-The design of the OGM is based on the understanding that the majority of users wants to run application servers that connect to remote database instances.
-They will therefore need to communicate "over the wire".
-Neo4j provides the capability to do this now with its powerful Cypher language, which is exposed via a remote protocol.
+== Compatibility
+The following table lists compatibility of the OGM with different versions of Neo4j.
 
-What we have attempted to do is to ensure that, as much as possible, we don't overload that communication channel.
-This is important for two reasons.
-Firstly, every network interaction involves an overhead (both bandwidth but more so latency) which impacts the response times of your application.
-Secondly, network requests containing redundant operations (such as updating an object which hasn't changed) are unnecessary, and have similar impacts.
+[width="40%",frame="topbot",options="header,footer"]
+|======================
+|Neo4j-OGM Version |Neo4j Version
+|2.0.0             |2.3.x
+|1.1.5             |2.1.x, 2.2.x, 2.3.x
+|======================
+
+== Multiple driver implementations
+As of 2.0, the OGM provides support for connecting to Neo4j using different drivers. The following drivers are available.
+
+- Http driver
+- Embedded driver
+
+Please see the <<reference_setup,Setup Guide>> for more details about how to configure the OGM to use the driver you require.
+
+== Cypher
+Cypher is Neo4j's powerful query language. It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
+This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plugin the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+
+== Design Considerations
+
+The OGM attempts to minimise the Cypher payload when persisting your objects to the graph. This is important for two reasons.
+Firstly in client-server mode, every network interaction involves an overhead (both bandwidth but more so latency) which impacts the response times of your application.
+Secondly, requests containing redundant operations (such as updating an object which hasn't changed) are unnecessary, and have similar impacts.
 We have approached this problem in a number of ways:
 
 === Variable-depth persistence
@@ -41,15 +59,6 @@ Supporting the smart object-mapping capability is the `Session` whose lifetime c
 
 The advantage of longer-running sessions is that you will be able to make more efficient requests to the database at the expense of the additional memory associated with the session.
 The advantage of shorter sessions is they impose almost no overhead on memory, but will result in less efficient requests to Neo4j when storing and retrieving data.
-
-=== Multiple driver implementations
-As of 2.0, the OGM provides suppport for connecting to Neo4j using different drivers. The following drivers are available.
-
-- Http driver
-- Embedded driver
-- Bolt driver (v3.0 Neo4j only - experimental)
-
-Please see the <<reference_setup,Setup Guide>> for more details about how to configure the OGM to use the driver you require.
 
 = Overview
 

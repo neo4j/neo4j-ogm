@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Upgrade to Neo4j 2.3.2
 o Retry http requests in the event of NoHttpResponseException
 o Converters using parametrized types now work correctly
 o Fixes http-client connection leak when request returns a 300/400/500 response code
@@ -13,6 +14,7 @@ o Split into modules for drivers, api, core, compiler and test
 
 1.1.5-SNAPSHOT
 --------------
+o Upgrade to Neo4j 2.3.2
 o Retry http requests in the event of NoHttpResponseException
 o Converters using parametrized types now work correctly
 o Fixes http-client connection leak when request returns a 300/400/500 response code

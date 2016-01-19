@@ -91,7 +91,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             // This is effectively what the ImpermanentDatabase does.
             if (fileStoreUri == null) {
                 fileStoreUri = createTemporaryEphemeralFileStore();
-                config.setURI(fileStoreUri);
             }
 
             File file = new File(new URI(fileStoreUri));

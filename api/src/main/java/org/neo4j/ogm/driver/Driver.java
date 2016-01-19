@@ -22,7 +22,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
 /**
  * @author vince
  */
-public interface Driver extends LoadableService {
+public interface Driver extends AutoCloseable, LoadableService {
 
     void configure(DriverConfiguration config);
 

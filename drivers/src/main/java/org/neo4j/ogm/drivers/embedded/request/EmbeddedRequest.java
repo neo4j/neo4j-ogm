@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.drivers.embedded.request;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -37,6 +33,10 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author vince
@@ -143,7 +143,7 @@ public class EmbeddedRequest implements Request {
             TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
             HashMap<String, Object> parameterMap = mapper.readValue(params.getBytes(), typeRef);
 
-            logger.debug("Request: {}", cypher);
+            logger.info("Request: {}", cypher);
 
             // If we don't have a current transactional context for this operation
             // we must create one, and mark the transaction as autoCommit. This will ensure the

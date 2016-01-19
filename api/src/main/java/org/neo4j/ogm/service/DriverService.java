@@ -40,7 +40,7 @@ public class DriverService {
             try {
                 Driver driver = iterator.next();
                 if (driver.getClass().getName().equals(className)) {
-                    logger.info("Using driver: {}", className);
+                    logger.debug("Using driver: {}", className);
                     return driver;
                 }
             } catch (ServiceConfigurationError sce) {

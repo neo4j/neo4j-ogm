@@ -12,16 +12,16 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.RequestExecutor;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -73,7 +73,7 @@ public class SaveDelegate implements Capability.Save {
                 CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
                 requestExecutor.executeSave(context);
             } else {
-                session.info(object.getClass().getName() + " is not an instance of a persistable class");
+                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
     }

@@ -165,7 +165,7 @@ public class HttpRequest implements Request {
 
         assert (url != null);
 
-        logger.debug("POST {}, request {}", url, cypher);
+        logger.info("POST {}, request {}", url, cypher);
 
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(cypher, "UTF-8"));

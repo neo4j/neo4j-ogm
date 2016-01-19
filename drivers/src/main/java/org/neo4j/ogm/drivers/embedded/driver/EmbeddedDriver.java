@@ -95,7 +95,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
             File file = new File(new URI(fileStoreUri));
 
-            graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file.getAbsolutePath());
+            graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
 
             registerShutdownHook();
         } catch (Exception e) {

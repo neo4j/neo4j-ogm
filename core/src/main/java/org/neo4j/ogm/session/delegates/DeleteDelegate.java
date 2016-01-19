@@ -77,7 +77,7 @@ public class DeleteDelegate implements Capability.Delete {
                     }
                 }
             } else {
-                session.info(object.getClass().getName() + " is not an instance of a persistable class");
+                session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
     }
@@ -92,7 +92,7 @@ public class DeleteDelegate implements Capability.Delete {
                 session.context().clear(type);
             }
         } else {
-            session.info(type.getName() + " is not a persistable class");
+            session.warn(type.getName() + " is not a persistable class");
         }
     }
 

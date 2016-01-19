@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.service;
 
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Properties;
-
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.CompilerConfiguration;
@@ -25,6 +21,10 @@ import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  * This class is responsible for ensuring that the various pluggable components
@@ -155,7 +155,7 @@ public class Components {
     }
 
     public static void setDriver(Driver driver) {
-        logger.info("Setting driver to: {}", driver.getClass().getName());
+        logger.debug("Setting driver to: {}", driver.getClass().getName());
         Components.driver = driver;
     }
 

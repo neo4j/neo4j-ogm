@@ -19,7 +19,9 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
+import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
 
@@ -57,6 +59,8 @@ public class TestServer {
     private void startServer() {
         try {
 
+            checkDriver();
+
             controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
@@ -78,6 +82,14 @@ public class TestServer {
             throw new RuntimeException("Error starting in-process server",e);
         }
 
+    }
+
+    private void checkDriver() {
+        DriverConfiguration driverConfiguration = Components.configuration().driverConfiguration();
+        String driverClassName = driverConfiguration.getDriverClassName();
+        if (driverClassName == null || driverClassName.equals(HttpDriver.class.getName()) == false) {
+            Components.setDriver(new HttpDriver());
+        }
     }
 
     private String createAuthStore() {

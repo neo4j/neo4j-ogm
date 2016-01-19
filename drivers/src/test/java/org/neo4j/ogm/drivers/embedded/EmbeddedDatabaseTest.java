@@ -15,7 +15,9 @@ package org.neo4j.ogm.drivers.embedded;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -50,11 +52,16 @@ public class EmbeddedDatabaseTest {
     @Test
     public  void shouldWriteAndRead() {
         try (EmbeddedDriver driver = new EmbeddedDriver(driverConfiguration)) {
-            driver.getGraphDatabaseService().execute("CREATE (n: Node {name: 'node'})");
-            Result r = driver.getGraphDatabaseService().execute("MATCH (n) RETURN n");
-            assertTrue(r.hasNext());
-        }
 
+            GraphDatabaseService databaseService = driver.getGraphDatabaseService();
+
+            try (Transaction tx = databaseService.beginTx()) {
+                databaseService.execute("CREATE (n: Node {name: 'node'})");
+                Result r = databaseService.execute("MATCH (n) RETURN n");
+                assertTrue(r.hasNext());
+                tx.success();
+            }
+        }
     }
 
     @Test
@@ -81,12 +88,26 @@ public class EmbeddedDatabaseTest {
         try (EmbeddedDriver driver1 = new EmbeddedDriver(driverConfiguration);
              EmbeddedDriver driver2 = new EmbeddedDriver(driverConfiguration)
         ) {
-            driver1.getGraphDatabaseService().execute("CREATE (n: Node {name: 'node'})");
-            Result r1 = driver1.getGraphDatabaseService().execute("MATCH (n) RETURN n");
-            Result r2 = driver2.getGraphDatabaseService().execute("MATCH (n) RETURN n");
+            GraphDatabaseService db1 = driver1.getGraphDatabaseService();
+            GraphDatabaseService db2 = driver2.getGraphDatabaseService();
 
-            assertTrue(r1.hasNext());
-            assertFalse(r2.hasNext());
+            try (Transaction tx = db1.beginTx()) {
+                db1.execute("CREATE (n: Node {name: 'node'})");
+                tx.success();
+            }
+
+            try (Transaction tx1 = db1.beginTx(); Transaction tx2 = db2.beginTx()) {
+
+                Result r1 = db1.execute("MATCH (n) RETURN n");
+                Result r2 = db2.execute("MATCH (n) RETURN n");
+
+                assertTrue(r1.hasNext());
+                assertFalse(r2.hasNext());
+
+                tx1.success();
+                tx2.success();
+            }
+
         } catch (Exception e) {
             fail("Should not have thrown exception");
         }

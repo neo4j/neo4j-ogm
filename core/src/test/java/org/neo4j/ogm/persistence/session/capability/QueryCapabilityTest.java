@@ -13,16 +13,27 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -41,6 +52,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
     public void init() throws IOException {
         session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
         session.purgeDatabase();
+		session.clear();
         importCineasts();
     }
 
@@ -220,5 +232,400 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         Map<String,Object> result = results.iterator().next();
         assertNull(result.get("nonExistent"));
     }
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapEntities() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, m as movie", MapUtil.map("name", "Vince")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+		User user = (User) result.get("user");
+		assertNotNull(user);
+		Movie movie = (Movie) result.get("movie");
+		assertNotNull(movie);
+		assertEquals("Vince", user.getName());
+		assertEquals("Top Gear", movie.getTitle());
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapEntitiesAndScalars() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[:RATED]->(m) RETURN u as user, count(m) as count", MapUtil.map("name", "Michal")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+		User user = (User) result.get("user");
+		assertNotNull(user);
+		assertEquals("Michal", user.getName());
+		Number count = (Number) result.get("count");
+		assertEquals(2L, count.longValue());
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapEntitiesAndScalarsMultipleRows() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User)-[r:RATED]->(m) RETURN m as movie, avg(r.stars) as average ORDER BY average DESC", Collections.EMPTY_MAP).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+		Movie movie = (Movie) result.get("movie");
+		assertNotNull(movie);
+		assertEquals("Pulp Fiction", movie.getTitle());
+		Number avg = (Number) result.get("average");
+		assertEquals(5.0, avg);
+
+		result = results.next();
+
+		movie = (Movie) result.get("movie");
+		assertNotNull(movie);
+		assertEquals("Top Gear", movie.getTitle());
+		avg = (Number) result.get("average");
+		assertEquals(3.5, avg);
+
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapEntitiesAndScalarsMultipleRowsAndNoAlias() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User)-[r:RATED]->(m) RETURN m, avg(r.stars) ORDER BY avg(r.stars) DESC", Collections.EMPTY_MAP).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+		Movie movie = (Movie) result.get("m");
+		assertNotNull(movie);
+		assertEquals("Pulp Fiction", movie.getTitle());
+		Number avg = (Number) result.get("avg(r.stars)");
+		assertEquals(5.0, avg);
+
+		result = results.next();
+
+		movie = (Movie) result.get("m");
+		assertNotNull(movie);
+		assertEquals("Top Gear", movie.getTitle());
+		avg = (Number) result.get("avg(r.stars)");
+		assertEquals(3.5, avg);
+
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapEntitiesAndRelationships() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend) RETURN u as user, friend as friend, r", MapUtil.map("name", "Michal")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+		User user = (User) result.get("user");
+		assertNotNull(user);
+		assertEquals("Michal", user.getName());
+
+		User friend = (User) result.get("friend");
+		assertNotNull(friend);
+		assertEquals("Vince", friend.getName());
+
+		assertEquals(friend.getName(), user.getFriends().iterator().next().getName());
+
+		assertFalse(results.hasNext());
+	}
+
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapEntitiesAndRelationshipsOfDifferentTypes() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[r:FRIENDS]->(friend)-[r2:RATED]->(m) RETURN u as user, friend as friend, r, r2, m as movie, r2.stars as stars", MapUtil.map("name", "Michal")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+		User user = (User) result.get("user");
+		assertNotNull(user);
+		assertEquals("Michal", user.getName());
+
+		User friend = (User) result.get("friend");
+		assertNotNull(friend);
+		assertEquals("Vince", friend.getName());
+
+		assertEquals(friend.getName(), user.getFriends().iterator().next().getName());
+
+		Movie topGear = (Movie) result.get("movie");
+		assertNotNull(topGear);
+		assertEquals("Top Gear", topGear.getTitle());
+
+		assertEquals(1, friend.getRatings().size());
+		assertEquals(topGear.getTitle(), friend.getRatings().iterator().next().getMovie().getTitle());
+		Number stars = (Number) result.get("stars");
+		assertEquals(4L, stars.longValue());
+
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapRelationshipEntities() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}})-[r:RATED]->(m) RETURN u,r,m", MapUtil.map("name", "Vince")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+		Movie movie = (Movie) result.get("m");
+		assertNotNull(movie);
+		assertEquals("Top Gear", movie.getTitle());
+
+		User user = (User) result.get("u");
+		assertNotNull(user);
+		assertEquals("Vince", user.getName());
+
+		Rating rating = (Rating) result.get("r");
+		assertNotNull(rating);
+		assertEquals(4, rating.getStars());
+
+		assertEquals(rating.getId(), movie.getRatings().iterator().next().getId());
+		assertEquals(rating.getId(), user.getRatings().iterator().next().getId());
+
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapVariableDepthRelationshipsWithIncompletePaths() {
+		Iterator<Map<String, Object>> results = session.query("match (u:User {name:{name}}) match (m:Movie {title:{title}}) match (u)-[r*0..2]-(m) return u,r,m", MapUtil.map("name", "Vince", "title", "Top Gear")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+        /*
+			Expect 2 rows:
+             one with (vince)-[:FRIENDS]-(michal)-[:RATED]-(topgear) where FRIENDS cannot be mapped because michal isn't known
+             one with (vince)-[:RATED]-(top gear) where RATED can be mapped
+         */
+		boolean ratedRelationshipFound = false;
+		Movie movie = (Movie) result.get("m");
+		assertNotNull(movie);
+		assertEquals("Top Gear", movie.getTitle());
+
+		User user = (User) result.get("u");
+		assertNotNull(user);
+		assertEquals("Vince", user.getName());
+
+		List<Rating> ratings = (List)result.get("r");
+		if (ratings.size() == 1) { //because the list of ratings with size 2= friends,rated relationships
+			Rating rating = ratings.get(0);
+			assertNotNull(rating);
+			assertEquals(4, rating.getStars());
+			assertEquals(rating.getId(), movie.getRatings().iterator().next().getId());
+			assertEquals(rating.getId(), user.getRatings().iterator().next().getId());
+			ratedRelationshipFound = true;
+		}
+
+		assertNull(user.getFriends());
+
+		result = results.next();
+		assertNotNull(result);
+
+		movie = (Movie) result.get("m");
+		assertNotNull(movie);
+		assertEquals("Top Gear", movie.getTitle());
+
+		user = (User) result.get("u");
+		assertNotNull(user);
+		assertEquals("Vince", user.getName());
+
+		ratings = (List)result.get("r");
+		if (ratings.size() == 1) { //because the list of ratings with size 2= friends,rated relationships
+			Rating rating = ratings.get(0);
+			assertNotNull(rating);
+			assertEquals(4, rating.getStars());
+			assertEquals(rating.getId(), movie.getRatings().iterator().next().getId());
+			assertEquals(rating.getId(), user.getRatings().iterator().next().getId());
+			ratedRelationshipFound = true;
+		}
+		assertTrue(ratedRelationshipFound);
+		assertNull(user.getFriends());
+
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapVariableDepthRelationshipsWithCompletePaths() {
+		Iterator<Map<String, Object>> results = session.query("match (u:User {name:{name}}) match (u)-[r*0..1]-(n) return u,r,n", MapUtil.map("name", "Vince")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+		boolean foundMichal = false;
+        /*
+            Expect 3 rows:
+             one with (vince)-[:FRIENDS]-(michal)
+             one with (vince)-[:RATED]-(top gear)
+             one with (vince)
+         */
+
+		User user = (User) result.get("u");
+		assertNotNull(user);
+		assertEquals("Vince", user.getName());
+		foundMichal = checkForMichal(result, foundMichal);
+
+		result = results.next();
+		assertNotNull(result);
+		foundMichal = checkForMichal(result, foundMichal);
+
+		result = results.next();
+		assertNotNull(result);
+		foundMichal = checkForMichal(result, foundMichal);
+
+		assertTrue(foundMichal);
+
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapCollectionsOfNodes() {
+		Iterator<Map<String, Object>> results = session.query("match (u:User {name:{name}})-[r:RATED]->(m) return u as user,collect(r), collect(m) as movies", MapUtil.map("name", "Michal")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+		assertEquals("Michal", ((User)result.get("user")).getName());
+
+		List<Rating> ratings = (List) result.get("collect(r)");
+		assertEquals(2, ratings.size());
+		for (Rating rating : ratings) {
+			assertEquals("Michal", rating.getUser().getName());
+		}
+
+		List<Movie> movies = (List) result.get("movies");
+		assertEquals(2, movies.size());
+		for (Movie movie : movies) {
+			if (movie.getRatings().iterator().next().getStars()==3) {
+				assertEquals("Top Gear", movie.getTitle());
+			}
+			else {
+				assertEquals("Pulp Fiction", movie.getTitle());
+				assertEquals(5, movie.getRatings().iterator().next().getStars());
+			}
+		}
+		assertFalse(results.hasNext());
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapCollectionsFromPath() {
+		Iterator<Map<String, Object>> results = session.query("MATCH p=(u:User {name:{name}})-[r:RATED]->(m) RETURN nodes(p) as nodes, rels(p) as rels", MapUtil.map("name", "Vince")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+
+		List<Object> nodes = (List) result.get("nodes");
+		List<Object> rels = (List) result.get("rels");
+		assertEquals(2, nodes.size());
+		assertEquals(1, rels.size());
+
+		for (Object o : nodes) {
+			if (o instanceof User) {
+				User user = (User)o;
+				assertEquals("Vince", user.getName());
+				assertEquals(1, user.getRatings().size());
+				Movie movie = user.getRatings().iterator().next().getMovie();
+				assertNotNull(movie);
+				assertEquals("Top Gear", movie.getTitle());
+				Rating rating = movie.getRatings().iterator().next();
+				assertNotNull(rating);
+				assertEquals(4, rating.getStars());
+
+			}
+		}
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapArrays() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}}) RETURN u.array as arr", MapUtil.map("name", "Christophe")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+		assertEquals(2, ((String[])result.get("arr")).length);
+
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void shouldBeAbleToMapMixedArrays() {
+		Iterator<Map<String, Object>> results = session.query("MATCH (u:User {name:{name}}) RETURN u.array as arr, [1,'two',true] as mixed", MapUtil.map("name", "Christophe")).iterator();
+		assertNotNull(results);
+		Map<String, Object> result = results.next();
+		assertNotNull(result);
+		assertEquals(2, ((String[])result.get("arr")).length);
+		Object[] mixed = (Object[])result.get("mixed");
+		assertEquals(3, mixed.length);
+		assertEquals(1L, ((Number)mixed[0]).longValue());
+		assertEquals("two", mixed[1]);
+		assertEquals(true, mixed[2]);
+
+
+	}
+
+	/**
+	 * @see DATAGRAPH-700
+	 */
+	@Test
+	public void modifyingQueryShouldBeAbleToMapEntitiesAndReturnStatistics() {
+		Result result = session.query("MATCH (u:User {name:{name}})-[:RATED]->(m) WITH u,m SET u.age={age} RETURN u as user, m as movie", MapUtil.map("name", "Vince","age",20));
+		Iterator<Map<String, Object>> results = result.queryResults().iterator();
+		assertNotNull(results);
+		Map<String, Object> row = results.next();
+		assertNotNull(row);
+		User user = (User) row.get("user");
+		assertNotNull(user);
+		Movie movie = (Movie) row.get("movie");
+		assertNotNull(movie);
+		assertEquals("Vince", user.getName());
+		assertEquals("Top Gear", movie.getTitle());
+		assertFalse(results.hasNext());
+	}
+
+
+	private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
+		if (result.get("n") instanceof User) {
+			User u = (User) result.get("n");
+			if (u.getName().equals("Michal")) {
+				assertEquals(1, u.getFriends().size());
+				assertEquals("Vince", u.getFriends().iterator().next().getName());
+				foundMichal = true;
+			}
+
+		}
+		return foundMichal;
+	}
 
 }

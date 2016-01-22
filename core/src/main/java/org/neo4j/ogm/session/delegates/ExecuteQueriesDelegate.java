@@ -12,19 +12,27 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
+import org.neo4j.ogm.context.EntityRowModelMapper;
+import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.context.ResponseMapper;
+import org.neo4j.ogm.context.RestModelMapper;
+import org.neo4j.ogm.context.RestStatisticsModel;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
+import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.cypher.query.DefaultRowModelStatisticsRequest;
-import org.neo4j.ogm.context.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.model.RowStatisticsModel;
 import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.RestModelRequest;
 import org.neo4j.ogm.request.RowModelRequest;
-import org.neo4j.ogm.request.RowStatisticsModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Capability;
@@ -32,12 +40,9 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
@@ -85,20 +90,20 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
         validateQuery(cypher, parameters, readOnly);
 
-        //If readOnly=true, just execute the query. If false, execute the query and return stats as well
-        if(readOnly) {
-            Iterable<Map<String, Object>> results = executeAndMap(null, cypher, parameters, new MapRowModelMapper());
-            return new QueryResultModel(results, null);
-        }
-        else {
-            RowStatisticsModelRequest parameterisedStatement = new DefaultRowModelStatisticsRequest(cypher, parameters);
-            try (Response<RowStatisticsModel> response = session.requestHandler().execute(parameterisedStatement)) {
-                ResponseMapper mapper = new RowStatisticsModelMapper();
-                RowStatisticsModel model = (RowStatisticsModel) mapper.map(Object.class, response);
-                return new QueryResultModel(model, model.getStats());
+        RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
+        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()),session.metaData());
+
+        try (Response<RestModel> response = session.requestHandler().execute(request)) {
+            Iterable<RestStatisticsModel> mappedModel =  mapper.map(null, response);
+            RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
+
+            if(readOnly) {
+                return new QueryResultModel(restStatisticsModel.getResult(),null);
+            }
+            else {
+                return new QueryResultModel(restStatisticsModel.getResult(),restStatisticsModel.getStatistics());
             }
         }
-
     }
 
     private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, ResponseMapper mapper) {

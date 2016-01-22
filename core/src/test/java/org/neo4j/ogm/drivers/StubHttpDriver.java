@@ -18,13 +18,17 @@ import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.model.RowStatisticsModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.response.model.DefaultRowStatisticsModel;
 import org.neo4j.ogm.result.ResultGraphModel;
 import org.neo4j.ogm.result.ResultRowModel;
 import org.neo4j.ogm.transaction.Transaction;
@@ -150,23 +154,8 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver {
             }
 
             @Override
-            public Response<RowStatisticsModel> execute(RowStatisticsModelRequest query) {
-                return new Response<RowStatisticsModel>() {
-
-                    @Override
-                    public DefaultRowStatisticsModel next() {
-                        throw new RuntimeException("not implemented");
-                    }
-
-                    @Override
-                    public void close() {
-                    }
-
-                    @Override
-                    public String[] columns() {
-                        return new String[0];
-                    }
-                };
+            public Response<RestModel> execute(RestModelRequest query) {
+                return null; //TODO fix
             }
         };
     }

@@ -22,9 +22,15 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.model.RowStatisticsModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 
@@ -69,12 +75,10 @@ public class BoltRequest implements Request {
         return null;//new GraphRowModelResponse(executeRequest(request));
     }
 
+
     @Override
-    public Response<RowStatisticsModel> execute(RowStatisticsModelRequest request) {
-        if (request.getStatement().length() == 0) {
-            return new EmptyResponse();
-        }
-        return null;//new RowStatisticsModelResponse(executeRequest(request));
+    public Response<RestModel> execute(RestModelRequest query) {
+        return null;
     }
 
     private Result executeRequest(Statement request) {

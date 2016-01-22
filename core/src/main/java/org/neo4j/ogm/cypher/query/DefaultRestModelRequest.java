@@ -13,22 +13,33 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.request.RowStatisticsModelRequest;
-
 import java.util.Map;
+
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.session.Utils;
 
 /**
  * @author Luanne Misquitta
  */
-public class DefaultRowModelStatisticsRequest extends DefaultRowModelRequest implements RowStatisticsModelRequest {
+public class DefaultRestModelRequest extends AbstractRequest implements RestModelRequest {
 
-	public DefaultRowModelStatisticsRequest(String cypher, Map<String, ?> parameters) {
+	private final static String[] resultDataContents = new String[] {"rest"};
+
+	public DefaultRestModelRequest(String cypher, Map<String, ?> parameters) {
 		super(cypher, parameters);
 	}
 
-    // used by object mapper, overrides default value of false.
-    public boolean isIncludeStats() {
-        return true;
-    }
+	public DefaultRestModelRequest(String cypher) {
+		this(cypher, Utils.map());
+	}
 
+	@Override
+	public String[] getResultDataContents() {
+		return resultDataContents;
+	}
+
+	@Override
+	public boolean isIncludeStats() {
+		return true;
+	}
 }

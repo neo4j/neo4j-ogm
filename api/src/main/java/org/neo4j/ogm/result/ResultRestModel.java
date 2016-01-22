@@ -11,25 +11,23 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.request;
+package org.neo4j.ogm.result;
 
-
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.GraphRowListModel;
-import org.neo4j.ogm.model.RestModel;
-import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.model.Query;
 
 /**
- * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public interface Request {
+public class ResultRestModel implements Query<Object[]> {
 
-    Response<GraphModel> execute(GraphModelRequest query);
-    Response<RowModel> execute(RowModelRequest query);
-    Response<RowModel> execute(DefaultRequest query);
-    Response<GraphRowListModel> execute(GraphRowListModelRequest query);
-    Response<RestModel> execute(RestModelRequest query);
+	private Object[] rest;
 
+	public void setRest(Object[] restModel) {
+		this.rest = restModel;
+	}
+
+	@Override
+	public Object[] queryResults() {
+		return rest;
+	}
 }

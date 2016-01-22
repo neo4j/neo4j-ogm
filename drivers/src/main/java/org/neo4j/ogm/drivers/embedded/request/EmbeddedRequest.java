@@ -13,33 +13,40 @@
 
 package org.neo4j.ogm.drivers.embedded.request;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
+import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
-import org.neo4j.ogm.drivers.embedded.response.RowStatisticsModelResponse;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.model.RowStatisticsModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * @author vince
+ * @author Luanne Misquitta
  */
 public class EmbeddedRequest implements Request {
 
@@ -128,11 +135,11 @@ public class EmbeddedRequest implements Request {
     }
 
     @Override
-    public Response<RowStatisticsModel> execute(RowStatisticsModelRequest request) {
+    public Response<RestModel> execute(RestModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         }
-        return new RowStatisticsModelResponse(executeRequest(request), transactionManager);
+        return new RestModelResponse(executeRequest(request), transactionManager);
     }
 
     private Result executeRequest(Statement statement) {

@@ -14,7 +14,8 @@
 package org.neo4j.ogm.request;
 
 /**
- * @author vince
+ * @author Luanne Misquitta
  */
-public interface RowStatisticsModelRequest extends Statement {
+public interface RestModelRequest extends Statement {
+
 }

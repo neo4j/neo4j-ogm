@@ -10,16 +10,12 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-
 package org.neo4j.ogm.model;
 
-import java.util.Collection;
-
 /**
- * @author vince
+ * @author Luanne Misquitta
  */
-public interface RowStatisticsModel extends Iterable {
-
-    Collection<Object[]> getRows();
-    QueryStatistics getStats();
+public interface RestModel {
+	Object[] getValues();
+	QueryStatistics getStats();
 }

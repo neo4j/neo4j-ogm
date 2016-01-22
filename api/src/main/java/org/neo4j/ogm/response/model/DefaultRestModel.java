@@ -10,26 +10,36 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
+package org.neo4j.ogm.response.model;
 
-package org.neo4j.ogm.request;
-
-
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
-import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.response.Response;
 
 /**
- * @author Vince Bickers
+ * The results of a query, modelled as rest response data.
+ * //TODO this must be refactored to decouple from REST
  * @author Luanne Misquitta
  */
-public interface Request {
+public class DefaultRestModel implements RestModel{
 
-    Response<GraphModel> execute(GraphModelRequest query);
-    Response<RowModel> execute(RowModelRequest query);
-    Response<RowModel> execute(DefaultRequest query);
-    Response<GraphRowListModel> execute(GraphRowListModelRequest query);
-    Response<RestModel> execute(RestModelRequest query);
+	private final Object[] values;
+	private QueryStatistics stats = new QueryStatisticsModel();
+
+	public DefaultRestModel(Object[] values) {
+		this.values = values;
+	}
+
+	@Override
+	public Object[] getValues() {
+		return values;
+	}
+
+	public QueryStatistics getStats() {
+		return stats;
+	}
+
+	public void setStats(QueryStatistics stats) {
+		this.stats = stats;
+	}
 
 }

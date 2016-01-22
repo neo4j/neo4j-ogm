@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Support mapping of custom query results to domain entities
 o Upgrade to Neo4j 2.3.2
 o Retry http requests in the event of NoHttpResponseException
 o Converters using parametrized types now work correctly

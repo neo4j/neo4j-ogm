@@ -1,5 +1,8 @@
 2.0.0-SNAPSHOT
 --------------
+
+2.0.0-M1
+--------------
 o Support mapping of custom query results to domain entities
 o Upgrade to Neo4j 2.3.2
 o Retry http requests in the event of NoHttpResponseException
@@ -20,7 +23,7 @@ o Retry http requests in the event of NoHttpResponseException
 o Converters using parametrized types now work correctly
 o Fixes http-client connection leak when request returns a 300/400/500 response code
 
-1.1.4-SNAPSHOT
+1.1.4
 --------------
 o Fixes issue where the relationship type specified via an annotation on an iterable setter was ignored if the parameter type matched
 o Fixes issue where long transaction times out and results in application hanging

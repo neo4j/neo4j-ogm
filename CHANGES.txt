@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Fixes issue where literal maps returned in custom cypher queries could not be parsed
 
 2.0.0-M1
 --------------

@@ -13,17 +13,21 @@
 
 package org.neo4j.ogm.persistence.examples.blog;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.HashSet;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.domain.blog.Author;
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -80,5 +84,29 @@ public class BlogTest extends MultiDriverTestClass {
         assertEquals(p4.getId(), f3.getNext().getId());
         assertNull(f4.getNext());
 
+    }
+
+	/**
+     * @see Issue #99
+     */
+    @Test
+    @Ignore //TODO FIXME
+    public void shouldDeleteAuthoredRelationship() {
+        Author author = new Author();
+        Post post = new Post();
+
+        author.posts = new HashSet<>();
+        author.posts.add(post);
+        session.save(author);
+        session.clear();
+
+        author = session.load(Author.class, author.id);
+        author.posts.clear();
+        session.save(author);
+        session.clear();
+
+        author = session.load(Author.class, author.id);
+
+        assertTrue(author.posts == null || author.posts.size() == 0); //fails here
     }
 }

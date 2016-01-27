@@ -12,6 +12,21 @@
  */
 package org.neo4j.ogm.drivers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
@@ -22,16 +37,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.junit.Assert.*;
 
 /**
  * @author vince
@@ -182,7 +187,6 @@ public abstract class AbstractDriverTestSuite {
 
         latch.await(); // pause until 100 users
 
-        System.out.println("all threads joined");
         executor.shutdown();
 
         assertEquals(100, session.countEntitiesOfType(User.class));

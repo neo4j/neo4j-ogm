@@ -18,11 +18,13 @@ import static junit.framework.TestCase.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Test;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
+import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.result.ResultRestModel;
 
 /**
@@ -52,23 +54,24 @@ public class JsonRestResponseTest {
         try (Response<DefaultRestModel> rsp = new TestRestHttpResponse((rowResultsAndNoErrors()))) {
             DefaultRestModel restModel = rsp.next();
             assertNotNull(restModel);
-            Object[] rows = restModel.getValues();
-            assertEquals(3,rows.length);
-            assertEquals(1, rows[0]);
-            Map data = (Map) rows[1];
-            assertEquals(1931,((Map)data.get("data")).get("born"));
-            data = (Map) rows[2];
-            assertEquals("The Birdcage", ((Map)data.get("data")).get("title"));
-            assertEquals(395, ((Map)data.get("metadata")).get("id"));
+            Map<String,Object> rows = restModel.getRow();
+            assertEquals(3,rows.entrySet().size());
+
+            assertEquals(1, rows.get("count"));
+            NodeModel data = (NodeModel) rows.get("director");
+            assertEquals(1931,data.property("born"));
+            data = (NodeModel) rows.get("movie");
+            assertEquals("The Birdcage", data.property("title"));
+            assertEquals(395L, data.getId().longValue());
 
             restModel = rsp.next();
-            rows = restModel.getValues();
-            assertEquals(3,rows.length);
-            assertEquals(1, rows[0]);
-            data = (Map) rows[1];
-            assertEquals(1931,((Map)data.get("data")).get("born"));
-            data = (Map) rows[2];
-            assertEquals(2007, ((Map)data.get("data")).get("released"));
+            rows = restModel.getRow();
+            assertEquals(3,rows.entrySet().size());
+            assertEquals(1, rows.get("count"));
+            data = (NodeModel) rows.get("director");
+            assertEquals(1931,data.property("born"));
+            data = (NodeModel) rows.get("movie");
+            assertEquals(2007,data.property("released"));
         }
     }
 
@@ -93,20 +96,31 @@ public class JsonRestResponseTest {
         public TestRestHttpResponse(InputStream inputStream) {
             super(inputStream, ResultRestModel.class);
         }
+        private RestModelAdapter restModelAdapter = new RestModelAdapter();
 
         @Override
         public DefaultRestModel next() {
-            ResultRestModel restModel = nextDataRecord("rest");
-
-            if (restModel != null) {
-                return new DefaultRestModel(restModel.queryResults());
-            }
-            return null;
+            restModelAdapter.setColumns(columns());
+            DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
+            defaultRestModel.setStats(statistics());
+            return defaultRestModel;
         }
 
         @Override
         public void close() {
             //Nothing to do, the response has been closed already
+        }
+
+
+
+        private Map<String,Object> buildModel() {
+            ResultRestModel result = nextDataRecord("rest");
+            Map<String,Object> row = new LinkedHashMap<>();
+            if (result != null) {
+                row = restModelAdapter.adapt(result.queryResults());
+            }
+
+            return row;
         }
 
     }

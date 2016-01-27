@@ -13,6 +13,8 @@
 package org.neo4j.ogm.drivers.http.response;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.RestModel;
@@ -25,26 +27,32 @@ import org.neo4j.ogm.result.ResultRestModel;
  */
 public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> implements Response<RestModel> {
 
+	private RestModelAdapter restModelAdapter = new RestModelAdapter();
+
 	public RestModelResponse(CloseableHttpResponse httpResponse) throws IOException {
 		super(httpResponse.getEntity().getContent(), ResultRestModel.class);
+		restModelAdapter.setColumns(columns());
 	}
 
 	@Override
 	public RestModel next() {
-		ResultRestModel restModel = nextDataRecord("rest");
-
-		if (restModel != null) {
-			DefaultRestModel model = new DefaultRestModel(restModel.queryResults());
-			model.setStats(statistics());
-			return model;
-		}
-		DefaultRestModel model = new DefaultRestModel(null);
-		model.setStats(statistics());
-		return model;
+		DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
+		defaultRestModel.setStats(statistics());
+		return defaultRestModel;
 	}
 
 	@Override
 	public void close() {
 		//Nothing to do, the response has been closed already
+	}
+
+	private Map<String,Object> buildModel() {
+		ResultRestModel result = nextDataRecord("rest");
+		Map<String,Object> row = new LinkedHashMap<>();
+		if (result != null) {
+			row = restModelAdapter.adapt(result.queryResults());
+		}
+
+		return row;
 	}
 }

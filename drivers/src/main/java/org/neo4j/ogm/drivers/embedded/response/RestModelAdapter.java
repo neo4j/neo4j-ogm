@@ -15,95 +15,73 @@ package org.neo4j.ogm.drivers.embedded.response;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.ogm.response.model.NodeModel;
+import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.result.ResultAdapter;
 
 /**
+ * Adapt embedded response to a NodeModels, RelaitonshipModels, and objects
  * @author Luanne Misquitta
  */
-public class RestModelAdapter implements ResultAdapter<Map<String,Object>, List<Object>> {
-
-	String[] columns;
+public class RestModelAdapter implements ResultAdapter<Map<String,Object>, Map<String,Object>> {
 
 	@Override
-	public List<Object> adapt(Map<String, Object> result) {
-		List<Object> queryResult = new ArrayList<>(result.size());
-		for (String column : columns) {
-			Object value = result.get(column);
-
+	public Map<String,Object> adapt(Map<String, Object> result) {
+		Map<String,Object> adaptedResults = new LinkedHashMap<>();
+		for (Map.Entry<String, Object> entry : result.entrySet()) {
+			Object value = entry.getValue();
 			if (value instanceof Collection) {
-				List<Object> queryResultList  = new ArrayList<>();
-				for (Object data : ((List)value)) {
-					processData(data, queryResultList);
+				List<Object> adaptedValues = new ArrayList<>();
+				List<Object> values = (List) value;
+				for (Object element : values) {
+					adaptedValues.add(processData(element));
 				}
-				queryResult.add(queryResultList);
+				adaptedResults.put(entry.getKey(), adaptedValues);
 			}
 			else {
-				Map<String,Object> queryResultRow = new HashMap<>();
-				processData(value, queryResult , queryResultRow);
+				adaptedResults.put(entry.getKey(), processData(value));
 			}
 		}
-		return queryResult;
+
+		return adaptedResults;
 	}
 
-	private void processData(Object value, List<Object> queryResultList) {
-		Map<String,Object> queryResultRow = new HashMap<>();
-		if (value instanceof Node) {
-			buildNode((Node)value, queryResultRow);
-			queryResultList.add(queryResultRow);
-			return;
+	private Object processData(Object element) {
+		if (element instanceof Node) {
+			return buildNode((Node)element);
 		}
-		if (value instanceof Relationship) {
-			buildRelationship((Relationship)value, queryResultRow);
-			queryResultList.add(queryResultRow);
-			return;
+		if (element instanceof Relationship) {
+			return buildRelationship((Relationship)element);
 		}
-		queryResultList.add(value);
+		return element;
 	}
 
-	private void processData(Object value, List<Object> queryResult, Map<String, Object> queryResultRow) {
-		if (value instanceof Node) {
-			buildNode((Node)value, queryResultRow);
-			queryResult.add(queryResultRow);
-			return;
-		}
-		if (value instanceof Relationship) {
-			buildRelationship((Relationship)value, queryResultRow);
-			queryResult.add(queryResultRow);
-			return;
-		}
-		queryResult.add(value);
-	}
-
-	public void setColumns(String[] columns) {
-		this.columns = columns;
-	}
-
-	private void buildNode(Node node, Map<String,Object> result) {
-		Map<String,Object> metadata = new HashMap<>();
-		metadata.put("id", node.getId());
+	private NodeModel buildNode(Node node) {
+		NodeModel nodeModel = new NodeModel();
+		nodeModel.setId(node.getId());
 		List<String> labels = new ArrayList<>();
 		for (Label label : node.getLabels()) {
 			labels.add(label.name());
 		}
-		metadata.put("labels", labels);
-		result.put("metadata", metadata);
-		result.put("data", node.getAllProperties());
+		nodeModel.setLabels(labels.toArray(new String[labels.size()]));
+		nodeModel.setProperties(node.getAllProperties());
+		return nodeModel;
 	}
 
-	private void buildRelationship(Relationship relationship, Map<String,Object> result) {
-		Map<String,Object> metadata = new HashMap<>();
-		metadata.put("id", relationship.getId());
-		metadata.put("type", relationship.getType().name());
-		result.put("metadata", metadata);
-		result.put("data", relationship.getAllProperties());
-		result.put("start","/" + relationship.getStartNode().getId());
-		result.put("end", "/" + relationship.getEndNode().getId());
+	private RelationshipModel buildRelationship(Relationship relationship) {
+		RelationshipModel relationshipModel = new RelationshipModel();
+		relationshipModel.setId(relationship.getId());
+		relationshipModel.setStartNode(relationship.getStartNode().getId());
+		relationshipModel.setEndNode(relationship.getEndNode().getId());
+		relationshipModel.setType(relationship.getType().name());
+		relationshipModel.setProperties(relationship.getAllProperties());
+		return relationshipModel;
 	}
 }

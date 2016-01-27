@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.neo4j.graphdb.Result;
@@ -32,23 +32,23 @@ public class RestModelResponse extends EmbeddedResponse<DefaultRestModel>  {
 	public RestModelResponse(Result result, TransactionManager transactionManager) {
 		super(result, transactionManager);
 		statisticsModel = new StatisticsModelAdapter().adapt(result);
-		restModelAdapter.setColumns(columns());
 	}
 
 	@Override
 	public DefaultRestModel next() {
-		DefaultRestModel defaultRestModel = new DefaultRestModel(parse());
+		DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
 		defaultRestModel.setStats(statisticsModel);
 		return defaultRestModel;
 	}
 
-	private Object[] parse() {
+	private Map<String,Object> buildModel() {
+		Map<String,Object> row = new LinkedHashMap<>();
 		if (result.hasNext()) {
 			Map<String, Object> data = result.next();
-			List<Object> adaptedResults =  restModelAdapter.adapt(data);
-			return adaptedResults.toArray();
+			row = restModelAdapter.adapt(data);
 		}
-		return null;
+
+		return row;
 	}
 
 }

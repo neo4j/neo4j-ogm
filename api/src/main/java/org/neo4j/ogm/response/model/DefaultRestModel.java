@@ -12,26 +12,27 @@
  */
 package org.neo4j.ogm.response.model;
 
+import java.util.Map;
+
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.model.RestModel;
 
 /**
  * The results of a query, modelled as rest response data.
- * //TODO this must be refactored to decouple from REST
  * @author Luanne Misquitta
  */
 public class DefaultRestModel implements RestModel{
 
-	private final Object[] values;
+	private final Map<String,Object> row;
 	private QueryStatistics stats = new QueryStatisticsModel();
 
-	public DefaultRestModel(Object[] values) {
-		this.values = values;
+	public DefaultRestModel(Map<String,Object> row) {
+		this.row = row;
 	}
 
 	@Override
-	public Object[] getValues() {
-		return values;
+	public Map<String, Object> getRow() {
+		return row;
 	}
 
 	public QueryStatistics getStats() {

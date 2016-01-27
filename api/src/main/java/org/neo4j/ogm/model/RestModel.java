@@ -12,10 +12,12 @@
  */
 package org.neo4j.ogm.model;
 
+import java.util.Map;
+
 /**
  * @author Luanne Misquitta
  */
 public interface RestModel {
-	Object[] getValues();
+	Map<String,Object> getRow();
 	QueryStatistics getStats();
 }

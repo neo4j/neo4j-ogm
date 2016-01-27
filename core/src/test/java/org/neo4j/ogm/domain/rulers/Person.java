@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.domain.rulers;
 
-import org.neo4j.ogm.annotation.Index;
-
 import java.util.List;
 
 /**
@@ -24,7 +22,6 @@ public abstract class Person {
 
     protected List<Person> heirs;
 
-    @Index
     protected String name;
 
     public abstract String sex();

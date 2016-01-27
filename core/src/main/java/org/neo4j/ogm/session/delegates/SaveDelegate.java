@@ -12,16 +12,17 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.RequestExecutor;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -39,35 +40,30 @@ public class SaveDelegate implements Capability.Save {
 
     @Override
     public <T> void save(T object) {
-        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
-            saveAll(object, -1);
-        } else {
-            save(object, -1); // default : full tree of changed objects
-        }
-    }
-
-    private <T> void saveAll(T object, int depth) {
-        Collection<T> objects;
-        if (object.getClass().isArray()) {
-            int length = Array.getLength(object);
-            objects = new ArrayList<>(length);
-            for (int i = 0; i < length; i ++) {
-                T arrayElement = (T) Array.get(object, i);
-                objects.add(arrayElement);
-            }
-        } else {
-            objects = (Collection<T>) object;
-        }
-        for (Object element : objects) {
-            save(element, depth);
-        }
+        save(object, -1); // default : full tree of changed objects
     }
 
     @Override
     public <T> void save(T object, int depth) {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
-            saveAll(object, depth);
-        } else {
+            Collection<T> objects;
+            if (object.getClass().isArray()) {
+                int length = Array.getLength(object);
+                objects = new ArrayList<>(length);
+                for (int i = 0; i < length; i++) {
+                    T arrayElement = (T) Array.get(object, i);
+                    objects.add(arrayElement);
+                }
+            } else {
+                objects = (Collection<T>) object;
+            }
+            List<CompileContext> contexts = new ArrayList<>();
+            for (Object element : objects) {
+                contexts.add(new EntityGraphMapper(session.metaData(), session.context()).map(element, depth));
+            }
+            requestExecutor.executeSave(contexts);
+        }
+        else {
             ClassInfo classInfo = session.metaData().classInfo(object);
             if (classInfo != null) {
                 CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);

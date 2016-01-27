@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.session.request;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.compiler.CompileContext;
@@ -27,10 +31,6 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Plans request execution and processes the response.
@@ -81,19 +81,17 @@ public class RequestExecutor {
 			DefaultRequest defaultRequest = new DefaultRequest();
 			defaultRequest.setStatements(statements);
 			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-				registerNewRelIds(context, response, relReferenceMappings);
+				registerNewRelIds(response, relReferenceMappings);
 			}
-			//TODO test errors
 			tx.commit();
-		}
-		else {
+		} else {
 			List<Statement> statements = compiler.getAllStatements();
 			if (statements.size() > 0) {
 				DefaultRequest defaultRequest = new DefaultRequest();
 				defaultRequest.setStatements(statements);
 				try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
 					registerNewEntityIds(context, response, entityReferenceMappings);
-					registerNewRelIds(context, response, relReferenceMappings);
+					registerNewRelIds(response, relReferenceMappings);
 				}
 			}
 		}
@@ -103,6 +101,63 @@ public class RequestExecutor {
 		updateEntities(context, session, relReferenceMappings);
 		updateRelationships(context, session, relReferenceMappings);
 	}
+
+	/**
+	 * Execute a save request.
+	 * Decides how the request is split depending upon characteristics of what is to be saved.
+	 * Processes the response(s) and updates the mapping context.
+	 *
+	 * @param contexts the CompileContexts for this request
+	 */
+	public void executeSave(List<CompileContext> contexts) {
+
+		List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
+		List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
+		List<Statement> statements = new ArrayList<>();
+
+		Transaction tx = session.getTransaction();
+		if (tx == null) {
+			tx = session.beginTransaction();
+		}
+		for (CompileContext context : contexts) {
+			Compiler compiler = context.getCompiler();
+			compiler.useStatementFactory(new RowStatementFactory());
+
+			if (compiler.hasStatementsDependentOnNewNodes()) {
+				DefaultRequest createNodesRowRequest = new DefaultRequest();
+				createNodesRowRequest.setStatements(compiler.createNodesStatements());
+				try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
+					registerNewEntityIds(context, response, entityReferenceMappings);
+				}
+				statements.addAll(compiler.createRelationshipsStatements());
+				statements.addAll(compiler.updateNodesStatements());
+				statements.addAll(compiler.updateRelationshipStatements());
+				statements.addAll(compiler.deleteRelationshipStatements());
+				statements.addAll(compiler.deleteRelationshipEntityStatements());
+			}
+			else {
+				statements.addAll(compiler.getAllStatements());
+			}
+		}
+
+		//Execute all other statements
+		if (statements.size() > 0) {
+			DefaultRequest defaultRequest = new DefaultRequest();
+			defaultRequest.setStatements(statements);
+			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
+				registerNewRelIds(response, relReferenceMappings);
+			}
+		}
+		tx.commit();
+
+		for (CompileContext context : contexts) {
+			//Update the mapping context now that the request is successful
+			updateEntities(context, session, entityReferenceMappings);
+			updateEntities(context, session, relReferenceMappings);
+			updateRelationships(context, session, relReferenceMappings);
+		}
+	}
+
 
 	/**
 	 * Register ids of new entities created in the compile context for use in other parts of the query that depend upon these new entities.
@@ -129,12 +184,10 @@ public class RequestExecutor {
 	/**
 	 * Maintain a mapping of relationship references used in the compile context and the relationship id created in the graph.
 	 * Note that the mapping context is not updated at this point
-	 *
-	 * @param context the compile context
-	 * @param response query response
+	 *  @param response query response
 	 * @param relRefMappings mapping of relationship reference used in the compile context and the relationship id from the database
 	 */
-	private void registerNewRelIds(CompileContext context, Response<RowModel> response, List<ReferenceMapping> relRefMappings) {
+	private void registerNewRelIds(Response<RowModel> response, List<ReferenceMapping> relRefMappings) {
 		RowModel rowModel;
 		while ((rowModel = response.next()) != null) {
 			Object[] results = rowModel.getValues();

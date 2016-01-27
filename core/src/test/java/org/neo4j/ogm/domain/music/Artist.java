@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.domain.music;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Luanne Misquitta
@@ -70,6 +70,10 @@ public class Artist {
         for (Album album : guestAlbums) {
             album.setGuestArtist(this);
         }
+    }
+
+    public void addAlbum(Album album) {
+        albums.add(album);
     }
 
     public Long getId() {

@@ -13,6 +13,15 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,15 +30,6 @@ import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
@@ -61,10 +61,15 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
      */
     @Test
     public void saveCollectionShouldSaveLists() {
+        Album nineLives = new Album("Nine Lives");
+        aerosmith.addAlbum(nineLives);
+        Album crossRoad = new Album("Cross Road");
+        bonJovi.addAlbum(crossRoad);
         List<Artist> artists = Arrays.asList(aerosmith, bonJovi, defLeppard);
         session.save(artists);
         session.clear();
         assertEquals(3, session.countEntitiesOfType(Artist.class));
+        assertEquals(2, session.countEntitiesOfType(Album.class));
     }
 
     /**

@@ -1,6 +1,7 @@
 2.0.0-SNAPSHOT
 --------------
 o Fixes issue where literal maps returned in custom cypher queries could not be parsed
+o Fixes issue where saving a collection of entities would save each entity in a separate request and transaction. After this fix, they will be saved in the same transaction, with as few requests as possible
 
 2.0.0-M1
 --------------

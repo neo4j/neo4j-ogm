@@ -168,8 +168,9 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 				if (relationshipModel.getPropertyList().size() > 0) {
 					relationshipEntityColumns.put(relationshipModel.getId(), column);
 				}
+				return null;
 			}
 		}
-		return null;
+		return entity;
 	}
 }

@@ -13,6 +13,19 @@
 
 package org.neo4j.ogm.persistence.examples.music;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +39,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Collection;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -171,5 +179,77 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertNotNull(loadedEric);
         assertEquals("The Beatles", loadedEric.getGuestAlbums().iterator().next().getName());
         assertEquals("Slowhand", loadedEric.getAlbums().iterator().next().getName());
+    }
+
+    /**
+     * Issue #83
+     */
+    @Test
+    public void shouldBeAbleToQueryForLiteralMapWithAlias() {
+        Studio emi = new Studio("EMI Studios, London");
+        Artist theBeatles = new Artist("The Beatles");
+
+        Album theBeatlesAlbum = new Album("The Beatles");
+        Recording theBeatlesRec = new Recording(theBeatlesAlbum, emi, 1968);
+        theBeatlesAlbum.setRecording(theBeatlesRec);
+        theBeatles.getAlbums().add(theBeatlesAlbum);
+        theBeatlesAlbum.setArtist(theBeatles);
+        session.save(theBeatlesAlbum);
+
+        Album please = new Album("Please Please Me");
+        Recording pleaseRecording = new Recording(please, emi, 1963);
+        please.setRecording(pleaseRecording);
+        theBeatles.getAlbums().add(please);
+        please.setArtist(theBeatles);
+        session.save(theBeatles);
+
+        Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)} as result", Collections.EMPTY_MAP).queryResults().iterator();
+        assertTrue(resultIterator.hasNext());
+        Map<String, Object> row = resultIterator.next();
+        Map data = (Map) row.get("result");
+        List<String> albums = (List<String>) data.get("albums");
+        List<String> artist = (List<String>) data.get("artist");
+        assertEquals(1, artist.size());
+        assertEquals("The Beatles", artist.get(0));
+        assertEquals(2, albums.size());
+        assertTrue(albums.contains("The Beatles"));
+        assertTrue(albums.contains("Please Please Me"));
+        assertFalse(resultIterator.hasNext());
+    }
+
+    /**
+     * Issue #83
+     */
+    @Test
+    public void shouldBeAbleToQueryForLiteralMapWithoutAlias() {
+        Studio emi = new Studio("EMI Studios, London");
+        Artist theBeatles = new Artist("The Beatles");
+
+        Album theBeatlesAlbum = new Album("The Beatles");
+        Recording theBeatlesRec = new Recording(theBeatlesAlbum, emi, 1968);
+        theBeatlesAlbum.setRecording(theBeatlesRec);
+        theBeatles.getAlbums().add(theBeatlesAlbum);
+        theBeatlesAlbum.setArtist(theBeatles);
+        session.save(theBeatlesAlbum);
+
+        Album please = new Album("Please Please Me");
+        Recording pleaseRecording = new Recording(please, emi, 1963);
+        please.setRecording(pleaseRecording);
+        theBeatles.getAlbums().add(please);
+        please.setArtist(theBeatles);
+        session.save(theBeatles);
+
+        Iterator<Map<String, Object>> resultIterator = session.query("MATCH (n:`l'artiste`)-[:`HAS-ALBUM`]-(a) return {artist: collect(distinct n.name), albums: collect(a.name)}", Collections.EMPTY_MAP).queryResults().iterator();
+        assertTrue(resultIterator.hasNext());
+        Map<String, Object> row = resultIterator.next();
+        Map data = (Map) row.get("{artist: collect(distinct n.name), albums: collect(a.name)}");
+        List<String> albums = (List<String>) data.get("albums");
+        List<String> artist = (List<String>) data.get("artist");
+        assertEquals(1, artist.size());
+        assertEquals("The Beatles", artist.get(0));
+        assertEquals(2, albums.size());
+        assertTrue(albums.contains("The Beatles"));
+        assertTrue(albums.contains("Please Please Me"));
+        assertFalse(resultIterator.hasNext());
     }
 }

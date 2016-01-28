@@ -37,4 +37,21 @@ public class DomainObject {
     public void setId(Long id) {
         this.id = id;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DomainObject)) return false;
+
+        DomainObject that = (DomainObject) o;
+
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
 }

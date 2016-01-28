@@ -14,7 +14,12 @@
 
 package org.neo4j.ogm.mapper;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -51,7 +56,7 @@ public class MappingContext {
     private final Set<MappedRelationship> relationshipRegister =  Collections.newSetFromMap(new ConcurrentHashMap<MappedRelationship, Boolean>());
 
     /** register of all mapped entities of a specific type (including supertypes) */
-    private final ConcurrentMap<Class<?>, Set<Object>> typeRegister = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, Map<Long,Object>> typeRegister = new ConcurrentHashMap<>();
     private final EntityMemo objectMemo;
 
     private final MetaData metaData;
@@ -69,34 +74,35 @@ public class MappingContext {
     public Object registerNodeEntity(Object entity, Long id) {
         nodeEntityRegister.putIfAbsent(id, entity);
         entity = nodeEntityRegister.get(id);
-        registerTypes(entity.getClass(), entity);
+        registerTypes(entity.getClass(), entity, id);
         return entity;
     }
 
-    private void registerTypes(Class type, Object entity) {
-        getAll(type).add(entity);
+    private void registerTypes(Class type, Object entity, Long id) {
+        getAll(type).put(id,entity);
         if (type.getSuperclass() != null
                 && metaData != null
                 && metaData.classInfo(type.getSuperclass().getName()) != null
                 && !type.getSuperclass().getName().equals("java.lang.Object")) {
-            registerTypes(type.getSuperclass(), entity);
+            registerTypes(type.getSuperclass(), entity, id);
         }
         if(type.getInterfaces() != null
                 && metaData!=null) {
             for(Class interfaceClass : type.getInterfaces()) {
                 if(metaData.classInfo(interfaceClass.getName())!=null) {
-                    registerTypes(interfaceClass,entity);
+                    registerTypes(interfaceClass,entity, id);
                 }
             }
         }
     }
 
-    private void deregisterTypes(Class type, Object entity) {
-        Set<Object> entities = typeRegister.get(type);
+
+    private void deregisterTypes(Class type, Long id) {
+        Map<Long,Object> entities = typeRegister.get(type);
         if (entities != null) {
             if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
-                entities.remove(entity);
-                deregisterTypes(type.getSuperclass(), entity);
+                entities.remove(id);
+                deregisterTypes(type.getSuperclass(), id);
             }
         }
     }
@@ -111,10 +117,11 @@ public class MappingContext {
      * @param id the id of the object in Neo4j
      */
     public void deregister(Object entity, Long id) {
-        deregisterTypes(entity.getClass(), entity);
+        deregisterTypes(entity.getClass(), id);
         nodeEntityRegister.remove(id);
         deregisterDependentRelationshipEntity(entity);
     }
+
 
     public void replace(Object entity, Long id) {
         nodeEntityRegister.remove(id);
@@ -122,10 +129,10 @@ public class MappingContext {
         remember(entity);
     }
 
-    public Set<Object> getAll(Class<?> type) {
-        Set<Object> objectList = typeRegister.get(type);
+    public Map<Long,Object> getAll(Class<?> type) {
+        Map<Long,Object> objectList = typeRegister.get(type);
         if (objectList == null) {
-            typeRegister.putIfAbsent(type, Collections.synchronizedSet(new HashSet<>()));
+            typeRegister.putIfAbsent(type, Collections.synchronizedMap(new HashMap<Long, Object>()));
             objectList = typeRegister.get(type);
         }
         return objectList;
@@ -176,7 +183,7 @@ public class MappingContext {
 
     public Object registerRelationshipEntity(Object relationshipEntity, Long id) {
         relationshipEntityRegister.putIfAbsent(id, relationshipEntity);
-        registerTypes(relationshipEntity.getClass(), relationshipEntity);
+        registerTypes(relationshipEntity.getClass(), relationshipEntity, id);
         return relationshipEntity;
     }
 
@@ -227,8 +234,8 @@ public class MappingContext {
     }
 
     private void clear(Class<?> type, PropertyReader identityReader) {
-        for (Object entity : getAll(type)) {
-            purge(entity, identityReader);
+        for (Object entity : getAll(type).values()) {
+            purge(entity, identityReader, type);
         }
         getAll(type).clear();
     }
@@ -242,16 +249,15 @@ public class MappingContext {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
-        purge(entity, identityReader);
+        purge(entity, identityReader, type);
         getAll(type).remove(entity);
     }
 
-    private void purge(Object entity, PropertyReader identityReader) {
+    private void purge(Object entity, PropertyReader identityReader, Class type) {
         Long id = (Long) identityReader.read(entity);
         if (id != null) {
-            if (nodeEntityRegister.containsValue(entity)) {
+            if (nodeEntityRegister.containsKey(id)) {
                 nodeEntityRegister.remove(id);
-
                 // remove all relationship mappings to/from this object
                 Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
                 while (mappedRelationshipIterator.hasNext()) {
@@ -261,7 +267,7 @@ public class MappingContext {
                     }
                 }
             }
-            if (relationshipEntityRegister.containsValue(entity)) {
+            if (metaData.isRelationshipEntity(type.getName()) && relationshipEntityRegister.containsKey(id)) {
                 relationshipEntityRegister.remove(id);
                 RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity));
                 clear(startNodeReader.read(entity));

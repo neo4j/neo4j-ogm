@@ -14,11 +14,13 @@
 
 package org.neo4j.ogm.unit.mapper;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +41,7 @@ public class MappingContextTest {
 
     @Before
     public void setUp() {
-        collector = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy"));
+        collector = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy","org.neo4j.ogm.context"));
     }
 
     @Test
@@ -77,6 +79,34 @@ public class MappingContextTest {
 
         assertEquals(null, collector.getNodeEntity(jim.getId()));
         assertEquals(policy, collector.getNodeEntity(policy.getId()));
+        assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+
+    }
+
+    /**
+     * @see Issue #96
+     */
+    @Test
+    public void clearOneEqualToAnother() {
+
+        Person jim = new Person("jim");
+        jim.setId(1L);
+
+        Person another = new Person("jim"); //jim.equals(another)=true
+        another.setId(3L);
+
+        Policy policy = new Policy("healthcare");
+        policy.setId(2L);
+
+        collector.registerNodeEntity(jim, jim.getId());
+        collector.registerNodeEntity(another, another.getId());
+        collector.registerNodeEntity(policy, policy.getId());
+        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        collector.clear(jim);
+
+        assertEquals(null, collector.getNodeEntity(jim.getId()));
+        assertEquals(policy, collector.getNodeEntity(policy.getId()));
+        assertEquals(another, collector.getNodeEntity(another.getId()));
         assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
 
     }
@@ -131,13 +161,14 @@ public class MappingContextTest {
             threads.get(i).join();
         }
 
-        Set<Object> objects = collector.getAll(TestObject.class);
+        Map<Long,Object> objects = collector.getAll(TestObject.class);
+
 
         assertEquals(NUM_OBJECTS, objects.size());
 
         int sum = (NUM_OBJECTS * (NUM_OBJECTS + 1)) / 2;
 
-        for (Object object : objects) {
+        for (Object object : objects.values()) {
             TestObject testObject = (TestObject) object;
             sum -= testObject.id;                           // remove this id from sum of all ids
             assertEquals(1, testObject.notes.size());       // only one thread created this object

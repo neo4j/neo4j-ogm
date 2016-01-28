@@ -1,5 +1,6 @@
 1.1.5-SNAPSHOT
 --------------
+o Fixes issue where registering an entity type and purging entities from the session were dependent on the equals() implementation of the entity
 o Upgrade to Neo4j 2.3.2
 o Retry http requests in the event of NoHttpResponseException
 o Converters using parametrized types now work correctly

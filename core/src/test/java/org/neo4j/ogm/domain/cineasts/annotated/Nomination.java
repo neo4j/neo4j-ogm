@@ -20,7 +20,7 @@ import org.neo4j.ogm.annotation.StartNode;
 /**
  * @author Michal Bachman
  */
-@RelationshipEntity
+@RelationshipEntity(type = "NOMINATION")
 public class Nomination {
 
     Long id;

@@ -13,6 +13,15 @@
 
 package org.neo4j.ogm.persistence.examples.tree;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,12 +31,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -92,5 +95,26 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         assertTrue(childNames.contains("c1"));
         assertTrue(childNames.contains("c2"));
 
+    }
+
+	/**
+     * @see Issue 88
+     */
+    @Test
+    public void shouldMapElementsToTreeSetProperly() {
+        String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
+        session.query(cypher, Utils.map());
+        session.clear();
+        Entity parent = session.loadAll(Entity.class, new Filter("name", "parent")).iterator().next();
+        assertNotNull(parent);
+        assertEquals(2, parent.getChildren().size());
+        assertNull(parent.getParent());
+        List<String> childNames = new ArrayList<>();
+        for (Entity child : parent.getChildren()) {
+            childNames.add(child.getName());
+            assertEquals(parent.getName(), child.getParent().getName());
+        }
+       assertEquals("c1", childNames.get(0));
+       assertEquals("c2", childNames.get(1));
     }
 }

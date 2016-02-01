@@ -14,15 +14,16 @@
 
 package org.neo4j.ogm.domain.tree;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Luanne Misquitta
  */
-public class Entity {
+public class Entity implements Comparable{
 	private Long id;
 	private String name;
 
@@ -30,7 +31,7 @@ public class Entity {
 	private Entity parent;
 
 	@Relationship(type = "REL", direction = "INCOMING")
-	private Set<Entity> children = new HashSet<>();
+	private SortedSet<Entity> children = new TreeSet<>();
 
 	public Entity() {}
 
@@ -54,7 +55,7 @@ public class Entity {
 	}
 
 	@Relationship(type = "REL", direction = "INCOMING")
-	public void setChildren(Set<Entity> children) {
+	public void setChildren(SortedSet<Entity> children) {
 		this.children = children;
 	}
 
@@ -64,5 +65,19 @@ public class Entity {
 
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		Entity that = (Entity)o;
+		if (this.name != null) {
+			if (that.name != null) {
+				return this.name.compareTo(that.name);
+			}
+			else {
+				return 1;
+			}
+		}
+		return -1;
 	}
 }

@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Support for collections of entities of type SortedSet, backed by a TreeSet
 o A missing type attribute on a @RelationshipEntity will now result in a compile time error
 o Fixes issue where registering an entity type and purging entities from the session were dependent on the equals() implementation of the entity
 o Fixes issue where literal maps returned in custom cypher queries could not be parsed
@@ -22,6 +23,7 @@ o Split into modules for drivers, api, core, compiler and test
 
 1.1.5-SNAPSHOT
 --------------
+o Support for collections of entities of type SortedSet, backed by a TreeSet
 o Upgrade to Neo4j 2.3.2
 o Retry http requests in the event of NoHttpResponseException
 o Converters using parametrized types now work correctly

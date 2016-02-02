@@ -27,7 +27,7 @@ Refer to <<reference_setup>> for Gradle or Ivy dependencies.
 
 Note that the dependencies for Neo4j OGM 1.x differ -
 
-.Maven dependencies for Neo4j OGM 2.x
+.Maven dependencies for Neo4j OGM 1.x
 [source,xml]
 ----
 <dependency>

@@ -13,23 +13,20 @@
 
 package org.neo4j.ogm.cypher;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.neo4j.ogm.cypher.ComparisonOperator;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -68,7 +65,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByTypeWithIllegalCharacter() throws Exception {
         statement = new VariableDepthRelationshipQuery().findByType("HAS-ALBUM", 1);
-        assertEquals("MATCH p=()-[r:`HAS-ALBUM`*..1]-() RETURN p", statement.getStatement());
+        assertEquals("MATCH ()-[r:`HAS-ALBUM`]-()  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -190,7 +187,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
         statement = new VariableDepthRelationshipQuery().findByProperties("HAS-ALBUM", new Filters().add(new Filter("fake-property", "none")), 1);
-        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` } WITH n,r MATCH p=(n)-[*0..1]-() RETURN p, ID(r)", statement.getStatement());
+        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
         assertEquals("{\"fake-property\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
 
     }

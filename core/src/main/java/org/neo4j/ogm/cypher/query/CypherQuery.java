@@ -62,6 +62,7 @@ public class CypherQuery implements Statement {
         // these transformations are entirely dependent on the form of our base queries and
         // binding the sorting properties to the default query variables is a terrible hack. All this
         // needs refactoring ASAP.
+        // Update: It really does need refactoring ASAP!!!
         if (sorting.length() > 0 || pagination.length() > 0) {
 
             if (withIndex > -1) {
@@ -70,7 +71,7 @@ public class CypherQuery implements Statement {
                 String newWithClause = withClause;
                 if (stmt.contains(")-[r")) {
                     sorting = sorting.replace("$", "r");
-                    if (!withClause.contains(",r")) {
+                    if (!withClause.contains(",r") && (!withClause.contains("r,"))) {
                         newWithClause = newWithClause + ",r";
                     }
                 } else {
@@ -133,5 +134,8 @@ public class CypherQuery implements Statement {
 
     private void parseStatement() {
         this.withIndex = statement.indexOf("WITH n");
+        if (this.withIndex == -1) {
+            this.withIndex = statement.indexOf("WITH r");
+        }
     }
 }

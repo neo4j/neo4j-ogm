@@ -13,23 +13,34 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.*;
+import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.Knows;
+import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
-
-import java.io.IOException;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -665,6 +676,89 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         Collection<Movie> allFilms = session.loadAll(Movie.class, filter);
         assertEquals("The wrong-sized collection of films was returned", 1, allFilms.size());
         assertEquals("Harry Potter and the Order of the Phoenix", allFilms.iterator().next().getTitle());
+    }
+
+
+    @Test
+    public void shouldLoadASingleRating() {
+        Movie movie = new Movie();
+        movie.setTitle("Pulp Fiction");
+        session.save(movie);
+
+        User michal = new User();
+        michal.setName("Michal");
+
+        Rating awesome = new Rating();
+        awesome.setMovie(movie);
+        awesome.setUser(michal);
+        awesome.setStars(5);
+        michal.setRatings(Collections.singleton(awesome));
+        session.save(michal);
+
+
+        //Add a rating from luanne for the same movie
+        User luanne = new User();
+        luanne.setName("luanne");
+        luanne.setLogin("luanne");
+        luanne.setPassword("luanne");
+
+        Rating rating = new Rating();
+        rating.setMovie(movie);
+        rating.setUser(luanne);
+        rating.setStars(3);
+        luanne.setRatings(Collections.singleton(rating));
+        session.save(luanne);
+
+        session.clear();
+
+        Rating loadedRating = session.load(Rating.class, rating.getId(), 3);
+        assertNotNull(loadedRating);
+        assertEquals(rating.getId(), loadedRating.getId());
+        assertEquals(rating.getStars(), loadedRating.getStars());
+    }
+
+    @Test
+    public void shouldSortRatings() {
+        Movie movie = new Movie();
+        movie.setTitle("Pulp Fiction");
+        session.save(movie);
+
+        User michal = new User();
+        michal.setName("Michal");
+
+        Rating awesome = new Rating();
+        awesome.setMovie(movie);
+        awesome.setUser(michal);
+        awesome.setStars(5);
+        michal.setRatings(Collections.singleton(awesome));
+        session.save(michal);
+
+
+        //Add a rating from luanne for the same movie
+        User luanne = new User();
+        luanne.setName("luanne");
+        luanne.setLogin("luanne");
+        luanne.setPassword("luanne");
+
+        Rating rating = new Rating();
+        rating.setMovie(movie);
+        rating.setUser(luanne);
+        rating.setStars(3);
+        luanne.setRatings(Collections.singleton(rating));
+        session.save(luanne);
+
+        session.clear();
+        Collection<Rating> ratings = session.loadAll(Rating.class, new SortOrder().add(SortOrder.Direction.ASC, "stars"));
+        assertNotNull(ratings);
+        int i=0;
+        for (Rating r : ratings) {
+            if (i++==0) {
+                assertEquals(3, r.getStars());
+            }
+            else {
+                assertEquals(5, r.getStars());
+            }
+        }
     }
 
 

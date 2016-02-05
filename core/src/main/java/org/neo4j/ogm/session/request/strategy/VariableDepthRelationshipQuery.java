@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -31,12 +35,28 @@ import org.neo4j.ogm.session.Utils;
  */
 public class VariableDepthRelationshipQuery implements QueryStatements {
 
+    private static final String MATCH_WITH_ID = "MATCH ()-[r]-() WHERE ID(r)={id} ";
+    private static final String MATCH_WITH_IDS = "MATCH ()-[r]-() WHERE ID(r) IN {ids} ";
+    private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r:`%s`]-() WHERE ID(r) IN {ids} ";
+    private static final String MATCH_PATHS_WITH_REL_ID = " WITH r,startnode(r) AS n, endnode(r) AS m " +
+            "MATCH p1 = (n)-[*%d..%d]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m " +
+            "MATCH p2 = (m)-[*%d..%d]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+            "WITH ID(r) AS rId,startPaths + endPaths  AS paths " +
+            "UNWIND paths AS p " +
+            "RETURN DISTINCT p, rId";
+    private static final String MATCH_PATHS = " WITH STARTNODE(r) AS n, ENDNODE(r) AS m " +
+            "MATCH p1 = (n)-[*%d..%d]-() WITH COLLECT(DISTINCT p1) AS startPaths, m " +
+            "MATCH p2 = (m)-[*%d..%d]-() WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+            "WITH startPaths + endPaths AS paths " +
+            "UNWIND paths AS p " +
+            "RETURN DISTINCT p";
+
     @Override
     public AbstractRequest findOne(Long id, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format("MATCH (n)-[r]->() WHERE ID(r) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+            String qry = String.format(MATCH_WITH_ID + MATCH_PATHS,min,max,min,max);
             return new DefaultGraphModelRequest(qry, Utils.map("id", id));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -48,7 +68,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry=String.format("MATCH (n)-[r]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+            String qry = String.format(MATCH_WITH_IDS + MATCH_PATHS_WITH_REL_ID, min,max,min,max);
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -60,7 +80,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry=String.format("MATCH (n)-[r:`%s`]->() WHERE ID(r) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", type, min, max);
+            String qry = String.format(MATCH_WITH_TYPE_AND_IDS + MATCH_PATHS_WITH_REL_ID, type,min,max,max,max);
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -76,7 +96,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
     public AbstractRequest findByType(String type, int depth) {
         int max = max(depth);
         if (max > 0) {
-            String qry = String.format("MATCH p=()-[r:`%s`*..%d]-() RETURN p", type, max);
+           String qry = String.format("MATCH ()-[r:`%s`]-() " + MATCH_PATHS_WITH_REL_ID, type, 0, max, 0, max);
             return new DefaultGraphModelRequest(qry, Utils.map());
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -91,7 +111,7 @@ public class VariableDepthRelationshipQuery implements QueryStatements {
 		if (max > 0) {
 			Map<String, Object> properties = new HashMap<>();
             StringBuilder query = constructQuery(type, parameters, properties);
-			query.append(String.format("WITH n,r MATCH p=(n)-[*%d..%d]-() RETURN p, ID(r)", min, max));
+			query.append(String.format(MATCH_PATHS_WITH_REL_ID, min, max,min, max));
 			return new DefaultGraphRowListModelRequest(query.toString(), properties);
 		} else {
 			throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");

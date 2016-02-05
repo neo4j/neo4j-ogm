@@ -13,6 +13,12 @@
 
 package org.neo4j.ogm.persistence.examples.ingredients;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+import java.util.Iterator;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
@@ -20,11 +26,6 @@ import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Iterator;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luanne Misquitta
@@ -120,4 +121,164 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
             assertEquals(i.getName(), 0, i.getPairings().size());
         }
     }
+
+    /**
+     * @see Issue #94
+     */
+    @Test
+    public void shouldBeAbleToLoadPairingWithCustomDepth() {
+
+        Ingredient chicken = new Ingredient("Chicken");
+        session.save(chicken);
+
+        Ingredient carrot = new Ingredient("Carrot");
+        session.save(carrot);
+
+        Ingredient butter = new Ingredient("Butter");
+        session.save(butter);
+
+        Ingredient pineapple = new Ingredient("Pineapple");
+        session.save(pineapple);
+
+        Ingredient ham = new Ingredient("Ham");
+        session.save(ham);
+
+        Ingredient sage = new Ingredient("Sage");
+        session.save(sage);
+
+        Pairing pairing = new Pairing();
+        pairing.setFirst(chicken);
+        pairing.setSecond(carrot);
+        pairing.setAffinity("EXCELLENT");
+        session.save(pairing);
+
+        Pairing pairing2 = new Pairing();
+        pairing2.setFirst(chicken);
+        pairing2.setSecond(pineapple);
+        pairing2.setAffinity("GOOD");
+        session.save(pairing2);
+
+        Pairing pairing3 = new Pairing();
+        pairing3.setFirst(pineapple);
+        pairing3.setSecond(ham);
+        pairing3.setAffinity("TRIED AND TESTED");
+        session.save(pairing3);
+
+        Pairing pairing4 = new Pairing();
+        pairing4.setFirst(carrot);
+        pairing4.setSecond(butter);
+        pairing4.setAffinity("GOOD");
+        session.save(pairing4);
+
+
+        Pairing pairing5 = new Pairing();
+        pairing5.setFirst(butter);
+        pairing5.setSecond(sage);
+        pairing5.setAffinity("EXCELLENT");
+        session.save(pairing5);
+
+        session.clear();
+
+        //Load pairing (carrot-chicken) to default depth 1. Carrot and Chicken should be loaded to depth 1
+        Pairing carrotChicken = session.load(Pairing.class, pairing.getId());
+        assertNotNull(carrotChicken);
+        assertEquals("EXCELLENT", carrotChicken.getAffinity());
+        assertNotNull(carrotChicken.getFirst());
+        assertEquals(2, carrotChicken.getFirst().getPairings().size());
+        assertNotNull(carrotChicken.getSecond());
+        assertEquals(2, carrotChicken.getSecond().getPairings().size());
+
+        Ingredient loadedChicken;
+        if (carrotChicken.getFirst().getName().equals("Chicken")) {
+            loadedChicken = carrotChicken.getFirst();
+        }
+        else {
+            loadedChicken = carrotChicken.getSecond();
+        }
+
+        Ingredient loadedPineapple = null;
+        for (Pairing p : loadedChicken.getPairings()) {
+            if (p.getFirst().getName().equals("Pineapple")) {
+                loadedPineapple = p.getFirst();
+            }
+            if (p.getSecond().getName().equals("Pineapple")) {
+                loadedPineapple = p.getSecond();
+            }
+
+        }
+        assertNotNull(loadedPineapple);
+        assertEquals(1, loadedPineapple.getPairings().size());
+
+        Ingredient loadedCarrot;
+        if (carrotChicken.getFirst().getName().equals("Carrot")) {
+            loadedCarrot = carrotChicken.getFirst();
+        }
+        else {
+            loadedCarrot = carrotChicken.getSecond();
+        }
+
+        Ingredient loadedButter = null;
+        for (Pairing p : loadedCarrot.getPairings()) {
+            if (p.getFirst().getName().equals("Butter")) {
+                loadedButter = p.getFirst();
+            }
+            if (p.getSecond().getName().equals("Butter")) {
+                loadedButter = p.getSecond();
+            }
+
+        }
+        assertNotNull(loadedButter);
+        assertEquals(1, loadedButter.getPairings().size());
+
+        session.clear();
+
+        //Load pairing (carrot-chicken) to depth 2. Carrot and chicken should be loaded to depth 2
+        carrotChicken = session.load(Pairing.class, pairing.getId(), 2);
+        assertNotNull(carrotChicken);
+        assertEquals("EXCELLENT", carrotChicken.getAffinity());
+        assertNotNull(carrotChicken.getFirst());
+        assertEquals(2, carrotChicken.getFirst().getPairings().size());
+        assertNotNull(carrotChicken.getSecond());
+        assertEquals(2, carrotChicken.getSecond().getPairings().size());
+        if (carrotChicken.getFirst().getName().equals("Chicken")) {
+            loadedChicken = carrotChicken.getFirst();
+        }
+        else {
+            loadedChicken = carrotChicken.getSecond();
+        }
+
+        loadedPineapple = null;
+        for (Pairing p : loadedChicken.getPairings()) {
+            if (p.getFirst().getName().equals("Pineapple")) {
+                loadedPineapple = p.getFirst();
+            }
+            if (p.getSecond().getName().equals("Pineapple")) {
+                loadedPineapple = p.getSecond();
+            }
+
+        }
+        assertNotNull(loadedPineapple);
+        assertEquals(2, loadedPineapple.getPairings().size());
+
+        if (carrotChicken.getFirst().getName().equals("Carrot")) {
+            loadedCarrot = carrotChicken.getFirst();
+        }
+        else {
+            loadedCarrot = carrotChicken.getSecond();
+        }
+
+        loadedButter = null;
+        for (Pairing p : loadedCarrot.getPairings()) {
+            if (p.getFirst().getName().equals("Butter")) {
+                loadedButter = p.getFirst();
+            }
+            if (p.getSecond().getName().equals("Butter")) {
+                loadedButter = p.getSecond();
+            }
+
+        }
+        assertNotNull(loadedButter);
+        assertEquals(2, loadedButter.getPairings().size());
+    }
+
 }

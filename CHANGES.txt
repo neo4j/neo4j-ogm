@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Fixes issue where the result of loading relationship entities with a custom load depth was incorrect. Furthermore, default load depth 1 for a relationship entity will now correctly load it's start and end nodes to depth 1.
 o Support for collections of entities of type SortedSet, backed by a TreeSet
 o A missing type attribute on a @RelationshipEntity will now result in a compile time error
 o Fixes issue where registering an entity type and purging entities from the session were dependent on the equals() implementation of the entity

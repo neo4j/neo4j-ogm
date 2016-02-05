@@ -58,4 +58,8 @@ public class Pairing {
     public void setAffinity(String affinity) {
         this.affinity = affinity;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

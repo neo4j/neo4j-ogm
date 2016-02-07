@@ -14,7 +14,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * By default the OGM will map Byte[] wrapped byte[] objects to Base64

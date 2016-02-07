@@ -6,6 +6,7 @@
 *.db
 data
 out
+neo4j-home
 .classpath
 .project
 .settings

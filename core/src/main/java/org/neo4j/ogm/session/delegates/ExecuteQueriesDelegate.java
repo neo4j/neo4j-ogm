@@ -12,11 +12,12 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+
+import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.neo4j.ogm.context.EntityRowModelMapper;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.ResponseMapper;

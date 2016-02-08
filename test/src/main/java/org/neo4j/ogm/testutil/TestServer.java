@@ -19,13 +19,11 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.harness.internal.InProcessServerControls;
-import org.neo4j.kernel.configuration.Settings;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
-import org.neo4j.shell.ShellSettings;
 
 import java.io.FileWriter;
 import java.io.Writer;
@@ -68,7 +66,7 @@ public class TestServer {
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
                     .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
                     .withConfig("dbms.security.auth_store.location", createAuthStore())
-                    .withConfig( ShellSettings.remote_shell_enabled.name(), Settings.FALSE)
+                    .withConfig("remote_shell_enabled", "false")
                     .newServer();
 
             initialise(controls);

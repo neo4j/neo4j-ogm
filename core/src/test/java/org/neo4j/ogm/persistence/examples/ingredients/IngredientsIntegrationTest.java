@@ -17,10 +17,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
 import org.neo4j.ogm.domain.ingredients.Pairing;
 import org.neo4j.ogm.session.Session;
@@ -279,6 +282,154 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
         }
         assertNotNull(loadedButter);
         assertEquals(2, loadedButter.getPairings().size());
+    }
+
+    /**
+     * @see Issue 97
+     */
+    @Test
+    public void shouldBeAbleToLoadIngredientsWithPagingAndDepth() {
+
+        Ingredient chicken = new Ingredient("Chicken");
+        session.save(chicken);
+
+        Ingredient carrot = new Ingredient("Carrot");
+        session.save(carrot);
+
+        Ingredient butter = new Ingredient("Butter");
+        session.save(butter);
+
+        Pairing pairing = new Pairing();
+        pairing.setFirst(chicken);
+        pairing.setSecond(carrot);
+        pairing.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing);
+        session.save(chicken);
+
+        Pairing pairing2 = new Pairing();
+        pairing2.setFirst(chicken);
+        pairing2.setSecond(butter);
+        pairing2.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing2);
+        session.save(chicken);
+
+        Pairing pairing3 = new Pairing();
+        pairing3.setFirst(carrot);
+        pairing3.setSecond(butter);
+        pairing3.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing3);
+        session.save(carrot);
+
+
+        session.clear();
+
+        Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Pagination(0,1));
+        assertEquals(1, ingredients.size());
+
+        session.clear();
+
+        ingredients = session.loadAll(Ingredient.class, new Pagination(1,1));
+        assertEquals(1, ingredients.size());
+
+        session.clear();
+
+        ingredients = session.loadAll(Ingredient.class, new Pagination(0,2));
+        assertEquals(2, ingredients.size());
+
+        ingredients = session.loadAll(Ingredient.class, new Pagination(0,3));
+        assertEquals(3, ingredients.size());
+
+        session.clear();
+
+        Collection<Pairing> pairings = session.loadAll(Pairing.class, new Pagination(0,1));
+        assertEquals(1, pairings.size());
+
+        session.clear();
+
+        pairings = session.loadAll(Pairing.class, new Pagination(1,1));
+        assertEquals(1, pairings.size());
+
+        session.clear();
+
+        pairings = session.loadAll(Pairing.class, new Pagination(0,2));
+        assertEquals(2, pairings.size());
+
+        pairings = session.loadAll(Pairing.class, new Pagination(0,3));
+        assertEquals(3, pairings.size());
+    }
+
+    /**
+     * @see Issue 97
+     */
+    @Test
+    public void shouldBeAbleToLoadIngredientsWithFiltersPagingAndDepth() {
+
+        Ingredient chicken = new Ingredient("Chicken");
+        session.save(chicken);
+
+        Ingredient carrot = new Ingredient("Chicken");
+        session.save(carrot);
+
+        Ingredient butter = new Ingredient("Chicken");
+        session.save(butter);
+
+        Pairing pairing = new Pairing();
+        pairing.setFirst(chicken);
+        pairing.setSecond(carrot);
+        pairing.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing);
+        session.save(chicken);
+
+        Pairing pairing2 = new Pairing();
+        pairing2.setFirst(chicken);
+        pairing2.setSecond(butter);
+        pairing2.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing2);
+        session.save(chicken);
+
+        Pairing pairing3 = new Pairing();
+        pairing3.setFirst(carrot);
+        pairing3.setSecond(butter);
+        pairing3.setAffinity("EXCELLENT");
+        carrot.addPairing(pairing3);
+        session.save(carrot);
+
+
+        session.clear();
+
+        Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"),new Pagination(0,1));
+        assertEquals(1, ingredients.size());
+
+        session.clear();
+
+        ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"), new Pagination(1,1));
+        assertEquals(1, ingredients.size());
+
+        session.clear();
+
+        ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"), new Pagination(0,2));
+        assertEquals(2, ingredients.size());
+
+        ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"), new Pagination(0,3));
+        assertEquals(3, ingredients.size());
+
+        session.clear();
+
+        Collection<Pairing> pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(0,1));
+        assertEquals(1, pairings.size());
+
+        session.clear();
+
+        pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(1,1));
+        assertEquals(1, pairings.size());
+
+        session.clear();
+
+        pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(0,2));
+        assertEquals(2, pairings.size());
+
+        pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(0,3));
+        assertEquals(3, pairings.size());
     }
 
 }

@@ -62,7 +62,7 @@ public class CypherQuery implements Statement {
         // these transformations are entirely dependent on the form of our base queries and
         // binding the sorting properties to the default query variables is a terrible hack. All this
         // needs refactoring ASAP.
-        // Update: It really does need refactoring ASAP!!!
+        // Update Feb 2016: It really does need refactoring ASAP!!! //TODO
         if (sorting.length() > 0 || pagination.length() > 0) {
 
             if (withIndex > -1) {
@@ -78,6 +78,10 @@ public class CypherQuery implements Statement {
                     sorting = sorting.replace("$", "n");
                 }
                 stmt = stmt.replace(withClause, newWithClause + sorting + pagination);
+                //If a path is returned, also return the original entities in the page
+                if (stmt.contains("MATCH p=(") && !stmt.contains("RETURN p, ID(n)")) {
+                    stmt = stmt.replace("RETURN p","RETURN p, ID(n)");
+                }
             } else {
                 if (stmt.startsWith("MATCH p=(")) {
                     String withClause = "WITH p";
@@ -91,6 +95,9 @@ public class CypherQuery implements Statement {
                 } else {
                     sorting = sorting.replace("$", "n");
                     stmt = stmt.replace("RETURN ", "WITH n" + sorting + pagination + " RETURN ");
+                }
+                if (stmt.contains("MATCH p=(") && stmt.contains("WITH n") && !stmt.contains("RETURN p, ID(n)")) {
+                    stmt = stmt.replace("RETURN p","RETURN p, ID(n)");
                 }
             }
         }

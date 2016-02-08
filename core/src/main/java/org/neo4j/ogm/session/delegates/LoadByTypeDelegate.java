@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.util.Collection;
+
 import org.neo4j.ogm.RelationshipUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
@@ -19,24 +21,23 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.GraphRowListModel;
-import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.request.GraphRowListModelRequest;
-import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.GraphRowListModel;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-
-import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -67,8 +68,16 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
-            try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            if (depth==0 || (pagination == null && sortOrder.toString().length() == 0)) { //if there is no sorting or paging or the depth=0, we don't want the row response back as well
+                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+                }
+            }
+            else {
+                DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(qry.getStatement(), qry.getParameters());
+                try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
+                    return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context()).map(type, response);
+                }
             }
         } else {
 

@@ -12,15 +12,14 @@
  */
 package org.neo4j.ogm.cypher;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 
 /**
  * @author Vince Bickers
@@ -41,13 +40,13 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindById() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
-        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..1]-(m) RETURN p", query.findAll(Arrays.asList(23L, 24L), 1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
     public void testFindByType() {
         sortOrder.add("name");
-        check("MATCH (n:`Raptor`) WITH n ORDER BY n.name MATCH p=(n)-[*0..1]-(m) RETURN p", query.findByType("Raptor", 1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n:`Raptor`) WITH n ORDER BY n.name MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findByType("Raptor", 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
@@ -79,13 +78,13 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindByIdDepthInfinite() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
-        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p", query.findAll(Arrays.asList(23L, 24L), -1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
     public void testFindByTypeDepthInfinite() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
-        check("MATCH (n:`Raptor`) WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p", query.findByType("Raptor", -1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n:`Raptor`) WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", -1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test

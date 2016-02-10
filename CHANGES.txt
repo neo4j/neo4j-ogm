@@ -1,5 +1,8 @@
 2.0.0-SNAPSHOT
 --------------
+
+2.0.0-M2
+--------------
 o Fixes issue where the number of entities returned in a page is incorrect if related entities of the same type are mapped
 o Fixes issue where the result of loading relationship entities with a custom load depth was incorrect. Furthermore, default load depth 1 for a relationship entity will now correctly load it's start and end nodes to depth 1.
 o Support for collections of entities of type SortedSet, backed by a TreeSet

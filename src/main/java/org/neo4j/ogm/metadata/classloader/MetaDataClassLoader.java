@@ -13,6 +13,9 @@
  */
 package org.neo4j.ogm.metadata.classloader;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The public API for metadata class loading in the OGM.
  *
@@ -30,7 +33,14 @@ package org.neo4j.ogm.metadata.classloader;
  */
 public abstract class MetaDataClassLoader {
 
+    private static Map<String, Class<?>> classes = new ConcurrentHashMap<>();
+
     public static Class loadClass(final String name) throws ClassNotFoundException {
-        return Class.forName(name, false, Resolver.resolve());
+        Class<?> result = classes.get(name);
+        if (result == null) {
+            result = Class.forName(name, false, Resolver.resolve());
+            classes.put(name, result);
+        }
+        return result;
     }
 }

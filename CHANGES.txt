@@ -1,4 +1,7 @@
-1.1.5-SNAPSHOT
+1.1.6-SNAPSHOT
+--------------
+
+1.1.5
 --------------
 o Support for collections of entities of type SortedSet, backed by a TreeSet
 o Fixes issue where registering an entity type and purging entities from the session were dependent on the equals() implementation of the entity

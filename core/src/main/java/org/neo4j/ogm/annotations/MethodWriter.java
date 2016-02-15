@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.annotations;
 
+import java.lang.reflect.Method;
+
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.session.Utils;
-
-import java.lang.reflect.Method;
 
 /**
  * @author Vince Bickers
@@ -65,8 +65,10 @@ public class MethodWriter extends EntityAccess {
         }
 
         else {
-            String descriptor = setterMethodInfo.getTypeParameterDescriptor() == null ? setterMethodInfo.getDescriptor() : setterMethodInfo.getTypeParameterDescriptor();
-            value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
+            if (setterMethodInfo.isScalar()) {
+                String descriptor = setterMethodInfo.getTypeParameterDescriptor() == null ? setterMethodInfo.getDescriptor() : setterMethodInfo.getTypeParameterDescriptor();
+                value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
+            }
             MethodWriter.write(method, instance, value);
         }
     }

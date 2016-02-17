@@ -1,5 +1,6 @@
 1.1.6-SNAPSHOT
 --------------
+o Fixes issue where an undirected relationship was sometimes not deleted correctly
 
 1.1.5
 --------------

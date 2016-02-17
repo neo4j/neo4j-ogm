@@ -18,7 +18,12 @@ import java.util.Iterator;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.cypher.compiler.*;
+import org.neo4j.ogm.cypher.compiler.CypherCompiler;
+import org.neo4j.ogm.cypher.compiler.CypherContext;
+import org.neo4j.ogm.cypher.compiler.NewBiDirectionalRelationshipBuilder;
+import org.neo4j.ogm.cypher.compiler.NodeBuilder;
+import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
+import org.neo4j.ogm.cypher.compiler.SingleStatementCypherCompiler;
 import org.neo4j.ogm.entityaccess.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.EntityAccessStrategy;
 import org.neo4j.ogm.entityaccess.PropertyReader;
@@ -354,9 +359,18 @@ public class EntityGraphMapper implements EntityToGraphMapper {
         if (directedRelationship.direction().equals(Relationship.INCOMING)) {
             logger.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
             return context.deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType, metaData.isRelationshipEntity(endNodeType.getName()));
-        } else {
+        }
+        else if (directedRelationship.direction().equals(Relationship.OUTGOING)) {
             logger.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
             return context.deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
+        }
+        else {
+            //An undirected relationship, clear both directions
+            logger.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
+            logger.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
+            boolean clearedIncoming =  context.deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType, metaData.isRelationshipEntity(endNodeType.getName()));
+            boolean clearedOutgoing =  context.deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
+            return clearedIncoming || clearedOutgoing;
         }
     }
 

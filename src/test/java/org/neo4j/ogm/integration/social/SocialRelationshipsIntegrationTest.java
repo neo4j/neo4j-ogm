@@ -13,8 +13,8 @@
 
 package org.neo4j.ogm.integration.social;
 
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+import static org.junit.Assert.assertEquals;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -26,7 +26,11 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.domain.social.*;
+import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.domain.social.Mortal;
+import org.neo4j.ogm.domain.social.Person;
+import org.neo4j.ogm.domain.social.SocialUser;
+import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -261,6 +265,24 @@ public class SocialRelationshipsIntegrationTest {
 		assertEquals(2, userA.getFriends().size());
 		assertEquals(2, userA.getFollowers().size());
 		assertEquals(2, userA.getFollowing().size());
+	}
+
+	/**
+	 * @see issue #112
+	 */
+	@Test
+	public void removeUndirectedRelationship() {
+		User userA = new User("A");
+		User userB = new User("B");
+		userA.getFriends().add(userB);
+		session.save(userA);
+
+		assertSameGraph(getDatabase(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'}) CREATE (a)-[:FRIEND]->(b)");
+
+		userA.unfriend(userB);
+		session.save(userA);
+		assertSameGraph(getDatabase(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'})");
+
 	}
 
 }

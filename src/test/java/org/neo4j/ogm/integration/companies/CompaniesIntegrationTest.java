@@ -14,7 +14,9 @@
 
 package org.neo4j.ogm.integration.companies;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -26,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.domain.companies.Company;
+import org.neo4j.ogm.domain.companies.Device;
 import org.neo4j.ogm.domain.companies.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -106,5 +109,24 @@ public class CompaniesIntegrationTest {
 			assertEquals(company.getId(), employee.getOwns().iterator().next().getId());
 		}
 
+	}
+
+	/**
+	 * @see Issue 112
+	 */
+	@Test
+	public void testUndirectedRelationshipCanBeRemoved() {
+		Person person = new Person();
+		Device device = new Device();
+		person.addDevice(device);
+		session.save(person);
+		person.removeDevice(device);
+		assertEquals(0,person.getDevices().size());
+		session.save(person);
+
+		session.clear();
+		person = session.load(Person.class, person.getId());
+		assertNotNull(person);
+		assertNull(person.getDevices());
 	}
 }

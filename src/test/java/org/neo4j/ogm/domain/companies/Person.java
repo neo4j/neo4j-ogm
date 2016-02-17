@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.domain.companies;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.GraphId;
@@ -33,6 +34,9 @@ public class Person {
 
 	@Relationship(type = "OWNER", direction = "OUTGOING")
 	private Set<Company> owns;
+
+	@Relationship(type = "DEVICE", direction = Relationship.UNDIRECTED)
+	private Set<Device> devices;
 
 	public Person() {
 	}
@@ -67,5 +71,24 @@ public class Person {
 	@Relationship(type = "OWNER", direction = "OUTGOING")
 	public void setOwns(Set<Company> owns) {
 		this.owns = owns;
+	}
+
+	public void addDevice(Device device) {
+		if (this.devices == null) {
+			this.devices = new HashSet<>();
+		}
+		this.devices.add(device);
+		device.setPerson(this);
+	}
+
+	public void removeDevice(Device device) {
+		if (this.devices != null) {
+			this.devices.remove(device);
+			device.setPerson(null);
+		}
+	}
+
+	public Set<Device> getDevices() {
+		return devices;
 	}
 }

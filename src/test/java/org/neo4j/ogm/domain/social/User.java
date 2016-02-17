@@ -59,4 +59,24 @@ public class User {
 		friends.add(user);
 		user.friends.add(this);
 	}
+
+	public void unfriend(User user) {
+		friends.remove(user);
+		user.friends.remove(this);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof User)) return false;
+
+		User user = (User) o;
+
+		return name != null ? name.equals(user.name) : user.name == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return name != null ? name.hashCode() : 0;
+	}
 }

@@ -3,7 +3,7 @@
 <!--
   ~ Copyright (c) 2002-2015 "Neo Technology,"
   ~ Network Engine for Objects in Lund AB [http://neotechnology.com]
-  ~
+  ~l
   ~ This product is licensed to you under the Apache License, Version 2.0 (the "License").
   ~ You may not use this product except in compliance with the License.
   ~
@@ -59,12 +59,14 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${logback}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

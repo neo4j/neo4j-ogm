@@ -132,8 +132,13 @@ public abstract class ClassUtils {
                         pathFiles.add(new File(jarPath));
 
                     }
+                    else if (resource.getProtocol().equals("vfs")) {
+                        Object content = resource.getContent();
+                        File vfs = (File) content.getClass().getMethod("getPhysicalFile").invoke(content);
+                        pathFiles.add(vfs);
+                    }
                 }
-            } catch (IOException | URISyntaxException e) {
+            } catch (IOException | URISyntaxException | ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }
         }

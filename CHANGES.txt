@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Fixes issue where a user managed transaction would be committed when saving an entity that required multiple cypher requests
 
 2.0.0-M2
 --------------

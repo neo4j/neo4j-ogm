@@ -61,9 +61,11 @@ public class RequestExecutor {
 		//If there are statements that depend on new nodes i.e. relationships created between new nodes,
 		//we must create the new nodes first, and then use their node IDs when creating relationships between them
 		if (compiler.hasStatementsDependentOnNewNodes()) {
+			boolean manageTransaction = false;
 			Transaction tx = session.getTransaction();
 			if (tx == null) {
 				tx = session.beginTransaction();
+				manageTransaction = true;
 			}
 			DefaultRequest createNodesRowRequest = new DefaultRequest();
 			createNodesRowRequest.setStatements(compiler.createNodesStatements());
@@ -83,7 +85,9 @@ public class RequestExecutor {
 			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
 				registerNewRelIds(response, relReferenceMappings);
 			}
-			tx.commit();
+			if (manageTransaction) {
+				tx.commit();
+			}
 		} else {
 			List<Statement> statements = compiler.getAllStatements();
 			if (statements.size() > 0) {
@@ -114,10 +118,11 @@ public class RequestExecutor {
 		List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
 		List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
 		List<Statement> statements = new ArrayList<>();
-
+		boolean manageTransaction = false;
 		Transaction tx = session.getTransaction();
 		if (tx == null) {
 			tx = session.beginTransaction();
+			manageTransaction = true;
 		}
 		for (CompileContext context : contexts) {
 			Compiler compiler = context.getCompiler();
@@ -148,7 +153,9 @@ public class RequestExecutor {
 				registerNewRelIds(response, relReferenceMappings);
 			}
 		}
-		tx.commit();
+		if (manageTransaction) {
+			tx.commit();
+		}
 
 		for (CompileContext context : contexts) {
 			//Update the mapping context now that the request is successful

@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
@@ -37,7 +38,8 @@ import org.neo4j.ogm.transaction.Transaction;
 /**
  * @author Vince Bickers
  */
-public abstract class StubHttpDriver extends AbstractConfigurableDriver {
+public abstract class StubHttpDriver extends AbstractConfigurableDriver
+{
 
     private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 

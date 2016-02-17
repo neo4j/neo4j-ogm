@@ -16,7 +16,6 @@ package org.neo4j.ogm.persistence.authentication;
 
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;

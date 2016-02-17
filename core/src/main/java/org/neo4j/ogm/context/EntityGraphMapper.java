@@ -13,12 +13,19 @@
 
 package org.neo4j.ogm.context;
 
+import java.lang.reflect.Field;
+import java.util.Iterator;
+
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotations.*;
+import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.annotations.EntityAccessStrategy;
+import org.neo4j.ogm.annotations.FieldWriter;
+import org.neo4j.ogm.annotations.PropertyReader;
+import org.neo4j.ogm.annotations.RelationalReader;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.compiler.NodeBuilder;
@@ -29,9 +36,6 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.service.Components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.Iterator;
 
 /**
  * Implementation of {@link EntityMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
@@ -361,9 +365,18 @@ public class EntityGraphMapper implements EntityMapper {
         if (directedRelationship.direction().equals(Relationship.INCOMING)) {
             logger.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
             return context.deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType, metaData.isRelationshipEntity(endNodeType.getName()));
-        } else {
+        }
+        else if (directedRelationship.direction().equals(Relationship.OUTGOING)) {
             logger.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
             return context.deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
+        }
+        else {
+            //An undirected relationship, clear both directions
+            logger.debug("context-del: ({})<-[:{}]-()", identity, directedRelationship.type());
+            logger.debug("context-del: ({})-[:{}]->()", identity, directedRelationship.type());
+            boolean clearedIncoming =  context.deregisterIncomingRelationships(identity, directedRelationship.type(), endNodeType, metaData.isRelationshipEntity(endNodeType.getName()));
+            boolean clearedOutgoing =  context.deregisterOutgoingRelationships(identity, directedRelationship.type(), endNodeType);
+            return clearedIncoming || clearedOutgoing;
         }
     }
 

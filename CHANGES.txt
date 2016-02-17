@@ -1,6 +1,7 @@
 2.0.0-SNAPSHOT
 --------------
 o Fixes issue where a user managed transaction would be committed when saving an entity that required multiple cypher requests
+o Fixes issue where an undirected relationship was sometimes not deleted correctly
 
 2.0.0-M2
 --------------
@@ -27,7 +28,11 @@ o Detect use of wildcards on generics and fail with appropriate message
 o Support for Neo4j Embedded
 o Split into modules for drivers, api, core, compiler and test
 
-1.1.5-SNAPSHOT
+1.1.6-SNAPSHOT
+--------------
+o Fixes issue where an undirected relationship was sometimes not deleted correctly
+
+1.1.5
 --------------
 o Support for collections of entities of type SortedSet, backed by a TreeSet
 o Upgrade to Neo4j 2.3.2

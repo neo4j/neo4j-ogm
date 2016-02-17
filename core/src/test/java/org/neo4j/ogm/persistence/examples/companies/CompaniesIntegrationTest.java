@@ -13,21 +13,24 @@
 
 package org.neo4j.ogm.persistence.examples.companies;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.neo4j.ogm.domain.companies.Company;
-import org.neo4j.ogm.domain.companies.Person;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.neo4j.ogm.domain.companies.Company;
+import org.neo4j.ogm.domain.companies.Device;
+import org.neo4j.ogm.domain.companies.Person;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Luanne Misquitta
@@ -97,5 +100,24 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
             assertEquals(company.getId(), employee.getOwns().iterator().next().getId());
         }
 
+    }
+
+    /**
+     * @see Issue 112
+     */
+    @Test
+    public void shouldDeleteUndirectedRelationship() {
+        Person person = new Person();
+        Device device = new Device();
+        person.addDevice(device);
+        session.save(person);
+        person.removeDevice(device);
+        assertEquals(0,person.getDevices().size());
+        session.save(person);
+
+        session.clear();
+        person = session.load(Person.class, person.getId());
+        assertNotNull(person);
+        assertNull(person.getDevices());
     }
 }

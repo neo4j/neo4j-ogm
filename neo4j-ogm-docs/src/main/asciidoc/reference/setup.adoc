@@ -8,35 +8,50 @@ Neo4j OGM projects can be built using Maven, Gradle or Ant/Ivy.
 
 == Dependencies for the Neo4j OGM
 
+The OGM dependencies consist of _neo4j-ogm-core_, together with the relevant dependency declarations on the drivers you want to use 
+in production. If you're not using a particular driver, you don't need to declare it.
+
+
 .Maven dependencies for Neo4j OGM 2.x
 [source,xml]
 ----
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-api</artifactId>
-    <version>{version}</version>
-</dependency>
+
 <dependency>
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-core</artifactId>
     <version>{version}</version>
 </dependency>
+
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-http-driver</artifactId>
+    <version>{version}</version>
+</dependency>
+
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-embedded-driver</artifactId>
+    <version>{version}</version>
+</dependency>
+
 ----
 
 .Gradle dependencies for Neo4j OGM 2.x
 [source,xml]
 ----
 dependencies {
-    compile 'org.neo4j:neo4j-ogm-api:{version}'
     compile 'org.neo4j:neo4j-ogm-core:{version}'
+    compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
 }
 ----
 
 .Ivy dependencies for Neo4j OGM 2.x
 [source,xml]
 ----
-<dependency org="org.neo4j" name="neo4j-ogm-api" rev="{version}"/>
 <dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
 ----
 
 .Maven dependencies for Neo4j OGM 1.x
@@ -70,6 +85,8 @@ In previous versions, you could only connect to the database over Http.
 
 - Http driver
 - Embedded driver
+
+You must declare the driver(s) you want to use in your pom. See the dependencies section for more information.
 
 There are two basic ways to supply this configuration information: via a single properties file, or programmatically.
 

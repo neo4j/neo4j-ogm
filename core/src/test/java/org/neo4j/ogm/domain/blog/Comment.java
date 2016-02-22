@@ -13,27 +13,31 @@
 
 package org.neo4j.ogm.domain.blog;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 /**
+ * This is a relationship entity only to test navigation in one direction. Do not make this a node entity.
  * @author Luanne Misquitta
  */
-@NodeEntity
-public class Author {
-	@GraphId
-	public Long id;
+@RelationshipEntity(type = "COMMENT_BY")
+public class Comment {
 
-	@Relationship(type="AUTHORED_BY", direction = Relationship.INCOMING)
-	public Set<Post> posts;
+	@GraphId Long id;
 
-	@Relationship(type = "COMMENT_BY", direction = Relationship.INCOMING)
-	public Set<Comment> comments = new HashSet<>();
+	@StartNode Post post;
+	@EndNode Author author;
 
-	public Author() {
+	String comment;
+
+	public Comment() {
+	}
+
+	public Comment(Post post, Author author, String comment) {
+		this.post = post;
+		this.author = author;
+		this.comment = comment;
 	}
 }

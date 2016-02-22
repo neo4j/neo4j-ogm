@@ -367,7 +367,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				RelationalWriter incomingWriter = findIterableWriter(parameter, relationshipEntity, edge.getType(), Relationship.INCOMING);
 				if (incomingWriter!=null) {
 					entityCollector.recordTypeRelationship(edge.getEndNode(), relationshipEntity, edge.getType(), Relationship.INCOMING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
+					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
 				}
                 if (incomingWriter != null || outgoingWriter != null) {
                     registeredEdges.add(edge) ;
@@ -381,7 +381,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				RelationalWriter incomingWriter = findIterableWriter(parameter, instance, edge.getType(), Relationship.INCOMING);
 				if (incomingWriter!=null) {
 					entityCollector.recordTypeRelationship(edge.getEndNode(), instance, edge.getType(), Relationship.INCOMING);
-					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), parameter.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
+					relationshipsToRegister.add(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), instance.getClass(), ClassUtils.getType(incomingWriter.typeParameterDescriptor())));
 
 				}
                 if (incomingWriter != null || outgoingWriter != null) {

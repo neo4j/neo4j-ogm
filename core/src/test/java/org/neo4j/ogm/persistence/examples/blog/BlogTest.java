@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.blog.Author;
+import org.neo4j.ogm.domain.blog.Comment;
 import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -90,7 +90,6 @@ public class BlogTest extends MultiDriverTestClass {
      * @see Issue #99
      */
     @Test
-    @Ignore //TODO FIXME
     public void shouldDeleteAuthoredRelationship() {
         Author author = new Author();
         Post post = new Post();
@@ -107,6 +106,31 @@ public class BlogTest extends MultiDriverTestClass {
 
         author = session.load(Author.class, author.id);
 
-        assertTrue(author.posts == null || author.posts.size() == 0); //fails here
+        assertTrue(author.posts == null || author.posts.size() == 0);
+    }
+
+    /**
+     * @see Issue #99
+     */
+    @Test
+    public void shouldDeleteCommentsRelationship() {
+        Author author = new Author();
+        Post post = new Post();
+        Comment comment = new Comment(post, author, "Try to delete me!");
+
+        author.posts = new HashSet<>();
+        author.posts.add(post);
+        author.comments.add(comment);
+        session.save(author);
+        session.clear();
+
+        author = session.load(Author.class, author.id);
+        author.comments.clear();
+        session.save(author);
+        session.clear();
+
+        author = session.load(Author.class, author.id);
+
+        assertTrue(author.comments == null || author.comments.size() == 0);
     }
 }

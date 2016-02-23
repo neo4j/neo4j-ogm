@@ -14,14 +14,15 @@
 
 package org.neo4j.ogm.session;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.metadata.MetaData;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -31,13 +32,15 @@ import org.neo4j.ogm.metadata.MetaData;
  */
 public class SessionFactory {
 
+    private static final int CPUS = Runtime.getRuntime().availableProcessors();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final CloseableHttpClient httpClient = HttpClients.createDefault();
+    private final CloseableHttpClient httpClient;
     private final MetaData metaData;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
-     * object packages.
+     * object packages. Uses an HttpClient instance configured to pool connection resources based on the number of
+     * available CPUs.
      * <p>
      * The package names passed to this constructor should not contain wildcards or trailing full stops, for example,
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
@@ -47,6 +50,32 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
+
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal( CPUS );
+        connectionManager.setDefaultMaxPerRoute( CPUS );
+
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .build();
+
+        this.httpClient = httpClient;
+        this.metaData = new MetaData(packages);
+    }
+
+    /**
+     * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
+     * object packages. Uses an externally created HttpClient instance
+     * <p>
+     * The package names passed to this constructor should not contain wildcards or trailing full stops, for example,
+     * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
+     * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
+     * </p>
+     *
+     * @param packages The packages to scan for domain objects
+     */
+    public SessionFactory(CloseableHttpClient httpClient, String... packages) {
+        this.httpClient = httpClient;
         this.metaData = new MetaData(packages);
     }
 

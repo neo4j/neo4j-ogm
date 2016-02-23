@@ -36,6 +36,8 @@ import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -59,7 +61,8 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
     public Neo4jResponse<String> execute(String url, String cypherQuery) {
 
-        JsonResponse jsonResponse = null;
+        //JsonResponse jsonResponse = null;
+        CloseableHttpResponse response = null;
 
         // use defaults: 3 retries, 2 second wait between attempts
         RetryOnExceptionStrategy retryStrategy = new RetryOnExceptionStrategy();
@@ -83,7 +86,7 @@ public class DefaultRequest implements Neo4jRequest<String> {
 
                 request.setEntity(entity);
 
-                CloseableHttpResponse response = httpClient.execute(request);
+                response = httpClient.execute(request);
 
                 StatusLine statusLine = response.getStatusLine();
                 HttpEntity responseEntity = response.getEntity();
@@ -104,8 +107,8 @@ public class DefaultRequest implements Neo4jRequest<String> {
                 }
 
                 LOGGER.debug("Response is OK, creating response handler");
-                jsonResponse = new JsonResponse(response);
-                return jsonResponse;
+                return new JsonResponse(response);
+                //return jsonResponse;
 
             }
             catch (NoHttpResponseException nhre) {
@@ -120,8 +123,13 @@ public class DefaultRequest implements Neo4jRequest<String> {
             // or there is a problem parsing the response from the server.
             catch (Exception e) {
                 LOGGER.warn("Caught Response exception: {}", e.getLocalizedMessage());
-                if (jsonResponse != null) {
-                    jsonResponse.close();
+                if (response != null) {
+                    try
+                    {
+                        response.close();
+                    } catch (IOException ioe) {
+                        throw new RuntimeException( "Failed to close response after exception: ", ioe);
+                    }
                 }
                 throw new ResultProcessingException("Failed to execute request: " + cypherQuery, e);
             }

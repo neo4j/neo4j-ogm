@@ -16,9 +16,9 @@ package org.neo4j.ogm.session.transaction;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -35,6 +35,8 @@ import org.neo4j.ogm.session.result.ErrorsException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * @author Vince Bickers
@@ -74,7 +76,14 @@ public class TransactionManager {
         String url = tx.url();
         logger.debug("DELETE {}", url);
         HttpDelete request = new HttpDelete(url);
-        executeRequest(request);
+        try (CloseableHttpResponse response = executeRequest(request)) {;
+        } catch ( ResultProcessingException rpe ) {
+            logger.warn( "Rollback request failed: " + rpe.getCause().getLocalizedMessage());
+            throw rpe;
+        } catch ( IOException ioe )
+        {
+            throw new RuntimeException( "Could not close response after rollback request: ", ioe  );
+        }
     }
 
     public void commit(Transaction tx) {
@@ -82,21 +91,31 @@ public class TransactionManager {
         logger.debug("POST {}", url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
-        executeRequest(request);
+        try (CloseableHttpResponse response = executeRequest(request)) {;
+            response.close();
+        } catch ( ResultProcessingException rpe ) {
+            logger.warn( "Commit request failed: " + rpe.getCause().getLocalizedMessage());
+            throw rpe;
+        } catch ( IOException ioe )
+        {
+            throw new RuntimeException( "Could not close response after commit request: ", ioe  );
+        }
     }
 
     public Transaction getCurrentTransaction() {
         return transaction.get();
     }
 
-    private HttpResponse executeRequest(HttpRequestBase request) {
+    private CloseableHttpResponse executeRequest(HttpRequestBase request) {
+
+        CloseableHttpResponse response = null;
 
         try {
 
             request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
             HttpRequestAuthorization.authorize(request, credentials);
 
-            HttpResponse response = httpClient.execute(request);
+            response = httpClient.execute(request);
             StatusLine statusLine = response.getStatusLine();
 
             logger.debug("Status code: {}", statusLine.getStatusCode());
@@ -120,6 +139,14 @@ public class TransactionManager {
         }
 
         catch (Exception e) {
+            if (response != null) {
+                try
+                {
+                    response.close();
+                } catch (IOException ioe) {
+                    throw new RuntimeException( "Failed to close response after exception: ", ioe );
+                }
+            }
             throw new ResultProcessingException("Failed to execute request: ", e);
         }
 
@@ -134,8 +161,13 @@ public class TransactionManager {
         logger.debug("POST {}", url);
         HttpPost request = new HttpPost(url);
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
-        HttpResponse response = executeRequest(request);
+        CloseableHttpResponse response = executeRequest(request);
         Header location = response.getHeaders("Location")[0];
+        try {
+            response.close();
+        } catch (Exception ioe) {
+            throw new RuntimeException( "Could not close response: ", ioe);
+        }
         return location.getValue();
     }
 
@@ -151,5 +183,7 @@ public class TransactionManager {
         return url + "db/data/transaction";
     }
 
+    public void status() {
 
+    }
 }

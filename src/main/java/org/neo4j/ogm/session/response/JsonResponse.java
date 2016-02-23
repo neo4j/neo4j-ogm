@@ -149,7 +149,8 @@ public class JsonResponse implements Neo4jResponse<String> {
             cp = header.indexOf(COMMIT_ERRORS_TOKEN);
         }
         if (cp == -1) {
-            throw new RuntimeException("Unexpected problem! Cypher response starts: " + header + "...");
+            close();
+            throw new ResultProcessingException("Unexpected problem! Cypher response starts: " + header + "...", null);
         }
 
         StringBuilder sb = new StringBuilder(header);
@@ -161,8 +162,9 @@ public class JsonResponse implements Neo4jResponse<String> {
         } catch (Exception e) {
             scanner.close();
         }
-
-        throw new ResultProcessingException(sb.substring(cp + 2), null);
+        String errorMessage = sb.substring( cp + 2 );
+        close();
+        throw new ResultProcessingException(errorMessage, null);
     }
 
     private String extractToken(ResponseRecord format) {

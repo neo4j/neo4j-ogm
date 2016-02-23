@@ -33,7 +33,7 @@ public class RowModelResponse implements Neo4jResponse<RowModel> {
     public RowModelResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
         this.response = response;
         this.objectMapper = mapper;
-        initialiseScan(ResponseRecord.ROW);
+        initialiseScan( ResponseRecord.ROW );
     }
 
     @Override

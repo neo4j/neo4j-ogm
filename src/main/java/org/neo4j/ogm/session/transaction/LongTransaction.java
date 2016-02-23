@@ -14,10 +14,9 @@
 
 package org.neo4j.ogm.session.transaction;
 
+import org.neo4j.ogm.mapper.MappingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.neo4j.ogm.mapper.MappingContext;
 
 /**
  * @author Vince Bickers
@@ -34,20 +33,20 @@ public class LongTransaction extends SimpleTransaction {
     }
 
     public void commit() {
-        transactionRequestHandler.commit(this);
         super.commit();
+        transactionRequestHandler.commit(this);
     }
 
 
     public void rollback() {
-        transactionRequestHandler.rollback(this);
         super.rollback();
+        transactionRequestHandler.rollback( this );
     }
 
     public void close() {
+        super.close();
         if (this.status().equals(Status.OPEN) || this.status().equals(Status.PENDING)) {
             transactionRequestHandler.rollback(this);
         }
-        super.close();
     }
 }

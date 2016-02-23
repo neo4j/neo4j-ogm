@@ -22,8 +22,15 @@ import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Frame;
 import org.neo4j.ogm.domain.bike.Saddle;
 import org.neo4j.ogm.domain.bike.Wheel;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.result.Result;
+import org.neo4j.ogm.session.result.ResultProcessingException;
+import org.neo4j.ogm.session.transaction.Transaction;
+import org.neo4j.ogm.session.transaction.TransactionException;
+import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 import java.io.IOException;
@@ -181,124 +188,61 @@ public class EndToEndTest {
 
     }
 
-//    @Test
-//    public void tourDeFrance() throws InterruptedException {
-//
-//        long now = -System.currentTimeMillis();
-//
-//        create1000bikes(1);
-//
-//        now += System.currentTimeMillis();
-//
-//        System.out.println("Number of separate requests: 1000");
-//        System.out.println("Number of threads: 1");
-//        System.out.println("Number of new objects to create per request: 5");
-//        System.out.println("Number of relationships to create per request: 2");
-//        System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
-//    }
-//
-//    @Test
-//    public void multiThreadedTourDeFrance() throws InterruptedException {
-//
-//        final int NUM_THREADS=4;
-//
-//        long now = -System.currentTimeMillis();
-//
-//        create1000bikes(NUM_THREADS);
-//
-//        now += System.currentTimeMillis();
-//
-//        System.out.println("Number of separate requests: 1000");
-//        System.out.println("Number of threads: " + NUM_THREADS);
-//        System.out.println("Number of new objects to create per request: 5");
-//        System.out.println("Number of relationships to create per request: 2");
-//        System.out.println("Average number of requests per second to HTTP TX endpoint (avg. throughput) : " + (int) (1000000.0 / now));
-//
-//    }
-//
-//    @Test
-//    public void testLoadCollectDistinct() throws InterruptedException {
-//        create1000bikes(4);
-//
-//        long now = -System.currentTimeMillis();
-//        session.clear();
-//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN collect(distinct p)", Utils.map());
-//        now += System.currentTimeMillis();
-//
-//        System.out.println("time taken to load 1000 bikes using collect: " + now);
-//    }
-//
-//    @Test
-//    public void testLoadDistinct() throws InterruptedException {
-//        create1000bikes(4);
-//
-//        long now = -System.currentTimeMillis();
-//        session.clear();
-//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN distinct p", Utils.map());
-//        now += System.currentTimeMillis();
-//
-//        System.out.println("time taken to load 1000 bikes not using collect: " + now);
-//    }
-//
-//    @Test
-//    public void testLoad() throws InterruptedException {
-//        create1000bikes(4);
-//
-//        long now = -System.currentTimeMillis();
-//        session.clear();
-//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", Utils.map());
-//        now += System.currentTimeMillis();
-//
-//        System.out.println("time taken to load 1000 bikes not using collect or distinct: " + now);
-//    }
-//
-//
-//    @Test
-//    public void testLoadNotUsingCollectWithoutDistinct() throws InterruptedException {
-//        create1000bikes(4);
-//
-//        long now = -System.currentTimeMillis();
-//        session.clear();
-//        session.query(Bike.class, "MATCH (n:Bike) WITH n MATCH p=(n)-[*0..2]-(m) RETURN collect(p)", Utils.map());
-//        now += System.currentTimeMillis();
-//
-//        System.out.println("time taken to load 1000 bikes not using collect or distinct: " + now);
-//    }
-//
-//    private void create1000bikes(final int NUM_THREADS) throws InterruptedException {
-//        List<Thread> threads = new ArrayList<>();
-//        final int NUM_INSERTS = 1000 / NUM_THREADS;
-//        for (int i = 0; i < NUM_THREADS; i++) {
-//            Thread thread = new Thread( new Runnable() {
-//
-//                @Override
-//                public void run() {
-//                    Wheel frontWheel = new Wheel();
-//                    Wheel backWheel = new Wheel();
-//                    Bike bike = new Bike();
-//
-//                    bike.setFrame(new Frame());
-//                    bike.setSaddle(new Saddle());
-//                    bike.setWheels(Arrays.asList(frontWheel, backWheel));
-//
-//                    for (int i = 0; i < NUM_INSERTS; i++) {
-//                        frontWheel.setId(null);
-//                        backWheel.setId(null);
-//                        bike.setId(null);
-//                        bike.getFrame().setId(null);
-//                        bike.getSaddle().setId(null);
-//                        session.save(bike);
-//                    }
-//                }
-//            });
-//            threads.add(thread);
-//            thread.start();
-//        }
-//
-//        for (int i = 0; i < NUM_THREADS; i++) {
-//            threads.get(i).join();
-//        }
-//
-//    }
+    @Test
+    public void shouldCloseTransactionResourcesAfterFailure() {
+
+        Transaction tx = session.beginTransaction();
+
+        for (int i = 0; i < 2; i++)
+        {
+            try {
+                Result r = session.query( String.valueOf( i ), Utils.map() );
+                fail ("Should not get here");
+            } catch (Exception e) {
+                try {
+                    tx.rollback();
+                } catch ( ResultProcessingException rpe ) {
+                    // expected, Neo4j has automatically rolled back the transaction
+                } catch ( TransactionException txe) {
+                    assertEquals( 1, i );
+                    // expected, we have discarded this transaction already
+                }
+            }
+        }
+        if (!tx.status().equals( Transaction.Status.ROLLEDBACK )) {
+            tx.commit();
+        }
+
+        TransactionManager txManager = (( Neo4jSession ) session).transactionManager();
+
+        assertNull( txManager.getCurrentTransaction() );
+
+    }
+
+    @Test
+    public void shouldCloseTransactionResourcesAfterSuccess() {
+
+        Transaction tx = session.beginTransaction();
+
+        for (int i = 0; i < 2; i++)
+        {
+            try {
+                Result r = session.query( "MATCH n RETURN n", Utils.map() );
+                assertNotNull(r);
+            } catch (Exception e) {
+                if (!tx.status().equals( Transaction.Status.ROLLEDBACK )) {
+                    tx.rollback();
+                }
+            }
+        }
+        if (!tx.status().equals( Transaction.Status.ROLLEDBACK )) {
+            tx.commit();
+        }
+
+        TransactionManager txManager = (( Neo4jSession ) session).transactionManager();
+
+        assertNull(txManager.getCurrentTransaction());
+
+    }
 
 }

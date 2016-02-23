@@ -12,15 +12,15 @@
  */
 package org.neo4j.drivers.http.response;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
-import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 /**
  * @author vince
@@ -28,14 +28,14 @@ import java.io.InputStream;
 public class JsonResponseTest {
 
 
-    @Test(expected = ResultProcessingException.class)
+    @Test(expected = CypherException.class)
     public void shouldHandleNoResultsAndErrors() {
         try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(noResultsAndErrors()) ) {
             parseResponse(rsp);
         }
     }
 
-    @Test(expected = ResultProcessingException.class)
+    @Test(expected = CypherException.class)
     public void shouldHandleResultsAndErrors() {
         try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(resultsAndErrors()) ) {
             parseResponse(rsp);

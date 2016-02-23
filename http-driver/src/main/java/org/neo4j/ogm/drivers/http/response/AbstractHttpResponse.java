@@ -13,21 +13,21 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
-import org.neo4j.ogm.exception.ResultProcessingException;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author vince
@@ -71,7 +71,8 @@ public abstract class AbstractHttpResponse<T> {
 			responseNode = mapper.readTree(buffer.asParser());
 			JsonNode errors = responseNode.findValue("errors");
 			if (errors.elements().hasNext()) {
-				throw new ResultProcessingException(errors.elements().next().asText(), null);
+				JsonNode errorNode = errors.elements().next();
+				throw new CypherException("Error executing Cypher", errorNode.findValue("code").asText(), errorNode.findValue("message").asText());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

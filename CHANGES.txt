@@ -1,6 +1,9 @@
 2.0.0-SNAPSHOT
 --------------
-o Fixes issue where a user managed transaction would be committed when saving an entity that required multiple cypher requests
+o The reason for a Cypher statement or query failing is made available and is consistent across drivers. org.neo4j.ogm.exception.CypherException contains the error code and message.
+o Fixes issue where incoming relationships not navigable in the other direction could not be deleted
+o Each driver moved to a separate module
+o Fixes issue where a user managed transaction would be committed when saving an entity that required multiple Cypher requests
 o Fixes issue where an undirected relationship was sometimes not deleted correctly
 
 2.0.0-M2
@@ -30,6 +33,7 @@ o Split into modules for drivers, api, core, compiler and test
 
 1.1.6-SNAPSHOT
 --------------
+o Fixes issue where incoming relationships not navigable in the other direction could not be deleted
 o Fixes issue where an undirected relationship was sometimes not deleted correctly
 
 1.1.5

@@ -20,12 +20,14 @@ import java.util.List;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
@@ -167,7 +169,13 @@ public class EmbeddedRequest implements Request {
             }
             return graphDatabaseService.execute(cypher, parameterMap);
 
-        } catch (Exception e) {
+        }
+        catch (QueryExecutionException qee) {
+            EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
+            tx.rollback();
+            throw new CypherException("Error executing Cypher", qee.getStatusCode(),qee.getMessage());
+        }
+        catch (Exception e) {
             EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
             tx.rollback();
             throw new RuntimeException(e);

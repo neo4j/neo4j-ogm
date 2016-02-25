@@ -29,19 +29,9 @@ package org.neo4j.ogm.classloader;
  *
  */
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public abstract class MetaDataClassLoader {
 
-    private static Map<String, Class<?>> classes = new ConcurrentHashMap<>();
-
     public static Class loadClass(final String name) throws ClassNotFoundException {
-        Class<?> result = classes.get(name);
-        if (result == null) {
-            result = Class.forName(name, false, ClassLoaderResolver.resolve());
-            classes.put(name, result);
-        }
-        return result;
+        return Class.forName(name, false, ClassLoaderResolver.resolve());
     }
 }

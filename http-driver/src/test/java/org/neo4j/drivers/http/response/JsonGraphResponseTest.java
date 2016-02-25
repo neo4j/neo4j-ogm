@@ -13,8 +13,11 @@
 
 package org.neo4j.drivers.http.response;
 
-import org.junit.Test;
 import junit.framework.TestCase;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
@@ -22,35 +25,54 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.result.ResultGraphModel;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Set;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luanne Misquitta
  */
 public class JsonGraphResponseTest {
 
+    private static CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+    private static HttpEntity entity = mock(HttpEntity.class);
 
-   @Test
-    public void shouldParseColumnsInGraphResponseCorrectly() {
-        try (Response<GraphModel> rsp = new TestGraphHttpResponse((graphResultsAndNoErrors()))) {
+    @Before
+    public void setUpMocks() {
+        when(response.getEntity()).thenReturn(entity);
+    }
+    @Test
+    public void shouldParseColumnsInGraphResponseCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(graphResultsAndNoErrors());
+
+        try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
             TestCase.assertEquals( 1, rsp.columns().length );
             TestCase.assertEquals( "_0", rsp.columns()[0] );
         }
     }
 
     @Test
-    public void shouldParseColumnsInGraphResponseWithNoColumnsCorrectly() {
-        try (Response<GraphModel> rsp = new TestGraphHttpResponse((noGraphResultsAndNoErrors()))) {
+    public void shouldParseColumnsInGraphResponseWithNoColumnsCorrectly() throws IOException
+    {
+        when(entity.getContent()).thenReturn(noGraphResultsAndNoErrors());
+
+        try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
             TestCase.assertEquals( 1, rsp.columns().length );
             TestCase.assertEquals( "_0", rsp.columns()[0] );
         }
     }
 
     @Test
-    public void shouldParseDataInLoadByIdsGraphResponseCorrectly() {
-        try (Response<GraphModel> rsp = new TestGraphHttpResponse((loadByIdsGraphResults()))) {
+    public void shouldParseDataInLoadByIdsGraphResponseCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(loadByIdsGraphResults());
+
+        try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
             GraphModel graphModel = rsp.next();
             TestCase.assertNotNull( graphModel );
             Set<Node> nodes = graphModel.getNodes();
@@ -311,8 +333,8 @@ public class JsonGraphResponseTest {
 
     static class TestGraphHttpResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
 
-        public TestGraphHttpResponse(InputStream inputStream) {
-            super(inputStream, ResultGraphModel.class);
+        public TestGraphHttpResponse() {
+            super(response, ResultGraphModel.class);
         }
 
         @Override
@@ -331,5 +353,5 @@ public class JsonGraphResponseTest {
         }
 
     }
-
+//
 }

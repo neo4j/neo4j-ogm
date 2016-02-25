@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import java.io.IOException;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
+
+import java.io.IOException;
 
 /**
  * @author vince
@@ -28,7 +28,7 @@ import org.neo4j.ogm.result.ResultRowModel;
 public class RowModelResponse extends AbstractHttpResponse<ResultRowModel> implements Response<RowModel> {
 
 	public RowModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-		super(httpResponse.getEntity().getContent(), ResultRowModel.class);
+		super(httpResponse, ResultRowModel.class);
 	}
 
 	@Override

@@ -13,9 +13,12 @@
 
 package org.neo4j.drivers.http.response;
 
-import org.junit.Assert;
-import org.junit.Test;
 import junit.framework.TestCase;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.drivers.http.response.RestModelAdapter;
 import org.neo4j.ogm.response.Response;
@@ -24,26 +27,45 @@ import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.result.ResultRestModel;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luanne Misquitta
  */
 public class JsonRestResponseTest {
 
+    private static CloseableHttpResponse response = mock( CloseableHttpResponse.class );
+    private static HttpEntity entity = mock( HttpEntity.class );
+
+    @Before
+    public void setUpMocks()
+    {
+        when( response.getEntity() ).thenReturn( entity );
+    }
+
     @Test
-    public void shouldParseColumnsInRowResponseCorrectly() {
-        try (Response<DefaultRestModel> rsp = new TestRestHttpResponse((rowResultsAndNoErrors()))) {
+    public void shouldParseColumnsInRowResponseCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
+
+        try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
             Assert.assertEquals( 3, rsp.columns().length );
             Assert.assertEquals( "count", rsp.columns()[0] );
         }
     }
 
   @Test
-    public void shouldParseColumnsInRowResponseWithNoColumnsCorrectly() {
-      try (Response<DefaultRestModel> rsp = new TestRestHttpResponse((noRowResultsAndNoErrors()))) {
+    public void shouldParseColumnsInRowResponseWithNoColumnsCorrectly() throws IOException {
+
+      when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
+
+      try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
           Assert.assertEquals( 3, rsp.columns().length );
             Assert.assertEquals( "director", rsp.columns()[1] );
 
@@ -51,8 +73,11 @@ public class JsonRestResponseTest {
     }
 
      @Test
-    public void shouldParseDataInRowResponseCorrectly() {
-        try (Response<DefaultRestModel> rsp = new TestRestHttpResponse((rowResultsAndNoErrors()))) {
+    public void shouldParseDataInRowResponseCorrectly() throws IOException {
+
+         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
+
+         try (Response<DefaultRestModel> rsp = new TestRestHttpResponse()) {
             DefaultRestModel restModel = rsp.next();
             TestCase.assertNotNull( restModel );
             Map<String,Object> rows = restModel.getRow();
@@ -94,8 +119,8 @@ public class JsonRestResponseTest {
 
     static class TestRestHttpResponse extends AbstractHttpResponse<ResultRestModel> implements Response<DefaultRestModel> {
 
-        public TestRestHttpResponse(InputStream inputStream) {
-            super(inputStream, ResultRestModel.class);
+        public TestRestHttpResponse() {
+            super(response, ResultRestModel.class);
         }
         private RestModelAdapter restModelAdapter = new RestModelAdapter();
 

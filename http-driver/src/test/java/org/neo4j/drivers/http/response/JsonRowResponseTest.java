@@ -13,34 +13,57 @@
 
 package org.neo4j.drivers.http.response;
 
-import org.junit.Test;
 import junit.framework.TestCase;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luanne Misquitta
  */
 public class JsonRowResponseTest {
 
+    private static CloseableHttpResponse response = mock( CloseableHttpResponse.class );
+    private static HttpEntity entity = mock( HttpEntity.class );
+
+    @Before
+    public void setUpMocks()
+    {
+        when( response.getEntity() ).thenReturn( entity );
+    }
+
     @Test
-    public void shouldParseColumnsInRowResponseCorrectly() {
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse((rowResultsAndNoErrors()))) {
+    public void shouldParseColumnsInRowResponseCorrectly() throws IOException
+    {
+
+        when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
+
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             TestCase.assertEquals( 1, rsp.columns().length );
             TestCase.assertEquals( "collect(p)", rsp.columns()[0] );
         }
     }
 
     @Test
-    public void shouldParseColumnsInRowResponseWithNoColumnsCorrectly() {
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse((noRowResultsAndNoErrors()))) {
+    public void shouldParseColumnsInRowResponseWithNoColumnsCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
+
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             TestCase.assertEquals( 1, rsp.columns().length );
             TestCase.assertEquals( "collect(p)", rsp.columns()[0] );
 
@@ -48,8 +71,11 @@ public class JsonRowResponseTest {
     }
 
     @Test
-    public void shouldParseDataInRowResponseCorrectly() {
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse((rowResultsAndNoErrors()))) {
+    public void shouldParseDataInRowResponseCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
+
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
             TestCase.assertNotNull( rowModel );
             Object[] rows = rowModel.getValues();
@@ -60,8 +86,11 @@ public class JsonRowResponseTest {
     }
 
     @Test
-    public void shouldParseDataInCreateRowResponseCorrectly() {
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse((createRowResults()))) {
+    public void shouldParseDataInCreateRowResponseCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(createRowResults());
+
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
             TestCase.assertNotNull( rowModel );
             Object[] rows = rowModel.getValues();
@@ -74,8 +103,11 @@ public class JsonRowResponseTest {
     }
 
     @Test
-    public void shouldParseDataInCustomQueryRowResponseCorrectly() {
-        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse((customQueryRowResults()))) {
+    public void shouldParseDataInCustomQueryRowResponseCorrectly() throws IOException {
+
+        when(entity.getContent()).thenReturn(customQueryRowResults());
+
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
             TestCase.assertNotNull( rowModel );
             Object[] rows = rowModel.getValues();
@@ -177,8 +209,8 @@ public class JsonRowResponseTest {
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {
 
-        public TestRowHttpResponse(InputStream inputStream) {
-            super(inputStream, ResultRowModel.class);
+        public TestRowHttpResponse() {
+            super(response, ResultRowModel.class);
         }
 
         @Override

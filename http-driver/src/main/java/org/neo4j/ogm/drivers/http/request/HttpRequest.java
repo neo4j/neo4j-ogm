@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
@@ -44,18 +40,15 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.DefaultRequest;
-import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.request.GraphRowListModelRequest;
-import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.request.RestModelRequest;
-import org.neo4j.ogm.request.RowModelRequest;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.request.Statements;
+import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -79,12 +72,14 @@ public class HttpRequest implements Request {
 
     @Override
     public Response<GraphModel> execute(GraphModelRequest request) {
+        CloseableHttpResponse response = null;
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         } else {
             String cypher = cypherRequest(request);
             try {
-                return new GraphModelResponse(executeRequest(cypher));
+                response = executeRequest( cypher );
+                return new GraphModelResponse(response);
             }
             catch (CypherException ce) {
                 throw ce;

@@ -12,9 +12,9 @@
  */
 package org.neo4j.drivers.http.response;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.response.AbstractHttpResponse;
 import org.neo4j.ogm.exception.CypherException;
@@ -22,36 +22,63 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * @author vince
  */
 public class JsonResponseTest {
 
+    private static CloseableHttpResponse response = mock( CloseableHttpResponse.class );
+    private static HttpEntity entity = mock( HttpEntity.class );
+
+    @Before
+    public void setUpMocks()
+    {
+        when( response.getEntity() ).thenReturn( entity );
+    }
 
     @Test(expected = CypherException.class)
-    public void shouldHandleNoResultsAndErrors() {
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(noResultsAndErrors()) ) {
+    public void shouldHandleNoResultsAndErrors() throws IOException
+    {
+        when(entity.getContent()).thenReturn(noResultsAndErrors());
+
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
             parseResponse(rsp);
         }
     }
 
     @Test(expected = CypherException.class)
-    public void shouldHandleResultsAndErrors() {
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(resultsAndErrors()) ) {
+    public void shouldHandleResultsAndErrors() throws IOException {
+
+        when(entity.getContent()).thenReturn(resultsAndErrors());
+
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
             parseResponse(rsp);
         }
     }
 
     @Test
-    public void shouldHandleNoResultsAndNoErrors() {
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(noRowResultsAndNoErrors()) ) {
+    public void shouldHandleNoResultsAndNoErrors() throws IOException {
+
+        when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
+
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
             parseResponse(rsp);
         }
     }
 
     @Test
-    public void shouldHandleResultsAndNoErrors() {
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse(rowResultsAndNoErrors()) ) {
+    public void shouldHandleResultsAndNoErrors() throws IOException {
+
+        when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
+
+        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
             parseResponse(rsp);
         }
     }
@@ -119,8 +146,8 @@ public class JsonResponseTest {
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {
 
-        public TestRowHttpResponse(InputStream inputStream) {
-            super(inputStream, ResultRowModel.class);
+        public TestRowHttpResponse() {
+            super(response, ResultRowModel.class);
         }
 
         @Override

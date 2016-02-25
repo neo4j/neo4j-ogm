@@ -20,6 +20,7 @@ import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
@@ -48,6 +49,7 @@ import static org.junit.Assert.fail;
 public class TransactionManagerTest extends MultiDriverTestClass {
 
     private DefaultTransactionManager transactionManager = new DefaultTransactionManager();
+    private Session session;
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
@@ -114,12 +116,94 @@ public class TransactionManagerTest extends MultiDriverTestClass {
                 session.purgeDatabase();
                 fail("Should have caught exception");
             } catch (ResultProcessingException rpe) {
-                //HttpResponseException cause = (HttpResponseException) rpe.getCause().getCause();
-                //assertEquals("Not Found", cause.getMessage());
-                //assertEquals(404, cause.getStatusCode());
+                // expected
             }
             // should pass, because previous transaction will be closed by try block
             session.purgeDatabase();
+        }
+    }
+
+    @Test
+    public void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources() throws InterruptedException {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        int numThreads = Runtime.getRuntime().availableProcessors() * 4;
+
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        CountDownLatch latch = new CountDownLatch( numThreads );
+
+        // valid query. should succeed, response should be closed automatically, and connection released
+        // if this does not happen, the session.query method in the query runner will block forever, once
+        // the available connections are used up.
+        String query = "FOREACH (n in RANGE(1, 10000) | CREATE (a)-[:KNOWS]->(b))";
+        long now = System.currentTimeMillis();
+        for (int i = 0; i < numThreads; i++) {
+            executor.submit(new QueryRunner(latch, query));
+        }
+        latch.await(); // pause until the count reaches 0
+        executor.shutdownNow();
+        System.out.println( "elapsed: " + ( System.currentTimeMillis() - now));
+    }
+
+    @Test
+    public void shouldBeAbleToHandleMultiThreadedFailingQueriesWithoutLosingConnectionResources() throws InterruptedException {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        int numThreads = Runtime.getRuntime().availableProcessors() * 4;
+
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        CountDownLatch latch = new CountDownLatch( numThreads );
+
+        // invalid query. should fail, response should be closed automatically, and connection released
+        // if this does not happen, the session.query method in the query runner will block forever,
+        // once the available connections are used up.
+        String query = "FOREACH (n in RANGE(1, 10000) ? CREATE (a)-[:KNOWS]->(b))";
+
+        for (int i = 0; i < numThreads; i++) {
+            executor.submit(new QueryRunner(latch, query));
+        }
+        latch.await(); // pause until the count reaches 0
+        executor.shutdownNow();
+    }
+
+    class QueryRunner implements Runnable {
+
+        private final CountDownLatch latch;
+        private final String query;
+
+        public QueryRunner( CountDownLatch latch, String query ) {
+            this.query = query;
+            this.latch = latch;
+        }
+
+        @Override
+        public void run() {
+
+            try
+            {
+                session.query( query, Utils.map() );
+                System.out.println( Thread.currentThread().getName() + ": ran successfully" );
+            } catch (Exception e)
+            {
+                System.out.println( Thread.currentThread().getName() + ": caught exception ");
+            }
+            finally {
+                System.out.println( Thread.currentThread().getName() + ": finished" );
+                latch.countDown();
+            }
+
+            while(!Thread.currentThread().isInterrupted()){
+                try{
+                    Thread.sleep(100);
+                } catch(InterruptedException e){
+                    Thread.currentThread().interrupt(); //propagate interrupt
+                }
+            }
+
         }
     }
 

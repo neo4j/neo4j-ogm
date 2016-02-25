@@ -13,21 +13,24 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author vince
@@ -40,18 +43,21 @@ public abstract class AbstractHttpResponse<T> {
 	private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 	private final TokenBuffer buffer;
 	private final Class<T> resultClass;
+	private final CloseableHttpResponse httpResponse;
 
 	private String[] columns;
 	private QueryStatistics queryStatistics;
 	private JsonNode responseNode;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger( AbstractHttpResponse.class );
 
-	public AbstractHttpResponse(InputStream inputStream, Class<T> resultClass) {
+	public AbstractHttpResponse(CloseableHttpResponse httpResponse, Class<T> resultClass) {
+
 		this.resultClass = resultClass;
-		this.results = inputStream;
 		try {
-			JsonParser parser = ObjectMapperFactory.jsonFactory().createParser(inputStream);
-
+			this.httpResponse = httpResponse;
+			this.results = httpResponse.getEntity().getContent();
+			JsonParser parser = ObjectMapperFactory.jsonFactory().createParser(results);
 			buffer = new TokenBuffer(parser);
 			//Copy the contents of the response into the token buffer.
 			//This is so that we do not have to serialize the response to textual json while we get to the end of the stream to check for errors
@@ -59,9 +65,11 @@ public abstract class AbstractHttpResponse<T> {
 			buffer.copyCurrentStructure(parser);
 			bufferParser = buffer.asParser();
 
-			close(); //We are done with the InputStream
 		} catch (IOException ioException) {
 			throw new RuntimeException(ioException);
+		}
+		finally {
+			close(); //We are done with the InputStream
 		}
 		initialise();
 	}
@@ -136,7 +144,9 @@ public abstract class AbstractHttpResponse<T> {
 
 	private void close() {
 		try {
+			LOGGER.debug("Closing response");
 			results.close();
+			httpResponse.close();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -12,15 +12,15 @@
  */
 package org.neo4j.ogm.drivers.http.response;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.result.ResultRestModel;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Luanne Misquitta
@@ -30,7 +30,7 @@ public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> imp
 	private RestModelAdapter restModelAdapter = new RestModelAdapter();
 
 	public RestModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-		super(httpResponse.getEntity().getContent(), ResultRestModel.class);
+		super(httpResponse, ResultRestModel.class);
 		restModelAdapter.setColumns(columns());
 	}
 

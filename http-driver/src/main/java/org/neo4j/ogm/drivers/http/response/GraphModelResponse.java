@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import java.io.IOException;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.result.ResultGraphModel;
+
+import java.io.IOException;
 
 /**
  * @author vince
@@ -26,8 +26,9 @@ import org.neo4j.ogm.result.ResultGraphModel;
  */
 public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
 
+
 	public GraphModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-		super(httpResponse.getEntity().getContent(), ResultGraphModel.class);
+		super(httpResponse, ResultGraphModel.class);
 	}
 
 	@Override
@@ -41,7 +42,9 @@ public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> i
 	}
 
 	@Override
-	public void close() {
-		//Nothing to do, the response has been closed already
+	public void close()
+	{
+		// nothing to do here
 	}
+
 }

@@ -20,8 +20,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
 import org.neo4j.ogm.drivers.http.transaction.HttpTransaction;
@@ -40,19 +40,30 @@ import java.io.IOException;
 
 public final class HttpDriver extends AbstractConfigurableDriver
 {
+    private static final int CPUS = Runtime.getRuntime().availableProcessors();
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpDriver.class);
 
-    private final CloseableHttpClient httpClient = HttpClients.createDefault();
-    private final Logger logger = LoggerFactory.getLogger(HttpDriver.class);
+    private CloseableHttpClient httpClient;
 
-    // required for service loader mechanism
     public HttpDriver() {
-    }
-    /**
-     * Create a new driver and configure via the specified DriverConfiguration
-     * @param configuration
-     */
-    public HttpDriver(DriverConfiguration configuration) {
-        configure(configuration);
+
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal( CPUS );
+        connectionManager.setDefaultMaxPerRoute( CPUS );
+
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .build();
+
+        initialise( httpClient );    }
+
+    public HttpDriver initialise( CloseableHttpClient httpClient ) {
+
+        if (this.httpClient != null) {
+            close();
+        }
+        this.httpClient = httpClient;
+        return this;
     }
 
     @Override
@@ -60,7 +71,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
         try {
             httpClient.close();
         } catch (Exception e) {
-            logger.warn("Unexpected Exception when closing http client httpClient: ", e);
+            LOGGER.warn( "Unexpected Exception when closing http client httpClient: ", e );
         }
     }
 
@@ -84,7 +95,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 HttpEntity responseEntity = response.getEntity();
                 if (responseEntity != null) {
                     String responseText = EntityUtils.toString(responseEntity);
-                    logger.debug(responseText);
+                    LOGGER.debug( responseText );
                     EntityUtils.consume(responseEntity);
                     if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
                         throw new ResultErrorsException(responseText);
@@ -100,14 +111,14 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
         finally {
             request.releaseConnection();
-            logger.debug("Connection released");
+            LOGGER.debug( "Connection released" );
         }
     }
 
     private String newTransactionUrl() {
 
         String url = transactionEndpoint(driverConfig.getURI());
-        logger.debug("POST {}", url);
+        LOGGER.debug( "POST {}", url );
 
         CloseableHttpResponse response = executeHttpRequest(new HttpPost(url));
         Header location = response.getHeaders("Location")[0];
@@ -139,15 +150,15 @@ public final class HttpDriver extends AbstractConfigurableDriver
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
-                logger.debug("request url {}", ((HttpTransaction) tx).url());
+                LOGGER.debug( "request url {}", ( (HttpTransaction) tx ).url() );
                 return ((HttpTransaction) tx).url();
             } else {
-                logger.debug("No current transaction, using auto-commit");
+                LOGGER.debug( "No current transaction, using auto-commit" );
             }
         } else {
-            logger.debug("No transaction manager available, using auto-commit");
+            LOGGER.debug( "No transaction manager available, using auto-commit" );
         }
-        logger.debug("request url {}", autoCommitUrl());
+        LOGGER.debug( "request url {}", autoCommitUrl() );
         return autoCommitUrl();
     }
 }

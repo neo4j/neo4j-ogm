@@ -13,14 +13,14 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import java.io.IOException;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.result.ResultGraphRowListModel;
+
+import java.io.IOException;
 
 /**
  * @author vince
@@ -29,7 +29,7 @@ import org.neo4j.ogm.result.ResultGraphRowListModel;
 public class GraphRowsModelResponse extends AbstractHttpResponse<ResultGraphRowListModel> implements Response<GraphRowListModel> {
 
 	public GraphRowsModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-		super(httpResponse.getEntity().getContent(), ResultGraphRowListModel.class);
+		super(httpResponse, ResultGraphRowListModel.class);
 	}
 
 	@Override

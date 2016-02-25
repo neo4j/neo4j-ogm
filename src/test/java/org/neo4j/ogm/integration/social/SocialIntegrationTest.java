@@ -14,7 +14,10 @@
 
 package org.neo4j.ogm.integration.social;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +35,8 @@ import org.neo4j.ogm.domain.social.Person;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.result.CypherException;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
 
 /**
@@ -271,6 +276,23 @@ public class SocialIntegrationTest
 		session.clear();
 		vince = session.load(User.class, vince.getId());
 		assertEquals(1, vince.getFriends().size());
-
 	}
+
+	/**
+	 * @see issue 118
+	 */
+	@Test
+	public void shouldWrapUnderlyingException() {
+		session.save(new Person("Bilbo Baggins"));
+		try {
+			session.query(User.class, "MATCH(p:Person) WHERE u.name ~ '.*Baggins' RETURN u", Utils.map());
+		}
+		catch (CypherException ce) {
+			assertTrue(ce.getCode().contains("Neo.ClientError.Statement.InvalidSyntax"));
+			assertTrue(ce.getDescription().contains("Invalid input"));
+			return;
+		}
+		fail("Expected a CypherException but got none");
+	}
+
 }

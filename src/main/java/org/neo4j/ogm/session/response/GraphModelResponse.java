@@ -16,6 +16,7 @@ package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.result.CypherException;
 import org.neo4j.ogm.session.result.GraphModelResult;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
@@ -36,7 +37,11 @@ public class GraphModelResponse implements Neo4jResponse<GraphModel> {
         this.objectMapper = mapper;
         try {
             initialiseScan(ResponseRecord.GRAPH);
-        } catch (Exception e) {
+        }
+        catch (CypherException ce) {
+            throw ce;
+        }
+        catch (Exception e) {
             throw new ResultProcessingException("Could not initialise response", e);
         }
     }

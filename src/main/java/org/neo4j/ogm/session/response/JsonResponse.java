@@ -14,16 +14,16 @@
 
 package org.neo4j.ogm.session.response;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.session.result.CypherException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 /**
  * @author Vince Bickers
@@ -150,7 +150,6 @@ public class JsonResponse implements Neo4jResponse<String> {
             cp = header.indexOf(COMMIT_ERRORS_TOKEN);
         }
         if (cp == -1) {
-            close();
             throw new ResultProcessingException("Unexpected problem! Cypher response starts: " + header + "...", null);
         }
         if (header.indexOf("code") > 0 && header.indexOf("message") > 0) {
@@ -159,7 +158,6 @@ public class JsonResponse implements Neo4jResponse<String> {
             if (header.lastIndexOf("}]}") > 0) {
                 message = header.substring(header.indexOf("message") + 10,header.lastIndexOf("}]}")-1);
             }
-            close();
             throw new CypherException("Error executing Cypher statement", null, code, message);
         }
         StringBuilder sb = new StringBuilder(header);
@@ -171,7 +169,6 @@ public class JsonResponse implements Neo4jResponse<String> {
         } catch (Exception e) {
             scanner.close();
         }
-        close();
         throw new ResultProcessingException(sb.substring( cp + 2 ), null);
     }
 

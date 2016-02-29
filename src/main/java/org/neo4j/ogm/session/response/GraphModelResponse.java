@@ -39,9 +39,11 @@ public class GraphModelResponse implements Neo4jResponse<GraphModel> {
             initialiseScan(ResponseRecord.GRAPH);
         }
         catch (CypherException ce) {
+            close();
             throw ce;
         }
         catch (Exception e) {
+            close();
             throw new ResultProcessingException("Could not initialise response", e);
         }
     }

@@ -15,6 +15,8 @@
 package org.neo4j.ogm.session.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.session.result.CypherException;
+import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.result.RowModel;
 import org.neo4j.ogm.session.result.RowModelResult;
 import org.slf4j.Logger;
@@ -30,10 +32,22 @@ public class RowModelResponse implements Neo4jResponse<RowModel> {
     private final ObjectMapper objectMapper;
     private final Neo4jResponse<String> response;
 
-    public RowModelResponse(Neo4jResponse<String> response, ObjectMapper mapper) {
+    public RowModelResponse(Neo4jResponse<String> response, ObjectMapper mapper)
+    {
         this.response = response;
         this.objectMapper = mapper;
-        initialiseScan( ResponseRecord.ROW );
+        try
+        {
+            initialiseScan( ResponseRecord.ROW );
+        } catch ( CypherException ce )
+        {
+            close();
+            throw ce;
+        } catch ( Exception e )
+        {
+            close();
+            throw new ResultProcessingException( "Could not initialise response", e );
+        }
     }
 
     @Override

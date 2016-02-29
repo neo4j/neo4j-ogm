@@ -14,10 +14,9 @@
 package org.neo4j.ogm;
 
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.service.ResourceService;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
@@ -114,6 +113,12 @@ public abstract class ClassUtils {
     /**
      * Get a list of unique elements on the classpath as File objects, preserving order.
      * Classpath elements that do not exist are not returned.
+     *
+     * Uses the ResourceService to resolve classpath URLs. The "file" and "jar" protocols are
+     * supported by default. Other protocols, for example "vfs", can be handled by writing
+     * an appropriate resolver and registering it with the ServiceLoader mechanism
+     * as an instance of {@link org.neo4j.ogm.classloader.ResourceResolver}
+     *
      * @param classPaths classpaths to be included
      * @return {@link List} of unique {@link File} objects on the classpath
      */
@@ -123,17 +128,10 @@ public abstract class ClassUtils {
             try {
                 Enumeration<URL> resources = ClassUtils.class.getClassLoader().getResources(classPath.replace(".","/"));
                 while(resources.hasMoreElements()) {
-                    URL resource = resources.nextElement();
-                    if(resource.getProtocol().equals("file")) {
-                        pathFiles.add(new File(resource.toURI()));
-                    }
-                    else if(resource.getProtocol().equals("jar")) {
-                        String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!"));  //Strip out the jar protocol
-                        pathFiles.add(new File(jarPath));
-
-                    }
+                    URL url = resources.nextElement();
+                    pathFiles.add( ResourceService.resolve( url ));
                 }
-            } catch (IOException | URISyntaxException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

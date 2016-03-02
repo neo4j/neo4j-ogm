@@ -39,7 +39,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Luanne Misquitta
@@ -252,24 +251,6 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertTrue(albums.contains("The Beatles"));
         assertTrue(albums.contains("Please Please Me"));
         assertFalse(resultIterator.hasNext());
-    }
-
-    @Test
-    public void shouldNotCommitWhenTransactionIsManaged() {
-        Transaction tx = session.beginTransaction();
-        Studio emi = new Studio("EMI Studios, London");
-
-        Artist theBeatles = new Artist("The Beatles");
-        Album please = new Album("Please Please Me");
-        Recording pleaseRecording = new Recording(please, emi, 1963);
-        please.setRecording(pleaseRecording);
-        theBeatles.getAlbums().add(please);
-        please.setArtist(theBeatles);
-        session.save(theBeatles);
-
-        tx.rollback(); //the previous saves shouldn't have been committed
-
-        assertEquals(0, session.countEntitiesOfType(Artist.class));
     }
 
 }

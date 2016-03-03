@@ -15,7 +15,19 @@ Together with metadata, the annotations drive mapping the POJO entities and thei
 ```xml
 <dependency>
     <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm</artifactId>
+    <artifactId>neo4j-ogm-core</artifactId>
+    <version>{version}</version>
+</dependency>
+
+<dependency> <!-- If you're using the HTTP driver -->
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-http-driver</artifactId>
+    <version>{version}</version>
+</dependency>
+
+<dependency> <!-- If you're using the Embedded driver -->
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-embedded-driver</artifactId>
     <version>{version}</version>
 </dependency>
 ```
@@ -24,14 +36,18 @@ Together with metadata, the annotations drive mapping the POJO entities and thei
 
 ```xml
 dependencies {
-    compile 'org.neo4j:neo4j-ogm:{version}'
+    compile 'org.neo4j:neo4j-ogm-core:{version}'
+    compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
 }
 ```
 
 #### Ivy
 
 ```xml
-<dependency org="org.neo4j" name="neo4j-ogm" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
 ```
 
 ### Set up domain entities
@@ -86,6 +102,12 @@ public class Movie {
 
 ```
 
+### Configuration
+The OGM can be configured in two ways. The easiest is auto configuration, where `ogm.properties` must be on the classpath.
+The other is via Java configuration.
+Please see examples [here](http://neo4j.com/docs/ogm/java/stable/)
+
+
 ### Persist/Load entities
 
 ```java
@@ -93,7 +115,7 @@ public class Movie {
 
 //Set up the Session
 SessionFactory sessionFactory = new SessionFactory("movies.domain");
-Session session = sessionFactory.openSession("http://localhost:7474");
+Session session = sessionFactory.openSession();
 
 Movie movie = new Movie("The Matrix", 1999);
 
@@ -119,7 +141,8 @@ for(Actor actor : matrix.getActors()) {
 
 The [reference guide](http://neo4j.com/docs/ogm/java/stable/) is the best place to get started.
 
-[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j OGM library.
+[Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j OGM library.
+A version that uses the Embedded driver is [also available](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0-embedded).
 
 ## Snapshots
 

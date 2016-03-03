@@ -13,14 +13,16 @@
 
 package org.neo4j.ogm.context;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Vince Bickers
@@ -98,7 +100,13 @@ public class EntityMemo {
             Field field = classInfo.getField(fieldInfo);
             Object value = FieldWriter.read(field, object);
             if (value != null) {
-                hash = hash * 31L + hash(value.toString());
+                if (value.getClass().isArray()) {
+                    hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));
+                } else if (value instanceof Iterable) {
+                    hash = hash * 31L + value.hashCode();
+                } else {
+                    hash = hash * 31L + hash(value.toString());
+                }
             }
         }
         return hash;
@@ -112,5 +120,19 @@ public class EntityMemo {
             h = 31*h + string.charAt(i);
         }
         return h;
+    }
+
+	/**
+     * Convert an array or objects or primitives to an array of objects
+     * @param array array of unknown type
+     * @return array of objects
+     */
+    private static Object[] convertToObjectArray(Object array) {
+        int len = Array.getLength(array);
+        Object[] out = new Object[len];
+        for (int i = 0; i < len; i++) {
+            out[i] = Array.get(array, i);
+        }
+        return Arrays.asList(out).toArray();
     }
 }

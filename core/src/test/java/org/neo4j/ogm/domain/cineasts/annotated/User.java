@@ -14,11 +14,12 @@
 package org.neo4j.ogm.domain.cineasts.annotated;
 
 
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
-
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author Vince Bickers
@@ -40,6 +41,11 @@ public class User {
     SecurityRole[] securityRoles;
     @Convert(TitleConverter.class)
     List<Title> titles;
+
+    @Convert(URLArrayConverter.class)
+    URL[] urls;
+
+    String[] nicknames;
 
     Rating rate(Movie movie, int stars, String comment) {
         return null;
@@ -110,6 +116,22 @@ public class User {
 
     public void setTitles(List<Title> titles) {
         this.titles = titles;
+    }
+
+    public URL[] getUrls() {
+        return urls;
+    }
+
+    public void setUrls(URL[] urls) {
+        this.urls = urls;
+    }
+
+    public String[] getNicknames() {
+        return nicknames;
+    }
+
+    public void setNicknames(String[] nicknames) {
+        this.nicknames = nicknames;
     }
 
     @Override

@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Fixes issue where an array property of an entity, annotated with an @Converter, would not be saved to the graph correctly if the contents of the array were modified.
 o The reason for a Cypher statement or query failing is made available and is consistent across drivers. org.neo4j.ogm.exception.CypherException contains the error code and message.
 o Fixes issue where incoming relationships not navigable in the other direction could not be deleted
 o Each driver moved to a separate module

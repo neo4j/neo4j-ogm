@@ -1,3 +1,6 @@
+1.1.7-SNAPSHOT
+--------------
+
 1.1.6
 --------------
 o Fixes issue where an array property of an entity would not be saved to the graph correctly if the contents of the array were modified.

@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -761,6 +762,46 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         }
     }
 
+	/**
+     * @see Issue #128
+     * @throws MalformedURLException
+     */
+    @Test
+    public void shouldBeAbleToSetREPropertiesToNull() throws MalformedURLException {
+        Movie movie = new Movie();
+        movie.setTitle("Pulp Fiction");
+        session.save(movie);
+
+        User michal = new User();
+        michal.setName("Michal");
+
+        Rating awesome = new Rating();
+        awesome.setMovie(movie);
+        awesome.setUser(michal);
+        awesome.setStars(5);
+        awesome.setComment("Just awesome");
+        michal.setRatings(Collections.singleton(awesome));
+        session.save(michal);
+
+        awesome.setComment(null);
+
+        session.save(awesome);
+
+        awesome = session.load(Rating.class, awesome.getId());
+        assertNull(awesome.getComment());
+        assertEquals(5, awesome.getStars());
+        session.clear();
+
+        awesome = session.load(Rating.class, awesome.getId());
+        assertNull(awesome.getComment());
+        assertEquals(5, awesome.getStars());
+
+        //make sure there's still just one rating
+        session.clear();
+        movie  = session.load(Movie.class, movie.getId());
+        assertEquals(1, movie.getRatings().size());
+        assertNull(movie.getRatings().iterator().next().getComment());
+    }
 
     private void bootstrap(String cqlFileName) {
         session.query(TestUtils.readCQLFile(cqlFileName).toString(), Utils.map());

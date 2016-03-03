@@ -16,6 +16,7 @@ package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,7 +29,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
@@ -53,14 +55,19 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     private static Session session;
 
-    @BeforeClass
-    public static void init() throws IOException {
+    @Before
+    public void init() throws IOException {
         session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
         importCineasts();
     }
 
     private static void importCineasts() {
         session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/cineasts.cql").toString(), Utils.map());
+    }
+
+    @After
+    public void teardown() {
+        session.purgeDatabase();
     }
 
     @Test
@@ -242,5 +249,30 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         assertEquals(2, user.getNicknames().length);
         assertEquals("batgirl", user.getNicknames()[0]);
         assertEquals("robin", user.getNicknames()[1]);
+    }
+
+	/**
+     * @see Issue #128
+     * @throws MalformedURLException
+     */
+    @Test
+    public void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {
+        Movie movie = new Movie();
+        movie.setTitle("Zootopia");
+        movie.setImdbUrl(new URL("http://www.imdb.com/title/tt2948356/"));
+        session.save(movie);
+
+        movie.setTitle(null);
+        movie.setImdbUrl(null);
+        session.save(movie);
+
+        movie = session.load(Movie.class, movie.getId());
+        assertNull(movie.getTitle());
+        assertNull(movie.getImdbUrl());
+
+        session.clear();
+        movie = session.load(Movie.class, movie.getId());
+        assertNull(movie.getTitle());
+        assertNull(movie.getImdbUrl());
     }
 }

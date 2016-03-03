@@ -226,9 +226,7 @@ public class EntityGraphMapper implements EntityMapper {
             ClassInfo classInfo = metaData.classInfo(entity);
             for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(classInfo)) {
                 Object value = propertyReader.read(entity);
-                if (value != null) {
-                    nodeBuilder.addProperty(propertyReader.propertyName(), value);
-                }
+                nodeBuilder.addProperty(propertyReader.propertyName(), value);
             }
         } else {
             context.deregister(nodeBuilder);

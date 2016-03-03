@@ -1,5 +1,6 @@
 2.0.0-SNAPSHOT
 --------------
+o Fixes issue where an updating an entity with a null property did not remove the property and the original value was retained
 
 2.0.0-M3
 --------------

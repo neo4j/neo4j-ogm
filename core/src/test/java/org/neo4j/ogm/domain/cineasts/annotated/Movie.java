@@ -13,10 +13,12 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
-import org.neo4j.ogm.annotation.Relationship;
-
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author Michal Bachman
@@ -36,6 +38,8 @@ public class Movie {
 
     Set<Nomination> nominations;
 
+    @Convert(URLConverter.class)
+    URL imdbUrl;
 
     public Long getId() {
         return id;
@@ -81,6 +85,14 @@ public class Movie {
 
     public void setNominations(Set<Nomination> nominations) {
         this.nominations = nominations;
+    }
+
+    public URL getImdbUrl() {
+        return imdbUrl;
+    }
+
+    public void setImdbUrl(URL imdbUrl) {
+        this.imdbUrl = imdbUrl;
     }
 
     @Override

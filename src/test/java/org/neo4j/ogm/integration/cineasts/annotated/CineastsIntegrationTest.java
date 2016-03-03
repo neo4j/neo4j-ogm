@@ -14,10 +14,17 @@
 
 package org.neo4j.ogm.integration.cineasts.annotated;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +33,12 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.*;
+import org.neo4j.ogm.domain.cineasts.annotated.Actor;
+import org.neo4j.ogm.domain.cineasts.annotated.Movie;
+import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.domain.cineasts.annotated.SecurityRole;
+import org.neo4j.ogm.domain.cineasts.annotated.Title;
+import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
@@ -198,4 +210,40 @@ public class CineastsIntegrationTest {
         assertNotNull("The entity wasn't loaded", loadedActor);
         assertEquals("Carrie-Ann Moss", loadedActor.getName());
     }
+
+	/**
+     * @see Issue #125
+     * @throws MalformedURLException
+     */
+    @Test
+    public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
+        User user = new User();
+        URL[] urls = new URL[3];
+        urls[0] = new URL("http://www.apple.com");
+        urls[1] = new URL("http://www.google.com");
+        urls[2] = new URL("http://www.neo4j.com");
+        user.setUrls(urls);
+
+        String[] nicknames = new String[2];
+        nicknames[0] = "batman";
+        nicknames[1] = "robin";
+        user.setNicknames(nicknames);
+
+        session.save(user);
+
+        user.getUrls()[0] = new URL("http://www.graphaware.com");
+        user.getNicknames()[0] = "batgirl";
+
+        session.save(user);
+
+        user = session.load(User.class, user.getId());
+        assertEquals(3, user.getUrls().length);
+        assertEquals("http://www.graphaware.com", user.getUrls()[0].toString());
+        assertEquals("http://www.google.com", user.getUrls()[1].toString());
+        assertEquals("http://www.neo4j.com", user.getUrls()[2].toString());
+        assertEquals(2, user.getNicknames().length);
+        assertEquals("batgirl", user.getNicknames()[0]);
+        assertEquals("robin", user.getNicknames()[1]);
+    }
+
 }

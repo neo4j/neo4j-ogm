@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +41,11 @@ public class User {
     SecurityRole[] securityRoles;
     @Convert(TitleConverter.class)
     List<Title> titles;
+
+    @Convert(URLConverter.class)
+    URL[] urls;
+
+    String[] nicknames;
 
     Rating rate(Movie movie, int stars, String comment) {
         return null;
@@ -123,6 +129,22 @@ public class User {
         if (!name.equals(user.name)) return false;
 
         return true;
+    }
+
+    public URL[] getUrls() {
+        return urls;
+    }
+
+    public void setUrls(URL[] urls) {
+        this.urls = urls;
+    }
+
+    public String[] getNicknames() {
+        return nicknames;
+    }
+
+    public void setNicknames(String[] nicknames) {
+        this.nicknames = nicknames;
     }
 
     @Override

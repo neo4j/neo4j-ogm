@@ -1,5 +1,6 @@
 1.1.6-SNAPSHOT
 --------------
+o Fixes issue where an array property of an entity would not be saved to the graph correctly if the contents of the array were modified.
 o The reason for a Cypher statement or query failing is made available and is consistent across drivers. org.neo4j.ogm.session.result.CypherException contains the error code and message.
 o Fixes issue where incoming relationships not navigable in the other direction could not be deleted
 o Fixes issue where an undirected relationship was sometimes not deleted correctly

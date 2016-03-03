@@ -16,6 +16,8 @@ package org.neo4j.ogm.session.transaction;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -27,16 +29,19 @@ import org.neo4j.ogm.transaction.TransactionManager;
 public class DefaultTransactionManager implements TransactionManager {
 
     private final Driver driver;
+    private final Session session;
 
     private static final ThreadLocal<Transaction> TRANSACTION_THREAD_LOCAL = new ThreadLocal<>();
 
-    public DefaultTransactionManager() {
-        this(Components.driver());
+    public DefaultTransactionManager(Session session) {
+        this( session, Components.driver() );
     }
 
-    public DefaultTransactionManager(Driver driver) {
+    public DefaultTransactionManager(Session session, Driver driver) {
         this.driver = driver;
         this.driver.setTransactionManager(this);
+        this.session = session;
+
         TRANSACTION_THREAD_LOCAL.remove();
     }
 
@@ -61,7 +66,8 @@ public class DefaultTransactionManager implements TransactionManager {
      * Rolls back the specified TRANSACTION_THREAD_LOCAL.
      *
      * The actual job of rolling back the TRANSACTION_THREAD_LOCAL is left to the relevant driver. if
-     * this is successful, the TRANSACTION_THREAD_LOCAL is detached from this thread.
+     * this is successful, the TRANSACTION_THREAD_LOCAL is detached from this thread. Any new objects
+     * are reset in the session, so that their ids are reset to null.
      *
      * If the specified TRANSACTION_THREAD_LOCAL is not the correct one for this thread, throws an exception
      *
@@ -71,6 +77,11 @@ public class DefaultTransactionManager implements TransactionManager {
         if (transaction != getCurrentTransaction()) {
             throw new TransactionManagerException("Transaction is not current for this thread");
         }
+
+        for (Object object : ((AbstractTransaction) transaction).registeredNew()) {
+            ((Neo4jSession) session).context().reset( object );
+        }
+
         TRANSACTION_THREAD_LOCAL.remove();
     }
 

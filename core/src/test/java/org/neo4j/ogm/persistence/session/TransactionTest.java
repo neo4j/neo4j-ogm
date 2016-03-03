@@ -70,14 +70,15 @@ public class TransactionTest extends MultiDriverTestClass {
 	 * @see Issue 126
 	 */
 	@Test
-	@Ignore
 	public void shouldBeAbleToRetrySaveOnTransactionRollback() {
+
 		Transaction tx = session.beginTransaction();
 
 		Studio emi = new Studio("EMI Studios, London");
 		Artist theBeatles = new Artist("The Beatles");
 		Album please = new Album("Please Please Me");
 		Recording pleaseRecording = new Recording(please, emi, 1963);
+
 		please.setRecording(pleaseRecording);
 		theBeatles.getAlbums().add(please);
 		please.setArtist(theBeatles);
@@ -89,7 +90,7 @@ public class TransactionTest extends MultiDriverTestClass {
 
 		session.clear();
 
-		theBeatles = session.loadAll(Artist.class).iterator().next();
+		theBeatles = session.loadAll(Artist.class, -1).iterator().next();
 		assertEquals("The Beatles", theBeatles.getName());
 		assertEquals(1, theBeatles.getAlbums().size());
 		assertEquals("Please Please Me", theBeatles.getAlbums().iterator().next().getName());

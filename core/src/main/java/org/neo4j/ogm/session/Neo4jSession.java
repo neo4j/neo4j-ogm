@@ -64,7 +64,7 @@ public class Neo4jSession implements Session {
         this.driver = driver;
 
         this.mappingContext = new MappingContext(metaData);
-        this.txManager = new DefaultTransactionManager(driver);
+        this.txManager = new DefaultTransactionManager(this, driver);
     }
 
     /*

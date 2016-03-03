@@ -18,6 +18,8 @@ import org.neo4j.ogm.exception.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -28,7 +30,22 @@ public abstract class AbstractTransaction implements Transaction {
     private final Logger logger = LoggerFactory.getLogger(Transaction.class);
 
     protected final TransactionManager transactionManager;
+
+    /* Neo4j does not support nested transactions, but it does allow a transaction to be declared in the context of
+     * another one. These 'placebo' transactions only have an effect if their unit of work is rolled back, in which
+     * case the entire transaction will be rolled back. In the OGM they are modelled as extensions to the top-level
+     * transaction, and managed via a simple extension counter. Every new transaction increments the counter, every
+     * rollback or commit decrements the counter. Rollback/Commit only get executed when the counter = 0, but a
+     * rollback of an extension will mark the entire transaction to be rolled back, and an attempt to commit such
+     * a transaction will fail.
+     */
     protected final AtomicLong extendsCount = new AtomicLong();
+
+    /* Objects which are newly persisted into the graph should be registered on the transaction.
+     * In the event that a rollback occurs, these objects will have been assigned an id from the database
+     * but will be deleted from the graph, so we can reset their ids to null, in order to allow
+     * a subsequent save request to operate correctly */
+    private List<Object> registeredNew = new ArrayList<>();
 
     private Transaction.Status status = Transaction.Status.OPEN;
 
@@ -113,5 +130,13 @@ public abstract class AbstractTransaction implements Transaction {
 
     public long extensions() {
         return extendsCount.get();
+    }
+
+    public void registerNew( Object persisted ) {
+        registeredNew.add( persisted );
+    }
+
+    public List<Object> registeredNew() {
+        return registeredNew;
     }
 }

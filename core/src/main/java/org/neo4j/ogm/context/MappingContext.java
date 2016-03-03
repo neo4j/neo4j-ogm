@@ -13,24 +13,17 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.PropertyReader;
-import org.neo4j.ogm.annotations.RelationalReader;
+import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -240,7 +233,7 @@ public class MappingContext {
     /**
      * purges all information about this object from the mapping context
      *
-     * @param entity the type whose object references and relationship mappings we want to purge
+     * @param entity the instance whose references and relationship mappings we want to purge
      */
     public void clear(Object entity) {
         Class<?> type = entity.getClass();
@@ -251,6 +244,22 @@ public class MappingContext {
         if (id!=null) {
             getAll(type).remove(id);
         }
+    }
+
+    /**
+     * purges all information about this object from the mapping context
+     * and also sets its id to null. Should be called for new objects that have had their
+     * id assigned as part of a long-running transaction, if that transaction is subsequently
+     * rolled back.
+     *
+     * @param entity the instance whose references and relationship mappings we want to reset
+     */
+    public void reset(Object entity) {
+        clear(entity);
+        Class<?> type = entity.getClass();
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        Field identityField = classInfo.getField(classInfo.identityField());
+        FieldWriter.write(identityField, entity, null);
     }
 
     private void purge(Object entity, PropertyReader identityReader, Class type) {

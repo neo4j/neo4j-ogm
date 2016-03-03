@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.compiler.CompileContext;
@@ -30,7 +26,12 @@ import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Plans request execution and processes the response.
@@ -252,17 +253,22 @@ public class RequestExecutor {
 	 */
 	private static void registerEntity(Long identity, Object persisted, Neo4jSession session) {
 		MappingContext mappingContext = session.context();
+		Transaction tx = session.getTransaction();
 		if (persisted != null) {  // it will be null if the variable represents a simple relationship.
 			// set the id field of the newly created domain object
 			ClassInfo classInfo = session.metaData().classInfo(persisted);
 			Field identityField = classInfo.getField(classInfo.identityField());
 			FieldWriter.write(identityField, persisted, identity);
 
+			if (tx != null) {
+				(( AbstractTransaction ) tx).registerNew( persisted );
+			}
+
 			// ensure the newly created domain object is added into the mapping context
 			if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
 				mappingContext.registerNodeEntity(persisted, identity);
 			} else {
-				mappingContext.registerRelationshipEntity(persisted, identity);
+				mappingContext.registerRelationshipEntity( persisted, identity );
 			}
 			mappingContext.remember(persisted); //remember the persisted entity so it isn't marked for rewrite just after it's been retrieved and had it's id set
 		}

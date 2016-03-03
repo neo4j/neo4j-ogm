@@ -48,8 +48,9 @@ import static org.junit.Assert.fail;
  */
 public class TransactionManagerTest extends MultiDriverTestClass {
 
-    private DefaultTransactionManager transactionManager = new DefaultTransactionManager();
     private Session session;
+    private DefaultTransactionManager transactionManager = new DefaultTransactionManager(session);
+
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
@@ -106,7 +107,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         if (Components.driver() instanceof HttpDriver) {
 
             SessionFactory sessionFactory = new SessionFactory();
-            Session session = sessionFactory.openSession();
+            session = sessionFactory.openSession();
 
             // the transaction manager must manage transactions
             try (Transaction tx = transactionManager.openTransaction()) {

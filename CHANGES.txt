@@ -1,7 +1,10 @@
 2.0.0-SNAPSHOT
 --------------
-o Fixes issue where an array property of an entity, annotated with an @Converter, would not be saved to the graph correctly if the contents of the array were modified.
+o Fixes issue where an array property of an entity would not be saved to the graph correctly if the contents of the array were modified.
+o Provides support for handling non-standard resource protocols like 'vfs:'
+o Improvements and bug fixes to http connection handling and connection pooling
 o The reason for a Cypher statement or query failing is made available and is consistent across drivers. org.neo4j.ogm.exception.CypherException contains the error code and message.
+o Drivers extracted into separate modules and dependencies
 o Fixes issue where incoming relationships not navigable in the other direction could not be deleted
 o Each driver moved to a separate module
 o Fixes issue where a user managed transaction would be committed when saving an entity that required multiple Cypher requests

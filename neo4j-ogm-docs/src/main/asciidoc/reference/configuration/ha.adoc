@@ -27,16 +27,13 @@ As of version 1.1.1 the OGM does not distinguish between WRITE transactions and 
 [source,java]
 ----
 
-    private String url = "http://192.168.0.55:7474"
-    private SessionFactory sessionFactory = new SessionFactory("com.mycompany.myapp.domain");
-    private Session session = sessionFactory.openSession(url);
-
+ Components.driver().setURI("http://192.168.0.55:7474");
 
 ----
 
 [NOTE]
 ====
-We don't really recommend this approach, except for testing purposes and non-critical deployments. Firstly, it will only work if you always bring up the designated master first, and secondly, if the master goes down all subsequent transactions will fail until it is restarted. In HA mode, the cluster is able to elect a new master when this happens, but as of version 1.1.1 of the OGM, there is no mechanism for querying the cluster to identify the current master. The solution in this case is to use a load balancer such as HAProxy that can do this for us. This is described in the next section.
+We don't really recommend this approach, except for testing purposes and non-critical deployments. Firstly, it will only work if you always bring up the designated master first, and secondly, if the master goes down all subsequent transactions will fail until it is restarted. In HA mode, the cluster is able to elect a new master when this happens, but as of the current version of the OGM, there is no mechanism for querying the cluster to identify the current master. The solution in this case is to use a load balancer such as HAProxy that can do this for us. This is described in the next section.
 
 ====
 
@@ -56,10 +53,7 @@ In the Neo4j HA architecture, a cluster is typically fronted by a load balancer.
 [source,java]
 ----
 
-    private String url = "http://10.0.2.200" // haproxy running on the default port 80
-    private SessionFactory sessionFactory = new SessionFactory("com.mycompany.myapp.domain");
-    private Session session = sessionFactory.openSession(url);
-
+   Components.driver().setURI("http://10.0.2.200");
 
 ----
 

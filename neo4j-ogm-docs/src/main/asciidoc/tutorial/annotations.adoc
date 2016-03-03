@@ -13,12 +13,12 @@ Before we can use any Neo4j OGM annotations, we need to add the maven dependency
 ----
 <dependency>
     <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-api</artifactId>
+    <artifactId>neo4j-ogm-core</artifactId>
     <version>{version}</version>
 </dependency>
 <dependency>
     <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-core</artifactId>
+    <artifactId>neo4j-ogm-http-driver</artifactId>
     <version>{version}</version>
 </dependency>
 ----

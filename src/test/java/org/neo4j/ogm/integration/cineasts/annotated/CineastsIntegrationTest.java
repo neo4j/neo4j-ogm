@@ -17,6 +17,7 @@ package org.neo4j.ogm.integration.cineasts.annotated;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -29,7 +30,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
@@ -56,12 +58,16 @@ public class CineastsIntegrationTest {
 
     private static Session session;
 
-    @BeforeClass
-    public static void init() throws IOException {
+    @Before
+    public  void init() throws IOException {
         session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession(databaseServerRule.url());
         importCineasts();
     }
 
+    @After
+    public void tearDown() {
+        session.purgeDatabase();
+    }
     private static void importCineasts() {
         databaseServerRule.loadClasspathCypherScriptFile("org/neo4j/ogm/cql/cineasts.cql");
     }
@@ -246,4 +252,21 @@ public class CineastsIntegrationTest {
         assertEquals("robin", user.getNicknames()[1]);
     }
 
+    @Test
+    public void shouldSetPropertiesToNull() throws MalformedURLException {
+        Movie movie = new Movie();
+        movie.setTitle("Zootopia");
+        movie.setImdbUrl(new URL("http://www.imdb.com/title/tt2948356/"));
+        session.save(movie);
+
+        movie.setTitle(null);
+        movie.setImdbUrl(null);
+        session.save(movie);
+
+        session.clear();
+
+        movie = session.load(Movie.class, movie.getId());
+        assertNull(movie.getTitle());
+        assertNull(movie.getImdbUrl());
+    }
 }

@@ -11,7 +11,6 @@
  * conditions of the subcomponent's license, as noted in the LICENSE file.
  *
  */
-
 package org.neo4j.ogm.domain.cineasts.annotated;
 
 import java.net.MalformedURLException;
@@ -22,19 +21,34 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 /**
  * @author Luanne Misquitta
  */
-public class URLConverter implements AttributeConverter<URL, String> {
+public class URLArrayConverter implements AttributeConverter<URL[], String[]> {
 
 	@Override
-	public String toGraphProperty(URL value) {
-		return value == null ? null : value.toString();
+	public String[] toGraphProperty(URL[] value) {
+		if (value == null) {
+			return null;
+		}
+
+		String[] values = new String[value.length];
+		for (int i=0; i < value.length; i++) {
+			values[i] = value[i].toString();
+		}
+		return values;
 	}
 
 	@Override
-	public URL toEntityAttribute(String value) {
-		try {
-			return value == null ? null : new URL(value);
-		} catch (MalformedURLException e) {
+	public URL[] toEntityAttribute(String[] value) {
+		if (value == null) {
 			return null;
 		}
+		URL[] urls = new URL[value.length];
+		for (int i=0; i < value.length; i++) {
+			try {
+				urls[i] = new URL(value[i]);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+		return urls;
 	}
 }

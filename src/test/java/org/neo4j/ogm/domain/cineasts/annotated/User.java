@@ -42,7 +42,7 @@ public class User {
     @Convert(TitleConverter.class)
     List<Title> titles;
 
-    @Convert(URLConverter.class)
+    @Convert(URLArrayConverter.class)
     URL[] urls;
 
     String[] nicknames;

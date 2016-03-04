@@ -23,6 +23,7 @@ import java.util.Vector;
  * @author Vince Bickers
  */
 public class Mappable {
+    private Long id;
 
     private int primitiveInt;
     private long primitiveLong;
@@ -50,6 +51,7 @@ public class Mappable {
     private Float objectFloat;
     private Double objectDouble;
     private String objectString;
+    private Character objectCharacter;
 
     private Integer[] objectIntegerArray;
     private Long[] objectLongArray;
@@ -59,6 +61,7 @@ public class Mappable {
     private Float[] objectFloatArray;
     private Double[] objectDoubleArray;
     private String[] objectStringArray;
+    private Character[] objectCharArray;
 
     private List<?> listOfAnything;
     private Set<?> setOfAnything;
@@ -342,5 +345,21 @@ public class Mappable {
 
     public void setObjectStringArray(String[] objectStringArray) {
         this.objectStringArray = objectStringArray;
+    }
+
+    public Character getObjectCharacter() {
+        return objectCharacter;
+    }
+
+    public void setObjectCharacter(Character objectCharacter) {
+        this.objectCharacter = objectCharacter;
+    }
+
+    public Character[] getObjectCharArray() {
+        return objectCharArray;
+    }
+
+    public void setObjectCharArray(Character[] objectCharArray) {
+        this.objectCharArray = objectCharArray;
     }
 }

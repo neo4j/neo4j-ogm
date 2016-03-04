@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.model.Property;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.neo4j.ogm.model.Property;
 
 /**
  * @author Vince Bickers
@@ -171,6 +171,31 @@ public class Utils {
                         throw new IllegalArgumentException(longValue + " cannot be cast to short without an overflow.");
                     }
                     return longValue.shortValue();
+                }
+                if (value.getClass().equals(Integer.class)) {
+                    Integer intValue = (Integer) value;
+                    if (intValue < Short.MIN_VALUE || intValue > Short.MAX_VALUE) {
+                        throw new IllegalArgumentException(intValue + " cannot be cast to short without an overflow.");
+                    }
+                    return intValue.shortValue();
+                }
+            }
+
+            // down-cast to char from String
+            if ("char".equals(className) || Character.class.equals(clazz)) {
+                if (value.getClass().equals(String.class)) {
+                    String stringValue = (String) value;
+                    if (stringValue.length() == 1) {
+                        return stringValue.charAt(0);
+                    }
+                    else {
+                        try {
+                            return (char) Integer.parseInt(stringValue);
+                        }
+                        catch (NumberFormatException nfe) {
+                            throw new IllegalArgumentException(stringValue + " cannot be cast to char");
+                        }
+                    }
                 }
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;

@@ -24,6 +24,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.canonical.Mappable;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -58,7 +59,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 
 		mappable.setPrimitiveBooleanArray(new boolean[] {true, false});
 		mappable.setPrimitiveByteArray(new byte[] {(byte)10, (byte)100});
-		//mappable.setPrimitiveCharArray(new char[] {'d','\u0001'}); //TODO fix
+		mappable.setPrimitiveCharArray(new char[] {'d','\u0001'});
 		mappable.setPrimitiveDoubleArray(new double[] {34.5, 67.8});
 		mappable.setPrimitiveFloatArray(new float[] {1.2f,3.4f});
 		mappable.setPrimitiveIntArray(new int[] {6,7});
@@ -77,18 +78,25 @@ public class CanonicalTest extends MultiDriverTestClass {
 
 		mappable.setObjectBooleanArray(new Boolean[] {Boolean.TRUE, Boolean.FALSE});
 		mappable.setObjectByteArray(new Byte[] {(byte)10, (byte)100});
-		mappable.setObjectCharArray(new Character[] {'d','\u0001'});
+		mappable.setObjectCharArray(new Character[] {'d','\u0028'});
 		mappable.setObjectDoubleArray(new Double[] {34.5, 67.8});
 		mappable.setObjectFloatArray(new Float[] {1.2f,3.4f});
 		mappable.setObjectIntegerArray(new Integer[] {6,7});
 		mappable.setObjectLongArray(new Long[] {9l,10l});
 		mappable.setObjectShortArray(new Short[] {(short)30, (short)300});
-
+		mappable.setObjectStringArray(new String[] {"abc", "xyz"});
 		session.save(mappable);
 
 		session.clear();
 
-		Result result = session.query("match n return n", Collections.EMPTY_MAP);
+		Result result = null;
+		try {
+			result = session.query("match n return n", Collections.EMPTY_MAP);
+		}
+		catch (CypherException ce) {
+			System.out.println(ce.getCode());
+			System.out.println(ce.getDescription());
+		}
 		assertNotNull(result);
 		Mappable loaded = (Mappable) result.iterator().next().get("n");
 		assertNotNull(loaded);
@@ -104,7 +112,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 
 		assertArrayEquals(mappable.getPrimitiveBooleanArray(), loaded.getPrimitiveBooleanArray());
 		assertArrayEquals(mappable.getPrimitiveByteArray(), loaded.getPrimitiveByteArray());
-		//assertArrayEquals(mappable.getPrimitiveCharArray(), loaded.getPrimitiveCharArray());
+		assertArrayEquals(mappable.getPrimitiveCharArray(), loaded.getPrimitiveCharArray());
 		assertArrayEquals(mappable.getPrimitiveDoubleArray(), loaded.getPrimitiveDoubleArray(), 0);
 		assertArrayEquals(mappable.getPrimitiveFloatArray(), loaded.getPrimitiveFloatArray(), 0);
 		assertArrayEquals(mappable.getPrimitiveIntArray(), loaded.getPrimitiveIntArray());
@@ -130,6 +138,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 		assertArrayEquals(mappable.getObjectIntegerArray(), loaded.getObjectIntegerArray());
 		assertArrayEquals(mappable.getObjectLongArray(), loaded.getObjectLongArray());
 		assertArrayEquals(mappable.getObjectShortArray(), loaded.getObjectShortArray());
+		assertArrayEquals(mappable.getObjectStringArray(), loaded.getObjectStringArray());
 	}
 
 }

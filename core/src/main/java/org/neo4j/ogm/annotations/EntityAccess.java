@@ -35,7 +35,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Iterable<?> newValues, Object[] currentValues) {
+    public static Object merge(Class<?> parameterType, Object newValues, Object[] currentValues) {
         if (currentValues != null) {
             return merge(parameterType, newValues, Arrays.asList(currentValues));
         } else {
@@ -55,11 +55,20 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
      * @return The result of the merge, as an instance of the specified parameter type
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Iterable<?> newValues, Iterable<?> currentValues) {
+    public static Object merge(Class<?> parameterType, Object newValues, Iterable<?> currentValues) {
+
+        //While we expect newValues to be an iterable, there are a couple of exceptions
+
+        //1. A primitive array cannot be cast directly to Iterable
+        newValues = boxPrimitiveArray(newValues);
+
+        //2. A char[] may come in as a String or an array of String[]
+        newValues = stringToCharacterIterable(newValues, parameterType);
+
 
         if (parameterType.isArray()) {
             Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union(newValues, currentValues));
+            List<Object> objects = new ArrayList<>(union((Iterable<?>) newValues, currentValues));
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
@@ -69,7 +78,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, newValues, currentValues);
+        Collection newCollection = createCollection(parameterType, (Iterable<?>)newValues, currentValues);
         if (newCollection != null) {
             return newCollection;
         }
@@ -113,4 +122,91 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         }
         return result;
     }
+
+
+    /**
+     * Convert to an Iterable of Character if the value is a String
+     * @param value the object
+     * @return List of Character if the value is a String, or the value unchanged
+     */
+    private static Object stringToCharacterIterable(Object value, Class parameterType) {
+        if (value instanceof String) {
+            char[] chars = ((String)value).toCharArray();
+            List<Character> characters = new ArrayList<>(chars.length);
+            for (char c : chars) {
+                characters.add(Character.valueOf(c));
+            }
+            return characters;
+        }
+        if (value.getClass().isArray() && parameterType.getComponentType().equals(Character.class) && value.getClass().getComponentType().equals(String.class)) {
+            String[] strings = (String[]) value;
+            List<Character> characters = new ArrayList<>(strings.length);
+            for (String s : strings) {
+                characters.add(s.toCharArray()[0]);
+            }
+            return characters;
+        }
+
+        if (value.getClass().isArray() && parameterType.getComponentType().equals(String.class)) {
+            String[] strings = (String[]) value;
+            return Arrays.asList(strings);
+        }
+        return value;
+    }
+
+    private static Object boxPrimitiveArray(Object value) {
+        if (value.getClass().isArray() && value.getClass().getComponentType().isPrimitive()) {
+            switch (value.getClass().getComponentType().toString()) {
+                case "int":
+                    int[] intArray = (int[]) value;
+                    List<Integer> boxedIntList = new ArrayList<>(intArray.length);
+                    for (int i : intArray) {
+                        boxedIntList.add(i);
+                    }
+                    return boxedIntList;
+
+                case "float":
+                    float[] floatArray = (float[]) value;
+                    List<Float> boxedFloatList = new ArrayList<>(floatArray.length);
+                    for (float f : floatArray) {
+                        boxedFloatList.add(f);
+                    }
+                    return boxedFloatList;
+
+                case "long":
+                    long[] longArray = (long[]) value;
+                    List<Long> boxedLongList = new ArrayList<>(longArray.length);
+                    for (long l : longArray) {
+                        boxedLongList.add(l);
+                    }
+                    return boxedLongList;
+
+                case "double":
+                    double[] dblArray = (double[]) value;
+                    List<Double> boxedDoubleList = new ArrayList<>(dblArray.length);
+                    for (double d : dblArray) {
+                        boxedDoubleList.add(d);
+                    }
+                    return boxedDoubleList;
+
+                case "boolean":
+                    boolean[] booleanArray = (boolean[]) value;
+                    List<Boolean> boxedBooleanList = new ArrayList<>(booleanArray.length);
+                    for (boolean b : booleanArray) {
+                        boxedBooleanList.add(b);
+                    }
+                    return boxedBooleanList;
+
+                case "char":
+                    char[] charArray = (char[]) value;
+                    List<Character> boxedCharList = new ArrayList<>(charArray.length);
+                    for (char c : charArray) {
+                        boxedCharList.add(c);
+                    }
+                    return boxedCharList;
+            }
+        }
+        return value;
+    }
+
 }

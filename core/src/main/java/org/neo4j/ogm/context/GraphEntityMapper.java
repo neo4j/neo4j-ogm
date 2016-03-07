@@ -201,9 +201,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 					Object currentValue = reader.read(instance);
 					Class<?> paramType = writer.type();
 					if (paramType.isArray()) {
-						value = EntityAccess.merge(paramType, (Iterable<?>) value, (Object[]) currentValue);
+						value = EntityAccess.merge(paramType, value, (Object[]) currentValue);
 					} else {
-						value = EntityAccess.merge(paramType, (Iterable<?>) value, (Iterable<?>) currentValue);
+						value = EntityAccess.merge(paramType, value, (Iterable<?>) currentValue);
 					}
 				}
 			}

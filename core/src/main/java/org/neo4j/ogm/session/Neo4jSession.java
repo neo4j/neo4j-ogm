@@ -353,7 +353,7 @@ public class Neo4jSession implements Session {
     public <T> void deleteAll(Class<T> type) {
         deleteDelegate.deleteAll(type);
     }
-    
+
     /*
     *----------------------------------------------------------------------------------------------------------
     * SaveDelegate
@@ -437,19 +437,15 @@ public class Neo4jSession implements Session {
     }
 
     public void info(String msg) {
-        logger.info(msg);
+        logger.info("Thread {}: {}", Thread.currentThread().getId(), msg);
     }
 
     public void warn(String msg) {
-        logger.warn(msg);
+        logger.warn("Thread {}: {}", Thread.currentThread().getId(), msg);
     }
 
     public void debug(String msg) {
-        logger.debug(msg);
-    }
-
-    public void error(String msg) {
-        logger.error(msg);
+        logger.debug("Thread {}: {}", Thread.currentThread().getId(), msg);
     }
 
 }

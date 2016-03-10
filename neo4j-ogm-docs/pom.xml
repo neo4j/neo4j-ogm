@@ -39,10 +39,10 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>asciidoc-to-html</id> 
-                        <phase>generate-resources</phase> 
+                        <id>asciidoc-to-html</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>process-asciidoc</goal> 
+                            <goal>process-asciidoc</goal>
                         </goals>
                         <configuration>
                             <backend>html5</backend>
@@ -57,5 +57,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

@@ -31,7 +31,7 @@ public class TransactionsDelegate implements Capability.Transactions {
     @Override
     public Transaction beginTransaction() {
 
-        session.debug("beginTransaction() being called on thread: " + Thread.currentThread().getId());
+        session.debug("beginTransaction()");
         session.debug("Neo4jSession identity: " + this);
 
         Transaction tx = session.transactionManager().openTransaction();

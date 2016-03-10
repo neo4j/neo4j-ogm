@@ -167,13 +167,13 @@ public class HttpRequest implements Request {
         }
     }
 
-    private CloseableHttpResponse executeRequest(String cypher) {
+    private CloseableHttpResponse executeRequest(String cypher) throws Exception {
 
         String url = this.url;
 
         assert (url != null);
 
-        logger.info("POST {}, request {}", url, cypher);
+        logger.info("Thread {}:, POST {}, request {}", Thread.currentThread().getId(), url, cypher);
 
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(cypher, "UTF-8"));
@@ -181,7 +181,7 @@ public class HttpRequest implements Request {
         return execute(httpClient, request, credentials);
     }
 
-    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) {
+    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) throws Exception {
 
         CloseableHttpResponse response = null;
 
@@ -206,7 +206,7 @@ public class HttpRequest implements Request {
                 if (statusLine.getStatusCode() >= 300) {
                     if (responseEntity != null) {
                         String responseText = EntityUtils.toString(responseEntity);
-                        logger.debug("Response Status: {} response: {}", statusLine.getStatusCode(), responseText);
+                        logger.debug("Thread {}: Response Status: {} response: {}", Thread.currentThread().getId(), statusLine.getStatusCode(), responseText);
                         EntityUtils.consume(responseEntity);
                     }
                     throw new HttpResponseException(
@@ -217,31 +217,36 @@ public class HttpRequest implements Request {
                     throw new ClientProtocolException("Response contains no content");
                 }
 
-                logger.debug("Response is OK");
+                logger.debug("Thread {}: HttpResponse {}", Thread.currentThread().getId(), response);
                 return response;
 
             } catch (NoHttpResponseException nhre) {
                 try {
-                    logger.debug("No response from server.  Retrying in {} milliseconds, retries left: {}", retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
+                    logger.debug("Thread {}: No response from server.  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
                     retryStrategy.errorOccured();
                 } catch (Exception e) {
-                    throw new ResultProcessingException("Request retry has failed", e);
+                    throw e;
+                    //throw new ResultProcessingException("Request retry has failed", e);
                 }
             }
             // the catch-all exception handler, will ensure all resources are properly closed in the event we cannot proceed
             // or there is a problem parsing the response from the server.
             catch (Exception e) {
+
+                logger.warn("Thread {}: Caught HttpResponse exception: {}", Thread.currentThread().getId(), e.getLocalizedMessage());
+
                 request.releaseConnection();
-                logger.warn("Caught response exception: {}", e.getLocalizedMessage());
+
                 if (response != null) {
                     try {
                         response.close();
                     } catch (IOException ioe) {
-                        throw new ResultProcessingException("Failed to close response: ", e);
+                        throw e;
+                        //throw new ResultProcessingException("Failed to close response: ", e);
                     }
                 }
-
-                throw new ResultProcessingException("Failed to execute request", e);
+                throw e;
+                //throw new ResultProcessingException("Failed to execute request", e);
             }
         }
         request.releaseConnection();

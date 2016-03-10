@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers.http.driver;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -31,8 +32,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author vince
@@ -95,7 +94,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 HttpEntity responseEntity = response.getEntity();
                 if (responseEntity != null) {
                     String responseText = EntityUtils.toString(responseEntity);
-                    LOGGER.debug( responseText );
+                    LOGGER.debug("Thread {}: {}", Thread.currentThread().getId(), responseText );
                     EntityUtils.consume(responseEntity);
                     if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
                         throw new ResultErrorsException(responseText);
@@ -105,28 +104,37 @@ public final class HttpDriver extends AbstractConfigurableDriver
             }
         }
 
+        catch (HttpResponseException hre) {
+            if (hre.getStatusCode() == 404) {
+                Transaction tx = transactionManager.getCurrentTransaction();
+                if (tx != null) {
+                    transactionManager.rollback(tx);
+                }
+            }
+            throw new ResultProcessingException("HttpResponse exception: Not Found", hre);
+        }
+
         catch (Exception e) {
             throw new ResultProcessingException("Failed to execute request: ", e);
         }
 
         finally {
             request.releaseConnection();
-            LOGGER.debug( "Connection released" );
+            LOGGER.debug( "Thread {}: Connection released", Thread.currentThread().getId() );
         }
     }
 
     private String newTransactionUrl() {
 
         String url = transactionEndpoint(driverConfig.getURI());
-        LOGGER.debug( "POST {}", url );
+        LOGGER.debug( "Thread {}: POST {}", Thread.currentThread().getId(), url );
 
-        CloseableHttpResponse response = executeHttpRequest(new HttpPost(url));
-        Header location = response.getHeaders("Location")[0];
-        try {
+        try (CloseableHttpResponse response = executeHttpRequest(new HttpPost(url))) {
+            Header location = response.getHeaders("Location")[0];
             response.close();
             return location.getValue();
-        } catch (IOException e) {
-            throw new ResultProcessingException("Failed to execute request: ", e);
+        } catch (Exception e) {
+            throw new ResultProcessingException("Could not obtain new Transaction: ", e);
         }
     }
 
@@ -150,15 +158,15 @@ public final class HttpDriver extends AbstractConfigurableDriver
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
-                LOGGER.debug( "request url {}", ( (HttpTransaction) tx ).url() );
+                LOGGER.debug("Thread {}: request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
                 return ((HttpTransaction) tx).url();
             } else {
-                LOGGER.debug( "No current transaction, using auto-commit" );
+                LOGGER.debug( "Thread {}: No current transaction, using auto-commit", Thread.currentThread().getId() );
             }
         } else {
-            LOGGER.debug( "No transaction manager available, using auto-commit" );
+            LOGGER.debug( "Thread {}: No transaction manager available, using auto-commit", Thread.currentThread().getId() );
         }
-        LOGGER.debug( "request url {}", autoCommitUrl() );
+        LOGGER.debug( "Thread {}: request url {}", Thread.currentThread().getId(), autoCommitUrl() );
         return autoCommitUrl();
     }
 }

@@ -19,10 +19,10 @@ import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import java.net.URL;
 
 /**
- * 
+ *
  * A wrapper class for a generic {@link Configuration} that exposes the configuration for a Driver via
  * concrete methods.
- * 
+ *
  * @author vince
  */
 public class DriverConfiguration {

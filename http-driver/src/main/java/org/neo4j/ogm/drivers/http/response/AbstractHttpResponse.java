@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.drivers.http.response;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
@@ -31,6 +26,11 @@ import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author vince
@@ -144,7 +144,7 @@ public abstract class AbstractHttpResponse<T> {
 
 	private void close() {
 		try {
-			LOGGER.debug("Closing response");
+			LOGGER.debug("Thread {}: Releasing HttpResponse", Thread.currentThread().getId());
 			results.close();
 			httpResponse.close();
 		} catch (Exception e) {

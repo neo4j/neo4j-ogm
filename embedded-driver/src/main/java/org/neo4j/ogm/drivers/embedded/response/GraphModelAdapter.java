@@ -92,7 +92,7 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
         while (nodeIterator.hasNext()) {
             Node node = nodeIterator.next();
             buildNode(node, graphModel, nodeIdentities);
-        }     
+        }
     }
 
     void buildNode(Node node, GraphModel graphModel, Set nodeIdentities) {
@@ -106,12 +106,12 @@ public class GraphModelAdapter extends JsonAdapter implements ResultAdapter<Map<
             for (Label label : node.getLabels()) {
                 labelNames.add(label.name());
             }
-            nodeModel.setLabels(labelNames.toArray(new String[] {}));            
-            
+            nodeModel.setLabels(labelNames.toArray(new String[] {}));
+
             nodeModel.setProperties(buildProperties(node));
 
             graphModel.getNodes().add(nodeModel);
-        }    
+        }
     }
 
     void buildRelationship(Relationship relationship, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {

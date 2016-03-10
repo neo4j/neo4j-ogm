@@ -126,6 +126,7 @@ public class DefaultTransactionManager implements TransactionManager {
 
     public boolean canCommit()  {
         AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
+        //if (tx != null && tx.extensions() == 0) {
         if (tx.extensions() == 0) {
             if (tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
                 return true;
@@ -137,6 +138,7 @@ public class DefaultTransactionManager implements TransactionManager {
     public boolean canRollback()  {
         AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
         if (tx.extensions() == 0) {
+        //if (tx != null && tx.extensions() == 0) {
             if (tx.status() == Transaction.Status.ROLLBACK_PENDING || tx.status() == Transaction.Status.COMMIT_PENDING || tx.status() == Transaction.Status.OPEN || tx.status() == Transaction.Status.PENDING) {
                 return true;
             }

@@ -14,15 +14,7 @@ package org.neo4j.ogm.session.delegates;
 
 
 import org.apache.commons.lang3.StringUtils;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.neo4j.ogm.context.EntityRowModelMapper;
-import org.neo4j.ogm.context.GraphEntityMapper;
-import org.neo4j.ogm.context.ResponseMapper;
-import org.neo4j.ogm.context.RestModelMapper;
-import org.neo4j.ogm.context.RestStatisticsModel;
+import org.neo4j.ogm.context.*;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
@@ -41,6 +33,10 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -48,7 +44,7 @@ import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
     private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
-    
+
     private final Neo4jSession session;
 
     public ExecuteQueriesDelegate(Neo4jSession neo4jSession) {

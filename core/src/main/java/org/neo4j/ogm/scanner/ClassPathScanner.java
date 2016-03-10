@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.scanner;
 
+import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.metadata.ClassFileProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,11 +28,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
-import org.neo4j.ogm.ClassUtils;
-import org.neo4j.ogm.metadata.ClassFileProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -78,8 +78,8 @@ public class ClassPathScanner {
                         scanClassFileEntry(inputStream, entry);
                     } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip")) {
                         scanZippedEntry(inputStream, entry);
-                    } 
-                }  
+                    }
+                }
             }
         }
     }
@@ -121,7 +121,7 @@ public class ClassPathScanner {
             zipEntry = zipInputStream.getNextEntry();
         }
     }
-    
+
     public void scan(List<String> classPaths, ClassFileProcessor processor) {
 
         this.classPaths = classPaths;

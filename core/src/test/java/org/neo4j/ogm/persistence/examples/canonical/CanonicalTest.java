@@ -24,7 +24,6 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.canonical.Mappable;
-import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -89,14 +88,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 
 		session.clear();
 
-		Result result = null;
-		try {
-			result = session.query("match n return n", Collections.EMPTY_MAP);
-		}
-		catch (CypherException ce) {
-			System.out.println(ce.getCode());
-			System.out.println(ce.getDescription());
-		}
+		Result result = session.query("match n return n", Collections.EMPTY_MAP);
 		assertNotNull(result);
 		Mappable loaded = (Mappable) result.iterator().next().get("n");
 		assertNotNull(loaded);

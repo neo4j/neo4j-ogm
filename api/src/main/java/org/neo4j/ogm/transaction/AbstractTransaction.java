@@ -56,17 +56,18 @@ public abstract class AbstractTransaction implements Transaction {
     public void rollback() {
 
         long extensions = extendsCount.get();
+        logger.debug("Thread {}: Rollback transaction extent: {}", Thread.currentThread().getId(), extensions);
 
         // is this the root transaction ?
         if (extensions == 0) {
             // transaction can always be rolled back
             if (transactionManager != null) {
-                logger.debug("Thread {}: Rollback invoked", Thread.currentThread().getId());
                 transactionManager.rollback(this);
                 status = Status.ROLLEDBACK;
+                logger.debug("Thread {}: Rolled back", Thread.currentThread().getId());
             }
         } else {
-            logger.debug("Thread {}: Rollback pending", Thread.currentThread().getId());
+            logger.debug("Thread {}: Rollback deferred", Thread.currentThread().getId());
             status = Status.ROLLBACK_PENDING;  // a rollback-pending will eventually rollback the entire transaction
         }
     }
@@ -74,13 +75,14 @@ public abstract class AbstractTransaction implements Transaction {
     public void commit() {
 
         long extensions = extendsCount.get();
+        logger.debug("Thread {}: Commit transaction extent: {}", Thread.currentThread().getId(), extensions);
 
         if (extensions == 0) {
             if (status == Status.OPEN || status == Status.PENDING || status == Status.COMMIT_PENDING) {
                 if (transactionManager != null) {
-                    logger.debug("Thread {}: Commit invoked", Thread.currentThread().getId());
                     transactionManager.commit(this);
                     status = Status.COMMITTED;
+                    logger.debug("Thread {}: Committed", Thread.currentThread().getId());
                 }
             } else {
                 throw new TransactionException("Transaction cannot commit");
@@ -90,7 +92,7 @@ public abstract class AbstractTransaction implements Transaction {
                 throw new TransactionException("Transaction cannot commit: rollback pending");
             }
             else {
-                logger.debug("Thread {}: Commit pending", Thread.currentThread().getId());
+                logger.debug("Thread {}: Commit deferred", Thread.currentThread().getId());
                 status = Status.COMMIT_PENDING;
             }
         }
@@ -100,8 +102,8 @@ public abstract class AbstractTransaction implements Transaction {
      * Extends the current transaction.
      */
     public void extend() {
-        extendsCount.incrementAndGet();
-        logger.debug("Thread {}: Transaction extended: {}", extendsCount.get(), Thread.currentThread().getId());
+        long extensions = extendsCount.incrementAndGet();
+        logger.debug("Thread {}: Transaction extended: {}", Thread.currentThread().getId(), extensions);
     }
 
     public final Status status() {
@@ -111,6 +113,7 @@ public abstract class AbstractTransaction implements Transaction {
     public void close()
     {
         long extensions = extendsCount.get();
+        logger.debug("Thread {}: Close transaction extent: {}", Thread.currentThread().getId(), extensions);
 
         if (extensions == 0) {
             logger.debug("Thread {}: Closing transaction", Thread.currentThread().getId());
@@ -124,8 +127,10 @@ public abstract class AbstractTransaction implements Transaction {
                 rollback();
             }
             status = Status.CLOSED;
+        } else {
+            extendsCount.getAndDecrement();
+            logger.debug("Thread {}: Close deferred", Thread.currentThread().getId());
         }
-        extendsCount.getAndDecrement();
     }
 
     public long extensions() {
@@ -139,4 +144,5 @@ public abstract class AbstractTransaction implements Transaction {
     public List<Object> registeredNew() {
         return registeredNew;
     }
+
 }

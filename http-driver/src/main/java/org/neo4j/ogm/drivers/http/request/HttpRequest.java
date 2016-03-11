@@ -173,7 +173,7 @@ public class HttpRequest implements Request {
 
         assert (url != null);
 
-        logger.info("Thread {}:, POST {}, request {}", Thread.currentThread().getId(), url, cypher);
+        logger.info("Thread {}: request {}", Thread.currentThread().getId(), cypher);
 
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(cypher, "UTF-8"));
@@ -182,6 +182,9 @@ public class HttpRequest implements Request {
     }
 
     public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) throws Exception {
+
+        logger.info("Thread {}: {}", Thread.currentThread().getId(), request);
+
 
         CloseableHttpResponse response = null;
 

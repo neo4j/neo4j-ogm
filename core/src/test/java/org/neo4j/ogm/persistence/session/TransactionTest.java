@@ -16,6 +16,9 @@ package org.neo4j.ogm.persistence.session;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +30,7 @@ import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
@@ -96,4 +100,74 @@ public class TransactionTest extends MultiDriverTestClass {
 		assertEquals("Please Please Me", theBeatles.getAlbums().iterator().next().getName());
 		assertEquals("EMI Studios, London", theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName());
 	}
+
+    @Test
+    public void shouldHandleDeadlock() throws InterruptedException {
+
+        Artist theBeatles = new Artist("The Beatles");
+        session.save(theBeatles);
+
+        int numThreads = Runtime.getRuntime().availableProcessors() + 1; // more threads than available connections
+        long id = theBeatles.getId();
+
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        CountDownLatch latch = new CountDownLatch(numThreads);
+
+        String query = "MATCH (n) where id(n) = " + id + " set n.name = 'Updated'";
+
+        for (int i = 0; i < numThreads; i++) {
+            executor.submit(new QueryRunner(latch, query));
+        }
+        latch.await(); // pause until the count reaches 0
+
+        // force termination of all threads
+        executor.shutdownNow();
+
+    }
+
+    class QueryRunner implements Runnable {
+
+        private final CountDownLatch latch;
+        private final String query;
+
+        public QueryRunner( CountDownLatch latch, String query ) {
+            this.query = query;
+            this.latch = latch;
+        }
+
+        @Override
+        public void run() {
+            Transaction tx = session.beginTransaction();
+            try
+            {
+                session.query( query, Utils.map() );
+                System.out.println( Thread.currentThread().getId() + ": updated" );
+                tx.commit();
+                System.out.println( Thread.currentThread().getId() + ": committed" );
+            } catch (Exception e)
+            {
+                System.out.println( Thread.currentThread().getId() + ": failed: " + e.getLocalizedMessage());
+                tx.rollback();
+            }
+
+            finally {
+                System.out.println( Thread.currentThread().getId() + ": finished" );
+                latch.countDown();
+            }
+
+            while(!Thread.currentThread().isInterrupted()){
+                try{
+                    Thread.sleep(100);
+                } catch(InterruptedException e){
+                    System.out.println( Thread.currentThread().getId() + ": interrupted" );
+                    Thread.currentThread().interrupt(); //propagate interrupt
+                }
+            }
+
+            System.out.println( Thread.currentThread().getId() + ": stopping" );
+
+
+        }
+    }
+
 }

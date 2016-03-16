@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
+import org.neo4j.ogm.session.result.CypherException;
 import org.neo4j.ogm.session.result.QueryStatistics;
 import org.neo4j.ogm.session.result.RowQueryStatisticsResult;
 import org.slf4j.Logger;
@@ -42,6 +43,10 @@ public class RowStatisticsResponse implements Neo4jResponse<RowQueryStatisticsRe
 		this.objectMapper = mapper;
 		try {
 			initialiseScan(ResponseRecord.RESULTS);
+		}
+		catch ( CypherException ce ) {
+			close();
+			throw ce;
 		} catch (Exception e) {
 			//Ignore this exception since we're reading the JSON manually in next()
 			//TODO look into enhancing the JSONResponse parsing

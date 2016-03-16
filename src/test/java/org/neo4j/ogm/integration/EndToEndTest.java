@@ -14,6 +14,15 @@
 
 package org.neo4j.ogm.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -26,18 +35,13 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.result.ConnectionException;
 import org.neo4j.ogm.session.result.Result;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.neo4j.ogm.session.transaction.Transaction;
 import org.neo4j.ogm.session.transaction.TransactionException;
 import org.neo4j.ogm.session.transaction.TransactionManager;
 import org.neo4j.ogm.testutil.Neo4jIntegrationTestRule;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Michal Bachman
@@ -243,6 +247,16 @@ public class EndToEndTest {
 
         assertNull(txManager.getCurrentTransaction());
 
+    }
+
+	/**
+     * @see Issue 133
+     */
+    @Test(expected = ConnectionException.class)
+    public void shouldThrowConnectionExceptionWhenConnectionIsUnavailable() {
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
+        session = sessionFactory.openSession("http://invalid@invalid:invalid:8484");
+        session.purgeDatabase();
     }
 
 }

@@ -1,5 +1,6 @@
 1.1.7-SNAPSHOT
 --------------
+o ConnectionException thrown instead of ResultProcessingException when a connection could not be obtained to Neo4j
 
 1.1.6
 --------------

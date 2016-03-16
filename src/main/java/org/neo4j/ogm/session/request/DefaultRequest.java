@@ -14,6 +14,8 @@
 
 package org.neo4j.ogm.session.request;
 
+import java.io.IOException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
@@ -32,11 +34,10 @@ import org.neo4j.ogm.authentication.Neo4jCredentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.session.response.JsonResponse;
 import org.neo4j.ogm.session.response.Neo4jResponse;
+import org.neo4j.ogm.session.result.ConnectionException;
 import org.neo4j.ogm.session.result.ResultProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author Vince Bickers
@@ -118,6 +119,10 @@ public class DefaultRequest implements Neo4jRequest<String> {
                 } catch (Exception e) {
                     throw new ResultProcessingException("Request retry has failed", e);
                 }
+            }
+            catch (IOException ioe) {
+                LOGGER.warn("IO Exception {}", ioe.getLocalizedMessage());
+                throw new ConnectionException("Error connecting to neo4j remote server over HTTP", ioe);
             }
             // the catch-all exception handler, will ensure all resources are properly closed in the event we cannot proceed
             // or there is a problem parsing the response from the server.

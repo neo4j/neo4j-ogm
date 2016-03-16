@@ -19,6 +19,7 @@ import org.neo4j.ogm.json.JSONArray;
 import org.neo4j.ogm.json.JSONException;
 import org.neo4j.ogm.json.JSONObject;
 import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.session.result.CypherException;
 import org.neo4j.ogm.session.result.GraphRowModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,9 @@ public class GraphRowModelResponse implements Neo4jResponse<GraphRowModel> {
 		this.objectMapper = objectMapper;
 		try {
 			initialiseScan(ResponseRecord.RESULTS);
+		} catch ( CypherException ce ) {
+			close();
+			throw ce;
 		} catch (Exception e) {
 			//Ignore this exception since we're reading the JSON manually in next()
 			//TODO look into enhancing the JSONResponse parsing

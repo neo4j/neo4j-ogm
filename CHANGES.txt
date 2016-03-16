@@ -1,5 +1,9 @@
 2.0.0-SNAPSHOT
 --------------
+o ConnectionException thrown instead of ResultProcessingException when a connection could not be obtained to Neo4j
+
+2.0.0-M4
+--------------
 o Fixes issue where an updating an entity with a null property did not remove the property and the original value was retained
 o Fixes issue where a char[] and boxed primitive array (embedded driver only) properties on a node could not be mapped to the entity
 

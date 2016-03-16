@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
@@ -33,6 +37,7 @@ import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
 import org.neo4j.ogm.drivers.http.response.RestModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowModelResponse;
+import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
@@ -40,15 +45,18 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.*;
+import org.neo4j.ogm.request.DefaultRequest;
+import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.request.GraphRowListModelRequest;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.request.RestModelRequest;
+import org.neo4j.ogm.request.RowModelRequest;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -81,10 +89,9 @@ public class HttpRequest implements Request {
                 response = executeRequest( cypher );
                 return new GraphModelResponse(response);
             }
-            catch (CypherException ce) {
+            catch (CypherException | ConnectionException ce) {
                 throw ce;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -98,7 +105,11 @@ public class HttpRequest implements Request {
             String cypher = cypherRequest(request);
             try {
                 return new RowModelResponse(executeRequest(cypher));
-            } catch (Exception e) {
+            }
+            catch (CypherException | ConnectionException ce) {
+                throw ce;
+            }
+            catch (Exception e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -110,7 +121,11 @@ public class HttpRequest implements Request {
         String cypher = cypherRequest(statements);
         try {
             return new RowModelResponse(executeRequest(cypher));
-        } catch (Exception e) {
+        }
+        catch (CypherException | ConnectionException ce) {
+            throw ce;
+        }
+        catch (Exception e) {
             throw new ResultProcessingException("Could not parse response", e);
         }
     }
@@ -123,7 +138,11 @@ public class HttpRequest implements Request {
             String cypher = cypherRequest(request);
             try {
                 return new GraphRowsModelResponse(executeRequest(cypher));
-            } catch (Exception e) {
+            }
+            catch (CypherException | ConnectionException ce) {
+                throw ce;
+            }
+            catch (Exception e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -139,7 +158,11 @@ public class HttpRequest implements Request {
             String cypher = cypherRequest(request);
             try {
                 return new RestModelResponse(executeRequest(cypher));
-            } catch (Exception e) {
+            }
+            catch (CypherException | ConnectionException ce) {
+                throw ce;
+            }
+            catch (Exception e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -231,6 +254,11 @@ public class HttpRequest implements Request {
                     throw e;
                     //throw new ResultProcessingException("Request retry has failed", e);
                 }
+            }
+            catch (IOException ioe) {
+                logger.warn("Thread {}: Caught IOException : {}", Thread.currentThread().getId(), ioe.getLocalizedMessage());
+                request.releaseConnection();
+                throw new ConnectionException("Error connecting to remote graph over HTTP", ioe);
             }
             // the catch-all exception handler, will ensure all resources are properly closed in the event we cannot proceed
             // or there is a problem parsing the response from the server.

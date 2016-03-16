@@ -13,21 +13,22 @@
 
 package org.neo4j.ogm.drivers.embedded.driver;
 
-import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.ogm.config.DriverConfiguration;
-import org.neo4j.ogm.driver.AbstractConfigurableDriver;
-import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
-import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.transaction.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.ogm.config.DriverConfiguration;
+import org.neo4j.ogm.driver.AbstractConfigurableDriver;
+import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
+import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
+import org.neo4j.ogm.exception.ConnectionException;
+import org.neo4j.ogm.request.Request;
+import org.neo4j.ogm.transaction.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
@@ -100,7 +101,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
 
             registerShutdownHook();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ConnectionException("Error connecting to embedded graph", e);
         }
     }
 

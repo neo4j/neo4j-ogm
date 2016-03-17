@@ -88,7 +88,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 
 		session.clear();
 
-		Result result = session.query("match n return n", Collections.EMPTY_MAP);
+		Result result = session.query("match (n) return n", Collections.EMPTY_MAP);
 		assertNotNull(result);
 		Mappable loaded = (Mappable) result.iterator().next().get("n");
 		assertNotNull(loaded);

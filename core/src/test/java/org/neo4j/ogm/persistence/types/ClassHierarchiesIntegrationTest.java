@@ -13,26 +13,52 @@
 
 package org.neo4j.ogm.persistence.types;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
-import org.neo4j.ogm.domain.hierarchy.domain.people.*;
-import org.neo4j.ogm.domain.hierarchy.domain.plain.*;
-import org.neo4j.ogm.domain.hierarchy.domain.trans.*;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.domain.hierarchy.domain.annotated.*;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Bloke;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Entity;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Female;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Male;
+import org.neo4j.ogm.domain.hierarchy.domain.people.Person;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAbstractParentAndAnnotatedSuperclass;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedAbstractNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteNamedParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedConcreteSuperclass;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedNamedInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithAnnotatedSuperInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainAbstractParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainConcreteParentImplementingInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainInterfaceChild;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainChildWithPlainInterfaceParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainSingleClass;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.PlainChildOfTransientInterface;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.PlainChildOfTransientParent;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.PlainClassWithTransientFields;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientChildWithPlainConcreteParent;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClassWithId;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * Integration test for label-based mapping of class hierarchies.
@@ -605,7 +631,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldReadHierarchy2() {
 
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person:Entity {name:'Daniela'})," +
+        getDatabase().execute("CREATE (:Female:Person:Entity {name:'Daniela'})," +
                 "(:Male:Person:Entity {name:'Michal'})," +
                 "(:Bloke:Male:Person:Entity {name:'Adam'})");
 
@@ -640,7 +666,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldReadHierarchy3() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})," +
+        getDatabase().execute("CREATE (:Female:Person {name:'Daniela'})," +
                 "(:Male:Person {name:'Michal'})," +
                 "(:Bloke:Male:Person {name:'Adam'})");
 
@@ -668,7 +694,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldReadHierarchy4() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Female {name:'Daniela'})," +
+        getDatabase().execute("CREATE (:Female {name:'Daniela'})," +
                 "(:Male {name:'Michal'})," +
                 "(:Bloke:Male {name:'Adam'})");
 
@@ -694,7 +720,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     // the logic of this test is debatable. the domain model and persisted schema are not the same.
     public void shouldReadHierarchy5() {
 
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Female {name:'Daniela'})," +
+        getDatabase().execute("CREATE (:Female {name:'Daniela'})," +
                 "(:Male {name:'Michal'})," +
                 "(:Bloke {name:'Adam'})");
 
@@ -718,13 +744,13 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldNotReadHierarchy() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Person {name:'Daniela'})");
+        getDatabase().execute("CREATE (:Person {name:'Daniela'})");
         assertEquals(0, session.loadAll(Person.class).size());
     }
 
     @Test
     public void shouldLeaveExistingLabelsAlone() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person:GoldMember {name:'Daniela'})");
+        getDatabase().execute("CREATE (:Female:Person:GoldMember {name:'Daniela'})");
 
         session.save(session.loadAll(Female.class).iterator().next());
 
@@ -734,7 +760,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     //this should throw an exception, but for a different reason than it does now!
     @Test
     public void shouldFailWithConflictingHierarchies() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (:Female:Person {name:'Daniela'})");
+        getDatabase().execute("CREATE (:Female:Person {name:'Daniela'})");
 
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.hierarchy.conflicting");
         session = sessionFactory.openSession();
@@ -747,7 +773,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldLoadRelatedSuperclasses() {
-        new ExecutionEngine(getDatabase()).execute("CREATE (f1:Female:Person {name:'f1'})," +
+        getDatabase().execute("CREATE (f1:Female:Person {name:'f1'})," +
                 "(m1:Male:Person {name:'m1'})," +
                 "(c1:Female:Person {name:'c1'})," +
                 "(b1:Bloke:Male:Person {name:'b1'})," +

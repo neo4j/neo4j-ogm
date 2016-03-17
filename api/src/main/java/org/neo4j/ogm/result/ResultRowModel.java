@@ -13,11 +13,13 @@
 
 package org.neo4j.ogm.result;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.neo4j.ogm.model.Query;
 
 /**
  * @author Vince Bickers
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ResultRowModel implements Query<Object[]> {
 
     private Object[] row;

@@ -18,14 +18,11 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
@@ -61,8 +58,7 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
-        ExecutionEngine executionEngine = new ExecutionEngine(getDatabase());;
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (a:Document { name: 'a' } ) " +
                         "CREATE (b:Document { name: 'b' } ) " +
@@ -71,7 +67,7 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
                         "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
 
 
-        Map<String, Object> resultSet = executionResult.iterator().next();
+        Map<String, Object> resultSet = executionResult.next();
 
         a = session.load(Document.class, (Long) resultSet.get("aid"));
 

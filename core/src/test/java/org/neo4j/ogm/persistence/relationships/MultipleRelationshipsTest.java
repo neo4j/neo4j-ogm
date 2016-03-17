@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,11 +28,6 @@ import org.neo4j.ogm.domain.entityMapping.Rating;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author vince
@@ -65,18 +65,18 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
                 "create (_7:`Person` {`name`:\"Bill\"})\n" +
                 "create (_8:`Movie` {`name`:\"Die Hard\"})\n" +
                 "create (_9:`Movie` {`name`:\"The Matrix\"})\n" +
-                "create _5-[:`FOLLOWS`]->_6\n" +
-                "create _5-[:`LIKES`]->_6\n" +
-                "create _5-[:`RATED` {`value`:4}]->_9\n" +
-                "create _5-[:`RATED` {`value`:5}]->_8\n" +
-                "create _6-[:`FOLLOWS`]->_5\n" +
-                "create _6-[:`FOLLOWS`]->_7\n" +
-                "create _6-[:`LIKES`]->_5\n" +
-                "create _6-[:`RATED` {`value`:5}]->_8\n" +
-                "create _7-[:`FOLLOWS`]->_5\n" +
-                "create _7-[:`LIKES`]->_6\n" +
-                "create _7-[:`RATED` {`value`:4}]->_9\n" +
-                "create _7-[:`RATED` {`value`:5}]->_9\n" +
+                "create (_5)-[:`FOLLOWS`]->(_6)\n" +
+                "create (_5)-[:`LIKES`]->(_6)\n" +
+                "create (_5)-[:`RATED` {`value`:4}]->(_9)\n" +
+                "create (_5)-[:`RATED` {`value`:5}]->(_8)\n" +
+                "create (_6)-[:`FOLLOWS`]->(_5)\n" +
+                "create (_6)-[:`FOLLOWS`]->(_7)\n" +
+                "create (_6)-[:`LIKES`]->(_5)\n" +
+                "create (_6)-[:`RATED` {`value`:5}]->(_8)\n" +
+                "create (_7)-[:`FOLLOWS`]->(_5)\n" +
+                "create (_7)-[:`LIKES`]->(_6)\n" +
+                "create (_7)-[:`RATED` {`value`:4}]->(_9)\n" +
+                "create (_7)-[:`RATED` {`value`:5}]->(_9)\n" +
                 ";\n", Collections.EMPTY_MAP);
         Person jim = session.loadAll(Person.class, new Filter("name", "Jim")).iterator().next();
         assertEquals(2, jim.movieRatings.size());

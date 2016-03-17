@@ -18,16 +18,13 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
@@ -129,9 +126,8 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 	@Test
 	public void shouldAllowVoterToChangeHerMind() {
 
-		ExecutionEngine executionEngine = new ExecutionEngine(getDatabase());
 		// create the graph
-		ExecutionResult executionResult = executionEngine.execute(
+		Result executionResult = getDatabase().execute(
 				"CREATE " +
 						"(a:Voter:Candidate {name:'A'}), " +
 						"(b:Voter:Candidate {name:'B'}), " +
@@ -139,7 +135,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 						"RETURN id(a) AS a_id, id(b) AS b_id, id(v) AS v_id");
 
 		// build the object map
-		Map<String, ?> results = executionResult.iterator().next();
+		Map<String, ?> results = executionResult.next();
 
 		Long aid = (Long) results.get("a_id");
 		Long bid = (Long) results.get("b_id");

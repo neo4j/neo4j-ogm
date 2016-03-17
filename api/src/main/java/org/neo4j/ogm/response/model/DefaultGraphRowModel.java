@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.response.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
 
@@ -21,6 +22,7 @@ import org.neo4j.ogm.model.GraphRowModel;
  *
  * @author Luanne Misquitta
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class DefaultGraphRowModel implements GraphRowModel {
 
     public DefaultGraphRowModel() {

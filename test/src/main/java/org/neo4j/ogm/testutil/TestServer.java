@@ -13,8 +13,13 @@
 
 package org.neo4j.ogm.testutil;
 
+import java.io.FileWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.apache.commons.io.IOUtils;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
@@ -24,12 +29,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
-
-import java.io.FileWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  *
@@ -161,14 +160,14 @@ public class TestServer {
      * @param cqlFileName The name of the CQL file to load
      */
     public void loadClasspathCypherScriptFile(String cqlFileName) {
-        new ExecutionEngine(this.database).execute(TestUtils.readCQLFile(cqlFileName).toString());
+        this.database.execute(TestUtils.readCQLFile(cqlFileName).toString());
     }
 
     /**
      * Deletes all the nodes and relationships in the test database.
      */
     public void clearDatabase() {
-        new ExecutionEngine(this.database).execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
+        this.database.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
     }
 
     /**

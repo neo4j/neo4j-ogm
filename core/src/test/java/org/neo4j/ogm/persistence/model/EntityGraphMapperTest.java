@@ -12,14 +12,28 @@
  */
 package org.neo4j.ogm.persistence.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.compiler.Compiler;
+import org.neo4j.ogm.context.EntityGraphMapper;
+import org.neo4j.ogm.context.EntityMapper;
+import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -30,9 +44,6 @@ import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.context.EntityGraphMapper;
-import org.neo4j.ogm.context.EntityMapper;
-import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.Session;
@@ -40,11 +51,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George
@@ -55,7 +61,6 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     private EntityMapper mapper;
 
-    private static ExecutionEngine executionEngine;
     private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 
@@ -67,7 +72,6 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @BeforeClass
     public static void setUpTestDatabase() {
 
-        executionEngine = new ExecutionEngine(getDatabase());
         mappingMetadata = new MetaData(
                 "org.neo4j.ogm.domain.education",
                 "org.neo4j.ogm.domain.forum",
@@ -105,14 +109,14 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(newStudent);
 
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Student:DomainObject {name:\"Gary\"})");
+        assertSameGraph(getDatabase(), "CREATE (:Student:DomainObject {name:\"Gary\"})");
     }
 
     @Test
     public void updateObjectPropertyAndLabel() {
 
-        ExecutionResult executionResult = executionEngine.execute("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id");
-        Long sid = Long.valueOf(executionResult.iterator().next().get("id").toString());
+        Result executionResult = getDatabase().execute("CREATE (s:Student {name:'Sheila Smythe'}) RETURN id(s) AS id");
+        Long sid = Long.valueOf(executionResult.next().get("id").toString());
 
         Student sheila = session.load(Student.class, sid);
 
@@ -121,15 +125,15 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(sheila);
 
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (s:DomainObject:Student {name:'Sheila Smythe-Jones'})");
+        assertSameGraph(getDatabase(), "CREATE (s:DomainObject:Student {name:'Sheila Smythe-Jones'})");
     }
 
     @Test
     public void doNothingIfNothingHasChanged() {
 
         // fake-load sheila:
-        ExecutionResult executionResult = executionEngine.execute("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id");
-        Long existingNodeId = Long.valueOf(executionResult.iterator().next().get("id").toString());
+        Result executionResult = getDatabase().execute("CREATE (s:Student:DomainObject {name:'Sheila Smythe'}) RETURN id(s) AS id");
+        Long existingNodeId = Long.valueOf(executionResult.next().get("id").toString());
         Student sheila = new Student();
         sheila.setId(existingNodeId);
         sheila.setName("Sheila Smythe");
@@ -146,11 +150,11 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     public void addObjectToCollection() {
 
         // fake load one student on a course
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (c:Course {name:'BSc Computer Science'})-[:STUDENTS]->(s:Student:DomainObject {name:'Gianfranco'}) " +
                 "RETURN id(s) AS student_id, id(c) AS course_id");
 
-        Map<String, Object> resultSetRow = executionResult.iterator().next();
+        Map<String, Object> resultSetRow = executionResult.next();
         Long studentId = Long.valueOf(resultSetRow.get("student_id").toString());
         Long courseId = Long.valueOf(resultSetRow.get("course_id").toString());
 
@@ -165,7 +169,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
         session.save(bscComputerScience);
 
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (c:Course {name:'BSc Computer Science'}), " +
+        assertSameGraph(getDatabase(), "CREATE (c:Course {name:'BSc Computer Science'}), " +
                 "(x:Student:DomainObject {name:'Gianfranco'}), (y:Student:DomainObject {name:'Lakshmipathy'}) " +
                 "WITH c, x, y MERGE (c)-[:STUDENTS]->(x) MERGE (c)-[:STUDENTS]->(y)");
     }
@@ -173,11 +177,11 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void persistManyToOneObjectFromSingletonSide() {
 
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (s:School:DomainObject {name:'Waller'})-[:TEACHERS]->(t:Teacher {name:'Mary'})-[:SCHOOL]->(s) " +
                 "RETURN id(s) AS school_id, id(t) AS teacher_id");
 
-        Map<String, Object> resultSetRow = executionResult.iterator().next();
+        Map<String, Object> resultSetRow = executionResult.next();
         Long wallerId = Long.valueOf(resultSetRow.get("school_id").toString());
         Long maryId = Long.valueOf(resultSetRow.get("teacher_id").toString());
 
@@ -195,7 +199,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(jim);
 
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE " +
                 "(s:School:DomainObject {name:'Waller'}), " +
                 "(m:Teacher {name:'Mary'}), " +
@@ -205,7 +209,6 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
                 "(s)-[:TEACHERS]->(j), " +
                 "(s)-[:TEACHERS]->(m)");
     }
-
     @Test
     public void shouldNotGetIntoAnInfiniteLoopWhenSavingObjectsThatReferenceEachOther() {
 
@@ -216,7 +219,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(school);
 
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (j:Teacher {name:'Miss Jones'}), " +
                         "(w:Teacher {name:'Mr White'}), " +
                         "(s:School:DomainObject {name:'Hilly Fields'}), " +
@@ -246,7 +249,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(teacher);
 
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (t:Teacher {name:'Mrs Kapoor'}), "
+        assertSameGraph(getDatabase(), "CREATE (t:Teacher {name:'Mrs Kapoor'}), "
                 + "(p:Course {name:'GCSE Physics'}), (m:Course {name:'A-Level Mathematics'}), "
                 + "(s:Student:DomainObject {name:'Sheila Smythe'}), "
                 + "(g:Student:DomainObject {name:'Gary Jones'}), "
@@ -258,12 +261,12 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void shouldCorrectlyRemoveRelationshipWhenItemIsRemovedFromCollection() {
         // simple music course with three students
-        ExecutionResult executionResult = executionEngine.execute("CREATE (c:Course {name:'GCSE Music'}), "
+        Result executionResult = getDatabase().execute("CREATE (c:Course {name:'GCSE Music'}), "
                 + "(c)-[:STUDENTS]->(x:Student:DomainObject {name:'Xavier'}), "
                 + "(c)-[:STUDENTS]->(y:Student:DomainObject {name:'Yvonne'}), "
                 + "(c)-[:STUDENTS]->(z:Student:DomainObject {name:'Zack'}) "
                 + "RETURN id(c) AS course_id, id(x) AS xid, id(y) AS yid, id(z) AS zid");
-        Map<String, ?> results = executionResult.iterator().next();
+        Map<String, ?> results = executionResult.next();
 
         Long mid = (Long) results.get("course_id");
         Long xid = (Long) results.get("xid");
@@ -286,7 +289,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(music);
 
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Student:DomainObject {name:'Xavier'}), "
+        assertSameGraph(getDatabase(), "CREATE (:Student:DomainObject {name:'Xavier'}), "
                 + "(:Student:DomainObject {name:'Zack'}), "
                 + "(:Course {name:'GCSE Music'})-[:STUDENTS]->(:Student:DomainObject {name:'Yvonne'})");
     }
@@ -294,14 +297,14 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void shouldCorrectlyRemoveRelationshipWhenItemIsMovedToDifferentCollection() {
         // start with one teacher teachers two courses, each with one student in
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'})-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
                 "(dt:Course {name:'GCSE Design & Technology'})-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
                 "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt) " +
                 "RETURN id(t) AS teacher_id, id(bs) AS bs_id, id(dt) AS dt_id, id(s) AS s_id");
 
-        Map<String, ?> results = executionResult.iterator().next();
+        Map<String, ?> results = executionResult.next();
 
         Long teacherId = (Long) results.get("teacher_id");
         Long businessStudiesCourseId = (Long) results.get("bs_id");
@@ -322,22 +325,21 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(msThompson);
 
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (t:Teacher {name:'Ms Thompson'}), " +
+        assertSameGraph(getDatabase(), "CREATE (t:Teacher {name:'Ms Thompson'}), " +
                 "(bs:Course {name:'GNVQ Business Studies'}), (dt:Course {name:'GCSE Design & Technology'}), " +
                 "(dt)-[:STUDENTS]->(j:Student:DomainObject {name:'Jeff'}), " +
                 "(dt)-[:STUDENTS]->(s:Student:DomainObject {name:'Shivani'}), " +
                 "(t)-[:COURSES]->(bs), (t)-[:COURSES]->(dt)");
     }
-
     @Test
     public void shouldCorrectlyRemoveRelationshipWhenItemIsDisconnectedFromNonOwningSide() {
 
-        ExecutionResult executionResult = executionEngine.execute("CREATE (s:School:DomainObject), "
+        Result executionResult = getDatabase().execute("CREATE (s:School:DomainObject), "
                 + "(s)-[:TEACHERS]->(j:Teacher {name:'Miss Jones'}), "
                 + "(s)-[:TEACHERS]->(w:Teacher {name:'Mr White'}) "
                 + "RETURN id(s) AS school_id, id(j) AS jones_id, id(w) AS white_id");
 
-        Map<String, ?> results = executionResult.iterator().next();
+        Map<String, ?> results = executionResult.next();
 
         Long schoolId = (Long) results.get("school_id");
         Long whiteId = (Long) results.get("white_id");
@@ -354,7 +356,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         session.save(hillsRoad);
 
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (w:Teacher {name:'Mr White'}), (t:Teacher {name:'Miss Jones'}), (s:School:DomainObject), (s)-[:TEACHERS]->(t), (t)-[:SCHOOL]->(s)");
     }
 
@@ -371,7 +373,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.save(coalHillSchool,0);
 
         // we don't expect the teachers to be persisted when persisting the school to depth 0
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
+        assertSameGraph(getDatabase(), "CREATE (s:School:DomainObject {name:'Coal Hill'}) RETURN s");
     }
 
     @Test
@@ -388,10 +390,10 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Individual {name:'Jeff', age:41, bankBalance: 1000.50, code:0, primitiveIntArray:[1,6,4,7,2]})");
 
-        ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveIntArray AS ints");
-        for (Map<String, Object> result : executionResult) {
-            assertEquals("The array wasn't persisted as the correct type", 5, ((int[]) result.get("ints")).length);
-        }
+        Result executionResult = getDatabase().execute("MATCH (i:Individual) RETURN i.primitiveIntArray AS ints");
+        Map<String, Object> result = executionResult.next();
+        assertEquals("The array wasn't persisted as the correct type", 5, ((int[]) result.get("ints")).length);
+        executionResult.close();
     }
 
     @Test
@@ -404,14 +406,13 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         individual.setPrimitiveByteArray(new byte[]{1, 2, 3, 4, 5});
 
         session.save(individual);
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (:Individual {age:41, bankBalance: 1000.50, code:0, primitiveByteArray:'AQIDBAU='})");
+        assertSameGraph(getDatabase(), "CREATE (:Individual {age:41, bankBalance: 1000.50, code:0, primitiveByteArray:'AQIDBAU='})");
 
-        ExecutionResult executionResult = executionEngine.execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
-        for (Map<String, Object> result : executionResult) {
-            assertEquals("The array wasn't persisted as the correct type", "AQIDBAU=",result.get("bytes")); //Byte arrays are converted to Base64 Strings
-        }
+        Result executionResult = getDatabase().execute("MATCH (i:Individual) RETURN i.primitiveByteArray AS bytes");
+        Map<String, Object> result = executionResult.next();
+        assertEquals("The array wasn't persisted as the correct type", "AQIDBAU=",result.get("bytes")); //Byte arrays are converted to Base64 Strings
+        executionResult.close();
     }
-
     @Test
     public void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
         sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
@@ -423,7 +424,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         individual.setFavouriteRadioStations(new Vector<>(Arrays.asList(97.4, 105.4, 98.2)));
 
         session.save(individual);
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (:Individual {name:'Gary', age:36, bankBalance:99.99, code:0, favouriteRadioStations:[97.4, 105.4, 98.2]})");
     }
 
@@ -448,7 +449,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.save(coalHillSchool, 1);
 
         // we ONLY expect the school and its teachers to be persisted when persisting the school to depth 1
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE " +
+        assertSameGraph(getDatabase(), "CREATE " +
                 "(s:School:DomainObject {name:'Coal Hill'}), " +
                 "(c:Teacher {name:'Clara Oswald'}), " +
                 "(d:Teacher {name:'Danny Pink'}), " +
@@ -478,7 +479,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.save(coalHillSchool, 2);
 
         // we expect the school its teachers and the teachers courses to be persisted when persisting the school to depth 2
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE " +
+        assertSameGraph(getDatabase(), "CREATE " +
                 "(school:School:DomainObject {name:'Coal Hill'}), " +
                 "(clara:Teacher {name:'Clara Oswald'}), " +
                 "(danny:Teacher {name:'Danny Pink'}), " +
@@ -502,16 +503,16 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         forum.setTopicsInForum(Arrays.asList(link));
 
         session.save(forum);
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE "
+        assertSameGraph(getDatabase(), "CREATE "
                 + "(f:Forum {name:'SDN FAQs'})-[:HAS_TOPIC {timestamp:1647209}]->(t:Topic)");
     }
 
     @Test
     public void shouldProduceCypherForUpdatingExistingRichRelationshipBetweenNodes() {
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:20000}]->(t:Topic {inActive:false}) " +
                 "RETURN id(f) AS forumId, id(t) AS topicId, ID(r) AS relId");
-        Map<String, Object> rs = executionResult.iterator().next();
+        Map<String, Object> rs = executionResult.next();
         Long forumId = (Long) rs.get("forumId");
         Long topicId = (Long) rs.get("topicId");
         Long relationshipId = (Long) rs.get("relId");
@@ -523,16 +524,16 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         forum.setTopicsInForum(Arrays.asList(link));
 
         session.save(forum);
-        GraphTestUtils.assertSameGraph(getDatabase(), "CREATE "
+        assertSameGraph(getDatabase(), "CREATE "
                 + "(f:Forum {name:'Spring Data Neo4j'})-[r:HAS_TOPIC {timestamp:327790}]->(t:Topic {inActive:false})");
     }
 
     @org.junit.Ignore
     @Test
     public void shouldSaveCollectionOfRichRelationships() {
-        ExecutionResult executionResult = executionEngine.execute("CREATE "
+        Result executionResult = getDatabase().execute("CREATE "
                 + "(f:Forum {name:'SDN 4.x'})-[r:HAS_TOPIC]->(t:Topic) RETURN id(f) AS forumId, ID(r) AS relId, id(t) AS topicId");
-        Map<String, Object> resultSet = executionResult.iterator().next();
+        Map<String, Object> resultSet = executionResult.next();
         Long forumId = (Long) resultSet.get("forumId");
         Long relationshipId = (Long) resultSet.get("relId");
         Long topicId = (Long) resultSet.get("topicId");
@@ -573,7 +574,6 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
                 + "(f)-[:HAS_TOPIC {timestamp:1000}]->(z:Topic)");
     }
 
-
     @Test
     public void testCreateFirstReferenceFromOutgoingSide() {
 
@@ -583,11 +583,10 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         person1.getWritten().add(policy1);
 
         session.save(person1);
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
 
     }
-
     @Test
     public void testCreateFirstReferenceFromIncomingSide() {
 
@@ -597,7 +596,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         policy1.getWriters().add(person1);
 
         session.save(policy1);
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' })-[:WRITES_POLICY]->(:Policy:DomainObject { name: 'health' })");
 
     }
@@ -605,13 +604,13 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void testDeleteExistingReferenceFromOutgoingSide() {
 
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (j:Person:DomainObject { name :'jim' })" +
                         "-[r:WRITES_POLICY]->" +
                         "(h:Policy:DomainObject { name: 'health' }) " +
                         "RETURN id(j) AS jid, ID(r) AS rid, id(h) AS hid");
 
-        Map<String, Object> resultSet = executionResult.iterator().next();
+        Map<String, Object> resultSet = executionResult.next();
 
         Long jid = (Long) resultSet.get("jid");
         Long hid = (Long) resultSet.get("hid");
@@ -629,7 +628,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         person.getWritten().clear();
 
         session.save(person);
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
                 "CREATE (:Policy:DomainObject { name: 'health' })");
 
@@ -639,13 +638,13 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void testDeleteExistingReferenceFromIncomingSide() {
 
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (j:Person:DomainObject { name :'jim' })" +
                         "-[r:WRITES_POLICY]->" +
                         "(h:Policy:DomainObject { name: 'health' }) " +
                         "RETURN id(j) AS jid, ID(r) AS rid, id(h) AS hid");
 
-        Map<String, Object> resultSet = executionResult.iterator().next();
+        Map<String, Object> resultSet = executionResult.next();
 
         Long jid = (Long) resultSet.get("jid");
         Long hid = (Long) resultSet.get("hid");
@@ -665,7 +664,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         //No relations are
         session.save(policy);
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (:Person:DomainObject { name :'jim' }) " +
                 "CREATE (:Policy:DomainObject { name: 'health' })");
 
@@ -675,14 +674,14 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void testAppendReferenceFromOutgoingSide() {
 
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (j:Person:DomainObject { name :'jim' })" +
                 "CREATE (h:Policy:DomainObject { name: 'health' }) " +
                 "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
                 "CREATE (j)-[r:WRITES_POLICY]->(h) " +
                 "RETURN id(j) AS jid, ID(r) AS rid, id(h) AS hid, id(i) as iid");
 
-        Map<String, Object> resultSet = executionResult.iterator().next();
+        Map<String, Object> resultSet = executionResult.next();
 
         Long jid = (Long) resultSet.get("jid");
         Long hid = (Long) resultSet.get("hid");
@@ -700,7 +699,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         jim.getWritten().add(immigration);
 
         session.save(jim);
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (j:Person:DomainObject { name :'jim' }) " +
                 "CREATE (h:Policy:DomainObject { name: 'health' }) " +
                 "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
@@ -713,14 +712,14 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @Test
     public void testAppendReferenceFromIncomingSide() {
 
-        ExecutionResult executionResult = executionEngine.execute(
+        Result executionResult = getDatabase().execute(
                 "CREATE (j:Person:DomainObject { name :'jim' })" +
                         "CREATE (h:Policy:DomainObject { name: 'health' }) " +
                         "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
                         "CREATE (j)-[r:WRITES_POLICY]->(h) " +
                         "RETURN id(j) AS jid, ID(r) AS rid, id(h) AS hid, id(i) as iid");
 
-        Map<String, Object> resultSet = executionResult.iterator().next();
+        Map<String, Object> resultSet = executionResult.next();
 
         Long jid = (Long) resultSet.get("jid");
         Long hid = (Long) resultSet.get("hid");
@@ -742,7 +741,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         // note that we save the graph to the same depth as we hydrate it.
         session.save(immigration, 2);
        // Statements cypher = new Statements(this.mapper.map(immigration, 2).getCompiler().getAllStatements());
-        GraphTestUtils.assertSameGraph(getDatabase(),
+        assertSameGraph(getDatabase(),
                 "CREATE (j:Person:DomainObject { name :'jim' }) " +
                         "CREATE (h:Policy:DomainObject { name: 'health' }) " +
                         "CREATE (i:Policy:DomainObject { name: 'immigration' }) " +
@@ -759,7 +758,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         assertFalse("The resultant cypher statements shouldn't be empty", cypher.getStatements().isEmpty());
 
         for (Statement query : cypher.getStatements()) {
-            executionEngine.execute(query.getStatement(), query.getParameters());
+            getDatabase().execute(query.getStatement(), query.getParameters());
         }
         assertSameGraph(getDatabase(), sameGraphCypher);
     }

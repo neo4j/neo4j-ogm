@@ -50,6 +50,16 @@ public class Configuration {
         return config.get(key);
     }
 
+    public Object get(String... keys) {
+        for (String key : keys) {
+            Object obj = config.get(key);
+            if (obj != null) {
+                return obj;
+            }
+        }
+        return  null;
+    }
+
     private void configure(String propertiesFileName) {
 
         try(InputStream is = ClassLoaderResolver.resolve().getResourceAsStream(propertiesFileName)) {

@@ -27,9 +27,11 @@ import java.net.URL;
  */
 public class DriverConfiguration {
 
-    public static final String DRIVER = "driver";
-    public static final String CREDENTIALS = "credentials";
-    public static final String URI = "URI";
+    public static final String[] DRIVER = {"neo4j.ogm.driver","spring.data.neo4j.driver", "driver"};
+    public static final String[] CREDENTIALS = {"neo4j.ogm.credentials","spring.data.neo4j.credentials", "credentials"};
+    public static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
+    public static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
+    public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
 
     private final Configuration configuration;
 
@@ -42,12 +44,12 @@ public class DriverConfiguration {
     }
 
     public DriverConfiguration setDriverClassName(String driverClassName) {
-        configuration.set(DRIVER, driverClassName);
+        configuration.set(DRIVER[0], driverClassName);
         return this;
     }
 
     public DriverConfiguration setURI(String uri) {
-        configuration.set(URI, uri);
+        configuration.set(URI[0], uri);
         try { // if this URI is a genuine resource, see if it has an embedded userinfo and set credentials accordingly
             URL url = new URL(uri);
             String userInfo = url.getUserInfo();
@@ -62,12 +64,12 @@ public class DriverConfiguration {
     }
 
     public DriverConfiguration setCredentials(Credentials credentials) {
-        configuration.set(CREDENTIALS, credentials);
+        configuration.set(CREDENTIALS[0], credentials);
         return this;
     }
 
     public DriverConfiguration setCredentials(String username, String password) {
-        configuration.set(CREDENTIALS, new UsernamePasswordCredentials(username, password));
+        configuration.set(CREDENTIALS[0], new UsernamePasswordCredentials(username, password));
         return this;
     }
 
@@ -87,8 +89,8 @@ public class DriverConfiguration {
         }
 
         if (configuration.get(CREDENTIALS) == null) {
-            String username = (String) configuration.get("username");
-            String password = (String) configuration.get("password");
+            String username = (String) configuration.get(USERNAME);
+            String password = (String) configuration.get(PASSWORD);
             if (username != null && password != null) {
                 setCredentials(username, password); // set from username/password pair
             }

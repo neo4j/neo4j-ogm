@@ -18,7 +18,7 @@ package org.neo4j.ogm.config;
  */
 public class CompilerConfiguration {
 
-    public static final String COMPILER = "compiler";
+    public static final String[] COMPILER = {"neo4j.ogm.compiler", "compiler"};
     private static final String DEFAULT_COMPILER_CLASS_NAME = "org.neo4j.ogm.compiler.MultiStatementCypherCompiler";
 
     private final Configuration configuration;
@@ -32,7 +32,7 @@ public class CompilerConfiguration {
     }
 
     public CompilerConfiguration setCompilerClassName(String compilerClassName) {
-        configuration.set(COMPILER, compilerClassName);
+        configuration.set(COMPILER[0], compilerClassName);
         return this;
     }
 

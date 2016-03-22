@@ -48,15 +48,19 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void shouldProvideDefaultCompilerImplementationIfNoneSpecified() {
-        Configuration configuration = new Configuration();
+    public void shouldConfigureFromSimplePropertiesFile() {
+        Configuration configuration = new Configuration("ogm-simple.properties");
+
         assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
+        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
+        assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
+        assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
     }
 
     @Test
-    public void shouldConfigureFromPropertiesFile() {
+    public void shouldConfigureFromNameSpacePropertiesFile() {
 
-        Configuration configuration = new Configuration("ogm.properties");
+        Configuration configuration = new Configuration("ogm-namespace.properties");
 
         assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
@@ -64,4 +68,17 @@ public class ConfigurationTest {
         assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
 
     }
+
+    @Test
+    public void shouldConfigureFromSpringBootPropertiesFile() {
+
+        Configuration configuration = new Configuration("application.properties");
+
+        assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
+        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
+        assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
+        assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
+
+    }
+
 }

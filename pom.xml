@@ -36,7 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <neo4j>3.0.0-M05</neo4j>
+        <neo4j>2.3.2</neo4j>
         <bolt>1.0.0-M01</bolt>
         <commonslang>3.4</commonslang>
         <commonscodec>1.10</commonscodec>
@@ -264,6 +264,14 @@
             <properties>
                 <neo4j>2.3.2</neo4j>
                 <ogm.properties>ogm-2.3.properties</ogm.properties>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>3.0</id>
+            <properties>
+                <neo4j>3.0.0-M05</neo4j>
+                <ogm.properties>ogm-3.0.properties</ogm.properties>
             </properties>
         </profile>
 

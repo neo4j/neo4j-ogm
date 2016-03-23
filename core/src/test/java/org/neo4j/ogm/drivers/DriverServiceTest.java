@@ -13,20 +13,30 @@
 
 package org.neo4j.ogm.drivers;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.AfterClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.DriverService;
 
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author vince
  */
 public class DriverServiceTest {
 
+    public static final String TMP_NEO4J_DB = "/var/tmp/neo4j.db";
     private DriverConfiguration driverConfiguration = new DriverConfiguration();
+
+    @AfterClass
+    public static void deleteEmbeddedStore() throws IOException {
+        deleteDirectory(new File(TMP_NEO4J_DB));
+    }
 
     @Test
     public void shouldLoadHttpDriver() {
@@ -42,7 +52,7 @@ public class DriverServiceTest {
     @Test
     public void shouldLoadEmbeddedDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
-        driverConfiguration.setURI("file:///var/tmp/neo4j.db");
+        driverConfiguration.setURI("file://" + TMP_NEO4J_DB);
 
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
@@ -57,5 +67,16 @@ public class DriverServiceTest {
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
         driver.close();
+    }
+
+    static void deleteDirectory(File dir) throws IOException {
+        if (dir.isDirectory()) {
+            for (File file : dir.listFiles()) {
+                deleteDirectory(file);
+            }
+        }
+        if (!dir.delete()) {
+            throw new RuntimeException("Failed to delete file: " + dir);
+        }
     }
 }

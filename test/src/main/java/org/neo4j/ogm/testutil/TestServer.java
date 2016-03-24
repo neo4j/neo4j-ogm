@@ -155,7 +155,7 @@ public class TestServer {
      * Deletes all the nodes and relationships in the test database.
      */
     public void clearDatabase() {
-        this.database.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n");
+        this.database.execute("MATCH (n) DETACH DELETE n");
     }
 
     /**

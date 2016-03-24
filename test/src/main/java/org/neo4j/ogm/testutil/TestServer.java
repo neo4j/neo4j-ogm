@@ -15,7 +15,6 @@ package org.neo4j.ogm.testutil;
 
 import java.io.FileWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -23,12 +22,10 @@ import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
-import org.neo4j.harness.internal.InProcessServerControls;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
-import org.neo4j.server.AbstractNeoServer;
 
 /**
  *
@@ -41,7 +38,6 @@ public class TestServer {
     private final Integer transactionTimeoutSeconds;
     private final Boolean enableAuthentication;
 
-    private AbstractNeoServer server;
     private GraphDatabaseService database;
     private ServerControls controls;
 
@@ -112,20 +108,12 @@ public class TestServer {
     }
 
     private void initialise(ServerControls controls) throws Exception {
-
-        Field field = InProcessServerControls.class.getDeclaredField("server");
-        field.setAccessible(true);
-        server = (AbstractNeoServer) field.get(controls);
-        database = server.getDatabase().getGraph();
+        database =controls.graph();
         Components.driver().getConfiguration().setURI(url());
     }
 
     public Driver driver() {
         return Components.driver();
-    }
-
-    public synchronized void start() throws InterruptedException {
-        server.start();
     }
 
     /**
@@ -151,7 +139,7 @@ public class TestServer {
      * @return The URL of the Neo4j test server
      */
     public String url() {
-        return server.baseUri().toString();
+        return controls.httpURI().toString();
     }
 
     /**

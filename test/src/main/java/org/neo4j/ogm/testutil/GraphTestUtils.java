@@ -128,7 +128,7 @@ public final class GraphTestUtils {
             String firstDatabaseName) {
         Map<Long, Long[]> sameNodesMap = new HashMap<>(); //map of nodeID and IDs of nodes that match
 
-        for (Node node : otherDatabase.getAllNodes()) {
+        for (Node node : GlobalGraphOperations.at(otherDatabase).getAllNodes()) {
             Iterable<Node> sameNodes = findSameNodes(database, node); //List of all nodes that match this
 
             //fail fast

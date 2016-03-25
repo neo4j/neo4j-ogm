@@ -6,6 +6,12 @@ Neo4j OGM is a fast object-graph mapping library for Neo4j, optimised for server
 It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
 Together with metadata, the annotations drive mapping the POJO entities and their fields to nodes, relationships, and properties in the graph database.
 
+## License
+
+Neo4j-OGM and it's modules are licensed under the Apache License v 2.0.
+
+The only exception is the neo4j-embedded-driver which is GPL v3 due to the direct use of the Neo4j Java API.
+
 ##Quick start
 
 ### Dependencies for Neo4j OGM

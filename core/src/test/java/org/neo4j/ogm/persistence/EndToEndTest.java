@@ -13,6 +13,14 @@
 
 package org.neo4j.ogm.persistence;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,12 +31,6 @@ import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Michal Bachman
@@ -153,7 +155,6 @@ public class EndToEndTest extends MultiDriverTestClass {
         assertEquals(bike.getId(), actual.getId());
         assertEquals(bike.getBrand(), actual.getBrand());
         assertEquals(bike.getWheels().size(), actual.getWheels().size());
-        assertEquals("Vinyl", actual.getSaddle().getMaterial());
     }
 
     @Test

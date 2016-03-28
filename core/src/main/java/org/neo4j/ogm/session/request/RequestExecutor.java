@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.session.request;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.compiler.CompileContext;
@@ -28,10 +32,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Plans request execution and processes the response.
@@ -178,12 +178,19 @@ public class RequestExecutor {
 	 */
 	private void registerNewEntityIds(CompileContext context, Response<RowModel> response, List<ReferenceMapping> entityRefMappings) {
 		RowModel rowModel;
-		while ((rowModel = response.next()) != null) { //TODO column headers
+		while ((rowModel = response.next()) != null) {
 			Object[] results = rowModel.getValues();
-			Long entityRef;
-			Long entityId;
-			entityRef = ((Number) results[0]).longValue();
-			entityId = ((Number) results[1]).longValue();
+			String[] variables = rowModel.variables();
+			Long entityRef = null;
+			Long entityId = null;
+			for (int i = 0; i < variables.length; i++) {
+				if (variables[i].equals("nodeId") || variables[i].equals("relId")) {
+					entityId = ((Number) results[i]).longValue();
+				}
+				if (variables[i].equals("nodeRef") || variables[i].endsWith("relRefId")) {
+					entityRef = ((Number) results[i]).longValue();
+				}
+			}
 			entityRefMappings.add(new ReferenceMapping(entityRef, entityId));
 			context.registerNewNodeId(entityRef, entityId);
 		}

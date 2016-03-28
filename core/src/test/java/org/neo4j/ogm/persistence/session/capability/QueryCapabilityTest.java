@@ -153,7 +153,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
         while (namesIterator.hasNext()) {
             Map<String, Object> row = namesIterator.next();
             names.add((String) row.get("a.name"));
-            assertEquals(5, row.get("a.age"));
+            assertEquals(5l, ((Number)row.get("a.age")).longValue());
         }
 
         assertEquals(3, names.size());

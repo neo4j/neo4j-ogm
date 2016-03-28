@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.drivers.embedded.response;
+package org.neo4j.ogm.result.adapter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,18 +19,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
-import org.neo4j.ogm.result.ResultAdapter;
 
 /**
- * Adapt embedded response to a NodeModels, RelaitonshipModels, and objects
+ * Adapt embedded response to a NodeModels, RelationshipModels, and objects
  * @author Luanne Misquitta
  */
-public class RestModelAdapter implements ResultAdapter<Map<String,Object>, Map<String,Object>> {
+public abstract class RestModelAdapter implements ResultAdapter<Map<String,Object>, Map<String,Object>> {
 
 	@Override
 	public Map<String,Object> adapt(Map<String, Object> result) {
@@ -54,34 +50,49 @@ public class RestModelAdapter implements ResultAdapter<Map<String,Object>, Map<S
 	}
 
 	private Object processData(Object element) {
-		if (element instanceof Node) {
-			return buildNode((Node)element);
+		if (isNode(element)) {
+			return buildNode(element);
 		}
-		if (element instanceof Relationship) {
-			return buildRelationship((Relationship)element);
+		if (isRelationship(element)) {
+			return buildRelationship(element);
 		}
 		return element;
 	}
 
-	private NodeModel buildNode(Node node) {
+	private NodeModel buildNode(Object node) {
 		NodeModel nodeModel = new NodeModel();
-		nodeModel.setId(node.getId());
-		List<String> labels = new ArrayList<>();
-		for (Label label : node.getLabels()) {
-			labels.add(label.name());
-		}
+		nodeModel.setId(nodeId(node));
+		List<String> labels = labels(node);
 		nodeModel.setLabels(labels.toArray(new String[labels.size()]));
-		nodeModel.setProperties(node.getAllProperties());
+		nodeModel.setProperties(properties(node));
 		return nodeModel;
 	}
 
-	private RelationshipModel buildRelationship(Relationship relationship) {
+	private RelationshipModel buildRelationship(Object relationship) {
 		RelationshipModel relationshipModel = new RelationshipModel();
-		relationshipModel.setId(relationship.getId());
-		relationshipModel.setStartNode(relationship.getStartNode().getId());
-		relationshipModel.setEndNode(relationship.getEndNode().getId());
-		relationshipModel.setType(relationship.getType().name());
-		relationshipModel.setProperties(relationship.getAllProperties());
+		relationshipModel.setId(relationshipId(relationship));
+		relationshipModel.setStartNode(startNodeId(relationship));
+		relationshipModel.setEndNode(endNodeId(relationship));
+		relationshipModel.setType(relationshipType(relationship));
+		relationshipModel.setProperties(properties(relationship));
 		return relationshipModel;
 	}
+
+	public abstract boolean isNode(Object value);
+
+	public abstract boolean isRelationship(Object value);
+
+	public abstract long nodeId(Object node);
+
+	public abstract List<String> labels(Object node);
+
+	public abstract long relationshipId(Object relationship);
+
+	public abstract String relationshipType(Object relationship);
+
+	public abstract Long startNodeId(Object relationship);
+
+	public abstract Long endNodeId(Object relationship);
+
+	public abstract Map<String,Object> properties(Object container);
 }

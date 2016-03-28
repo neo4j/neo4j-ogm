@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.AfterClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
@@ -60,7 +59,6 @@ public class DriverServiceTest {
     }
 
     @Test
-    @Ignore // until we can switch to 3.0 in memory
     public void loadLoadBoltDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
         driverConfiguration.setURI("bolt://neo4j:password@localhost");

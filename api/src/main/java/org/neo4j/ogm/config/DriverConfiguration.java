@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.config;
 
+import java.net.URL;
+
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
-
-import java.net.URL;
 
 /**
  *
@@ -32,6 +32,10 @@ public class DriverConfiguration {
     public static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
     public static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
     public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
+    public static final String SESSION_POOL_SIZE = "session.pool.size";
+    public static final String ENCRYPTION_LEVEL = "encryption.level";
+    public static final String TRUST_STRATEGY = "trust.strategy";
+    public static final String TRUST_CERT_FILE  = "trust.certificate.file";
 
     private final Configuration configuration;
 
@@ -73,6 +77,26 @@ public class DriverConfiguration {
         return this;
     }
 
+    public DriverConfiguration setSessionPoolSize(Integer sessionPoolSize) {
+        configuration.set(SESSION_POOL_SIZE, sessionPoolSize.toString());
+        return this;
+    }
+
+    public DriverConfiguration setEncryptionLevel(String encryptionLevel) {
+        configuration.set(ENCRYPTION_LEVEL, encryptionLevel);
+        return this;
+    }
+
+    public DriverConfiguration setTrustStrategy(String trustStrategy) {
+        configuration.set(TRUST_STRATEGY, trustStrategy);
+        return this;
+    }
+
+    public DriverConfiguration setTrustCertFile(String trustCertFile) {
+        configuration.set(TRUST_CERT_FILE, trustCertFile);
+        return this;
+    }
+
     /**
      * Returns the driver connection credentials, if they have been provided.
      * If a Credentials object exists, it will be returned
@@ -104,6 +128,34 @@ public class DriverConfiguration {
 
     public String getDriverClassName() {
         return (String) configuration.get(DRIVER);
+    }
+
+    public Integer getSessionPoolSize() {
+        if (configuration.get(SESSION_POOL_SIZE) != null) {
+            return Integer.valueOf((String)configuration.get(SESSION_POOL_SIZE));
+        }
+        return null;
+    }
+
+    public String getEncryptionLevel() {
+        if (configuration.get(ENCRYPTION_LEVEL) != null) {
+            return (String)configuration.get(ENCRYPTION_LEVEL);
+        }
+        return null;
+    }
+
+    public String getTrustStrategy() {
+        if (configuration.get(TRUST_STRATEGY) != null) {
+            return (String)configuration.get(TRUST_STRATEGY);
+        }
+        return null;
+    }
+
+    public String getTrustCertFile() {
+        if (configuration.get(TRUST_CERT_FILE) != null) {
+            return (String)configuration.get(TRUST_CERT_FILE);
+        }
+        return null;
     }
 
 }

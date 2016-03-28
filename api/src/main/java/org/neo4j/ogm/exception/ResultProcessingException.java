@@ -21,4 +21,8 @@ public class ResultProcessingException extends RuntimeException {
     public ResultProcessingException(String reasonMessage, Exception cause) {
         super(reasonMessage, cause);
     }
+
+    public ResultProcessingException(String message) {
+        super(message);
+    }
 }

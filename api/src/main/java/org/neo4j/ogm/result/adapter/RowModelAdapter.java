@@ -1,36 +1,32 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
- * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
  *
- * This product may include a number of subcomponents with
- * separate copyright notices and license terms. Your use of the source
- * code for these subcomponents is subject to the terms and
- *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ * This product may include a number of subcomponents with separate copyright notices and license terms. Your use of the source code for these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ *
  */
 
-package org.neo4j.ogm.drivers.embedded.response;
+package org.neo4j.ogm.result.adapter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.result.ResultAdapter;
 
 /**
- * This adapter will transform an embedded response into a json response
+ * This adapter will transform a Map&lt;String,Object&gt; typically representing an Embedded or Bolt response into a {@link RowModel} response
  *
  * @author vince
+ * @author Luanne Misquitta
  */
-public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, RowModel> {
+public abstract class RowModelAdapter implements ResultAdapter<Map<String, Object>, RowModel> {
 
 
     private List<String> columns = new ArrayList<>();
@@ -43,7 +39,10 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
      */
     public RowModel adapt(Map<String, Object> data) {
 
-        assert (columns != null);
+        if (columns == null) {
+            throw new ResultProcessingException("Result columns should not be null");
+        }
+
 
         // there is no guarantee that the objects in the data are ordered the same way as required by the columns
         // so we use the columns information to extract them in the correct order for post-processing.
@@ -57,19 +56,13 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
             String key = iterator.next();
             Object value = data.get(key);
 
-            if (value instanceof Path) {
-                continue;
-            }
-            if (value instanceof Node) {
-                continue;
-            }
-            if (value instanceof Relationship) {
+            if (isPath(value) || isNode(value) || isRelationship(value)) {
                 continue;
             }
             variables.add(key);
 
             if (value!=null && value.getClass().isArray()) {
-                value = convertToIterable(value);
+                values.add(AdapterUtils.convertToIterable(value));
             }
 
             values.add(value);
@@ -81,4 +74,11 @@ public class RowModelAdapter extends JsonAdapter implements ResultAdapter<Map<St
     public void setColumns(List<String> columns) {
         this.columns = columns;
     }
+
+    public abstract boolean isPath(Object value);
+
+    public abstract boolean isNode(Object value);
+
+    public abstract boolean isRelationship(Object value);
+
 }

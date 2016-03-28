@@ -1,41 +1,52 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
- * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
  *
- * This product may include a number of subcomponents with
- * separate copyright notices and license terms. Your use of the source
- * code for these subcomponents is subject to the terms and
- *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ * This product may include a number of subcomponents with separate copyright notices and license terms. Your use of the source code for these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ *
  */
 
 package org.neo4j.ogm.drivers.embedded.response;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphRowModel;
 import org.neo4j.ogm.response.model.DefaultRowModel;
-import org.neo4j.ogm.result.ResultAdapter;
-
-import java.util.*;
+import org.neo4j.ogm.result.adapter.AdapterUtils;
+import org.neo4j.ogm.result.adapter.GraphModelAdapter;
+import org.neo4j.ogm.result.adapter.GraphRowModelAdapter;
 
 /**
  * This adapter will transform an embedded response into a json response
  *
  * @author vince
  */
-public class GraphRowModelAdapter extends JsonAdapter implements ResultAdapter<Map<String, Object>, GraphRowModel> {
+public class EmbeddedGraphRowModelAdapter extends GraphRowModelAdapter {
 
-    private GraphModelAdapter graphModelAdapter = new GraphModelAdapter();
+    private GraphModelAdapter graphModelAdapter;
 
     private List<String> columns = new ArrayList<>();
+
+    public EmbeddedGraphRowModelAdapter(GraphModelAdapter graphModelAdapter) {
+        super(graphModelAdapter);
+        this.graphModelAdapter = graphModelAdapter;
+    }
 
     /**
      * Reads the next row from the result object and transforms it into a RowModel object
@@ -45,7 +56,9 @@ public class GraphRowModelAdapter extends JsonAdapter implements ResultAdapter<M
      */
     public GraphRowModel adapt(Map<String, Object> data) {
 
-        assert (columns != null);
+        if (columns == null) {
+            throw new ResultProcessingException("Column data cannot be null!");
+        }
 
         Set<Long> nodeIdentities = new HashSet();
         Set<Long> edgeIdentities = new HashSet();
@@ -75,7 +88,7 @@ public class GraphRowModelAdapter extends JsonAdapter implements ResultAdapter<M
             Object value = data.get(key);
 
             if (value.getClass().isArray()) {
-                value = convertToIterable(value);
+                value = AdapterUtils.convertToIterable(value);
                 Iterable collection = (Iterable) value;
                 Iterator objects = collection.iterator();
                 while (objects.hasNext()) {
@@ -92,13 +105,13 @@ public class GraphRowModelAdapter extends JsonAdapter implements ResultAdapter<M
 
     private void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
         if (element instanceof Path) {
-            graphModelAdapter.buildPath((Path) element, graphModel, nodeIdentities, edgeIdentities);
+            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
         }
         else if (element instanceof Node) {
-            graphModelAdapter.buildNode((Node) element, graphModel, nodeIdentities);
+            graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
         }
         else if (element instanceof Relationship) {
-            graphModelAdapter.buildRelationship((Relationship) element, graphModel, nodeIdentities, edgeIdentities);
+            graphModelAdapter.buildRelationship(element, graphModel, nodeIdentities, edgeIdentities);
         }
         else {
             values.add(element);
@@ -108,4 +121,5 @@ public class GraphRowModelAdapter extends JsonAdapter implements ResultAdapter<M
     public void setColumns(List<String> columns) {
         this.columns = columns;
     }
+
 }

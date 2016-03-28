@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
-import org.neo4j.ogm.result.ResultAdapter;
+import org.neo4j.ogm.result.adapter.ResultAdapter;
 
 /**
  * Adapt HTTP rest response to a NodeModels, RelaitonshipModels, and objects

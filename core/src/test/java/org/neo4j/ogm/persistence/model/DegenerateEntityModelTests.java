@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.mapper;
+package org.neo4j.ogm.persistence.model;
 
 import java.io.IOException;
 import java.util.HashSet;

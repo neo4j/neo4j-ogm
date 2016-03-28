@@ -23,7 +23,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class GraphRowModelResponse extends EmbeddedResponse<GraphRowListModel> {
 
-    private GraphRowModelAdapter adapter = new GraphRowModelAdapter();
+    private EmbeddedGraphRowModelAdapter adapter = new EmbeddedGraphRowModelAdapter(new EmbeddedGraphModelAdapter());
 
     public GraphRowModelResponse(Result result, TransactionManager transactionManager) {
         super(result, transactionManager);

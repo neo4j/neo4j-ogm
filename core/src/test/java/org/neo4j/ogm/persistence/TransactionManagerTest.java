@@ -57,18 +57,22 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         try (Transaction tx = transactionManager.openTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
+        Transaction tx = transactionManager.getCurrentTransaction();
+
     }
 
     @Test(expected = TransactionManagerException.class)
     public void shouldFailCommitFreeTransactionInManagedContext() {
-        Transaction tx = Components.driver().newTransaction();
-        transactionManager.commit(tx);
+        try (Transaction tx = Components.driver().newTransaction()) {
+            transactionManager.commit(tx);
+        }
     }
 
     @Test(expected = TransactionManagerException.class)
     public void shouldFailRollbackFreeTransactionInManagedContext() {
-        Transaction tx = Components.driver().newTransaction();
-        transactionManager.rollback(tx);
+        try (Transaction tx = Components.driver().newTransaction()) {
+            transactionManager.rollback(tx);
+        }
     }
 
     @Test
@@ -218,19 +222,19 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
         @Override
         public void run() {
-
-            final Transaction tx = Components.driver().newTransaction();
-            latch.countDown();
-
-            // run forever
-            // but let the executor interrupt us to shut us down
-            while (!Thread.currentThread().isInterrupted()) {
-                //do stuff
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    transactionManager.rollback(tx);
-                    Thread.currentThread().interrupt(); //propagate interrupt
+            try(Transaction tx = Components.driver().newTransaction()) {
+                latch.countDown();
+                // run forever
+                // but let the executor interrupt us to shut us down
+                while (!Thread.currentThread().isInterrupted()) {
+                    //do stuff
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        tx.rollback();
+                        transactionManager.rollback(tx);
+                        Thread.currentThread().interrupt(); //propagate interrupt
+                    }
                 }
             }
         }

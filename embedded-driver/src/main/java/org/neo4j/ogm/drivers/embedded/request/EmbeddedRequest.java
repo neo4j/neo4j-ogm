@@ -152,7 +152,7 @@ public class EmbeddedRequest implements Request {
             TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
             HashMap<String, Object> parameterMap = mapper.readValue(params.getBytes(), typeRef);
 
-            logger.info("Request: {}", cypher);
+            logger.info("Request: {} with params {}", cypher, parameterMap);
 
             // If we don't have a current transactional context for this operation
             // we must create one, and mark the transaction as autoCommit. This will ensure the

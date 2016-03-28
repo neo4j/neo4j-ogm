@@ -10,14 +10,23 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
+package org.neo4j.ogm.result.adapter;
 
-package org.neo4j.ogm.result;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This adapter interface should be implemented by all drivers
- *
- * @author vince
+ * @author Luanne Misquitta
  */
-public interface ResultAdapter<F, T> {
-     T adapt(F result);
+public class AdapterUtils {
+
+	public static Iterable<Object> convertToIterable(Object array) {
+		List<Object> list = new ArrayList<>();
+		int length = Array.getLength(array);
+		for (int i = 0; i < length; i++) {
+			list.add(Array.get(array, i));
+		}
+		return list;
+	}
 }

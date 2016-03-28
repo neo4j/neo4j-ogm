@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.drivers;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author vince
@@ -41,6 +41,10 @@ public class DriverConfigTest {
     public void shouldLoadBoltDriverConfigFromPropertiesFile() {
         DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("bolt.driver.properties"));
         assertEquals("bolt://neo4j:password@localhost", driverConfig.getURI());
+        assertEquals(Integer.valueOf(150), driverConfig.getSessionPoolSize());
+        assertEquals("NONE", driverConfig.getEncryptionLevel());
+        assertEquals("TRUST_ON_FIRST_USE", driverConfig.getTrustStrategy());
+        assertEquals("/tmp/cert", driverConfig.getTrustCertFile());
     }
 
 }

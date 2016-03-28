@@ -657,9 +657,6 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         assertEquals(1, females.size());
         assertTrue(females.contains(daniela));
 
-        for (Bloke bloke : blokes) {
-            System.out.println(bloke.getName() + ": " + bloke);
-        }
         assertEquals(1, blokes.size());
         assertTrue(blokes.contains(adam));
     }

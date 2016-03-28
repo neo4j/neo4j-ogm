@@ -13,10 +13,15 @@
 
 package org.neo4j.ogm.testutil;
 
+import static org.neo4j.bolt.BoltKernelExtension.Settings.connector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.neo4j.bolt.BoltKernelExtension;
 import org.neo4j.graphdb.GraphDatabaseService;
-
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
@@ -29,6 +34,7 @@ public class MultiDriverTestClass {
 
     private static TestServer testServer;
     private static GraphDatabaseService impermanentDb;
+    private static ServerControls boltServer;
 
     @BeforeClass
     public static void setupMultiDriverTestEnvironment() {
@@ -46,6 +52,11 @@ public class MultiDriverTestClass {
                         .build();
             }
         }
+        else if (Components.driver() instanceof BoltDriver) {
+            boltServer = TestServerBuilders.newInProcessBuilder()
+                    .withConfig( connector(0, BoltKernelExtension.Settings.enabled), "true")
+                    .newServer();
+        }
         else {
             impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase();
             Components.setDriver(new EmbeddedDriver(impermanentDb));
@@ -62,12 +73,23 @@ public class MultiDriverTestClass {
             impermanentDb.shutdown();
             impermanentDb = null;
         }
+        if (boltServer != null) {
+            boltServer.close();
+            boltServer = null;
+        }
     }
 
     public static GraphDatabaseService getGraphDatabaseService() {
         if (testServer != null) {
             return testServer.getGraphDatabaseService();
         }
+        if (boltServer != null) {
+            return boltServer.graph();
+        }
         return impermanentDb;
+    }
+
+    public static ServerControls getBoltServer() {
+        return boltServer;
     }
 }

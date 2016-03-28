@@ -26,7 +26,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class RestModelResponse extends EmbeddedResponse<DefaultRestModel>  {
 
-	private RestModelAdapter restModelAdapter = new RestModelAdapter();
+	private EmbeddedRestModelAdapter restModelAdapter = new EmbeddedRestModelAdapter();
 	private final QueryStatisticsModel statisticsModel;
 
 	public RestModelResponse(Result result, TransactionManager transactionManager) {

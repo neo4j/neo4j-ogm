@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.drivers;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -59,8 +58,10 @@ public class DriverExceptionTest {
 
 
 	@Test(expected = ConnectionException.class)
-	@Ignore
 	public void shouldThrowExceptionWhenBoltDriverCannotConnect() {
-		//TODO add when the bolt driver is ready
+		Components.configure("ogm-bolt-invalid.properties");
+		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+		Session session = sessionFactory.openSession();
+		session.purgeDatabase();
 	}
 }

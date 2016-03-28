@@ -87,52 +87,52 @@ public class QueryStatisticsModel implements QueryStatistics {
 		return constraints_removed;
 	}
 
-	void setContains_updates(boolean contains_updates) {
+	public void setContains_updates(boolean contains_updates) {
 		this.contains_updates = contains_updates;
 	}
 
-	void setNodes_created(int nodes_created) {
+	public void setNodes_created(int nodes_created) {
 		this.nodes_created = nodes_created;
 	}
 
-	void setNodes_deleted(int nodes_deleted) {
+	public void setNodes_deleted(int nodes_deleted) {
 		this.nodes_deleted = nodes_deleted;
 	}
 
-	void setProperties_set(int properties_set) {
+	public void setProperties_set(int properties_set) {
 		this.properties_set = properties_set;
 	}
 
-	void setRelationships_created(int relationships_created) {
+	public void setRelationships_created(int relationships_created) {
 		this.relationships_created = relationships_created;
 	}
 
     // property name in embedded driver
-	void setRelationships_deleted(int relationships_deleted) {
+	public void setRelationships_deleted(int relationships_deleted) {
 		this.relationships_deleted = relationships_deleted;
 	}
 
-	void setLabels_added(int labels_added) {
+	public void setLabels_added(int labels_added) {
 		this.labels_added = labels_added;
 	}
 
-	void setLabels_removed(int labels_removed) {
+	public void setLabels_removed(int labels_removed) {
 		this.labels_removed = labels_removed;
 	}
 
-	void setIndexes_added(int indexes_added) {
+	public void setIndexes_added(int indexes_added) {
 		this.indexes_added = indexes_added;
 	}
 
-	void setIndexes_removed(int indexes_removed) {
+	public void setIndexes_removed(int indexes_removed) {
 		this.indexes_removed = indexes_removed;
 	}
 
-	void setConstraints_added(int constraints_added) {
+	public void setConstraints_added(int constraints_added) {
 		this.constraints_added = constraints_added;
 	}
 
-	void setConstraints_removed(int constraints_removed) {
+	public void setConstraints_removed(int constraints_removed) {
 		this.constraints_removed = constraints_removed;
 	}
 

@@ -13,6 +13,16 @@
 
 package org.neo4j.ogm.persistence.examples.satellite;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
@@ -25,13 +35,6 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.testutil.TestUtils;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers

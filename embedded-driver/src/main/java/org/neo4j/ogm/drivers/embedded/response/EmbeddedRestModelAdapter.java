@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
+import org.neo4j.ogm.result.adapter.RestModelAdapter;
+
 import java.util.List;
 import java.util.Map;
-
-import org.neo4j.ogm.result.adapter.RestModelAdapter;
 
 /**
  * Adapt embedded response to a NodeModels, RelaitonshipModels, and objects
@@ -71,4 +71,5 @@ public class EmbeddedRestModelAdapter extends RestModelAdapter {
 	public Map<String, Object> properties(Object container) {
 		return entityAdapter.properties(container);
 	}
+
 }

@@ -13,15 +13,12 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
+import org.neo4j.graphdb.*;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.PropertyContainer;
-import org.neo4j.graphdb.Relationship;
 
 /**
  * Helper methods for embedded graph entities
@@ -71,7 +68,7 @@ public class EmbeddedEntityAdapter {
 	}
 
 	public Map<String, Object> properties(Object container) {
-		return ((PropertyContainer) container).getAllProperties();
+		return getAllProperties((PropertyContainer) container);
 	}
 
 	public List<Object> nodesInPath(Object path) {
@@ -89,4 +86,13 @@ public class EmbeddedEntityAdapter {
 		}
 		return rels;
 	}
+
+	public static Map<String, Object> getAllProperties(PropertyContainer propertyContainer) {
+		Map<String, Object> properties = new HashMap<>();
+		for (String key : propertyContainer.getPropertyKeys()) {
+			properties.put(key, propertyContainer.getProperty(key));
+		}
+		return properties;
+	}
+
 }

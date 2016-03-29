@@ -19,6 +19,7 @@ import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
@@ -42,6 +43,7 @@ public class TestServer {
     private final Integer port;
     private final Integer transactionTimeoutSeconds;
     private final Boolean enableAuthentication;
+    private final Boolean enableBolt;
 
     private GraphDatabaseService database;
     private ServerControls controls;
@@ -51,6 +53,7 @@ public class TestServer {
         this.port = builder.port == null ? TestUtils.getAvailablePort() : builder.port;
         this.transactionTimeoutSeconds = builder.transactionTimeoutSeconds;
         this.enableAuthentication = builder.enableAuthentication;
+        this.enableBolt = builder.enableBolt;
 
         startServer();
 
@@ -61,15 +64,23 @@ public class TestServer {
 
             checkDriver();
             ServerSettings.transaction_timeout.name();
-            controls = TestServerBuilders.newInProcessBuilder()
-                    .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
-                    .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
-                    .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
-                    .withConfig("dbms.transaction_timeout", String.valueOf(transactionTimeoutSeconds))
-                    .withConfig("dbms.security.auth_store.location", createAuthStore())
-                    .withConfig("unsupported.dbms.security.auth_store.location", createAuthStore())
-                    .withConfig("remote_shell_enabled", "false")
-                    .newServer();
+
+            if (enableBolt) {
+                controls = TestServerBuilders.newInProcessBuilder()
+                        .withConfig("dbms.connector.0.enabled", String.valueOf(enableBolt))
+                        .newServer();
+
+            } else {
+                controls = TestServerBuilders.newInProcessBuilder()
+                        .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
+                        .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
+                        .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
+                        .withConfig("dbms.transaction_timeout", String.valueOf(transactionTimeoutSeconds))
+                        .withConfig("dbms.security.auth_store.location", createAuthStore())
+                        .withConfig("unsupported.dbms.security.auth_store.location", createAuthStore())
+                        .withConfig("remote_shell_enabled", "false")
+                        .newServer();
+            }
 
             initialise(controls);
 
@@ -90,7 +101,7 @@ public class TestServer {
     private void checkDriver() {
         DriverConfiguration driverConfiguration = Components.configuration().driverConfiguration();
         String driverClassName = driverConfiguration.getDriverClassName();
-        if (driverClassName == null || driverClassName.equals(HttpDriver.class.getName()) == false) {
+        if (driverClassName == null || driverClassName.equals(EmbeddedDriver.class.getName())) {
             Components.setDriver(new HttpDriver());
         }
     }
@@ -161,7 +172,19 @@ public class TestServer {
      * @return The URL of the Neo4j test server
      */
     public String url() {
-        return controls.httpURI().toString();
+
+        Method method;
+        try {
+            if (enableBolt) {
+                method = controls.getClass().getMethod("boltURI");
+            } else {
+                method = controls.getClass().getMethod("httpURI");
+            }
+            Object url = method.invoke(controls);
+            return url.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -187,6 +210,7 @@ public class TestServer {
         private Integer port = null;
         private Integer transactionTimeoutSeconds = 60;
         private boolean enableAuthentication = false;
+        private boolean enableBolt = false;
 
         public Builder() {
         }
@@ -203,6 +227,11 @@ public class TestServer {
 
         public Builder enableAuthentication(boolean enableAuthentication) {
             this.enableAuthentication = enableAuthentication;
+            return this;
+        }
+
+        public Builder enableBolt(boolean enableBolt) {
+            this.enableBolt = enableBolt;
             return this;
         }
 

@@ -32,7 +32,7 @@ public class DriverConfiguration {
     public static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
     public static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
     public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
-    public static final String SESSION_POOL_SIZE = "session.pool.size";
+    public static final String CONNECTION_POOL_SIZE = "connection.pool.size";
     public static final String ENCRYPTION_LEVEL = "encryption.level";
     public static final String TRUST_STRATEGY = "trust.strategy";
     public static final String TRUST_CERT_FILE  = "trust.certificate.file";
@@ -77,8 +77,8 @@ public class DriverConfiguration {
         return this;
     }
 
-    public DriverConfiguration setSessionPoolSize(Integer sessionPoolSize) {
-        configuration.set(SESSION_POOL_SIZE, sessionPoolSize.toString());
+    public DriverConfiguration setConnectionPoolSize(Integer sessionPoolSize) {
+        configuration.set(CONNECTION_POOL_SIZE, sessionPoolSize.toString());
         return this;
     }
 
@@ -130,9 +130,9 @@ public class DriverConfiguration {
         return (String) configuration.get(DRIVER);
     }
 
-    public Integer getSessionPoolSize() {
-        if (configuration.get(SESSION_POOL_SIZE) != null) {
-            return Integer.valueOf((String)configuration.get(SESSION_POOL_SIZE));
+    public Integer getConnectionPoolSize() {
+        if (configuration.get(CONNECTION_POOL_SIZE) != null) {
+            return Integer.valueOf((String)configuration.get(CONNECTION_POOL_SIZE));
         }
         return null;
     }

@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.drivers.bolt;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.harness.ServerControls;
@@ -21,9 +24,6 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.service.Components;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @author Luanne Misquitta
@@ -36,14 +36,12 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 	@BeforeClass
 	public static void configure() {
 		neoServer = TestServerBuilders.newInProcessBuilder()
-				//.withConfig( connector(0, BoltKernelExtension.Settings.enabled), "true")
 				.withConfig("dbms.connector.0.enabled", "true")
 				.newServer();
 
 		Configuration configuration = Components.configuration();
 				configuration.driverConfiguration()
 				.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-				//.setURI(neoServer.boltURI().toString()
 				.setURI(boltURI())
 				.setEncryptionLevel("NONE");
 

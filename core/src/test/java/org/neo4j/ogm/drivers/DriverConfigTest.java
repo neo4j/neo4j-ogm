@@ -41,7 +41,7 @@ public class DriverConfigTest {
     public void shouldLoadBoltDriverConfigFromPropertiesFile() {
         DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("bolt.driver.properties"));
         assertEquals("bolt://neo4j:password@localhost", driverConfig.getURI());
-        assertEquals(Integer.valueOf(150), driverConfig.getSessionPoolSize());
+        assertEquals(Integer.valueOf(150), driverConfig.getConnectionPoolSize());
         assertEquals("NONE", driverConfig.getEncryptionLevel());
         assertEquals("TRUST_ON_FIRST_USE", driverConfig.getTrustStrategy());
         assertEquals("/tmp/cert", driverConfig.getTrustCertFile());

@@ -130,8 +130,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			}
 		}
 
-		if (driverConfiguration.getSessionPoolSize() != null) {
-			boltConfig.sessionPoolSize = driverConfiguration.getSessionPoolSize();
+		if (driverConfiguration.getConnectionPoolSize() != null) {
+			boltConfig.sessionPoolSize = driverConfiguration.getConnectionPoolSize();
 		}
 
 		if (driverConfiguration.getTrustStrategy() != null) {

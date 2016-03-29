@@ -13,11 +13,8 @@
 
 package org.neo4j.ogm.drivers.bolt;
 
-import static org.neo4j.bolt.BoltKernelExtension.Settings.connector;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.neo4j.bolt.BoltKernelExtension;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
@@ -25,8 +22,12 @@ import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.service.Components;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * @author Luanne Misquitta
+ * @author Vince Bickers
  */
 public class BoltDriverTest extends AbstractDriverTestSuite {
 
@@ -35,13 +36,15 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 	@BeforeClass
 	public static void configure() {
 		neoServer = TestServerBuilders.newInProcessBuilder()
-				.withConfig( connector(0, BoltKernelExtension.Settings.enabled), "true")
+				//.withConfig( connector(0, BoltKernelExtension.Settings.enabled), "true")
+				.withConfig("dbms.connector.0.enabled", "true")
 				.newServer();
 
 		Configuration configuration = Components.configuration();
 				configuration.driverConfiguration()
 				.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-				.setURI(neoServer.boltURI().toString())
+				//.setURI(neoServer.boltURI().toString()
+				.setURI(boltURI())
 				.setEncryptionLevel("NONE");
 
 		Components.configure(configuration);
@@ -57,5 +60,21 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 		assert Components.driver() instanceof BoltDriver;
 	}
 
+	private static String boltURI() {
+		try {
+			Method boltURI = neoServer.getClass().getDeclaredMethod("boltURI");
+			try {
+				Object uri = boltURI.invoke(neoServer);
+				return uri.toString();
+
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

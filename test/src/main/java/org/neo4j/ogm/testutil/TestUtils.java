@@ -15,6 +15,7 @@ package org.neo4j.ogm.testutil;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -33,6 +34,14 @@ public final class TestUtils {
         } catch (IOException e) {
             throw new IllegalStateException("Cannot find available port: " + e.getMessage(), e);
         }
+    }
+
+    public static <T> T firstOrNull(Iterable<T> iterable) {
+        return firstOrNull(iterable.iterator());
+    }
+
+    public static <T> T firstOrNull(Iterator<T> iterator) {
+        return iterator.hasNext()?iterator.next():null;
     }
 
     public static StringBuilder readCQLFile(String cqlFileName) {

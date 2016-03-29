@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.testutil;
 
-import java.io.FileWriter;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
@@ -26,6 +21,16 @@ import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.server.AbstractNeoServer;
+import org.neo4j.server.configuration.ServerSettings;
+import org.neo4j.server.database.Database;
+
+import java.io.FileWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  *
@@ -55,12 +60,14 @@ public class TestServer {
         try {
 
             checkDriver();
-
+            ServerSettings.transaction_timeout.name();
             controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
                     .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
+                    .withConfig("dbms.transaction_timeout", String.valueOf(transactionTimeoutSeconds))
                     .withConfig("dbms.security.auth_store.location", createAuthStore())
+                    .withConfig("unsupported.dbms.security.auth_store.location", createAuthStore())
                     .withConfig("remote_shell_enabled", "false")
                     .newServer();
 
@@ -108,8 +115,23 @@ public class TestServer {
     }
 
     private void initialise(ServerControls controls) throws Exception {
-        database =controls.graph();
+        //database = controls.graph();
+        setDatabase(controls);
         Components.driver().getConfiguration().setURI(url());
+    }
+
+    private void setDatabase(ServerControls controls) throws Exception {
+        try {
+            Method method = controls.getClass().getMethod("graph");
+            database = (GraphDatabaseService) method.invoke(controls);
+        } catch (NoSuchMethodException nsme) {
+            Class clazz = Class.forName("org.neo4j.harness.internal.InProcessServerControls");
+            Field field = clazz.getDeclaredField("server");
+            field.setAccessible(true);
+            AbstractNeoServer server = (AbstractNeoServer) field.get(controls);
+            Database db = server.getDatabase();
+            database = db.getGraph();
+        }
     }
 
     public Driver driver() {
@@ -152,23 +174,12 @@ public class TestServer {
     }
 
     /**
-     * Deletes all the nodes and relationships in the test database.
-     */
-    public void clearDatabase() {
-        this.database.execute("MATCH (n) DETACH DELETE n");
-    }
-
-    /**
      * Retrieves the underlying {@link org.neo4j.graphdb.GraphDatabaseService} used in this test.
      *
      * @return The test {@link org.neo4j.graphdb.GraphDatabaseService}
      */
     public GraphDatabaseService getGraphDatabaseService() {
         return this.database;
-    }
-
-    public void close() {
-        shutdown();
     }
 
     public static class Builder {

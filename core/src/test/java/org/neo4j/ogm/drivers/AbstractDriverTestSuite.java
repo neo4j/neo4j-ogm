@@ -288,13 +288,13 @@ public abstract class AbstractDriverTestSuite {
         session.save(new User("Bilbo Baggins"));
         try {
            session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Utils.map());
+           fail("Expected a CypherException but got none");
         }
         catch (CypherException ce) {
-            assertTrue(ce.getCode().contains("Neo.ClientError.Statement.InvalidSyntax"));
+            assertTrue(ce.getCode().contains("Neo.ClientError.Statement"));
             assertTrue(ce.getDescription().contains("Invalid input"));
-            return;
         }
-        fail("Expected a CypherException but got none");
+
     }
 
     private void doExtendedCommitRollbackCommit() throws TransactionException {

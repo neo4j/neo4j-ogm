@@ -13,30 +13,17 @@
 
 package org.neo4j.ogm.testutil;
 
+import org.junit.Assert;
+import org.neo4j.graphdb.*;
+import org.neo4j.test.TestGraphDatabaseFactory;
+import org.parboiled.common.StringUtils;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.helpers.collection.Iterables.count;
-import static org.neo4j.tooling.GlobalGraphOperations.at;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Assert;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.PropertyContainer;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.test.TestGraphDatabaseFactory;
-import org.neo4j.tooling.GlobalGraphOperations;
-import org.parboiled.common.StringUtils;
 
 /**
  * Utility methods used to facilitate testing against a real Neo4j database.
@@ -124,11 +111,72 @@ public final class GraphTestUtils {
         return result;
     }
 
+    private static Iterable<Node> allNodes(GraphDatabaseService graphDatabaseService) {
+
+        try {
+            Method allNodes = GraphDatabaseService.class.getMethod("getAllNodes");
+            return (Iterable<Node>) allNodes.invoke(graphDatabaseService);
+        } catch (NoSuchMethodException nsme) {
+            try {
+                Class clazz = Class.forName("org.neo4j.tooling.GlobalGraphOperations");
+                try {
+                    Method at = clazz.getMethod("at", GraphDatabaseService.class);
+                    Object instance = at.invoke(null, graphDatabaseService);
+                    Method allNodes = instance.getClass().getMethod("getAllNodes");
+                    return (Iterable<Node>) allNodes.invoke(instance);
+                } catch (NoSuchMethodException nsme2) {
+                    throw new RuntimeException(nsme2);
+                } catch (InvocationTargetException ite) {
+                    throw new RuntimeException(ite);
+                } catch (IllegalAccessException iae) {
+                    throw new RuntimeException(iae);
+                }
+            } catch (ClassNotFoundException cnfe) {
+                throw new RuntimeException(cnfe);
+            }
+        } catch (InvocationTargetException ite) {
+            throw new RuntimeException(ite);
+        } catch (IllegalAccessException iae) {
+            throw new RuntimeException(iae);
+        }
+    }
+
+    private static Iterable<Relationship> allRelationships(GraphDatabaseService graphDatabaseService) {
+
+        try {
+            Method allNodes = GraphDatabaseService.class.getMethod("getAllRelationships");
+            return (Iterable<Relationship>) allNodes.invoke(graphDatabaseService);
+        } catch (NoSuchMethodException nsme) {
+            try {
+                Class clazz = Class.forName("org.neo4j.tooling.GlobalGraphOperations");
+                try {
+                    Method at = clazz.getMethod("at", GraphDatabaseService.class);
+                    Object instance = at.invoke(null, graphDatabaseService);
+                    Method allNodes = instance.getClass().getMethod("getAllRelationships");
+                    return (Iterable<Relationship>) allNodes.invoke(instance);
+                } catch (NoSuchMethodException nsme2) {
+                    throw new RuntimeException(nsme2);
+                } catch (InvocationTargetException ite) {
+                    throw new RuntimeException(ite);
+                } catch (IllegalAccessException iae) {
+                    throw new RuntimeException(iae);
+                }
+            } catch (ClassNotFoundException cnfe) {
+                throw new RuntimeException(cnfe);
+            }
+        } catch (InvocationTargetException ite) {
+            throw new RuntimeException(ite);
+        } catch (IllegalAccessException iae) {
+            throw new RuntimeException(iae);
+        }
+    }
+
     private static Map<Long, Long[]> buildSameNodesMap(GraphDatabaseService database, GraphDatabaseService otherDatabase,
             String firstDatabaseName) {
         Map<Long, Long[]> sameNodesMap = new HashMap<>(); //map of nodeID and IDs of nodes that match
 
-        for (Node node : GlobalGraphOperations.at(otherDatabase).getAllNodes()) {
+        for (Node node : allNodes(otherDatabase)) {
+
             Iterable<Node> sameNodes = findSameNodes(database, node); //List of all nodes that match this
 
             //fail fast
@@ -158,7 +206,7 @@ public final class GraphTestUtils {
     private static Iterable<Node> findSameNodesWithoutLabel(GraphDatabaseService database, Node node) {
         Set<Node> result = new HashSet<>();
 
-        for (Node candidate : GlobalGraphOperations.at(database).getAllNodes()) {
+        for (Node candidate : allNodes(database)) {
             if (areSame(node, candidate)) {
                 result.add(candidate);
             }
@@ -167,10 +215,21 @@ public final class GraphTestUtils {
         return result;
     }
 
+    private static Iterable<Node> nodesWithLabel(GraphDatabaseService database, Label label) {
+        Set<Node> result = new HashSet<>();
+
+        for (Node node : allNodes(database)) {
+            if (node.hasLabel(label)) {
+                result.add(node);
+            }
+        }
+        return result;
+    }
+
     private static Iterable<Node> findSameNodesByLabel(GraphDatabaseService database, Node node, Label label) {
         Set<Node> result = new HashSet<>();
 
-        for (Node candidate : GlobalGraphOperations.at(database).getAllNodesWithLabel(label)) {
+        for (Node candidate : nodesWithLabel(database, label)) {
             if (areSame(node, candidate)) {
                 result.add(candidate);
             }
@@ -183,7 +242,7 @@ public final class GraphTestUtils {
             GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
         Set<Long> usedRelationships = new HashSet<>();
 
-        for (Relationship relationship : at(otherDatabase).getAllRelationships()) {
+        for (Relationship relationship : allRelationships(otherDatabase)) {
             if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
                 Assert.fail("No corresponding relationship found to " + print(relationship) + " in " + firstDatabaseName);
             }
@@ -193,7 +252,7 @@ public final class GraphTestUtils {
     private static boolean relationshipsMappingExists(GraphDatabaseService database, GraphDatabaseService otherDatabase,
             Map<Long, Long> mapping) {
         Set<Long> usedRelationships = new HashSet<>();
-        for (Relationship relationship : at(otherDatabase).getAllRelationships()) {
+        for (Relationship relationship : allRelationships(otherDatabase)) {
             if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
                 return false;
             }

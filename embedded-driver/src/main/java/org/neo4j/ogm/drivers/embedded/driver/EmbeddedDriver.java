@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.drivers.embedded.driver;
 
-import java.io.File;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.DriverConfiguration;
@@ -29,6 +24,13 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author vince
@@ -97,13 +99,38 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
 
             File file = new File(new URI(fileStoreUri));
 
-            graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
+            setGraphDatabase(file);
 
             registerShutdownHook();
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
     }
+
+    // for compatability with Neo4j 2.2.x and 2.3.x
+    private void setGraphDatabase(File file) {
+        GraphDatabaseFactory factory = new GraphDatabaseFactory();
+        try {
+            Method fileMethod = factory.getClass().getMethod("newEmbeddedDatabase", File.class);
+            graphDatabaseService = (GraphDatabaseService) fileMethod.invoke(factory, file);
+        } catch (NoSuchMethodException nsme) {
+            try {
+                Method pathMethod = factory.getClass().getMethod("newEmbeddedDatabase", String.class);
+                graphDatabaseService = (GraphDatabaseService) pathMethod.invoke(factory, file.getAbsolutePath());
+            } catch (NoSuchMethodException nsme2) {
+                throw new RuntimeException(nsme2);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public Transaction newTransaction() {   // return a new, or join an existing transaction

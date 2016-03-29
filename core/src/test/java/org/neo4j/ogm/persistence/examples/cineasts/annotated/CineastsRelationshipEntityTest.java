@@ -28,7 +28,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.helpers.collection.IteratorUtil;
+
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -172,7 +172,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
                         "(bw)-[:ACTS_IN {role : 'John'}]->(dh)", Utils.map());
 
 
-        //Movie dieHard = IteratorUtil.firstOrNull(session.loadByProperty(Movie.class, new Parameter("title", "Die Hard")));
+        //Movie dieHard = TestUtils.firstOrNull(session.loadByProperty(Movie.class, new Parameter("title", "Die Hard")));
 
         Movie dieHard = session.loadAll(Movie.class).iterator().next();
 
@@ -265,7 +265,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.save(bruce);
 
-        Actor actor = IteratorUtil.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
+        Actor actor = TestUtils.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
         Assert.assertNotNull(actor);
         assertEquals(1, actor.getKnows().size());
         assertEquals("Jim", actor.getKnows().iterator().next().getSecondActor().getName());
@@ -526,7 +526,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         bruce.getKnows().add(knows);
         session.save(bruce);
 
-        Actor actor = IteratorUtil.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
+        Actor actor = TestUtils.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
         Assert.assertNotNull(actor);
         assertEquals(1, actor.getKnows().size());
         assertEquals("Jim", actor.getKnows().iterator().next().getSecondActor().getName());
@@ -534,14 +534,14 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         bruce.getKnows().iterator().next().setSince(new Date());
         session.save(bruce);
 
-        actor = IteratorUtil.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
+        actor = TestUtils.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
         assertEquals(1, actor.getKnows().size());
         assertNotNull(actor.getKnows().iterator().next().getSince());
 
         bruce.getKnows().iterator().next().setSince(null);
         session.save(bruce);
 
-        actor = IteratorUtil.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
+        actor = TestUtils.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
         assertEquals(1, actor.getKnows().size());
         assertNull(actor.getKnows().iterator().next().getSince());
 
@@ -566,7 +566,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Actor actor = IteratorUtil.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
+        Actor actor = TestUtils.firstOrNull(session.loadAll(Actor.class, new Filter("name", "Bruce")));
         Assert.assertNotNull(actor);
         assertEquals(1, actor.getKnows().size());
         assertEquals("Bruce", actor.getKnows().iterator().next().getFirstActor().getName());

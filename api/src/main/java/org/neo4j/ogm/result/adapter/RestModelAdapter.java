@@ -95,4 +95,5 @@ public abstract class RestModelAdapter implements ResultAdapter<Map<String,Objec
 	public abstract Long endNodeId(Object relationship);
 
 	public abstract Map<String,Object> properties(Object container);
+
 }

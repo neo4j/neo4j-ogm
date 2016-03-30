@@ -68,10 +68,6 @@ public class EmbeddedTransaction extends AbstractTransaction {
                 logger.debug("Committing native transaction: {}", nativeTransaction);
                 nativeTransaction.success();
                 nativeTransaction.close();
-            } else {
-                if (transactionManager.isExtended(transactionManager.getCurrentTransaction())) {
-                    throw new TransactionException("Transaction is marked for rollback");
-                }
             }
         }
         catch (Exception e) {

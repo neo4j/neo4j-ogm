@@ -61,10 +61,6 @@ public class HttpTransaction extends AbstractTransaction {
                 HttpPost request = new HttpPost(url + "/commit");
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
                 driver.executeHttpRequest(request);
-            } else {
-                if (transactionManager.isExtended(transactionManager.getCurrentTransaction())) {
-                    throw new TransactionException("Transaction is marked for rollback");
-                }
             }
         }
         catch (Exception e) {

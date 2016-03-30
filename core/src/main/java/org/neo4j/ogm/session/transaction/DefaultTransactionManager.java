@@ -111,19 +111,6 @@ public class DefaultTransactionManager implements TransactionManager {
         return TRANSACTION_THREAD_LOCAL.get();
     }
 
-
-    /**
-     *
-     */
-    public boolean isExtended(Transaction tx) {
-        if (tx == getCurrentTransaction()) {
-            if ( ((AbstractTransaction) tx).extensions() == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean canCommit()  {
         AbstractTransaction tx = (AbstractTransaction) getCurrentTransaction();
         //if (tx != null && tx.extensions() == 0) {

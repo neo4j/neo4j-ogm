@@ -25,7 +25,7 @@ public interface TransactionManager {
      *
      * @return a new @{link Transaction}
      */
-    public Transaction openTransaction();
+    Transaction openTransaction();
 
     /**
      * Rolls back the specified transaction.
@@ -37,7 +37,7 @@ public interface TransactionManager {
      *
      * @param transaction the transaction to rollback
      */
-    public void rollback(Transaction transaction);
+    void rollback(Transaction transaction);
 
 
     /**
@@ -50,7 +50,7 @@ public interface TransactionManager {
      *
      * @param transaction the transaction to commit
      */
-    public void commit(Transaction transaction);
+    void commit(Transaction transaction);
 
 
     /**
@@ -58,13 +58,7 @@ public interface TransactionManager {
      *
      * @return this thread's transaction
      */
-    public Transaction getCurrentTransaction();
-
-    /**
-     *  Indicates whether or not the supplied transaction is at the root of
-     *  a transaction "hierarchy"
-     */
-    public boolean isExtended(Transaction tx);
+    Transaction getCurrentTransaction();
 
     boolean canCommit();
 

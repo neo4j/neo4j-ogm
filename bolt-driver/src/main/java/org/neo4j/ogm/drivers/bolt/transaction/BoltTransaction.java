@@ -66,11 +66,6 @@ public class BoltTransaction extends AbstractTransaction {
 				nativeTransaction.success();
 				nativeTransaction.close();
 				nativeSession.close();
-			} else {
-				if (transactionManager.isExtended(transactionManager.getCurrentTransaction())) {
-					nativeSession.close();
-					throw new TransactionException("Transaction is marked for rollback");
-				}
 			}
 		} catch (ClientException ce) {
 			nativeSession.close();

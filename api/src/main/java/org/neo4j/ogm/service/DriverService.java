@@ -13,15 +13,15 @@
 
 package org.neo4j.ogm.service;
 
-import java.util.Iterator;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
-
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
 /**
  * This class is responsible for loading a Driver using the Service Loader mechanism
@@ -40,7 +40,7 @@ public class DriverService {
             try {
                 Driver driver = iterator.next();
                 if (driver.getClass().getName().equals(className)) {
-                    logger.debug("Using driver: {}", className);
+                    logger.info("Using driver: {}", className);
                     return driver;
                 }
             } catch (ServiceConfigurationError sce) {

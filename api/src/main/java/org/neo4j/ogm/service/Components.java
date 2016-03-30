@@ -15,9 +15,7 @@ package org.neo4j.ogm.service;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
-import org.neo4j.ogm.config.CompilerConfiguration;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +108,7 @@ public class Components {
     }
 
     private static void configure(InputStream is) throws Exception {
-        configuration = new Configuration();
+        configuration.clear();
         driver = null;
         Properties properties = new Properties();
         properties.load(is);
@@ -125,14 +123,14 @@ public class Components {
         if (configuration.driverConfiguration().getDriverClassName() == null) {
             autoConfigure();
         }
-        setDriver (DriverService.load(new DriverConfiguration(configuration)));
+        setDriver (DriverService.load(configuration.driverConfiguration()));
     }
 
     private static Compiler loadCompiler() {
         if (configuration.compilerConfiguration().getCompilerClassName() == null) {
             autoConfigure();
         }
-        return CompilerService.load(new CompilerConfiguration(configuration));
+        return CompilerService.load(configuration.compilerConfiguration());
     }
 
     private static InputStream configurationFile() throws Exception {

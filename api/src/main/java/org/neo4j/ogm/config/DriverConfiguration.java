@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.config;
 
-import java.net.URL;
-
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
+
+import java.net.URL;
 
 /**
  *
@@ -38,10 +38,6 @@ public class DriverConfiguration {
     public static final String TRUST_CERT_FILE  = "trust.certificate.file";
 
     private final Configuration configuration;
-
-    public DriverConfiguration() {
-        this.configuration = new Configuration();
-    }
 
     public DriverConfiguration(Configuration configuration) {
         this.configuration = configuration;

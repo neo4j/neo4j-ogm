@@ -13,16 +13,17 @@
 
 package org.neo4j.ogm.drivers;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.service.DriverService;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author vince
@@ -30,7 +31,7 @@ import org.neo4j.ogm.service.DriverService;
 public class DriverServiceTest {
 
     public static final String TMP_NEO4J_DB = "/var/tmp/neo4j.db";
-    private DriverConfiguration driverConfiguration = new DriverConfiguration();
+    private DriverConfiguration driverConfiguration = Components.configuration().driverConfiguration();
 
     @AfterClass
     public static void deleteEmbeddedStore() throws IOException {

@@ -17,13 +17,9 @@ import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
-import org.neo4j.server.configuration.ServerSettings;
 import org.neo4j.server.database.Database;
 
 import java.io.FileWriter;
@@ -62,9 +58,6 @@ public class TestServer {
     private void startServer() {
         try {
 
-            checkDriver();
-            ServerSettings.transaction_timeout.name();
-
             if (enableBolt) {
                 controls = TestServerBuilders.newInProcessBuilder()
                         .withConfig("dbms.connector.0.enabled", String.valueOf(enableBolt))
@@ -98,14 +91,6 @@ public class TestServer {
 
     }
 
-    private void checkDriver() {
-        DriverConfiguration driverConfiguration = Components.configuration().driverConfiguration();
-        String driverClassName = driverConfiguration.getDriverClassName();
-        if (driverClassName == null || driverClassName.equals(EmbeddedDriver.class.getName())) {
-            Components.setDriver(new HttpDriver());
-        }
-    }
-
     private String createAuthStore() {
         // creates a temp auth store, with encrypted credentials "neo4j:password" if the server is authenticating connections
         try {
@@ -126,9 +111,9 @@ public class TestServer {
     }
 
     private void initialise(ServerControls controls) throws Exception {
-        //database = controls.graph();
         setDatabase(controls);
-        Components.driver().getConfiguration().setURI(url());
+        driver().getConfiguration().setURI(url());
+        driver().configure(driver().getConfiguration()); // we must reconfigure the driver if the URL has changed
     }
 
     private void setDatabase(ServerControls controls) throws Exception {
@@ -153,8 +138,8 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
-        controls.close();
         database.shutdown();
+        controls.close();
     }
 
     /**

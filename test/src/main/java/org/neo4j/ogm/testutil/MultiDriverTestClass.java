@@ -16,6 +16,7 @@ package org.neo4j.ogm.testutil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
@@ -32,10 +33,13 @@ public class MultiDriverTestClass {
     private static TestServer testServer;
     private static GraphDatabaseService impermanentDb;
 
+
     @BeforeClass
     public static void setupMultiDriverTestEnvironment() {
 
-        if (Components.driver() instanceof HttpDriver ) {
+        Driver driver = Components.driver(); // this will load the driver
+
+        if (driver instanceof HttpDriver ) {
             if (Components.neo4jVersion() < 2.2) {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(false)
@@ -48,7 +52,7 @@ public class MultiDriverTestClass {
                         .build();
             }
         }
-        else if (Components.driver() instanceof BoltDriver) {
+        else if (driver instanceof BoltDriver) {
             testServer = new TestServer.Builder()
                     .enableBolt(true)
                     .transactionTimeoutSeconds(2)
@@ -58,10 +62,20 @@ public class MultiDriverTestClass {
             impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase();
             Components.setDriver(new EmbeddedDriver(impermanentDb));
         }
+
+        //
+        //System.out.println(" ************************************");
+        //System.out.println(" *** " + Components.driver().getClass().getSimpleName() + " ***");
+        //System.out.println(" ************************************");
     }
 
     @AfterClass
     public static void tearDownMultiDriverTestEnvironment() {
+        close();
+    }
+
+    private static void close() {
+
         if (testServer != null) {
             testServer.shutdown();
             testServer = null;
@@ -70,6 +84,7 @@ public class MultiDriverTestClass {
             impermanentDb.shutdown();
             impermanentDb = null;
         }
+
     }
 
     public static GraphDatabaseService getGraphDatabaseService() {

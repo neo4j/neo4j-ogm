@@ -13,15 +13,7 @@
 
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import java.io.File;
-import java.net.URI;
-
-import org.neo4j.driver.v1.AuthToken;
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Config;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Session;
+import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.DriverConfiguration;
@@ -33,6 +25,9 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URI;
 
 /**
  * @author vince
@@ -48,13 +43,16 @@ public class BoltDriver extends AbstractConfigurableDriver {
 	}
 
 	public BoltDriver(DriverConfiguration driverConfiguration) {
+
 		configure(driverConfiguration);
 	}
 
 	@Override
 	public void configure(DriverConfiguration config) {
-		super.configure(config);
+
 		close();
+
+		super.configure(config);
 
 		Config driverConfig = buildDriverConfig(config);
 

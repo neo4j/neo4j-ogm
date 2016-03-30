@@ -83,9 +83,9 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
     @Override
     public synchronized void configure(DriverConfiguration config) {
 
-        super.configure(config);
-
         close();  // force any existing graph database to shutdown
+
+        super.configure(config);
 
         try {
             String fileStoreUri = config.getURI();

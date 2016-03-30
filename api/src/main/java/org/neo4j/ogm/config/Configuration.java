@@ -36,12 +36,19 @@ public class Configuration {
 
     private final Map<String, Object> config = new HashMap<>();
 
+    private DriverConfiguration driverConfiguration;
+
+    private CompilerConfiguration compilerConfiguration;
+
     public Configuration() {}
 
     public Configuration(String propertiesFilename) {
+        driverConfiguration = null;
+        compilerConfiguration = null;
         configure(propertiesFilename);
     }
 
+    // these methods must go.
     public void set(String key, Object value) {
         config.put(key, value);
     }
@@ -49,6 +56,7 @@ public class Configuration {
     public Object get(String key) {
         return config.get(key);
     }
+
 
     public Object get(String... keys) {
         for (String key : keys) {
@@ -77,11 +85,40 @@ public class Configuration {
         }
     }
 
-    public DriverConfiguration driverConfiguration() {
-        return new DriverConfiguration(this);
+    public synchronized DriverConfiguration driverConfiguration() {
+        if (driverConfiguration == null) {
+            driverConfiguration = new DriverConfiguration(this);
+        }
+        return driverConfiguration;
     }
 
-    public CompilerConfiguration compilerConfiguration() {
-        return new CompilerConfiguration(this);
+    public synchronized CompilerConfiguration compilerConfiguration() {
+        if (compilerConfiguration == null) {
+            compilerConfiguration = new CompilerConfiguration(this);
+
+        }
+        return compilerConfiguration;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(" {\n");
+        for (Map.Entry entry : config.entrySet()) {
+            sb.append("\t");
+            sb.append(entry.getKey());
+            sb.append("='");
+            sb.append(entry.getValue());
+            sb.append("'");
+            sb.append("\n");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public void clear() {
+        config.clear();
     }
 }

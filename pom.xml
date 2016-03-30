@@ -265,7 +265,7 @@
         <profile>
             <id>3.0</id>
             <properties>
-                <neo4j>3.0.0-SNAPSHOT</neo4j>
+                <neo4j>3.0.0-M05</neo4j>
             </properties>
         </profile>
 

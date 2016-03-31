@@ -73,9 +73,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 	}
 
 	@Override
-	public void close() {
+	public synchronized void close() {
 		if (boltDriver != null) {
 			try {
+				LOGGER.info("Shutting down Bolt driver {} ", boltDriver);
 				boltDriver.close();
 			} catch (Exception e) {
 				throw new RuntimeException(e);

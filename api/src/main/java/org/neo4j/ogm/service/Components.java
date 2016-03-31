@@ -59,7 +59,7 @@ public class Components {
      * @param configuration The configuration to use
      */
     public static void configure(Configuration configuration) {
-        driver = null;
+        destroy();
         Components.configuration = configuration;
     }
 
@@ -171,5 +171,17 @@ public class Components {
 
     public static Configuration configuration() {
         return configuration;
+    }
+
+    // destroys the current Components object, releasing all resources
+    public synchronized static void destroy() {
+
+        if (driver != null) {
+            driver.close();
+            driver = null;
+        }
+        if (configuration != null) {
+            configuration.clear();
+        }
     }
 }

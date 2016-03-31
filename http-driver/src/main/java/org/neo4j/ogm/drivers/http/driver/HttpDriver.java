@@ -66,8 +66,9 @@ public final class HttpDriver extends AbstractConfigurableDriver
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         try {
+            LOGGER.info("Shutting down Http driver {} ", this);
             httpClient.close();
         } catch (Exception e) {
             LOGGER.warn( "Unexpected Exception when closing http client httpClient: ", e );

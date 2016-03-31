@@ -14,6 +14,7 @@
 package org.neo4j.ogm.config;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.neo4j.ogm.service.Components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ import java.util.Properties;
  *
  * @author vince
  */
-public class Configuration {
+public class Configuration implements AutoCloseable {
 
     private final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
@@ -48,7 +49,6 @@ public class Configuration {
         configure(propertiesFilename);
     }
 
-    // these methods must go.
     public void set(String key, Object value) {
         config.put(key, value);
     }
@@ -120,5 +120,9 @@ public class Configuration {
 
     public void clear() {
         config.clear();
+    }
+
+    public void close() {
+        Components.destroy();
     }
 }

@@ -26,17 +26,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author vince
  */
-public class EmbeddedDriver extends AbstractConfigurableDriver
-{
+public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     private GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
@@ -47,6 +49,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
 
     /**
      * Configure a new embedded driver according to the supplied driver configuration
+     *
      * @param driverConfiguration the {@link DriverConfiguration} to use
      */
     public EmbeddedDriver(DriverConfiguration driverConfiguration) {
@@ -69,7 +72,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
      * Registers a shutdown hook for the Neo4j instance so that it
      * shuts down nicely when the VM exits (even if you "Ctrl-C" the
      * running application).
-     *
      */
     private void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -95,13 +97,18 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
             // This is effectively what the ImpermanentDatabase does.
             if (fileStoreUri == null) {
                 fileStoreUri = createTemporaryEphemeralFileStore();
+                //fileStoreUri = createEphemeralFileStore();
             }
 
             File file = new File(new URI(fileStoreUri));
+            if (!file.exists()) {
+                throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
+            }
+
+            registerShutdownHook();
 
             setGraphDatabase(file);
 
-            registerShutdownHook();
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
@@ -138,10 +145,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+
         if (graphDatabaseService != null) {
+            logger.info("Shutting down Embedded driver {} ", graphDatabaseService);
             graphDatabaseService.shutdown();
             graphDatabaseService = null;
+            //System.gc(); // try and force the memory-mapped file buffers to close in order not to run out of file handles
         }
     }
 
@@ -161,7 +171,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
         Transaction tx = transactionManager.getCurrentTransaction();
         if (tx != null) {
             logger.debug("Using current transaction: {}", tx);
-            nativeTransaction =((EmbeddedTransaction) tx).getNativeTransaction();
+            nativeTransaction = ((EmbeddedTransaction) tx).getNativeTransaction();
         } else {
             logger.debug("No current transaction, starting a new one");
             nativeTransaction = graphDatabaseService.beginTx();
@@ -173,15 +183,39 @@ public class EmbeddedDriver extends AbstractConfigurableDriver
     private String createTemporaryEphemeralFileStore() {
 
         try {
+
             Path path = Files.createTempDirectory("neo4j.db");
             File f = path.toFile();
-            f.deleteOnExit();
+            f.deleteOnExit(); // should we do this?
             URI uri = f.toURI();
             String fileStoreUri = uri.toString();
+            logger.warn("Creating temporary file store: " + fileStoreUri);
             return fileStoreUri;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+
+    private String createEphemeralFileStore() {
+
+        Path path = Paths.get(System.getenv("java.io.tmpdir"), "neo4j.db");
+
+        try {
+            Path graphDir = Files.createDirectory(path);
+            File f = graphDir.toFile();
+            f.deleteOnExit(); // should we do this?
+            URI uri = f.toURI();
+            String fileStoreUri = uri.toString();
+            logger.warn("Creating temporary file store: " + fileStoreUri);
+            return fileStoreUri;
+        }
+        catch (FileAlreadyExistsException e) {
+            logger.warn("Using temporary files store: " + path.toString());
+            return path.toString();
+        }
+        catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
 }

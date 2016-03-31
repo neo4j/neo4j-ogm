@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers;
 
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
@@ -22,6 +23,9 @@ import org.neo4j.ogm.service.DriverService;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -30,8 +34,19 @@ import static org.junit.Assert.assertNotNull;
  */
 public class DriverServiceTest {
 
-    public static final String TMP_NEO4J_DB = "/var/tmp/neo4j.db";
+    public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
     private DriverConfiguration driverConfiguration = Components.configuration().driverConfiguration();
+
+    @BeforeClass
+    public static void createEmbeddedStore() throws IOException {
+        try {
+            Files.createDirectory(Paths.get(TMP_NEO4J_DB));
+        } catch(FileAlreadyExistsException e){
+            // the directory already exists.
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @AfterClass
     public static void deleteEmbeddedStore() throws IOException {
@@ -52,7 +67,10 @@ public class DriverServiceTest {
     @Test
     public void shouldLoadEmbeddedDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
-        driverConfiguration.setURI("file://" + TMP_NEO4J_DB);
+
+        String uri = "file://" + TMP_NEO4J_DB;
+
+        driverConfiguration.setURI(uri);
 
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
@@ -78,4 +96,6 @@ public class DriverServiceTest {
             throw new RuntimeException("Failed to delete file: " + dir);
         }
     }
+
+
 }

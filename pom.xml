@@ -203,7 +203,7 @@
         <profile>
             <id>2.2</id>
             <properties>
-                <neo4j>2.2.8</neo4j>
+                <neo4j>2.2.9</neo4j>
             </properties>
         </profile>
 

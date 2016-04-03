@@ -1,5 +1,7 @@
-2.0.0-SNAPSHOT
+2.0.0
 --------------
+o Initial support for the Bolt Driver and Neo4j 3.0 M5
+o Fixes around configuration being autocloseable, TransactionManager issues,
 o ConnectionException thrown instead of ResultProcessingException when a connection could not be obtained to Neo4j
 
 2.0.0-M4

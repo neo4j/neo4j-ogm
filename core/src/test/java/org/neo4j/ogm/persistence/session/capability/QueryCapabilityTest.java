@@ -615,6 +615,25 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 	}
 
 
+	/**
+	 * @see Issue 136
+	 */
+	@Test
+	public void testOverflowBug() {
+		long start = Integer.MAX_VALUE;
+		session.query("CREATE (n:Sequence {id:{id}, next:{start}})", MapUtil.map("id", "test", "start", start));
+
+		String incrementStmt = "MATCH (n:Sequence) WHERE n.id = {id} REMOVE n.lock SET n.next = n.next + {increment} RETURN n.next - {increment} as current";
+
+		Result result = session.query(incrementStmt, MapUtil.map("id", "test", "increment", 1));
+		assertEquals(start, ((Number) result.iterator().next().get("current")).longValue());
+
+		result = session.query(incrementStmt, MapUtil.map("id", "test", "increment", 1));
+
+		//expected:<2147483648> but was:<-2147483648>
+		assertEquals(start + 1, ((Number) result.iterator().next().get("current")).longValue());
+	}
+
 	private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {
 		if (result.get("n") instanceof User) {
 			User u = (User) result.get("n");

@@ -28,7 +28,6 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -637,6 +636,35 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         assertEquals(26, loadedActor.getRoles().size());
 
+    }
+
+    @Test
+    public void shouldSaveSingleRoleRelationshipBetweenTheSameTwoObjects() {
+
+        Movie movie = new Movie();
+        movie.setTitle("The big John Travolta Party");
+
+
+        Actor actor = new Actor("John Travolta");
+        actor.playedIn(movie, "He danced mostly");
+
+        assertEquals(1, actor.getRoles().size());
+        session.save(actor);
+
+        session.clear();
+        Actor loadedActor = session.load(Actor.class, actor.getId());
+
+        assertEquals(1, loadedActor.getRoles().size());
+
+        //Add an identical role
+        actor.playedIn(movie, "He danced mostly");
+        assertEquals(2, actor.getRoles().size());
+        session.save(actor);
+
+        session.clear();
+        loadedActor = session.load(Actor.class, actor.getId());
+
+        assertEquals(1, loadedActor.getRoles().size());
     }
 
     /**

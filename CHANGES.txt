@@ -1,3 +1,6 @@
+2.0.1-SNAPSHOT
+--------------
+
 2.0.0
 --------------
 o Initial support for the Bolt Driver and Neo4j 3.0 M5

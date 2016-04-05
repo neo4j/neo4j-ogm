@@ -144,6 +144,38 @@ public class MappingContextTest {
     }
 
     @Test
+    public void areObjectsReportedAsDirtyCorrectly() {
+        Person jim = new Person("jim");
+        jim.setId(1L);
+
+        Policy healthcare = new Policy("healthcare");
+        healthcare.setId(2L);
+
+        Policy immigration = new Policy("immigration");
+        immigration.setId(3L);
+
+        Person rik = new Person("rik");
+        rik.setId(4L);
+
+        collector.registerNodeEntity(jim, jim.getId());
+        collector.registerNodeEntity(rik, rik.getId());
+        collector.registerNodeEntity(healthcare, healthcare.getId());
+        collector.registerNodeEntity(immigration, immigration.getId());
+
+        collector.remember(jim);
+        collector.remember(rik);
+        collector.remember(healthcare);
+        collector.remember(immigration);
+
+        rik.setName("newRik");
+
+        assertFalse(collector.isDirty(jim));
+        assertTrue(collector.isDirty(rik));
+        assertFalse(collector.isDirty(healthcare));
+        assertFalse(collector.isDirty(immigration));
+    }
+
+    @Test
     public void ensureThreadSafe() throws InterruptedException {
 
         List<Thread> threads = new ArrayList<>();

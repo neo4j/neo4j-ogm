@@ -13,15 +13,14 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.event.SaveEvent;
 import org.neo4j.ogm.session.request.RequestExecutor;
 
 /**
@@ -61,16 +60,57 @@ public class SaveDelegate implements Capability.Save {
             for (Object element : objects) {
                 contexts.add(new EntityGraphMapper(session.metaData(), session.context()).map(element, depth));
             }
+            notifySave(contexts, SaveEvent.PRE);
             requestExecutor.executeSave(contexts);
+            notifySave(contexts, SaveEvent.POST);
         }
         else {
             ClassInfo classInfo = session.metaData().classInfo(object);
             if (classInfo != null) {
                 CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
+                notifySave(context, SaveEvent.PRE);
                 requestExecutor.executeSave(context);
+                notifySave(context, SaveEvent.POST);
             } else {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
+        }
+    }
+
+
+    private void notifySave(List<CompileContext> contexts, String lifecycle) {
+        List<Object> affectedObjects = new LinkedList<>();
+        Iterator<CompileContext> compileContextIterator = contexts.iterator();
+        while(compileContextIterator.hasNext()) {
+        CompileContext context = compileContextIterator.next();
+        Iterator<Object> affectedObjectsIterator = context.registry().iterator();
+        while(affectedObjectsIterator.hasNext()) {
+            // should i do something, if it is a TransientRelationship ?
+            Object affectedObject = affectedObjectsIterator.next();
+            ClassInfo classInfo = this.session.metaData().classInfo(affectedObject) ;//metaData.classInfo(entity);
+            if(!affectedObjects.contains(affectedObject)) affectedObjects.add(affectedObject);
+        }
+        }
+        for(Object object : affectedObjects) {
+            SaveEvent saveEvent = new SaveEvent();
+            saveEvent.LIFECYCLE = lifecycle;
+            // should i do something, if it is a TransientRelationship ?
+            saveEvent.affectedObject = object;
+            session.notifyListeners(saveEvent);
+        }
+    }
+
+    private void notifySave(CompileContext context, String lifecycle) {
+        Iterator<Object> affectedObjectsIterator = context.registry().iterator();
+        while(affectedObjectsIterator.hasNext()) {
+            SaveEvent saveEvent = new SaveEvent();
+            saveEvent.LIFECYCLE = lifecycle;
+            // should i do something, if it is a TransientRelationship ?
+            Object affectedObject = affectedObjectsIterator.next();
+            ClassInfo classInfo = this.session.metaData().classInfo(affectedObject) ;//metaData.classInfo(entity);
+            // TransientRelationship does not have ClassInfo
+            saveEvent.affectedObject = affectedObject;
+            session.notifyListeners(saveEvent);
         }
     }
 

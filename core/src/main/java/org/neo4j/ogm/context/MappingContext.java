@@ -56,7 +56,7 @@ public class MappingContext {
     public Object getNodeEntity(Long id) {
         return nodeEntityRegister.get(id);
     }
-
+    // why don't we put anything in the object memo? it clearly belongs here
     public Object registerNodeEntity(Object entity, Long id) {
         nodeEntityRegister.putIfAbsent(id, entity);
         entity = nodeEntityRegister.get(id);

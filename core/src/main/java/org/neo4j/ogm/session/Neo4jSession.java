@@ -23,6 +23,8 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
+import org.neo4j.ogm.session.event.Event;
+import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
@@ -31,12 +33,12 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mihai Raulea
  */
 public class Neo4jSession implements Session {
 
@@ -58,6 +60,8 @@ public class Neo4jSession implements Session {
 
     private Driver driver;
 
+    private List<EventListener> registeredEventListeners = new LinkedList<>();
+
     public Neo4jSession(MetaData metaData, Driver driver) {
 
         this.metaData = metaData;
@@ -67,6 +71,20 @@ public class Neo4jSession implements Session {
         this.txManager = new DefaultTransactionManager(this, driver);
     }
 
+    @Override
+    public void register(EventListener eventListener) {
+        registeredEventListeners.add(eventListener);
+    }
+
+    @Override
+    public void notifyListeners(Event event) {
+        Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
+        while(eventListenerIterator.hasNext()) {
+            EventListener eventListener = eventListenerIterator.next();
+            if (eventListener == null) registeredEventListeners.remove(eventListener);
+            else eventListener.update(event);
+        }
+    }
     /*
      *----------------------------------------------------------------------------------------------------------
      * loadOneHandler

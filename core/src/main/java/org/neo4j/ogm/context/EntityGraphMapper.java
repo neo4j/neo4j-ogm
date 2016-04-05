@@ -221,6 +221,7 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private void updateNode(Object entity, CompileContext context, NodeBuilder nodeBuilder) {
         if (mappingContext.isDirty(entity)) {
+            // fire event
             logger.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);

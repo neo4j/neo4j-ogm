@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-ogm-api</artifactId>
-      <version>${neo4j.ogm.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

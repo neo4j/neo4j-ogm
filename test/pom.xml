@@ -29,19 +29,19 @@
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-ogm-http-driver</artifactId>
-      <version>${neo4j.ogm.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-ogm-embedded-driver</artifactId>
-      <version>${neo4j.ogm.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-ogm-bolt-driver</artifactId>
-      <version>${neo4j.ogm.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>

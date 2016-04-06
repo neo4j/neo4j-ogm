@@ -79,12 +79,17 @@ public class Neo4jSession implements Session {
     @Override
     public void notifyListeners(Event event) {
         Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
-        while(eventListenerIterator.hasNext()) {
+        while (eventListenerIterator.hasNext()) {
             EventListener eventListener = eventListenerIterator.next();
-            if (eventListener == null) registeredEventListeners.remove(eventListener);
-            else eventListener.update(event);
+            if (eventListener == null) {
+                registeredEventListeners.remove(eventListener);
+            }
+            else {
+                eventListener.update(event);
+            }
         }
     }
+
     /*
      *----------------------------------------------------------------------------------------------------------
      * loadOneHandler
@@ -144,6 +149,7 @@ public class Neo4jSession implements Session {
     public <T> Collection<T> loadAll(Class<T> type, SortOrder sortOrder, Pagination pagination, int depth) {
         return loadByTypeHandler.loadAll(type, sortOrder, pagination, depth);
     }
+
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filter filter) {
         return loadByTypeHandler.loadAll(type, filter);
@@ -423,8 +429,8 @@ public class Neo4jSession implements Session {
     // These helper methods for the delegates are deliberately NOT defined on the Session interface
     //
     public QueryStatements queryStatementsFor(Class type) {
-        if(metaData.isRelationshipEntity(type.getName())) {
-                return new VariableDepthRelationshipQuery();
+        if (metaData.isRelationshipEntity(type.getName())) {
+            return new VariableDepthRelationshipQuery();
         }
         return new VariableDepthQuery();
     }

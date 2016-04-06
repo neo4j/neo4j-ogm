@@ -31,6 +31,7 @@ public class Knows {
     private Actor firstActor;
     @EndNode
     private Actor secondActor;
+
     private Date since;
 
     public Actor getFirstActor() {
@@ -55,5 +56,35 @@ public class Knows {
 
     public void setSince(Date since) {
         this.since = since;
+    }
+
+    @Override
+    public String toString() {
+        return "Knows {" +
+                "since='" + since + '\'' +
+                ", source='" + firstActor + '\'' +
+                ", target='" + secondActor + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Knows knows = (Knows) o;
+
+        if (!firstActor.equals(knows.firstActor)) return false;
+        if (!secondActor.equals(knows.secondActor)) return false;
+
+        return true;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = firstActor.hashCode();
+        result = 31 * result + secondActor.hashCode();
+        return result;
     }
 }

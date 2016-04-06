@@ -91,4 +91,8 @@ public class TransientRelationship {
     public Class getTgtClass() {
         return tgtClass;
     }
+
+    public String toString() {
+        return String.format("(%s)-[%s:%s]->(%s)", src, ref, rel, tgt);
+    }
 }

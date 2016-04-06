@@ -13,19 +13,12 @@
 
 package org.neo4j.ogm.context;
 
-import java.lang.reflect.Field;
-import java.util.Iterator;
-
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.FieldWriter;
-import org.neo4j.ogm.annotations.PropertyReader;
-import org.neo4j.ogm.annotations.RelationalReader;
+import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.compiler.NodeBuilder;
@@ -36,6 +29,9 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.service.Components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.Iterator;
 
 /**
  * Implementation of {@link EntityMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
@@ -150,26 +146,50 @@ public class EntityGraphMapper implements EntityMapper {
         Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.mappedRelationships().iterator();
 
         while (mappedRelationshipIterator.hasNext()) {
+
             MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+            // if we cannot remove this relationship from the compile context, it
+            // means the user has deleted the relationship
             if (!context.removeRegisteredRelationship(mappedRelationship)) {
-                logger.debug("context-del: (${})-[{}:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
+
+                logger.debug("context-del: {}", mappedRelationship);
+
+                // ensure we fire events for the nodes either side of the deleted relationship
+                Object s = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
+                Object t = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
+                if (s != null) {
+                    System.out.println("registering: " + s);
+                    context.register(s);
+                }
+                if (t != null) {
+                    context.register(t);
+                    System.out.println("registering: " + t);
+                }
+
+                // tell the compiler to prepare a statement that will delete the relationship from the graph
                 compiler.unrelate(mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId(), mappedRelationship.getRelationshipId());
+
+                // remove all nodes that are referenced by this relationship in the mapping context
+                // this will ensure that stale versions of these objects don't exist
                 clearRelatedObjects(mappedRelationship.getStartNodeId());
+
+                // finally remove the relationship from the mapping context
                 mappedRelationshipIterator.remove();
             }
         }
     }
 
     private void clearRelatedObjects(Long node) {
+
         for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
             if (mappedRelationship.getStartNodeId() == node || mappedRelationship.getEndNodeId() == node) {
+
                 Object dirty = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
-                // forward
                 if (dirty != null) {
                     logger.debug("flushing end node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
                     mappingContext.deregister(dirty, mappedRelationship.getEndNodeId());
                 }
-                // reverse
+
                 dirty = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
                 if (dirty != null) {
                     logger.debug("flushing start node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());

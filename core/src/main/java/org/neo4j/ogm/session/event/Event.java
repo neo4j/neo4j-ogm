@@ -15,9 +15,16 @@ package org.neo4j.ogm.session.event;
 
 /**
  * @author Mihai Raulea
+ * @author Vince Bickers
  */
 public interface Event {
 
     Object getTargetObject();
+    LIFECYCLE getLifeCycle();
+
+    enum LIFECYCLE {
+        PRE_SAVE, POST_SAVE, PRE_DELETE, POST_DELETE
+    }
+
 
 }

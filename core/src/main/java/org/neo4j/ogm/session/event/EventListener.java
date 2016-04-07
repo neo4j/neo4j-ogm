@@ -18,6 +18,9 @@ package org.neo4j.ogm.session.event;
  */
 public interface EventListener {
 
-    void update(Event event);
+    void onPreSave(Event event);
+    void onPostSave(Event event);
+    void onPreDelete(Event event);
+    void onPostDelete(Event event);
 
 }

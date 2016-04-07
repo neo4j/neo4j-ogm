@@ -50,15 +50,17 @@ public class EventTest extends MultiDriverTestClass {
     Knows knowsLS;
     Knows knowsJL;
 
-    EventListenerTest eventListenerTest;
+    TestEventListener eventListener;
 
     @Before
     public void init() throws IOException {
+
         // each test should instantiate a new one
-        eventListenerTest = null;
+        eventListener = null;
+
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
         session = sessionFactory.openSession();
-        //session.purgeDatabase();
+
         a = new Document();
         a.setName("a");
 
@@ -120,132 +122,34 @@ public class EventTest extends MultiDriverTestClass {
 
     }
 
-//    @Test
-//    public void shouldFireEventsForNewAndExistingDocuments() {
-//
-//        eventListenerTest = new EventListenerTest();
-//        session.register(eventListenerTest);
-//
-//        // these nodes are new
-//        Document e = new Document();
-//        e.setName("newE");
-//        session.save(e);
-//
-//        Document f = new Document();
-//        f.setName("newF");
-//        session.save(f);
-//
-//        Document g = new Document();
-//        g.setName("newG");
-//        session.save(g);
-//
-//        // this node already exists
-//        d.setName("newD");
-//        session.save(d);
-//
-//        assertEquals(8, eventListenerTest.count());
-//
-//        assertTrue(eventListenerTest.captured(d, Event.LIFECYCLE.PRE_SAVE));
-//        assertTrue(eventListenerTest.captured(d, Event.LIFECYCLE.POST_SAVE));
-//        assertTrue(eventListenerTest.captured(e, Event.LIFECYCLE.PRE_SAVE));
-//        assertTrue(eventListenerTest.captured(e, Event.LIFECYCLE.POST_SAVE));
-//        assertTrue(eventListenerTest.captured(f, Event.LIFECYCLE.PRE_SAVE));
-//        assertTrue(eventListenerTest.captured(f, Event.LIFECYCLE.POST_SAVE));
-//        assertTrue(eventListenerTest.captured(g, Event.LIFECYCLE.PRE_SAVE));
-//        assertTrue(eventListenerTest.captured(g, Event.LIFECYCLE.POST_SAVE));
-//    }
-
-
-//    @Test
-//    public void testAddNewRelationships() {
-//        int noOfExpectedEvents = 4;
-//        eventListenerTest = new EventListenerTest();
-//        session.register(eventListenerTest);
-//
-//        d.setFolder(folder);
-//        session.save(d);
-//
-//        e.setFolder(folder);
-//        session.save(e);
-//
-//        TargetObjectCount[] targetObjectCounts = new TargetObjectCount[1];
-//        TargetObjectCount targetObjectCount = new TargetObjectCount();
-//        targetObjectCount.count = 4;
-//        targetObjectCount.targetObjectType = TransientRelationship.class;
-//        targetObjectCounts[0] = targetObjectCount;
-//
-//        testExpectedNumberOfEventsInQueue(eventListenerTest, noOfExpectedEvents);
-//        testCountOfExpectedTargetObjects(eventListenerTest, targetObjectCounts);
-//    }
-
-//    @Test
-//    public void testAlterOneRelationshipEntity() {
-//        // when altering a relationship, the relationship is first deleted, and then added.
-//        // every relationship altered triggers 2 events(TransientRelationship and RelationshipEntity)
-//        int noOfExpectedEvents = 4;
-//        eventListenerTest = new EventListenerTest();
-//        session.register(eventListenerTest);
-//
-//        // i need a random date here, otherwise it will not be counted as dirty
-//        Random r = new Random();
-//        knowsJB.setSince(new Date((long) (1293861599 + r.nextDouble() * 60 * 60 * 24 * 365)));
-//        session.save(knowsJB);
-//
-//        TargetObjectCount[] targetObjectCounts = new TargetObjectCount[2];
-//        TargetObjectCount targetObjectCount = new TargetObjectCount();
-//        targetObjectCount.count = 2;
-//        targetObjectCount.targetObjectType = TransientRelationship.class;
-//        targetObjectCounts[0] = targetObjectCount;
-//
-//        TargetObjectCount targetObjectCount2 = new TargetObjectCount();
-//        targetObjectCount2.count = 2;
-//        targetObjectCount2.targetObjectType = Knows.class;
-//        targetObjectCounts[1] = targetObjectCount2;
-//
-//        testExpectedNumberOfEventsInQueue(eventListenerTest, noOfExpectedEvents);
-//        testCountOfExpectedTargetObjects(eventListenerTest, targetObjectCounts);
-//    }
-
-//    @Test
-//    public void testAlterMultipleRelationshipEntitiesWhoseObjectsAreNotConnected() {
-//        int noOfExpectedEvents = 14;
-//        eventListenerTest = new EventListenerTest();
-//        session.register(eventListenerTest);
-//        Random r = new Random();
-//        knowsJB.setSince(new Date((long) (1293861599 + r.nextDouble() * 60 * 60 * 24 * 365)));
-//        session.save(knowsJB);
-//
-//        knowsLS.setSince(new Date((long) (1293861599 + r.nextDouble() * 60 * 60 * 24 * 365)));
-//        session.save(knowsLS);
-//
-//        TargetObjectCount[] targetObjectCounts = new TargetObjectCount[2];
-//        TargetObjectCount targetObjectCount = new TargetObjectCount();
-//        targetObjectCount.count = 8;
-//        targetObjectCount.targetObjectType = TransientRelationship.class;
-//        targetObjectCounts[0] = targetObjectCount;
-//
-//        TargetObjectCount targetObjectCount2 = new TargetObjectCount();
-//        targetObjectCount2.count = 6;
-//        targetObjectCount2.targetObjectType = Knows.class;
-//        targetObjectCounts[1] = targetObjectCount2;
-//
-//        testExpectedNumberOfEventsInQueue(eventListenerTest, noOfExpectedEvents);
-//        testCountOfExpectedTargetObjects(eventListenerTest, targetObjectCounts);
-//    }
-
-
-
-    // session.save(<? implements Collection>);
-    class EventListenerTest implements EventListener {
+    class TestEventListener implements EventListener {
 
         public List<Event> eventsCaptured;
 
-        public EventListenerTest() {
+        public TestEventListener() {
             eventsCaptured = new ArrayList<>();
         }
 
         @Override
-        public void update(Event event) {
+        public void onPreSave(Event event) {
+            eventsCaptured.add(event);
+            System.out.println(event.toString());
+        }
+
+        @Override
+        public void onPostSave(Event event) {
+            eventsCaptured.add(event);
+            System.out.println(event.toString());
+        }
+
+        @Override
+        public void onPreDelete(Event event) {
+            eventsCaptured.add(event);
+            System.out.println(event.toString());
+        }
+
+        @Override
+        public void onPostDelete(Event event) {
             eventsCaptured.add(event);
             System.out.println(event.toString());
         }
@@ -266,73 +170,6 @@ public class EventTest extends MultiDriverTestClass {
         }
     }
 
-//    @Test
-//    public void eventIntegrationTest() {
-//        this.eventListenerTest = new EventListenerTest();
-//        session.register(eventListenerTest);
-//
-//        a.setName("newA");
-//        b.setName("newB");
-//        c.setName("newC");
-//        folder.setName("newFolder");
-//
-//        session.save(folder);
-//        Document aa = session.load(Document.class, a.getId());
-//        Document bb = session.load(Document.class, b.getId());
-//        System.out.println(aa.getName());
-//        System.out.println(bb.getName());
-//        System.out.println(folder.getName());
-//
-//        testExpectedNumberOfEventsInQueue(eventListenerTest, 8);
-//    }
-
-//    private void testExpectedNumberOfEventsInQueue(EventListenerTest eventListener, int noOfExpectedEvents) {
-//        assertTrue(eventListener.count() == noOfExpectedEvents);
-//    }
-//
-//    private void testCountOfExpectedTargetObjects(EventListenerTest eventListener, TargetObjectCount[] targetObjectCountArray) {
-//        int noOfConsideredObjects = 0;
-//        int noOfCaughtObjects = 0;
-//        for (TargetObjectCount targetObjectCount : targetObjectCountArray) {
-//            int[] result = getConsideredObjectsAndCaughtObjects(eventListener, targetObjectCount);
-//            noOfCaughtObjects += result[0];
-//            noOfConsideredObjects = result[1];
-//        }
-//        assertTrue(noOfCaughtObjects == noOfConsideredObjects);
-//    }
-
-
-//    private int[] getConsideredObjectsAndCaughtObjects(EventListenerTest eventListener, TargetObjectCount targetObjectCount) {
-//        int noOfCaughtObjectsOfType = 0;
-//        int noOfConsideredObjects = 0;
-//        int[] result = new int[2];
-//
-//        for (Event event : eventListener.eventsCaptured) {
-//            Object caughtObject = event.getTargetObject();
-//            noOfConsideredObjects++;
-//            if (targetObjectCount.targetObjectType.isInstance(caughtObject)) {
-//                noOfCaughtObjectsOfType++;
-//            }
-//
-//        }
-//
-//        for (int i = 0; i < eventListener.eventsCaptured.size(); i++) {
-//            Object caughtObject = eventListener.eventsCaptured[i].getTargetObject();
-//            noOfConsideredObjects++;
-//            if (targetObjectCount.targetObjectType.isInstance(caughtObject)) {
-//                noOfCaughtObjectsOfType++;
-//            }
-//        }
-//        result[0] = noOfCaughtObjectsOfType;
-//        result[1] = noOfConsideredObjects;
-//        return result;
-//    }
-
-//    class TargetObjectCount {
-//        public Class targetObjectType;
-//        public int count;
-//    }
-//
     @After
     public void clean() throws IOException {
         session.purgeDatabase();

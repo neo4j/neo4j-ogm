@@ -85,7 +85,22 @@ public class Neo4jSession implements Session {
                 registeredEventListeners.remove(eventListener);
             }
             else {
-                eventListener.update(event);
+                switch (event.getLifeCycle()) {
+                    case PRE_SAVE:
+                        eventListener.onPreSave(event);
+                        break;
+                    case POST_SAVE:
+                        eventListener.onPostSave(event);
+                        break;
+                    case PRE_DELETE:
+                        eventListener.onPreDelete(event);
+                        break;
+                    case POST_DELETE:
+                        eventListener.onPostDelete(event);
+                        break;
+                    default:
+                        logger.warn("Event not recognised: {}", event);
+                }
             }
         }
     }

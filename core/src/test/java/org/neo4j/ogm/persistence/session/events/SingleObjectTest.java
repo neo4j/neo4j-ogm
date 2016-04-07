@@ -33,87 +33,87 @@ public class SingleObjectTest extends EventTest {
     @Test
     public void shouldNotFireEventsIfObjectHasNotChanged() {
 
-        this.eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         session.save(folder);
-        assertEquals(0, eventListenerTest.count());
+        assertEquals(0, eventListener.count());
     }
 
     @Test
     public void shouldNotFireEventsOnLoad() {
 
-        this.eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        this.eventListener = new TestEventListener();
+        session.register(eventListener);
 
         session.load(Folder.class, folder.getId());
-        assertEquals(0, eventListenerTest.count());
+        assertEquals(0, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsWhenCreatingNewEntity() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         Document e = new Document();
         e.setName("e");
         session.save(e);
 
-        assertEquals(2, eventListenerTest.count());
+        assertEquals(2, eventListener.count());
 
-        assertTrue(eventListenerTest.captured(e, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(e, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(e, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(e, Event.LIFECYCLE.POST_SAVE));
     }
 
     @Test
     public void shouldFireEventsWhenUpdatingExistingEntity() {
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         a.setName("newA");
         session.save(a);
 
-        assertEquals(2, eventListenerTest.count());
+        assertEquals(2, eventListener.count());
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
 
     }
 
     @Test
     public void shouldFireEventsWhenSettingNullProperty() {
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         a.setName(null);
         session.save(a);
 
-        assertEquals(2, eventListenerTest.count());
+        assertEquals(2, eventListener.count());
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
 
     }
 
     @Test
     public void shouldFireEventsWhenDeletingRelationshipEntity() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         session.delete(knowsJL);
 
-        assertTrue(eventListenerTest.captured(knowsJL, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(knowsJL, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.POST_DELETE));
 
-        assertTrue(eventListenerTest.captured(jim, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(jim, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.POST_SAVE));
 
-        assertTrue(eventListenerTest.captured(lee, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(lee, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(lee, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(lee, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(6, eventListenerTest.count());
+        assertEquals(6, eventListener.count());
 
     }
 
@@ -122,12 +122,12 @@ public class SingleObjectTest extends EventTest {
 
         Document unpersistedDocument = new Document();
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         session.delete(unpersistedDocument);
 
-        assertEquals(0, eventListenerTest.count());
+        assertEquals(0, eventListener.count());
 
     }
 
@@ -135,18 +135,18 @@ public class SingleObjectTest extends EventTest {
     @Test
     public void shouldFireEventsWhenUpdatingRelationshipEntity() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         Random r = new Random();
         knowsJL.setSince((new Date((long) (1293861599 + r.nextDouble() * 60 * 60 * 24 * 365))));
 
         session.save(knowsJL);
 
-        assertTrue(eventListenerTest.captured(knowsJL, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(knowsJL, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(2, eventListenerTest.count());
+        assertEquals(2, eventListener.count());
 
 
     }
@@ -154,8 +154,8 @@ public class SingleObjectTest extends EventTest {
     @Test
     public void shouldFireEventsWhenCreatingRelationshipEntity() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         Random r = new Random();
         Knows knowsBS = new Knows();
@@ -168,14 +168,14 @@ public class SingleObjectTest extends EventTest {
 
         session.save(bruce);
 
-        assertTrue(eventListenerTest.captured(knowsBS, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(knowsBS, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(bruce, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(bruce, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(stan, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(stan, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(knowsBS, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(knowsBS, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(stan, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(stan, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(6, eventListenerTest.count());
+        assertEquals(6, eventListener.count());
     }
 
 }

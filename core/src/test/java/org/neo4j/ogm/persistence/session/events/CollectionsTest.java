@@ -31,8 +31,8 @@ public class CollectionsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenSavingACollection() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         a.setName("newA");
         b.setName("newB");
@@ -44,22 +44,22 @@ public class CollectionsTest extends EventTest {
 
         session.save(saveList);
 
-        assertEquals(6, eventListenerTest.count());
+        assertEquals(6, eventListener.count());
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_SAVE));
 
     }
 
     @Test
     public void shouldFireEventsWhenDeletingACollection() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         List<Object> deleteList = new LinkedList<>();
         deleteList.add(a);
@@ -68,35 +68,35 @@ public class CollectionsTest extends EventTest {
 
         session.delete(deleteList);
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_DELETE));
-        assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.POST_DELETE));
-        assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_DELETE));
 
         // even though we haven't updated the folder object, the database
         // has removed the relationships between the folder and the documents, so
         // the folder events must fire
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(8, eventListenerTest.count());
+        assertEquals(8, eventListener.count());
 
     }
 
     @Test
     public void shouldFireEventWhenDeletingAllObjectsOfASpecifiedType() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         session.deleteAll(Document.class);
 
-        assertEquals(2, eventListenerTest.count());
+        assertEquals(2, eventListener.count());
 
-        assertTrue(eventListenerTest.captured(Document.class, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(Document.class, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(Document.class, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(Document.class, Event.LIFECYCLE.POST_DELETE));
 
     }
 

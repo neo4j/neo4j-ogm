@@ -30,8 +30,8 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldNotFireEventsOnAssociatedFolderThatHasNotChanged() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         // even though the document is updated,
         // its associated folder has not changed,
@@ -39,17 +39,17 @@ public class AssociatedObjectsTest extends EventTest {
         a.setName("newA");
         session.save(a);
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(2, eventListenerTest.count());
+        assertEquals(2, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsForAllDirtyObjectsThatAreReachableFromTheRoot() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         // the documents b and c are connected to a via a shared folder,
         // so events should fire for each of a,b and c
@@ -58,22 +58,22 @@ public class AssociatedObjectsTest extends EventTest {
         c.setName("newC");
         session.save(a);
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(6, eventListenerTest.count());
+        assertEquals(6, eventListener.count());
 
     }
 
     @Test
     public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithInconsistentDomainModel() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         session.delete(a);  // a has a folder object reference
 
@@ -83,13 +83,13 @@ public class AssociatedObjectsTest extends EventTest {
         // the folder and the document has been deleted in the graph, we must
         // fire events for the folder.
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
 
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
 
 
     }
@@ -97,27 +97,27 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithConsistentDomainModel() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         folder.getDocuments().remove(a);
         session.delete(a);  // a has a folder object reference
 
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
 
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
 
     }
 
     @Test
     public void shouldFireEventsWhenAddNewObjectInCollectionAndSaveCollection() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         // add a new document to an existing folder and save the document
         Document z = new Document();
@@ -126,19 +126,19 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(folder);
 
-        assertTrue(eventListenerTest.captured(z, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(z, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(z, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(z, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsWhenAddNewObjectToCollectionAndSaveNewObject() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         // add a new document to an existing folder and save the document
         Document z = new Document();
@@ -147,39 +147,39 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(z);
 
-        assertTrue(eventListenerTest.captured(z, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(z, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(z, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(z, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveExistingObject() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         d.setFolder(folder);
         folder.getDocuments().add(d);
 
         session.save(d);
 
-        assertTrue(eventListenerTest.captured(d, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(d, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(d, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(d, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
 
     }
 
     @Test
     public void shouldFireEventsWhenSetAssociatedObjectToNewAnonymousObject() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         a.setFolder(new Folder());
         folder.getDocuments().remove(a);
@@ -187,25 +187,25 @@ public class AssociatedObjectsTest extends EventTest {
         session.save(a);
 
         // events for creation of new object
-        assertTrue(eventListenerTest.captured(new Folder(), Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(new Folder(), Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(new Folder(), Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(new Folder(), Event.LIFECYCLE.POST_SAVE));
 
         // events for update of a's folder relationship
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
 
         // events for updates of folder's relationship to a
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(6, eventListenerTest.count());
+        assertEquals(6, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveCollection() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         assertNull(d.getFolder());
 
@@ -214,49 +214,49 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(folder);
 
-        assertTrue(eventListenerTest.captured(d, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(d, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(d, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(d, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveContainer() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         folder.getDocuments().remove(a);
         a.setFolder(null);
 
         session.save(folder);
 
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
     }
 
     @Test
     public void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveItem() {
 
-        eventListenerTest = new EventListenerTest();
-        session.register(eventListenerTest);
+        eventListener = new TestEventListener();
+        session.register(eventListener);
 
         folder.getDocuments().remove(a);
         a.setFolder(null);
 
         session.save(a);
 
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
 
-        assertEquals(4, eventListenerTest.count());
+        assertEquals(4, eventListener.count());
     }
 }

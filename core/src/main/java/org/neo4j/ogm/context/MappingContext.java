@@ -193,7 +193,6 @@ public class MappingContext {
             for (ClassInfo implementingClass : implementingClasses) {
                 try {
                     String implementingClassName = implementingClass.name();
-                    //clear(Class.forName(implementingClassName));
                     clear(MetaDataClassLoader.loadClass(implementingClassName));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -279,11 +278,46 @@ public class MappingContext {
             if (metaData.isRelationshipEntity(type.getName()) && relationshipEntityRegister.containsKey(id)) {
                 relationshipEntityRegister.remove(id);
                 RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity));
-                clear(startNodeReader.read(entity));
+                Object startNode = startNodeReader.read(entity);
+                clear(startNode);
                 RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(entity));
-                clear(endNodeReader.read(entity));
+                Object endNode = endNodeReader.read(entity);
+                clear(endNode);
             }
         }
     }
 
+    public Set<Object> neighbours(Object entity) {
+
+        Set<Object> neighbours = new HashSet<>();
+
+        Class<?> type = entity.getClass();
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+
+        Long id = (Long) identityReader.read(entity);
+
+        if (id != null) {
+            if (nodeEntityRegister.containsKey(id)) {
+                Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
+                while (mappedRelationshipIterator.hasNext()) {
+                    MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+                    if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+                        Object affectedObject = mappedRelationship.getEndNodeId() == id ? nodeEntityRegister.get(mappedRelationship.getStartNodeId()) : nodeEntityRegister.get(mappedRelationship.getEndNodeId());
+                        if (affectedObject != null) {
+                            neighbours.add(affectedObject);
+                        }
+                    }
+                }
+            }
+            else if (relationshipEntityRegister.containsKey(id)) {
+                RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(classInfo);
+                RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(classInfo);
+                neighbours.add(startNodeReader.read(entity));
+                neighbours.add(endNodeReader.read(entity));
+            }
+        }
+
+        return neighbours;
+    }
 }

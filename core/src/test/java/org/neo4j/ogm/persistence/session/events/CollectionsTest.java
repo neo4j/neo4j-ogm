@@ -68,14 +68,20 @@ public class CollectionsTest extends EventTest {
 
         session.delete(deleteList);
 
-        assertEquals(6, eventListenerTest.count());
-
         assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_DELETE));
         assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListenerTest.captured(b, Event.LIFECYCLE.POST_DELETE));
         assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListenerTest.captured(c, Event.LIFECYCLE.POST_DELETE));
+
+        // even though we haven't updated the folder object, the database
+        // has removed the relationships between the folder and the documents, so
+        // the folder events must fire
+        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+
+        assertEquals(8, eventListenerTest.count());
 
     }
 

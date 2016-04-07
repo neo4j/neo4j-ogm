@@ -104,10 +104,16 @@ public class SingleObjectTest extends EventTest {
 
         session.delete(knowsJL);
 
-        assertEquals(2, eventListenerTest.count());
-
         assertTrue(eventListenerTest.captured(knowsJL, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListenerTest.captured(knowsJL, Event.LIFECYCLE.POST_DELETE));
+
+        assertTrue(eventListenerTest.captured(jim, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListenerTest.captured(jim, Event.LIFECYCLE.POST_SAVE));
+
+        assertTrue(eventListenerTest.captured(lee, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListenerTest.captured(lee, Event.LIFECYCLE.POST_SAVE));
+
+        assertEquals(6, eventListenerTest.count());
 
     }
 

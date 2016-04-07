@@ -29,7 +29,9 @@ import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Vince Bickers
@@ -57,8 +59,13 @@ public class DeleteDelegate implements Capability.Delete {
         } else {
             list = (List<T>) object;
         }
-        for (T element : list) {
-            delete(element);
+
+        if (!list.isEmpty()) {
+            Set<Object> allNeighbours = new HashSet<>();
+            for (T element : list) {
+                allNeighbours.addAll(session.context().neighbours(element));
+            }
+            deleteOneOrMoreObjects(allNeighbours, list);
         }
     }
 
@@ -67,25 +74,43 @@ public class DeleteDelegate implements Capability.Delete {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             deleteAll(object);
         } else {
+            deleteOneOrMoreObjects(session.context().neighbours(object), Arrays.asList(object));
+        }
+    }
+
+    // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
+    private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
+
+        for (Object affectedObject : neighbours) {
+            session.notifyListeners(new PersistenceEvent(affectedObject, Event.LIFECYCLE.PRE_SAVE));
+        }
+
+        for (Object object : objects ) {
+
             ClassInfo classInfo = session.metaData().classInfo(object);
+
             if (classInfo != null) {
+
                 Field identityField = classInfo.getField(classInfo.identityField());
                 Long identity = (Long) FieldWriter.read(identityField, object);
                 if (identity != null) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
+                    session.notifyListeners(new PersistenceEvent(object, Event.LIFECYCLE.PRE_DELETE));
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-                    //notifyDelete(object, DeleteEvent.PRE);
-                    notifyDelete(object, Event.LIFECYCLE.PRE_DELETE);
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
-                        //notifyDelete(object, DeleteEvent.POST);
-                        notifyDelete(object, Event.LIFECYCLE.POST_DELETE);
+                        session.notifyListeners(new PersistenceEvent(object, Event.LIFECYCLE.POST_DELETE));
                     }
                 }
             } else {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
+
+        for (Object affectedObject : neighbours) {
+            session.notifyListeners(new PersistenceEvent(affectedObject, Event.LIFECYCLE.POST_SAVE));
+        }
+
     }
 
     @Override
@@ -94,12 +119,10 @@ public class DeleteDelegate implements Capability.Delete {
         if (classInfo != null) {
             Statement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
-            //notifyDelete(type,DeleteEvent.PRE);
-            notifyDelete(type, Event.LIFECYCLE.PRE_DELETE);
+            session.notifyListeners(new PersistenceEvent(type, Event.LIFECYCLE.PRE_DELETE));
             try (Response<RowModel> response = session.requestHandler().execute(query)) {
                 session.context().clear(type);
-                //notifyDelete(type,DeleteEvent.POST);
-                notifyDelete(type, Event.LIFECYCLE.POST_DELETE);
+                session.notifyListeners(new PersistenceEvent(type, Event.LIFECYCLE.POST_DELETE));
             }
         } else {
             session.warn(type.getName() + " is not a persistable class");
@@ -115,14 +138,6 @@ public class DeleteDelegate implements Capability.Delete {
         session.context().clear();
     }
 
-
-    private void notifyDelete(Object affectedObject, Event.LIFECYCLE lifecycle) {
-//        DeleteEvent deleteEvent = new DeleteEvent();
-//        deleteEvent.LIFECYCLE = lifecycle;
-//        deleteEvent.affectedObject = affectedObject;
-//        session.notifyListeners(deleteEvent);
-        session.notifyListeners(new PersistenceEvent(affectedObject, lifecycle));
-    }
 
     @Override
     public void clear() {

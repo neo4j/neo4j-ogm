@@ -69,19 +69,47 @@ public class AssociatedObjectsTest extends EventTest {
 
     }
 
-
     @Test
-    public void shouldNotFireEventsForAssociatedObjectsWhenDeletingParentObject() {
+    public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithInconsistentDomainModel() {
 
         eventListenerTest = new EventListenerTest();
         session.register(eventListenerTest);
 
         session.delete(a);  // a has a folder object reference
 
+        // note that we're not actually changing the folder object. It still
+        // has a reference to the deleted document a. This means the domain model
+        // will be internally inconsistent. Nevertheless, because the relationship between
+        // the folder and the document has been deleted in the graph, we must
+        // fire events for the folder.
+
         assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_DELETE));
 
-        assertEquals(2, eventListenerTest.count());
+        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+
+        assertEquals(4, eventListenerTest.count());
+
+
+    }
+
+    @Test
+    public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithConsistentDomainModel() {
+
+        eventListenerTest = new EventListenerTest();
+        session.register(eventListenerTest);
+
+        folder.getDocuments().remove(a);
+        session.delete(a);  // a has a folder object reference
+
+        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListenerTest.captured(a, Event.LIFECYCLE.POST_DELETE));
+
+        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListenerTest.captured(folder, Event.LIFECYCLE.POST_SAVE));
+
+        assertEquals(4, eventListenerTest.count());
 
     }
 

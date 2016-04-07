@@ -69,9 +69,9 @@ public class SaveDelegate implements Capability.Save {
             ClassInfo classInfo = session.metaData().classInfo(object);
             if (classInfo != null) {
                 CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
-                notifySave(context, Event.LIFECYCLE.PRE_SAVE);
+                notifySave(context.registry().iterator(), Event.LIFECYCLE.PRE_SAVE);
                 requestExecutor.executeSave(context);
-                notifySave(context, Event.LIFECYCLE.POST_SAVE);
+                notifySave(context.registry().iterator(), Event.LIFECYCLE.POST_SAVE);
             } else {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
@@ -94,10 +94,6 @@ public class SaveDelegate implements Capability.Save {
         notifySave(affectedObjects.iterator(), lifecycle);
     }
 
-
-    private void notifySave(CompileContext context, Event.LIFECYCLE lifecycle) {
-        notifySave(context.registry().iterator(), lifecycle);
-    }
 
     /**
      * Fire save notifications on the affected objects.
@@ -141,7 +137,7 @@ public class SaveDelegate implements Capability.Save {
             else {
                 TransientRelationship tr = (TransientRelationship) affectedObject;
                 // don't include RE's, they're already handled elsewhere as 'proper' objects
-                if (tr.getRef() <= 0) {
+                if (tr.getRef() < 0) {
 
                     // if the source object exists, it's been affected by relationship change
                     // so we need to fire an event

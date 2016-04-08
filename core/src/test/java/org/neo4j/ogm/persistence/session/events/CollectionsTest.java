@@ -17,8 +17,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.session.event.Event;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -31,18 +30,11 @@ public class CollectionsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenSavingACollection() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         a.setName("newA");
         b.setName("newB");
         c.setName("newC");
-        List<Object> saveList = new LinkedList<>();
-        saveList.add(a);
-        saveList.add(b);
-        saveList.add(c);
 
-        session.save(saveList);
+        session.save(Arrays.asList(a, b, c));
 
         assertEquals(6, eventListener.count());
 
@@ -58,15 +50,7 @@ public class CollectionsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenDeletingACollection() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
-        List<Object> deleteList = new LinkedList<>();
-        deleteList.add(a);
-        deleteList.add(b);
-        deleteList.add(c);
-
-        session.delete(deleteList);
+        session.delete(Arrays.asList(a, b, c));
 
         assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
@@ -88,15 +72,41 @@ public class CollectionsTest extends EventTest {
     @Test
     public void shouldFireEventWhenDeletingAllObjectsOfASpecifiedType() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         session.deleteAll(Document.class);
 
         assertEquals(2, eventListener.count());
 
         assertTrue(eventListener.captured(Document.class, Event.LIFECYCLE.PRE_DELETE));
         assertTrue(eventListener.captured(Document.class, Event.LIFECYCLE.POST_DELETE));
+
+    }
+
+    @Test
+    public void shouldFireEventsWhenDeletingObjectsOfDifferentTypes() {
+
+        session.delete(Arrays.asList(folder, knowsJB));
+
+        // object deletes
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(knowsJB, Event.LIFECYCLE.PRE_DELETE));
+        assertTrue(eventListener.captured(knowsJB, Event.LIFECYCLE.POST_DELETE));
+
+        // document updates
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_SAVE));
+
+        // people updates
+        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.PRE_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.POST_SAVE));
+
+        assertEquals(14, eventListener.count());
 
     }
 

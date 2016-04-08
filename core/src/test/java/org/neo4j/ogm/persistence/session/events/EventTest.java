@@ -37,29 +37,30 @@ import java.util.List;
  */
 public class EventTest extends MultiDriverTestClass {
 
-    Session session;
-    Document a;
-    Document b;
-    Document c;
-    Document d;
-    Document e;
-    Folder folder;
+    protected Session session;
+    protected Document a;
+    protected Document b;
+    protected Document c;
+    protected Document d;
+    protected Document e;
+    protected Folder folder;
 
-    Actor jim, bruce, lee, stan;
-    Knows knowsJB;
-    Knows knowsLS;
-    Knows knowsJL;
+    protected Actor jim, bruce, lee, stan;
+    protected Knows knowsJB;
+    protected Knows knowsLS;
+    protected Knows knowsJL;
 
-    TestEventListener eventListener;
+    protected TestEventListener eventListener = new TestEventListener();
 
     @Before
     public void init() throws IOException {
 
-        // each test should instantiate a new one
-        eventListener = null;
-
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
+
         session = sessionFactory.openSession();
+        session.purgeDatabase();
+
+        session.register(eventListener);
 
         a = new Document();
         a.setName("a");
@@ -87,9 +88,14 @@ public class EventTest extends MultiDriverTestClass {
         b.setFolder(folder);
         c.setFolder(folder);
 
-        session.save(folder);
         session.save(d);
+        System.out.println("****************************************");
+
         session.save(e);
+        System.out.println("****************************************");
+
+        session.save(folder);
+        System.out.println("****************************************");
 
         jim = new Actor("Jim");
         bruce = new Actor("Bruce");
@@ -103,6 +109,7 @@ public class EventTest extends MultiDriverTestClass {
 
         jim.getKnows().add(knowsJB);
         //session.save(knowsJB);
+        //System.out.println("****************************************");
 
         knowsJL = new Knows();
         knowsJL.setFirstActor(jim);
@@ -111,6 +118,7 @@ public class EventTest extends MultiDriverTestClass {
 
         jim.getKnows().add(knowsJL);
         //session.save(knowsJL);
+        //System.out.println("****************************************");
 
         knowsLS = new Knows();
         knowsLS.setFirstActor(lee);
@@ -119,6 +127,9 @@ public class EventTest extends MultiDriverTestClass {
 
         lee.getKnows().add(knowsLS);
         session.save(jim);
+        System.out.println("****************************************");
+
+        eventListener.clear();
 
     }
 
@@ -167,6 +178,10 @@ public class EventTest extends MultiDriverTestClass {
 
         public int count() {
             return eventsCaptured.size();
+        }
+
+        public void clear() {
+            eventsCaptured.clear();
         }
     }
 

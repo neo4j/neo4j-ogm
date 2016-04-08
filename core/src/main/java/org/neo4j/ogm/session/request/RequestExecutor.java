@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.compiler.CompileContext;
@@ -35,7 +31,6 @@ import org.neo4j.ogm.transaction.Transaction;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -304,7 +299,6 @@ public class RequestExecutor {
 			} else {
 				mappingContext.registerRelationshipEntity( persisted, identity );
 			}
-			mappingContext.remember(persisted); //remember the persisted entity so it isn't marked for rewrite just after it's been retrieved and had it's id set
 		}
 	}
 

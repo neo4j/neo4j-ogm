@@ -100,7 +100,8 @@ public class CypherCompilerTest {
         Student sheila = new Student("Sheila Smythe");
         Long sid = 0L;
         sheila.setId(sid);
-        mappingContext.remember(sheila);
+
+        mappingContext.registerNodeEntity(sheila, sid);
 
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
@@ -121,7 +122,7 @@ public class CypherCompilerTest {
         Student sheila = new Student();
         sheila.setId(existingNodeId);
         sheila.setName("Sheila Smythe");
-        mappingContext.remember(sheila);
+        mappingContext.registerNodeEntity(sheila, existingNodeId);
 
         Compiler compiler = mapAndCompile(sheila);
         compiler.useStatementFactory(new RowStatementFactory());
@@ -174,8 +175,9 @@ public class CypherCompilerTest {
         assertTrue(waller.getTeachers().size() == 1);
 
         // set the mapping context accordingly
-        mappingContext.remember(mary);
-        mappingContext.remember(waller);
+        mappingContext.registerNodeEntity(mary, maryId);
+        mappingContext.registerNodeEntity(waller, wallerId);
+
         mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
         mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
@@ -218,8 +220,8 @@ public class CypherCompilerTest {
         assertTrue(waller.getTeachers().size() == 1);
 
         // set the mapping context accordingly
-        mappingContext.remember(mary);
-        mappingContext.remember(waller);
+        mappingContext.registerNodeEntity(mary, maryId);
+        mappingContext.registerNodeEntity(waller, wallerId);
         mappingContext.registerRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
         mappingContext.registerRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
@@ -378,10 +380,10 @@ public class CypherCompilerTest {
         mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", yid, Course.class, Student.class));
         mappingContext.registerRelationship(new MappedRelationship(mid, "STUDENTS", zid, Course.class, Student.class));
 
-        mappingContext.remember(xavier);
-        mappingContext.remember(yvonne);
-        mappingContext.remember(zack);
-        mappingContext.remember(music);
+        mappingContext.registerNodeEntity(xavier, xid);
+        mappingContext.registerNodeEntity(yvonne, yid);
+        mappingContext.registerNodeEntity(zack, zid);
+        mappingContext.registerNodeEntity(music, mid);
 
         // now, update the domain model, setting yvonne as the only music student (i.e remove zack and xavier)
         music.setStudents(Arrays.asList(yvonne));
@@ -425,10 +427,10 @@ public class CypherCompilerTest {
         Student shivani = new Student("Shivani");
         shivani.setId(shivaniId);
 
-        mappingContext.remember(msThompson);
-        mappingContext.remember(businessStudies);
-        mappingContext.remember(designTech);
-        mappingContext.remember(shivani);
+        mappingContext.registerNodeEntity(msThompson, teacherId);
+        mappingContext.registerNodeEntity(businessStudies, businessStudiesCourseId);
+        mappingContext.registerNodeEntity(designTech, designTechnologyCourseId);
+        mappingContext.registerNodeEntity(shivani, shivaniId);
 
         mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, Teacher.class, Course.class));
         mappingContext.registerRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, Teacher.class, Course.class));
@@ -504,9 +506,9 @@ public class CypherCompilerTest {
         Assert.assertEquals(hillsRoad, missJones.getSchool());
 
 
-        mappingContext.remember(hillsRoad);
-        mappingContext.remember(mrWhite);
-        mappingContext.remember(missJones);
+        mappingContext.registerNodeEntity(hillsRoad, schoolId);
+        mappingContext.registerNodeEntity(mrWhite, whiteId);
+        mappingContext.registerNodeEntity(missJones, jonesId);
 
         mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, School.class, Teacher.class));
         mappingContext.registerRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, School.class, Teacher.class));
@@ -670,9 +672,8 @@ public class CypherCompilerTest {
 
         forum.setTopicsInForum(Arrays.asList(link));
 
-        mappingContext.remember(forum);
-        mappingContext.remember(topic);
-        mappingContext.remember(link);
+        mappingContext.registerNodeEntity(forum, forumId);
+        mappingContext.registerNodeEntity(topic, topicId);
         mappingContext.registerRelationshipEntity(link, relationshipId);
         MappedRelationship mappedRelationship = new MappedRelationship(forumId, "HAS_TOPIC", topicId, relationshipId, Forum.class, ForumTopicLink.class);
         mappingContext.registerRelationship(mappedRelationship);
@@ -716,9 +717,10 @@ public class CypherCompilerTest {
 
         forum.setTopicsInForum(Arrays.asList(link));
 
-        mappingContext.remember(forum);
-        mappingContext.remember(topic);
-        mappingContext.remember(link);
+        mappingContext.registerNodeEntity(forum, forumId);
+        mappingContext.registerNodeEntity(topic, topicId);
+        mappingContext.registerRelationshipEntity(link, linkId);
+
         // the mapping context remembers the relationship between the forum and the topic in the graph
         mappingContext.registerRelationship(new MappedRelationship(forumId, "HAS_TOPIC", topicId, Forum.class, ForumTopicLink.class));
 

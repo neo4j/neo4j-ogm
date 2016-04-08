@@ -162,11 +162,6 @@ public class MappingContextTest {
         collector.registerNodeEntity(healthcare, healthcare.getId());
         collector.registerNodeEntity(immigration, immigration.getId());
 
-        collector.remember(jim);
-        collector.remember(rik);
-        collector.remember(healthcare);
-        collector.remember(immigration);
-
         rik.setName("newRik");
 
         assertFalse(collector.isDirty(jim));
@@ -221,12 +216,11 @@ public class MappingContextTest {
 
                 TestObject testObject = (TestObject) collector.getNodeEntity(id);
                 if (testObject == null) {
-                    testObject = (TestObject) collector.registerNodeEntity(new TestObject(), id);
-                    synchronized (testObject) {
-                        if (testObject.id == null) {
-                            testObject.notes.add(String.valueOf(Thread.currentThread().getId()));
-                            testObject.id = id;
-                        }
+                    synchronized(this) {
+                        testObject = new TestObject();
+                        testObject.notes.add(String.valueOf(Thread.currentThread().getId()));
+                        testObject.id = id;
+                        collector.registerNodeEntity(testObject, id);
                     }
                 }
 

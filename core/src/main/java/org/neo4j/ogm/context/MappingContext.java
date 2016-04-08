@@ -35,12 +35,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MappingContext {
 
-    // we need multiple registers whose purpose is obvious from their names:
-
-    // NodeEntityRegister               register of domain entities whose properties are to be stored on Nodes
-    // RelationshipEntityRegister       register of domain entities whose properties are to be stored on Relationships
-    // RelationshipRegister             register of relationships between NodeEntities (i.e. as they are in the graph)
-
     private final Logger logger = LoggerFactory.getLogger(MappingContext.class);
 
     private final ConcurrentMap<Long, Object> relationshipEntityRegister = new ConcurrentHashMap<>();
@@ -67,11 +61,12 @@ public class MappingContext {
         nodeEntityRegister.putIfAbsent(id, entity);
         entity = nodeEntityRegister.get(id);
         registerTypes(entity.getClass(), entity, id);
+        remember(entity);
         return entity;
     }
 
     private void registerTypes(Class type, Object entity, Long id) {
-        getAll(type).put(id,entity);
+        getAll(type).put(id, entity);
         if (type.getSuperclass() != null
                 && metaData != null
                 && metaData.classInfo(type.getSuperclass().getName()) != null
@@ -99,7 +94,7 @@ public class MappingContext {
     }
 
     /**
-     * Deregisters an object from the mapping context
+     * De-registers an object from the mapping context
      * - removes the object instance from the typeRegister(s)
      * - removes the object id from the nodeEntityRegister
      * - removes any relationship entities from relationshipEntityRegister if they have this object either as start or end node
@@ -128,8 +123,7 @@ public class MappingContext {
         return objectList;
     }
 
-    // object memorisations
-    public void remember(Object entity) {
+    private void remember(Object entity) {
         Object id = entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
         assert id != null;
         objectMemo.remember((Long)id, entity, metaData.classInfo(entity));
@@ -174,6 +168,7 @@ public class MappingContext {
     public Object registerRelationshipEntity(Object relationshipEntity, Long id) {
         relationshipEntityRegister.putIfAbsent(id, relationshipEntity);
         registerTypes(relationshipEntity.getClass(), relationshipEntity, id);
+        remember(relationshipEntity);
         return relationshipEntity;
     }
 
@@ -239,8 +234,10 @@ public class MappingContext {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
-        purge(entity, identityReader, type);
         Long id = (Long) identityReader.read(entity);
+
+        purge(entity, identityReader, type);
+
         if (id!=null) {
             getAll(type).remove(id);
         }

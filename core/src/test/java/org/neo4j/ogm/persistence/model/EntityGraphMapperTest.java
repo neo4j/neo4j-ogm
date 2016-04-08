@@ -12,19 +12,6 @@
  */
 package org.neo4j.ogm.persistence.model;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,6 +39,11 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George
@@ -138,7 +130,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         Student sheila = new Student();
         sheila.setId(existingNodeId);
         sheila.setName("Sheila Smythe");
-        mappingContext.remember(sheila);
+        mappingContext.registerNodeEntity(sheila, sheila.getId());
 
         Compiler compiler = this.mapper.map(sheila).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());

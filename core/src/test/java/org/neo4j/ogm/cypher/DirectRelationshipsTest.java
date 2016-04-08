@@ -340,9 +340,6 @@ public class DirectRelationshipsTest {
         mappingContext.registerNodeEntity(document, document.getId());
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
 
-        mappingContext.remember(document);
-        mappingContext.remember(folder);
-
         document.setFolder(null);
         folder.getDocuments().clear();
 
@@ -387,10 +384,6 @@ public class DirectRelationshipsTest {
         mappingContext.registerNodeEntity(doc2, doc2.getId());
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
-
-        mappingContext.remember(doc1);
-        mappingContext.remember(doc2);
-        mappingContext.remember(folder);
 
         // when
         doc2.setFolder(null);
@@ -446,9 +439,6 @@ public class DirectRelationshipsTest {
         mappingContext.registerNodeEntity(doc1, doc1.getId());
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
         mappingContext.registerRelationship(new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), Folder.class, Document.class));
-
-        mappingContext.remember(doc1);
-        mappingContext.remember(folder);
 
         // when
         folder.getDocuments().remove(doc1);

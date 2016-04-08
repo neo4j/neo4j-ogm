@@ -30,9 +30,6 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldNotFireEventsOnAssociatedFolderThatHasNotChanged() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         // even though the document is updated,
         // its associated folder has not changed,
         // so no folder save events should fire
@@ -47,9 +44,6 @@ public class AssociatedObjectsTest extends EventTest {
 
     @Test
     public void shouldFireEventsForAllDirtyObjectsThatAreReachableFromTheRoot() {
-
-        eventListener = new TestEventListener();
-        session.register(eventListener);
 
         // the documents b and c are connected to a via a shared folder,
         // so events should fire for each of a,b and c
@@ -71,9 +65,6 @@ public class AssociatedObjectsTest extends EventTest {
 
     @Test
     public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithInconsistentDomainModel() {
-
-        eventListener = new TestEventListener();
-        session.register(eventListener);
 
         session.delete(a);  // a has a folder object reference
 
@@ -97,9 +88,6 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldFireEventsForAssociatedObjectsWhenDeletingParentObjectWithConsistentDomainModel() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         folder.getDocuments().remove(a);
         session.delete(a);  // a has a folder object reference
 
@@ -115,9 +103,6 @@ public class AssociatedObjectsTest extends EventTest {
 
     @Test
     public void shouldFireEventsWhenAddNewObjectInCollectionAndSaveCollection() {
-
-        eventListener = new TestEventListener();
-        session.register(eventListener);
 
         // add a new document to an existing folder and save the document
         Document z = new Document();
@@ -137,9 +122,6 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenAddNewObjectToCollectionAndSaveNewObject() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         // add a new document to an existing folder and save the document
         Document z = new Document();
         z.setFolder(folder);
@@ -158,9 +140,6 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveExistingObject() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         d.setFolder(folder);
         folder.getDocuments().add(d);
 
@@ -177,9 +156,6 @@ public class AssociatedObjectsTest extends EventTest {
 
     @Test
     public void shouldFireEventsWhenSetAssociatedObjectToNewAnonymousObject() {
-
-        eventListener = new TestEventListener();
-        session.register(eventListener);
 
         a.setFolder(new Folder());
         folder.getDocuments().remove(a);
@@ -204,9 +180,6 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenAddExistingObjectToCollectionAndSaveCollection() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         assertNull(d.getFolder());
 
         d.setFolder(folder);
@@ -225,9 +198,6 @@ public class AssociatedObjectsTest extends EventTest {
     @Test
     public void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveContainer() {
 
-        eventListener = new TestEventListener();
-        session.register(eventListener);
-
         folder.getDocuments().remove(a);
         a.setFolder(null);
 
@@ -243,9 +213,6 @@ public class AssociatedObjectsTest extends EventTest {
 
     @Test
     public void shouldFireEventsWhenItemDisassociatedFromContainerAndSaveItem() {
-
-        eventListener = new TestEventListener();
-        session.register(eventListener);
 
         folder.getDocuments().remove(a);
         a.setFolder(null);

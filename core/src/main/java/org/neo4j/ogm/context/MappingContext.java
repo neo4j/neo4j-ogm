@@ -265,23 +265,29 @@ public class MappingContext {
     private void purge(Object entity, PropertyReader identityReader, Class type) {
         Long id = (Long) identityReader.read(entity);
         if (id != null) {
-            if (nodeEntityRegister.containsKey(id)) {
-                nodeEntityRegister.remove(id);
-                // remove all relationship mappings to/from this object
-                Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
-                while (mappedRelationshipIterator.hasNext()) {
-                    MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
-                    if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
-                        mappedRelationshipIterator.remove();
+            if (!metaData.isRelationshipEntity(type.getName())) {
+                if (nodeEntityRegister.containsKey(id)) {
+                    nodeEntityRegister.remove(id);
+                    // remove all relationship mappings to/from this object
+                    Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
+                    while (mappedRelationshipIterator.hasNext()) {
+                        MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+                        if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+                            mappedRelationshipIterator.remove();
+                        }
                     }
                 }
             }
-            if (metaData.isRelationshipEntity(type.getName()) && relationshipEntityRegister.containsKey(id)) {
-                relationshipEntityRegister.remove(id);
-                RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity));
-                clear(startNodeReader.read(entity));
-                RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(entity));
-                clear(endNodeReader.read(entity));
+            else {
+                if (relationshipEntityRegister.containsKey(id)) {
+                    relationshipEntityRegister.remove(id);
+                    RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity));
+                    Object startNode = startNodeReader.read(entity);
+                    clear(startNode);
+                    RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(entity));
+                    Object endNode = endNodeReader.read(entity);
+                    clear(endNode);
+                }
             }
         }
     }

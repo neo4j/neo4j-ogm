@@ -62,23 +62,27 @@ public class SaveDelegate implements Capability.Save {
             for (Object element : objects) {
                 contexts.add(new EntityGraphMapper(session.metaData(), session.context()).map(element, depth));
             }
-            notifySave(contexts, Event.LIFECYCLE.PRE_SAVE);
+            notifySave(contexts, Event.TYPE.PRE_SAVE);
             requestExecutor.executeSave(contexts);
-            notifySave(contexts, Event.LIFECYCLE.POST_SAVE);
+            notifySave(contexts, Event.TYPE.POST_SAVE);
         } else {
             ClassInfo classInfo = session.metaData().classInfo(object);
             if (classInfo != null) {
                 CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
-                notifySave(context.registry().iterator(), Event.LIFECYCLE.PRE_SAVE);
+                if (session.eventsEnabled()) {
+                    notifySave(context.registry().iterator(), Event.TYPE.PRE_SAVE);
+                }
                 requestExecutor.executeSave(context);
-                notifySave(context.registry().iterator(), Event.LIFECYCLE.POST_SAVE);
+                if (session.eventsEnabled()) {
+                    notifySave(context.registry().iterator(), Event.TYPE.POST_SAVE);
+                }
             } else {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
         }
     }
 
-    private void notifySave(List<CompileContext> contexts, Event.LIFECYCLE lifecycle) {
+    private void notifySave(List<CompileContext> contexts, Event.TYPE lifecycle) {
         List<Object> affectedObjects = new LinkedList<>();
         Iterator<CompileContext> compileContextIterator = contexts.iterator();
         while (compileContextIterator.hasNext()) {
@@ -125,7 +129,7 @@ public class SaveDelegate implements Capability.Save {
      * @param affectedObjectsIterator an {@link Iterator} of objects on which to fire events
      * @param lifecycle
      */
-    private void notifySave(Iterator<Object> affectedObjectsIterator, Event.LIFECYCLE lifecycle) {
+    private void notifySave(Iterator<Object> affectedObjectsIterator, Event.TYPE lifecycle) {
 
         while (affectedObjectsIterator.hasNext()) {
 

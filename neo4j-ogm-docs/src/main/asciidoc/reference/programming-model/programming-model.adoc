@@ -24,5 +24,7 @@ include::transactions.adoc[]
 
 include::attachdetach.adoc[]
 
+include::events.adoc[]
+
 :leveloffset: -1
 

@@ -36,8 +36,8 @@ public class AssociatedObjectsTest extends EventTest {
         a.setName("newA");
         session.save(a);
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
 
         assertEquals(2, eventListener.count());
     }
@@ -52,12 +52,12 @@ public class AssociatedObjectsTest extends EventTest {
         c.setName("newC");
         session.save(a);
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(b, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(b, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(c, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(c, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
 
@@ -74,11 +74,11 @@ public class AssociatedObjectsTest extends EventTest {
         // the folder and the document has been deleted in the graph, we must
         // fire events for the folder.
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_DELETE));
 
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
 
@@ -91,11 +91,11 @@ public class AssociatedObjectsTest extends EventTest {
         folder.getDocuments().remove(a);
         session.delete(a);  // a has a folder object reference
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_DELETE));
 
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
 
@@ -111,10 +111,10 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(folder);
 
-        assertTrue(eventListener.captured(z, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(z, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(z, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(z, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
     }
@@ -129,10 +129,10 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(z);
 
-        assertTrue(eventListener.captured(z, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(z, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(z, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(z, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
     }
@@ -145,10 +145,10 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(d);
 
-        assertTrue(eventListener.captured(d, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(d, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(d, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(d, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
 
@@ -163,16 +163,16 @@ public class AssociatedObjectsTest extends EventTest {
         session.save(a);
 
         // events for creation of new object
-        assertTrue(eventListener.captured(new Folder(), Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(new Folder(), Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(new Folder(), Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(new Folder(), Event.TYPE.POST_SAVE));
 
         // events for update of a's folder relationship
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
 
         // events for updates of folder's relationship to a
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
     }
@@ -187,10 +187,10 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(folder);
 
-        assertTrue(eventListener.captured(d, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(d, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(d, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(d, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
     }
@@ -203,10 +203,10 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(folder);
 
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
     }
@@ -219,10 +219,10 @@ public class AssociatedObjectsTest extends EventTest {
 
         session.save(a);
 
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
     }

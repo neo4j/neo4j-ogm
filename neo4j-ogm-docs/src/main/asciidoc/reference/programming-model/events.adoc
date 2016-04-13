@@ -1,137 +1,259 @@
-[[reference_programming-model_attachdetach]]
-= Entity Management
+[[reference_programming-model_events]]
+= Events
 
-[[reference_programming-model_lifecycle_persistence]]
-== Persisting Entities
+As of version 2.1, Neo4j OGM supports persistence events.
 
-Entity persistence is performed through the `save()` method on the underlying `Session` object.
+== Event Types
 
-Under the bonnet, the implementation of `Session` has access to the `MappingContext` that keeps track of the data that has been loaded from Neo4j during the lifetime of the session.  
-Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.  
-The differences are used to construct a Cypher query that persists the deltas to Neo4j before repopulating it's state based on the response from the database server.
+There are four types of events:
 
-.Persisting entities
+  Event.LIFECYCLE.PRE_SAVE
+  Event.LIFECYCLE.POST_SAVE
+  Event.LIFECYCLE.PRE_DELETE
+  Event.LIFECYCLE.POST_DELETE
+
+Events are fired for every `@NodeEntity` or `@RelationshipEntity` object that is created, updated or deleted, or otherwise affected by a save or delete request. This includes:
+
+ - the top-level objects or objects being created, modified or deleted.
+ - any connected objects that have been modified, created or deleted.
+ - any objects affected by the creation, modification or removal of a relationship in the graph.
+
+[TIP]
 ====
+Events will only fire when one of the `session.save()` or `session.delete()` methods is invoked.
+Directly executing Cypher queries against the database using `session.query()` will not trigger any events.
+====
+
+== Interfaces
+The Events mechanism introduces two new interfaces, `Event` and `EventListener`.
+
+*The Event interface*
+
+The `Event` interface is implemented by `org.neo4j.ogm.session.event.PersistenceEvent`.
+Whenever an application wishes to handle an event it will be given an instance of `Event`, which exposes the following methods:
+
 [source,java]
 ----
-@NodeEntity
-public class Person {
-   private String name;
-   public Person(String name) {
-      this.name = name;
-   }
+  public interface Event {
+
+      Object getObject();
+      LIFECYCLE getLifeCycle();
+
+      enum LIFECYCLE {
+          PRE_SAVE, POST_SAVE, PRE_DELETE, POST_DELETE
+      }
+  }
+----
+
+*The Event Listener interface*
+
+The `EventListener` interface provides methods allowing implementing classes to handle each of the different `Event` types:
+
+[source,java]
+----
+public interface EventListener {
+
+    void onPreSave(Event event);
+    void onPostSave(Event event);
+    void onPreDelete(Event event);
+    void onPostDelete(Event event);
+
 }
-
-// Store Michael in the database.
-Person p = new Person("Michael");
-session.save(p);
 ----
+
+[TIP]
+====
+Although the `Event` interface allows you to retrieve the event type, in most cases, your code won't need it because the `EventListener` provides methods to capture each type of event explicitly.
 ====
 
-[[reference_programming-model_detached_relating]]
-== Save Depth 
+== Registering an EventListener
 
-As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, where depth dictates the number of related entities to save starting from the given entity.  
-The default depth, -1, will persist properties of the specified entity as well as every modified entity in the object graph reachable from it.
-A depth of 0 will persist only the properties of the specified entity to the database.
+Your code must register one or more EventListeners with the `Session`
 
-Specifying the save depth is handy when it comes to dealing with complex collections, that could potentially be very expensive to load.
+In this example we register an anonymous EventListener to inject a UUID onto new objects before they're saved
 
-[NOTE]
-====
-If you're using this overloaded method, it's *strongly* recommended to use depth consistently between load and save invocations.
-If you don't then you may unexpectedly see relationships deleted or updates not persisting as you expect.
-====
-
-.Relationship save cascading
-====
 [source,java]
 ----
-@NodeEntity
-class Movie {
-    String title;
-    Actor topActor;
-    public void setTopActor(Actor actor) {
-        topActor = actor;
+EventListener eventListener session.register(new EventListener() {
+
+    void onPreSave(Event event) {
+        DomainEntity entity = (DomainEntity) event.getObject():
+        if (entity.getId() == null) {
+            entity.setUUID(UUID.randomUUID());
+        }
     }
+    void onPostSave(Event event) {
+    }
+    void onPreDelete(Event event) {
+    }
+    void onPostDelete(Event event) {
+    }
+
+});
+----
+
+[TIP]
+====
+It’s possible and sometimes desirable to add several EventListener objects to the session, depending on the application’s requirements. For example, our business logic might require us to add a UUID to a new object, as well as manage wider concerns such as ensuring that a particular persistence event won’t leave our domain model in a logically inconsistent state. It’s usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
+====
+
+== Using the EventListenerAdapter
+The `EventListener` above is fine, but we've had to create three methods for events we don't intend to handle.
+It would be preferable if we didn't have to do this each time we needed an `EventListener`.
+
+The `org.neo4j.ogm.session.event.EventListenerAdapter` is an abstract class providing a no-op implementation of the `EventListener` interface.
+If you don't need to handle all the different types of persistence event you can create a subclass of `EventListenerAdapter` instead and override just the methods for the event types you're interested in.
+
+For example:
+
+[source,java]
+----
+class PreSaveEventListener extends EventListenerAdaper {
+  @Override
+  void onPreSave(Event event) {
+    DomainEntity entity = (DomainEntity) event.getObject();
+    if (entity.id == null) {
+      entity.UUID = UUID.randomUUID();
+    }
+  }
 }
-
-@NodeEntity
-class Actor {
-    String name;
-}
-
-Movie movie = new Movie("Polar Express");
-Actor actor = new Actor("Tom Hanks");
-
-movie.setTopActor(actor);
 ----
+
+== Disposing of an EventListener
+
+Something to bear in mind is that once an `EventListener` has been registered it will continue to respond to any and all persistence events.  Sometimes you may want only to handle events for a short period of time, rather than for the duration of the entire session.
+
+If you're done with an EventListener you can stop it from firing any more events by invoking `session.dispose(...)`, passing in the EventListener to be disposed of.
+
+[TIP]
+====
+The process of collecting persistence events prior to dispatching them to any EventListeners adds a small performance overhead to the persistence layer. Consequently, the OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session. Using `dispose()` when you're finished with an EventListener is good practice!
 ====
 
-Neither the actor nor the movie has been assigned a node in the graph. 
-If we were to call `session.save(movie)`, then the OGM would first create a node for the movie.
-It would then note that there is a relationship to an actor, so it would save the actor in a cascading fashion.  
-Once the actor has been persisted, it will create the relationship from the movie to the actor. 
-All of this will be done atomically in one transaction.
+== Connected objects
 
-The important thing to note here is that if `session.save(actor)` is called instead, then only the actor will be persisted.
-The reason for this is that the actor entity knows nothing about the movie entity - it is the movie entity that has the reference to the actor. 
-Also note that this behaviour is not dependent on any configured relationship direction on the annotations. 
-It is a matter of Java references and is not related to the data model in the database.
+As mentioned previously, events are not only fired for the top-level objects being saved but for all their connected objects as well.
 
-In the following example, the actor and the movie are both managed entities, having both been previously persisted to the graph:
+Connected objects are any objects reachable in the domain model from the top-level object being saved. Connected objects can be many levels deep in the domain model graph.
 
-.Cascade for modified fields
-====
+In this way, the Events mechanism allows us to capture events for objects that we didn't explicitly save ourselves.
+
 [source,java]
 ----
-actor.setBirthyear(1956);
-session.save(movie);
+// initialise the graph
+Folder folder = new Folder("folder");
+Document a = new Document("a");
+Document b = new Document("b");
+folder.addDocuments(a, b);
+
+session.save(folder);
+
+// change the names of both documents and save one of them
+a.setName("A");
+b.setName("B");
+
+// because `b` is reachable from `a` (via the common shared folder) they will both be persisted,
+// with PRE_SAVE and POST_SAVE events being fired for each of them
+session.save(a);
 ----
-====
 
-[NOTE]
-====
-In this case, even though the movie has a reference to the actor, the property change on the actor will not be persisted by the call to `save(movie)`.
-The reason for this is, as mentioned above, that cascading will only be done for fields that have been modified. 
-Since the `movie.topActor` field has not been modified, it will not cascade the persist operation to the actor.
-====
+== Events and Types
 
-[[reference_programming-model_sorting_and_paging]]
-= Sorting and Paging
+When we delete a Type, all the nodes with a label corresponding to that Type are deleted in the graph.
+The affected objects are not enumerated by the Events mechanism (they may not even be known).
+Instead, `_DELETE` events will be raised for the Type:
 
-Neo4j OGM supports Sorting and Paging of results when using the Session object.
-The Session object methods take independent arguments for Sorting and Pagination
-
-.Paging
 [source,java]
 ----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new Pagination(pageNumber,itemsPerPage), depth)
+    // 2 events will be fired when the type is deleted.
+    // - PRE_DELETE Document.class
+    // - POST_DELETE Document.class
+    session.delete(Document.class);
 ----
 
-.Sorting
+== Events and Collections
+
+When saving or deleting a collection of objects, separate events are fired for each object in the collection, rather than for the collection itself.
+
 [source,java]
 ----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new SortOrder().add("name"), depth)
+Document a = new Document("a");
+Document b = new Document("b");
+
+// 4 events will be fired when the collection is saved.
+// - PRE_SAVE a
+// - PRE_SAVE b
+// - POST_SAVE a
+// - POST_SAVE b
+
+session.save(Arrays.asList(a, b));
 ----
 
-.Sort in descending order
+== Event ordering
+
+Events are partially ordered. `PRE_` events are guaranteed to fire before any `POST_` event within the same `save` or `delete` request.
+However, the *internal* ordering of the `PRE_` events and `POST_` events with the request is undefined.
+
+.Example: Partial ordering of events
 [source,java]
 ----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new SortOrder().add(SortOrder.Direction.DESC,"name"))
+
+Document a = new Document("a");
+Document b = new Document("b");
+
+// Although the save order of objects is implied by the request, the PRE_SAVE event for `b`
+// may be fired before the PRE_SAVE event for `a`, and similarly for the POST_SAVE events.
+// However, all PRE_SAVE events will be fired before any POST_SAVE event.
+
+session.save(Arrays.asList(a, b));
 ----
 
-.Sorting with paging
+== Relationship events
+
+The previous examples show how events fire when the underlying *node* representing an entity is updated or deleted in the graph.
+Events are also fired when a save or delete request results in the modification, addition or deletion of a *relationship* in the graph.
+
+For example, if you delete a Document object that is a member of a Folder's documents collection, events will be fired for the Document as well as the Folder, to reflect the fact that the relationship between the folder and the document has been removed in the graph
+
+.Example: Deleting a Document attached to a Folder
 [source,java]
 ----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new SortOrder().add("name"), new Pagination(pageNumber,itemsPerPage))
+Folder folder = new Folder();
+Document a = new Document("a");
+folder.addDocuments(a);
+session.save(folder);
+
+// When we delete the document, the following events will be fired
+// - PRE_DELETE a
+// - POST_DELETE a
+// - PRE_SAVE folder  <1>
+// - POST_SAVE folder
+session.delete(a);
 ----
 
-[NOTE]
+<1> Note that the `folder` events are `_SAVE` events, not `_DELETE` events. The `folder` was not deleted.
+
+[WARNING]
 ====
-Neo4j OGM does not yet support sorting and paging on custom queries.
+The event mechanism does not try to synchronise your domain model.
+In this example, the folder is still holding a reference to the Document, even though it no longer exists in the graph.
+As always, your code must take care of domain model synchronisation.
 ====
+
+== Event uniqueness
+
+The event mechanism guarantees to not fire more than one event of the same type for an object in a save or delete request.
+
+.Example: Multiple changes, single event of each type
+[source,java]
+----
+ // Even though we're making changes to both the folder node, and its relationships,
+ // only one PRE_SAVE and one POST_SAVE event will be fired.
+ folder.removeDocument(a);
+ folder.setName("newFolder");
+ session.save(folder);
+----
+
+== Integration with Spring Data Neo4j
+
+The OGM events mechanism has been designed to integrate easily with Spring Data Neo4j. Please refer to the Spring Data Neo4j documentation for details of how to integrate OGM Events with the SDN event mechanism.

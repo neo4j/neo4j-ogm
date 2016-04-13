@@ -13,9 +13,6 @@
 
 package org.neo4j.ogm.drivers.bolt;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.harness.ServerControls;
@@ -24,6 +21,9 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.service.Components;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Luanne Misquitta

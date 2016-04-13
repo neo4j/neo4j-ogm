@@ -165,7 +165,7 @@ public class EventTest extends MultiDriverTestClass {
             System.out.println(event.toString());
         }
 
-        public boolean captured(Object o, Event.LIFECYCLE lifecycle) {
+        public boolean captured(Object o, Event.TYPE lifecycle) {
             Event event = new PersistenceEvent(o, lifecycle);
             for (Event captured : eventsCaptured)
             {

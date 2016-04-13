@@ -72,8 +72,9 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public void register(EventListener eventListener) {
+    public EventListener register(EventListener eventListener) {
         registeredEventListeners.add(eventListener);
+        return eventListener;
     }
 
     @Override
@@ -103,6 +104,27 @@ public class Neo4jSession implements Session {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean eventsEnabled() {
+        return registeredEventListeners.size() > 0;
+    }
+
+    @Override
+    public boolean dispose(EventListener eventListener) {
+
+        Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
+
+        while (eventListenerIterator.hasNext()) {
+            EventListener next = eventListenerIterator.next();
+            if (eventListener == next) {
+                registeredEventListeners.remove(eventListener);
+                return true;
+            }
+        }
+        return false;
+
     }
 
     /*

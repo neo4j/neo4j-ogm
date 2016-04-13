@@ -15,29 +15,30 @@ package org.neo4j.ogm.session.event;
 
 /**
  * Represents a PersistenceEvent in the OGM.
+ *
  * @author Mihai Raulea
  * @author Vince Bickers
  */
 public class PersistenceEvent implements Event {
 
     private Object affectedObject;
-    private LIFECYCLE lifecycle;
+    private TYPE type;
 
-    public PersistenceEvent(Object affectedObject, LIFECYCLE lifecycle) {
+    public PersistenceEvent(Object affectedObject, TYPE lifecycle) {
         this.affectedObject = affectedObject;
-        this.lifecycle = lifecycle;
+        this.type = lifecycle;
     }
 
-    public Object getTargetObject() {
+    public Object getObject() {
         return affectedObject;
     }
 
-    public Event.LIFECYCLE getLifeCycle() {
-        return lifecycle;
+    public TYPE getLifeCycle() {
+        return type;
     }
 
     @Override
     public String toString() {
-        return String.format("Event: %s, %s", lifecycle, affectedObject);
+        return String.format("Event: %s, %s", type, affectedObject);
     }
 }

@@ -18,7 +18,8 @@ package org.neo4j.ogm.session.event;
  */
 public interface Observer {
 
-    void register(EventListener eventListener);
+    EventListener register(EventListener eventListener);
+    boolean dispose(EventListener eventListener);
     void notifyListeners(Event event);
-
+    boolean eventsEnabled();
 }

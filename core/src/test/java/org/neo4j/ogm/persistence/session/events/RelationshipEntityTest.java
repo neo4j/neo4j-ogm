@@ -44,8 +44,8 @@ public class RelationshipEntityTest extends EventTest {
 
         session.save(knowsJL);
 
-        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(knowsJL, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(knowsJL, Event.TYPE.POST_SAVE));
 
         assertEquals(2, eventListener.count());
 
@@ -57,14 +57,14 @@ public class RelationshipEntityTest extends EventTest {
 
         session.delete(knowsJL);
 
-        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(knowsJL, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(knowsJL, Event.TYPE.POST_DELETE));
 
-        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(jim, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(jim, Event.TYPE.POST_SAVE));
 
-        assertTrue(eventListener.captured(lee, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(lee, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(lee, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(lee, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
 
@@ -82,12 +82,12 @@ public class RelationshipEntityTest extends EventTest {
 
         session.save(bruce);
 
-        assertTrue(eventListener.captured(knowsBS, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(knowsBS, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(stan, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(stan, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(knowsBS, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(knowsBS, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(stan, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(stan, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
     }

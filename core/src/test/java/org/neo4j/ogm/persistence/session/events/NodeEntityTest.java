@@ -49,8 +49,8 @@ public class NodeEntityTest extends EventTest {
 
         assertEquals(2, eventListener.count());
 
-        assertTrue(eventListener.captured(e, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(e, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(e, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(e, Event.TYPE.POST_SAVE));
     }
 
     @Test
@@ -61,8 +61,8 @@ public class NodeEntityTest extends EventTest {
 
         assertEquals(2, eventListener.count());
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
 
     }
 
@@ -74,8 +74,8 @@ public class NodeEntityTest extends EventTest {
 
         assertEquals(2, eventListener.count());
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
 
     }
 
@@ -95,14 +95,14 @@ public class NodeEntityTest extends EventTest {
 
         session.delete(knowsJL);
 
-        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(knowsJL, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(knowsJL, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(knowsJL, Event.TYPE.POST_DELETE));
 
-        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(jim, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(jim, Event.TYPE.POST_SAVE));
 
-        assertTrue(eventListener.captured(lee, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(lee, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(lee, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(lee, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
 

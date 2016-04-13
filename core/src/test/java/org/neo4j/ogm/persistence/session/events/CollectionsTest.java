@@ -38,12 +38,12 @@ public class CollectionsTest extends EventTest {
 
         assertEquals(6, eventListener.count());
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(b, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(b, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(c, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(c, Event.TYPE.POST_SAVE));
 
     }
 
@@ -52,18 +52,18 @@ public class CollectionsTest extends EventTest {
 
         session.delete(Arrays.asList(a, b, c));
 
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_DELETE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_DELETE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_DELETE));
+        assertTrue(eventListener.captured(b, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(b, Event.TYPE.POST_DELETE));
+        assertTrue(eventListener.captured(c, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(c, Event.TYPE.POST_DELETE));
 
         // even though we haven't updated the folder object, the database
         // has removed the relationships between the folder and the documents, so
         // the folder events must fire
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(8, eventListener.count());
 
@@ -76,8 +76,8 @@ public class CollectionsTest extends EventTest {
 
         assertEquals(2, eventListener.count());
 
-        assertTrue(eventListener.captured(Document.class, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(Document.class, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(Document.class, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(Document.class, Event.TYPE.POST_DELETE));
 
     }
 
@@ -87,24 +87,24 @@ public class CollectionsTest extends EventTest {
         session.delete(Arrays.asList(folder, knowsJB));
 
         // object deletes
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(folder, Event.LIFECYCLE.POST_DELETE));
-        assertTrue(eventListener.captured(knowsJB, Event.LIFECYCLE.PRE_DELETE));
-        assertTrue(eventListener.captured(knowsJB, Event.LIFECYCLE.POST_DELETE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(folder, Event.TYPE.POST_DELETE));
+        assertTrue(eventListener.captured(knowsJB, Event.TYPE.PRE_DELETE));
+        assertTrue(eventListener.captured(knowsJB, Event.TYPE.POST_DELETE));
 
         // document updates
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(a, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(b, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(c, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(b, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(b, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(c, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(c, Event.TYPE.POST_SAVE));
 
         // people updates
-        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(jim, Event.LIFECYCLE.POST_SAVE));
-        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.PRE_SAVE));
-        assertTrue(eventListener.captured(bruce, Event.LIFECYCLE.POST_SAVE));
+        assertTrue(eventListener.captured(jim, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(jim, Event.TYPE.POST_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.TYPE.PRE_SAVE));
+        assertTrue(eventListener.captured(bruce, Event.TYPE.POST_SAVE));
 
         assertEquals(14, eventListener.count());
 

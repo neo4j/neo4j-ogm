@@ -69,10 +69,12 @@ public abstract class BoltResponse<T> implements Response {
 
 	@Override
 	public String[] columns() {
-		Record record = result.peek();
-		if (record != null) {
-			Set<String> columns = result.peek().asMap().keySet();
-			return columns.toArray(new String[columns.size()]);
+		if (result.hasNext()) {
+			Record record = result.peek();
+			if (record != null) {
+				Set<String> columns = result.peek().asMap().keySet();
+				return columns.toArray(new String[columns.size()]);
+			}
 		}
 		return new String[0];
 	}

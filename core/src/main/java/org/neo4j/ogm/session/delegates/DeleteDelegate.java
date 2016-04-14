@@ -81,9 +81,14 @@ public class DeleteDelegate implements Capability.Delete {
     // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
     private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
 
+        Set<Object> notified = new HashSet();
+
         if (session.eventsEnabled()) {
             for (Object affectedObject : neighbours) {
-                session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.PRE_SAVE));
+                if (!notified.contains(affectedObject)) {
+                    session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.PRE_SAVE));
+                    notified.add(affectedObject);
+                }
             }
         }
 
@@ -98,13 +103,18 @@ public class DeleteDelegate implements Capability.Delete {
                 if (identity != null) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
                     if (session.eventsEnabled()) {
-                        session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
+                        if (!notified.contains(object)) {
+                            session.notifyListeners(new PersistenceEvent(object, Event.TYPE.PRE_DELETE));
+                            notified.add(object);
+                        }
                     }
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
                         if (session.eventsEnabled()) {
-                            session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
+                            if (notified.contains(object)) {
+                                session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
+                            }
                         }
                     }
                 }
@@ -115,7 +125,9 @@ public class DeleteDelegate implements Capability.Delete {
 
         if (session.eventsEnabled()) {
             for (Object affectedObject : neighbours) {
-                session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.POST_SAVE));
+                if (notified.contains(affectedObject)) {
+                    session.notifyListeners(new PersistenceEvent(affectedObject, Event.TYPE.POST_SAVE));
+                }
             }
         }
 

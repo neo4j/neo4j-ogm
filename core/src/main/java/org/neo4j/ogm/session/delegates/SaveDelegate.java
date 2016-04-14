@@ -131,12 +131,17 @@ public class SaveDelegate implements Capability.Save {
      */
     private void notifySave(Iterator<Object> affectedObjectsIterator, Event.TYPE lifecycle) {
 
+        Set<Object> notified = new HashSet();
+
         while (affectedObjectsIterator.hasNext()) {
 
             Object affectedObject = affectedObjectsIterator.next();
 
             if (!(affectedObject instanceof TransientRelationship)) {
-                session.notifyListeners(new PersistenceEvent(affectedObject, lifecycle));
+                if (!notified.contains(affectedObject)) {
+                    session.notifyListeners(new PersistenceEvent(affectedObject, lifecycle));
+                    notified.add(affectedObject);
+                }
             }
             else {
                 TransientRelationship tr = (TransientRelationship) affectedObject;
@@ -148,7 +153,10 @@ public class SaveDelegate implements Capability.Save {
                     if (tr.getSrc() >= 0) {
                         Object object = session.context().getNodeEntity(tr.getSrc());
                         if (object != null) {
-                            session.notifyListeners(new PersistenceEvent(object, lifecycle));
+                            if (!notified.contains(object)) {
+                                session.notifyListeners(new PersistenceEvent(object, lifecycle));
+                                notified.add(object);
+                            }
                         }
                     }
 
@@ -157,7 +165,10 @@ public class SaveDelegate implements Capability.Save {
                     if (tr.getTgt() >= 0) {
                         Object object = session.context().getNodeEntity(tr.getTgt());
                         if (object != null) {
-                            session.notifyListeners(new PersistenceEvent(object, lifecycle));
+                            if (!notified.contains(object)) {
+                                session.notifyListeners(new PersistenceEvent(object, lifecycle));
+                                notified.add(object);
+                            }
                         }
                     }
                 }

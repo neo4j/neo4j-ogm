@@ -39,7 +39,7 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 				.withConfig("dbms.connector.0.enabled", "true")
 				.newServer();
 
-		Configuration configuration = Components.configuration();
+		Configuration configuration = new Configuration();
 				configuration.driverConfiguration()
 				.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
 				.setURI(boltURI())
@@ -71,7 +71,7 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 				throw new RuntimeException(e);
 			}
 		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
+				throw new RuntimeException(e);
 		}
 	}
 

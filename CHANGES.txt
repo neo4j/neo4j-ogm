@@ -1,5 +1,6 @@
 2.0.2-SNAPSHOT
 --------------
+o Support for Neo4j 3.0.0.RC1 and the Bolt Java Driver 1.0 RC2
 
 2.0.1
 --------------

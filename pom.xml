@@ -46,7 +46,7 @@
 
         <!-- default for build, if no profiles invoked -->
         <neo4j>2.3.3</neo4j>
-        <bolt>1.0.0-RC1</bolt>
+        <bolt>1.0.0-RC2</bolt>
         <ogm.properties>ogm-http.properties</ogm.properties>
 
     </properties>
@@ -136,7 +136,7 @@
                 <enabled>false</enabled>
             </snapshots>
             <releases>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
@@ -265,7 +265,7 @@
         <profile>
             <id>3.0</id>
             <properties>
-                <neo4j>3.0.0-M05</neo4j>
+                <neo4j>3.0.0-RC1</neo4j>
             </properties>
         </profile>
 

@@ -74,6 +74,7 @@ public class DeleteDelegate implements Capability.Delete {
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
+                        // clear all realtionships, incoming or outgoing to this node
                     }
                 }
             } else {

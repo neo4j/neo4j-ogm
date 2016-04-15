@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
@@ -27,7 +28,9 @@ import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Vince Bickers
@@ -74,12 +77,25 @@ public class DeleteDelegate implements Capability.Delete {
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
-                        // clear all realtionships, incoming or outgoing to this node
+
                     }
                 }
             } else {
                 session.warn(object.getClass().getName() + " is not an instance of a persistable class");
             }
+        }
+    }
+
+    private void clearRelationshipsWithRefferencesToNode(Object object) {
+        ClassInfo classInfo = session.metaData().classInfo(object);
+        Field identityField = classInfo.getField(classInfo.identityField());
+        Set<MappedRelationship> mappedRelationshipSet = session.context().mappedRelationships();
+        Iterator<MappedRelationship> iterator = mappedRelationshipSet.iterator();
+        Long identity = (Long) FieldWriter.read(identityField, object);
+        while(iterator.hasNext()) {
+            MappedRelationship mappedRelationship = iterator.next();
+            if(mappedRelationship.getEndNodeId() == identity)
+
         }
     }
 

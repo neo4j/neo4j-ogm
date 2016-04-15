@@ -1,9 +1,6 @@
 package org.neo4j.ogm.persistence.session.mappingContext;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
@@ -20,6 +17,7 @@ import java.util.Collections;
 /**
  * @author Mihai Raulea
  */
+@Ignore
 public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
     // i need a Neo4jSession because the session interface does not define the context() method
@@ -112,7 +110,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         Album retrievedAlbum3 = (Album)mappingContext.getNodeEntity(album3.getId());
         Assert.assertTrue( retrievedAlbum3.getArtist() == null );
     }
-    
+
     /*
      * @see ISSUE-86
      */

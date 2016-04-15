@@ -94,8 +94,12 @@ public class DeleteDelegate implements Capability.Delete {
         Long identity = (Long) FieldWriter.read(identityField, object);
         while(iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
-            if(mappedRelationship.getEndNodeId() == identity)
+            if(mappedRelationship.getEndNodeId() == identity) {
 
+            }
+            if(mappedRelationship.getStartNodeId() == identity) {
+
+            }
         }
     }
 

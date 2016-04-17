@@ -136,13 +136,16 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 	}
 
 	private boolean isMappable(List entityList) {
-		for (Object entityObj : entityList) {
-			if (entityObj instanceof NodeModel || entityObj instanceof RelationshipModel) {
-				continue;
+		if (entityList.size() > 0) {
+			for (Object entityObj : entityList) {
+				if (entityObj instanceof NodeModel || entityObj instanceof RelationshipModel) {
+					continue;
+				}
+				return false;
 			}
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	private Object mapEntity(String column, Object entity, List<RelationshipModel> relationshipModels, Map<Long, String> relationshipEntityColumns) {

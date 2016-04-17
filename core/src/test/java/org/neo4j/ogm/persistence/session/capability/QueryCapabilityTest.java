@@ -671,7 +671,30 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 		assertEquals(1, noLabelCount);
 		assertEquals(4, movieCount);
 		assertEquals(4, userCount);
+	}
 
+	/**
+	 * @see Issue 148
+	 */
+	@Test
+	public void shouldMapCypherCollectionsToArrays() {
+		Iterator<Map<String,Object>> iterator = session.query("MATCH (n:User) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+		assertTrue(iterator.hasNext());
+		Map<String,Object> row = iterator.next();
+		assertTrue(row.get("names").getClass().isArray());
+		assertEquals(4, ((String[])row.get("names")).length);
+
+		iterator = session.query("MATCH (n:User {name:'Michal'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+		assertTrue(iterator.hasNext());
+		row = iterator.next();
+		assertTrue(row.get("names").getClass().isArray());
+		assertEquals(1, ((String[])row.get("names")).length);
+
+		iterator = session.query("MATCH (n:User {name:'Does Not Exist'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+		assertTrue(iterator.hasNext());
+		row = iterator.next();
+		assertTrue(row.get("names").getClass().isArray());
+		assertEquals(0, ((Object[])row.get("names")).length);
 	}
 
 	private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {

@@ -1,7 +1,8 @@
 2.0.2-SNAPSHOT
 --------------
-o Support for Neo4j 3.0.0.RC1 and the Bolt Java Driver 1.0 RC2
+o Fixes issue where collection of values returned via a custom Cypher query sometimes mapped to an ArrayList. Now it consistently maps to an array.
 o Fixes issue where a node without a label or labels not mapped in the OGM result in a NullPointerException when queried via a custom Cypher query
+o Support for Neo4j 3.0.0.RC1 and the Bolt Java Driver 1.0 RC2
 
 2.0.1
 --------------

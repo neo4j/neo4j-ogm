@@ -150,8 +150,10 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 			NodeModel nodeModel = (NodeModel) entity;
 			DefaultGraphModel graphModel = new DefaultGraphModel();
 			graphModel.setNodes(new NodeModel[]{nodeModel});
-			List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
-			return mapped.get(0);
+			if (nodeModel.getLabels() != null && metaData.resolve(nodeModel.getLabels()) != null) {
+				List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
+				return mapped.get(0);
+			}
 		} else if (entity instanceof RelationshipModel) {
 			RelationshipModel relationshipModel = (RelationshipModel) entity;
 			relationshipModels.add(relationshipModel);

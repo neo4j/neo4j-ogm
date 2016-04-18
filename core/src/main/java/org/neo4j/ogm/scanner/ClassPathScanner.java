@@ -76,7 +76,7 @@ public class ClassPathScanner {
                 try (InputStream inputStream = zipFile.getInputStream(entry) ) {
                     if (entry.getName().endsWith(".class")) {
                         scanClassFileEntry(inputStream, entry);
-                    } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip") || entry.getName().endsWith(".war")) {
+                    } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip")) {
                         scanZippedEntry(inputStream, entry);
                     }
                 }
@@ -93,7 +93,7 @@ public class ClassPathScanner {
         String path = (i == -1) ? "" : name.substring(0, i);
 
         for (String pathToScan : classPaths) {
-            if (path.equals(pathToScan) || path.contains(pathToScan)) {
+            if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
                 LOGGER.debug("{} admits {} for entry: {}", new Object[] {pathToScan, path ,name});
                 processor.process(inputStream);
                 break;
@@ -114,7 +114,7 @@ public class ClassPathScanner {
             if (!zipEntry.isDirectory()) {
                 if (zipEntry.getName().endsWith(".class")) {
                     scanClassFileEntry(zipInputStream, zipEntry);
-                } else if (zipEntry.getName().endsWith(".jar") || zipEntry.getName().endsWith(".zip") || zipEntry.getName().endsWith(".war")) {
+                } else if (zipEntry.getName().endsWith(".jar") || zipEntry.getName().endsWith(".zip")) {
                     scanZippedEntry(zipInputStream, zipEntry);
                 }
             }
@@ -141,7 +141,7 @@ public class ClassPathScanner {
                     scanFolder(classPathElement, path.length() + 1);
                 } else if (classPathElement.isFile()) {
                     String pathLower = path.toLowerCase();
-                    if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip") || pathLower.endsWith(".war")) {
+                    if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip")) {
                         scanZipFile(new ZipFile(classPathElement));
                     } else {
                         scanFile(classPathElement, classPathElement.getName());

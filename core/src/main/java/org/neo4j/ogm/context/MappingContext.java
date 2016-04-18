@@ -265,7 +265,7 @@ public class MappingContext {
             if (!metaData.isRelationshipEntity(type.getName())) {
                 if (nodeEntityRegister.containsKey(id)) {
                     nodeEntityRegister.remove(id);
-                    // remove all relationship mappings to/from this object
+                    // remove all relationship mappings to/from this object -- should also remove from relationshipEntityRegister
                     Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
                     while (mappedRelationshipIterator.hasNext()) {
                         MappedRelationship mappedRelationship = mappedRelationshipIterator.next();

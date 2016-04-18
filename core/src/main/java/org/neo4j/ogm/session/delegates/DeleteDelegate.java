@@ -77,7 +77,7 @@ public class DeleteDelegate implements Capability.Delete {
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
                         session.context().clear(object);
-
+                        clearRelationshipsWithRefferencesToNode(object);
                     }
                 }
             } else {
@@ -94,11 +94,8 @@ public class DeleteDelegate implements Capability.Delete {
         Long identity = (Long) FieldWriter.read(identityField, object);
         while(iterator.hasNext()) {
             MappedRelationship mappedRelationship = iterator.next();
-            if(mappedRelationship.getEndNodeId() == identity) {
-
-            }
-            if(mappedRelationship.getStartNodeId() == identity) {
-
+            if(mappedRelationship.getEndNodeId() == identity || mappedRelationship.getStartNodeId() == identity) {
+                mappedRelationshipSet.remove(mappedRelationship);
             }
         }
     }

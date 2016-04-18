@@ -116,22 +116,21 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
      */
     @Test
     public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
-        MappingContext mappingContext = session.context();
         actor1.getId();
-        Assert.assertTrue(mappingContext.getNodeEntity(actor1.getId()).getClass() == Actor.class);
-        Object objectRel = mappingContext.getRelationshipEntity(knows.id);
+        Assert.assertTrue(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class);
+        Object objectRel = session.context().getRelationshipEntity(knows.id);
         Assert.assertTrue(objectRel.getClass() == Knows.class);
 
         session.delete(actor1);
 
         Result result = session.query("MATCH N RETURN N", Collections.EMPTY_MAP);
         // check that the mapping context does not hold a refference to the deleted entity anymore
-        Object object = mappingContext.getNodeEntity(actor1.getId());
+        Object object = session.context().getNodeEntity(actor1.getId());
         Assert.assertTrue( object == null);
         // check for a defined RelationshipEntity; the relationship should also be removed from the mappingContext
-        objectRel = mappingContext.getRelationshipEntity(knows.id);
+        objectRel = session.context().getRelationshipEntity(knows.id);
         //Assert.assertTrue(objectRel == null);
-        //Assert.assertTrue(mappingContext.getNodeEntity(actor1.getId()) == null);
+        //Assert.assertTrue(session.context().getNodeEntity(actor1.getId()) == null);
         // does it exist in the session?
         Knows inSessionKnows = session.load(Knows.class, knows.id);
         ;

@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.scanner;
 
-import org.neo4j.ogm.ClassUtils;
-import org.neo4j.ogm.metadata.ClassFileProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +23,11 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.metadata.ClassFileProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -76,7 +76,7 @@ public class ClassPathScanner {
                 try (InputStream inputStream = zipFile.getInputStream(entry) ) {
                     if (entry.getName().endsWith(".class")) {
                         scanClassFileEntry(inputStream, entry);
-                    } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip")) {
+                    } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip") || entry.getName().endsWith(".war")) {
                         scanZippedEntry(inputStream, entry);
                     }
                 }
@@ -93,7 +93,7 @@ public class ClassPathScanner {
         String path = (i == -1) ? "" : name.substring(0, i);
 
         for (String pathToScan : classPaths) {
-            if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
+            if (path.equals(pathToScan) || path.contains(pathToScan)) {
                 LOGGER.debug("{} admits {} for entry: {}", new Object[] {pathToScan, path ,name});
                 processor.process(inputStream);
                 break;
@@ -114,7 +114,7 @@ public class ClassPathScanner {
             if (!zipEntry.isDirectory()) {
                 if (zipEntry.getName().endsWith(".class")) {
                     scanClassFileEntry(zipInputStream, zipEntry);
-                } else if (zipEntry.getName().endsWith(".jar") || zipEntry.getName().endsWith(".zip")) {
+                } else if (zipEntry.getName().endsWith(".jar") || zipEntry.getName().endsWith(".zip") || zipEntry.getName().endsWith(".war")) {
                     scanZippedEntry(zipInputStream, zipEntry);
                 }
             }
@@ -141,7 +141,7 @@ public class ClassPathScanner {
                     scanFolder(classPathElement, path.length() + 1);
                 } else if (classPathElement.isFile()) {
                     String pathLower = path.toLowerCase();
-                    if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip")) {
+                    if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip") || pathLower.endsWith(".war")) {
                         scanZipFile(new ZipFile(classPathElement));
                     } else {
                         scanFile(classPathElement, classPathElement.getName());

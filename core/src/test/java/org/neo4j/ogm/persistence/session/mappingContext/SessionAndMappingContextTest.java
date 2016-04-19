@@ -24,7 +24,6 @@ import java.util.Collections;
  * @author Mihai Raulea
  * @see ISSUE-86
  */
-@Ignore
 public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
     // i need a Neo4jSession because the session interface does not define the context() method
@@ -36,9 +35,8 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     private ReleaseFormat releaseFormat;
     private Studio studio;
 
-    private Actor actor1;
-    private Actor actor2;
-    private Knows knows;
+    private Actor actor1, actor2, actor3, actor4;
+    private Knows knows, knows2;
 
 
 
@@ -85,6 +83,14 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         knows.setSecondActor(actor2);
         actor1.knows.add(knows);
         session.save(actor1);
+
+        actor3 = new Actor("Actor3");
+        actor4 = new Actor("Actor4");
+        knows2 = new Knows();
+        knows2.setFirstActor(actor3);
+        knows2.setSecondActor(actor4);
+        actor3.knows.add(knows2);
+        session.save(actor3);
     }
 
     @After
@@ -115,7 +121,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     }
 
     /*
-     * @see ISSUE-86
+     * @see ISSUE-86 - needs to be fixed, but how?
      */
     @Ignore
     @Test
@@ -137,6 +143,9 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         // does it exist in the session?
         Knows inSessionKnows = session.load(Knows.class, knows.id);
         Assert.assertTrue(inSessionKnows == null);
+        // the other knows relationship should not have been deleted
+        Knows inSessionKnows2 = session.load(Knows.class, knows2.id);
+        Assert.assertTrue(inSessionKnows2 != null);
     }
 
     @Test

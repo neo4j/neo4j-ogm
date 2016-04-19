@@ -152,6 +152,12 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     }
 
     @Test
+    public void testDetachNode2() {
+        Assert.assertTrue(session.detach(actor2.getId()));
+        Assert.assertFalse(session.detach(actor2.getId()));
+    }
+
+    @Test
     public void testDetachRelationshipEntity() {
         Assert.assertTrue(session.detach(knows.id));
         Assert.assertFalse(session.detach(knows.id));

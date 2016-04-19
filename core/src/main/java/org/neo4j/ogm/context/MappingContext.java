@@ -308,19 +308,6 @@ public class MappingContext {
                             mappedRelationshipIterator.remove();
                         }
                     }
-                    // should also remove from relationshipEntityRegister
-                    Set<Long> relationshipEntityKeySet = relationshipEntityRegister.keySet();
-                    Iterator<Long> iteratorRelationshipEntityKeySet = relationshipEntityKeySet.iterator();
-                    while (iteratorRelationshipEntityKeySet.hasNext()) {
-                        Long relId = iteratorRelationshipEntityKeySet.next();
-                        Object relationshipEntity = relationshipEntityRegister.get(relId);
-                        Object startNode = entityAccessStrategy.getStartNodeReader(metaData.classInfo(relationshipEntity)).read(relationshipEntity);
-                        Object endNode = entityAccessStrategy.getEndNodeReader(metaData.classInfo(relationshipEntity)).read(relationshipEntity);
-                        Long startNodeId = EntityUtils.identity(startNode,metaData);
-                        Long endNodeId = EntityUtils.identity(endNode,metaData);
-                        if(startNodeId == id || endNodeId == id)
-                            relationshipEntityRegister.remove(relId);
-                    }
                 }
             }
             else {

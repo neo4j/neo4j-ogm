@@ -117,6 +117,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     /*
      * @see ISSUE-86
      */
+    @Ignore
     @Test
     public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
         Assert.assertTrue(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class);

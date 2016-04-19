@@ -1,10 +1,15 @@
 package org.neo4j.ogm.persistence.session.mappingContext;
 
 import org.junit.*;
+import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.annotations.PropertyReader;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.domain.music.*;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
@@ -12,10 +17,12 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 
 /**
  * @author Mihai Raulea
+ * @see ISSUE-86
  */
 @Ignore
 public class SessionAndMappingContextTest extends MultiDriverTestClass {
@@ -33,10 +40,12 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     private Actor actor2;
     private Knows knows;
 
+
+
     @Before
     public void init() throws IOException {
         session = (Neo4jSession)new SessionFactory("org.neo4j.ogm.domain.music","org.neo4j.ogm.domain.cineasts.annotated").openSession();
-/*
+
         artist1 = new Artist();
         artist1.setName("MainArtist");
 
@@ -68,7 +77,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         recording.setYear(2001);
 
         session.save(artist1);
-*/
+
         actor1 = new Actor("Actor1");
         actor2 = new Actor("Actor2");
         knows = new Knows();
@@ -76,9 +85,6 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         knows.setSecondActor(actor2);
         actor1.knows.add(knows);
         session.save(actor1);
-        Result result = session.query("MATCH N RETURN N", Collections.EMPTY_MAP);
-        //session.save(actor2);
-        // session.save(knows);
     }
 
     @After
@@ -86,9 +92,6 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    /*
-     * @see ISSUE-86
-     */
     @Test
     public void disposeFromMappingContextOnDeleteWithTransientRelationshipTest() {
         MappingContext mappingContext = session.context();
@@ -116,7 +119,6 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
      */
     @Test
     public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
-        actor1.getId();
         Assert.assertTrue(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class);
         Object objectRel = session.context().getRelationshipEntity(knows.id);
         Assert.assertTrue(objectRel.getClass() == Knows.class);
@@ -129,14 +131,31 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         Assert.assertTrue( object == null);
         // check for a defined RelationshipEntity; the relationship should also be removed from the mappingContext
         objectRel = session.context().getRelationshipEntity(knows.id);
-        //Assert.assertTrue(objectRel == null);
-        //Assert.assertTrue(session.context().getNodeEntity(actor1.getId()) == null);
+        Assert.assertTrue(objectRel == null);
+        Assert.assertTrue(session.context().getNodeEntity(actor1.getId()) == null);
         // does it exist in the session?
         Knows inSessionKnows = session.load(Knows.class, knows.id);
-        ;
+        Assert.assertTrue(inSessionKnows == null);
     }
 
+    @Test
+    public void testEntityRelationshipProperlyRemoved() {
+        session.delete(knows);
+        Knows testKnows = session.load(Knows.class, knows.id);
+        Assert.assertTrue(testKnows == null);
+    }
 
+    @Test
+    public void testDetachNode() {
+        Assert.assertTrue(session.detach(actor1.getId()));
+        Assert.assertFalse(session.detach(actor1.getId()));
+    }
+
+    @Test
+    public void testDetachRelationshipEntity() {
+        Assert.assertTrue(session.detach(knows.id));
+        Assert.assertFalse(session.detach(knows.id));
+    }
 
 
 }

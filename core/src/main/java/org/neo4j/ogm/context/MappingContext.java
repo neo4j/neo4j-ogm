@@ -13,10 +13,15 @@
 
 package org.neo4j.ogm.context;
 
+import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ObjectAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,6 +230,36 @@ public class MappingContext {
         getAll(type).clear();
     }
 
+    private MappedRelationship getMappedRelationshipById(Long id) {
+        relationshipRegister.iterator();
+        for(MappedRelationship mappedRelationship : relationshipRegister) {
+            if(mappedRelationship.getRelationshipId() == id)
+                return mappedRelationship;
+        }
+        return null;
+    }
+    /*
+     * retrieves the object entity(TransientRelationship, NodeEntity, RelationshipEntity from the MappingContext
+     * returns null if no object entity exists
+     */
+    private Object getEntityById(Long id) {
+        if(relationshipEntityRegister.containsKey(id))
+            return relationshipEntityRegister.get(id);
+        if(nodeEntityRegister.containsKey(id))
+            return nodeEntityRegister.get(id);
+        return getMappedRelationshipById(id);
+    }
+    /*
+     * purges all information about an entity with this id
+     */
+    public boolean detach(Long id) {
+        Object objectToDetach = getEntityById(id);
+        if(objectToDetach!=null) {
+            clear(objectToDetach);
+            return true;
+        }
+        return false;
+    }
     /**
      * purges all information about this object from the mapping context
      *
@@ -265,13 +300,26 @@ public class MappingContext {
             if (!metaData.isRelationshipEntity(type.getName())) {
                 if (nodeEntityRegister.containsKey(id)) {
                     nodeEntityRegister.remove(id);
-                    // remove all relationship mappings to/from this object -- should also remove from relationshipEntityRegister
+                    // remove all relationship mappings to/from this object
                     Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
                     while (mappedRelationshipIterator.hasNext()) {
                         MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
                             mappedRelationshipIterator.remove();
                         }
+                    }
+                    // should also remove from relationshipEntityRegister
+                    Set<Long> relationshipEntityKeySet = relationshipEntityRegister.keySet();
+                    Iterator<Long> iteratorRelationshipEntityKeySet = relationshipEntityKeySet.iterator();
+                    while (iteratorRelationshipEntityKeySet.hasNext()) {
+                        Long relId = iteratorRelationshipEntityKeySet.next();
+                        Object relationshipEntity = relationshipEntityRegister.get(relId);
+                        Object startNode = entityAccessStrategy.getStartNodeReader(metaData.classInfo(relationshipEntity)).read(relationshipEntity);
+                        Object endNode = entityAccessStrategy.getEndNodeReader(metaData.classInfo(relationshipEntity)).read(relationshipEntity);
+                        Long startNodeId = EntityUtils.identity(startNode,metaData);
+                        Long endNodeId = EntityUtils.identity(endNode,metaData);
+                        if(startNodeId == id || endNodeId == id)
+                            relationshipEntityRegister.remove(relId);
                     }
                 }
             }

@@ -104,11 +104,11 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         Assert.assertTrue(mappingContext.getNodeEntity(artist1.getId()).getClass() == Artist.class);
         session.delete(artist1);
 
-        // check that the mapping context does not hold a refference to the deleted entity anymore
+        // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = mappingContext.getNodeEntity(artist1.getId());
         Assert.assertTrue( object == null);
 
-        // check that objects with refferences to the deleted object have been cleared
+        // check that objects with references to the deleted object have been cleared
         // check for TransientRelationship, where the object connected to the deleted object holds ref in a Set
         Album retrievedAlbum1 = (Album)mappingContext.getNodeEntity(album1.getId());
         Assert.assertTrue( retrievedAlbum1.getArtist() == null );
@@ -120,10 +120,6 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         Assert.assertTrue( retrievedAlbum3.getArtist() == null );
     }
 
-    /*
-     * @see ISSUE-86 - needs to be fixed, but how?
-     */
-    @Ignore
     @Test
     public void disposeFromMappingContextOnDeleteWithRelationshipEntityTest() {
         Assert.assertTrue(session.context().getNodeEntity(actor1.getId()).getClass() == Actor.class);
@@ -133,7 +129,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         session.delete(actor1);
 
         Result result = session.query("MATCH N RETURN N", Collections.EMPTY_MAP);
-        // check that the mapping context does not hold a refference to the deleted entity anymore
+        // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = session.context().getNodeEntity(actor1.getId());
         Assert.assertTrue( object == null);
         // check for a defined RelationshipEntity; the relationship should also be removed from the mappingContext
@@ -172,6 +168,5 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         Assert.assertTrue(session.detach(knows.id));
         Assert.assertFalse(session.detach(knows.id));
     }
-
 
 }

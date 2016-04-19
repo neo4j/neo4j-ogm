@@ -13,15 +13,10 @@
 
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.ObjectAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,7 +188,6 @@ public class MappingContext {
             for (ClassInfo implementingClass : implementingClasses) {
                 try {
                     String implementingClassName = implementingClass.name();
-                    //clear(Class.forName(implementingClassName));
                     clear(MetaDataClassLoader.loadClass(implementingClassName));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -224,20 +218,16 @@ public class MappingContext {
     }
 
     private void clear(Class<?> type, PropertyReader identityReader) {
+
         for (Object entity : getAll(type).values()) {
             purge(entity, identityReader, type);
         }
+
         getAll(type).clear();
+
+
     }
 
-    private MappedRelationship getMappedRelationshipById(Long id) {
-        relationshipRegister.iterator();
-        for(MappedRelationship mappedRelationship : relationshipRegister) {
-            if(mappedRelationship.getRelationshipId() == id)
-                return mappedRelationship;
-        }
-        return null;
-    }
     /*
      * retrieves the object entity(TransientRelationship, NodeEntity, RelationshipEntity from the MappingContext
      * returns null if no object entity exists
@@ -247,14 +237,14 @@ public class MappingContext {
             return relationshipEntityRegister.get(id);
         if(nodeEntityRegister.containsKey(id))
             return nodeEntityRegister.get(id);
-        return getMappedRelationshipById(id);
+        return null;
     }
     /*
      * purges all information about an entity with this id
      */
     public boolean detach(Long id) {
         Object objectToDetach = getEntityById(id);
-        if(objectToDetach!=null) {
+        if(objectToDetach != null) {
             clear(objectToDetach);
             return true;
         }
@@ -305,23 +295,22 @@ public class MappingContext {
                     while (mappedRelationshipIterator.hasNext()) {
                         MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+
+                            // first purge any RE mappings (if its a RE)
+                            if (mappedRelationship.getRelationshipId() != null) {
+                                Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
+                                if (relEntity != null) {
+                                    String relType = mappedRelationship.getRelationshipType();
+                                    ClassInfo relClassInfo = metaData.classInfo(relType);
+                                    PropertyReader relIdentityReader = entityAccessStrategy.getIdentityPropertyReader(relClassInfo);
+                                    purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
+                                }
+                            }
+
+                            // finally remove the mapped relationship
                             mappedRelationshipIterator.remove();
                         }
                     }
-                    /*
-                    Set<Long> relationshipEntityKeySet = relationshipEntityRegister.keySet();
-                    Iterator<Long> iteratorRelationshipEntityKeySet = relationshipEntityKeySet.iterator();
-                    while (iteratorRelationshipEntityKeySet.hasNext()) {
-                        Long relId = iteratorRelationshipEntityKeySet.next();
-                        Object relationshipEntity = relationshipEntityRegister.get(relId);
-                        Object startNode = entityAccessStrategy.getStartNodeReader(metaData.classInfo(relationshipEntity)).read(relationshipEntity);
-                        Object endNode = entityAccessStrategy.getEndNodeReader(metaData.classInfo(relationshipEntity)).read(relationshipEntity);
-                        Long startNodeId = EntityUtils.identity(startNode,metaData);
-                        Long endNodeId = EntityUtils.identity(endNode,metaData);
-                        if(startNodeId == id || endNodeId == id)
-                            relationshipEntityRegister.remove(relId);
-                    }
-                    */
                 }
             }
             else {
@@ -336,6 +325,7 @@ public class MappingContext {
                 }
             }
         }
+
     }
 
 }

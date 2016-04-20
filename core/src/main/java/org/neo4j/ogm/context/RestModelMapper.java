@@ -136,13 +136,16 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 	}
 
 	private boolean isMappable(List entityList) {
-		for (Object entityObj : entityList) {
-			if (entityObj instanceof NodeModel || entityObj instanceof RelationshipModel) {
-				continue;
+		if (entityList.size() > 0) {
+			for (Object entityObj : entityList) {
+				if (entityObj instanceof NodeModel || entityObj instanceof RelationshipModel) {
+					continue;
+				}
+				return false;
 			}
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	private Object mapEntity(String column, Object entity, List<RelationshipModel> relationshipModels, Map<Long, String> relationshipEntityColumns) {
@@ -150,8 +153,10 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 			NodeModel nodeModel = (NodeModel) entity;
 			DefaultGraphModel graphModel = new DefaultGraphModel();
 			graphModel.setNodes(new NodeModel[]{nodeModel});
-			List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
-			return mapped.get(0);
+			if (nodeModel.getLabels() != null && metaData.resolve(nodeModel.getLabels()) != null) {
+				List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
+				return mapped.get(0);
+			}
 		} else if (entity instanceof RelationshipModel) {
 			RelationshipModel relationshipModel = (RelationshipModel) entity;
 			relationshipModels.add(relationshipModel);

@@ -462,6 +462,9 @@ public class Neo4jSession implements Session {
         return graphIdDelegate.resolveGraphIdFor(possibleEntity);
     }
 
+    public boolean detach(Long id) {
+        return mappingContext.detach(id);
+    }
     //
     // These helper methods for the delegates are deliberately NOT defined on the Session interface
     //

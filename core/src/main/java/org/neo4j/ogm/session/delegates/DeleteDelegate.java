@@ -110,7 +110,7 @@ public class DeleteDelegate implements Capability.Delete {
                     }
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
-                        session.context().clear(object);
+                        session.detach(identity);
                         if (session.eventsEnabled()) {
                             if (notified.contains(object)) {
                                 session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));

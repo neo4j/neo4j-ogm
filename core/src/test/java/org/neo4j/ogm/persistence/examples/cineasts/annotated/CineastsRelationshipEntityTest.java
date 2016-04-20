@@ -498,7 +498,8 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         //delete one rating
         session.delete(okay);
-        assertEquals(1, session.loadAll(Rating.class).size());
+        Collection<Rating> ratings = session.loadAll(Rating.class);
+        assertEquals(1, ratings.size());
 
         phoenix = session.loadAll(Movie.class, new Filter("title", "Harry Potter and the Order of the Phoenix")).iterator().next();
         assertNull(phoenix.getRatings());

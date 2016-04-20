@@ -219,12 +219,38 @@ public class MappingContext {
     }
 
     private void clear(Class<?> type, PropertyReader identityReader) {
+
         for (Object entity : getAll(type).values()) {
             purge(entity, identityReader, type);
         }
+
         getAll(type).clear();
+
+
     }
 
+    /*
+     * retrieves the object entity(TransientRelationship, NodeEntity, RelationshipEntity from the MappingContext
+     * returns null if no object entity exists
+     */
+    private Object getEntityById(Long id) {
+        if(relationshipEntityRegister.containsKey(id))
+            return relationshipEntityRegister.get(id);
+        if(nodeEntityRegister.containsKey(id))
+            return nodeEntityRegister.get(id);
+        return null;
+    }
+    /*
+     * purges all information about an entity with this id
+     */
+    public boolean detach(Long id) {
+        Object objectToDetach = getEntityById(id);
+        if(objectToDetach != null) {
+            clear(objectToDetach);
+            return true;
+        }
+        return false;
+    }
     /**
      * purges all information about this object from the mapping context
      *
@@ -270,6 +296,19 @@ public class MappingContext {
                     while (mappedRelationshipIterator.hasNext()) {
                         MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+
+                            // first purge any RE mappings (if its a RE)
+                            if (mappedRelationship.getRelationshipId() != null) {
+                                Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
+                                if (relEntity != null) {
+                                    String relType = mappedRelationship.getRelationshipType();
+                                    ClassInfo relClassInfo = metaData.classInfo(relType);
+                                    PropertyReader relIdentityReader = entityAccessStrategy.getIdentityPropertyReader(relClassInfo);
+                                    purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
+                                }
+                            }
+
+                            // finally remove the mapped relationship
                             mappedRelationshipIterator.remove();
                         }
                     }
@@ -287,6 +326,7 @@ public class MappingContext {
                 }
             }
         }
+
     }
 
     public Set<Object> neighbours(Object entity) {

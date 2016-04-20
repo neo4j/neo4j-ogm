@@ -35,6 +35,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -619,7 +620,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 	 * @see Issue 136
 	 */
 	@Test
-	public void testOverflowBug() {
+	public void shouldNotOverflowIntegers() {
 		long start = Integer.MAX_VALUE;
 		session.query("CREATE (n:Sequence {id:{id}, next:{start}})", MapUtil.map("id", "test", "start", start));
 
@@ -632,6 +633,68 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
 		//expected:<2147483648> but was:<-2147483648>
 		assertEquals(start + 1, ((Number) result.iterator().next().get("current")).longValue());
+	}
+
+	/**
+	 * @see Issue 150
+	 */
+	@Test
+	public void shouldLoadNodesWithUnmappedOrNoLabels() {
+		int movieCount=0,userCount=0, unmappedCount=0, noLabelCount=0;
+
+		session.query("CREATE (unknown), (m:Unmapped), (n:Movie), (n)-[:UNKNOWN]->(m)", Collections.EMPTY_MAP);
+
+		Result result = session.query("MATCH (n) return n", Collections.EMPTY_MAP);
+		assertNotNull(result);
+
+		Iterator<Map<String, Object>> resultIterator = result.iterator();
+		while (resultIterator.hasNext()) {
+			Map<String,Object> row = resultIterator.next();
+			Object n = row.get("n");
+			if (n instanceof User) {
+				userCount++;
+			}
+			else if (n instanceof Movie) {
+				movieCount++;
+			}
+			else if (n instanceof NodeModel) {
+				if (((NodeModel) n).getLabels().length == 0) {
+					noLabelCount++;
+				}
+				else if (((NodeModel) n).getLabels()[0].equals("Unmapped")) {
+					unmappedCount++;
+				}
+			}
+
+		}
+		assertEquals(1, unmappedCount);
+		assertEquals(1, noLabelCount);
+		assertEquals(4, movieCount);
+		assertEquals(4, userCount);
+	}
+
+	/**
+	 * @see Issue 148
+	 */
+	@Test
+	public void shouldMapCypherCollectionsToArrays() {
+		Iterator<Map<String,Object>> iterator = session.query("MATCH (n:User) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+		assertTrue(iterator.hasNext());
+		Map<String,Object> row = iterator.next();
+		assertTrue(row.get("names").getClass().isArray());
+		assertEquals(4, ((String[])row.get("names")).length);
+
+		iterator = session.query("MATCH (n:User {name:'Michal'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+		assertTrue(iterator.hasNext());
+		row = iterator.next();
+		assertTrue(row.get("names").getClass().isArray());
+		assertEquals(1, ((String[])row.get("names")).length);
+
+		iterator = session.query("MATCH (n:User {name:'Does Not Exist'}) return collect(n.name) as names", Collections.EMPTY_MAP).iterator();
+		assertTrue(iterator.hasNext());
+		row = iterator.next();
+		assertTrue(row.get("names").getClass().isArray());
+		assertEquals(0, ((Object[])row.get("names")).length);
 	}
 
 	private boolean checkForMichal(Map<String, Object> result, boolean foundMichal) {

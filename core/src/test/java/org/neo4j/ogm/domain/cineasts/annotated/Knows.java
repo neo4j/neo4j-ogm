@@ -25,7 +25,7 @@ import java.util.Date;
 @RelationshipEntity(type = "KNOWS")
 public class Knows {
 
-    Long id;
+    public Long id;
 
     @StartNode
     private Actor firstActor;

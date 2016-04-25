@@ -23,9 +23,7 @@ import java.lang.annotation.Target;
  *
  * This annotation is always needed for relationship-backed entities.
  *
- * The type attribute supplies the relationship type in the graph, and
- * can be omitted if the domain entity's simple class name matches
- * exactly the relationship type.
+ * The type attribute supplies the relationship type in the graph.
  *
  * @author Michal Bachman
  */

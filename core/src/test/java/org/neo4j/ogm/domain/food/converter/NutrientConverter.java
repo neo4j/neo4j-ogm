@@ -1,6 +1,6 @@
 package org.neo4j.ogm.domain.food.converter;
 
-import org.neo4j.ogm.domain.food.outOfScope.DiabetesRisk;
+import org.neo4j.ogm.domain.food.entities.DiabetesRisk;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**

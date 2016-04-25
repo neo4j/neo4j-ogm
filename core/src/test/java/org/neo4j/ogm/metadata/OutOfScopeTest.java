@@ -4,18 +4,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.domain.food.entities.*;
-import org.neo4j.ogm.domain.food.outOfScope.DiabetesRisk;
+import org.neo4j.ogm.domain.food.entities.DiabetesRisk;
 import org.neo4j.ogm.domain.food.outOfScope.Nutrient;
-import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * @author Mihai Raulea
@@ -32,7 +28,7 @@ public class OutOfScopeTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void testOutscopeEnumNoPropertyNoConverter() throws InstantiationException, IllegalAccessException {
+    public void testOutscopeEnumNoPropertyNoConverter() throws InstantiationException, IllegalAccessException,IOException {
         PizzaOutscope pizza1 = createObjectOutscope(PizzaOutscopeEnumNoPropertyAnnotationNoConverter.class);
         storeAndRetrieveOutscope(pizza1);
     }

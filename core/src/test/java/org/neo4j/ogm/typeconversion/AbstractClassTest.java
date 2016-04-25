@@ -2,6 +2,7 @@ package org.neo4j.ogm.typeconversion;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.ogm.annotation.GraphId;
@@ -18,6 +19,7 @@ import java.util.List;
 /**
  * Created by Mihai Raulea on 4/24/2016.
  */
+@Ignore
 public class AbstractClassTest {
 
     @NodeEntity(label = "BaseType")

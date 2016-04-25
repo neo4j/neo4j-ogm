@@ -99,17 +99,9 @@ If you want to configure the OGM using a properties file, but with a _different_
 
 In some cases you won't want to, or will not be able to provide configuration information using a properties file. In this case you can configure the OGM programmatically instead.
 
-The `Components` class provides access to the various Configuration classes:
+The Configuration object provides a fluent API to set various configuration options.
 
-[source,java]
-----
-DriverConfiguration driverConfig = Components.configuration().driverConfiguration());
-CompilerConfiguration compilerConfig = Components.configuration().compilerConfiguration());
-----
-
-Each Configuration object provides a fluent API to set its configuration options.
-
-The following sections describe how to configure the OGM using either a properties file or via Java Configuration.
+The following sections describe how to configure the OGM driver using either a properties file or via Java Configuration.
 
 === Driver Configuration
 
@@ -126,10 +118,16 @@ URI=http://user:password@localhost:7474
 .Java Configuration
 [source,java]
 ----
-Components.configuration()
+Configuration configuration = new Configuration()
              .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
              .setURI("http://user:password@localhost:7474")
+
+// having created a new configuration object, we can either use it directly with the Components class...
+Components.configure(configuration);
+
+// or pass it as the first argument to a SessionFactory instance
+new SessionFactory(configuration, packages...);
 ----
 
 _Note: Please see the section below describing the different ways you can pass credentials to the Http Driver_
@@ -154,18 +152,20 @@ driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 .Java Configuration (permanent data store)
 [source,java]
 ----
-Components.configuration()
+Configuration configuration = new Configuration()
              .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
              .setURI("file://home/bilbo");
+
 ----
 
 .Java Configuration (impermanent data store)
 [source,java]
 ----
-Components.configuration()
+Configuration configuration = new Configuration()
              .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
+
 ----
 
 As you can see to use an impermanent data store, you just omit the URI attribute.
@@ -199,18 +199,18 @@ password="password"
 [source,java]
 ----
 // embedded
-Components.configuration()
+Configuration configuration = new Configuration()
              .driverConfiguration()
              .setURI("bolt://user:password@localhost");
 
 // separately as plain text
-Components.configuration()
+Configuration configuration = new Configuration()
              .driverConfiguration()
              .setCredentials("user", "password);
 
 // using a Credentials object
 Credentials credentials = new UsernameAndPasswordCredentials("user", "password");
-Components.configuration()
+Configuration configuration = new Configuration()
              .driverConfiguration()
              .setCredentials(credentials);
 ----
@@ -356,11 +356,12 @@ Session session = sessionFactory.openSession()
 If you want to explicitly configure the SessionFactory you must supply a Configuration object as the first argument to the constructor, followed by the domain class packages.
 [source,java]
 ----
-Configuration configuration = Components.configuration();
-configuration.driverConfiguration()
+Configuration configuration = new Configuration()
+             .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
              .setURI("http://localhost:7474")
              .setCredentials("user", "password")
+
 SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.example.domain");
 Session session = sessionFactory.openSession();
 ----

@@ -73,7 +73,11 @@ public class DeleteDelegate implements Capability.Delete {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
                     RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
                     try (Response<RowModel> response = session.requestHandler().execute(query)) {
-                        session.detach(identity);
+                        if (session.metaData().isRelationshipEntity(classInfo.name())) {
+                            session.detachRelationshipEntity(identity);
+                        } else {
+                            session.detachNodeEntity(identity);
+                        }
                     }
                 }
             } else {

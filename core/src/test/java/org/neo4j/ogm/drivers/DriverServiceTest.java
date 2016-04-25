@@ -16,9 +16,9 @@ package org.neo4j.ogm.drivers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.service.DriverService;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 public class DriverServiceTest {
 
     public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
-    private DriverConfiguration driverConfiguration = Components.configuration().driverConfiguration();
+    private DriverConfiguration driverConfiguration = new Configuration().driverConfiguration();
 
     @BeforeClass
     public static void createEmbeddedStore() throws IOException {

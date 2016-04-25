@@ -96,8 +96,9 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             // that will persist only for the duration of the JVM
             // This is effectively what the ImpermanentDatabase does.
             if (fileStoreUri == null) {
-                fileStoreUri = createTemporaryEphemeralFileStore();
-                //fileStoreUri = createEphemeralFileStore();
+                fileStoreUri = createTemporaryFileStore();
+            } else {
+                createPermanentFileStore(fileStoreUri);
             }
 
             File file = new File(new URI(fileStoreUri));
@@ -114,7 +115,9 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    // for compatability with Neo4j 2.2.x and 2.3.x
+
+
+    // for compatibility with Neo4j 2.2.x and 2.3.x
     private void setGraphDatabase(File file) {
         GraphDatabaseFactory factory = new GraphDatabaseFactory();
         try {
@@ -151,7 +154,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             logger.info("Shutting down Embedded driver {} ", graphDatabaseService);
             graphDatabaseService.shutdown();
             graphDatabaseService = null;
-            //System.gc(); // try and force the memory-mapped file buffers to close in order not to run out of file handles
         }
     }
 
@@ -180,13 +182,13 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         return nativeTransaction;
     }
 
-    private String createTemporaryEphemeralFileStore() {
+    private String createTemporaryFileStore() {
 
         try {
 
             Path path = Files.createTempDirectory("neo4j.db");
             File f = path.toFile();
-            f.deleteOnExit(); // should we do this?
+            f.deleteOnExit();
             URI uri = f.toURI();
             String fileStoreUri = uri.toString();
             logger.warn("Creating temporary file store: " + fileStoreUri);
@@ -196,26 +198,20 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
+    private void createPermanentFileStore(String strPath) {
 
-    private String createEphemeralFileStore() {
-
-        Path path = Paths.get(System.getenv("java.io.tmpdir"), "neo4j.db");
+        Path path = Paths.get(strPath);
 
         try {
-            Path graphDir = Files.createDirectory(path);
-            File f = graphDir.toFile();
-            f.deleteOnExit(); // should we do this?
-            URI uri = f.toURI();
-            String fileStoreUri = uri.toString();
-            logger.warn("Creating temporary file store: " + fileStoreUri);
-            return fileStoreUri;
+            Path graphDir = Files.createDirectories(path);
+            logger.warn("Creating new permanent file store: " + graphDir.toString());
         }
         catch (FileAlreadyExistsException e) {
-            logger.warn("Using temporary files store: " + path.toString());
-            return path.toString();
+            logger.warn("Using existing permanent file store: " + path.toString());
         }
         catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
     }
+
 }

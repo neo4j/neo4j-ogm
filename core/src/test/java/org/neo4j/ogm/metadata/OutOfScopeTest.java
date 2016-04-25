@@ -4,18 +4,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.PropertyReader;
-import org.neo4j.ogm.domain.food.entities.Chicken;
-import org.neo4j.ogm.domain.food.entities.Pizza;
+import org.neo4j.ogm.domain.food.entities.*;
+import org.neo4j.ogm.domain.food.outOfScope.DiabetesRisk;
+import org.neo4j.ogm.domain.food.outOfScope.Nutrient;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author Mihai Raulea
@@ -25,63 +25,92 @@ import java.util.Collection;
 public class OutOfScopeTest extends MultiDriverTestClass {
 
     Session session;
-    MetaData metaData;
-    Pizza pizza = new Pizza();
-    Chicken chicken = new Chicken();
-    DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-    ClassInfo classInfoPizza;
-    ClassInfo classInfoChicken;
-
     @Before
     public void init() throws IOException {
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.food.entities");
         session = sessionFactory.openSession();
-        metaData = new MetaData("org.neo4j.ogm.domain.food.entities");
-
-        pizza.noOfCaloriesPer100Grams = 332;
-        chicken.noOfCaloriesPer100Grams = 112;
-        classInfoPizza = metaData.classInfo(pizza);
-        classInfoChicken = metaData.classInfo(chicken);
-    }
-
-    // should get back to this when isSimple returns true for enum
-    @Ignore
-    @Test
-    public void testEnumFieldHasDefaultConverterIfNoConverterPresent() {
-        for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(classInfoChicken)) {
-            Object value = propertyReader.read(chicken);
-            System.out.println(propertyReader.propertyName()+" "+value);
-        }
-
-        //FieldInfo fieldInfoPizza = classInfoPizza.propertyField("nutrient");
-        //Assert.assertTrue(fieldInfoPizza.hasConverter());
     }
 
     @Test
-    public void isEnumSimpleField() {
-        Collection<FieldInfo> chickenFieldInfos = classInfoChicken.propertyFields();
-        Collection<FieldInfo> pizzaFieldInfos = classInfoPizza.propertyFields();
-        Assert.assertTrue(chickenFieldInfos.size() == 1);
-        Assert.assertTrue(pizzaFieldInfos.size() == 2);
-
-        Collection<PropertyReader> chickenPropertyReaders = this.entityAccessStrategy.getPropertyReaders(classInfoChicken);
-        Collection<PropertyReader> pizzaPropertyReaders = this.entityAccessStrategy.getPropertyReaders(classInfoPizza);
+    public void testOutscopeEnumNoPropertyNoConverter() throws InstantiationException, IllegalAccessException {
+        PizzaOutscope pizza1 = createObjectOutscope(PizzaOutscopeEnumNoPropertyAnnotationNoConverter.class);
+        storeAndRetrieveOutscope(pizza1);
     }
 
     @Test
-    public void testNoAnnotation() {
-        session.save(chicken);
+    public void testOutscopeEnumNoPropertyWithConverter() throws InstantiationException, IllegalAccessException {
+        PizzaOutscope pizza2 = createObjectOutscope(PizzaOutscopeEnumWithPropertyAnnotationWithConverter.class);
+        storeAndRetrieveOutscope(pizza2);
     }
 
     @Test
-    public void testWithAnnotation() {
-        Collection<PropertyReader> propertyReaders = entityAccessStrategy.getPropertyReaders(classInfoPizza);
-        for (PropertyReader propertyReader : propertyReaders) {
-            Object value = propertyReader.read(pizza);
-            System.out.println(propertyReader.propertyName()+" : "+value);
-        }
-        session.save(pizza);
+    public void testOutscopeEnumWithPropertyNoConverter() throws InstantiationException, IllegalAccessException {
+        PizzaOutscope pizza3 = createObjectOutscope(PizzaOutscopeEnumWithPropertyAnnotationNoConverter.class);
+        storeAndRetrieveOutscope(pizza3);
     }
 
+    @Test
+    public void testOutscopeEnumWithPropertyWithConverter() throws InstantiationException, IllegalAccessException {
+        PizzaOutscope pizza4 = createObjectOutscope(PizzaOutscopeEnumWithPropertyAnnotationWithConverter.class);
+        storeAndRetrieveOutscope(pizza4);
+    }
+
+    @Test
+    public void testScannedEnumNoPropertyNoConverter() throws InstantiationException, IllegalAccessException {
+        PizzaScannedEnum pizzaScannedEnum1 = createObjectScannedEnum(PizzaWithScannedEnumNoPropertyAnnotationNoConverter.class);
+        storeAndRetrieveScanned(pizzaScannedEnum1);
+    }
+
+    @Test
+    public void testScannedEnumNoPropertyWithConverter() throws InstantiationException, IllegalAccessException {
+        PizzaScannedEnum pizzaScannedEnum2 = createObjectScannedEnum(PizzaWithScannedEnumNoPropertyAnnotationWithConverter.class);
+        storeAndRetrieveScanned(pizzaScannedEnum2);
+    }
+
+    @Test
+    public void testScannedEnumWithPropertyNoConverter() throws InstantiationException, IllegalAccessException {
+        PizzaScannedEnum pizzaScannedEnum3 = createObjectScannedEnum(PizzaWithScannedEnumWithPropertyAnnotationNoConverter.class);
+        storeAndRetrieveScanned(pizzaScannedEnum3);
+    }
+
+    @Test
+    public void testScannedEnumWithPropertyWithConverter() throws InstantiationException, IllegalAccessException {
+        PizzaScannedEnum pizzaScannedEnum4 = createObjectScannedEnum(PizzaWithScannedEnumWithPropertyAnnotationWithConverter.class);
+        storeAndRetrieveScanned(pizzaScannedEnum4);
+    }
+
+    private PizzaOutscope createObjectOutscope(Class clazz) throws InstantiationException, IllegalAccessException {
+        PizzaOutscope pizzaOutscope = null;
+        pizzaOutscope = (PizzaOutscope)clazz.newInstance();
+        pizzaOutscope.noOfCalories = Math.ceil(Math.random()*200);
+        pizzaOutscope.outscopeNutrient = Nutrient.FAT;
+        return pizzaOutscope;
+    }
+
+    private PizzaScannedEnum createObjectScannedEnum(Class clazz) throws InstantiationException, IllegalAccessException {
+        PizzaScannedEnum pizzaScannedEnum = null;
+        pizzaScannedEnum = (PizzaScannedEnum)clazz.newInstance();
+        pizzaScannedEnum.noOfCalories = Math.ceil(Math.random()*200);
+        pizzaScannedEnum.diabetesRisk = DiabetesRisk.HIGH;
+        return pizzaScannedEnum;
+    }
+
+    private void storeAndRetrieveOutscope(PizzaOutscope pizzaOutscope) {
+        session.save(pizzaOutscope);
+        PizzaOutscope retrieved = session.load(pizzaOutscope.getClass(), pizzaOutscope.id);
+        Assert.assertTrue(retrieved != null);
+        Assert.assertTrue(retrieved.id == pizzaOutscope.id);
+        Assert.assertTrue(retrieved.noOfCalories == pizzaOutscope.noOfCalories);
+        Assert.assertTrue(retrieved.outscopeNutrient == pizzaOutscope.outscopeNutrient);
+    }
+
+    private void storeAndRetrieveScanned(PizzaScannedEnum pizzaScannedEnum) {
+        session.save(pizzaScannedEnum);
+        PizzaScannedEnum retrieved = session.load(pizzaScannedEnum.getClass(), pizzaScannedEnum.id);
+        Assert.assertTrue(retrieved != null);
+        Assert.assertTrue(retrieved.id == pizzaScannedEnum.id);
+        Assert.assertTrue(retrieved.noOfCalories == pizzaScannedEnum.noOfCalories);
+        Assert.assertTrue(retrieved.diabetesRisk == pizzaScannedEnum.diabetesRisk);
+    }
 
 }

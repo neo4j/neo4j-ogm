@@ -55,7 +55,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
      * @return The result of the merge, as an instance of the specified parameter type
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Object newValues, Iterable<?> currentValues) {
+    public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues) {
 
         //While we expect newValues to be an iterable, there are a couple of exceptions
 
@@ -68,7 +68,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
         if (parameterType.isArray()) {
             Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union((Iterable<?>) newValues, currentValues));
+            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues));
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
@@ -78,7 +78,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, (Iterable<?>)newValues, currentValues);
+        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues);
         if (newCollection != null) {
             return newCollection;
         }
@@ -92,7 +92,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         throw new RuntimeException("Unsupported: " + parameterType.getName());
     }
 
-    private static Collection<?> createCollection(Class<?> parameterType, Iterable<?> collection, Iterable<?> hydrated) {
+    private static Collection<?> createCollection(Class<?> parameterType, Collection collection, Collection hydrated) {
         if (Vector.class.isAssignableFrom(parameterType)) {
             return new Vector<>(union(collection, hydrated));
         }
@@ -108,19 +108,32 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         return null;
     }
 
-    private static Collection<Object> union(Iterable<?> collection, Iterable<?> hydrated) {
-        Collection<Object> result = new ArrayList<>();
-        for (Object object : collection) {
-            result.add(object);
-        }
+    private static Collection<Object> union(Collection collection, Collection hydrated) {
+        int resultSize = collection.size();
         if (hydrated != null) {
-            for (Object object : hydrated) {
-                if (!result.contains( object )) {
-                    result.add(object);
-                }
+            resultSize += hydrated.size();
+        }
+        Collection<Object> result = new ArrayList<>(resultSize);
+
+        if (hydrated != null && hydrated.size() > collection.size()) {
+            result.addAll(hydrated);
+            addToCollection(collection, result);
+        }
+        else {
+            result.addAll(collection);
+            if (hydrated!=null) {
+                addToCollection(hydrated, result);
             }
         }
         return result;
+    }
+
+    private static void addToCollection(Collection add, Collection<Object> addTo) {
+        for (Object object : add) {
+			if (!addTo.contains(object)) {
+				addTo.add(object);
+			}
+		}
     }
 
 

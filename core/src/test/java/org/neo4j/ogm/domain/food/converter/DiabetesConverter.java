@@ -1,12 +1,12 @@
 package org.neo4j.ogm.domain.food.converter;
 
-import org.neo4j.ogm.domain.food.entities.DiabetesRisk;
+import org.neo4j.ogm.domain.food.entities.inScope.DiabetesRisk;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
  * Created by Mihai Raulea on 4/25/2016.
  */
-public class NutrientConverter implements AttributeConverter<DiabetesRisk, String> {
+public class DiabetesConverter implements AttributeConverter<DiabetesRisk, String> {
 
 @Override
 public String toGraphProperty(DiabetesRisk value) {
@@ -20,7 +20,7 @@ public DiabetesRisk toEntityAttribute(String value) {
                 return nutrient;
         }
     }
-    throw new RuntimeException("NutrientConverter failed!");
+    throw new RuntimeException("DiabetesConverter failed!");
 }
 
 }

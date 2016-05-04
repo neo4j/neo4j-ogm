@@ -1,4 +1,4 @@
-package org.neo4j.ogm.domain.food.entities;
+package org.neo4j.ogm.domain.food.entities.inScope;
 
 import org.neo4j.ogm.annotation.typeconversion.EnumString;
 

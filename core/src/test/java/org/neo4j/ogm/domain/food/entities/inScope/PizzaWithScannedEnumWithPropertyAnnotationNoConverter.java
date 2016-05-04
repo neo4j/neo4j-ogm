@@ -1,4 +1,4 @@
-package org.neo4j.ogm.domain.food.entities;
+package org.neo4j.ogm.domain.food.entities.inScope;
 
 import org.neo4j.ogm.annotation.Property;
 
@@ -7,8 +7,6 @@ import org.neo4j.ogm.annotation.Property;
  */
 public class PizzaWithScannedEnumWithPropertyAnnotationNoConverter extends PizzaScannedEnum {
 
-    public Long id;
-    public double noOfCalories;
     @Property(name="scanned")
     public DiabetesRisk diabetesRisk;
 

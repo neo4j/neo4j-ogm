@@ -77,12 +77,11 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
-        if(propertyWriterCache.get(classInfo) == null) {
+        if(!propertyWriterCache.containsKey(classInfo)) {
             propertyWriterCache.put(classInfo,new HashMap<String, EntityAccess>());
         }
-        EntityAccess writer = propertyWriterCache.get(classInfo).get(propertyName);
-        if(writer != null) {
-            return writer;
+        if(propertyWriterCache.get(classInfo).containsKey(propertyName)) {
+            return propertyWriterCache.get(classInfo).get(propertyName);
         }
 
         MethodInfo setterInfo = classInfo.propertySetter(propertyName);
@@ -103,12 +102,11 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
-        if(propertyReaderCache.get(classInfo) == null) {
+        if(!propertyReaderCache.containsKey(classInfo)) {
             propertyReaderCache.put(classInfo, new HashMap<String, PropertyReader>());
         }
-        PropertyReader reader =  propertyReaderCache.get(classInfo).get(propertyName);
-        if(reader != null) {
-            return reader;
+        if(propertyReaderCache.get(classInfo).containsKey(propertyName)) {
+            return propertyReaderCache.get(classInfo).get(propertyName);
         }
 
         MethodInfo getterInfo = classInfo.propertyGetter(propertyName);
@@ -150,7 +148,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
-        if (relationalWriterCache.get(classInfo) == null) {
+        if (!relationalWriterCache.containsKey(classInfo)) {
             relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
         }
         DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType, relationshipDirection, scalarValue.getClass());
@@ -268,7 +266,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
-        if(relationalReaderCache.get(classInfo) == null) {
+        if(!relationalReaderCache.containsKey(classInfo)) {
             relationalReaderCache.put(classInfo, new HashMap<DirectedRelationship, RelationalReader>());
         }
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
@@ -334,7 +332,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     @Override
     public Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
         // do we care about "implicit" fields?  i.e., setX/getX with no matching X field
-        if(propertyReaders.get(classInfo) != null) {
+        if(propertyReaders.containsKey(classInfo)) {
             return propertyReaders.get(classInfo);
         }
         Collection<PropertyReader> readers = new ArrayList<>();
@@ -354,7 +352,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
-        if(relationalReaders.get(classInfo) != null) {
+        if(relationalReaders.containsKey(classInfo)) {
             return relationalReaders.get(classInfo);
         }
         Collection<RelationalReader> readers = new ArrayList<>();
@@ -381,7 +379,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
-        if(iterableWriterCache.get(classInfo) == null) {
+        if(!iterableWriterCache.containsKey(classInfo)) {
             iterableWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
         }
         DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, parameterType);
@@ -432,7 +430,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
 
     @Override
     public RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
-        if(iterableReaderCache.get(classInfo) == null) {
+        if(!iterableReaderCache.containsKey(classInfo)) {
             iterableReaderCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalReader>());
         }
         DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, parameterType);

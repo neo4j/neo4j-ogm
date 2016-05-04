@@ -35,11 +35,11 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Object newValues, Object[] currentValues) {
+    public static Object merge(Class<?> parameterType, Object newValues, Object[] currentValues, Class elementType) {
         if (currentValues != null) {
-            return merge(parameterType, newValues, Arrays.asList(currentValues));
+            return merge(parameterType, newValues, Arrays.asList(currentValues), elementType);
         } else {
-            return merge(parameterType, newValues, new ArrayList());
+            return merge(parameterType, newValues, new ArrayList(), elementType);
         }
     }
 
@@ -52,10 +52,11 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
      * @param newValues The objects to merge into a collection of the given parameter type, which may not necessarily be of a
      *        type assignable from <em>parameterType</em> already
      * @param currentValues The Iterable to merge into, which may be <code>null</code> if a new collection needs creating
+     * @param elementType   The type of the element in the array or collection
      * @return The result of the merge, as an instance of the specified parameter type
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues) {
+    public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues, Class elementType) {
 
         //While we expect newValues to be an iterable, there are a couple of exceptions
 
@@ -68,17 +69,17 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
         if (parameterType.isArray()) {
             Class type = parameterType.getComponentType();
-            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues));
+            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues, elementType));
 
             Object array = Array.newInstance(type, objects.size());
             for (int i = 0; i < objects.size(); i++) {
-                Array.set(array, i, Utils.coerceTypes(type, objects.get(i)));
+                Array.set(array, i, objects.get(i));
             }
             return array;
         }
 
         // create the desired type of collection and use it for the merge
-        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues);
+        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues, elementType);
         if (newCollection != null) {
             return newCollection;
         }
@@ -92,23 +93,23 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         throw new RuntimeException("Unsupported: " + parameterType.getName());
     }
 
-    private static Collection<?> createCollection(Class<?> parameterType, Collection collection, Collection hydrated) {
+    private static Collection<?> createCollection(Class<?> parameterType, Collection collection, Collection hydrated, Class elementType) {
         if (Vector.class.isAssignableFrom(parameterType)) {
-            return new Vector<>(union(collection, hydrated));
+            return new Vector<>(union(collection, hydrated, elementType));
         }
         if (List.class.isAssignableFrom(parameterType)) {
-            return new ArrayList<>(union(collection, hydrated));
+            return new ArrayList<>(union(collection, hydrated, elementType));
         }
         if (SortedSet.class.isAssignableFrom(parameterType)) {
-            return new TreeSet<>(union(collection, hydrated));
+            return new TreeSet<>(union(collection, hydrated, elementType));
         }
         if (Set.class.isAssignableFrom(parameterType)) {
-            return new HashSet<>(union(collection, hydrated));
+            return new HashSet<>(union(collection, hydrated, elementType));
         }
         return null;
     }
 
-    private static Collection<Object> union(Collection collection, Collection hydrated) {
+    private static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
         int resultSize = collection.size();
         if (hydrated != null) {
             resultSize += hydrated.size();
@@ -117,21 +118,21 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
         if (hydrated != null && hydrated.size() > collection.size()) {
             result.addAll(hydrated);
-            addToCollection(collection, result);
+            addToCollection(collection, result, elementType);
         }
         else {
-            result.addAll(collection);
+            addToCollection(collection, result, elementType);
             if (hydrated!=null) {
-                addToCollection(hydrated, result);
+                addToCollection(hydrated, result, elementType);
             }
         }
         return result;
     }
 
-    private static void addToCollection(Collection add, Collection<Object> addTo) {
+    private static void addToCollection(Collection add, Collection<Object> addTo, Class elementType) {
         for (Object object : add) {
 			if (!addTo.contains(object)) {
-				addTo.add(object);
+				addTo.add(Utils.coerceTypes(elementType, object));
 			}
 		}
     }

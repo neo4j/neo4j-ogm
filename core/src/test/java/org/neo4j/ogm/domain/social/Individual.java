@@ -42,6 +42,7 @@ public class Individual {
     private byte[] primitiveByteArray;
     private List<Float> floatCollection;
     private List<Byte> byteCollection;
+    private List<Long> longCollection;
 
     private Vector<Double> favouriteRadioStations;
 
@@ -163,5 +164,13 @@ public class Individual {
 
     public void setMaxTemp(Double maxTemp) {
         this.maxTemp = maxTemp;
+    }
+
+    public List<Long> getLongCollection() {
+        return longCollection;
+    }
+
+    public void setLongCollection(List<Long> longCollection) {
+        this.longCollection = longCollection;
     }
 }

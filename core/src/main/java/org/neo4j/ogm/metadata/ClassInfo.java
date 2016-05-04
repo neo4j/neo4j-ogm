@@ -358,7 +358,7 @@ public class ClassInfo {
 
     /**
      * Finds the property field with a specific property name from the ClassInfo's property fields
-     *
+     * Note that this method does not allow for property names with differing case. //TODO
      * @param propertyName the propertyName of the field to find
      * @return A FieldInfo object describing the required property field, or null if it doesn't exist.
      */
@@ -367,10 +367,10 @@ public class ClassInfo {
             Collection<FieldInfo> fieldInfos = propertyFields();
             propertyFields = new HashMap<>(fieldInfos.size());
             for (FieldInfo fieldInfo : fieldInfos) {
-                propertyFields.put(fieldInfo.property(), fieldInfo);
+                propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
             }
         }
-        return propertyFields.get(propertyName);
+        return propertyFields.get(propertyName.toLowerCase());
     }
 
     /**

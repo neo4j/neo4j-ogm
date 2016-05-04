@@ -202,10 +202,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				if (reader != null) {
 					Object currentValue = reader.read(instance);
 					Class<?> paramType = writer.type();
+					Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
 					if (paramType.isArray()) {
-						value = EntityAccess.merge(paramType, value, (Object[]) currentValue);
+						value = EntityAccess.merge(paramType, value, (Object[]) currentValue, elementType);
 					} else {
-						value = EntityAccess.merge(paramType, value, (Collection) currentValue);
+						value = EntityAccess.merge(paramType, value, (Collection) currentValue, elementType);
 					}
 				}
 			}
@@ -460,9 +461,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				if (reader != null) {
 					currentValues = reader.read(instance);
 					if (writer.type().isArray()) {
-						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues);
+						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues, valueType);
 					} else {
-						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Collection) currentValues);
+						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Collection) currentValues, valueType);
 					}
 				}
 			}
@@ -504,6 +505,17 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			}
 		}
 		return false;
+	}
+
+	private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
+		FieldInfo fieldInfo = classInfo.propertyField(propertyName);
+		if (fieldInfo != null) {
+			String descriptor =  fieldInfo.getTypeDescriptor() == null ? fieldInfo.getTypeParameterDescriptor() : fieldInfo.getTypeDescriptor();
+			if (descriptor != null) {
+				return ClassUtils.getType(descriptor);
+			}
+		}
+		return null;
 	}
 
 }

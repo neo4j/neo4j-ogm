@@ -13,6 +13,14 @@
 
 package org.neo4j.ogm.persistence.types.convertible;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Vector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,14 +29,6 @@ import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Vector;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luanne Misquitta
@@ -164,6 +164,22 @@ public class NumericConversionTest extends MultiDriverTestClass {
         session.query("CREATE (i:Individual {name: 'Gary', maxTemp: 31})", Collections.EMPTY_MAP);
         Individual i = session.loadAll(Individual.class).iterator().next();
         assertEquals(new Double(31), i.getMaxTemp());
+    }
+
+	/**
+     * @see DATAGRAPH-840
+     */
+    @Test
+    public void shouldConvertToLongInsteadOfCasting() {
+        Individual individual = new Individual();
+        individual.setLongCollection(Arrays.<Long>asList(1l,2l,3l));
+        session.save(individual);
+
+        session.clear();
+        individual = session.load(Individual.class, individual.getId());
+        for (Number number : individual.getLongCollection()) {
+            assertTrue(number instanceof Long);
+        }
     }
 
 }

@@ -60,11 +60,13 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
         //While we expect newValues to be an iterable, there are a couple of exceptions
 
-        //1. A primitive array cannot be cast directly to Iterable
-        newValues = boxPrimitiveArray(newValues);
+        if (newValues != null) {
+            //1. A primitive array cannot be cast directly to Iterable
+            newValues = boxPrimitiveArray(newValues);
 
-        //2. A char[] may come in as a String or an array of String[]
-        newValues = stringToCharacterIterable(newValues, parameterType);
+            //2. A char[] may come in as a String or an array of String[]
+            newValues = stringToCharacterIterable(newValues, parameterType);
+        }
 
 
         if (parameterType.isArray()) {
@@ -110,6 +112,13 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
     }
 
     private static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
+        if (collection == null) {
+           /* if (hydrated == null) { //At the moment, hydrated is never null, so an empty collection will be returned
+                return null;
+            }*/
+            return hydrated;
+        }
+
         int resultSize = collection.size();
         if (hydrated != null) {
             resultSize += hydrated.size();

@@ -118,6 +118,10 @@ public abstract class ClassUtils {
             typeName = typeName.substring(0, typeName.indexOf("<T"));
         }
 
+        if (typeName.contains("<L")) {
+            typeName = typeName.substring(0, typeName.indexOf("<L"));
+        }
+
         try {
             return MetaDataClassLoader.loadClass(typeName);//Class.forName(typeName);
         } catch (Throwable e) {

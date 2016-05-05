@@ -113,6 +113,13 @@ public class SingleUseEntityMapper {
             }
         }
 
+        if (writer == null && property.getKey().equals("id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
+            FieldInfo idField = classInfo.identityField();
+            if (idField != null) {
+                writer = new FieldWriter(classInfo, idField);
+            }
+        }
+
         if (writer != null) {
             Object value = property.getValue();
             if (value!=null && value.getClass().isArray()) {

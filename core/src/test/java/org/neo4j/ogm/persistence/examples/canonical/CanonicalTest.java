@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -41,7 +42,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 	}
 
 	/**
-	 * @see Issue #127
+	 * @see Issue #127, Issue #157
 	 */
 	@Test
 	public void shouldMapArraysWhenUsingCustomQueries() {
@@ -84,6 +85,10 @@ public class CanonicalTest extends MultiDriverTestClass {
 		mappable.setObjectLongArray(new Long[] {9l,10l});
 		mappable.setObjectShortArray(new Short[] {(short)30, (short)300});
 		mappable.setObjectStringArray(new String[] {"abc", "xyz"});
+
+		mappable.setListOfString(Arrays.asList("a","bb","cc"));
+		mappable.setListOfCharacter(Arrays.asList('a','b','c'));
+
 		session.save(mappable);
 
 		session.clear();
@@ -131,6 +136,9 @@ public class CanonicalTest extends MultiDriverTestClass {
 		assertArrayEquals(mappable.getObjectLongArray(), loaded.getObjectLongArray());
 		assertArrayEquals(mappable.getObjectShortArray(), loaded.getObjectShortArray());
 		assertArrayEquals(mappable.getObjectStringArray(), loaded.getObjectStringArray());
+
+		assertEquals(mappable.getListOfString(), loaded.getListOfString());
+		assertEquals(mappable.getListOfCharacter(), loaded.getListOfCharacter());
 	}
 
 }

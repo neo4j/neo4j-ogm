@@ -65,7 +65,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             newValues = boxPrimitiveArray(newValues);
 
             //2. A char[] may come in as a String or an array of String[]
-            newValues = stringToCharacterIterable(newValues, parameterType);
+            newValues = stringToCharacterIterable(newValues, parameterType, elementType);
         }
 
 
@@ -149,19 +149,32 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
     /**
      * Convert to an Iterable of Character if the value is a String
-     * @param value the object
+     * @param value the object, which may be a String, String[], Collection of String
      * @return List of Character if the value is a String, or the value unchanged
      */
-    private static Object stringToCharacterIterable(Object value, Class parameterType) {
+    private static Object stringToCharacterIterable(Object value, Class parameterType, Class elementType) {
+        boolean convertCharacters = false;
         if (value instanceof String) {
-            char[] chars = ((String)value).toCharArray();
+            char[] chars = ((String) value).toCharArray();
             List<Character> characters = new ArrayList<>(chars.length);
             for (char c : chars) {
                 characters.add(Character.valueOf(c));
             }
             return characters;
         }
-        if (value.getClass().isArray() && parameterType.getComponentType().equals(Character.class) && value.getClass().getComponentType().equals(String.class)) {
+
+        if (parameterType.getComponentType() != null) {
+            if (parameterType.getComponentType().equals(Character.class)) {
+                convertCharacters = true;
+            }
+        }
+        else {
+            if (elementType == Character.class || elementType == char.class) {
+                convertCharacters = true;
+            }
+        }
+
+        if (value.getClass().isArray() &&  convertCharacters && value.getClass().getComponentType().equals(String.class)) {
             String[] strings = (String[]) value;
             List<Character> characters = new ArrayList<>(strings.length);
             for (String s : strings) {
@@ -170,7 +183,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             return characters;
         }
 
-        if (value.getClass().isArray() && parameterType.getComponentType().equals(String.class)) {
+        if (value.getClass().isArray() && elementType == String.class) {
             String[] strings = (String[]) value;
             return Arrays.asList(strings);
         }

@@ -31,7 +31,9 @@ package org.neo4j.ogm.classloader;
 
 public abstract class MetaDataClassLoader {
 
+    private static final ClassLoader classLoader = ClassLoaderResolver.resolve();
+
     public static Class loadClass(final String name) throws ClassNotFoundException {
-        return Class.forName(name, false, ClassLoaderResolver.resolve());
+        return Class.forName(name, false, classLoader);
     }
 }

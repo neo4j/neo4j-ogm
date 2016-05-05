@@ -230,27 +230,29 @@ public class MappingContext {
     }
 
     /*
-     * retrieves the object entity(TransientRelationship, NodeEntity, RelationshipEntity from the MappingContext
-     * returns null if no object entity exists
+     * purges all information about a node entity with this id
      */
-    private Object getEntityById(Long id) {
-        if(relationshipEntityRegister.containsKey(id))
-            return relationshipEntityRegister.get(id);
-        if(nodeEntityRegister.containsKey(id))
-            return nodeEntityRegister.get(id);
-        return null;
-    }
-    /*
-     * purges all information about an entity with this id
-     */
-    public boolean detach(Long id) {
-        Object objectToDetach = getEntityById(id);
+    public boolean detachNodeEntity(Long id) {
+        Object objectToDetach = nodeEntityRegister.get(id);
         if(objectToDetach != null) {
             clear(objectToDetach);
             return true;
         }
         return false;
     }
+
+    /*
+     * purges all information about a relationship entity with this id
+     */
+    public boolean detachRelationshipEntity(Long id) {
+        Object objectToDetach = relationshipEntityRegister.get(id);
+        if(objectToDetach != null) {
+            clear(objectToDetach);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * purges all information about this object from the mapping context
      *

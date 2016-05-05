@@ -222,5 +222,9 @@ public interface Capability {
          * @return the value of the {@link GraphId} or null if either the object is not an entity or the id is null.
          */
         Long resolveGraphIdFor(Object possibleEntity);
+
+        boolean detachNodeEntity(Long id);
+
+        boolean detachRelationshipEntity(Long id);
     }
 }

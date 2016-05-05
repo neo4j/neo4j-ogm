@@ -34,7 +34,7 @@ public class Actor {
     private Set<Nomination> nominations;
 
     @Relationship(type = "KNOWS", direction = "OUTGOING")
-    private Set<Knows> knows = new HashSet<>();
+    public Set<Knows> knows = new HashSet<>();
 
     Actor() {
         // default constructor for OGM

@@ -1,24 +1,24 @@
 package org.neo4j.ogm.persistence.session.mappingContext;
 
-import org.junit.*;
-import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.PropertyReader;
+import java.io.IOException;
+import java.util.Collections;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
-import org.neo4j.ogm.domain.music.*;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.domain.music.Album;
+import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.domain.music.Recording;
+import org.neo4j.ogm.domain.music.ReleaseFormat;
+import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author Mihai Raulea
@@ -128,7 +128,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
         session.delete(actor1);
 
-        Result result = session.query("MATCH N RETURN N", Collections.EMPTY_MAP);
+        Result result = session.query("MATCH (n) RETURN n", Collections.EMPTY_MAP);
         // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = session.context().getNodeEntity(actor1.getId());
         Assert.assertTrue( object == null);
@@ -153,20 +153,20 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
     @Test
     public void testDetachNode() {
-        Assert.assertTrue(session.detach(actor1.getId()));
-        Assert.assertFalse(session.detach(actor1.getId()));
+        Assert.assertTrue(session.detachNodeEntity(actor1.getId()));
+        Assert.assertFalse(session.detachNodeEntity(actor1.getId()));
     }
 
     @Test
     public void testDetachNode2() {
-        Assert.assertTrue(session.detach(actor2.getId()));
-        Assert.assertFalse(session.detach(actor2.getId()));
+        Assert.assertTrue(session.detachNodeEntity(actor2.getId()));
+        Assert.assertFalse(session.detachNodeEntity(actor2.getId()));
     }
 
     @Test
     public void testDetachRelationshipEntity() {
-        Assert.assertTrue(session.detach(knows.id));
-        Assert.assertFalse(session.detach(knows.id));
+        Assert.assertTrue(session.detachRelationshipEntity(knows.id));
+        Assert.assertFalse(session.detachRelationshipEntity(knows.id));
     }
 
 }

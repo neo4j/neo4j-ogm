@@ -106,14 +106,14 @@ public class Utils {
                     if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
                         throw new IllegalArgumentException(intValue + " cannot be cast to float without an overflow.");
                     }
-                    return (float) intValue;
+                    return intValue.floatValue();
                 }
                 if (value.getClass().equals(Long.class)) {
                     Long longValue = (Long) value;
                     if (longValue < -(Double.MAX_VALUE) || longValue > Double.MAX_VALUE) {
                         throw new IllegalArgumentException(longValue + " cannot be cast to float without an overflow.");
                     }
-                    return (float) longValue;
+                    return longValue.floatValue();
                 }
             }
             // down-cast to byte from integer or long
@@ -141,25 +141,25 @@ public class Utils {
                     if (intValue < -(Double.MAX_VALUE) || intValue > Double.MAX_VALUE) {
                         throw new IllegalArgumentException(intValue + " cannot be cast to double without an overflow.");
                     }
-                    return (double) intValue;
+                    return intValue.doubleValue();
                 }
                 if (value.getClass().equals(Long.class)) {
                     Long testValue = (Long) value;
                     if (testValue < -(Double.MAX_VALUE) || testValue > Double.MAX_VALUE) {
                         throw new IllegalArgumentException(testValue + " cannot be cast to double without an overflow.");
                     }
-                    return (double) testValue;
+                    return testValue.doubleValue();
                 }
                 if (value.getClass().equals(Float.class)) {
                     Float floatValue = (Float) value;
-                    return (double) floatValue;
+                    return floatValue.doubleValue();
                 }
             }
             // up-cast to long from int
             if ("long".equals(className) || Long.class.equals(clazz)) {
                 if (value.getClass().equals(Integer.class)) {
                     Integer intValue = (Integer) value;
-                    return (long) intValue;
+                    return intValue.longValue();
                 }
             }
 

@@ -13,20 +13,31 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.ClassUtils;
-import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.exception.MappingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.exception.MappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
@@ -55,6 +66,7 @@ public class ClassInfo {
 
     private String className;
     private String directSuperclassName;
+    private String neo4jName;
 
     private boolean isInterface;
     private boolean isAbstract;
@@ -76,6 +88,10 @@ public class ClassInfo {
     private Map<Class, List<MethodInfo>> iterableGettersForType = new HashMap<>();
     private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
     private Map<Class,List<FieldInfo>> iterableFieldsForType = new HashMap<>();
+    private Map<FieldInfo, Field> fieldInfoFields = new HashMap<>();
+
+    private Set<FieldInfo> fieldInfos;
+    private Map<String, FieldInfo> propertyFields;
 
     private FieldInfo identityField = null;
 
@@ -199,15 +215,20 @@ public class ClassInfo {
     }
 
     public String neo4jName() {
-        AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
-        if (annotationInfo != null) {
-            return annotationInfo.get(NodeEntity.LABEL, simpleName());
+        if (neo4jName == null) {
+            AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
+            if (annotationInfo != null) {
+                neo4jName =  annotationInfo.get(NodeEntity.LABEL, simpleName());
+                return neo4jName;
+            }
+            annotationInfo = annotationsInfo.get(RelationshipEntity.CLASS);
+            if (annotationInfo != null) {
+                neo4jName =  annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
+                return neo4jName;
+            }
+            neo4jName = simpleName();
         }
-        annotationInfo = annotationsInfo.get(RelationshipEntity.CLASS);
-        if (annotationInfo != null) {
-            return annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
-        }
-        return simpleName();
+        return neo4jName;
     }
 
     private Collection<String> collectLabels(Collection<String> labelNames) {
@@ -316,17 +337,19 @@ public class ClassInfo {
      * @return A Collection of FieldInfo objects describing the classInfo's property fields
      */
     public Collection<FieldInfo> propertyFields() {
-        FieldInfo identityField = identityFieldOrNull();
-        Set<FieldInfo> fieldInfos = new HashSet<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo != identityField) {
-                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
-                if (annotationInfo == null) {
-                    if (fieldInfo.isSimple()) {
+        if (fieldInfos == null) {
+            FieldInfo identityField = identityFieldOrNull();
+            fieldInfos = new HashSet<>();
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                if (fieldInfo != identityField) {
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
+                    if (annotationInfo == null) {
+                        if (fieldInfo.isSimple()) {
+                            fieldInfos.add(fieldInfo);
+                        }
+                    } else {
                         fieldInfos.add(fieldInfo);
                     }
-                } else {
-                    fieldInfos.add(fieldInfo);
                 }
             }
         }
@@ -335,17 +358,19 @@ public class ClassInfo {
 
     /**
      * Finds the property field with a specific property name from the ClassInfo's property fields
-     *
+     * Note that this method does not allow for property names with differing case. //TODO
      * @param propertyName the propertyName of the field to find
      * @return A FieldInfo object describing the required property field, or null if it doesn't exist.
      */
     public FieldInfo propertyField(String propertyName) {
-        for (FieldInfo fieldInfo : propertyFields()) {
-            if (fieldInfo.property().equalsIgnoreCase(propertyName)) {
-                return fieldInfo;
+        if (propertyFields == null) {
+            Collection<FieldInfo> fieldInfos = propertyFields();
+            propertyFields = new HashMap<>(fieldInfos.size());
+            for (FieldInfo fieldInfo : fieldInfos) {
+                propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
             }
         }
-        return null;
+        return propertyFields.get(propertyName.toLowerCase());
     }
 
     /**
@@ -732,9 +757,14 @@ public class ClassInfo {
 
 
     public Field getField(FieldInfo fieldInfo) {
+        Field field = fieldInfoFields.get(fieldInfo);
+        if (field != null) {
+            return field;
+        }
         try {
-            //return Class.forName(name()).getDeclaredField(fieldInfo.getName());
-            return MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
+            field =  MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
+            fieldInfoFields.put(fieldInfo, field);
+            return field;
         } catch (NoSuchFieldException e) {
             if (directSuperclass() != null) {
                 return directSuperclass().getField(fieldInfo);
@@ -750,7 +780,6 @@ public class ClassInfo {
 
     public Method getMethod(MethodInfo methodInfo, Class... parameterTypes) {
         try {
-            //return Class.forName(name()).getMethod(methodInfo.getName(), parameterTypes);
             return MetaDataClassLoader.loadClass(name()).getMethod(methodInfo.getName(), parameterTypes);
         } catch (Exception e) {
             throw new RuntimeException(e);

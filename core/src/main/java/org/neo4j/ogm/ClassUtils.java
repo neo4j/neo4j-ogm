@@ -13,18 +13,25 @@
 
 package org.neo4j.ogm;
 
-import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.service.ResourceService;
-
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.service.ResourceService;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
 public abstract class ClassUtils {
+
+    private static Map<String, Class<?>> descriptorTypeMappings = new HashMap<>();
 
     @SuppressWarnings("serial")
     private static final Map<String, Class<?>> PRIMITIVE_TYPE_MAP = new HashMap<String, Class<?>>() {{
@@ -46,7 +53,15 @@ public abstract class ClassUtils {
      * @throws NullPointerException if invoked with <code>null</code>
      */
     public static Class<?> getType(String descriptor) {
+        if (descriptorTypeMappings.containsKey(descriptor)) {
+            return descriptorTypeMappings.get(descriptor);
+        }
+        Class<?> type = computeType(descriptor);
+        descriptorTypeMappings.put(descriptor, type);
+        return type;
+    }
 
+    private static Class<?> computeType(String descriptor) {
         // user has defined a wild card parameter / return type in a generic signature.
         // we can't handle this.
         if (descriptor.startsWith("+") || descriptor.startsWith("-") || descriptor.contains(":")) {
@@ -86,7 +101,7 @@ public abstract class ClassUtils {
             q = descriptor.length()-1;
         }
         if(descriptor.length()==1) { //handles descriptors of the format I
-                q=1;
+            q=1;
         }
         if(q == p+1) { //handles descriptors of the format ()Lpackage/Class;
             p = q + 1;
@@ -101,6 +116,10 @@ public abstract class ClassUtils {
 
         if (typeName.contains("<T")) {
             typeName = typeName.substring(0, typeName.indexOf("<T"));
+        }
+
+        if (typeName.contains("<L")) {
+            typeName = typeName.substring(0, typeName.indexOf("<L"));
         }
 
         try {

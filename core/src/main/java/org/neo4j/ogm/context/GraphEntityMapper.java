@@ -14,13 +14,30 @@
 package org.neo4j.ogm.context;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.annotations.*;
+import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.annotations.EntityAccess;
+import org.neo4j.ogm.annotations.EntityAccessStrategy;
+import org.neo4j.ogm.annotations.EntityFactory;
+import org.neo4j.ogm.annotations.FieldWriter;
+import org.neo4j.ogm.annotations.PropertyReader;
+import org.neo4j.ogm.annotations.PropertyWriter;
+import org.neo4j.ogm.annotations.RelationalReader;
+import org.neo4j.ogm.annotations.RelationalWriter;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -32,8 +49,6 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -187,10 +202,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				if (reader != null) {
 					Object currentValue = reader.read(instance);
 					Class<?> paramType = writer.type();
+					Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
 					if (paramType.isArray()) {
-						value = EntityAccess.merge(paramType, value, (Object[]) currentValue);
+						value = EntityAccess.merge(paramType, value, (Object[]) currentValue, elementType);
 					} else {
-						value = EntityAccess.merge(paramType, value, (Iterable<?>) currentValue);
+						value = EntityAccess.merge(paramType, value, (Collection) currentValue, elementType);
 					}
 				}
 			}
@@ -445,9 +461,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				if (reader != null) {
 					currentValues = reader.read(instance);
 					if (writer.type().isArray()) {
-						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues);
+						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues, valueType);
 					} else {
-						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Iterable<?>) currentValues);
+						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Collection) currentValues, valueType);
 					}
 				}
 			}
@@ -489,6 +505,17 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			}
 		}
 		return false;
+	}
+
+	private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
+		FieldInfo fieldInfo = classInfo.propertyField(propertyName);
+		if (fieldInfo != null) {
+			String descriptor =  fieldInfo.getTypeDescriptor() == null ? fieldInfo.getTypeParameterDescriptor() : fieldInfo.getTypeDescriptor();
+			if (descriptor != null) {
+				return ClassUtils.getType(descriptor);
+			}
+		}
+		return null;
 	}
 
 }

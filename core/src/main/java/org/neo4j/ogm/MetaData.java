@@ -14,7 +14,13 @@
 package org.neo4j.ogm;
 
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -36,6 +42,7 @@ public class MetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetaData.class);
 
     private final DomainInfo domainInfo;
+    private Map<String, ClassInfo> classInfos = new HashMap<>();
 
     public MetaData(String... packages) {
         domainInfo = new DomainInfo(packages);
@@ -50,23 +57,30 @@ public class MetaData {
      * @return A ClassInfo matching the supplied name, or null if it doesn't exist
      */
     public ClassInfo classInfo(String name) {
+        if (classInfos.containsKey(name)) {
+            return classInfos.get(name);
+        }
 
         ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
         if (classInfo != null) {
+            classInfos.put(name, classInfo);
             return classInfo;
         }
 
         classInfo = _classInfo(name, RelationshipEntity.class.getName(), "type");
         if (classInfo != null) {
+            classInfos.put(name, classInfo);
             return classInfo;
         }
 
         classInfo = domainInfo.getClassSimpleName(name);
         if (classInfo != null) {
+            classInfos.put(name, classInfo);
             return classInfo;
         }
 
         // not found
+        classInfos.put(name, null);
         return null;
     }
 

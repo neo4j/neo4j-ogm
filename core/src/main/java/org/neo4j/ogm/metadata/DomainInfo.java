@@ -55,8 +55,11 @@ public class DomainInfo implements ClassFileProcessor {
 
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
+    private String[] packagesMarkedForScanning;
+
     public DomainInfo(String... packages) {
         long now = -System.currentTimeMillis();
+        packagesMarkedForScanning = packages;
         load(packages);
 
         LOGGER.info("{} classes loaded in {} milliseconds", classNameToClassInfo.entrySet().size(),(now + System.currentTimeMillis()));
@@ -156,9 +159,31 @@ public class DomainInfo implements ClassFileProcessor {
         for (ClassInfo transientClass : transientClasses) {
             removeTransientClass(transientClass);
         }
-
+        checkOutOfPackageRefferences();
         LOGGER.info("Post-processing complete");
+    }
 
+    private void checkOutOfPackageRefferences() {
+        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+            if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
+            LOGGER.debug("Checking out of package attributes in class: {}", classInfo.name());
+            for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
+                if(!fieldInfo.isSimple() && isFieldOutOfPackage(fieldInfo)) {
+                  if(fieldInfo.hasAnnotation("org.neo4j.ogm.annotation.Property")) {
+                    throw new Error("Field "+fieldInfo.getName()+" on class "+classInfo.name()+" is out of Session scope! Please include "+fieldInfo.getDescriptor().replace("L","").replace("/",".")+" in the scanned packages!");
+                  }
+                    else LOGGER.info("Field "+fieldInfo.getName()+" on class "+classInfo.name()+" is out of Session scope! Please include "+fieldInfo.getDescriptor().replace("L","").replace("/",".")+" in the scanned packages to persist it!");
+                }
+            }
+        }
+    }
+
+    private boolean isFieldOutOfPackage(FieldInfo fieldInfo) {
+        String fieldInfoPackage = fieldInfo.getDescriptor().replace("L","").replace("/",".");
+        for(String packageName : packagesMarkedForScanning) {
+            if(fieldInfoPackage.indexOf(packageName) != -1) return false;
+        }
+        return true;
     }
 
     private void removeTransientClass(ClassInfo transientClass) {
@@ -246,7 +271,6 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void load(String... packages) {
-
         classPaths.clear();
         classNameToClassInfo.clear();
         annotationNameToClassInfo.clear();

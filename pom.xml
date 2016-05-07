@@ -258,7 +258,6 @@
             <id>2.3</id>
             <properties>
                 <neo4j>2.3.3</neo4j>
-                <ogm.properties>ogm-2.3.properties</ogm.properties>
             </properties>
         </profile>
 

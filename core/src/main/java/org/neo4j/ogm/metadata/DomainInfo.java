@@ -389,17 +389,29 @@ public class DomainInfo implements ClassFileProcessor {
                     methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
-                // TODO: this needs improving because it won't recognise Java standard enums
                 Class descriptorClass = getDescriptorClass(methodInfo.getDescriptor());
                 Class typeParamDescriptorClass = getDescriptorClass(methodInfo.getTypeParameterDescriptor());
+                boolean enumConverterSet = false;
                 for (Class enumClass : enumTypes) {
                     if (descriptorClass != null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass != null && typeParamDescriptorClass.equals(enumClass))) {
                         setEnumMethodConverter(methodInfo, enumClass);
+                        enumConverterSet = true;
+                        break;
+                    }
+                }
+                if (!enumConverterSet) {
+                    if (descriptorClass != null && descriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                        setEnumMethodConverter(methodInfo, descriptorClass);
+                    } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                        setEnumMethodConverter(methodInfo, typeParamDescriptorClass);
                     }
                 }
             }
         }
     }
+
 
     private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
@@ -477,17 +489,29 @@ public class DomainInfo implements ClassFileProcessor {
                     fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
-                // TODO: this needs improving because it won't recognise Java standard enums
                 Class descriptorClass = getDescriptorClass(fieldInfo.getDescriptor());
                 Class typeParamDescriptorClass = getDescriptorClass(fieldInfo.getTypeParameterDescriptor());
+                boolean enumConverterSet = false;
                 for (Class enumClass : enumTypes) {
                     if (descriptorClass != null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass != null && typeParamDescriptorClass.equals(enumClass))) {
                         setEnumFieldConverter(fieldInfo, enumClass);
+                        enumConverterSet = true;
+                        break;
+                    }
+                }
+                if (!enumConverterSet) {
+                    if (descriptorClass != null && descriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        setEnumFieldConverter(fieldInfo, descriptorClass);
+                    } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        setEnumFieldConverter(fieldInfo, typeParamDescriptorClass);
                     }
                 }
             }
         }
     }
+
 
     private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {

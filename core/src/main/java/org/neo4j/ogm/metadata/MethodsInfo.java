@@ -13,16 +13,17 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotation.Transient;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.neo4j.ogm.annotation.Transient;
+
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class MethodsInfo {
 
@@ -89,6 +90,11 @@ public class MethodsInfo {
                 addMethod(methodInfo);
             }
         }
+    }
+
+    void removeGettersAndSetters(MethodInfo methodInfo) {
+        getters.remove(methodInfo.getName());
+        setters.remove(methodInfo.getName());
     }
 
     private void addMethod(MethodInfo methodInfo) {

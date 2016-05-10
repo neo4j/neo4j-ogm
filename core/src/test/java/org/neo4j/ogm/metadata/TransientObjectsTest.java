@@ -14,17 +14,20 @@
 package org.neo4j.ogm.metadata;
 
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Transient;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
 
 /**
  * @author Mark Angrish
+ * @author Luanne Misquitta
  */
 public class TransientObjectsTest {
 
@@ -64,6 +67,37 @@ public class TransientObjectsTest {
         assertNull(fieldInfo);
     }
 
+    @Test
+    public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipMethods() {
+        ClassInfo classInfo = metaData.classInfo("PersistableClass");
+        MethodInfo methodInfo = classInfo.relationshipGetter("TRANSIENT_SINGLE_CLASS");
+        assertNull(methodInfo);
+        methodInfo = classInfo.relationshipSetter("TRANSIENT_SINGLE_CLASS");
+        assertNull(methodInfo);
+        for (MethodInfo method : classInfo.relationshipGetters()) {
+            if (method.getName().equals("getTransientSingleClass")) {
+                fail("getTransientSingleClass should not be returned in relationshipGetters");
+            }
+        }
+        for (MethodInfo method : classInfo.relationshipSetters()) {
+            if (method.getName().equals("setTransientSingleClass")) {
+                fail("getTransientSingleClass should not be returned in relationshipSetters");
+            }
+        }
+    }
+
+    @Test
+    public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipFields() {
+        ClassInfo classInfo = metaData.classInfo("PersistableClass");
+        FieldInfo fieldInfo = classInfo.relationshipField("TRANSIENT_SINGLE_CLASS");
+        assertNull(fieldInfo);
+        for (FieldInfo field : classInfo.relationshipFields()) {
+            if (field.getName().equals("transientSingleClassField")) {
+                fail("transientSingleClassField should not be returned in relationshipFields");
+            }
+        }
+    }
+
     @NodeEntity(label = "PersistableClass")
     public class PersistableClass {
 
@@ -73,6 +107,8 @@ public class TransientObjectsTest {
         @Transient
         private Integer chickenCounting;
 
+        public TransientSingleClass transientSingleClassField;
+
         @Transient
         public String getTransientObject() {
             return transientObject;
@@ -81,6 +117,16 @@ public class TransientObjectsTest {
         public void setTransientObject(String value) {
             transientObject = value;
         }
+
+        public void setTransientSingleClass(TransientSingleClass transientSingleClass) {
+
+        }
+
+        public TransientSingleClass getTransientSingleClass() {
+            return null;
+        }
+
+
     }
 
     @Transient

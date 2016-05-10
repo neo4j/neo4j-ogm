@@ -264,7 +264,7 @@
         <profile>
             <id>3.0</id>
             <properties>
-                <neo4j>3.0.0</neo4j>
+                <neo4j>3.0.1</neo4j>
             </properties>
         </profile>
 
@@ -285,7 +285,6 @@
         <profile>
             <id>bolt</id>
             <properties>
-                <!--<neo4j>3.0.0-SNAPSHOT</neo4j>-->
                 <ogm.properties>ogm-bolt.properties</ogm.properties>
             </properties>
             <build>

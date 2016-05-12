@@ -133,10 +133,7 @@ Configuration configuration = new Configuration()
              .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
              .setURI("http://user:password@localhost:7474")
 
-// having created a new configuration object, we can either use it directly with the Components class...
-Components.configure(configuration);
-
-// or pass it as the first argument to a SessionFactory instance
+// having created a new configuration object, we pass it as the first argument to a SessionFactory instance
 new SessionFactory(configuration, packages...);
 ----
 
@@ -179,10 +176,8 @@ Configuration configuration = new Configuration();
 				.setTrustCertFile("/tmp/cert");
 
 
-// having created a new configuration object, we can either use it directly with the Components class...
-Components.configure(configuration);
+// having created a new configuration object, we pass it as the first argument to a SessionFactory instance
 
-// or pass it as the first argument to a SessionFactory instance
 new SessionFactory(configuration, packages...);
 ----
 

@@ -34,6 +34,13 @@ in production. If you're not using a particular driver, you don't need to declar
     <version>{version}</version>
 </dependency>
 
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-bolt-driver</artifactId>
+    <version>{version}</version>
+</dependency>
+
+
 ----
 
 .Gradle dependencies for Neo4j OGM 2.x
@@ -43,6 +50,7 @@ dependencies {
     compile 'org.neo4j:neo4j-ogm-core:{version}'
     compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
     compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-bolt-driver:{version}'
 }
 ----
 
@@ -52,6 +60,7 @@ dependencies {
 <dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
 <dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
 <dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="{version}"/>
 ----
 
 .Maven dependencies for Neo4j OGM 1.x
@@ -85,6 +94,7 @@ In previous versions, you could only connect to the database over Http.
 
 - Http driver
 - Embedded driver
+- Bolt driver
 
 You must declare the driver(s) you want to use in your pom. See the dependencies section for more information.
 
@@ -107,7 +117,7 @@ The following sections describe how to configure the OGM driver using either a p
 
 ==== Configuring the Http Driver
 
-The Http Driver connects to and communicates with a Neo4j server via Http. An Http Driver must be used if your application is running in client-server mode.
+The Http Driver connects to and communicates with a Neo4j server via Http. If your application is running in client-server mode, you must use either the Http or Bolt driver.
 
 .ogm.properties
 ```
@@ -131,6 +141,52 @@ new SessionFactory(configuration, packages...);
 ----
 
 _Note: Please see the section below describing the different ways you can pass credentials to the Http Driver_
+
+==== Configuring the Bolt Driver
+
+The Bolt Driver connects to and communicates with a Neo4j server via the binary Bolt protocol. If your application is running in client-server mode, you must use either the Http or Bolt driver.
+
+.ogm.properties
+```
+#Driver, required
+driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
+
+#URI of the Neo4j database, required. If no port is specified, the default port 7687 is used. Otherwise, a port can be specified with bolt://neo4j:password@localhost:1234
+URI=bolt://neo4j:password@localhost
+
+#Connection pool size (the maximum number of sessions per URL), optional, defaults to 50
+connection.pool.size=150
+
+#Encryption level (TLS), optional, defaults to REQUIRED. Valid values are NONE,REQUIRED
+encryption.level=NONE
+
+#Trust strategy, optional, not used if not specified. Valid values are TRUST_ON_FIRST_USE,TRUST_SIGNED_CERTIFICATES
+trust.strategy=TRUST_ON_FIRST_USE
+
+#Trust certificate file, required if trust.strategy is specified
+trust.certificate.file=/tmp/cert
+```
+
+.Java Configuration
+[source,java]
+----
+Configuration configuration = new Configuration();
+				configuration.driverConfiguration()
+				.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+				.setURI("bolt://neo4j:password@localhost")
+				.setEncryptionLevel("NONE")
+				.setTrustStrategy("TRUST_ON_FIRST_USE")
+				.setTrustCertFile("/tmp/cert");
+
+
+// having created a new configuration object, we can either use it directly with the Components class...
+Components.configure(configuration);
+
+// or pass it as the first argument to a SessionFactory instance
+new SessionFactory(configuration, packages...);
+----
+
+_Note: Please see the section below describing the different ways you can pass credentials to the Http/Bolt Drivers_
 
 ==== Configuring the Embedded Driver
 
@@ -183,7 +239,7 @@ Note your application should typically do this only once.
 
 ==== Credentials
 
-If you are using the Http Driver you have a number of different ways to supply credentials to the Driver Configuration.
+If you are using the Http or Bolt Driver you have a number of different ways to supply credentials to the Driver Configuration.
 
 .ogm.properties:
 ```

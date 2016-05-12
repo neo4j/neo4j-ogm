@@ -397,9 +397,12 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			for (String relationshipType : entityCollector.getOwningRelationshipTypes(instanceId)) {
 				//for each relationship type, get all the directions for which we're trying to set collections of instances
 				for (String relationshipDirection : entityCollector.getRelationshipDirectionsForOwningTypeAndRelationshipType(instanceId, relationshipType)) {
-					Collection<?> entities = entityCollector.getCollectiblesForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
-					Class entityType = entityCollector.getCollectibleTypeForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
-					mapOneToMany(mappingContext.getNodeEntity(instanceId), entityType, entities, relationshipType, relationshipDirection);
+					//for each direction, get all the entity types for which we're trying to set collections of instances
+					for (Class entityClass : entityCollector.getEntityClassesForOwningTypeAndRelationshipTypeAndRelationshipDirection(instanceId, relationshipType, relationshipDirection)) {
+						Collection<?> entities = entityCollector.getCollectiblesForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection, entityClass);
+						//Class entityType = entityCollector.getCollectibleTypeForOwnerAndRelationship(instanceId, relationshipType, relationshipDirection);
+						mapOneToMany(mappingContext.getNodeEntity(instanceId), entityClass, entities, relationshipType, relationshipDirection);
+					}
 				}
 			}
 		}

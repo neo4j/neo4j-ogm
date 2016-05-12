@@ -13,25 +13,25 @@
 
 package org.neo4j.ogm.context;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility to help group elements of a common type into a single collection (by relationship type and direction) to be set on an owning object.
- * The ability to set a collection of instances on an owning entity based on the type of instance is insufficient as described in DATAGRAPH-637 and DATAGRAPH-636.
- * The relationship type and direction are required to be able to correctly determine which instances are to be set for which property of the node entity.
+ * The ability to set a collection of instances on an owning entity based on the type of instance is insufficient as described in DATAGRAPH-637, DATAGRAPH-636 and Issue 161.
+ * The relationship type and direction as well as the type of entity to be mapped are required to be able to correctly determine which instances are to be set for which property of the node entity.
  * @author Adam George
  * @author Luanne Misquitta
  */
 class EntityCollector {
 
     private final Logger logger = LoggerFactory.getLogger(EntityCollector.class);
-    private final Map<Long, Map<DirectedRelationship, Set<Object>>> relationshipCollectibles = new HashMap<>();
+    private final Map<Long, Map<DirectedRelationship, Map<Class, Set<Object>>>> relationshipCollectibles = new HashMap<>(); //TODO bad, we'll never remember what this does in a months time!! refactor this class!
 
     /**
      * Adds the given collectible element into a collection based on relationship type and direction ready to be set on the given owning type.
@@ -43,13 +43,16 @@ class EntityCollector {
      */
     public void recordTypeRelationship(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection) {
         if (this.relationshipCollectibles.get(owningEntityId) == null) {
-            this.relationshipCollectibles.put(owningEntityId, new HashMap<DirectedRelationship, Set<Object>>());
+            this.relationshipCollectibles.put(owningEntityId, new HashMap<DirectedRelationship, Map<Class, Set<Object>>>());
         }
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
         if (this.relationshipCollectibles.get(owningEntityId).get(directedRelationship) == null) {
-            this.relationshipCollectibles.get(owningEntityId).put(directedRelationship, new HashSet<>());
+            this.relationshipCollectibles.get(owningEntityId).put(directedRelationship, new HashMap<Class, Set<Object>>());
         }
-        this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).add(collectibleElement);
+        if (this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()) == null) {
+            this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).put(collectibleElement.getClass(), new HashSet<>());
+        }
+        this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()).add(collectibleElement);
     }
 
     /**
@@ -82,28 +85,27 @@ class EntityCollector {
         }
         return relDirections;
     }
+
+    public Iterable<Class> getEntityClassesForOwningTypeAndRelationshipTypeAndRelationshipDirection(Long owningObjectId, String relationshipType, String relationshipDirection) {
+        Set<Class> classes = new HashSet<>();
+        for(DirectedRelationship rel : this.relationshipCollectibles.get(owningObjectId).keySet()) {
+            if(rel.type().equals(relationshipType) && rel.direction().equals(relationshipDirection)) {
+                classes.addAll(this.relationshipCollectibles.get(owningObjectId).get(rel).keySet());
+            }
+        }
+        return classes;
+    }
     /**
      * A set of collectibles based on relationship type for an owning object
      *
-     * @param owningObjectId the owning object id
-     * @param relationshipType the relationship type
+     * @param owningObjectId        the owning object id
+     * @param relationshipType      the relationship type
+     * @param relationshipDirection the relationship direction
+     * @param entityClass           the entity class
      * @return set of instances to be set for the relationship type on the owning object
      */
-    public Set<Object> getCollectiblesForOwnerAndRelationship(Long owningObjectId, String relationshipType, String relationshipDirection) {
+    public Set<Object> getCollectiblesForOwnerAndRelationship(Long owningObjectId, String relationshipType, String relationshipDirection, Class entityClass) {
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
-        return this.relationshipCollectibles.get(owningObjectId).get(directedRelationship);
-    }
-
-    /**
-     * Get the type of the instance to be set on the owner object
-     *
-     * @param owningObjectId the owner object id
-     * @param relationshipType the relationship type
-     * @param relationshipDirection the relationship direction
-     * @return type of instance
-     */
-    public Class getCollectibleTypeForOwnerAndRelationship(Long owningObjectId, String relationshipType, String relationshipDirection) {
-        DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
-        return this.relationshipCollectibles.get(owningObjectId).get(directedRelationship).iterator().next().getClass();
+        return this.relationshipCollectibles.get(owningObjectId).get(directedRelationship).get(entityClass);
     }
 }

@@ -100,12 +100,12 @@ You must declare the driver(s) you want to use in your pom. See the dependencies
 
 There are two basic ways to supply this configuration information: via a single properties file, or programmatically.
 
-==== Properties file Configuration
+=== Properties file Configuration
 
 Unless you supply an explicit Configuration object to the SessionFactory (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the classpath.
 If you want to configure the OGM using a properties file, but with a _different_ filename, you must set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
 
-==== Java Configuration
+=== Java Configuration
 
 In some cases you won't want to, or will not be able to provide configuration information using a properties file. In this case you can configure the OGM programmatically instead.
 

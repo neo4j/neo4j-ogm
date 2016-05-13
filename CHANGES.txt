@@ -1,4 +1,7 @@
-2.0.2-SNAPSHOT
+2.0.3-SNAPSHOT
+--------------
+
+2.0.2
 --------------
 o Fixes issue where collections of relationships were not loaded correctly when they share the same relationship type but different target entities
 o Fixes issue where enums not scanned were not assigned default converters

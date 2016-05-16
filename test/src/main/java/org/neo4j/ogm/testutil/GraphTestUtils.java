@@ -111,7 +111,7 @@ public final class GraphTestUtils {
         return result;
     }
 
-    private static Iterable<Node> allNodes(GraphDatabaseService graphDatabaseService) {
+    public static Iterable<Node> allNodes(GraphDatabaseService graphDatabaseService) {
 
         try {
             Method allNodes = GraphDatabaseService.class.getMethod("getAllNodes");
@@ -141,19 +141,19 @@ public final class GraphTestUtils {
         }
     }
 
-    private static Iterable<Relationship> allRelationships(GraphDatabaseService graphDatabaseService) {
+    public static Iterable<Relationship> allRelationships(GraphDatabaseService graphDatabaseService) {
 
         try {
-            Method allNodes = GraphDatabaseService.class.getMethod("getAllRelationships");
-            return (Iterable<Relationship>) allNodes.invoke(graphDatabaseService);
+            Method allRelationships = GraphDatabaseService.class.getMethod("getAllRelationships");
+            return (Iterable<Relationship>) allRelationships.invoke(graphDatabaseService);
         } catch (NoSuchMethodException nsme) {
             try {
                 Class clazz = Class.forName("org.neo4j.tooling.GlobalGraphOperations");
                 try {
                     Method at = clazz.getMethod("at", GraphDatabaseService.class);
                     Object instance = at.invoke(null, graphDatabaseService);
-                    Method allNodes = instance.getClass().getMethod("getAllRelationships");
-                    return (Iterable<Relationship>) allNodes.invoke(instance);
+                    Method allRelationships = instance.getClass().getMethod("getAllRelationships");
+                    return (Iterable<Relationship>) allRelationships.invoke(instance);
                 } catch (NoSuchMethodException nsme2) {
                     throw new RuntimeException(nsme2);
                 } catch (InvocationTargetException ite) {
@@ -194,7 +194,7 @@ public final class GraphTestUtils {
         return sameNodesMap;
     }
 
-    private static Iterable<Node> findSameNodes(GraphDatabaseService database, Node node) {
+    public static Iterable<Node> findSameNodes(GraphDatabaseService database, Node node) {
         Iterator<Label> labels = node.getLabels().iterator();
         if (labels.hasNext()) {
             return findSameNodesByLabel(database, node, labels.next());
@@ -203,7 +203,7 @@ public final class GraphTestUtils {
         return findSameNodesWithoutLabel(database, node);
     }
 
-    private static Iterable<Node> findSameNodesWithoutLabel(GraphDatabaseService database, Node node) {
+    public static Iterable<Node> findSameNodesWithoutLabel(GraphDatabaseService database, Node node) {
         Set<Node> result = new HashSet<>();
 
         for (Node candidate : allNodes(database)) {
@@ -215,7 +215,7 @@ public final class GraphTestUtils {
         return result;
     }
 
-    private static Iterable<Node> nodesWithLabel(GraphDatabaseService database, Label label) {
+    public static Iterable<Node> nodesWithLabel(GraphDatabaseService database, Label label) {
         Set<Node> result = new HashSet<>();
 
         for (Node node : allNodes(database)) {
@@ -226,7 +226,7 @@ public final class GraphTestUtils {
         return result;
     }
 
-    private static Iterable<Node> findSameNodesByLabel(GraphDatabaseService database, Node node, Label label) {
+    public static Iterable<Node> findSameNodesByLabel(GraphDatabaseService database, Node node, Label label) {
         Set<Node> result = new HashSet<>();
 
         for (Node candidate : nodesWithLabel(database, label)) {
@@ -275,17 +275,17 @@ public final class GraphTestUtils {
         return false;
     }
 
-    private static boolean areSame(Node node1, Node node2) {
+    public static boolean areSame(Node node1, Node node2) {
         return haveSameLabels(node1, node2) && haveSameProperties(node1, node2);
 
     }
 
-    private static boolean areSame(Relationship relationship1, Relationship relationship2) {
+    public static boolean areSame(Relationship relationship1, Relationship relationship2) {
         return haveSameType(relationship1, relationship2) && haveSameProperties(relationship1, relationship2);
 
     }
 
-    private static boolean haveSameLabels(Node node1, Node node2) {
+    public static boolean haveSameLabels(Node node1, Node node2) {
         if (count(node1.getLabels()) != count(node2.getLabels())) {
             return false;
         }
@@ -299,11 +299,11 @@ public final class GraphTestUtils {
         return true;
     }
 
-    private static boolean haveSameType(Relationship relationship1, Relationship relationship2) {
+    public static boolean haveSameType(Relationship relationship1, Relationship relationship2) {
         return relationship1.isType(relationship2.getType());
     }
 
-    private static boolean haveSameProperties(PropertyContainer pc1, PropertyContainer pc2) {
+    public static boolean haveSameProperties(PropertyContainer pc1, PropertyContainer pc2) {
         int pc1KeyCount = 0, pc2KeyCount = 0;
         for (String key : pc1.getPropertyKeys()) {
             pc1KeyCount++;

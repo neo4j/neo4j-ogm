@@ -58,6 +58,7 @@ import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
 import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClassWithId;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
@@ -505,7 +506,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new PlainChildOfTransientParent());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
+            assertFalse(GraphTestUtils.allNodes(getDatabase()).iterator().hasNext());
             tx.success();
         }
     }
@@ -517,7 +518,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     public void plainChildOfTransientInterface() {
         session.save(new PlainChildOfTransientInterface());
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
+            assertFalse(GraphTestUtils.allNodes(getDatabase()).iterator().hasNext());
             tx.success();
         }
     }
@@ -527,7 +528,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new TransientChildWithPlainConcreteParent());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
+            assertFalse(GraphTestUtils.allNodes(getDatabase()).iterator().hasNext());
             tx.success();
         }
     }
@@ -537,7 +538,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new TransientSingleClass());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
+            assertFalse(GraphTestUtils.allNodes(getDatabase()).iterator().hasNext());
             tx.success();
         }
     }
@@ -547,7 +548,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
         session.save(new TransientSingleClassWithId());
 
         try (Transaction tx = getDatabase().beginTx()) {
-            assertFalse(getDatabase().getAllNodes().iterator().hasNext());
+            assertFalse(GraphTestUtils.allNodes(getDatabase()).iterator().hasNext());
             tx.success();
         }
     }

@@ -22,7 +22,7 @@ public class CypherException extends RuntimeException {
 	private String description;
 
 	public CypherException(String message, String code, String description) {
-		super(message);
+		super(message + "; Code: " + code + "; Description: " + description);
 		this.code = code;
 		this.description = description;
 	}

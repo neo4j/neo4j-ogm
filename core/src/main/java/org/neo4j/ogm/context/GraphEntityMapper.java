@@ -74,11 +74,17 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     public <T> Iterable<T> map(Class<T> type, Response<GraphModel> model) {
 
         List<T> objects = new ArrayList<>();
-		List<Long> objectIds = new ArrayList<>();
+		Set<Long> objectIds = new HashSet<>();
+  		/*
+		 * these two lists will contain the node ids and edge ids from the response, in the order
+         * they were presented to us.
+         */
+		Set<Long> nodeIds = new LinkedHashSet<>();
+		Set<Long> edgeIds = new LinkedHashSet<>();
 
 		GraphModel graphModel;
 		while ((graphModel = model.next()) != null) {
-			List<T> mappedEntities = map(type, graphModel);
+			List<T> mappedEntities = map(type, graphModel, nodeIds, edgeIds);
 			for (T entity : mappedEntities) {
 				Long identity = EntityUtils.identity(entity, metadata);
 				if (!objectIds.contains(identity)) {
@@ -106,13 +112,12 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	public <T> List<T> map(Class<T> type, GraphModel graphModel) {
-
-        /*
-		 * these two lists will contain the node ids and edge ids from the response, in the order
-         * they were presented to us.
-         */
 		Set<Long> nodeIds = new LinkedHashSet<>();
 		Set<Long> edgeIds = new LinkedHashSet<>();
+		return map(type, graphModel, nodeIds, edgeIds);
+	}
+
+	public <T> List<T> map(Class<T> type, GraphModel graphModel, Set<Long> nodeIds, Set<Long> edgeIds) {
 
 		mapEntities(type, graphModel, nodeIds, edgeIds);
 		List<T> results = new ArrayList<>();
@@ -149,19 +154,21 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	private void mapNodes(GraphModel graphModel, Set<Long> nodeIds) {
 
 		for (Node node : graphModel.getNodes()) {
-			Object entity = mappingContext.getNodeEntity(node.getId());
-			try {
-				if (entity == null) {
-					synchronized (this) {
-						entity = entityFactory.newObject(node);
-						setIdentity(entity, node.getId());
-						entity = mappingContext.registerNodeEntity(entity, node.getId());
+			if (!nodeIds.contains(node.getId())) {
+				Object entity = mappingContext.getNodeEntity(node.getId());
+				try {
+					if (entity == null) {
+						synchronized (this) {
+							entity = entityFactory.newObject(node);
+							setIdentity(entity, node.getId());
+							entity = mappingContext.registerNodeEntity(entity, node.getId());
+						}
 					}
+					setProperties(node, entity);
+					nodeIds.add(node.getId());
+				} catch (BaseClassNotFoundException e) {
+					logger.debug(e.getMessage());
 				}
-				setProperties(node, entity);
-				nodeIds.add(node.getId());
-			} catch (BaseClassNotFoundException e) {
-				logger.debug(e.getMessage());
 			}
 		}
 	}
@@ -233,26 +240,29 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		final List<Edge> oneToMany = new ArrayList<>();
 
 		for (Edge edge : graphModel.getRelationships()) {
-			Object source = mappingContext.getNodeEntity(edge.getStartNode());
-			Object target = mappingContext.getNodeEntity(edge.getEndNode());
+			if (!edgeIds.contains(edge.getId())) {
+				Object source = mappingContext.getNodeEntity(edge.getStartNode());
+				Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
-			edgeIds.add(edge.getId());
+				edgeIds.add(edge.getId());
 
-			if (source != null && target != null) {
-				// check whether this edge should in fact be handled as a relationship entity
-				ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge);
+				if (source != null && target != null) {
+					// check whether this edge should in fact be handled as a relationship entity
+					ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge);
 
-				if (relationshipEntityClassInfo!=null) {
-					mapRelationshipEntity(oneToMany, edge, source, target, relationshipEntityClassInfo);
+					if (relationshipEntityClassInfo != null) {
+						mapRelationshipEntity(oneToMany, edge, source, target, relationshipEntityClassInfo);
+					} else {
+						mapRelationship(oneToMany, edge, source, target);
+					}
 				} else {
-					mapRelationship(oneToMany, edge, source, target);
+					logger.debug("Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes", edge);
 				}
-			} else {
-				logger.debug("Relationship {} cannot be hydrated because one or more required node types are not mapped to entity classes", edge);
 			}
 		}
-
-		mapOneToMany(oneToMany);
+		if (oneToMany.size() > 0) {
+			mapOneToMany(oneToMany);
+		}
 	}
 
 	private void mapRelationship(List<Edge> oneToMany, Edge edge, Object source, Object target) {

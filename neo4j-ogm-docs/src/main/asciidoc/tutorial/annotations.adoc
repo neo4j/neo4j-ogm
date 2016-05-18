@@ -187,7 +187,6 @@ Also observe the null checks for the `id` field in the `equals` and `hashCode`. 
 
 public abstract class Entity {
 
-    @JsonProperty("id")
     private Long id;
 
     public Long getId() {

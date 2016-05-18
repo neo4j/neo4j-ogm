@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.annotation.GraphId;
@@ -88,7 +89,7 @@ public class ClassInfo {
     private Map<Class, List<MethodInfo>> iterableGettersForType = new HashMap<>();
     private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
     private Map<Class,List<FieldInfo>> iterableFieldsForType = new HashMap<>();
-    private Map<FieldInfo, Field> fieldInfoFields = new HashMap<>();
+    private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
 
     private Set<FieldInfo> fieldInfos;
     private Map<String, FieldInfo> propertyFields;
@@ -767,7 +768,9 @@ public class ClassInfo {
             return field;
         } catch (NoSuchFieldException e) {
             if (directSuperclass() != null) {
-                return directSuperclass().getField(fieldInfo);
+            	field = directSuperclass().getField(fieldInfo);
+            	fieldInfoFields.put(fieldInfo, field);
+                return field;
             } else {
                 throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
             }

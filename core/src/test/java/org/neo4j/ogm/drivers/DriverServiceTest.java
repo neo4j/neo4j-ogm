@@ -13,12 +13,13 @@
 
 package org.neo4j.ogm.drivers;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.junit.*;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.DriverService;
 
 import java.io.File;
@@ -97,5 +98,50 @@ public class DriverServiceTest {
         }
     }
 
+
+    /**
+     * This test is marked @Ignore by default because it requires a locally running
+     * Neo4j server to be installed, authenticating with 'neo4j:password'.
+     *
+     * Note: The mechanism to ignore SSL handshaking installs a trust-everybody trust manager into
+     * any HttpDriver that is created with the 'ACCEPT_UNSIGNED' trust strategy configuration setting.
+     *
+     * It does not contaminate the behaviour of other any HttpDrivers that may be running.
+     *
+     */
+    @Test
+    @Ignore
+    public void shouldDisableCertificateValidationIfIgnoreSSLHandshake() {
+
+        HttpPost request = new HttpPost("https://neo4j:password@localhost:7473/db/data/transaction/commit");
+        request.setEntity(new StringEntity("{\n" +
+                "  \"statements\" : [ {\n" +
+                "    \"statement\" : \"MATCH (n) RETURN id(n)\"\n" +
+                "  } ]\n" +
+                "}", "UTF-8"));
+
+
+        // note that the default driver class is set from the URI if a driver class has not yet been configured
+        DriverConfiguration driverConfiguration = new DriverConfiguration(new Configuration());
+        driverConfiguration.setURI("https://neo4j:password@localhost:7473");
+
+        try (HttpDriver driver = (HttpDriver) DriverService.load(driverConfiguration)) {
+            driver.executeHttpRequest(request);
+            Assert.fail("Should have thrown security exception");
+        } catch (Exception e) {
+            // expected
+        }
+
+
+        // now set the config to ignore SSL handshaking and try again;
+        driverConfiguration.setTrustStrategy("ACCEPT_UNSIGNED");
+
+        try (HttpDriver driver = (HttpDriver) DriverService.load(driverConfiguration)) {
+            driver.executeHttpRequest(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail("Should NOT have thrown security exception");
+        }
+    }
 
 }

@@ -32,10 +32,14 @@ public class DriverConfiguration {
     public static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
     public static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
     public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
-    public static final String CONNECTION_POOL_SIZE = "connection.pool.size";
-    public static final String ENCRYPTION_LEVEL = "encryption.level";
-    public static final String TRUST_STRATEGY = "trust.strategy";
-    public static final String TRUST_CERT_FILE  = "trust.certificate.file";
+
+    public static final String[] CONNECTION_POOL_SIZE   = {"connection.pool.size"};
+    public static final String[] ENCRYPTION_LEVEL       = {"encryption.level"};
+    public static final String[] TRUST_STRATEGY         = {"trust.strategy"};
+    public static final String[] TRUST_CERT_FILE        = {"trust.certificate.file"};
+
+    // defaults
+    private static final int CONNECTION_POOL_SIZE_DEFAULT     = 50;
 
     private final Configuration configuration;
 
@@ -50,12 +54,15 @@ public class DriverConfiguration {
 
     public DriverConfiguration setURI(String uri) {
         configuration.set(URI[0], uri);
-        try { // if this URI is a genuine resource, see if it has an embedded userinfo and set credentials accordingly
+        try { // if this URI is a genuine resource, see if it has an embedded user-info and set credentials accordingly
             URL url = new URL(uri);
             String userInfo = url.getUserInfo();
             if (userInfo != null) {
                 String[] userPass = userInfo.split(":");
                 setCredentials(userPass[0], userPass[1]);
+            }
+            if (configuration.driverConfiguration().getDriverClassName() == null) {
+                determineDefaultDriverName(url);
             }
         } catch (Exception e) {
             ; // do nothing here. user not obliged to supply a URL, or to pass in credentials
@@ -74,22 +81,22 @@ public class DriverConfiguration {
     }
 
     public DriverConfiguration setConnectionPoolSize(Integer sessionPoolSize) {
-        configuration.set(CONNECTION_POOL_SIZE, sessionPoolSize.toString());
+        configuration.set(CONNECTION_POOL_SIZE[0], sessionPoolSize.toString());
         return this;
     }
 
     public DriverConfiguration setEncryptionLevel(String encryptionLevel) {
-        configuration.set(ENCRYPTION_LEVEL, encryptionLevel);
+        configuration.set(ENCRYPTION_LEVEL[0], encryptionLevel);
         return this;
     }
 
     public DriverConfiguration setTrustStrategy(String trustStrategy) {
-        configuration.set(TRUST_STRATEGY, trustStrategy);
+        configuration.set(TRUST_STRATEGY[0], trustStrategy);
         return this;
     }
 
     public DriverConfiguration setTrustCertFile(String trustCertFile) {
-        configuration.set(TRUST_CERT_FILE, trustCertFile);
+        configuration.set(TRUST_CERT_FILE[0], trustCertFile);
         return this;
     }
 
@@ -130,7 +137,7 @@ public class DriverConfiguration {
         if (configuration.get(CONNECTION_POOL_SIZE) != null) {
             return Integer.valueOf((String)configuration.get(CONNECTION_POOL_SIZE));
         }
-        return null;
+        return CONNECTION_POOL_SIZE_DEFAULT;
     }
 
     public String getEncryptionLevel() {
@@ -152,6 +159,16 @@ public class DriverConfiguration {
             return (String)configuration.get(TRUST_CERT_FILE);
         }
         return null;
+    }
+
+    private void determineDefaultDriverName(URL url) {
+        if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
+            setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
+        } else if (url.getProtocol().equals("bolt")) {
+            setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+        } else {
+            setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+        }
     }
 
 }

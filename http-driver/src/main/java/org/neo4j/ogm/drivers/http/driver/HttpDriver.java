@@ -19,9 +19,16 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
@@ -33,43 +40,33 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import java.security.cert.X509Certificate;
+
 /**
  * @author vince
  */
 
 public final class HttpDriver extends AbstractConfigurableDriver
 {
-    private static final int CPUS = Runtime.getRuntime().availableProcessors();
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpDriver.class);
 
     private CloseableHttpClient httpClient;
 
-    public HttpDriver() {
+    public HttpDriver() {}
 
-        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        connectionManager.setMaxTotal( CPUS );
-        connectionManager.setDefaultMaxPerRoute( CPUS );
-
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setConnectionManager(connectionManager)
-                .build();
-
-        initialise( httpClient );    }
-
-    public HttpDriver initialise( CloseableHttpClient httpClient ) {
-
-        if (this.httpClient != null) {
-            close();
-        }
+    public HttpDriver( CloseableHttpClient httpClient ) {
         this.httpClient = httpClient;
-        return this;
     }
 
     @Override
     public synchronized void close() {
         try {
             LOGGER.info("Shutting down Http driver {} ", this);
-            httpClient.close();
+            if (httpClient != null) {
+                httpClient.close();
+            }
         } catch (Exception e) {
             LOGGER.warn( "Unexpected Exception when closing http client httpClient: ", e );
         }
@@ -78,7 +75,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
     @Override
     public Request request() {
         String url = requestUrl();
-        return new HttpRequest(httpClient, url, driverConfig.getCredentials());
+        return new HttpRequest(httpClient(), url, driverConfig.getCredentials());
     }
 
     @Override
@@ -91,7 +88,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) {
 
         try {
-            try(CloseableHttpResponse response = HttpRequest.execute(httpClient, request, driverConfig.getCredentials())) {
+            try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, driverConfig.getCredentials())) {
                 HttpEntity responseEntity = response.getEntity();
                 if (responseEntity != null) {
                     String responseText = EntityUtils.toString(responseEntity);
@@ -169,5 +166,58 @@ public final class HttpDriver extends AbstractConfigurableDriver
         }
         LOGGER.debug( "Thread {}: request url {}", Thread.currentThread().getId(), autoCommitUrl() );
         return autoCommitUrl();
+    }
+
+    private synchronized CloseableHttpClient httpClient()  {
+
+        if (httpClient == null) {   // most of the time this will be false, branch-prediction will be very fast and the lock released immediately
+
+            try {
+                HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+
+                SSLContext sslContext = SSLContext.getDefault();
+
+                if (driverConfig.getTrustStrategy() != null) {
+
+                    if (driverConfig.getTrustStrategy().equals("ACCEPT_UNSIGNED")) {
+                        sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                            public boolean isTrusted(X509Certificate[] arg0, String arg1) {
+                                return true;
+                            }
+                        }).build();
+
+                        LOGGER.warn("Certificate validation has been disabled");
+                    }
+                }
+
+                // setup the default or custom ssl context
+                httpClientBuilder.setSSLContext(sslContext);
+
+                HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
+
+                SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+                Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                        .register("https", sslSocketFactory)
+                        .build();
+
+                // allows multi-threaded use
+                PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+
+                Integer connectionPoolSize = driverConfig.getConnectionPoolSize();
+
+                connectionManager.setMaxTotal(connectionPoolSize);
+                connectionManager.setDefaultMaxPerRoute(connectionPoolSize);
+
+                httpClientBuilder.setConnectionManager(connectionManager);
+
+                httpClient = httpClientBuilder.build();
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return httpClient;
     }
 }

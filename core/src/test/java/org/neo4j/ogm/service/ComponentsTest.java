@@ -16,7 +16,9 @@ package org.neo4j.ogm.service;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.junit.Assert;
 import org.junit.Test;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 
 import static org.junit.Assert.assertNotNull;
@@ -49,7 +51,12 @@ public class ComponentsTest
                     .setConnectionManager(connectionManager)
                     .build();
 
-            ((HttpDriver) Components.driver()).initialise( httpClient  );
+            Driver driver = new HttpDriver( httpClient );
+
+            Components.setDriver(driver);
+
+            Assert.assertEquals(driver, Components.driver());
+
         }
     }
 }

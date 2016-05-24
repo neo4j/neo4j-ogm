@@ -23,8 +23,9 @@ import org.neo4j.ogm.service.Components;
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
-public class SessionFactory {
+public class SessionFactory implements SessionFactoryProvider {
 
     private final MetaData metaData;
 

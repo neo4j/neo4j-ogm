@@ -1,5 +1,6 @@
 2.0.3-SNAPSHOT
 --------------
+o Fixes issue where converters that use generics and convert to collections or arrays throw ClassNotFoundExceptions
 o Fixes issue where the embedded driver would create a directory that included the uri scheme
 
 2.0.2

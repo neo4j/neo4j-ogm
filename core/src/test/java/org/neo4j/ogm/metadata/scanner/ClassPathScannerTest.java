@@ -14,17 +14,17 @@
 package org.neo4j.ogm.metadata.scanner;
 
 
-import org.junit.Test;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.scanner.ClassPathScanner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.scanner.ClassPathScanner;
 
 /**
  * @author Luanne Misquitta
@@ -53,7 +53,7 @@ public class ClassPathScannerTest {
         ClassScanProcessor processor = new ClassScanProcessor();
 
         classPathScanner.scan(Collections.singletonList("org/neo4j/ogm/domain/convertible"), processor);
-        assertEquals(16, processor.domainClassInfos.size());
+        assertEquals(18, processor.domainClassInfos.size());
 
         List<String> classNames = extractClassNames(processor.domainClassInfos);
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.bytes.Photo"));
@@ -70,6 +70,8 @@ public class ClassPathScannerTest {
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagEntity"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagModel"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.numbers.Account"));
+        assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity"));
+        assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapConverter"));
     }
 
 

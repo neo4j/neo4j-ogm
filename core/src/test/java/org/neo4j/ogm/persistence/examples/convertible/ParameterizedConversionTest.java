@@ -13,27 +13,42 @@
 
 package org.neo4j.ogm.persistence.examples.convertible;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.convertible.parametrized.JsonNode;
+import org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author vince
+ * @author Luanne Misquitta
  */
 public class ParameterizedConversionTest extends MultiDriverTestClass {
 
+    private Session session;
+
+    @Before
+    public void init() throws IOException {
+        session = new SessionFactory("org.neo4j.ogm.domain.convertible.parametrized").openSession();
+    }
+
+    @After
+    public void tearDown() {
+        session.purgeDatabase();
+    }
+
     @Test
     public void shouldConvertParametrizedMap() {
-
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.convertible.parametrized");
-        Session session = sessionFactory.openSession();
-        session.purgeDatabase();
 
         JsonNode jsonNode = new JsonNode();
         jsonNode.payload = Utils.map("key", "value");
@@ -47,5 +62,20 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
         assertTrue(found.payload.containsKey("key"));
         assertEquals("value", found.payload.get("key"));
 
+    }
+
+	/**
+	 * @see Issue 102
+     */
+    @Test
+    public void shouldConvertParameterizedStringMap() {
+        StringMapEntity entity = new StringMapEntity();
+        session.save(entity);
+
+        session.clear();
+
+        StringMapEntity loaded = session.load(StringMapEntity.class, entity.getId());
+        assertNotNull(loaded);
+        assertEquals(3, loaded.getStringMap().size());
     }
 }

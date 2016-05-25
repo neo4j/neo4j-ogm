@@ -13,6 +13,17 @@
 
 package org.neo4j.ogm.drivers.embedded.driver;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.DriverConfiguration;
@@ -24,16 +35,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * @author vince
@@ -200,16 +201,18 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
     private void createPermanentFileStore(String strPath) {
 
-        Path path = Paths.get(strPath);
-
         try {
-            Path graphDir = Files.createDirectories(path);
-            logger.warn("Creating new permanent file store: " + graphDir.toString());
+            URI uri = new URI(strPath);
+            File file = new File(uri);
+            if (!file.exists()) {
+                Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
+                logger.warn("Creating new permanent file store: " + graphDir.toString());
+            }
         }
         catch (FileAlreadyExistsException e) {
-            logger.warn("Using existing permanent file store: " + path.toString());
+            logger.warn("Using existing permanent file store: " + strPath);
         }
-        catch (IOException ioe) {
+        catch (IOException | URISyntaxException ioe) {
             throw new RuntimeException(ioe);
         }
     }

@@ -13,6 +13,15 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,30 +29,25 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.domain.music.Recording;
+import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Luanne Misquitta
  */
 public class LoadCapabilityTest extends MultiDriverTestClass {
 
+    private SessionFactory sessionFactory;
     private Session session;
     private Long pleaseId;
     private Long beatlesId;
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
         session.purgeDatabase();
         //Create some data
@@ -160,7 +164,41 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         artist = session.load(Artist.class, 10l); //ID does not exist
         assertNull(artist);
+    }
 
+	/**
+     * @see Issue 170
+     */
+    @Test
+    public void shouldBeAbleToLoadEntitiesToDifferentDepthsInDifferentSessions() {
+        Artist pinkFloyd = new Artist("Pink Floyd");
+        Album divisionBell = new Album("The Division Bell");
+        divisionBell.setArtist(pinkFloyd);
+        Studio studio = new Studio("Britannia Row Studios");
+        Recording recording = new Recording(divisionBell, studio, 1994);
+        divisionBell.setRecording(recording);
+        pinkFloyd.addAlbum(divisionBell);
+        session.save(pinkFloyd);
+        session.clear();
 
+        //Load Pink Floyd to depth 1 in a new session
+        Session session1 = sessionFactory.openSession();
+        Artist pinkfloyd1 = session1.load(Artist.class, pinkFloyd.getId(), 1);
+        assertNotNull(pinkfloyd1);
+        assertEquals(1, pinkfloyd1.getAlbums().size());
+        assertNull(pinkfloyd1.getAlbums().iterator().next().getRecording());
+
+        //Load Pink Floyd to depth -1 in a new session
+        Session session2 = sessionFactory.openSession();
+        Artist pinkfloyd2 = session2.load(Artist.class, pinkFloyd.getId(), -1);
+        assertNotNull(pinkfloyd2);
+        assertEquals(1, pinkfloyd2.getAlbums().size());
+        assertNotNull(pinkfloyd2.getAlbums().iterator().next().getRecording());
+
+        //Load Pink Floyd to depth -1 in an existing session which has loaded it to depth 1 previously
+        Artist pinkfloyd_1_1 = session1.load(Artist.class, pinkFloyd.getId(), -1);
+        assertNotNull(pinkfloyd_1_1);
+        assertEquals(1, pinkfloyd_1_1.getAlbums().size());
+        assertNotNull(pinkfloyd2.getAlbums().iterator().next().getRecording());
     }
 }

@@ -53,6 +53,10 @@ public class TestServer {
 
         startServer();
 
+        System.out.println("******************************************************************************");
+        System.out.println("* Starting new in memory test server on: " + url());
+        System.out.println("******************************************************************************");
+
     }
 
     private void startServer() {
@@ -61,10 +65,13 @@ public class TestServer {
             if (enableBolt) {
                 controls = TestServerBuilders.newInProcessBuilder()
                         .withConfig("dbms.connector.0.enabled", String.valueOf(enableBolt))
+                        .withConfig("dbms.connector.0.address", "localhost:" + String.valueOf(port))
                         .newServer();
 
             } else {
                 controls = TestServerBuilders.newInProcessBuilder()
+                        .withConfig("dbms.connector.1.enabled", "true")
+                        .withConfig("dbms.connector.1.address", "localhost:" + String.valueOf(port))
                         .withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
                         .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
                         .withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))
@@ -138,8 +145,14 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
+
         database.shutdown();
         controls.close();
+
+        System.out.println("******************************************************************************");
+        System.out.println("* Stopping in memory test server on: " + url());
+        System.out.println("******************************************************************************");
+
     }
 
     /**

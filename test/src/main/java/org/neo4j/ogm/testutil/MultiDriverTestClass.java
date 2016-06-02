@@ -43,11 +43,13 @@ public class MultiDriverTestClass {
             if (Components.neo4jVersion() < 2.2) {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(false)
+                        .enableBolt(false)
                         .transactionTimeoutSeconds(2)
                         .build();
             } else {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(true)
+                        .enableBolt(false)
                         .transactionTimeoutSeconds(2)
                         .build();
             }

@@ -65,10 +65,6 @@ public class MultiDriverTestClass {
             Components.setDriver(new EmbeddedDriver(impermanentDb));
         }
 
-        //
-        //System.out.println(" ************************************");
-        //System.out.println(" *** " + Components.driver().getClass().getSimpleName() + " ***");
-        //System.out.println(" ************************************");
     }
 
     @AfterClass

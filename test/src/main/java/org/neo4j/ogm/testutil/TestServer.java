@@ -44,6 +44,7 @@ public class TestServer {
     private GraphDatabaseService database;
     private ServerControls controls;
 
+
     private TestServer(Builder builder) {
 
         this.port = builder.port == null ? TestUtils.getAvailablePort() : builder.port;
@@ -146,12 +147,12 @@ public class TestServer {
      */
     public synchronized void shutdown() {
 
-        database.shutdown();
-        controls.close();
-
         System.out.println("******************************************************************************");
         System.out.println("* Stopping in memory test server on: " + url());
         System.out.println("******************************************************************************");
+
+        database.shutdown();
+        controls.close();
 
     }
 

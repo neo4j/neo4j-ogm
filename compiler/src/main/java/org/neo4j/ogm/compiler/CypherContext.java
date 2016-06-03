@@ -197,7 +197,7 @@ public class CypherContext implements CompileContext {
         return compiler;
     }
 
-    public Long newNodeId(Long reference) {
+    public Long getId(Long reference) {
         if (newNodeIds.containsKey(reference)) {
             return newNodeIds.get(reference);
         }
@@ -205,13 +205,18 @@ public class CypherContext implements CompileContext {
     }
 
     @Override
-    public void registerNewNodeId(Long reference, Long id) {
+    public void registerNewId(Long reference, Long id) {
         newNodeIds.put(reference, id);
     }
 
     @Override
     public void deregister(NodeBuilder nodeBuilder) {
         compiler.unmap(nodeBuilder);
+    }
+
+    @Override
+    public Object getVisitedObject(Long reference) {
+        return visitedObjects.get(reference);
     }
 
     private boolean isMappableAlreadyDeleted(Mappable mappedRelationship) {

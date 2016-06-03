@@ -14,30 +14,13 @@
 package org.neo4j.ogm.context;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.EntityUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccess;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityFactory;
-import org.neo4j.ogm.annotations.FieldWriter;
-import org.neo4j.ogm.annotations.PropertyReader;
-import org.neo4j.ogm.annotations.PropertyWriter;
-import org.neo4j.ogm.annotations.RelationalReader;
-import org.neo4j.ogm.annotations.RelationalWriter;
+import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -49,6 +32,8 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -165,7 +150,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 						}
 					}
 					setProperties(node, entity);
+					mappingContext.registerNodeEntity(entity, node.getId());
+
 					nodeIds.add(node.getId());
+
 				} catch (BaseClassNotFoundException e) {
 					logger.debug(e.getMessage());
 				}

@@ -13,27 +13,27 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.domain.music.Studio;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -47,9 +47,11 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
+
         sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
         session.purgeDatabase();
+
         //Create some data
         Artist theBeatles = new Artist("The Beatles");
         Album please = new Album("Please Please Me");
@@ -59,6 +61,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         pleaseId = please.getId();
         beatlesId = theBeatles.getId();
+
     }
 
     @After
@@ -229,4 +232,84 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertNotNull(pinkfloyd_1_1);
         assertEquals("Purple Floyd", pinkfloyd_1_1.getName()); //the name should be refreshed from the graph
     }
+
+    /**
+     * @see Issue 177
+     */
+    @Test
+    public void shouldNotBeDirtyOnLoadEntityThenSaveThenReload() {
+
+        MappingContext context = ((Neo4jSession) session).context();
+
+        Artist pinkFloyd = new Artist("Pink Floyd");
+        assertTrue(context.isDirty(pinkFloyd));     // new object not saved is always dirty
+
+        //System.out.println("saving new object: pinkFloyd");
+        session.save(pinkFloyd);
+        assertFalse(context.isDirty(pinkFloyd));    // object hash updated by save.
+
+        session.clear();                            // forget everything we've done
+
+        //System.out.println("reloading object: pinkFloyd");
+        pinkFloyd = session.load(Artist.class, pinkFloyd.getId());
+        assertFalse(context.isDirty(pinkFloyd));    // a freshly loaded object is never dirty
+
+        pinkFloyd.setName("Purple Floyd");
+        assertTrue(context.isDirty(pinkFloyd));     // we changed the name so it is now dirty
+
+        //System.out.println("saving changed object: pinkFloyd->purpleFloyd");
+        session.save(pinkFloyd);
+        assertFalse(context.isDirty(pinkFloyd));    // object saved, no longer dirty
+
+        //System.out.println("reloading object: purpleFloyd");
+        Artist purpleFloyd = session.load(Artist.class, pinkFloyd.getId()); // load the same identity, but to a copy ref
+        assertFalse(context.isDirty(purpleFloyd));  // nothing has changed, so it should not be dirty
+
+        assertTrue(pinkFloyd == purpleFloyd);       // two refs pointing to the same object
+
+    }
+
+    /**
+     * @see Issue 177
+     */
+    @Test
+    public void shouldNotBeDirtyOnLoadRelationshipEntityThenSaveThenReload() {
+
+        MappingContext context = ((Neo4jSession) session).context();
+
+        Artist pinkFloyd = new Artist("Pink Floyd");
+        Album divisionBell = new Album("The Division Bell");
+        divisionBell.setArtist(pinkFloyd);
+        Studio studio = new Studio("Britannia Row Studios");
+        Recording recording = new Recording(divisionBell, studio, 1994);
+        divisionBell.setRecording(recording);
+        pinkFloyd.addAlbum(divisionBell);
+
+        assertTrue(context.isDirty(recording));     // new object not saved is always dirty
+
+        //System.out.println("saving new object: recording");
+        session.save(recording);
+        assertFalse(context.isDirty(recording));    // object hash updated by save.
+
+        session.clear();                            // forget everything we've done
+
+        //System.out.println("reloading object: recording");
+        recording = session.load(Recording.class, recording.getId(), 2);
+        assertFalse(context.isDirty(recording));    // a freshly loaded object is never dirty
+
+        recording.setYear(1995);
+        assertTrue(context.isDirty(recording));     // we changed the year so it is now dirty
+
+        //System.out.println("saving changed recording year: 1994->1995");
+        session.save(recording);
+        assertFalse(context.isDirty(recording));    // object saved, no longer dirty
+
+        //System.out.println("reloading recording as recording1995");
+        Recording recording1995 = session.load(Recording.class, recording.getId(), 2); // load the same identity, but to a copy ref
+        assertFalse(context.isDirty(recording1995));  // nothing has changed, so it should not be dirty
+
+        assertTrue(recording == recording1995);       // two refs pointing to the same object
+
+    }
+
 }

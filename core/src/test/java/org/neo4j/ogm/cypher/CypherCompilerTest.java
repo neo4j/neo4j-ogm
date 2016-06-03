@@ -110,7 +110,7 @@ public class CypherCompilerTest {
         assertFalse(compiler.hasStatementsDependentOnNewNodes());
         compiler.useStatementFactory(new RowStatementFactory());
         assertEquals(0, compiler.createNodesStatements().size());
-        assertEquals("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`Student`:`DomainObject` SET n += row.props",
+        assertEquals("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`Student`:`DomainObject` SET n += row.props RETURN row.nodeId as nodeRef, ID(n) as nodeId",
                 compiler.updateNodesStatements().get(0).getStatement());
 
     }
@@ -689,7 +689,7 @@ public class CypherCompilerTest {
         assertEquals(0, statements.size());
         statements = compiler.updateRelationshipStatements();
         assertEquals(1, statements.size());
-        assertEquals("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props)", statements.get(0).getStatement());
+        assertEquals("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) RETURN ID(r) as relRefId, ID(r) as relId", statements.get(0).getStatement());
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertEquals(1, rows.size());
     }

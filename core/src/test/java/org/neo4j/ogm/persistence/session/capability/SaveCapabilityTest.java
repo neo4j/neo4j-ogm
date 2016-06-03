@@ -25,8 +25,14 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.compiler.CompileContext;
+import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -122,6 +128,43 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
         assertEquals("Lost Highway", loadedLost.getName());
         assertEquals(loadedLeann, loadedLost.getGuestArtist());
         assertEquals(loadedBonJovi.getName(), loadedLost.getArtist().getName());
+    }
+    
+    @Test
+    public void shouldSaveOnlyModifiedNodes() {
+    	
+    	int depth = 1;
+    	Neo4jSession neo4jSession = (Neo4jSession)session;
+    	CompileContext context = null;
+    	
+    	Artist leann = new Artist("Leann Rimes");
+        Album lost = new Album("Lost Highway");
+        lost.setArtist(bonJovi);
+        lost.setGuestArtist(leann);
+        
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(lost, depth);
+        assertEquals("Should save 3 nodes and 2 relations (5 items)" , 5, context.registry().size());
+        
+        session.save(lost);
+        
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(lost, depth);
+        assertEquals("Should have nothing to save" , 0, context.registry().size());
+        
+        session.clear();
+        
+        Artist loadedLeann = session.load(Artist.class, leann.getId(), depth);
+        
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
+        assertEquals("Should have nothing to save" , 0, context.registry().size());
+        
+        loadedLeann.setName("New name");
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
+        assertEquals("Should have one node to save" , 1, context.registry().size());
+        
+        loadedLeann.getGuestAlbums().iterator().next().setName("New Album Name");
+        
+        context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
+        assertEquals("Should have two node to save" , 2, context.registry().size());
     }
 
 }

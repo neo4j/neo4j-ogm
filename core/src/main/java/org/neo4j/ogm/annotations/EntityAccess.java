@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -113,17 +114,20 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
     private static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
         if (collection == null) {
-           /* if (hydrated == null) { //At the moment, hydrated is never null, so an empty collection will be returned
-                return null;
-            }*/
             return hydrated;
         }
-
+        if (hydrated==null || hydrated.size() == 0) {
+            Collection<Object> result = new ArrayList<>(collection.size());
+            for (Object object : collection) {
+                result.add(Utils.coerceTypes(elementType, object));
+            }
+            return result;
+        }
         int resultSize = collection.size();
         if (hydrated != null) {
             resultSize += hydrated.size();
         }
-        Collection<Object> result = new ArrayList<>(resultSize);
+        Collection<Object> result = new LinkedHashSet<>(resultSize);
 
         if (hydrated != null && hydrated.size() > collection.size()) {
             result.addAll(hydrated);
@@ -140,9 +144,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
 
     private static void addToCollection(Collection add, Collection<Object> addTo, Class elementType) {
         for (Object object : add) {
-			if (!addTo.contains(object)) {
-				addTo.add(Utils.coerceTypes(elementType, object));
-			}
+            addTo.add(Utils.coerceTypes(elementType, object));
 		}
     }
 

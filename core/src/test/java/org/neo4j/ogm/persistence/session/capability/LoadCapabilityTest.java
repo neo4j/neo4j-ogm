@@ -201,4 +201,32 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertEquals(1, pinkfloyd_1_1.getAlbums().size());
         assertNotNull(pinkfloyd2.getAlbums().iterator().next().getRecording());
     }
+
+    @Test
+    public void shouldRefreshPropertiesOnEntityReload() {
+        Artist pinkFloyd = new Artist("Pink Floyd");
+        session.save(pinkFloyd);
+        session.clear();
+
+        //Load Pink Floyd in a new session, session1
+        Session session1 = sessionFactory.openSession();
+        Artist pinkfloyd1 = session1.load(Artist.class, pinkFloyd.getId(), 1);
+        assertNotNull(pinkfloyd1);
+        assertEquals("Pink Floyd", pinkfloyd1.getName());
+
+        //Load Pink Floyd to in another new session, session2
+        Session session2 = sessionFactory.openSession();
+        Artist pinkfloyd2 = session2.load(Artist.class, pinkFloyd.getId(), -1);
+        assertNotNull(pinkfloyd2);
+        assertEquals("Pink Floyd", pinkfloyd2.getName());
+        //update the name property
+        pinkfloyd2.setName("Purple Floyd");
+        //and save it in session2. Now the name in the graph is Purple Floyd
+        session2.save(pinkfloyd2);
+
+        //Reload Pink Floyd in session1
+        Artist pinkfloyd_1_1 = session1.load(Artist.class, pinkFloyd.getId(), -1);
+        assertNotNull(pinkfloyd_1_1);
+        assertEquals("Purple Floyd", pinkfloyd_1_1.getName()); //the name should be refreshed from the graph
+    }
 }

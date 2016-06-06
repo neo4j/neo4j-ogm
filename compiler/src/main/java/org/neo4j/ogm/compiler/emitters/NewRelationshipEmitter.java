@@ -13,7 +13,12 @@
 
 package org.neo4j.ogm.compiler.emitters;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Edge;
@@ -64,7 +69,7 @@ public class NewRelationshipEmitter implements CypherEmitter {
 			}
 
 			queryBuilder.append("]->(endNode) ")
-					.append("RETURN row.relRef as relRefId, ID(rel) as relId");
+					.append("RETURN row.relRef as ref, ID(rel) as id, row.type as type");
 
 			List<Map> rows = new ArrayList<>();
 			for (Edge edge : edges) {
@@ -72,6 +77,7 @@ public class NewRelationshipEmitter implements CypherEmitter {
 				rowMap.put("startNodeId", edge.getStartNode());
 				rowMap.put("endNodeId", edge.getEndNode());
 				rowMap.put("relRef", edge.getId());
+				rowMap.put("type", "rel");
 				if (hasProperties) {
 					Map<String, Object> props = new HashMap<>();
 					for (Property property : edge.getPropertyList()) {

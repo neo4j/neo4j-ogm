@@ -13,11 +13,15 @@
 
 package org.neo4j.ogm.compiler.emitters;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
-
-import java.util.*;
 
 /**
  * @author Luanne Misquitta
@@ -35,7 +39,7 @@ public class ExistingRelationshipEmitter implements CypherEmitter {
 		if (edges.size() > 0) {
 			//queryBuilder.append("START r=rels({relIds}) SET r += ({rows}[toString(id(r))]).props"); //TODO 2.3+
 			queryBuilder.append("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) ");
-			queryBuilder.append("RETURN ID(r) as relRefId, ID(r) as relId");
+			queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
 			List<Long> relIds = new ArrayList<>(edges.size());
 			List<Map> rows = new ArrayList<>();
 			for (Edge edge : edges) {
@@ -51,6 +55,7 @@ public class ExistingRelationshipEmitter implements CypherEmitter {
 			}
 			parameters.put("rows", rows);
 			parameters.put("relIds", relIds);
+			parameters.put("type", "rel");
 		}
 	}
 }

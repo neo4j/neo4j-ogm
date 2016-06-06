@@ -13,11 +13,15 @@
 
 package org.neo4j.ogm.compiler.emitters;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
-
-import java.util.*;
 
 /**
  * @author Luanne Misquitta
@@ -41,12 +45,12 @@ public class ExistingNodeEmitter implements CypherEmitter {
 			for (String label : firstNode.getLabels()) {
 				queryBuilder.append(":`").append(label).append("`");
 			}
-			//queryBuilder.append(" SET n += row.props");
-			queryBuilder.append(" SET n += row.props RETURN row.nodeId as nodeRef, ID(n) as nodeId");
+			queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
 			List<Map> rows = new ArrayList<>();
 			for (Node node : existingNodes) {
 				Map<String, Object> rowMap = new HashMap<>();
 				rowMap.put("nodeId", node.getId());
+				rowMap.put("type", "node");
 				Map<String, Object> props = new HashMap<>();
 				for (Property property : node.getPropertyList()) {
 					props.put((String) property.getKey(), property.getValue());

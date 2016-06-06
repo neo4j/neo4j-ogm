@@ -13,8 +13,14 @@
 
 package org.neo4j.ogm.session.request;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.annotations.FieldWriter;
+import org.neo4j.ogm.annotations.PropertyReader;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.MappedRelationship;
@@ -30,10 +36,6 @@ import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -211,42 +213,38 @@ public class RequestExecutor {
 			String[] variables = rowModel.variables();
 
 			Long entityRef = null;
-			Long relEntityRef = null;
 
 			Long entityId = null;
+			String type = null;
 
 			for (int i = 0; i < variables.length; i++) {
 
-				if (variables[i].equals("relId")) {
+				if (variables[i].equals("id")) {
 					entityId = ((Number) results[i]).longValue();
 				}
-				if (variables[i].endsWith("relRefId")) {
-					relEntityRef = ((Number) results[i]).longValue();
-				}
-
-				if (variables[i].equals("nodeId")) {
-					entityId = ((Number) results[i]).longValue();
-				}
-				if (variables[i].equals("nodeRef")) {
+				if (variables[i].equals("ref")) {
 					entityRef = ((Number) results[i]).longValue();
 				}
+				if (variables[i].equals("type")) {
+					type = (String) results[i];
+				}
 			}
-			if (entityRef != null) {
+			if (type != null && type.equals("node")) {
 				entityRefMappings.add(new ReferenceMapping(entityRef, entityId));
-				if (entityRef.equals(entityId)) {
+				if (entityRef!= null && entityRef.equals(entityId)) {
 					LOGGER.debug("to update: nodeEntity {}:{}", entityRef, entityId);
 				} else {
 					LOGGER.debug("to create: nodeEntity {}:{}", entityRef, entityId);
 					context.registerNewId(entityRef, entityId);
 				}
 			}
-			else if (relEntityRef != null) {
-				relEntityRefMappings.add(new ReferenceMapping(relEntityRef, entityId));
-				if (relEntityRef.equals(entityId)) {
-					LOGGER.debug("to (maybe) update: relEntity {}:{}", relEntityRef, entityId);
+			else if (type != null && type.equals("rel")) {
+				relEntityRefMappings.add(new ReferenceMapping(entityRef, entityId));
+				if (entityRef!= null && entityRef.equals(entityId)) {
+					LOGGER.debug("to (maybe) update: relEntity {}:{}", entityRef, entityId);
 				} else {
-					LOGGER.debug("to (maybe) create: relEntity {}:{}", relEntityRef, entityId);
-					context.registerNewId(relEntityRef, entityId);
+					LOGGER.debug("to (maybe) create: relEntity {}:{}", entityRef, entityId);
+					context.registerNewId(entityRef, entityId);
 				}
 			}
 		}
@@ -287,14 +285,24 @@ public class RequestExecutor {
 					ClassInfo classInfo = session.metaData().classInfo(existingNodeEntity);
 					registerEntity(session.context(), classInfo, referenceMapping.id, existingNodeEntity);
 				} else {
-					// FIXME: This only happens using Bolt or Embedded driver. It shouldn't happen at all.
-					LOGGER.warn("Cannot find ClassInfo for NodeEntity: " + referenceMapping.id);
+					// the session could have been cleared, so register this entity again in the mapping context
+					for (Object obj : context.registry()) { //TODO find a better way to do this instead of iterating through the log
+						if (!(obj instanceof TransientRelationship)) {
+							ClassInfo classInfo = session.metaData().classInfo(obj);
+							PropertyReader idReader = new DefaultEntityAccessStrategy().getIdentityPropertyReader(classInfo);
+							Long id = (Long) idReader.read(obj);
+							if (id != null && id.equals(referenceMapping.id)) {
+								registerEntity(session.context(), classInfo, referenceMapping.id, obj);
+							}
+						}
+					}
 				}
 			} else {
 				LOGGER.debug("creating new node id: {}", referenceMapping.id);
 				initialiseNewEntity(referenceMapping.id, newEntity, session);
 			}
 		}
+
 	}
 
 	/**

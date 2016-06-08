@@ -95,11 +95,15 @@ public class ClassInfo {
     private Map<Class,List<FieldInfo>> iterableFieldsForType = new HashMap<>();
     private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
 
-    private Set<FieldInfo> fieldInfos;
-    private Map<String, FieldInfo> propertyFields;
+    private volatile Set<FieldInfo> fieldInfos;
+    private volatile Map<String, FieldInfo> propertyFields;
 
-    private FieldInfo identityField = null;
+    private volatile FieldInfo identityField = null;
 
+	/**
+     * ISSUE-180: synchronized can be used instead of this lock but right now this mechanism is here to see if
+     * ConcurrentModificationException stops occurring.
+     */
     private final Lock lock = new ReentrantLock();
 
     // todo move this to a factory class

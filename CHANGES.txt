@@ -2,6 +2,7 @@
 --------------
 o Fixes issue where converters that use generics and convert to collections or arrays throw ClassNotFoundExceptions
 o Fixes issue where the embedded driver would create a directory that included the uri scheme
+o Fixes issue where ClassInfo to be accessed concurrently with some fields not having been initialised.
 
 2.0.2
 --------------

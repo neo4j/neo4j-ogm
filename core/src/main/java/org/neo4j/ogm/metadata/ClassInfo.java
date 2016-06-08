@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.annotation.GraphId;
@@ -62,6 +64,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ClassInfo {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
+
     private int majorVersion;
     private int minorVersion;
 
@@ -96,8 +100,7 @@ public class ClassInfo {
 
     private FieldInfo identityField = null;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
-
+    private final Lock lock = new ReentrantLock();
 
     // todo move this to a factory class
     public ClassInfo(InputStream inputStream) throws IOException {
@@ -130,7 +133,6 @@ public class ClassInfo {
         fieldsInfo = new org.neo4j.ogm.metadata.FieldsInfo(dataInputStream, constantPool);
         methodsInfo = new org.neo4j.ogm.metadata.MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new org.neo4j.ogm.metadata.AnnotationsInfo(dataInputStream, constantPool);
-
     }
 
     /** A class that was previously only seen as a temp superclass of another class can now be fully hydrated.
@@ -217,17 +219,25 @@ public class ClassInfo {
 
     public String neo4jName() {
         if (neo4jName == null) {
-            AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
-            if (annotationInfo != null) {
-                neo4jName =  annotationInfo.get(NodeEntity.LABEL, simpleName());
-                return neo4jName;
+            try {
+                lock.lock();
+                if (neo4jName == null) {
+                    AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
+                    if (annotationInfo != null) {
+                        neo4jName = annotationInfo.get(NodeEntity.LABEL, simpleName());
+                        return neo4jName;
+                    }
+                    annotationInfo = annotationsInfo.get(RelationshipEntity.CLASS);
+                    if (annotationInfo != null) {
+                        neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
+                        return neo4jName;
+                    }
+                    neo4jName = simpleName();
+                }
             }
-            annotationInfo = annotationsInfo.get(RelationshipEntity.CLASS);
-            if (annotationInfo != null) {
-                neo4jName =  annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
-                return neo4jName;
+            finally {
+                lock.unlock();
             }
-            neo4jName = simpleName();
         }
         return neo4jName;
     }
@@ -312,23 +322,34 @@ public class ClassInfo {
         if(identityField != null) {
             return identityField;
         }
-        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
-            if (annotationInfo != null) {
-                if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
-                    identityField = fieldInfo;
-                    return fieldInfo;
+        try {
+            lock.lock();
+            if(identityField == null) {
+                for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
+                    if (annotationInfo != null) {
+                        if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
+                            identityField = fieldInfo;
+                            return fieldInfo;
+                        }
+                    }
                 }
+                FieldInfo fieldInfo = fieldsInfo().get("id");
+                if (fieldInfo != null) {
+                    if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
+                        identityField = fieldInfo;
+                        return fieldInfo;
+                    }
+                }
+                throw new MappingException("No identity field found for class: " + this.className);
+            }
+            else {
+                return identityField;
             }
         }
-        FieldInfo fieldInfo = fieldsInfo().get("id");
-        if (fieldInfo != null) {
-            if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
-                identityField = fieldInfo;
-                return fieldInfo;
-            }
+        finally {
+            lock.unlock();
         }
-        throw new MappingException("No identity field found for class: " + this.className);
     }
 
     /**
@@ -339,19 +360,27 @@ public class ClassInfo {
      */
     public Collection<FieldInfo> propertyFields() {
         if (fieldInfos == null) {
-            FieldInfo identityField = identityFieldOrNull();
-            fieldInfos = new HashSet<>();
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                if (fieldInfo != identityField) {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
-                    if (annotationInfo == null) {
-                        if (fieldInfo.isSimple()) {
-                            fieldInfos.add(fieldInfo);
+            try {
+                lock.lock();
+                if (fieldInfos == null) {
+                    FieldInfo identityField = identityFieldOrNull();
+                    fieldInfos = new HashSet<>();
+                    for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                        if (fieldInfo != identityField) {
+                            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
+                            if (annotationInfo == null) {
+                                if (fieldInfo.isSimple()) {
+                                    fieldInfos.add(fieldInfo);
+                                }
+                            } else {
+                                fieldInfos.add(fieldInfo);
+                            }
                         }
-                    } else {
-                        fieldInfos.add(fieldInfo);
                     }
                 }
+            }
+            finally {
+                lock.unlock();
             }
         }
         return fieldInfos;
@@ -365,10 +394,19 @@ public class ClassInfo {
      */
     public FieldInfo propertyField(String propertyName) {
         if (propertyFields == null) {
-            Collection<FieldInfo> fieldInfos = propertyFields();
-            propertyFields = new HashMap<>(fieldInfos.size());
-            for (FieldInfo fieldInfo : fieldInfos) {
-                propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+
+            try {
+                lock.lock();
+                if (propertyFields == null) {
+                    Collection<FieldInfo> fieldInfos = propertyFields();
+                    propertyFields = new HashMap<>(fieldInfos.size());
+                    for (FieldInfo fieldInfo : fieldInfos) {
+                        propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
+                    }
+                }
+            }
+            finally {
+                lock.unlock();
             }
         }
         return propertyFields.get(propertyName.toLowerCase());

@@ -31,8 +31,10 @@ public class Filter {
 	private Object propertyValue;
 
 	/**
+	 * @deprecated as of 2.0.4 This is a SDN only concern and has been moved to that project.
 	 * The position of the property as specified in a derived finder method
 	 */
+	@Deprecated
 	private Integer propertyPosition;
 
 	/**
@@ -118,10 +120,20 @@ public class Filter {
 		this.propertyValue = propertyValue;
 	}
 
+	/**
+	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
+	 * @return
+	 */
+	@Deprecated
 	public Integer getPropertyPosition() {
 		return propertyPosition;
 	}
 
+	/**
+	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
+	 * @param propertyPosition
+	 */
+	@Deprecated
 	public void setPropertyPosition(Integer propertyPosition) {
 		this.propertyPosition = propertyPosition;
 	}

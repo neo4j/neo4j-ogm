@@ -264,7 +264,7 @@
         <profile>
             <id>3.0</id>
             <properties>
-                <neo4j>3.0.2</neo4j>
+                <neo4j>3.0.3</neo4j>
             </properties>
         </profile>
 

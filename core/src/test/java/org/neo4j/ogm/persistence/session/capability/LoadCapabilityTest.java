@@ -13,6 +13,17 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,13 +38,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -206,7 +210,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldRefreshPropertiesOnEntityReload() {
+    public void shouldNotRefreshPropertiesOnEntityReload() {
         Artist pinkFloyd = new Artist("Pink Floyd");
         session.save(pinkFloyd);
         session.clear();
@@ -230,7 +234,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         //Reload Pink Floyd in session1
         Artist pinkfloyd_1_1 = session1.load(Artist.class, pinkFloyd.getId(), -1);
         assertNotNull(pinkfloyd_1_1);
-        assertEquals("Purple Floyd", pinkfloyd_1_1.getName()); //the name should be refreshed from the graph
+        assertEquals("Pink Floyd", pinkfloyd_1_1.getName()); //the name should be refreshed from the graph
     }
 
     /**
@@ -311,5 +315,350 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertTrue(recording == recording1995);       // two refs pointing to the same object
 
     }
+
+	/**
+     * @see DATAGRAPH-642, Issue 174
+     */
+    @Test
+    public void shouldRetainPreviouslyLoadedRelationshipsWhenDepthIsReduced() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load Artist to depth 2
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 2);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNotNull(ledZeppelinIV.getRecording());
+        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+
+        //Now load to depth 1
+        ledZeppelin = session.load(Artist.class, led.getId(), 0);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNotNull(ledZeppelinIV.getRecording());
+        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+
+        //Now load to depth 0
+        ledZeppelin = session.load(Artist.class, led.getId(), 0);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNotNull(ledZeppelinIV.getRecording());
+        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+    }
+
+    /**
+     * @see DATAGRAPH-642, Issue 174
+     */
+    @Test
+    public void shouldAddRelationshipsWhenDepthIsIncreased() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load to depth 0
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 0);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(0, ledZeppelin.getAlbums().size());
+
+        //Load to depth 1
+        ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNull(ledZeppelinIV.getRecording());
+
+        //Load to depth 2
+        ledZeppelin = session.load(Artist.class, led.getId(), 2);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNotNull(ledZeppelinIV.getRecording());
+        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+    }
+
+    /**
+     * @see Issue 173
+     */
+    @Test
+    public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsIncreased() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load the Artist to depth 0 in the first session
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 0);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(0, ledZeppelin.getAlbums().size());
+
+        //In session 2, update the name of the artist
+        Session session2 = sessionFactory.openSession();
+        Artist ledZepp = session2.load(Artist.class, led.getId(), 0);
+        ledZepp.setName("Led Zepp");
+        session2.save(ledZepp);
+
+        //Back in the first session, load the artist to depth 1
+        ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNull(ledZeppelinIV.getRecording());
+    }
+
+    /**
+     * @see Issue 173
+      */
+    @Test
+    public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsReduced() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load the Artist to depth 1 in the first session
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNull(ledZeppelinIV.getRecording());
+
+        //In session 2, update the name of the artist
+        Session session2 = sessionFactory.openSession();
+        Artist ledZepp = session2.load(Artist.class, led.getId(), 0);
+        ledZepp.setName("Led Zepp");
+        session2.save(ledZepp);
+
+        //Back in the first session, load the artist to depth 0
+        ledZeppelin = session.load(Artist.class, led.getId(), 0);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+    }
+
+    /**
+     * @see DATAGRAPH-642, Issue 174
+     */
+    @Test
+    public void shouldBeAbleToLoadEntityToDifferentDepthsInDifferentSessions() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //In the first session, load the artist to depth 2
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 2);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNotNull(ledZeppelinIV.getRecording());
+        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+
+        //In the second session, load the artist to depth 0
+        Session session2 = sessionFactory.openSession();
+        Artist ledZeppelin0 = session2.load(Artist.class, led.getId(), 0);
+        assertNotNull(ledZeppelin0);
+        assertEquals(led.getName(), ledZeppelin0.getName());
+        assertEquals(0, ledZeppelin0.getAlbums().size());
+
+    }
+
+	/**
+     * @see Issue 173
+     */
+    @Test
+    public void shouldNotModifyPreviouslyLoadedNodesWhenEntityIsReloaded() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load the Artist to depth 1 in the first session
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNull(ledZeppelinIV.getRecording());
+
+        //In session 2, update the name of the artist
+        Session session2 = sessionFactory.openSession();
+        Artist ledZepp = session2.load(Artist.class, led.getId(), 0);
+        ledZepp.setName("Led Zepp");
+        session2.save(ledZepp);
+
+        //Reload the artist in the first session
+        ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNull(ledZeppelinIV.getRecording());
+    }
+
+	/**
+     * @see Issue 173
+     */
+    @Test
+    public void shouldMapNewNodesAndRelationshipsWhenEntityIsReloaded() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load the Artist to depth 2 in the first session
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 2);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNotNull(ledZeppelinIV.getRecording());
+        assertEquals(studio.getName(), ledZeppelinIV.getRecording().getStudio().getName());
+
+        //In session 2, add an album and recording
+        Session session2 = sessionFactory.openSession();
+        Artist ledZepp = session2.load(Artist.class, led.getId());
+        Album houses = new Album("Houses of the Holy");
+        Studio studio2 = new Studio("Island Studios");
+        Recording housesRec = new Recording(houses, studio2, 1972);
+        ledZepp.addAlbum(houses);
+        houses.setArtist(ledZepp);
+        houses.setRecording(housesRec);
+        session2.save(ledZepp);
+
+        //Reload the artist in the first session
+        ledZeppelin = session.load(Artist.class, led.getId(), 2);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(2, ledZeppelin.getAlbums().size());
+        for (Album loadedAlbum : ledZeppelin.getAlbums()) {
+            assertEquals(ledZeppelin, loadedAlbum.getArtist());
+            assertNotNull(loadedAlbum.getRecording());
+            assertNotNull(loadedAlbum.getRecording().getStudio());
+        }
+    }
+
+	/**
+     * @see Issue 173
+     */
+    @Test
+    public void shouldRefreshEntityStateWhenReloadedOnCleanSession() {
+        Artist led = new Artist("Led Zeppelin");
+        Album album = new Album("Led Zeppelin IV");
+        Studio studio = new Studio("Island Studios");
+        Recording recording = new Recording(album, studio, 1970);
+        led.addAlbum(album);
+        album.setArtist(led);
+        album.setRecording(recording);
+        session.save(led);
+
+        session.clear();
+
+        //Load the Artist to depth 1 in the first session
+        Artist ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(led.getName(), ledZeppelin.getName());
+        assertEquals(1, ledZeppelin.getAlbums().size());
+        Album ledZeppelinIV = ledZeppelin.getAlbums().iterator().next();
+        assertEquals(album.getName(), ledZeppelinIV.getName());
+        assertEquals(ledZeppelin, ledZeppelinIV.getArtist());
+        assertNull(ledZeppelinIV.getRecording());
+
+        //In session 2, update the name of the artist, delete the album
+        Session session2 = sessionFactory.openSession();
+        Artist ledZepp = session2.load(Artist.class, led.getId(), 1);
+        ledZepp.setName("Led Zepp");
+        ledZepp.getAlbums().iterator().next().setArtist(null);
+        ledZepp.getAlbums().clear();
+        session2.save(ledZepp);
+
+        //Reload the artist in a clean session
+        session.clear();
+        ledZeppelin = session.load(Artist.class, led.getId(), 1);
+        assertNotNull(ledZeppelin);
+        assertEquals(ledZepp.getName(), ledZeppelin.getName());
+        assertEquals(0, ledZeppelin.getAlbums().size());
+    }
+
+
 
 }

@@ -77,6 +77,13 @@ public class NodeEntityQueryPagingTest {
         check("MATCH (n:`Raptor`) WHERE n.`name` = { `name` }  WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByProperties("Raptor", new Filters().add(new Filter("name", "velociraptor")), -1).setPagination(new Pagination(0, 2)).getStatement());
     }
 
+    @Test
+    public void testFindByTypeAndOffset() {
+        Pagination pagination = new Pagination(1,5);
+        pagination.setOffset(3);
+        check("MATCH (n:`Raptor`) WITH n SKIP 3 LIMIT 5 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findByType("Raptor", 1).setPagination(pagination).getStatement());
+    }
+
     private void check(String expected, String actual) {
         assertEquals(expected, actual);
     }

@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.metadata;
 
+import org.neo4j.ogm.annotation.Transient;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.neo4j.ogm.annotation.Transient;
 
 /**
  * @author Vince Bickers
@@ -62,7 +62,7 @@ public class MethodsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            if (!methodName.equals("<init>") && objectAnnotations.get(Transient.CLASS) == null) {
+            if (!methodName.equals("<init>") && !methodName.equals("<clinit>") && objectAnnotations.get(Transient.CLASS) == null) {
                 addMethod(new MethodInfo(methodName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }

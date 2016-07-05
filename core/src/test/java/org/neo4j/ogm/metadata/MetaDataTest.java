@@ -665,4 +665,16 @@ public class MetaDataTest {
 
     }
 
+    @Test
+    public void shouldExcludeStaticInitialisersFromPersistenceMethods() {
+
+        ClassInfo classInfo = metaData.classInfo("SecurityRole");
+        Collection<MethodInfo> methodInfos = classInfo.methodsInfo().methods();
+
+        for (MethodInfo methodInfo : methodInfos) {
+            assertFalse(methodInfo.getName().equals("<clinit>"));
+        }
+
+    }
+
 }

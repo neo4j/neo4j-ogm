@@ -26,6 +26,7 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -46,6 +47,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 public class LoadByTypeDelegate implements Capability.LoadByType {
 
     private final Neo4jSession session;
+    private final String escapedProperty = "`%s`";
 
     public LoadByTypeDelegate(Neo4jSession session) {
         this.session = session;
@@ -57,6 +59,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
         //session.ensureTransaction();
         String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
+        resolvePropertyAnnotations(type, sortOrder);
 
         // all this business about selecting which type of model/response to handle is horribly hacky
         // it should be possible for the response handler to select based on the model implementation
@@ -230,6 +233,16 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
             }
         }
         return filters;
+    }
+
+    private void resolvePropertyAnnotations(Class entityType, SortOrder sortOrder) {
+        if (sortOrder != null) {
+            for (SortClause sortClause : sortOrder.sortClauses()) {
+                for (int i = 0; i < sortClause.getProperties().length; i++) {
+                    sortClause.getProperties()[i] = String.format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
+                }
+            }
+        }
     }
 
     private String resolvePropertyName(Class entityType, String propertyName) {

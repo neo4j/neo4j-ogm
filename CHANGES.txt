@@ -1,5 +1,7 @@
 2.0.4-SNAPSHOT
 --------------
+o Fixes issue where SortOrder did not take into account the actual node property name specified by @Property
+o Fixes issue where properties of the node were updated if it was reloaded after having been already mapped in the session
 
 2.0.3
 --------------

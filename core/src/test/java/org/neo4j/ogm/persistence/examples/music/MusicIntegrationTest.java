@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
@@ -251,6 +252,26 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertTrue(albums.contains("The Beatles"));
         assertTrue(albums.contains("Please Please Me"));
         assertFalse(resultIterator.hasNext());
+    }
+
+	/**
+     * @see Issue 191
+     */
+    @Test
+    public void shouldSortByDomainPropertyName() {
+        Studio emi = new Studio("EMI Studios, London");
+        Studio olympic = new Studio("Olympic Studios, London");
+
+        session.save(emi);
+        session.save(olympic);
+
+        session.clear();
+
+        Collection<Studio> studios = session.loadAll(Studio.class, new SortOrder().add("name"));
+        assertEquals("EMI Studios, London", studios.iterator().next().getName());
+
+        studios = session.loadAll(Studio.class, new SortOrder().add(SortOrder.Direction.DESC, "name"));
+        assertEquals("Olympic Studios, London", studios.iterator().next().getName());
     }
 
 }

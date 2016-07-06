@@ -37,6 +37,10 @@ public class SortOrder {
         return this;
     }
 
+    public List<SortClause> sortClauses() {
+        return sortClauses;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (!sortClauses.isEmpty()) {
@@ -48,34 +52,6 @@ public class SortOrder {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
-    }
-
-    class SortClause {
-
-        private final Direction direction;
-        private final String[] properties;
-
-        public SortClause(Direction direction, String... properties) {
-            this.direction = direction;
-            this.properties = properties;
-        }
-
-        public String toString() {
-
-            StringBuilder sb = new StringBuilder();
-
-            if (properties.length > 0) {
-                for (String n : properties) {
-                    sb.append("$." + n);
-                    if (direction == Direction.DESC) {
-                        sb.append(" DESC");
-                    }
-                    sb.append(",");
-                }
-                sb.deleteCharAt(sb.length() - 1);
-            }
-            return sb.toString();
-        }
     }
 
 }

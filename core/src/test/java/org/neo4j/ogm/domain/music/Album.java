@@ -19,7 +19,7 @@ import org.neo4j.ogm.annotation.Relationship;
 /**
  * @author Luanne Misquitta
  */
-@NodeEntity(label = "l'album")
+@NodeEntity(label = "l'album", mergename = "name")
 public class Album {
 
     private Long id;

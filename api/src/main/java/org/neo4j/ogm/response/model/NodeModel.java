@@ -27,6 +27,7 @@ public class NodeModel implements Node {
 
     private Long id;
     private String[] labels;
+    private String mergeName;
     private List<Property<String, Object>> properties = new ArrayList<>();
 
     public List<Property<String, Object>> getPropertyList() {
@@ -59,6 +60,15 @@ public class NodeModel implements Node {
     public void setLabels(String[] labels) {
         this.labels = labels;
     }
+
+    public void setMergeName(String mergeName) {
+        this.mergeName = mergeName;
+    }
+
+    public String getMergeName() {
+        return mergeName;
+    }
+
 
     public Object property(String key) {
         for (Property property : properties) {

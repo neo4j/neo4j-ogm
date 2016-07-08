@@ -72,6 +72,7 @@ public class ClassInfo {
     private String className;
     private String directSuperclassName;
     private String neo4jName;
+    private String mergeName;
 
     private boolean isInterface;
     private boolean isAbstract;
@@ -244,6 +245,26 @@ public class ClassInfo {
             }
         }
         return neo4jName;
+    }
+
+    public String mergeName(){
+        if(mergeName == null){
+            try{
+                lock.lock();
+                if (mergeName == null) {
+                    AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
+                    if (annotationInfo != null) {
+                        mergeName = annotationInfo.get(NodeEntity.MERGENAME, "");
+                        return mergeName;
+                    }
+                    mergeName = "";
+                }
+            }
+            finally {
+                lock.unlock();
+            }
+        }
+        return mergeName;
     }
 
     private Collection<String> collectLabels(Collection<String> labelNames) {

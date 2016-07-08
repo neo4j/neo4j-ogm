@@ -17,10 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -165,4 +162,62 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
         assertEquals("Should have two node to save" , 2, context.registry().size());
     }
 
+    /**
+     * @see Issue #153
+     */
+    @Test
+    public void saveWithMergeNameShouldSame(){
+        Album lost = new Album("fishjam");
+        lost.setArtist(bonJovi);
+        session.save(lost);
+        session.clear();
+
+        lost = new Album("fishjam");
+        Artist leann = new Artist("Leann Rimes");
+        lost.setArtist(leann);
+        session.save(lost);
+        session.clear();
+
+        //Artist loadedLeann = session.load(Artist.class, leann.getId());
+        Collection<Album> allAlbum = session.loadAll(Album.class);
+        assertEquals(1, allAlbum.size());
+
+        Collection<Artist> allArtist = session.loadAll(Artist.class);
+        assertEquals(2, allArtist.size());
+    }
+
+    /**
+     * @see Issue #153
+     */
+    @Test
+    public void saveListWithMergeNameShouldSame(){
+        final int ALBUM_COUNT = 10;
+        List<Album> albumList = new ArrayList<Album>();
+
+        for (int i = 0; i < ALBUM_COUNT; i++){
+            albumList.add(new Album("fishjam" + i));
+        }
+        session.save(albumList);
+        session.clear();
+
+        //first only the ALBUM_COUNT count
+        Collection<Album> allAlbumFromDB = session.loadAll(Album.class);
+        assertEquals(ALBUM_COUNT, allAlbumFromDB.size());
+        session.clear();
+
+
+        //save again with same name
+        List<Album> anotherAlbumList = new ArrayList<Album>();
+
+        for (int i = 0; i < ALBUM_COUNT * 2; i++){
+            anotherAlbumList.add(new Album("fishjam" + i));
+        }
+        session.save(anotherAlbumList);
+        session.clear();
+
+        //now count will be (ALBUM_COUNT * 2) = 10(old) + 10(new)
+        allAlbumFromDB = session.loadAll(Album.class);
+        assertEquals(ALBUM_COUNT * 2, allAlbumFromDB.size());
+        session.clear();
+    }
 }

@@ -256,10 +256,10 @@ public class EntityGraphMapper implements EntityMapper {
         NodeBuilder nodeBuilder;
         if (id == null) {
             Long entityIdRef = EntityUtils.identity(entity, metaData);
-            nodeBuilder = compiler.newNode(entityIdRef).setLabels(classInfo.labels());
+            nodeBuilder = compiler.newNode(entityIdRef).setLabels(classInfo.labels()).setMergeName(classInfo.mergeName());
             context.registerNewObject(entityIdRef, entity);
         } else {
-            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).setLabels(classInfo.labels());
+            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).setLabels(classInfo.labels()).setMergeName(classInfo.mergeName());
         }
         Long identity = EntityUtils.identity(entity,metaData);
         context.visit(identity, nodeBuilder);

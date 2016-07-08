@@ -30,6 +30,8 @@ public interface NodeBuilder {
 
 	NodeBuilder setLabels(Collection<String> labels);
 
+	NodeBuilder setMergeName(String mergeName);
+
 	String[] labels();
 
 	Node node();

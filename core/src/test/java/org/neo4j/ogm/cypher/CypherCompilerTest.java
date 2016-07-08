@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.EntityGraphMapper;
@@ -769,8 +770,19 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(2, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'artiste`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'album`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+
+        assertTrue(Artist.class.isAnnotationPresent(NodeEntity.class));
+        assertTrue(Album.class.isAnnotationPresent(NodeEntity.class));
+
+        NodeEntity nodeEntity = Artist.class.getAnnotation(NodeEntity.class);
+        if (!nodeEntity.mergename().equals("")){
+            assertTrue(createNodeStatements.contains("UNWIND {rows} as row MERGE (n:`l'album` {name:row.props.name}) ON CREATE SET n=row.props  ON MATCH SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+            assertTrue(createNodeStatements.contains("UNWIND {rows} as row MERGE (n:`l'artiste` {name:row.props.name}) ON CREATE SET n=row.props  ON MATCH SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        }
+        else{
+            assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'artiste`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+            assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'album`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        }
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());

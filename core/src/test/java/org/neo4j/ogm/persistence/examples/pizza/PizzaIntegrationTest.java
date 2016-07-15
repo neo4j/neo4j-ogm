@@ -20,6 +20,7 @@ import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
@@ -244,7 +245,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSyncMappedLabelsFromTheEntityToTheNode() {
+    public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
 
         System.out.println(Labels.class.getCanonicalName());
 
@@ -258,12 +259,12 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         session.save(pizza);
         session.clear();
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
 
         Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
         assertTrue(loadedPizza.getLabels().contains("Delicious"));
         assertTrue(loadedPizza.getLabels().contains("Hot"));
         assertTrue(loadedPizza.getLabels().contains("Spicy"));
     }
-
 
 }

@@ -184,7 +184,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private void setProperties(Node nodeModel, Object instance) {
-		// TODO: cache this.
 		ClassInfo classInfo = metadata.classInfo(instance);
 		for (Property<?, ?> property : nodeModel.getPropertyList()) {
 			writeProperty(classInfo, instance, property);
@@ -192,7 +191,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private void setProperties(Edge relationshipModel, Object instance) {
-		// TODO: cache this.
 		ClassInfo classInfo = metadata.classInfo(instance);
         for (Property<?, ?> property : relationshipModel.getPropertyList()) {
             writeProperty(classInfo, instance, property);
@@ -200,7 +198,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private void setLabels(Node nodeModel, Object instance) {
-		// TODO: c'mon cache this, already
 		ClassInfo classInfo = metadata.classInfo(instance);
 		FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
 		if (labelFieldInfo != null) {

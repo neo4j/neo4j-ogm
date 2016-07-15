@@ -26,6 +26,7 @@ import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.neo4j.ogm.utils.MetaData;
 
@@ -71,6 +72,7 @@ public class ClassInfoTest {
      */
     @Test
     public void testPropertyFieldInfo() {
+
 
         ClassInfo classInfo = metaData.classInfo("Bronze");
         Collection<FieldInfo> fieldInfos = classInfo.propertyFields();
@@ -440,7 +442,7 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void classInfo_labelFieldOrNull() {
+    public void labelFieldOrNull() {
         ClassInfo classInfo = metaData.classInfo(Pizza.class.getSimpleName());
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         assertNotNull(fieldInfo);
@@ -448,7 +450,29 @@ public class ClassInfoTest {
     }
 
     @Test
-    public void classInfo_labelFieldOrNull_shouldThrowMappingExceptionForInvalidType() {
+    public void labelAnnotationOnMethodsThrowsMappingException() {
+        try {
+            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.method");
+            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
+            fail("Should have thrown exception.");
+        } catch (MappingException e) {
+            assertEquals("'org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters' has the @Labels annotation applied to method 'setLabels'. The labels annotation can only be applied to a field.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void labelAnnotationWithRelationshipEntityThrowsException() {
+        try {
+            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.relationship");
+            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
+            fail("Should have thrown exception.");
+        } catch (MappingException e) {
+            assertEquals("'org.neo4j.ogm.invalid.labels.relationship.LabelsAnnotationRelationshipEntity' is a relationship entity. The @Labels annotation can't be applied to relationship entities.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void labelFieldOrNullThrowsMappingExceptionForInvalidType() {
         try {
             LabelsAnnotationWithWrongTye entity = new LabelsAnnotationWithWrongTye();
             Collection<String> collatedLabels = EntityUtils.labels(entity, metaData);

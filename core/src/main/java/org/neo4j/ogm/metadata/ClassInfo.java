@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -129,6 +130,7 @@ public class ClassInfo {
         fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
+        new ClassValidator(this).validate();
     }
 
     /**
@@ -394,6 +396,14 @@ public class ClassInfo {
         return null;
     }
 
+    public boolean isRelationshipEntity() {
+        for (AnnotationInfo info : annotations()) {
+            if (info.getName().equals(RelationshipEntity.CLASS)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * A property field is any field annotated with @Property, or any field that can be mapped to a
@@ -661,6 +671,10 @@ public class ClassInfo {
             }
         }
         return propertySetters;
+    }
+
+    public Collection<MethodInfo> propertyGettersAndSetters() {
+        return CollectionUtils.union(propertyGetters(), propertySetters());
     }
 
     /**

@@ -31,7 +31,7 @@ public class EntityUtilsTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.utils", "org.neo4j.ogm.domain.pizza");
+        metaData = new MetaData("org.neo4j.ogm.domain.pizza");
     }
 
     @Test
@@ -54,18 +54,7 @@ public class EntityUtilsTest {
 
     }
 
-    @Test
-    public void shouldThrowMappingExceptionIfLabelsNotCollectionType() {
-        try {
-            LabelsAnnotationWithWrongTye entity = new LabelsAnnotationWithWrongTye();
-            Collection<String> collatedLabels = EntityUtils.labels(entity, metaData);
-            fail("Should have thrown exception");
-        } catch (MappingException e) {
-            assertEquals("Field 'labels' in class 'org.neo4j.ogm.utils.LabelsAnnotationWithWrongTye' includes the @Labels annotation, however this field is not a type of collection.", e.getMessage());
-        }
 
-
-    }
 
 
 }

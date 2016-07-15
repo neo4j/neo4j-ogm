@@ -12,7 +12,7 @@
  */
 
 
-package org.neo4j.ogm.utils;
+package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotations.Labels;
 

@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <neo4j>2.3.5</neo4j>
+        <neo4j>2.3.6</neo4j>
         <commonslang>2.6</commonslang>
         <jackson>2.5.1</jackson>
         <httpclient>4.3.6</httpclient>
@@ -210,7 +210,7 @@
         <profile>
             <id>2.3</id>
             <properties>
-                <neo4j>2.3.5</neo4j>
+                <neo4j>2.3.6</neo4j>
             </properties>
         </profile>
 

@@ -16,13 +16,16 @@ package org.neo4j.ogm.persistence.examples.pizza;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -238,6 +241,28 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertEquals(2, loadedPizza.getToppings().size());
         assertTrue(loadedPizza.getToppings().contains(mushroom));
         assertTrue(loadedPizza.getToppings().contains(pepperoni));
+    }
+
+    @Test
+    public void shouldSyncMappedLabelsFromTheEntityToTheNode() {
+
+        System.out.println(Labels.class.getCanonicalName());
+
+        Pizza pizza = new Pizza();
+        pizza.setName("Mushroom & Pepperoni");
+        List<String> labels = new ArrayList<>();
+        labels.add("Delicious");
+        labels.add("Hot");
+        labels.add("Spicy");
+        pizza.setLabels(labels);
+
+        session.save(pizza);
+        session.clear();
+
+        Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
+        assertTrue(loadedPizza.getLabels().contains("Delicious"));
+        assertTrue(loadedPizza.getLabels().contains("Hot"));
+        assertTrue(loadedPizza.getLabels().contains("Spicy"));
     }
 
 

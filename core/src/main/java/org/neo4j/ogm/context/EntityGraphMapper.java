@@ -17,9 +17,9 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.neo4j.ogm.ClassUtils;
-import org.neo4j.ogm.EntityUtils;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.ClassUtils;
+import org.neo4j.ogm.utils.EntityUtils;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of {@link EntityMapper} that is driven by an instance of {@link org.neo4j.ogm.MetaData}.
+ * Implementation of {@link EntityMapper} that is driven by an instance of {@link MetaData}.
  *
  * @author Vince Bickers
  * @author Luanne Misquitta

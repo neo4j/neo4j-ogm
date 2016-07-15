@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
@@ -219,7 +219,6 @@ public class ClassInfo {
      *
      * @return A {@link Collection} of all the static labels that apply to the node or an empty list if there aren't
      * any, never <code>null</code>
-     *
      */
     public Collection<String> staticLabels() {
         return collectLabels(new ArrayList<String>());
@@ -378,7 +377,7 @@ public class ClassInfo {
                     if (annotationInfo != null) {
                         if (!fieldInfo.isCollection()) {
                             throw new MappingException(String.format(
-                                    "Field %s in class %s includes the @Labels annotation, however this field is not a " +
+                                    "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
                                             "type of collection.", fieldInfo.getName(), this.name()));
                         }
                         labelFieldMapped = true;

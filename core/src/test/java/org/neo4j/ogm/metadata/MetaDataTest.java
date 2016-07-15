@@ -15,7 +15,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
@@ -538,7 +538,7 @@ public class MetaDataTest {
     }
 
     @Test
-    public void testLabelsForClassInfo() {
+    public void testStaticLabelsForClassInfo() {
         ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
         assertEquals(Arrays.asList("User", "Login"), annotatedClassInfo.staticLabels());
 

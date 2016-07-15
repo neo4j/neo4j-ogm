@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.metadata.ClassInfo;

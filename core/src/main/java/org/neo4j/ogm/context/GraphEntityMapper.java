@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.ClassUtils;
-import org.neo4j.ogm.EntityUtils;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.ClassUtils;
+import org.neo4j.ogm.utils.EntityUtils;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;

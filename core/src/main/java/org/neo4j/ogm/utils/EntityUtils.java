@@ -10,7 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm;
+package org.neo4j.ogm.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;

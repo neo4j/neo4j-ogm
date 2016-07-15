@@ -15,7 +15,7 @@ package org.neo4j.ogm.annotations;
 
 import java.lang.reflect.Method;
 
-import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MethodInfo;

@@ -17,6 +17,7 @@ package org.neo4j.ogm.metadata;
 import org.neo4j.ogm.RelationshipUtils;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
@@ -40,11 +41,11 @@ public class FieldInfo {
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
      *
-     * @param name The name of the field
-     * @param descriptor The field descriptor that expresses the type of the field using Java signature string notation
+     * @param name                    The name of the field
+     * @param descriptor              The field descriptor that expresses the type of the field using Java signature string notation
      * @param typeParameterDescriptor The descriptor that expresses the generic type parameter, which may be <code>null</code>
-     *        if that's not appropriate
-     * @param annotations The {@link ObjectAnnotations} applied to the field
+     *                                if that's not appropriate
+     * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
     public FieldInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.name = name;
@@ -61,13 +62,12 @@ public class FieldInfo {
     }
 
 
-
     // should these two methods be on PropertyReader, RelationshipReader respectively?
     public String property() {
         if (isSimple()) {
-            if(annotations != null) {
+            if (annotations != null) {
                 AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
-                if(propertyAnnotation != null) {
+                if (propertyAnnotation != null) {
                     return propertyAnnotation.get(Property.NAME, getName());
                 }
             }
@@ -78,9 +78,9 @@ public class FieldInfo {
 
     public String relationship() {
         if (!isSimple()) {
-            if(annotations != null) {
+            if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-                if(relationshipAnnotation != null) {
+                if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
                 }
             }
@@ -91,9 +91,9 @@ public class FieldInfo {
 
     public String relationshipTypeAnnotation() {
         if (!isSimple()) {
-            if(annotations != null) {
+            if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-                if(relationshipAnnotation != null) {
+                if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, null);
                 }
             }
@@ -124,7 +124,7 @@ public class FieldInfo {
         return converter;
     }
 
-    void setConverter( AttributeConverter<?, ?> converter ) {
+    void setConverter(AttributeConverter<?, ?> converter) {
         if (this.converter == null && converter != null) {
             this.converter = converter;
         } // we maybe set an annotated converter when object was constructed, so don't override with a default one
@@ -219,14 +219,15 @@ public class FieldInfo {
 
     /**
      * Get the collection class name for the field
+     *
      * @return collection class name
      */
     public String getCollectionClassname() {
         String descriptorClass = descriptor.replace("/", ".");
         if (descriptorClass.startsWith("L")) {
-            descriptorClass = descriptorClass.substring(1,descriptorClass.length()-1); //remove the leading L and trailing ;
+            descriptorClass = descriptorClass.substring(1, descriptorClass.length() - 1); //remove the leading L and trailing ;
         }
-       return descriptorClass;
+        return descriptorClass;
     }
 
     public boolean isScalar() {
@@ -235,6 +236,10 @@ public class FieldInfo {
         if (descriptor.startsWith("[")) return false;
 
         return true;
+    }
+
+    public boolean isLabelField() {
+        return this.getAnnotations().get(Labels.class.getCanonicalName()) != null;
     }
 
     public boolean isArray() {
@@ -247,10 +252,11 @@ public class FieldInfo {
 
     /**
      * Get the type descriptor
+     *
      * @return the descriptor if the field is scalar or an array, otherwise the type parameter descriptor.
      */
     public String getTypeDescriptor() {
-        if(isScalar() || isArray()) {
+        if (isScalar() || isArray()) {
             return descriptor;
         }
         return typeParameterDescriptor;

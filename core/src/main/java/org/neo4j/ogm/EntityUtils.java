@@ -12,9 +12,15 @@
  */
 package org.neo4j.ogm;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.annotations.EntityAccessStrategy;
+import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+
+import java.lang.reflect.Field;
+import java.util.Collection;
 
 /**
  * The utility methods here will all throw a <code>NullPointerException</code> if invoked with <code>null</code>.
@@ -23,14 +29,37 @@ import org.neo4j.ogm.metadata.ClassInfo;
  */
 public class EntityUtils {
 
-	public static Long identity(Object entity, MetaData metaData) {
-		EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-		ClassInfo classInfo = metaData.classInfo(entity);
+    public static Long identity(Object entity, MetaData metaData) {
+        EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
+        ClassInfo classInfo = metaData.classInfo(entity);
 
-		assert (classInfo != null);
+        assert (classInfo != null);
 
-		Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
 
-		return (id == null ? -System.identityHashCode(entity) : (Long) id);
-	}
+        return (id == null ? -System.identityHashCode(entity) : (Long) id);
+    }
+
+    /**
+     * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
+     *
+     * @param entity
+     * @param metaData
+     * @return
+     */
+    public static Collection<String> labels(Object entity, MetaData metaData) {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        Collection<String> staticLabels = classInfo.staticLabels();
+        FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
+        if (labelFieldInfo != null) {
+            try {
+                Field field = entity.getClass().getDeclaredField(labelFieldInfo.getName());
+                field.setAccessible(true);
+                return CollectionUtils.union(staticLabels, (Collection<String>) field.get(entity));
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new MappingException(e.getMessage(), e);
+            }
+        }
+        return staticLabels;
+    }
 }

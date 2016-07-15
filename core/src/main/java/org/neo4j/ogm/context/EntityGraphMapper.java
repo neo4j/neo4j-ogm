@@ -14,6 +14,7 @@
 package org.neo4j.ogm.context;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.neo4j.ogm.ClassUtils;
@@ -251,15 +252,16 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         CompileContext context=compiler.context();
-
         Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Collection<String> labels = EntityUtils.labels(entity, metaData);
+
         NodeBuilder nodeBuilder;
         if (id == null) {
             Long entityIdRef = EntityUtils.identity(entity, metaData);
-            nodeBuilder = compiler.newNode(entityIdRef).setLabels(classInfo.labels());
+            nodeBuilder = compiler.newNode(entityIdRef).setLabels(labels);
             context.registerNewObject(entityIdRef, entity);
         } else {
-            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).setLabels(classInfo.labels());
+            nodeBuilder = compiler.existingNode(Long.valueOf(id.toString())).setLabels(labels);
         }
         Long identity = EntityUtils.identity(entity,metaData);
         context.visit(identity, nodeBuilder);

@@ -112,7 +112,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
         return null;
     }
 
-    private static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
+    public static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
         if (collection == null) {
             return hydrated;
         }

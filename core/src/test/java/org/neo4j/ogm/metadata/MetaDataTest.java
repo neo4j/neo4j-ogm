@@ -540,14 +540,14 @@ public class MetaDataTest {
     @Test
     public void testLabelsForClassInfo() {
         ClassInfo annotatedClassInfo = metaData.classInfo(Member.class.getSimpleName());
-        assertEquals(Arrays.asList("User", "Login"), annotatedClassInfo.labels());
+        assertEquals(Arrays.asList("User", "Login"), annotatedClassInfo.staticLabels());
 
         ClassInfo simpleClassInfo = metaData.classInfo("Topic");
-        assertEquals(Arrays.asList("Topic"), simpleClassInfo.labels());
+        assertEquals(Arrays.asList("Topic"), simpleClassInfo.staticLabels());
 
 
         ClassInfo nonAnnotatedClassInfo = new MetaData("org.neo4j.ogm.domain.education").classInfo(Student.class.getSimpleName());
-        assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.labels());
+        assertEquals(Arrays.asList("Student", "DomainObject"), nonAnnotatedClassInfo.staticLabels());
     }
 
     @Test

@@ -47,6 +47,7 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
+import org.neo4j.ogm.response.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,6 +163,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 							entity = entityFactory.newObject(node);
 							setIdentity(entity, node.getId());
 							setProperties(node, entity);
+							setLabels(node, entity);
 						}
 					}
 					mappingContext.registerNodeEntity(entity, node.getId());
@@ -182,7 +184,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private void setProperties(Node nodeModel, Object instance) {
-		// cache this.
+		// TODO: cache this.
 		ClassInfo classInfo = metadata.classInfo(instance);
 		for (Property<?, ?> property : nodeModel.getPropertyList()) {
 			writeProperty(classInfo, instance, property);
@@ -190,11 +192,27 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private void setProperties(Edge relationshipModel, Object instance) {
-		// cache this.
+		// TODO: cache this.
 		ClassInfo classInfo = metadata.classInfo(instance);
         for (Property<?, ?> property : relationshipModel.getPropertyList()) {
             writeProperty(classInfo, instance, property);
         }
+	}
+
+	private void setLabels(Node nodeModel, Object instance) {
+		// TODO: c'mon cache this, already
+		ClassInfo classInfo = metadata.classInfo(instance);
+		FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
+		if (labelFieldInfo != null) {
+			Collection<String> staticLabels = classInfo.staticLabels();
+			Set<String> dynamicLabels = new HashSet<>();
+			for (String label : nodeModel.getLabels()) {
+				if (!staticLabels.contains(label)) {
+					dynamicLabels.add(label);
+				}
+			}
+			writeProperty(classInfo, instance, PropertyModel.with(labelFieldInfo.getName(), dynamicLabels));
+		}
 	}
 
 	private void writeProperty(ClassInfo classInfo, Object instance, Property<?, ?> property) {
@@ -523,7 +541,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
-		FieldInfo fieldInfo = classInfo.propertyField(propertyName);
+		FieldInfo fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
 		Class clazz = null;
 		if (fieldInfo != null) {
 			if (fieldInfo.getTypeDescriptor() != null) {
@@ -537,6 +555,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			}
 		}
 		return clazz;
+	}
+
+	private FieldInfo fieldInfoForPropertyName(String propertyName, ClassInfo classInfo) {
+		FieldInfo labelField = classInfo.labelFieldOrNull();
+		if (labelField != null && labelField.getName().toLowerCase().equals(propertyName.toLowerCase())) {
+			return labelField;
+		}
+		return classInfo.propertyField(propertyName);
 	}
 
 }

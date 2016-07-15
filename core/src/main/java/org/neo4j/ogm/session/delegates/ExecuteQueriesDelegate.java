@@ -33,6 +33,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +58,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
         int resultSize = Utils.size(results);
 
-        if (resultSize < 1 ) {
+        if (resultSize < 1) {
             return null;
         }
 
@@ -88,17 +89,16 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         validateQuery(cypher, parameters, readOnly);
 
         RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()),session.metaData());
+        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()), session.metaData());
 
         try (Response<RestModel> response = session.requestHandler().execute(request)) {
-            Iterable<RestStatisticsModel> mappedModel =  mapper.map(null, response);
+            Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
             RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
 
-            if(readOnly) {
-                return new QueryResultModel(restStatisticsModel.getResult(),null);
-            }
-            else {
-                return new QueryResultModel(restStatisticsModel.getResult(),restStatisticsModel.getStatistics());
+            if (readOnly) {
+                return new QueryResultModel(restStatisticsModel.getResult(), null);
+            } else {
+                return new QueryResultModel(restStatisticsModel.getResult(), restStatisticsModel.getStatistics());
             }
         }
     }
@@ -126,7 +126,8 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return 0;
         }
 
-        DefaultRowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(classInfo.labels());
+        Collection<String> labels = classInfo.staticLabels();
+        DefaultRowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(labels);
         try (Response<RowModel> response = session.requestHandler().execute(countStatement)) {
             RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
@@ -140,7 +141,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
     private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
-        if(readOnly && !isReadOnly(cypher)) {
+        if (readOnly && !isReadOnly(cypher)) {
             throw new RuntimeException("Cypher query must not modify the graph if readOnly=true");
         }
 

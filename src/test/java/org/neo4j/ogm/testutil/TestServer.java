@@ -32,6 +32,7 @@ public class TestServer {
 
     private AbstractNeoServer server;
     private GraphDatabaseService database;
+    private ServerControls controls;
 
     public TestServer() {
 
@@ -51,7 +52,7 @@ public class TestServer {
     public TestServer(int port) {
 
         try {
-            ServerControls controls = TestServerBuilders.newInProcessBuilder()
+            controls = TestServerBuilders.newInProcessBuilder()
                     .withConfig("dbms.security.auth_enabled", "false")
                     .withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
                     .newServer();
@@ -108,7 +109,7 @@ public class TestServer {
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
-        server.stop();
+        controls.close();
     }
 
     /**

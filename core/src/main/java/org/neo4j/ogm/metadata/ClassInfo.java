@@ -625,7 +625,7 @@ public class ClassInfo {
         MethodInfo identityGetter = identityGetter();
         Set<MethodInfo> propertyGetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().getters()) {
-            if (identityGetter == null || !methodInfo.getName().equals(identityGetter.getName())) {
+            if (!methodInfo.isEquallyNamed(identityGetter)) {
                 AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
                 if (annotationInfo == null) {
                     if (methodInfo.isSimpleGetter()) {
@@ -649,7 +649,7 @@ public class ClassInfo {
         MethodInfo identitySetter = identitySetter();
         Set<MethodInfo> propertySetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().setters()) {
-            if (identitySetter == null || !methodInfo.getName().equals(identitySetter.getName())) {
+            if (!methodInfo.isEquallyNamed(identitySetter)) {
                 AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
                 if (annotationInfo == null) {
                     if (methodInfo.isSimpleSetter()) {

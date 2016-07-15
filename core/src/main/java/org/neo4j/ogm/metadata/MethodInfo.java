@@ -142,6 +142,10 @@ public class MethodInfo {
         return annotations;
     }
 
+    public boolean isEquallyNamed(MethodInfo other) {
+        return other != null && getName().equals(other.getName());
+    }
+
     public boolean isSimpleGetter() {
         return primitiveGetters.contains(descriptor)
                 || hasConverter()

@@ -247,8 +247,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
 
-        System.out.println(Labels.class.getCanonicalName());
-
         Pizza pizza = new Pizza();
         pizza.setName("Mushroom & Pepperoni");
         List<String> labels = new ArrayList<>();

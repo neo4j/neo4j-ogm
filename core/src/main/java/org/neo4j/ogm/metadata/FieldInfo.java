@@ -239,7 +239,7 @@ public class FieldInfo {
     }
 
     public boolean isLabelField() {
-        return this.getAnnotations().get(Labels.class.getCanonicalName()) != null;
+        return this.getAnnotations().get(Labels.CLASS) != null;
     }
 
     public boolean isArray() {

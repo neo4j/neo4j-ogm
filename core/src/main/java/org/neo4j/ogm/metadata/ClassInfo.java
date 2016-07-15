@@ -30,13 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.neo4j.ogm.ClassUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
 import org.slf4j.Logger;
@@ -44,16 +46,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
- *
+ * <p>
  * The ClassInfo object is used to maintain mappings from Java Types-&gt;Neo4j Labels
  * thereby allowing the correct labels to be applied to new nodes when they
  * are persisted.
- *
+ * <p>
  * The ClassInfo object also maintains a map of FieldInfo and MethodInfo objects
  * that maintain the appropriate information for mapping Java class attributes to Neo4j
  * node properties / paths (node)-[:relationship]-&gt;(node), via field or method
  * accessors respectively.
- *
+ * <p>
  * Given a type hierarchy, the ClassInfo object guarantees that for any type in that
  * hierarchy, the labels associated with that type will include the labels for
  * all its superclass and interface types as well. This is to avoid the need to iterate
@@ -65,46 +67,37 @@ import org.slf4j.LoggerFactory;
 public class ClassInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
-
-    private int majorVersion;
-    private int minorVersion;
-
-    private String className;
-    private String directSuperclassName;
-    private String neo4jName;
-
-    private boolean isInterface;
-    private boolean isAbstract;
-    private boolean isEnum;
-    private boolean hydrated;
-
-    private org.neo4j.ogm.metadata.FieldsInfo fieldsInfo = new org.neo4j.ogm.metadata.FieldsInfo();
-    private org.neo4j.ogm.metadata.MethodsInfo methodsInfo= new org.neo4j.ogm.metadata.MethodsInfo();
-    private org.neo4j.ogm.metadata.AnnotationsInfo annotationsInfo = new org.neo4j.ogm.metadata.AnnotationsInfo();
-    private org.neo4j.ogm.metadata.InterfacesInfo interfacesInfo = new org.neo4j.ogm.metadata.InterfacesInfo();
-
-    private ClassInfo directSuperclass;
-
     private final List<ClassInfo> directSubclasses = new ArrayList<>();
     private final List<ClassInfo> directInterfaces = new ArrayList<>();
     private final List<ClassInfo> directImplementingClasses = new ArrayList<>();
-
-
-    private Map<Class, List<MethodInfo>> iterableGettersForType = new HashMap<>();
-    private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
-    private Map<Class,List<FieldInfo>> iterableFieldsForType = new HashMap<>();
-    private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
-
-    private volatile Set<FieldInfo> fieldInfos;
-    private volatile Map<String, FieldInfo> propertyFields;
-
-    private volatile FieldInfo identityField = null;
-
-	/**
+    /**
      * ISSUE-180: synchronized can be used instead of this lock but right now this mechanism is here to see if
      * ConcurrentModificationException stops occurring.
      */
     private final Lock lock = new ReentrantLock();
+    private int majorVersion;
+    private int minorVersion;
+    private String className;
+    private String directSuperclassName;
+    private String neo4jName;
+    private boolean isInterface;
+    private boolean isAbstract;
+    private boolean isEnum;
+    private boolean hydrated;
+    private FieldsInfo fieldsInfo = new FieldsInfo();
+    private MethodsInfo methodsInfo = new MethodsInfo();
+    private AnnotationsInfo annotationsInfo = new AnnotationsInfo();
+    private InterfacesInfo interfacesInfo = new InterfacesInfo();
+    private ClassInfo directSuperclass;
+    private Map<Class, List<MethodInfo>> iterableGettersForType = new HashMap<>();
+    private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
+    private Map<Class, List<FieldInfo>> iterableFieldsForType = new HashMap<>();
+    private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
+    private volatile Set<FieldInfo> fieldInfos;
+    private volatile Map<String, FieldInfo> propertyFields;
+    private volatile FieldInfo identityField = null;
+    private volatile FieldInfo labelField = null;
+    private volatile boolean labelFieldMapped = false;
 
     // todo move this to a factory class
     public ClassInfo(InputStream inputStream) throws IOException {
@@ -133,15 +126,29 @@ public class ClassInfo {
         if (sce != null) {
             directSuperclassName = sce.replace('/', '.');
         }
-        interfacesInfo = new org.neo4j.ogm.metadata.InterfacesInfo(dataInputStream, constantPool);
-        fieldsInfo = new org.neo4j.ogm.metadata.FieldsInfo(dataInputStream, constantPool);
-        methodsInfo = new org.neo4j.ogm.metadata.MethodsInfo(dataInputStream, constantPool);
-        annotationsInfo = new org.neo4j.ogm.metadata.AnnotationsInfo(dataInputStream, constantPool);
+        interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
+        fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
+        methodsInfo = new MethodsInfo(dataInputStream, constantPool);
+        annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
+        new ClassValidator(this).validate();
     }
 
-    /** A class that was previously only seen as a temp superclass of another class can now be fully hydrated.
+    /**
+     * This class was referenced as a superclass of the given subclass.
      *
-     * @param classInfoDetails  ClassInfo details
+     * @param name     the name of the class
+     * @param subclass {@link ClassInfo} of the subclass
+     */
+    public ClassInfo(String name, ClassInfo subclass) {
+        this.className = name;
+        this.hydrated = false;
+        addSubclass(subclass);
+    }
+
+    /**
+     * A class that was previously only seen as a temp superclass of another class can now be fully hydrated.
+     *
+     * @param classInfoDetails ClassInfo details
      */
     public void hydrate(ClassInfo classInfoDetails) {
 
@@ -172,17 +179,7 @@ public class ClassInfo {
     }
 
     /**
-     * This class was referenced as a superclass of the given subclass.
-     * @param name the name of the class
-     * @param subclass {@link ClassInfo} of the subclass
-     */
-    public ClassInfo(String name, ClassInfo subclass) {
-        this.className = name;
-        this.hydrated = false;
-        addSubclass(subclass);
-    }
-
-    /** Connect this class to a subclass.
+     * Connect this class to a subclass.
      *
      * @param subclass the subclass
      */
@@ -211,13 +208,21 @@ public class ClassInfo {
     }
 
     /**
-     * Retrieves the labels that are applied to nodes in the database that store information about instances of the class. If
-     * the class' instances are persisted by a relationship instead of a node then this method returns an empty collection.
+     * <p>
+     * Retrieves the static labels that are applied to nodes in the database. If the class' instances are persisted by
+     * a relationship instead of a node then this method returns an empty collection.
+     * </p>
+     * <p>
+     * Note that this method returns only the static labels. A node entity instance may declare additional labels
+     * manged at runtime by using the @Labels annotation on a collection field, therefore the full set of labels to be
+     * mapped to a node will be the static labels, in addition to any labels declared by the backing field of an
+     * {@link Labels} annotation.
+     * </p>
      *
-     * @return A {@link Collection} of all the labels that apply to the node or an empty list if there aren't any, never
-     *         <code>null</code>
+     * @return A {@link Collection} of all the static labels that apply to the node or an empty list if there aren't
+     * any, never <code>null</code>
      */
-    public Collection<String> labels() {
+    public Collection<String> staticLabels() {
         return collectLabels(new ArrayList<String>());
     }
 
@@ -238,8 +243,7 @@ public class ClassInfo {
                     }
                     neo4jName = simpleName();
                 }
-            }
-            finally {
+            } finally {
                 lock.unlock();
             }
         }
@@ -253,7 +257,7 @@ public class ClassInfo {
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
             directSuperclass.collectLabels(labelNames);
         }
-        for(ClassInfo interfaceInfo : directInterfaces()) {
+        for (ClassInfo interfaceInfo : directInterfaces()) {
             interfaceInfo.collectLabels(labelNames);
         }
         return labelNames;
@@ -290,6 +294,7 @@ public class ClassInfo {
     public org.neo4j.ogm.metadata.AnnotationsInfo annotationsInfo() {
         return annotationsInfo;
     }
+
     public String superclassName() {
         return directSuperclassName;
     }
@@ -323,12 +328,12 @@ public class ClassInfo {
      * @throws MappingException if no identity field can be found
      */
     public FieldInfo identityField() {
-        if(identityField != null) {
+        if (identityField != null) {
             return identityField;
         }
         try {
             lock.lock();
-            if(identityField == null) {
+            if (identityField == null) {
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                     AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
                     if (annotationInfo != null) {
@@ -346,14 +351,55 @@ public class ClassInfo {
                     }
                 }
                 throw new MappingException("No identity field found for class: " + this.className);
-            }
-            else {
+            } else {
                 return identityField;
             }
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * The label field is an optional field annotated with @Labels.
+     *
+     * @return A {@link FieldInfo} object representing the label field. Optionally <code>null</code>
+     */
+    public FieldInfo labelFieldOrNull() {
+        if (labelFieldMapped) {
+            return labelField;
+        }
+        try {
+            lock.lock();
+            if (!labelFieldMapped) {
+                for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Labels.CLASS);
+                    if (annotationInfo != null) {
+                        if (!fieldInfo.isCollection()) {
+                            throw new MappingException(String.format(
+                                    "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
+                                            "type of collection.", fieldInfo.getName(), this.name()));
+                        }
+                        labelFieldMapped = true;
+                        labelField = fieldInfo;
+                        return labelField;
+                    }
+                }
+            } else {
+                return labelField;
+            }
+        } finally {
+            lock.unlock();
+        }
+        return null;
+    }
+
+    public boolean isRelationshipEntity() {
+        for (AnnotationInfo info : annotations()) {
+            if (info.getName().equals(RelationshipEntity.CLASS)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -370,7 +416,7 @@ public class ClassInfo {
                     FieldInfo identityField = identityFieldOrNull();
                     fieldInfos = new HashSet<>();
                     for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                        if (fieldInfo != identityField) {
+                        if (fieldInfo != identityField && !fieldInfo.isLabelField()) {
                             AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
                             if (annotationInfo == null) {
                                 if (fieldInfo.isSimple()) {
@@ -382,8 +428,7 @@ public class ClassInfo {
                         }
                     }
                 }
-            }
-            finally {
+            } finally {
                 lock.unlock();
             }
         }
@@ -393,6 +438,7 @@ public class ClassInfo {
     /**
      * Finds the property field with a specific property name from the ClassInfo's property fields
      * Note that this method does not allow for property names with differing case. //TODO
+     *
      * @param propertyName the propertyName of the field to find
      * @return A FieldInfo object describing the required property field, or null if it doesn't exist.
      */
@@ -405,11 +451,11 @@ public class ClassInfo {
                     Collection<FieldInfo> fieldInfos = propertyFields();
                     propertyFields = new HashMap<>(fieldInfos.size());
                     for (FieldInfo fieldInfo : fieldInfos) {
+
                         propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
                     }
                 }
-            }
-            finally {
+            } finally {
                 lock.unlock();
             }
         }
@@ -482,7 +528,7 @@ public class ClassInfo {
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if(((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))&& (relationshipDirection.equals(Relationship.INCOMING)))
+                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && (relationshipDirection.equals(Relationship.INCOMING)))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     return fieldInfo;
                 }
@@ -504,7 +550,7 @@ public class ClassInfo {
         for (FieldInfo fieldInfo : relationshipFields()) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if(((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED))&& (relationshipDirection.equals(Relationship.INCOMING)))
+                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && (relationshipDirection.equals(Relationship.INCOMING)))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     candidateFields.add(fieldInfo);
                 }
@@ -586,7 +632,7 @@ public class ClassInfo {
         MethodInfo identityGetter = identityGetter();
         Set<MethodInfo> propertyGetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().getters()) {
-            if (identityGetter == null || !methodInfo.getName().equals(identityGetter.getName())) {
+            if (!methodInfo.isEquallyNamed(identityGetter)) {
                 AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
                 if (annotationInfo == null) {
                     if (methodInfo.isSimpleGetter()) {
@@ -610,7 +656,7 @@ public class ClassInfo {
         MethodInfo identitySetter = identitySetter();
         Set<MethodInfo> propertySetters = new HashSet<>();
         for (MethodInfo methodInfo : methodsInfo().setters()) {
-            if (identitySetter == null || !methodInfo.getName().equals(identitySetter.getName())) {
+            if (!methodInfo.isEquallyNamed(identitySetter)) {
                 AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
                 if (annotationInfo == null) {
                     if (methodInfo.isSimpleSetter()) {
@@ -622,6 +668,10 @@ public class ClassInfo {
             }
         }
         return propertySetters;
+    }
+
+    public Collection<MethodInfo> propertyGettersAndSetters() {
+        return CollectionUtils.union(propertyGetters(), propertySetters());
     }
 
     /**
@@ -699,7 +749,7 @@ public class ClassInfo {
         for (MethodInfo methodInfo : relationshipGetters()) {
             String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if(((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     return methodInfo;
                 }
@@ -735,7 +785,7 @@ public class ClassInfo {
         for (MethodInfo methodInfo : relationshipSetters()) {
             String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if(((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     return methodInfo;
                 }
@@ -757,7 +807,7 @@ public class ClassInfo {
         for (MethodInfo methodInfo : relationshipSetters()) {
             String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
             if (relationshipName.equalsIgnoreCase(relationship)) {
-                if(((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     candidateSetters.add(methodInfo);
                 }
@@ -805,13 +855,13 @@ public class ClassInfo {
             return field;
         }
         try {
-            field =  MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
+            field = MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
             fieldInfoFields.put(fieldInfo, field);
             return field;
         } catch (NoSuchFieldException e) {
             if (directSuperclass() != null) {
-            	field = directSuperclass().getField(fieldInfo);
-            	fieldInfoFields.put(fieldInfo, field);
+                field = directSuperclass().getField(fieldInfo);
+                fieldInfoFields.put(fieldInfo, field);
                 return field;
             } else {
                 throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
@@ -874,7 +924,7 @@ public class ClassInfo {
     public List<FieldInfo> findFields(Class<?> fieldType) {
         String fieldSignature = "L" + fieldType.getName().replace(".", "/") + ";";
         List<FieldInfo> fieldInfos = new ArrayList<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
+        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo.getDescriptor().equals(fieldSignature)) {
                 fieldInfos.add(fieldInfo);
             }
@@ -890,7 +940,7 @@ public class ClassInfo {
      */
     public List<FieldInfo> findFields(String annotation) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
-        for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
+        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo.hasAnnotation(annotation)) {
                 fieldInfos.add(fieldInfo);
             }
@@ -907,15 +957,14 @@ public class ClassInfo {
     public List<FieldInfo> findIterableFields() {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         try {
-            for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 Class type = getField(fieldInfo).getType();
                 if (type.isArray() || Iterable.class.isAssignableFrom(type)) {
                     fieldInfos.add(fieldInfo);
                 }
             }
             return fieldInfos;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -924,18 +973,18 @@ public class ClassInfo {
      * Finds all fields whose type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable
      *
-     * @param iteratedType      the type of iterable
+     * @param iteratedType the type of iterable
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType) {
-        if(iterableFieldsForType.containsKey(iteratedType)) {
+        if (iterableFieldsForType.containsKey(iteratedType)) {
             return iterableFieldsForType.get(iteratedType);
         }
         List<FieldInfo> fieldInfos = new ArrayList<>();
         String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
         String arrayOfTypeSignature = "[" + typeSignature;
         try {
-            for (FieldInfo fieldInfo : fieldsInfo().fields() ) {
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 if (fieldInfo.getTypeParameterDescriptor() != null) {
                     if (fieldInfo.getTypeParameterDescriptor().equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType)) {
                         fieldInfos.add(fieldInfo);
@@ -946,8 +995,7 @@ public class ClassInfo {
             }
             iterableFieldsForType.put(iteratedType, fieldInfos);
             return fieldInfos;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -957,18 +1005,18 @@ public class ClassInfo {
      * Finds all fields whose type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable and the relationship type backing this iterable is "relationshipType"
      *
-     * @param iteratedType      the type of iterable
-     * @param relationshipType  the relationship type
+     * @param iteratedType          the type of iterable
+     * @param relationshipType      the relationship type
      * @param relationshipDirection the relationship direction
-     * @param strict            if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
-        for(FieldInfo fieldInfo : findIterableFields(iteratedType)) {
+        for (FieldInfo fieldInfo : findIterableFields(iteratedType)) {
             String relationship = strict ? fieldInfo.relationshipTypeAnnotation() : fieldInfo.relationship();
-            if(relationshipType.equals(relationship)) {
-                if(((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+            if (relationshipType.equals(relationship)) {
+                if (((fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(fieldInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     fieldInfos.add(fieldInfo);
                 }
@@ -982,12 +1030,11 @@ public class ClassInfo {
      * Finds all setter methods whose parameter signature is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable
      *
-     * @param iteratedType  the type of iterable
+     * @param iteratedType the type of iterable
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
-     *
      */
     public List<MethodInfo> findIterableSetters(Class iteratedType) {
-        if(iterableSettersForType.containsKey(iteratedType)) {
+        if (iterableSettersForType.containsKey(iteratedType)) {
             return iterableSettersForType.get(iteratedType);
         }
         List<MethodInfo> methodInfos = new ArrayList<>();
@@ -1019,8 +1066,7 @@ public class ClassInfo {
             }
             iterableSettersForType.put(iteratedType, methodInfos);
             return methodInfos;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -1036,13 +1082,13 @@ public class ClassInfo {
      * @param relationshipDirection the relationship direction
      * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
-     * */
+     */
     public List<MethodInfo> findIterableSetters(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
         List<MethodInfo> methodInfos = new ArrayList<>();
-        for(MethodInfo methodInfo : findIterableSetters(iteratedType)) {
+        for (MethodInfo methodInfo : findIterableSetters(iteratedType)) {
             String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
-            if(relationshipType.equals(relationship)) {
-                if(((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+            if (relationshipType.equals(relationship)) {
+                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     methodInfos.add(methodInfo);
                 }
@@ -1056,11 +1102,11 @@ public class ClassInfo {
      * Finds all getter methods whose parameterised return type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable
      *
-     * @param iteratedType  the type of iterable
+     * @param iteratedType the type of iterable
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<MethodInfo> findIterableGetters(Class iteratedType) {
-        if(iterableGettersForType.containsKey(iteratedType)) {
+        if (iterableGettersForType.containsKey(iteratedType)) {
             return iterableGettersForType.get(iteratedType);
         }
         List<MethodInfo> methodInfos = new ArrayList<>();
@@ -1092,8 +1138,7 @@ public class ClassInfo {
             }
             iterableGettersForType.put(iteratedType, methodInfos);
             return methodInfos;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -1111,11 +1156,11 @@ public class ClassInfo {
      */
     public List<MethodInfo> findIterableGetters(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
         List<MethodInfo> methodInfos = new ArrayList<>();
-        for(MethodInfo methodInfo : findIterableGetters(iteratedType)) {
+        for (MethodInfo methodInfo : findIterableGetters(iteratedType)) {
             String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
 
-            if(relationshipType.equals(relationship)) {
-                if(((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
+            if (relationshipType.equals(relationship)) {
+                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
                         || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
                     methodInfos.add(methodInfo);
                 }
@@ -1156,25 +1201,28 @@ public class ClassInfo {
         return found;
 
     }
+
     public Class<?> getType(String typeParameterDescriptor) {
         return ClassUtils.getType(typeParameterDescriptor);
     }
 
     /**
      * Get the underlying class represented by this ClassInfo
+     *
      * @return the underlying class or null if it cannot be determined
      */
     public Class getUnderlyingClass() {
         try {
             return MetaDataClassLoader.loadClass(className);//Class.forName(className);
         } catch (ClassNotFoundException e) {
-           LOGGER.error("Could not get underlying class for {}", className);
+            LOGGER.error("Could not get underlying class for {}", className);
         }
         return null;
     }
 
-    /** Gets the class of the type parameter description of the entity related to this.
-     *  The match is done based on the following-
+    /**
+     * Gets the class of the type parameter description of the entity related to this.
+     * The match is done based on the following-
      * 1. Look for a setter explicitly annotated with @Relationship for a type and implied direction
      * 2. Look for a field explicitly annotated with @Relationship for a type and implied direction
      * 3. Look for a setter with name derived from the relationship type for the given direction
@@ -1183,7 +1231,7 @@ public class ClassInfo {
      * @param relationshipType      the relationship type
      * @param relationshipDirection the relationship direction
      * @return class of the type parameter descriptor or null if it could not be determined
-    */
+     */
     public Class getTypeParameterDescriptorForRelationship(String relationshipType, String relationshipDirection) {
         final boolean STRICT_MODE = true; //strict mode for matching methods and fields, will only look for explicit annotations
         final boolean INFERRED_MODE = false; //inferred mode for matching methods and fields, will infer the relationship type from the getter/setter/property
@@ -1209,9 +1257,8 @@ public class ClassInfo {
                     return ClassUtils.getType(fieldInfo.getTypeDescriptor());
                 }
             }
-        }
-        catch (RuntimeException e) {
-            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", new Object[]{className,relationshipType,relationshipDirection});
+        } catch (RuntimeException e) {
+            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", new Object[]{className, relationshipType, relationshipDirection});
         }
         return null;
 

@@ -24,13 +24,15 @@ import org.neo4j.ogm.model.Node;
  */
 public interface NodeBuilder {
 
-	Long reference();
+    Long reference();
 
-	NodeBuilder addProperty(String key, Object value);
+    NodeBuilder addProperty(String key, Object value);
 
-	NodeBuilder setLabels(Collection<String> labels);
+    NodeBuilder addLabels(Collection<String> labels);
 
-	String[] labels();
+    String[] addedLabels();
 
-	Node node();
+    NodeBuilder removeLabels(Collection<String> labels);
+
+    Node node();
 }

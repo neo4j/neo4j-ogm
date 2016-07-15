@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 

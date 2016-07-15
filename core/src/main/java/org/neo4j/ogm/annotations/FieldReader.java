@@ -29,7 +29,7 @@ public class FieldReader implements RelationalReader, PropertyReader {
     private final ClassInfo classInfo;
     private final FieldInfo fieldInfo;
 
-    FieldReader(ClassInfo classInfo, FieldInfo fieldInfo) {
+    public FieldReader(ClassInfo classInfo, FieldInfo fieldInfo) {
         this.classInfo = classInfo;
         this.fieldInfo = fieldInfo;
     }

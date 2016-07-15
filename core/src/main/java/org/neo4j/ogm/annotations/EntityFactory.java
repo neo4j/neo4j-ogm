@@ -14,7 +14,7 @@
 package org.neo4j.ogm.annotations;
 
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;

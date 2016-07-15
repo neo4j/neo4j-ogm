@@ -14,7 +14,7 @@ package org.neo4j.ogm.session.delegates;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.RelationshipUtils;
+import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;

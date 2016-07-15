@@ -34,12 +34,12 @@ import java.util.*;
 public class MultiStatementCypherCompiler implements Compiler {
 
 	private final CompileContext context = new CypherContext(this);
-	private List<org.neo4j.ogm.compiler.NodeBuilder> newNodeBuilders = new ArrayList<>();
-	private List<org.neo4j.ogm.compiler.RelationshipBuilder> newRelationshipBuilders = new ArrayList<>();
-	private List<org.neo4j.ogm.compiler.NodeBuilder> existingNodeBuilders = new ArrayList<>();
-	private List<org.neo4j.ogm.compiler.RelationshipBuilder> existingRelationshipBuilders = new ArrayList<>();
-	private List<org.neo4j.ogm.compiler.RelationshipBuilder> deletedRelationshipBuilders = new ArrayList<>();
-	private List<org.neo4j.ogm.compiler.RelationshipBuilder> deletedRelationshipEntityBuilders = new ArrayList<>();
+	private List<NodeBuilder> newNodeBuilders = new ArrayList<>();
+	private List<RelationshipBuilder> newRelationshipBuilders = new ArrayList<>();
+	private List<NodeBuilder> existingNodeBuilders = new ArrayList<>();
+	private List<RelationshipBuilder> existingRelationshipBuilders = new ArrayList<>();
+	private List<RelationshipBuilder> deletedRelationshipBuilders = new ArrayList<>();
+	private List<RelationshipBuilder> deletedRelationshipEntityBuilders = new ArrayList<>();
 	private StatementFactory statementFactory;
 
 	@Override
@@ -62,7 +62,7 @@ public class MultiStatementCypherCompiler implements Compiler {
 	}
 
 	@Override
-	public org.neo4j.ogm.compiler.NodeBuilder existingNode(Long existingNodeId) {
+	public NodeBuilder existingNode(Long existingNodeId) {
 		org.neo4j.ogm.compiler.NodeBuilder nodeBuilder = new DefaultNodeBuilder(existingNodeId);
 		existingNodeBuilders.add(nodeBuilder);
 		return nodeBuilder;
@@ -300,8 +300,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 	private Map<String, Set<Node>> groupNodesByLabel(List<NodeBuilder> nodeBuilders) {
 		Map<String, Set<Node>> nodesByLabels = new HashMap<>();
 		for (NodeBuilder nodeBuilder : nodeBuilders) {
-			//String joinedLabels = String.join(",", nodeBuilder.labels());
-			String joinedLabels = join(nodeBuilder.labels());
+			//String joinedLabels = String.join(",", nodeBuilder.addedLabels());
+			String joinedLabels = join(nodeBuilder.addedLabels());
 			if (!nodesByLabels.containsKey(joinedLabels)) {
 				nodesByLabels.put(joinedLabels, new HashSet<Node>());
 			}

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.scanner.ClassPathScanner;

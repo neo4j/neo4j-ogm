@@ -15,7 +15,9 @@ package org.neo4j.ogm.domain.pizza;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotations.Labels;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +47,9 @@ public class Pizza {
 
     @Relationship(type = "HAS", direction = "OUTGOING")
     private Set<PizzaCheese> cheeses = new HashSet<>();
+
+    @Labels
+    private List<String> labels = new ArrayList<>();
 
     public Pizza() {
     }
@@ -121,4 +126,9 @@ public class Pizza {
     public void setCheeses(Set<PizzaCheese> cheeses) {
         this.cheeses = cheeses;
     }
+
+    public List<String> getLabels() { return labels; }
+
+    public void setLabels(List<String> labels) { this.labels = labels;}
+
 }

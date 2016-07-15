@@ -28,37 +28,46 @@ import org.neo4j.ogm.model.Property;
  */
 public class ExistingNodeEmitter implements CypherEmitter {
 
-	private Set<Node> existingNodes;
+    private Set<Node> existingNodes;
 
-	public ExistingNodeEmitter(Set<Node> existingNodes) {
-		this.existingNodes = existingNodes;
-	}
+    public ExistingNodeEmitter(Set<Node> existingNodes) {
+        this.existingNodes = existingNodes;
+    }
 
-	@Override
-	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
-		if (existingNodes != null && existingNodes.size() > 0) {
-			Node firstNode = existingNodes.iterator().next();
+    @Override
+    public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
+        if (existingNodes != null && existingNodes.size() > 0) {
+            Node firstNode = existingNodes.iterator().next();
 
-			queryBuilder.append("UNWIND {rows} as row ")
-					.append("MATCH (n) WHERE ID(n)=row.nodeId ")
-					.append("SET n");
-			for (String label : firstNode.getLabels()) {
-				queryBuilder.append(":`").append(label).append("`");
-			}
-			queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
-			List<Map> rows = new ArrayList<>();
-			for (Node node : existingNodes) {
-				Map<String, Object> rowMap = new HashMap<>();
-				rowMap.put("nodeId", node.getId());
-				rowMap.put("type", "node");
-				Map<String, Object> props = new HashMap<>();
-				for (Property property : node.getPropertyList()) {
-					props.put((String) property.getKey(), property.getValue());
-				}
-				rowMap.put("props", props);
-				rows.add(rowMap);
-			}
-			parameters.put("rows", rows);
-		}
-	}
+            queryBuilder.append("UNWIND {rows} as row ")
+                    .append("MATCH (n) WHERE ID(n)=row.nodeId ");
+
+            String[] removedLabels = firstNode.getRemovedLabels();
+            if (removedLabels != null && removedLabels.length > 0) {
+                for (String label : removedLabels) {
+                    queryBuilder.append(String.format(" REMOVE n:`%s` ", label));
+                }
+            }
+
+            queryBuilder.append("SET n");
+            for (String label : firstNode.getLabels()) {
+                queryBuilder.append(":`").append(label).append("`");
+            }
+
+            queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
+            List<Map> rows = new ArrayList<>();
+            for (Node node : existingNodes) {
+                Map<String, Object> rowMap = new HashMap<>();
+                rowMap.put("nodeId", node.getId());
+                rowMap.put("type", "node");
+                Map<String, Object> props = new HashMap<>();
+                for (Property property : node.getPropertyList()) {
+                    props.put((String) property.getKey(), property.getValue());
+                }
+                rowMap.put("props", props);
+                rows.add(rowMap);
+            }
+            parameters.put("rows", rows);
+        }
+    }
 }

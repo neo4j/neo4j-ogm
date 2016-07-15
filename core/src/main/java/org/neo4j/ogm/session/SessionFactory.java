@@ -14,7 +14,7 @@
 package org.neo4j.ogm.session;
 
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.service.Components;
 

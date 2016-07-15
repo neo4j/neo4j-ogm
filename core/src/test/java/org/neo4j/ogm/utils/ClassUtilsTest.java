@@ -14,7 +14,6 @@
 package org.neo4j.ogm.utils;
 
 import org.junit.Test;
-import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.education.School;
 

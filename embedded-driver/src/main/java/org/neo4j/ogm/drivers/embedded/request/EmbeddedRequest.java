@@ -173,7 +173,7 @@ public class EmbeddedRequest implements Request {
         catch (QueryExecutionException qee) {
             EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
             tx.rollback();
-            throw new CypherException("Error executing Cypher", qee.getStatusCode(),qee.getMessage());
+            throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(),qee.getMessage());
         }
         catch (Exception e) {
             EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();

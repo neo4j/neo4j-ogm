@@ -52,11 +52,14 @@ public interface CompileContext {
 
     Compiler getCompiler();
 
-    Long newNodeId(Long reference);
+    Long getId(Long reference);
 
-    void registerNewNodeId(Long reference, Long id);
+    void registerNewId(Long reference, Long id);
 
     void deregister(NodeBuilder nodeBuilder);
 
     Collection<Mappable> getDeletedRelationships();
+
+    Object getVisitedObject(Long reference);
+
 }

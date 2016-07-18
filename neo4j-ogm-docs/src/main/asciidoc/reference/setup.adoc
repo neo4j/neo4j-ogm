@@ -13,7 +13,7 @@ in production. If you're not using a particular driver, you don't need to declar
 
 
 .Maven dependencies for Neo4j OGM 2.x
-[source,xml]
+[source, xml, subs="attributes, specialcharacters"]
 ----
 
 <dependency>
@@ -34,28 +34,37 @@ in production. If you're not using a particular driver, you don't need to declar
     <version>{version}</version>
 </dependency>
 
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-bolt-driver</artifactId>
+    <version>{version}</version>
+</dependency>
+
+
 ----
 
 .Gradle dependencies for Neo4j OGM 2.x
-[source,xml]
+[source, groovy, subs="attributes"]
 ----
 dependencies {
     compile 'org.neo4j:neo4j-ogm-core:{version}'
     compile 'org.neo4j:neo4j-ogm-http-driver:{version}'
     compile 'org.neo4j:neo4j-ogm-embedded-driver:{version}'
+    compile 'org.neo4j:neo4j-ogm-bolt-driver:{version}'
 }
 ----
 
 .Ivy dependencies for Neo4j OGM 2.x
-[source,xml]
+[source, xml, subs="attributes, specialcharacters"]
 ----
 <dependency org="org.neo4j" name="neo4j-ogm-core" rev="{version}"/>
 <dependency org="org.neo4j" name="neo4j-ogm-http-driver" rev="{version}"/>
 <dependency org="org.neo4j" name="neo4j-ogm-embedded-driver" rev="{version}"/>
+<dependency org="org.neo4j" name="neo4j-ogm-bolt-driver" rev="{version}"/>
 ----
 
 .Maven dependencies for Neo4j OGM 1.x
-[source,xml]
+[source, xml, subs="attributes, specialcharacters"]
 ----
 <dependency>
     <groupId>org.neo4j</groupId>
@@ -65,7 +74,7 @@ dependencies {
 ----
 
 .Gradle dependencies for Neo4j OGM 1.x
-[source,xml]
+[source, groovy, subs="attributes"]
 ----
 dependencies {
     compile 'org.neo4j:neo4j-ogm:{version}'
@@ -73,29 +82,30 @@ dependencies {
 ----
 
 .Ivy dependencies for Neo4j OGM 1.x
-[source,xml]
+[source, xml, subs="attributes, specialcharacters"]
 ----
 <dependency org="org.neo4j" name="neo4j-ogm" rev="{version}"/>
 ----
 
 == OGM 2.x Configuration
 
-In previous versions, you could only connect to the database over Http.
+In previous versions, you could only connect to the database over HTTP.
 2.0 now provides support for connecting to Neo4j by configuring one of the following Drivers:
 
-- Http driver
+- HTTP driver
 - Embedded driver
+- Bolt driver
 
 You must declare the driver(s) you want to use in your pom. See the dependencies section for more information.
 
 There are two basic ways to supply this configuration information: via a single properties file, or programmatically.
 
-==== Properties file Configuration
+=== Properties file Configuration
 
 Unless you supply an explicit Configuration object to the SessionFactory (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the classpath.
 If you want to configure the OGM using a properties file, but with a _different_ filename, you must set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
 
-==== Java Configuration
+=== Java Configuration
 
 In some cases you won't want to, or will not be able to provide configuration information using a properties file. In this case you can configure the OGM programmatically instead.
 
@@ -105,32 +115,75 @@ The following sections describe how to configure the OGM driver using either a p
 
 === Driver Configuration
 
-==== Configuring the Http Driver
+==== Configuring the HTTP Driver
 
-The Http Driver connects to and communicates with a Neo4j server via Http. An Http Driver must be used if your application is running in client-server mode.
+The HTTP Driver connects to and communicates with a Neo4j server via HTTP. If your application is running in client-server mode, you must use either the HTTP or Bolt driver.
 
 .ogm.properties
-```
+[source, properties]
+----
 driver=org.neo4j.ogm.drivers.http.driver.HttpDriver
 URI=http://user:password@localhost:7474
-```
+----
 
 .Java Configuration
-[source,java]
+[source, java]
 ----
 Configuration configuration = new Configuration()
              .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
              .setURI("http://user:password@localhost:7474")
 
-// having created a new configuration object, we can either use it directly with the Components class...
-Components.configure(configuration);
-
-// or pass it as the first argument to a SessionFactory instance
+// having created a new configuration object, we pass it as the first argument to a SessionFactory instance
 new SessionFactory(configuration, packages...);
 ----
 
-_Note: Please see the section below describing the different ways you can pass credentials to the Http Driver_
+_Note: Please see the section below describing the different ways you can pass credentials to the HTTP Driver_
+
+==== Configuring the Bolt Driver
+
+The Bolt Driver connects to and communicates with a Neo4j server via the binary Bolt protocol. If your application is running in client-server mode, you must use either the HTTP or Bolt driver.
+
+.ogm.properties
+[source, properties]
+----
+#Driver, required
+driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
+
+#URI of the Neo4j database, required. If no port is specified, the default port 7687 is used. Otherwise, a port can be specified with bolt://neo4j:password@localhost:1234
+URI=bolt://neo4j:password@localhost
+
+#Connection pool size (the maximum number of sessions per URL), optional, defaults to 50
+connection.pool.size=150
+
+#Encryption level (TLS), optional, defaults to REQUIRED. Valid values are NONE,REQUIRED
+encryption.level=NONE
+
+#Trust strategy, optional, not used if not specified. Valid values are TRUST_ON_FIRST_USE,TRUST_SIGNED_CERTIFICATES
+trust.strategy=TRUST_ON_FIRST_USE
+
+#Trust certificate file, required if trust.strategy is specified
+trust.certificate.file=/tmp/cert
+----
+
+.Java Configuration
+[source, java]
+----
+Configuration configuration = new Configuration();
+                configuration.driverConfiguration()
+                .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+                .setURI("bolt://neo4j:password@localhost")
+                .setEncryptionLevel("NONE")
+                .setTrustStrategy("TRUST_ON_FIRST_USE")
+                .setTrustCertFile("/tmp/cert");
+
+
+// having created a new configuration object, we pass it as the first argument to a SessionFactory instance
+
+new SessionFactory(configuration, packages...);
+----
+
+_Note: Please see the section below describing the different ways you can pass credentials to the HTTP/Bolt Drivers_
 
 ==== Configuring the Embedded Driver
 
@@ -139,18 +192,20 @@ You should use the Embedded driver if you don't want to use a client-server mode
 You can specify a permanent data store location to provide durability of your data after your application shuts down, or you can use an impermanent data store, which will only exist while your application is running.
 
 .ogm.properties (permanent data store)
-```
+[source, properties]
+----
 driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 URI=file:///var/tmp/neo4j.db
-```
+----
 
 .ogm.properties (impermanent data store)
-```
+[source, properties]
+----
 driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
-```
+----
 
 .Java Configuration (permanent data store)
-[source,java]
+[source, java]
 ----
 Configuration configuration = new Configuration()
              .driverConfiguration()
@@ -160,7 +215,7 @@ Configuration configuration = new Configuration()
 ----
 
 .Java Configuration (impermanent data store)
-[source,java]
+[source, java]
 ----
 Configuration configuration = new Configuration()
              .driverConfiguration()
@@ -176,27 +231,28 @@ When your application is running as unmanaged extension inside the Neo4j server 
 In this situation, an existing `GraphDatabaseService` will already be available via a `@Context` annotation, and you must configure the Components framework to enable the OGM to use the provided instance.
 Note your application should typically do this only once.
 
-[source,java]
+[source, java]
 ----
     Components.setDriver(new EmbeddedDriver(graphDatabaseService));
 ----
 
 ==== Credentials
 
-If you are using the Http Driver you have a number of different ways to supply credentials to the Driver Configuration.
+If you are using the HTTP or Bolt Driver you have a number of different ways to supply credentials to the Driver Configuration.
 
 .ogm.properties:
-```
+[source, properties]
+----
 # embedded
 URI=http://user:password@localhost:7474
 
 # separately
 username="user"
 password="password"
-```
+----
 
 .Java Configuration
-[source,java]
+[source, java]
 ----
 // embedded
 Configuration configuration = new Configuration()
@@ -222,9 +278,9 @@ _Note: Currently only Basic Authentication is supported by Neo4j, so the only Cr
 In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
 
 In previous versions this class provided access to an underlying `GraphDatabaseService` instance, allowing you to independently verify your code was working correctly.
-However it is incompatible with the Driver interfaces in 2.0, as it always requires you to connect using Http.
+However it is incompatible with the Driver interfaces in 2.0, as it always requires you to connect using HTTP.
 
-The recommended approach is to configure an Embedded Driver for testing as described above, although you can still use an in-process Http server if you wish (see below).
+The recommended approach is to configure an Embedded Driver for testing as described above, although you can still use an in-process HTTP server if you wish (see below).
 Please note that if you're just using the Embedded Driver for your tests you do not need to include any additional test jars in your pom.
 
 === Log levels
@@ -234,16 +290,16 @@ The OGM uses `slf4j` along with `Logback` as its logging framework and by defaul
 To change the OGM log level, create a file *logback-test.xml* in your test resources folder, configured as shown below:
 
 .logback-test.xml
-[source,xml]
+[source, xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<pattern>%d %5p %40.40c:%4L - %m%n</pattern>
-		</encoder>
-	</appender>
+        <encoder>
+            <pattern>%d %5p %40.40c:%4L - %m%n</pattern>
+        </encoder>
+    </appender>
 
     <!--
       ~ Set the required log level for the OGM components here.
@@ -253,25 +309,26 @@ To change the OGM log level, create a file *logback-test.xml* in your test resou
     <logger name="org.neo4j.ogm" level="info" />
 
     <root level="warn">
-		<appender-ref ref="console" />
-	</root>
+        <appender-ref ref="console" />
+    </root>
 
 </configuration>
 ----
 
 ==== Production
+
 In production, you can set the log level in exactly the same way, but the file should be called *logback.xml*, not *logback-test.xml*.
 Please see the <<http://logback.qos.ch/manual/,Logback manual>> for further details.
 
 === Using an in-process server for testing
 
-If you want don't want to use the Embedded Driver to run your tests, it is still possible to create an in-process Http server instead.
+If you want don't want to use the Embedded Driver to run your tests, it is still possible to create an in-process HTTP server instead.
 Just like the Embedded Driver, a TestServer exposes a GraphDatabaseService instance which you can use in your tests.
 You should always close the server when you're done with it.
 
 You'll first need to add the OGM test-jar dependency to your pom:
 
-[source,xml]
+[source, xml, subs="attributes, specialcharacters"]
 ----
         <dependency>
            <groupId>org.neo4j</groupId>
@@ -283,7 +340,8 @@ You'll first need to add the OGM test-jar dependency to your pom:
 ----
 
 Next, create a TestServer instance:
-[source,java]
+
+[source, java]
 ----
       testServer = new TestServer.Builder()
                         .enableAuthentication(true)    // defaults to false
@@ -294,8 +352,8 @@ Next, create a TestServer instance:
 
 A TestServer is backed by an impermanent database store, and configures the OGM to use an HttpDriver. The driver authenticates automatically if you have requested an authenticating server so you don't have to do provide additional credentials.
 
-.Example test class using an in-process Http server
-[source,java]
+.Example test class using an in-process HTTP server
+[source, java]
 ----
 private static TestServer testServer;
 
@@ -326,7 +384,7 @@ public void shouldCreateUser() {
 === Migrating from OGM 1.x to 2.x
 
 OGM 2.0 introduces a few minor changes that you will need to take into account when migrating an existing 1.x application.
-These changes are a consequence of the support for different database drivers. In 1.x, the only connectivity to Neo4j was over Http, and the code reflected this in its design, as it closely coupled the session with the Http client.
+These changes are a consequence of the support for different database drivers. In 1.x, the only connectivity to Neo4j was over HTTP, and the code reflected this in its design, as it closely coupled the session with the HTTP client.
 In 2.0 this design is no longer appropriate, and the connection to the database is abstracted via a Driver interface.
 
 This has an impact on your application code in two areas, testing (discussed above) and session configuration.
@@ -345,7 +403,7 @@ Alternatively you can supply an explicit Configuration object to the constructor
 An auto-configured session requires that you set up a properties-based configuration file, as described earlier.
 You can then simply instantiate a SessionFactory in the usual way, passing in the domain class packages to the constructor.
 
-[source,java]
+[source, java]
 ----
 SessionFactory sessionFactory = new SessionFactory("org.neo4j.example.domain");
 Session session = sessionFactory.openSession()
@@ -354,7 +412,7 @@ Session session = sessionFactory.openSession()
 .Example: Explicitly-configured session
 
 If you want to explicitly configure the SessionFactory you must supply a Configuration object as the first argument to the constructor, followed by the domain class packages.
-[source,java]
+[source, java]
 ----
 Configuration configuration = new Configuration()
              .driverConfiguration()
@@ -379,14 +437,14 @@ This can be accomplished by supplying the username and password as parameters to
 or by embedded them into the URL such as `http://username:password@localhost:7474`.
 
 .Passing connection credentials when opening the session
-[source,java]
+[source, java]
 ----
 SessionFactory sessionFactory = new SessionFactory("org.neo4j.example.domain");
 Session session = sessionFactory.openSession("http://localhost:7474", username, password);
 ----
 
 .Embedding connection credentials in the URL
-[source,java]
+[source, java]
 ----
 SessionFactory sessionFactory = new SessionFactory("org.neo4j.example.domain");
 Session session = sessionFactory.openSession("http://username:password@localhost:7474");
@@ -396,7 +454,7 @@ If you don't want to or can't supply credentials as described above, the OGM can
 `username` and `password` and supply them with each request to the Neo4j database.
 
 .Setting System properties
-[source,java]
+[source, java]
 ----
 System.setProperty("username", user);
 System.setProperty("password", pass);
@@ -421,7 +479,7 @@ Multiple packages may be provided as well.
 The SessionFactory must also be configured. There are two ways this can be done. Please see the section below on Configuration for further details.
 
 .Multiple packages
-[source,java]
+[source, java]
 ----
 SessionFactory sessionFactory = new SessionFactory("first.package.domain", "second.package.domain",...);
 ----

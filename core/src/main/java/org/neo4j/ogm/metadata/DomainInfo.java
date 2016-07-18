@@ -16,7 +16,14 @@ package org.neo4j.ogm.metadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.ClassUtils;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -55,11 +62,8 @@ public class DomainInfo implements ClassFileProcessor {
 
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
-    private String[] packagesMarkedForScanning;
-
     public DomainInfo(String... packages) {
         long now = -System.currentTimeMillis();
-        packagesMarkedForScanning = packages;
         load(packages);
 
         LOGGER.info("{} classes loaded in {} milliseconds", classNameToClassInfo.entrySet().size(),(now + System.currentTimeMillis()));
@@ -94,17 +98,6 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void registerDefaultTypeConverters() {
-
-        LOGGER.info("Registering default type converters...");
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            if (!classInfo.isEnum() && !classInfo.isInterface()) {
-                registerDefaultFieldConverters(classInfo);
-                registerDefaultMethodConverters(classInfo);
-            }
-        }
-    }
-
     public void registerConversionCallback(ConversionCallback conversionCallback) {
         this.conversionCallbackRegistry.registerConversionCallback(conversionCallback);
     }
@@ -116,8 +109,6 @@ public class DomainInfo implements ClassFileProcessor {
 
         buildAnnotationNameToClassInfoMap();
         buildInterfaceNameToClassInfoMap();
-
-        registerDefaultTypeConverters();
 
         List<ClassInfo> transientClasses = new ArrayList<>();
 
@@ -156,40 +147,81 @@ public class DomainInfo implements ClassFileProcessor {
         }
 
         // remove all transient class hierarchies
+        Set<Class> transientClassesRemoved = new HashSet<>();
         for (ClassInfo transientClass : transientClasses) {
-            removeTransientClass(transientClass);
+            transientClassesRemoved.addAll(removeTransientClass(transientClass));
         }
-        checkOutOfPackageRefferences();
+
+        LOGGER.debug("Registering converters and deregistering transient fields and methods....");
+        postProcessFields(transientClassesRemoved);
+        postProcessMethods(transientClassesRemoved);
+
         LOGGER.info("Post-processing complete");
     }
 
-    private void checkOutOfPackageRefferences() {
+    private void postProcessFields(Set<Class> transientClassesRemoved) {
         for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
-            LOGGER.debug("Checking out of package attributes in class: {}", classInfo.name());
-            for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
-                if(!fieldInfo.isSimple() && isFieldOutOfPackage(fieldInfo)) {
-                  if(fieldInfo.hasAnnotation("org.neo4j.ogm.annotation.Property")) {
-                    throw new Error("Field "+fieldInfo.getName()+" on class "+classInfo.name()+" is out of Session scope! Please include "+fieldInfo.getDescriptor().replace("L","").replace("/",".")+" in the scanned packages!");
-                  }
-                    else LOGGER.info("Field "+fieldInfo.getName()+" on class "+classInfo.name()+" is out of Session scope! Please include "+fieldInfo.getDescriptor().replace("L","").replace("/",".")+" in the scanned packages to persist it!");
+            boolean registerConverters = false;
+            if (!classInfo.isEnum() && !classInfo.isInterface()) {
+                registerConverters = true;
+            }
+            Iterator<FieldInfo> fieldInfoIterator = classInfo.fieldsInfo().fields().iterator();
+            while (fieldInfoIterator.hasNext()) {
+                FieldInfo fieldInfo = fieldInfoIterator.next();
+                if (!fieldInfo.isSimple()) {
+                    Class fieldClass = null;
+                    try {
+                        fieldClass = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                    } catch (Exception e) {
+                        LOGGER.debug("Unable to compute class type for " + classInfo.name() + ", field: " + fieldInfo.getName());
+                    }
+                    if (fieldClass != null && transientClassesRemoved.contains(fieldClass)) {
+                        fieldInfoIterator.remove();
+                        continue;
+                    }
+                }
+                if (registerConverters) {
+                    registerDefaultFieldConverters(classInfo, fieldInfo);
                 }
             }
         }
     }
 
-    private boolean isFieldOutOfPackage(FieldInfo fieldInfo) {
-        String fieldInfoPackage = fieldInfo.getDescriptor().replace("L","").replace("/",".");
-        for(String packageName : packagesMarkedForScanning) {
-            if(fieldInfoPackage.indexOf(packageName) != -1) return false;
+    private void postProcessMethods(Set<Class> transientClassesRemoved) {
+        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+            boolean registerConverters = false;
+            if (!classInfo.isEnum() && !classInfo.isInterface()) {
+                registerConverters = true;
+            }
+            Iterator<MethodInfo> methodInfoIterator = classInfo.methodsInfo().methods().iterator();
+            while (methodInfoIterator.hasNext()) {
+                MethodInfo methodInfo = methodInfoIterator.next();
+                if (!methodInfo.isSimpleGetter() && !methodInfo.isSimpleSetter()) {
+                    Class methodClass = null;
+                    try {
+                        methodClass = ClassUtils.getType(methodInfo.getTypeDescriptor());
+                    } catch (Exception e) {
+                        LOGGER.debug("Unable to compute class type for " + classInfo.name() + ", method: " + methodInfo.getName());
+                    }
+                    if (methodClass != null && transientClassesRemoved.contains(methodClass)) {
+                        methodInfoIterator.remove();
+                        classInfo.methodsInfo().removeGettersAndSetters(methodInfo);
+                        continue;
+                    }
+                }
+                if (registerConverters) {
+                    registerDefaultMethodConverters(classInfo, methodInfo);
+                }
+            }
         }
-        return true;
     }
 
-    private void removeTransientClass(ClassInfo transientClass) {
+    private Set<Class> removeTransientClass(ClassInfo transientClass) {
+        Set<Class> removed = new HashSet<>();
         if (transientClass != null && !transientClass.name().equals("java.lang.Object")) {
             LOGGER.debug("Removing @Transient class: {}", transientClass.name());
             classNameToClassInfo.remove(transientClass.name());
+            removed.add(transientClass.getUnderlyingClass());
             for (ClassInfo transientChild : transientClass.directSubclasses()) {
                 removeTransientClass(transientChild);
             }
@@ -197,7 +229,7 @@ public class DomainInfo implements ClassFileProcessor {
                 removeTransientClass(transientChild);
             }
         }
-
+        return removed;
     }
 
 
@@ -322,59 +354,64 @@ public class DomainInfo implements ClassFileProcessor {
         return annotationNameToClassInfo.get(annotation);
     }
 
-    private void registerDefaultMethodConverters(ClassInfo classInfo) {
-        for (MethodInfo methodInfo : classInfo.methodsInfo().methods()) {
-            if (!methodInfo.hasConverter()) {
-                if (methodInfo.getDescriptor().contains(dateSignature)
-                        || (methodInfo.getTypeParameterDescriptor()!=null && methodInfo.getTypeParameterDescriptor().contains(dateSignature))) {
-                    setDateMethodConverter(methodInfo);
-                }
-                else if (methodInfo.getDescriptor().contains(bigIntegerSignature)
-                        || (methodInfo.getTypeParameterDescriptor()!=null && methodInfo.getTypeParameterDescriptor().contains(bigIntegerSignature))) {
-                    setBigIntegerMethodConverter(methodInfo);
-                }
-                else if (methodInfo.getDescriptor().contains(bigDecimalSignature)
-                        || (methodInfo.getTypeParameterDescriptor()!=null && methodInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
-                    setBigDecimalMethodConverter(methodInfo);
-                }
-                else if (methodInfo.getDescriptor().contains(byteArraySignature)) {
-                    methodInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
-                }
-                else if (methodInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
-                    methodInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
-                }
-                else {
-                    // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
-                    // FIXME: this won't really work unless I infer the source and target types from the descriptor here
-                    // well, I can't infer the thing that gets put in the graph until the moment it's given, can I!?
-                    // so this has to be done at real-time for reading from the graph, convert what you get
-                    // then, writing back to the graph, we just return whatever
-                    // the caveat, therefore, is that when writing to the graph you could get anything back!
-                    // ... and to look up the correct converter from Spring you always need the target type :(
-                    if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
-                        // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                        Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
-                        String graphTypeDescriptor = methodInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
-                        if (graphTypeDescriptor == null) {
-                            throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
-                                    + " on " + classInfo.name() + '.' + methodInfo.getName()
-                                    + " but no target graph property type or specific AttributeConverter have been specified.");
-                        }
-                        methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+    private void registerDefaultMethodConverters(ClassInfo classInfo, MethodInfo methodInfo) {
+        if (!methodInfo.hasConverter()) {
+            if (methodInfo.getDescriptor().contains(dateSignature)
+                    || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(dateSignature))) {
+                setDateMethodConverter(methodInfo);
+            } else if (methodInfo.getDescriptor().contains(bigIntegerSignature)
+                    || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(bigIntegerSignature))) {
+                setBigIntegerMethodConverter(methodInfo);
+            } else if (methodInfo.getDescriptor().contains(bigDecimalSignature)
+                    || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
+                setBigDecimalMethodConverter(methodInfo);
+            } else if (methodInfo.getDescriptor().contains(byteArraySignature)) {
+                methodInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
+            } else if (methodInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
+                methodInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
+            } else {
+                // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
+                // FIXME: this won't really work unless I infer the source and target types from the descriptor here
+                // well, I can't infer the thing that gets put in the graph until the moment it's given, can I!?
+                // so this has to be done at real-time for reading from the graph, convert what you get
+                // then, writing back to the graph, we just return whatever
+                // the caveat, therefore, is that when writing to the graph you could get anything back!
+                // ... and to look up the correct converter from Spring you always need the target type :(
+                if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
+                    // no converter's been set but this method is annotated with @Convert so we need to proxy it
+                    Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
+                    String graphTypeDescriptor = methodInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
+                    if (graphTypeDescriptor == null) {
+                        throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
+                                + " on " + classInfo.name() + '.' + methodInfo.getName()
+                                + " but no target graph property type or specific AttributeConverter have been specified.");
                     }
+                    methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+                }
 
-                    // TODO: this needs improving because it won't recognise Java standard enums
-                    Class descriptorClass = getDescriptorClass(methodInfo.getDescriptor());
-                    Class typeParamDescriptorClass = getDescriptorClass(methodInfo.getTypeParameterDescriptor());
-                    for (Class enumClass : enumTypes) {
-                        if (descriptorClass!=null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass!=null && typeParamDescriptorClass.equals(enumClass))) {
-                            setEnumMethodConverter(methodInfo, enumClass);
-                        }
+                Class descriptorClass = getDescriptorClass(methodInfo.getDescriptor());
+                Class typeParamDescriptorClass = getDescriptorClass(methodInfo.getTypeParameterDescriptor());
+                boolean enumConverterSet = false;
+                for (Class enumClass : enumTypes) {
+                    if (descriptorClass != null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass != null && typeParamDescriptorClass.equals(enumClass))) {
+                        setEnumMethodConverter(methodInfo, enumClass);
+                        enumConverterSet = true;
+                        break;
+                    }
+                }
+                if (!enumConverterSet) {
+                    if (descriptorClass != null && descriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                        setEnumMethodConverter(methodInfo, descriptorClass);
+                    } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                        setEnumMethodConverter(methodInfo, typeParamDescriptorClass);
                     }
                 }
             }
         }
     }
+
 
     private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
@@ -424,52 +461,57 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void registerDefaultFieldConverters(ClassInfo classInfo) {
-        for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
-            if (!fieldInfo.hasConverter()) {
-                if (fieldInfo.getDescriptor().contains(dateSignature)
-                        || (fieldInfo.getTypeParameterDescriptor()!=null && fieldInfo.getTypeParameterDescriptor().contains(dateSignature))) {
-                    setDateFieldConverter(fieldInfo);
-                }
-                else if (fieldInfo.getDescriptor().contains(bigIntegerSignature)
-                        || (fieldInfo.getTypeParameterDescriptor()!=null && fieldInfo.getTypeParameterDescriptor().contains(bigIntegerSignature))) {
-                    setBigIntegerFieldConverter(fieldInfo);
-                }
-                else if (fieldInfo.getDescriptor().contains(bigDecimalSignature)
-                        || (fieldInfo.getTypeParameterDescriptor()!=null && fieldInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
-                    setBigDecimalConverter(fieldInfo);
-                }
-                else if (fieldInfo.getDescriptor().contains(byteArraySignature)) {
-                    fieldInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
-                }
-                else if (fieldInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
-                    fieldInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
-                }
-                else {
-                    if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
-                        // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                        Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getDescriptor());
-                        String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
-                        if (graphTypeDescriptor == null) {
-                            throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
-                                    + " on " + classInfo.name() + '.' + fieldInfo.getName()
-                                    + " but no target graph property type or specific AttributeConverter have been specified.");
-                        }
-                        fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+    private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {
+        if (!fieldInfo.hasConverter()) {
+            if (fieldInfo.getDescriptor().contains(dateSignature)
+                    || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(dateSignature))) {
+                setDateFieldConverter(fieldInfo);
+            } else if (fieldInfo.getDescriptor().contains(bigIntegerSignature)
+                    || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(bigIntegerSignature))) {
+                setBigIntegerFieldConverter(fieldInfo);
+            } else if (fieldInfo.getDescriptor().contains(bigDecimalSignature)
+                    || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
+                setBigDecimalConverter(fieldInfo);
+            } else if (fieldInfo.getDescriptor().contains(byteArraySignature)) {
+                fieldInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
+            } else if (fieldInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
+                fieldInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
+            } else {
+                if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
+                    // no converter's been set but this method is annotated with @Convert so we need to proxy it
+                    Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getDescriptor());
+                    String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
+                    if (graphTypeDescriptor == null) {
+                        throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
+                                + " on " + classInfo.name() + '.' + fieldInfo.getName()
+                                + " but no target graph property type or specific AttributeConverter have been specified.");
                     }
+                    fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+                }
 
-                    // TODO: this needs improving because it won't recognise Java standard enums
-                    Class descriptorClass = getDescriptorClass(fieldInfo.getDescriptor());
-                    Class typeParamDescriptorClass = getDescriptorClass(fieldInfo.getTypeParameterDescriptor());
-                    for (Class enumClass : enumTypes) {
-                        if (descriptorClass!=null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass!=null && typeParamDescriptorClass.equals(enumClass))) {
-                            setEnumFieldConverter(fieldInfo, enumClass);
-                        }
+                Class descriptorClass = getDescriptorClass(fieldInfo.getDescriptor());
+                Class typeParamDescriptorClass = getDescriptorClass(fieldInfo.getTypeParameterDescriptor());
+                boolean enumConverterSet = false;
+                for (Class enumClass : enumTypes) {
+                    if (descriptorClass != null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass != null && typeParamDescriptorClass.equals(enumClass))) {
+                        setEnumFieldConverter(fieldInfo, enumClass);
+                        enumConverterSet = true;
+                        break;
+                    }
+                }
+                if (!enumConverterSet) {
+                    if (descriptorClass != null && descriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        setEnumFieldConverter(fieldInfo, descriptorClass);
+                    } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
+                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        setEnumFieldConverter(fieldInfo, typeParamDescriptorClass);
                     }
                 }
             }
         }
     }
+
 
     private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {

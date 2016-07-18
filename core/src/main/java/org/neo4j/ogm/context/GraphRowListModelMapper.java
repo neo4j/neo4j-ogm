@@ -44,6 +44,8 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
         Set<Long> resultEntityIds = new LinkedHashSet<>();
         ClassInfo classInfo = metaData.classInfo(type.getName());
 
+        Set<Long> nodeIds = new LinkedHashSet<>();
+        Set<Long> edgeIds = new LinkedHashSet<>();
         GraphEntityMapper ogm = new GraphEntityMapper(metaData, mappingContext);
 
         GraphRowListModel graphRowsModel;
@@ -51,7 +53,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
         while ((graphRowsModel = response.next()) != null) {
             for (GraphRowModel graphRowModel : graphRowsModel.model()) {
                 //Load the GraphModel into the ogm
-                ogm.map(type, graphRowModel.getGraph());
+                ogm.map(type, graphRowModel.getGraph(), nodeIds, edgeIds);
                 //Extract the id's of filtered nodes from the rowData and return them
                 Object[] rowData = graphRowModel.getRow();
                 for (Object data : rowData) {

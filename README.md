@@ -111,7 +111,7 @@ public class Movie {
 ### Configuration
 The OGM can be configured in two ways. The easiest is auto configuration, where `ogm.properties` must be on the classpath.
 The other is via Java configuration.
-Please see examples [here](http://neo4j.com/docs/ogm/java/stable/)
+Please see examples [here](http://neo4j.com/docs/ogm-manual/current/)
 
 
 ### Persist/Load entities
@@ -145,7 +145,7 @@ for(Actor actor : matrix.getActors()) {
 
 ## Getting Help
 
-The [reference guide](http://neo4j.com/docs/ogm/java/stable/) is the best place to get started.
+The [reference guide](http://neo4j.com/docs/ogm-manual/current/) is the best place to get started.
 
 [Neo4j-OGM University](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0), the sample application from the reference guide is a working example of a Spring Boot app that uses the Neo4j OGM library.
 A version that uses the Embedded driver is [also available](https://github.com/neo4j-examples/neo4j-ogm-university/tree/2.0-embedded).

@@ -19,6 +19,7 @@ public class Pagination {
 
     private final Integer index;
     private final Integer size;
+    private Integer offset;
 
     public Pagination(int pageNumber, int pageSize) {
 
@@ -34,7 +35,22 @@ public class Pagination {
         this.size = pageSize;
     }
 
+	/**
+     * The offset, if present, determines how many records to skip.
+     * Otherwise, pageNumber * pageSize records are skipped.
+     * @param offset the offset
+     */
+    public void setOffset(Integer offset) {
+        if (offset < 0) {
+            throw new RuntimeException("Offset must greater then zero");
+        }
+        this.offset = offset;
+    }
+
     public String toString() {
+        if (offset != null) {
+            return " SKIP " + offset + " LIMIT " + size;
+        }
         return " SKIP " + (index * size) + " LIMIT " + size;
     }
 }

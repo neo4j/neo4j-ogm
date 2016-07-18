@@ -59,9 +59,10 @@ public class MappingContext {
 
     // why don't we put anything in the object memo? it clearly belongs here
     public Object registerNodeEntity(Object entity, Long id) {
-        nodeEntityRegister.putIfAbsent(id, entity);
-        entity = nodeEntityRegister.get(id);
-        registerTypes(entity.getClass(), entity, id);
+        if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
+            entity = nodeEntityRegister.get(id);
+            registerTypes(entity.getClass(), entity, id);
+        }
         remember(entity);
         return entity;
     }
@@ -126,7 +127,6 @@ public class MappingContext {
 
     private void remember(Object entity) {
         Object id = entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
-        assert id != null;
         objectMemo.remember((Long)id, entity, metaData.classInfo(entity));
     }
 

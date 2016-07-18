@@ -18,6 +18,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.service.Components;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -39,8 +40,9 @@ public class HttpDriverTest
                 .build();
 
 
-        assertNotNull( new HttpDriver().initialise( httpClient ) );
+        Components.setDriver(new HttpDriver( httpClient ));
 
+        assertNotNull(Components.driver());
 
     }
 

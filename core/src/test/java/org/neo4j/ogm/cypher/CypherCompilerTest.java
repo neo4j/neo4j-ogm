@@ -90,7 +90,7 @@ public class CypherCompilerTest {
         assertNull(newStudent.getId());
         Compiler compiler = mapAndCompile(newStudent);
         assertFalse(compiler.hasStatementsDependentOnNewNodes());
-        assertEquals("UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId",
+        assertEquals("UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type",
                 compiler.createNodesStatements().get(0).getStatement());
     }
 
@@ -110,7 +110,7 @@ public class CypherCompilerTest {
         assertFalse(compiler.hasStatementsDependentOnNewNodes());
         compiler.useStatementFactory(new RowStatementFactory());
         assertEquals(0, compiler.createNodesStatements().size());
-        assertEquals("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`Student`:`DomainObject` SET n += row.props",
+        assertEquals("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`Student`:`DomainObject` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type",
                 compiler.updateNodesStatements().get(0).getStatement());
 
     }
@@ -146,11 +146,11 @@ public class CypherCompilerTest {
 
         List<String> createStatements = cypherStatements(compiler.createNodesStatements());
         assertEquals(2, createStatements.size());
-        assertTrue(createStatements.contains("UNWIND {rows} as row CREATE (n:`School`:`DomainObject`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertTrue(createStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createStatements.contains("UNWIND {rows} as row CREATE (n:`School`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        assertTrue(createStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         List<String> createRelStatements = cypherStatements(compiler.createRelationshipsStatements());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
     }
 
     @Test
@@ -239,7 +239,7 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(1, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -248,8 +248,8 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(2, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
 
         //Save waller
         compiler = mapper.map(waller).getCompiler();
@@ -258,7 +258,7 @@ public class CypherCompilerTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertEquals(1, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -267,8 +267,8 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertEquals(2, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
 
 
         //Save mary
@@ -278,7 +278,7 @@ public class CypherCompilerTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertEquals(1, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -287,8 +287,8 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertEquals(2, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
     }
 
 
@@ -319,9 +319,9 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(3, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Course`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Teacher`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Course`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             if(statement.getStatement().contains("Teacher")) {
@@ -338,8 +338,8 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(2, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`COURSES`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`COURSES`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             if(statement.getStatement().contains("STUDENTS")) {
@@ -451,7 +451,7 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -594,8 +594,8 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(2, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -604,7 +604,7 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.timestamp}]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.timestamp}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -617,8 +617,8 @@ public class CypherCompilerTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertEquals(2, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Forum`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -627,7 +627,7 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.timestamp}]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.timestamp}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -640,7 +640,7 @@ public class CypherCompilerTest {
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
         assertEquals(1, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Topic`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -689,7 +689,7 @@ public class CypherCompilerTest {
         assertEquals(0, statements.size());
         statements = compiler.updateRelationshipStatements();
         assertEquals(1, statements.size());
-        assertEquals("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props)", statements.get(0).getStatement());
+        assertEquals("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) RETURN ID(r) as ref, ID(r) as id, {type} as type", statements.get(0).getStatement());
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertEquals(1, rows.size());
     }
@@ -769,8 +769,8 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(2, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'artiste`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'album`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'artiste`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`l'album`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -779,7 +779,7 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS-ALBUM`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS-ALBUM`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -807,7 +807,7 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(1, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Individual`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Individual`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(2, rows.size());
@@ -816,7 +816,7 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`FRIENDS`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`FRIENDS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -841,7 +841,7 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         List<String> createNodeStatements = cypherStatements(statements);
         assertEquals(1, createNodeStatements.size());
-        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Mortal`) SET n=row.props RETURN row.nodeRef as nodeRef, ID(n) as nodeId"));
+        assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Mortal`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(2, rows.size());
@@ -850,7 +850,7 @@ public class CypherCompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`KNOWN_BY`]->(endNode) RETURN row.relRef as relRefId, ID(rel) as relId"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`KNOWN_BY`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());

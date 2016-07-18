@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class MethodsInfo {
 
@@ -61,7 +62,7 @@ public class MethodsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            if (!methodName.equals("<init>") && objectAnnotations.get(Transient.CLASS) == null) {
+            if (!methodName.equals("<init>") && !methodName.equals("<clinit>") && objectAnnotations.get(Transient.CLASS) == null) {
                 addMethod(new MethodInfo(methodName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }
@@ -89,6 +90,11 @@ public class MethodsInfo {
                 addMethod(methodInfo);
             }
         }
+    }
+
+    void removeGettersAndSetters(MethodInfo methodInfo) {
+        getters.remove(methodInfo.getName());
+        setters.remove(methodInfo.getName());
     }
 
     private void addMethod(MethodInfo methodInfo) {

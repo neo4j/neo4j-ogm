@@ -50,7 +50,7 @@ public class BoltTransaction extends AbstractTransaction {
 				nativeSession.close();
 			}
 		} catch (ClientException ce) {
-			throw new CypherException("Error executing Cypher", ce.neo4jErrorCode(), ce.getMessage());
+			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
 		} catch (Exception e) {
 			throw new TransactionException(e.getLocalizedMessage());
 		} finally {
@@ -72,7 +72,7 @@ public class BoltTransaction extends AbstractTransaction {
 			if (ce.neo4jErrorCode().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
 				throw new ConnectionException("Security Error: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
 			}
-			throw new CypherException("Error executing Cypher: " + ce.neo4jErrorCode(), ce.neo4jErrorCode(), ce.getMessage());
+			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
 		} catch (Exception e) {
 			nativeSession.close();
 			throw new TransactionException(e.getLocalizedMessage());

@@ -45,11 +45,12 @@ public class ExistingNodeEmitter implements CypherEmitter {
 			for (String label : firstNode.getLabels()) {
 				queryBuilder.append(":`").append(label).append("`");
 			}
-			queryBuilder.append(" SET n += row.props");
+			queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
 			List<Map> rows = new ArrayList<>();
 			for (Node node : existingNodes) {
 				Map<String, Object> rowMap = new HashMap<>();
 				rowMap.put("nodeId", node.getId());
+				rowMap.put("type", "node");
 				Map<String, Object> props = new HashMap<>();
 				for (Property property : node.getPropertyList()) {
 					props.put((String) property.getKey(), property.getValue());

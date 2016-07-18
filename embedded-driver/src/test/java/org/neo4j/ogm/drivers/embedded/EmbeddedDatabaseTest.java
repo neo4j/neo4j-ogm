@@ -13,6 +13,21 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -23,10 +38,9 @@ import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.service.Components;
 
-import static org.junit.Assert.*;
-
 /**
  * @author vince
+ * @author Luanne Misquitta
  */
 public class EmbeddedDatabaseTest {
 
@@ -112,5 +126,47 @@ public class EmbeddedDatabaseTest {
             fail("Should not have thrown exception");
         }
     }
+
+    /**
+     * @see Issue 169
+     */
+    @Test
+    public void shouldCreateDirectoryIfMissing() throws IOException {
+        final String EMBEDDED_DIR = "/var/tmp/ogmEmbeddedDir";
+        Path path = Paths.get(EMBEDDED_DIR);
+        if (Files.exists(path)) {
+            deleteDirectory(path);
+        }
+
+        driverConfiguration.setURI("file://" + EMBEDDED_DIR);
+        try (EmbeddedDriver driver = new EmbeddedDriver(driverConfiguration)) {
+            assertEquals("file://" + EMBEDDED_DIR, driverConfiguration.getURI());
+            assertNotNull(driver.getGraphDatabaseService());
+            assertTrue(Files.exists(path));
+        }
+        deleteDirectory(path);
+        driverConfiguration.setURI(null);
+    }
+
+    private void deleteDirectory(Path path) {
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

@@ -61,14 +61,9 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
         if (!programs.isEmpty()) {
             assertEquals(4, programs.size());
             for (Program program : programs) {
-
-                System.out.println("program:" + program.getName());
-
                 for (Satellite satellite : program.getSatellites()) {
                     // 1-side of many->1 is auto-hydrated
                     assertNull(satellite.getProgram());
-
-                    System.out.println("\tsatellite:" + satellite.getName());
                 }
             }
         } else {
@@ -85,16 +80,6 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
             assertEquals(11, satellites.size());
 
             for (Satellite satellite : satellites) {
-
-                System.out.println("satellite:" + satellite.getName());
-                System.out.println("\tname:" + satellite.getName());
-                System.out.println("\tlaunched:" + satellite.getLaunched());
-                System.out.println("\tmanned:" + satellite.getManned());
-                System.out.println("\tupdated:" + satellite.getUpdated());
-
-                System.out.println("\tlocation:" + satellite.getLocation().getRef());
-                System.out.println("\torbit:" + satellite.getOrbit().getName());
-                System.out.println("\tprogram: " + satellite.getProgram());
                 assertEquals(satellite.getRef(), satellite.getName());
 
             }
@@ -145,7 +130,6 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
             // update
             session.save(satellite);
-            System.out.println("saved");
 
             // refetch
             Satellite updatedSatellite = session.load(Satellite.class, id);
@@ -271,10 +255,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
         Iterator<Satellite> iter = satellites.iterator();
         Satellite first = iter.next();
-        System.out.println(first.getId() + ":" + first.getRef());
         while (iter.hasNext()) {
             Satellite next = iter.next();
-            System.out.println(next.getId() + ":" + next.getRef());
             assertTrue(first.getRef().compareTo(next.getRef()) < 0);
             first = next;
         }
@@ -287,10 +269,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
         Iterator<Program> iter = objects.iterator();
         Program first = iter.next();
-        System.out.println(first.getId() + ":" + first.getRef());
         while (iter.hasNext()) {
             Program next = iter.next();
-            System.out.println(next.getId() + ":" + next.getRef());
             assertTrue(first.getRef().compareTo(next.getRef()) > 0);
             first = next;
         }
@@ -303,10 +283,8 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
         Iterator<Satellite> iter = satellites.iterator();
         Satellite first = iter.next();
-        System.out.println(first.getId() + ":" + first.getRef());
         while (iter.hasNext()) {
             Satellite next = iter.next();
-            System.out.println(next.getId() + ":" + next.getRef());
             assertTrue(first.getRef().compareTo(next.getRef()) < 0);
             first = next;
         }

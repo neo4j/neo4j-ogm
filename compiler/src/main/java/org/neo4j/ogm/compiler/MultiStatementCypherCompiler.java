@@ -138,8 +138,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 			if (!relsByTypeAndProps.get(relationshipBuilder.type()).containsKey(nonNullPropertyKeys)) {
 				relsByTypeAndProps.get(relationshipBuilder.type()).put(nonNullPropertyKeys, new HashSet<Edge>());
 			}
-			edge.setStartNode(context.newNodeId(edge.getStartNode()));
-			edge.setEndNode(context.newNodeId(edge.getEndNode()));
+			edge.setStartNode(context.getId(edge.getStartNode()));
+			edge.setEndNode(context.getId(edge.getEndNode()));
 			relsByTypeAndProps.get(relationshipBuilder.type()).get(nonNullPropertyKeys).add(edge);
 		}
 
@@ -318,8 +318,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 			}
 			//Replace the node ids
 			RelationshipModel edge = (RelationshipModel) relationshipBuilder.edge();
-			edge.setStartNode(context.newNodeId(edge.getStartNode()));
-			edge.setEndNode(context.newNodeId(edge.getEndNode()));
+			edge.setStartNode(context.getId(edge.getStartNode()));
+			edge.setEndNode(context.getId(edge.getEndNode()));
 			relsByType.get(relationshipBuilder.type()).add(edge);
 			relsByType.get(relationshipBuilder.type()).add(edge);
 		}

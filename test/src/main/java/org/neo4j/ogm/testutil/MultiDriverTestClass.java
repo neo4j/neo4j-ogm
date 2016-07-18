@@ -43,11 +43,13 @@ public class MultiDriverTestClass {
             if (Components.neo4jVersion() < 2.2) {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(false)
+                        .enableBolt(false)
                         .transactionTimeoutSeconds(2)
                         .build();
             } else {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(true)
+                        .enableBolt(false)
                         .transactionTimeoutSeconds(2)
                         .build();
             }
@@ -63,10 +65,6 @@ public class MultiDriverTestClass {
             Components.setDriver(new EmbeddedDriver(impermanentDb));
         }
 
-        //
-        //System.out.println(" ************************************");
-        //System.out.println(" *** " + Components.driver().getClass().getSimpleName() + " ***");
-        //System.out.println(" ************************************");
     }
 
     @AfterClass

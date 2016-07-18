@@ -1,5 +1,21 @@
-2.0.2-SNAPSHOT
+2.0.4-SNAPSHOT
 --------------
+o Fixes issue where SortOrder did not take into account the actual node property name specified by @Property
+o Fixes issue where properties of the node were updated if it was reloaded after having been already mapped in the session
+
+2.0.3
+--------------
+o Corrects behaviour of dirty checks on load and save
+o Fixes issue where converters that use generics and convert to collections or arrays throw ClassNotFoundExceptions
+o Fixes issue where the embedded driver would create a directory that included the uri scheme
+o Fixes issue where ClassInfo to be accessed concurrently with some fields not having been initialised.
+
+2.0.2
+--------------
+o Fixes issue where collections of relationships were not loaded correctly when they share the same relationship type but different target entities
+o Fixes issue where enums not scanned were not assigned default converters
+o Fixes issue where session.query() would not map String[] properties to Collection<String> on a domain entity
+o Performance improvements for the graph to entity mapping process
 o Provide support for detaching/clearing individual node and relationship entities from the session
 o Fixes issue where a collection of Longs in a entity was mapped as a collection of Integers
 o Fixes issue where collection of values returned via a custom Cypher query sometimes mapped to an ArrayList. Now it consistently maps to an array.

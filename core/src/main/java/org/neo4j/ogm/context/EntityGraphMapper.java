@@ -871,33 +871,31 @@ public class EntityGraphMapper implements EntityMapper {
     private boolean bothWayMappingRequired(Object srcObject, String relationshipType, Object tgtObject, String relationshipDirection) {
         boolean mapBothWays = false;
 
-        if(tgtObject.getClass().equals(srcObject.getClass())) { //Make sure the source and target objects are of the same type
-            ClassInfo tgtInfo = metaData.classInfo(tgtObject);
-            for (RelationalReader tgtRelReader : entityAccessStrategy.getRelationalReaders(tgtInfo)) {
-                String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
-                if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
-                        && tgtRelReader.relationshipType().equals(relationshipType)) { //The source must have the same relationship type to the target as the target to the source
-                    //Moreover, the source must be related to the target and vice versa in the SAME direction
-                    if (relationshipDirection.equals(tgtRelationshipDirection)) {
+        ClassInfo tgtInfo = metaData.classInfo(tgtObject);
+        for (RelationalReader tgtRelReader : entityAccessStrategy.getRelationalReaders(tgtInfo)) {
+            String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
+            if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
+                    && tgtRelReader.relationshipType().equals(relationshipType)) { //The source must have the same relationship type to the target as the target to the source
+                //Moreover, the source must be related to the target and vice versa in the SAME direction
+                if (relationshipDirection.equals(tgtRelationshipDirection)) {
 
-                        Object target = tgtRelReader.read(tgtObject);
-                        if (target != null) {
-                            if (target instanceof Iterable) {
-                                for (Object relatedObject : (Iterable<?>) target) {
-                                    if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
-                                        mapBothWays = true;
-                                    }
-                                }
-                            } else if (target.getClass().isArray()) {
-                                for (Object relatedObject : (Object[]) target) {
-                                    if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
-                                        mapBothWays = true;
-                                    }
-                                }
-                            } else {
-                                if (target.equals(srcObject)) { //the target is mapped to the source as well
+                    Object target = tgtRelReader.read(tgtObject);
+                    if (target != null) {
+                        if (target instanceof Iterable) {
+                            for (Object relatedObject : (Iterable<?>) target) {
+                                if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
                                     mapBothWays = true;
                                 }
+                            }
+                        } else if (target.getClass().isArray()) {
+                            for (Object relatedObject : (Object[]) target) {
+                                if (relatedObject.equals(srcObject)) { //the target is mapped to the source as well
+                                    mapBothWays = true;
+                                }
+                            }
+                        } else {
+                            if (target.equals(srcObject)) { //the target is mapped to the source as well
+                                mapBothWays = true;
                             }
                         }
                     }

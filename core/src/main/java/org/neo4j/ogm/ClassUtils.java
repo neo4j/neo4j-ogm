@@ -61,6 +61,30 @@ public abstract class ClassUtils {
         return type;
     }
 
+    /**
+     * Return the reified class for the parameter of a parameterised setter or field from the parameter signature.
+     * Return null if the class could not be determined
+     *
+     * @param descriptor parameter descriptor
+     * @return reified class for the parameter or null
+     * @throws NullPointerException if invoked with <code>null</code>
+     */
+    public static Class<?> getTypeOrNull(String descriptor) {
+        if (descriptorTypeMappings.containsKey(descriptor)) {
+            return descriptorTypeMappings.get(descriptor);
+        }
+        Class<?> type;
+        try {
+            type = computeType(descriptor);
+        }
+        catch (Exception e) {
+            //return null and swallow the exception
+            return null;
+        }
+        descriptorTypeMappings.put(descriptor, type);
+        return type;
+    }
+
     private static Class<?> computeType(String descriptor) {
         // user has defined a wild card parameter / return type in a generic signature.
         // we can't handle this.

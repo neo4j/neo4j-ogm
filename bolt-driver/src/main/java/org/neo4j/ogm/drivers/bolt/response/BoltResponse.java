@@ -52,7 +52,7 @@ public abstract class BoltResponse<T> implements Response {
 				tx.rollback();
 			}
 			LOGGER.debug("Error executing Cypher: {}, {}", ce.neo4jErrorCode(), ce.getMessage());
-			throw new CypherException("Error executing Cypher: " + ce.neo4jErrorCode() + "," + ce.getMessage(), ce.neo4jErrorCode(), ce.getMessage());
+			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
 		}
 	}
 

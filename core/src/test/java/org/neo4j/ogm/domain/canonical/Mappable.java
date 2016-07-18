@@ -66,6 +66,8 @@ public class Mappable {
     private List<?> listOfAnything;
     private Set<?> setOfAnything;
     private Vector<?> vectorOfAnything;
+    private List<String> listOfString;
+    private List<Character> listOfCharacter;
 
     public int getPrimitiveInt() {
         return primitiveInt;
@@ -361,5 +363,21 @@ public class Mappable {
 
     public void setObjectCharArray(Character[] objectCharArray) {
         this.objectCharArray = objectCharArray;
+    }
+
+    public List<String> getListOfString() {
+        return listOfString;
+    }
+
+    public void setListOfString(List<String> listOfString) {
+        this.listOfString = listOfString;
+    }
+
+    public List<Character> getListOfCharacter() {
+        return listOfCharacter;
+    }
+
+    public void setListOfCharacter(List<Character> listOfCharacter) {
+        this.listOfCharacter = listOfCharacter;
     }
 }

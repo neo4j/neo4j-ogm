@@ -35,7 +35,7 @@ import java.util.List;
  * @author Mihai Raulea
  * @author Vince Bickers
  */
-public class EventTest extends MultiDriverTestClass {
+public abstract class EventTestBaseClass extends MultiDriverTestClass {
 
     protected Session session;
     protected Document a;

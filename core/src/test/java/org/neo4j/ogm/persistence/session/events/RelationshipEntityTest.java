@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author vince
  */
-public class RelationshipEntityTest extends EventTest {
+public class RelationshipEntityTest extends EventTestBaseClass {
 
 
     @Test

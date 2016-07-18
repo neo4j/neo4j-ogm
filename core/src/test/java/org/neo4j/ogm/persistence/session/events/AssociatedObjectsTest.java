@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author vince
  */
-public class AssociatedObjectsTest extends EventTest {
+public class AssociatedObjectsTest extends EventTestBaseClass {
 
     @Test
     public void shouldNotFireEventsOnAssociatedFolderThatHasNotChanged() {

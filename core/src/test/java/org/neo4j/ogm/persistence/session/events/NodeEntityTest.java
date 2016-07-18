@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author vince
  */
-public class NodeEntityTest extends EventTest {
+public class NodeEntityTest extends EventTestBaseClass {
 
     @Test
     public void shouldNotFireEventsIfObjectHasNotChanged() {

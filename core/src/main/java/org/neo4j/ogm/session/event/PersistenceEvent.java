@@ -16,7 +16,6 @@ package org.neo4j.ogm.session.event;
 /**
  * Represents a PersistenceEvent in the OGM.
  *
- * @author Mihai Raulea
  * @author Vince Bickers
  */
 public class PersistenceEvent implements Event {

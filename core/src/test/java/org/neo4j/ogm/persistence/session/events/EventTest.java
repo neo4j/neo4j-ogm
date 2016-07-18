@@ -89,13 +89,10 @@ public class EventTest extends MultiDriverTestClass {
         c.setFolder(folder);
 
         session.save(d);
-        System.out.println("****************************************");
 
         session.save(e);
-        System.out.println("****************************************");
 
         session.save(folder);
-        System.out.println("****************************************");
 
         jim = new Actor("Jim");
         bruce = new Actor("Bruce");
@@ -108,8 +105,6 @@ public class EventTest extends MultiDriverTestClass {
         knowsJB.setSince(new Date());
 
         jim.getKnows().add(knowsJB);
-        //session.save(knowsJB);
-        //System.out.println("****************************************");
 
         knowsJL = new Knows();
         knowsJL.setFirstActor(jim);
@@ -117,8 +112,6 @@ public class EventTest extends MultiDriverTestClass {
         knowsJL.setSince(new Date());
 
         jim.getKnows().add(knowsJL);
-        //session.save(knowsJL);
-        //System.out.println("****************************************");
 
         knowsLS = new Knows();
         knowsLS.setFirstActor(lee);
@@ -127,7 +120,6 @@ public class EventTest extends MultiDriverTestClass {
 
         lee.getKnows().add(knowsLS);
         session.save(jim);
-        System.out.println("****************************************");
 
         eventListener.clear();
 
@@ -144,25 +136,21 @@ public class EventTest extends MultiDriverTestClass {
         @Override
         public void onPreSave(Event event) {
             eventsCaptured.add(event);
-            System.out.println(event.toString());
         }
 
         @Override
         public void onPostSave(Event event) {
             eventsCaptured.add(event);
-            System.out.println(event.toString());
         }
 
         @Override
         public void onPreDelete(Event event) {
             eventsCaptured.add(event);
-            System.out.println(event.toString());
         }
 
         @Override
         public void onPostDelete(Event event) {
             eventsCaptured.add(event);
-            System.out.println(event.toString());
         }
 
         public boolean captured(Object o, Event.TYPE lifecycle) {

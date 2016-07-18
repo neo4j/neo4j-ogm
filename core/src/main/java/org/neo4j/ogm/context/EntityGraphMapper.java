@@ -158,12 +158,10 @@ public class EntityGraphMapper implements EntityMapper {
                 Object s = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
                 Object t = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
                 if (s != null) {
-                    System.out.println("registering: " + s);
                     context.register(s);
                 }
                 if (t != null) {
                     context.register(t);
-                    System.out.println("registering: " + t);
                 }
 
                 // tell the compiler to prepare a statement that will delete the relationship from the graph

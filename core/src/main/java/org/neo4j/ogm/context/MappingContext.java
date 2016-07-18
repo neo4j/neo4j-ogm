@@ -57,6 +57,7 @@ public class MappingContext {
         return nodeEntityRegister.get(id);
     }
 
+    // why don't we put anything in the object memo? it clearly belongs here
     public Object registerNodeEntity(Object entity, Long id) {
         if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
             entity = nodeEntityRegister.get(id);
@@ -330,4 +331,40 @@ public class MappingContext {
 
     }
 
+    public Set<Object> neighbours(Object entity) {
+
+        Set<Object> neighbours = new HashSet<>();
+
+        Class<?> type = entity.getClass();
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+
+        Long id = (Long) identityReader.read(entity);
+
+        if (id != null) {
+            if (!metaData.isRelationshipEntity(type.getName())) {
+                if (nodeEntityRegister.containsKey(id)) {
+                    // todo: this will be very slow for many objects
+                    // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
+                    Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
+                    while (mappedRelationshipIterator.hasNext()) {
+                        MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+                        if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+                            Object affectedObject = mappedRelationship.getEndNodeId() == id ? nodeEntityRegister.get(mappedRelationship.getStartNodeId()) : nodeEntityRegister.get(mappedRelationship.getEndNodeId());
+                            if (affectedObject != null) {
+                                neighbours.add(affectedObject);
+                            }
+                        }
+                    }
+                }
+            } else if (relationshipEntityRegister.containsKey(id)) {
+                RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(classInfo);
+                RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(classInfo);
+                neighbours.add(startNodeReader.read(entity));
+                neighbours.add(endNodeReader.read(entity));
+            }
+        }
+
+        return neighbours;
+    }
 }

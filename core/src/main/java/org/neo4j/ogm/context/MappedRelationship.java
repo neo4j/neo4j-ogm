@@ -123,4 +123,7 @@ public class MappedRelationship implements Mappable {
         result = 31 * result + (relationshipId != null ? relationshipId.hashCode() : 0);
         return result;
     }
-}
+
+    public String toString() {
+        return String.format("(%s)-[%s:%s]->(%s)", startNodeId, relationshipId, relationshipType, endNodeId);
+    }}

@@ -33,7 +33,7 @@ public class Actor {
 
     private Set<Nomination> nominations;
 
-    @Relationship(type = "KNOWS")
+    @Relationship(type = "KNOWS", direction = "OUTGOING")
     public Set<Knows> knows = new HashSet<>();
 
     Actor() {
@@ -112,5 +112,12 @@ public class Actor {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "Actor {" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

@@ -58,6 +58,8 @@ public interface CompileContext {
 
     void deregister(NodeBuilder nodeBuilder);
 
+    Collection<Mappable> getDeletedRelationships();
+
     Object getVisitedObject(Long reference);
 
 }

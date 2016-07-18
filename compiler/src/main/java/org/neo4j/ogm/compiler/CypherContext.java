@@ -65,8 +65,9 @@ public class CypherContext implements CompileContext {
     }
 
     @Override
-    public void registerNewObject(Long reference, Object relationshipEntity) {
-        createdObjectsWithId.put(reference, relationshipEntity);
+    public void registerNewObject(Long reference, Object entity) {
+        createdObjectsWithId.put(reference, entity);
+        register(entity);
     }
 
     @Override
@@ -75,7 +76,9 @@ public class CypherContext implements CompileContext {
     }
 
     public void register(Object object) {
-        log.add(object);
+        if (!log.contains(object)) {
+            log.add(object);
+        }
     }
 
     public Collection<Object> registry() {
@@ -212,6 +215,11 @@ public class CypherContext implements CompileContext {
     @Override
     public void deregister(NodeBuilder nodeBuilder) {
         compiler.unmap(nodeBuilder);
+    }
+
+    @Override
+    public Collection<Mappable> getDeletedRelationships() {
+        return deletedRelationships;
     }
 
     @Override

@@ -23,6 +23,8 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
+import org.neo4j.ogm.session.event.Event;
+import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
 import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
@@ -31,12 +33,12 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mihai Raulea
  */
 public class Neo4jSession implements Session {
 
@@ -58,6 +60,8 @@ public class Neo4jSession implements Session {
 
     private Driver driver;
 
+    private List<EventListener> registeredEventListeners = new LinkedList<>();
+
     public Neo4jSession(MetaData metaData, Driver driver) {
 
         this.metaData = metaData;
@@ -65,6 +69,62 @@ public class Neo4jSession implements Session {
 
         this.mappingContext = new MappingContext(metaData);
         this.txManager = new DefaultTransactionManager(this, driver);
+    }
+
+    @Override
+    public EventListener register(EventListener eventListener) {
+        registeredEventListeners.add(eventListener);
+        return eventListener;
+    }
+
+    @Override
+    public void notifyListeners(Event event) {
+        Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
+        while (eventListenerIterator.hasNext()) {
+            EventListener eventListener = eventListenerIterator.next();
+            if (eventListener == null) {
+                registeredEventListeners.remove(eventListener);
+            }
+            else {
+                switch (event.getLifeCycle()) {
+                    case PRE_SAVE:
+                        eventListener.onPreSave(event);
+                        break;
+                    case POST_SAVE:
+                        eventListener.onPostSave(event);
+                        break;
+                    case PRE_DELETE:
+                        eventListener.onPreDelete(event);
+                        break;
+                    case POST_DELETE:
+                        eventListener.onPostDelete(event);
+                        break;
+                    default:
+                        logger.warn("Event not recognised: {}", event);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean eventsEnabled() {
+        return registeredEventListeners.size() > 0;
+    }
+
+    @Override
+    public boolean dispose(EventListener eventListener) {
+
+        Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
+
+        while (eventListenerIterator.hasNext()) {
+            EventListener next = eventListenerIterator.next();
+            if (eventListener == next) {
+                registeredEventListeners.remove(eventListener);
+                return true;
+            }
+        }
+        return false;
+
     }
 
     /*
@@ -126,6 +186,7 @@ public class Neo4jSession implements Session {
     public <T> Collection<T> loadAll(Class<T> type, SortOrder sortOrder, Pagination pagination, int depth) {
         return loadByTypeHandler.loadAll(type, sortOrder, pagination, depth);
     }
+
     @Override
     public <T> Collection<T> loadAll(Class<T> type, Filter filter) {
         return loadByTypeHandler.loadAll(type, filter);
@@ -415,8 +476,8 @@ public class Neo4jSession implements Session {
     // These helper methods for the delegates are deliberately NOT defined on the Session interface
     //
     public QueryStatements queryStatementsFor(Class type) {
-        if(metaData.isRelationshipEntity(type.getName())) {
-                return new VariableDepthRelationshipQuery();
+        if (metaData.isRelationshipEntity(type.getName())) {
+            return new VariableDepthRelationshipQuery();
         }
         return new VariableDepthQuery();
     }

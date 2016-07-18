@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.session;
 
+import org.neo4j.ogm.session.event.Observer;
+
 /**
  * A {@link Session} serves as the main point of integration for the Neo4j OGM.  All the publicly-available capabilities of the
  * framework are defined by this interface.
@@ -22,7 +24,7 @@ package org.neo4j.ogm.session;
  * @author Luanne Misquitta
  */
 public interface Session extends
-
+        Observer,
         Capability.LoadOne,
         Capability.LoadByIds,
         Capability.LoadByInstances,

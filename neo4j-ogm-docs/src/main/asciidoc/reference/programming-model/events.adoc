@@ -1,7 +1,7 @@
 [[reference_programming-model_events]]
 = Events
 
-As of version 2.1, Neo4j OGM supports persistence events.
+As of version 2.0.4, Neo4j OGM supports persistence events.
 
 == Event Types
 
@@ -18,7 +18,7 @@ Events are fired for every `@NodeEntity` or `@RelationshipEntity` object that is
  - any connected objects that have been modified, created or deleted.
  - any objects affected by the creation, modification or removal of a relationship in the graph.
 
-[TIP]
+[NOTE]
 ====
 Events will only fire when one of the `session.save()` or `session.delete()` methods is invoked.
 Directly executing Cypher queries against the database using `session.query()` will not trigger any events.
@@ -61,7 +61,7 @@ public interface EventListener {
 }
 ----
 
-[TIP]
+[NOTE]
 ====
 Although the `Event` interface allows you to retrieve the event type, in most cases, your code won't need it because the `EventListener` provides methods to capture each type of event explicitly.
 ====
@@ -92,7 +92,7 @@ EventListener eventListener session.register(new EventListener() {
 });
 ----
 
-[TIP]
+[NOTE]
 ====
 It’s possible and sometimes desirable to add several EventListener objects to the session, depending on the application’s requirements. For example, our business logic might require us to add a UUID to a new object, as well as manage wider concerns such as ensuring that a particular persistence event won’t leave our domain model in a logically inconsistent state. It’s usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
 ====
@@ -125,7 +125,7 @@ Something to bear in mind is that once an `EventListener` has been registered it
 
 If you're done with an EventListener you can stop it from firing any more events by invoking `session.dispose(...)`, passing in the EventListener to be disposed of.
 
-[TIP]
+[NOTE]
 ====
 The process of collecting persistence events prior to dispatching them to any EventListeners adds a small performance overhead to the persistence layer. Consequently, the OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session. Using `dispose()` when you're finished with an EventListener is good practice!
 ====
@@ -254,6 +254,9 @@ The event mechanism guarantees to not fire more than one event of the same type 
  session.save(folder);
 ----
 
+
+////
 == Integration with Spring Data Neo4j
 
-The OGM events mechanism has been designed to integrate easily with Spring Data Neo4j. Please refer to the Spring Data Neo4j documentation for details of how to integrate OGM Events with the SDN event mechanism.
+The OGM events mechanism has been designed to integrate easily with Spring Data Neo4j. Please refer to the Spring Data Neo4j documentation for details of how to integrate OGM Events with the SDN event mechanism.////
+

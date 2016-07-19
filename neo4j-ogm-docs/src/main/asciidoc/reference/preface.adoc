@@ -91,6 +91,10 @@ How that works is explained here: <<reference_programming-model_typerepresentati
 Neo4j uses transactions to guarantee the integrity of your data and Neo4j OGM supports this fully.
 The implications of this are described <<reference_programming-model_transactions,here>>.
 
+== Event Handling
+The Events mechanism allows users to register event listeners for handling persistence events related both to top-level objects
+being saved as well as connected objects. <<reference_programming-model_events,Event handling>> is discussed in more detail later in the reference guide.
+
 ////
 == Examples
 The provided samples, which are also publicly hosted on http://github.com/neo4j-examples[Github], are explained in <<reference_samples>>.

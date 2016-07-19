@@ -39,12 +39,27 @@ public class NewNodeEmitter implements CypherEmitter {
 		if (newNodes != null && newNodes.size() > 0) {
 			Node firstNode = newNodes.iterator().next();
 
-			queryBuilder.append("UNWIND {rows} as row ")
-					.append("CREATE (n");
-			for (String label : firstNode.getLabels()) {
-				queryBuilder.append(":`").append(label).append("`");
+			if (firstNode.getMergeName().equals("")){
+				queryBuilder.append("UNWIND {rows} as row ")
+						.append("CREATE (n");
+				for (String label : firstNode.getLabels()) {
+					queryBuilder.append(":`").append(label).append("`");
+				}
+				queryBuilder.append(") SET n=row.props ");
 			}
-			queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
+			else{
+				queryBuilder.append("UNWIND {rows} as row ")
+						.append("MERGE (n");
+				for (String label : firstNode.getLabels()) {
+					queryBuilder.append(":`").append(label).append("`");
+				}
+				queryBuilder.append(" {");
+				queryBuilder.append(firstNode.getMergeName()).append(":").append("row.props.").append(firstNode.getMergeName()).append("})");
+				queryBuilder.append(" ON CREATE SET n=row.props ");
+				queryBuilder.append(" ON MATCH SET n=row.props ");
+			}
+
+			queryBuilder.append("RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
 			List<Map> rows = new ArrayList<>();
 			for (Node node : newNodes) {
 				Map<String, Object> rowMap = new HashMap<>();

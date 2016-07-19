@@ -33,6 +33,8 @@ public @interface NodeEntity {
 
     static final String CLASS = "org.neo4j.ogm.annotation.NodeEntity";
     static final String LABEL = "label";
+    static final String MERGENAME = "mergename";
 
     String label() default "";
+    String mergename() default "";
 }

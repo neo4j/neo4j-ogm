@@ -47,6 +47,12 @@ public class DefaultNodeBuilder implements NodeBuilder {
 	}
 
 	@Override
+	public NodeBuilder setMergeName(String newMergeName){
+		node.setMergeName(newMergeName);
+		return this;
+	}
+
+	@Override
 	public Long reference() {
 		return node.getId();
 	}

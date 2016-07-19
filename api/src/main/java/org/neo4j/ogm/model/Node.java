@@ -21,6 +21,8 @@ import java.util.List;
 public interface Node {
     String[] getLabels();
 
+    String getMergeName();
+
     Long getId();
 
     List<Property<String, Object>> getPropertyList();

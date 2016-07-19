@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * Maintains object to graph mapping details at the class (type) level
  * <p>
  * The ClassInfo object is used to maintain mappings from Java Types-&gt;Neo4j Labels
- * thereby allowing the correct labels to be applied to new nodes when they
+ * thereby allowing the correct addedLabels to be applied to new nodes when they
  * are persisted.
  * <p>
  * The ClassInfo object also maintains a map of FieldInfo and MethodInfo objects
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * accessors respectively.
  * <p>
  * Given a type hierarchy, the ClassInfo object guarantees that for any type in that
- * hierarchy, the labels associated with that type will include the labels for
+ * hierarchy, the addedLabels associated with that type will include the addedLabels for
  * all its superclass and interface types as well. This is to avoid the need to iterate
  * through the ClassInfo hierarchy to recover label information.
  *
@@ -209,17 +209,17 @@ public class ClassInfo {
 
     /**
      * <p>
-     * Retrieves the static labels that are applied to nodes in the database. If the class' instances are persisted by
+     * Retrieves the static addedLabels that are applied to nodes in the database. If the class' instances are persisted by
      * a relationship instead of a node then this method returns an empty collection.
      * </p>
      * <p>
-     * Note that this method returns only the static labels. A node entity instance may declare additional labels
-     * manged at runtime by using the @Labels annotation on a collection field, therefore the full set of labels to be
-     * mapped to a node will be the static labels, in addition to any labels declared by the backing field of an
+     * Note that this method returns only the static addedLabels. A node entity instance may declare additional addedLabels
+     * manged at runtime by using the @Labels annotation on a collection field, therefore the full set of addedLabels to be
+     * mapped to a node will be the static addedLabels, in addition to any addedLabels declared by the backing field of an
      * {@link Labels} annotation.
      * </p>
      *
-     * @return A {@link Collection} of all the static labels that apply to the node or an empty list if there aren't
+     * @return A {@link Collection} of all the static addedLabels that apply to the node or an empty list if there aren't
      * any, never <code>null</code>
      */
     public Collection<String> staticLabels() {
@@ -259,9 +259,6 @@ public class ClassInfo {
         }
         for (ClassInfo interfaceInfo : directInterfaces()) {
             interfaceInfo.collectLabels(labelNames);
-        }
-        if (labelFieldOrNull() != null) {
-
         }
         return labelNames;
     }

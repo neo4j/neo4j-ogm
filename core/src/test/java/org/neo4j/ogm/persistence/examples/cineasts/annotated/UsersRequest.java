@@ -24,7 +24,7 @@ public class UsersRequest extends StubHttpDriver {
     private static String[] jsonModel = {
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"15\",\"labels\" : [ \"User\"],    \"properties\" : {\"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}" +
+                    "{\"id\" : \"15\",\"addedLabels\" : [ \"User\"],    \"properties\" : {\"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}" +
                     "]} }"
     };
 

@@ -52,7 +52,7 @@ public class ClassValidator {
         for (MethodInfo methodInfo : classInfo.propertyGettersAndSetters()) {
             if (methodInfo.hasAnnotation(Labels.CLASS)) {
                 throw new MappingException(String.format("'%s' has the @Labels annotation applied to method '%s'. " +
-                                "The labels annotation can only be applied to a field.",
+                                "The addedLabels annotation can only be applied to a field.",
                         classInfo.name(), methodInfo.getName()));
             }
         }

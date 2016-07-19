@@ -48,8 +48,8 @@ public class EntityFactory {
     }
 
     /**
-     * Constructs a new object based on the class mapped to the labels on the given {@link Node}.  In the
-     * case of multiple labels, only the one that identifies a class in the domain will be used, and if there
+     * Constructs a new object based on the class mapped to the addedLabels on the given {@link Node}.  In the
+     * case of multiple addedLabels, only the one that identifies a class in the domain will be used, and if there
      * are any ambiguities in which label to use then an exception will be thrown.
      *
      * @param <T> The class of object to return

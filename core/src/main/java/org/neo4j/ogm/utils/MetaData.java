@@ -128,7 +128,7 @@ public class MetaData {
      * Given an set of names (simple or fully-qualified) that are possibly within a type hierarchy, this function returns the
      * base class from among them.
      *
-     * @param taxa the taxa (simple class names or labels)
+     * @param taxa the taxa (simple class names or addedLabels)
      * @return The ClassInfo representing the base class among the taxa or <code>null</code> if it cannot be found
      */
     public ClassInfo resolve(String... taxa) {
@@ -141,7 +141,7 @@ public class MetaData {
                 LOGGER.debug("looking for concrete class to resolve label: {}", taxon);
                 ClassInfo taxonClassInfo = classInfo(taxon);
 
-                // ignore any foreign labels
+                // ignore any foreign addedLabels
                 if (taxonClassInfo == null) {
                     LOGGER.debug("This label is not known in the mapping context. Moving on...");
                     continue;

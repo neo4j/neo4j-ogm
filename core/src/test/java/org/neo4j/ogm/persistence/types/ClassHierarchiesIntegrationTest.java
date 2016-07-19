@@ -70,7 +70,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * <li>plain abstract class does not generate a label by default</li>
  * <li>plain interface does not generate a label by default</li>
  * <li>any class annotated with @NodeEntity or @NodeEntity(label="something") generates a label</li>
- * <li>empty or null labels must not be allowed</li>
+ * <li>empty or null addedLabels must not be allowed</li>
  * <li>classes / hierarchies that are not to be persisted must be annotated with @Transient</li>
  * </ul>
  *

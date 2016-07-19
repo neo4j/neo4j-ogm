@@ -19,7 +19,7 @@ import org.neo4j.ogm.annotations.Labels;
 public class LabelsAnnotationWithWrongTye {
 
     /**
-     * The labels field must be applied to a type of collection.
+     * The addedLabels field must be applied to a type of collection.
      */
     @Labels
     private String labels = new String();

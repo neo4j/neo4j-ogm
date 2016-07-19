@@ -28,8 +28,8 @@ public class TeacherRequest extends StubHttpDriver {
             // mr thomas results
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"20\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
-                    "{\"id\" : \"2\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"English\" } } " +
+                    "{\"id\" : \"20\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
+                    "{\"id\" : \"2\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"English\" } } " +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"202\",\"type\":\"TEACHES\",\"startNode\":\"20\",\"endNode\":\"2\",\"properties\":{}}" +
@@ -38,8 +38,8 @@ public class TeacherRequest extends StubHttpDriver {
             ,
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"20\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
-                    "{\"id\" : \"3\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Maths\" } }" +
+                    "{\"id\" : \"20\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
+                    "{\"id\" : \"3\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Maths\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"203\",\"type\":\"TEACHES\",\"startNode\":\"20\",\"endNode\":\"3\",\"properties\":{}}" +
@@ -48,8 +48,8 @@ public class TeacherRequest extends StubHttpDriver {
             ,
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"20\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
-                    "{\"id\" : \"4\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Physics\" } }" +
+                    "{\"id\" : \"20\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mr Thomas\" } }, " +
+                    "{\"id\" : \"4\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Physics\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"204\",\"type\":\"TEACHES\",\"startNode\":\"20\",\"endNode\":\"4\",\"properties\":{}} " +
@@ -61,8 +61,8 @@ public class TeacherRequest extends StubHttpDriver {
 
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"21\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
-                    "{\"id\" : \"6\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"PE\" } }" +
+                    "{\"id\" : \"21\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
+                    "{\"id\" : \"6\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"PE\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"212\",\"type\":\"TEACHES\",\"startNode\":\"21\",\"endNode\":\"2\",\"properties\":{}}" +
@@ -70,8 +70,8 @@ public class TeacherRequest extends StubHttpDriver {
                     "} }",
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"21\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
-                    "{\"id\" : \"2\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"English\" } }" +
+                    "{\"id\" : \"21\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
+                    "{\"id\" : \"2\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"English\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"216\",\"type\":\"TEACHES\",\"startNode\":\"21\",\"endNode\":\"6\",\"properties\":{}}" +
@@ -79,8 +79,8 @@ public class TeacherRequest extends StubHttpDriver {
                     "} }",
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"21\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
-                    "{\"id\" : \"7\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"History\" } } " +
+                    "{\"id\" : \"21\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Mrs Roberts\" } }, " +
+                    "{\"id\" : \"7\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"History\" } } " +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"217\",\"type\":\"TEACHES\",\"startNode\":\"21\",\"endNode\":\"7\",\"properties\":{}} " +
@@ -90,8 +90,8 @@ public class TeacherRequest extends StubHttpDriver {
             // miss young results
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"22\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Miss Young\" } }, " +
-                    "{\"id\" : \"5\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Philosophy and Ethics\" } }" +
+                    "{\"id\" : \"22\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Miss Young\" } }, " +
+                    "{\"id\" : \"5\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Philosophy and Ethics\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"225\",\"type\":\"TEACHES\",\"startNode\":\"22\",\"endNode\":\"5\",\"properties\":{}}" +
@@ -99,8 +99,8 @@ public class TeacherRequest extends StubHttpDriver {
                     "} }",
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"22\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Miss Young\" } }, " +
-                    "{\"id\" : \"7\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"History\" } }" +
+                    "{\"id\" : \"22\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Miss Young\" } }, " +
+                    "{\"id\" : \"7\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"History\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"227\",\"type\":\"TEACHES\",\"startNode\":\"22\",\"endNode\":\"7\",\"properties\":{}}" +
@@ -108,8 +108,8 @@ public class TeacherRequest extends StubHttpDriver {
                     "} }",
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"22\",\"labels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Miss Young\" } }, " +
-                    "{\"id\" : \"8\",\"labels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Geography\" } }" +
+                    "{\"id\" : \"22\",\"addedLabels\" : [ \"Teacher\"], \"properties\" : { \"name\" :\"Miss Young\" } }, " +
+                    "{\"id\" : \"8\",\"addedLabels\" : [ \"Course\" ],\"properties\" : {\"name\" : \"Geography\" } }" +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"228\",\"type\":\"TEACHES\",\"startNode\":\"22\",\"endNode\":\"8\",\"properties\":{}}" +

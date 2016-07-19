@@ -41,7 +41,7 @@ public class EntityUtils {
     }
 
     /**
-     * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
+     * Returns the full set of addedLabels, both static and dynamic, if any, to apply to a node.
      *
      * @param entity
      * @param metaData

@@ -24,12 +24,12 @@ public class MoviesRequest extends StubHttpDriver {
     private static String[] jsonModel = {
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"15\",\"labels\" : [ \"Movie\"],    \"properties\" : {\"title\" : \"Pulp Fiction\"}}, " +
-                    "{\"id\" : \"16\",\"labels\" : [ \"Movie\"],    \"properties\" : {\"title\" : \"Top Gun\"}}, " +
-                    "{\"id\" : \"17\",\"labels\" : [ \"Movie\"],    \"properties\" : {\"title\" : \"Django Unchained\"}}, " +
-                    "{\"id\" : \"18\",\"labels\" : [ \"User\"],     \"properties\" : {\"name\" : \"Michal\"}}, " +
-                    "{\"id\" : \"19\",\"labels\" : [ \"User\"],     \"properties\" : {\"name\" : \"Vince\"}}, " +
-                    "{\"id\" : \"20\",\"labels\" : [ \"User\"],     \"properties\" : {\"name\" : \"Daniela\"}} " +
+                    "{\"id\" : \"15\",\"addedLabels\" : [ \"Movie\"],    \"properties\" : {\"title\" : \"Pulp Fiction\"}}, " +
+                    "{\"id\" : \"16\",\"addedLabels\" : [ \"Movie\"],    \"properties\" : {\"title\" : \"Top Gun\"}}, " +
+                    "{\"id\" : \"17\",\"addedLabels\" : [ \"Movie\"],    \"properties\" : {\"title\" : \"Django Unchained\"}}, " +
+                    "{\"id\" : \"18\",\"addedLabels\" : [ \"User\"],     \"properties\" : {\"name\" : \"Michal\"}}, " +
+                    "{\"id\" : \"19\",\"addedLabels\" : [ \"User\"],     \"properties\" : {\"name\" : \"Vince\"}}, " +
+                    "{\"id\" : \"20\",\"addedLabels\" : [ \"User\"],     \"properties\" : {\"name\" : \"Daniela\"}} " +
                     "], " +
                     "\"relationships\": [" +
                     "{\"id\":\"141\",\"type\":\"RATED\",\"startNode\":\"18\",\"endNode\":\"15\",\"properties\":{ \"stars\" : 5, \"comment\" : \"Best Film Ever!\" }}, " +

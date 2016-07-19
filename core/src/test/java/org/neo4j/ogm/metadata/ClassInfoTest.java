@@ -446,28 +446,28 @@ public class ClassInfoTest {
         ClassInfo classInfo = metaData.classInfo(Pizza.class.getSimpleName());
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         assertNotNull(fieldInfo);
-        assertEquals("labels", fieldInfo.getName());
+        assertEquals("addedLabels", fieldInfo.getName());
     }
 
     @Test
     public void labelAnnotationOnMethodsThrowsMappingException() {
         try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.method");
+            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.addedLabels.method");
             metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
             fail("Should have thrown exception.");
         } catch (MappingException e) {
-            assertEquals("'org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters' has the @Labels annotation applied to method 'setLabels'. The labels annotation can only be applied to a field.", e.getMessage());
+            assertEquals("'org.neo4j.ogm.invalid.addedLabels.method.LabelsAnnotationOnGettersAndSetters' has the @Labels annotation applied to method 'setLabels'. The addedLabels annotation can only be applied to a field.", e.getMessage());
         }
     }
 
     @Test
     public void labelAnnotationWithRelationshipEntityThrowsException() {
         try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.relationship");
+            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.addedLabels.relationship");
             metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
             fail("Should have thrown exception.");
         } catch (MappingException e) {
-            assertEquals("'org.neo4j.ogm.invalid.labels.relationship.LabelsAnnotationRelationshipEntity' is a relationship entity. The @Labels annotation can't be applied to relationship entities.", e.getMessage());
+            assertEquals("'org.neo4j.ogm.invalid.addedLabels.relationship.LabelsAnnotationRelationshipEntity' is a relationship entity. The @Labels annotation can't be applied to relationship entities.", e.getMessage());
         }
     }
 
@@ -478,7 +478,7 @@ public class ClassInfoTest {
             Collection<String> collatedLabels = EntityUtils.labels(entity, metaData);
             fail("Should have thrown exception");
         } catch (MappingException e) {
-            assertEquals("Field 'labels' in class 'org.neo4j.ogm.metadata.LabelsAnnotationWithWrongTye' includes the @Labels annotation, however this field is not a type of collection.", e.getMessage());
+            assertEquals("Field 'addedLabels' in class 'org.neo4j.ogm.metadata.LabelsAnnotationWithWrongTye' includes the @Labels annotation, however this field is not a type of collection.", e.getMessage());
         }
     }
 

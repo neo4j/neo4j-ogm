@@ -16,13 +16,18 @@ package org.neo4j.ogm.persistence.examples.pizza;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.domain.pizza.*;
+import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,7 +42,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.pizza").openSession();
+        session = new SessionFactory("org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music").openSession();
     }
 
     @After
@@ -240,5 +245,73 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertTrue(loadedPizza.getToppings().contains(pepperoni));
     }
 
+    @Test
+    public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
+
+        Pizza pizza = new Pizza();
+        pizza.setName("Mushroom & Pepperoni");
+        List<String> labels = new ArrayList<>();
+        labels.add("Delicious");
+        labels.add("Hot");
+        labels.add("Spicy");
+        pizza.setLabels(labels);
+
+        session.save(pizza);
+        session.clear();
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Pizza`:`Spicy`:`Hot`:`Delicious` {name: 'Mushroom & Pepperoni'})");
+
+        Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
+        assertTrue(loadedPizza.getLabels().contains("Delicious"));
+        assertTrue(loadedPizza.getLabels().contains("Hot"));
+        assertTrue(loadedPizza.getLabels().contains("Spicy"));
+        assertEquals(3, loadedPizza.getLabels().size());
+
+        List<String> newLabels = new ArrayList<>();
+        newLabels.add("Cold");
+        newLabels.add("Stale");
+        loadedPizza.setLabels(newLabels);
+
+        session.save(loadedPizza);
+        session.clear();
+
+        Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
+        System.out.println("##################### Labels: " + reloadedPizza.getLabels());
+        assertEquals(2, reloadedPizza.getLabels().size());
+        assertTrue(reloadedPizza.getLabels().contains("Cold"));
+        assertTrue(reloadedPizza.getLabels().contains("Stale"));
+
+        newLabels = new ArrayList<>();
+        newLabels.add("Decomposed");
+        reloadedPizza.setLabels(newLabels);
+
+        session.save(reloadedPizza);
+        session.clear();
+
+        Pizza zombiePizza = session.load(Pizza.class, pizza.getId());
+        System.out.println("##################### Labels: " + zombiePizza.getLabels());
+        assertEquals(1, reloadedPizza.getLabels().size());
+        assertTrue(reloadedPizza.getLabels().contains("Decomposed"));
+
+    }
+
+    @Test
+    public void shouldRaiseExceptionWhenAmbiguousClassLabelApplied() {
+
+        Pizza pizza = new Pizza();
+        pizza.setName("Mushroom & Pepperoni");
+        List<String> labels = new ArrayList<>();
+        //We're adding the studio label, which is mapped to a type
+        labels.add("Studio");
+        pizza.setLabels(labels);
+
+        session.save(pizza);
+        session.clear();
+
+        try {
+            session.load(Pizza.class, pizza.getId());
+        } catch (MappingException e) {
+            assertEquals("Multiple classes found in type hierarchy that map to: [Pizza, Studio]", e.getCause().getMessage());
+        }
+    }
 
 }

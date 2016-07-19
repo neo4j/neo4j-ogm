@@ -15,11 +15,14 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.neo4j.ogm.MetaData;
+import org.apache.commons.collections4.CollectionUtils;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -31,7 +34,7 @@ public class EntityMemo {
 
     private final Map<Long, Long> nodeHash = new ConcurrentHashMap<>();
     private final Map<Long, Long> relEntityHash = new ConcurrentHashMap<>();
-    private  final MetaData metaData;
+    private final MetaData metaData;
 
     // objects with no properties will always hash to this value.
     private static final long seed = 0xDEADBEEF / (11 * 257);
@@ -43,15 +46,15 @@ public class EntityMemo {
     /**
      * constructs a 64-bit hash of this object's node properties
      * and maps the object to that hash. The object must not be null
-     * @param entityId the id of the entity
-     * @param object the object whose persistable properties we want to hash
+     *
+     * @param entityId  the id of the entity
+     * @param object    the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
     public void remember(Long entityId, Object object, ClassInfo classInfo) {
         if (metaData.isRelationshipEntity(classInfo.name())) {
             relEntityHash.put(entityId, hash(object, classInfo));
-        }
-        else {
+        } else {
             nodeHash.put(entityId, hash(object, classInfo));
         }
     }
@@ -62,9 +65,8 @@ public class EntityMemo {
      * is regarded as memorised if its hash value in the memo hash
      * is identical to a recalculation of its hash value.
      *
-     *
-     * @param entityId the id of the entity
-     * @param object the object whose persistable properties we want to check
+     * @param entityId  the id of the entity
+     * @param object    the object whose persistable properties we want to check
      * @param classInfo metadata about the object
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
@@ -76,7 +78,8 @@ public class EntityMemo {
                 isRelEntity = true;
             }
 
-            if ((!isRelEntity && !nodeHash.containsKey(entityId)) || (isRelEntity && !relEntityHash.containsKey(entityId))) {
+            if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
+                    (isRelEntity && !relEntityHash.containsKey(entityId))) {
                 return false;
             }
 
@@ -96,7 +99,13 @@ public class EntityMemo {
 
     private static long hash(Object object, ClassInfo classInfo) {
         long hash = seed;
-        for (FieldInfo fieldInfo : classInfo.propertyFields()) {
+
+        List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
+        if (classInfo.labelFieldOrNull() != null) {
+            hashFields.add(classInfo.labelFieldOrNull());
+        }
+
+        for (FieldInfo fieldInfo : hashFields) {
             Field field = classInfo.getField(fieldInfo);
             Object value = FieldWriter.read(field, object);
             if (value != null) {
@@ -117,13 +126,14 @@ public class EntityMemo {
         int len = string.length();
 
         for (int i = 0; i < len; i++) {
-            h = 31*h + string.charAt(i);
+            h = 31 * h + string.charAt(i);
         }
         return h;
     }
 
-	/**
+    /**
      * Convert an array or objects or primitives to an array of objects
+     *
      * @param array array of unknown type
      * @return array of objects
      */

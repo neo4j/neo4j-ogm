@@ -11,24 +11,25 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
+package org.neo4j.ogm.invalid.labels.method;
 
-import org.neo4j.ogm.drivers.StubHttpDriver;
+import org.neo4j.ogm.annotations.Labels;
 
-/**
- * @author Luanne Misquitta
- */
-public class UsersRequest extends StubHttpDriver {
+import java.util.ArrayList;
+import java.util.Collection;
 
-    private static String[] jsonModel = {
-            "{\"graph\": { " +
-                    "\"nodes\" :[ " +
-                    "{\"id\" : \"15\",\"addedLabels\" : [ \"User\"],    \"properties\" : {\"login\" : \"luanne\", \"securityRoles\" : [\"USER\",\"ADMIN\"]}}" +
-                    "]} }"
-    };
+public class LabelsAnnotationOnGettersAndSetters {
 
-    public String[] getResponse() {
-        return jsonModel;
+    private Collection<String> labels = new ArrayList<>();
+
+    @Labels
+    public Collection<String> getLabels() {
+        return labels;
+    }
+
+    @Labels
+    public void setLabels(Collection<String> labels) {
+        this.labels = labels;
     }
 }

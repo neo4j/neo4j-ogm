@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
  *

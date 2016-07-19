@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.neo4j.ogm.ClassUtils;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.ClassUtils;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
 import org.neo4j.ogm.annotations.EntityAccess;
 import org.neo4j.ogm.annotations.EntityAccessStrategy;

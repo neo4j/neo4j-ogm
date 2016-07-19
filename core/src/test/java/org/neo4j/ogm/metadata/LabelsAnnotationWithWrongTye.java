@@ -11,30 +11,16 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler;
 
-import java.util.Collection;
+package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.model.Node;
+import org.neo4j.ogm.annotations.Labels;
 
-/**
- * Builds a node to be persisted in the database.
- *
- * @author Luanne Misquitta
- */
-public interface NodeBuilder {
+public class LabelsAnnotationWithWrongTye {
 
-    Long reference();
-
-    NodeBuilder addProperty(String key, Object value);
-
-    NodeBuilder addLabels(Collection<String> labels);
-
-    String[] addedLabels();
-
-    NodeBuilder removeLabels(Collection<String> labels);
-
-    String[] removedLabels();
-
-    Node node();
+    /**
+     * The addedLabels field must be applied to a type of collection.
+     */
+    @Labels
+    private String labels = new String();
 }

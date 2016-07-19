@@ -16,7 +16,7 @@ package org.neo4j.ogm.persistence.examples.pets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.domain.pets.Dog;
 import org.neo4j.ogm.domain.pets.DomesticDog;
 import org.neo4j.ogm.domain.pets.Kid;

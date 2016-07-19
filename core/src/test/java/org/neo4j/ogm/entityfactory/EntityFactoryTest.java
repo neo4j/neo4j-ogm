@@ -15,7 +15,7 @@ package org.neo4j.ogm.entityfactory;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.annotations.EntityFactory;
 import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
 import org.neo4j.ogm.domain.social.Individual;

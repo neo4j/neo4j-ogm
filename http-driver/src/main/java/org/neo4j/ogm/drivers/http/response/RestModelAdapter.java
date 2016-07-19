@@ -62,8 +62,8 @@ public class RestModelAdapter implements ResultAdapter<Object[], Map<String,Obje
 	private Object buildEntity(Map entity) {
 		if (entity.containsKey("metadata") && ((Map) entity.get("metadata")).get("id") != null) {
 			Map entityMetadata = (Map) entity.get("metadata");
-			if (entityMetadata.containsKey("labels")) {
-				List<String> labelList = (List<String>) (entityMetadata.get("labels"));
+			if (entityMetadata.containsKey("addedLabels")) {
+				List<String> labelList = (List<String>) (entityMetadata.get("addedLabels"));
 				String[] labels = new String[labelList.size()];
 				labels = labelList.toArray(labels);
 				NodeModel nodeModel = new NodeModel();

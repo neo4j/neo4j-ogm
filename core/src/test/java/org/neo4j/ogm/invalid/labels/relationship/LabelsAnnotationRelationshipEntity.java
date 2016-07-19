@@ -11,30 +11,17 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler;
+
+package org.neo4j.ogm.invalid.labels.relationship;
+
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotations.Labels;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.model.Node;
+@RelationshipEntity(type = "TOPPING")
+public class LabelsAnnotationRelationshipEntity {
 
-/**
- * Builds a node to be persisted in the database.
- *
- * @author Luanne Misquitta
- */
-public interface NodeBuilder {
-
-    Long reference();
-
-    NodeBuilder addProperty(String key, Object value);
-
-    NodeBuilder addLabels(Collection<String> labels);
-
-    String[] addedLabels();
-
-    NodeBuilder removeLabels(Collection<String> labels);
-
-    String[] removedLabels();
-
-    Node node();
+    @Labels
+    private Collection<String> labels;
 }

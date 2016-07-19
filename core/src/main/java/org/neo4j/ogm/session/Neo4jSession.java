@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;

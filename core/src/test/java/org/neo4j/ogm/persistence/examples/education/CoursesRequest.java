@@ -25,34 +25,34 @@ public class CoursesRequest extends StubHttpDriver {
             // English set : all
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"2\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"English\" } }, " +
+                    "{\"id\" : \"2\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"English\" } }, " +
 
-                    "{\"id\" : \"101\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
-                    "{\"id\" : \"102\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
-                    "{\"id\" : \"103\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
-                    "{\"id\" : \"104\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
-                    "{\"id\" : \"105\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
-                    "{\"id\" : \"106\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
-                    "{\"id\" : \"107\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
-                    "{\"id\" : \"108\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
-                    "{\"id\" : \"109\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
-                    "{\"id\" : \"110\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
-                    "{\"id\" : \"111\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
-                    "{\"id\" : \"112\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
-                    "{\"id\" : \"113\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
-                    "{\"id\" : \"114\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
-                    "{\"id\" : \"115\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
-                    "{\"id\" : \"116\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
-                    "{\"id\" : \"117\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
-                    "{\"id\" : \"118\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
-                    "{\"id\" : \"119\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
-                    "{\"id\" : \"120\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
-                    "{\"id\" : \"121\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
-                    "{\"id\" : \"122\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
-                    "{\"id\" : \"123\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
-                    "{\"id\" : \"124\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
-                    "{\"id\" : \"125\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }," +
-                    "{\"id\" : \"126\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
+                    "{\"id\" : \"101\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
+                    "{\"id\" : \"102\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
+                    "{\"id\" : \"103\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
+                    "{\"id\" : \"104\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
+                    "{\"id\" : \"105\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
+                    "{\"id\" : \"106\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
+                    "{\"id\" : \"107\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
+                    "{\"id\" : \"108\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
+                    "{\"id\" : \"109\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
+                    "{\"id\" : \"110\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
+                    "{\"id\" : \"111\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
+                    "{\"id\" : \"112\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
+                    "{\"id\" : \"113\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
+                    "{\"id\" : \"114\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
+                    "{\"id\" : \"115\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
+                    "{\"id\" : \"116\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
+                    "{\"id\" : \"117\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
+                    "{\"id\" : \"118\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
+                    "{\"id\" : \"119\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
+                    "{\"id\" : \"120\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
+                    "{\"id\" : \"121\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
+                    "{\"id\" : \"122\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
+                    "{\"id\" : \"123\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
+                    "{\"id\" : \"124\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
+                    "{\"id\" : \"125\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }," +
+                    "{\"id\" : \"126\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
 
                     "], " +
                     "\"relationships\": [" +
@@ -88,34 +88,34 @@ public class CoursesRequest extends StubHttpDriver {
             // Maths set : all
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"3\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Mathematics\" } }, " +
+                    "{\"id\" : \"3\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Mathematics\" } }, " +
 
-                    "{\"id\" : \"101\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
-                    "{\"id\" : \"102\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
-                    "{\"id\" : \"103\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
-                    "{\"id\" : \"104\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
-                    "{\"id\" : \"105\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
-                    "{\"id\" : \"106\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
-                    "{\"id\" : \"107\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
-                    "{\"id\" : \"108\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
-                    "{\"id\" : \"109\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
-                    "{\"id\" : \"110\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
-                    "{\"id\" : \"111\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
-                    "{\"id\" : \"112\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
-                    "{\"id\" : \"113\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
-                    "{\"id\" : \"114\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
-                    "{\"id\" : \"115\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
-                    "{\"id\" : \"116\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
-                    "{\"id\" : \"117\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
-                    "{\"id\" : \"118\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
-                    "{\"id\" : \"119\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
-                    "{\"id\" : \"120\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
-                    "{\"id\" : \"121\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
-                    "{\"id\" : \"122\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
-                    "{\"id\" : \"123\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
-                    "{\"id\" : \"124\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
-                    "{\"id\" : \"125\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }," +
-                    "{\"id\" : \"126\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
+                    "{\"id\" : \"101\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
+                    "{\"id\" : \"102\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
+                    "{\"id\" : \"103\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
+                    "{\"id\" : \"104\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
+                    "{\"id\" : \"105\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
+                    "{\"id\" : \"106\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
+                    "{\"id\" : \"107\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
+                    "{\"id\" : \"108\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
+                    "{\"id\" : \"109\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
+                    "{\"id\" : \"110\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
+                    "{\"id\" : \"111\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
+                    "{\"id\" : \"112\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
+                    "{\"id\" : \"113\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
+                    "{\"id\" : \"114\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
+                    "{\"id\" : \"115\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
+                    "{\"id\" : \"116\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
+                    "{\"id\" : \"117\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
+                    "{\"id\" : \"118\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
+                    "{\"id\" : \"119\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
+                    "{\"id\" : \"120\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
+                    "{\"id\" : \"121\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
+                    "{\"id\" : \"122\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
+                    "{\"id\" : \"123\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
+                    "{\"id\" : \"124\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
+                    "{\"id\" : \"125\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }," +
+                    "{\"id\" : \"126\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
 
                     "], " +
                     "\"relationships\": [" +
@@ -151,21 +151,21 @@ public class CoursesRequest extends StubHttpDriver {
             // Physics set : odd(id)
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"4\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Physics\" } }, " +
+                    "{\"id\" : \"4\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Physics\" } }, " +
 
-                    "{\"id\" : \"101\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
-                    "{\"id\" : \"103\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
-                    "{\"id\" : \"105\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
-                    "{\"id\" : \"107\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
-                    "{\"id\" : \"109\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
-                    "{\"id\" : \"111\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
-                    "{\"id\" : \"113\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
-                    "{\"id\" : \"115\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
-                    "{\"id\" : \"117\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
-                    "{\"id\" : \"119\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
-                    "{\"id\" : \"121\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
-                    "{\"id\" : \"123\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
-                    "{\"id\" : \"125\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }" +
+                    "{\"id\" : \"101\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
+                    "{\"id\" : \"103\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
+                    "{\"id\" : \"105\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
+                    "{\"id\" : \"107\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
+                    "{\"id\" : \"109\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
+                    "{\"id\" : \"111\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
+                    "{\"id\" : \"113\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
+                    "{\"id\" : \"115\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
+                    "{\"id\" : \"117\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
+                    "{\"id\" : \"119\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
+                    "{\"id\" : \"121\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
+                    "{\"id\" : \"123\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
+                    "{\"id\" : \"125\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }" +
 
                     "], " +
                     "\"relationships\": [" +
@@ -189,34 +189,34 @@ public class CoursesRequest extends StubHttpDriver {
             // Philosophy and Ethics set: all
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"5\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Philosophy and Ethics\" } }, " +
+                    "{\"id\" : \"5\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Philosophy and Ethics\" } }, " +
 
-                    "{\"id\" : \"101\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
-                    "{\"id\" : \"102\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
-                    "{\"id\" : \"103\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
-                    "{\"id\" : \"104\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
-                    "{\"id\" : \"105\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
-                    "{\"id\" : \"106\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
-                    "{\"id\" : \"107\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
-                    "{\"id\" : \"108\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
-                    "{\"id\" : \"109\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
-                    "{\"id\" : \"110\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
-                    "{\"id\" : \"111\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
-                    "{\"id\" : \"112\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
-                    "{\"id\" : \"113\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
-                    "{\"id\" : \"114\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
-                    "{\"id\" : \"115\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
-                    "{\"id\" : \"116\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
-                    "{\"id\" : \"117\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
-                    "{\"id\" : \"118\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
-                    "{\"id\" : \"119\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
-                    "{\"id\" : \"120\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
-                    "{\"id\" : \"121\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
-                    "{\"id\" : \"122\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
-                    "{\"id\" : \"123\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
-                    "{\"id\" : \"124\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
-                    "{\"id\" : \"125\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }," +
-                    "{\"id\" : \"126\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
+                    "{\"id\" : \"101\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Alex\" } }," +
+                    "{\"id\" : \"102\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
+                    "{\"id\" : \"103\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
+                    "{\"id\" : \"104\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
+                    "{\"id\" : \"105\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
+                    "{\"id\" : \"106\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
+                    "{\"id\" : \"107\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
+                    "{\"id\" : \"108\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
+                    "{\"id\" : \"109\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
+                    "{\"id\" : \"110\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
+                    "{\"id\" : \"111\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
+                    "{\"id\" : \"112\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
+                    "{\"id\" : \"113\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
+                    "{\"id\" : \"114\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
+                    "{\"id\" : \"115\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
+                    "{\"id\" : \"116\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
+                    "{\"id\" : \"117\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
+                    "{\"id\" : \"118\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
+                    "{\"id\" : \"119\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
+                    "{\"id\" : \"120\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
+                    "{\"id\" : \"121\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
+                    "{\"id\" : \"122\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
+                    "{\"id\" : \"123\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }," +
+                    "{\"id\" : \"124\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
+                    "{\"id\" : \"125\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Yvette\" } }," +
+                    "{\"id\" : \"126\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
 
                     "], " +
                     "\"relationships\": [" +
@@ -252,16 +252,16 @@ public class CoursesRequest extends StubHttpDriver {
             // PE set: isInteger((id modulo 100) / 3)
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"6\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"PE\" } }, " +
+                    "{\"id\" : \"6\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"PE\" } }, " +
 
-                    "{\"id\" : \"103\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
-                    "{\"id\" : \"106\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
-                    "{\"id\" : \"109\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
-                    "{\"id\" : \"112\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
-                    "{\"id\" : \"115\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
-                    "{\"id\" : \"118\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
-                    "{\"id\" : \"121\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
-                    "{\"id\" : \"124\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }" +
+                    "{\"id\" : \"103\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
+                    "{\"id\" : \"106\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
+                    "{\"id\" : \"109\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ignacio\" } }," +
+                    "{\"id\" : \"112\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
+                    "{\"id\" : \"115\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Otto\" } }," +
+                    "{\"id\" : \"118\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
+                    "{\"id\" : \"121\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Ulf\" } }," +
+                    "{\"id\" : \"124\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }" +
 
                     "], " +
                     "\"relationships\": [" +
@@ -280,21 +280,21 @@ public class CoursesRequest extends StubHttpDriver {
             // History set even(id)
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"7\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"History\" } }, " +
+                    "{\"id\" : \"7\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"History\" } }, " +
 
-                    "{\"id\" : \"102\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
-                    "{\"id\" : \"104\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
-                    "{\"id\" : \"106\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
-                    "{\"id\" : \"108\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
-                    "{\"id\" : \"110\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
-                    "{\"id\" : \"112\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
-                    "{\"id\" : \"114\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
-                    "{\"id\" : \"116\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
-                    "{\"id\" : \"118\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
-                    "{\"id\" : \"120\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
-                    "{\"id\" : \"122\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
-                    "{\"id\" : \"124\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
-                    "{\"id\" : \"126\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
+                    "{\"id\" : \"102\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
+                    "{\"id\" : \"104\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Daisy\" } }," +
+                    "{\"id\" : \"106\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Frankie\" } }," +
+                    "{\"id\" : \"108\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Hannah\" } }," +
+                    "{\"id\" : \"110\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Jasmin\" } }," +
+                    "{\"id\" : \"112\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Lyra\" } }," +
+                    "{\"id\" : \"114\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Neil\" } }," +
+                    "{\"id\" : \"116\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Peter\" } }," +
+                    "{\"id\" : \"118\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Rachel\" } }," +
+                    "{\"id\" : \"120\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Tom\" } }," +
+                    "{\"id\" : \"122\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Veronica\" } }," +
+                    "{\"id\" : \"124\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Xavier\" } }," +
+                    "{\"id\" : \"126\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Zack\" } }" +
 
                     "], " +
                     "\"relationships\": [" +
@@ -317,17 +317,17 @@ public class CoursesRequest extends StubHttpDriver {
             // Geography set : isPrime(id modulo 100)
             "{\"graph\": { " +
                     "\"nodes\" :[ " +
-                    "{\"id\" : \"8\",\"labels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Geography\" } }, " +
+                    "{\"id\" : \"8\",\"addedLabels\" : [ \"Course\"], \"properties\" : { \"name\" :\"Geography\" } }, " +
 
-                    "{\"id\" : \"102\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
-                    "{\"id\" : \"103\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
-                    "{\"id\" : \"105\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
-                    "{\"id\" : \"107\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
-                    "{\"id\" : \"111\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
-                    "{\"id\" : \"113\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
-                    "{\"id\" : \"117\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
-                    "{\"id\" : \"119\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
-                    "{\"id\" : \"123\",\"labels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }" +
+                    "{\"id\" : \"102\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Barry\" } }," +
+                    "{\"id\" : \"103\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Carmen\" } }," +
+                    "{\"id\" : \"105\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Eloise\" } }," +
+                    "{\"id\" : \"107\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Gavin\" } }," +
+                    "{\"id\" : \"111\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Kent\" } }," +
+                    "{\"id\" : \"113\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Maria\" } }," +
+                    "{\"id\" : \"117\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Quentin\" } }," +
+                    "{\"id\" : \"119\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Suzanne\" } }," +
+                    "{\"id\" : \"123\",\"addedLabels\" : [ \"Student\" ],\"properties\" : {\"name\" : \"Will\" } }" +
 
                     "], " +
                     "\"relationships\": [" +

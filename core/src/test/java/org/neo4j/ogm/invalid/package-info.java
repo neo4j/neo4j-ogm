@@ -11,30 +11,8 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler;
+package org.neo4j.ogm.invalid;
 
-import java.util.Collection;
-
-import org.neo4j.ogm.model.Node;
-
-/**
- * Builds a node to be persisted in the database.
- *
- * @author Luanne Misquitta
+/*
+ * Contains entities that will result in a {@link org.neo4j.ogm.exception.MappingException
  */
-public interface NodeBuilder {
-
-    Long reference();
-
-    NodeBuilder addProperty(String key, Object value);
-
-    NodeBuilder addLabels(Collection<String> labels);
-
-    String[] addedLabels();
-
-    NodeBuilder removeLabels(Collection<String> labels);
-
-    String[] removedLabels();
-
-    Node node();
-}

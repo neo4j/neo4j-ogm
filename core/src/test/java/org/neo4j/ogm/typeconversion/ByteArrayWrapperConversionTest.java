@@ -14,7 +14,7 @@
 package org.neo4j.ogm.typeconversion;
 
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 

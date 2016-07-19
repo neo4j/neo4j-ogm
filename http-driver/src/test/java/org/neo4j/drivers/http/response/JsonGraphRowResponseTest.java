@@ -89,7 +89,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -113,7 +113,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -122,7 +122,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"344\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"User\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -158,7 +158,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"343\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"User\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -167,7 +167,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -203,7 +203,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -212,7 +212,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"346\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Issue\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -252,7 +252,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -261,7 +261,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"347\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Issue\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -301,7 +301,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"27\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Company\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -310,7 +310,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -346,7 +346,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -355,7 +355,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"28\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Company\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -391,7 +391,7 @@ public class JsonGraphRowResponseTest
                 "            \"nodes\": [\n" +
                 "              {\n" +
                 "                \"id\": \"0\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Issue\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +
@@ -401,7 +401,7 @@ public class JsonGraphRowResponseTest
                 "              },\n" +
                 "              {\n" +
                 "                \"id\": \"26\",\n" +
-                "                \"labels\": [\n" +
+                "                \"addedLabels\": [\n" +
                 "                  \"Customer\"\n" +
                 "                ],\n" +
                 "                \"properties\": {\n" +

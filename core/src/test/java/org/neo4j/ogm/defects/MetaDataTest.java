@@ -17,7 +17,7 @@ package org.neo4j.ogm.defects;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.utils.MetaData;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MethodInfo;
 

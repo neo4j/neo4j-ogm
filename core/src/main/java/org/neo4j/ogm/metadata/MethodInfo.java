@@ -14,7 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
-import org.neo4j.ogm.RelationshipUtils;
+import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
@@ -140,6 +140,10 @@ public class MethodInfo {
 
     public ObjectAnnotations getAnnotations() {
         return annotations;
+    }
+
+    public boolean isEquallyNamed(MethodInfo other) {
+        return other != null && getName().equals(other.getName());
     }
 
     public boolean isSimpleGetter() {

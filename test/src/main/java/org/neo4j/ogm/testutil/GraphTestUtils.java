@@ -101,7 +101,7 @@ public final class GraphTestUtils {
 
             if (newResult.isEmpty()) {
                 Assert.fail("Could not find a node corresponding to: " + print(otherDatabase.getNodeById(entry.getKey()))
-                        + ". There are most likely more nodes with the same characteristics (labels, properties) in your "
+                        + ". There are most likely more nodes with the same characteristics (addedLabels, properties) in your "
                         + "cypher CREATE statement but fewer in the database.");
             }
 

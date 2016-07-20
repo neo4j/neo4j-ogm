@@ -16,6 +16,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;

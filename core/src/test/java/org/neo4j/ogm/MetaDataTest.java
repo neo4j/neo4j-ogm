@@ -11,11 +11,13 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
+import org.neo4j.ogm.metadata.ClassInfo;
 
 import static org.junit.Assert.*;
 

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotations.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;

@@ -20,7 +20,6 @@ import static junit.framework.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
@@ -35,7 +34,7 @@ public class TransientObjectsTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Test

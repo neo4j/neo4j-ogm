@@ -6,7 +6,7 @@ It's possible to save any POJO without annotations to the graph, as the framewor
 This is useful in cases when you don't have control over the classes that you want to persist.
 The recommended approach, however, is to use annotations wherever possible, since this gives greater control and means that code can be refactored safely without risking breaking changes to the labels and relationships in your graph.
 
-Annotated and non-annoted objects can be used within the same project without issue.  
+Annotated and non-annotated objects can be used within the same project without issue.
 There is an `EntityAccessStrategy` used to control how objects are read from or written to.  
 The default implementation of this uses the following convention:
 

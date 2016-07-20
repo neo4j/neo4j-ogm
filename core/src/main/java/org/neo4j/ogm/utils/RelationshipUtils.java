@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm;
+package org.neo4j.ogm.utils;
 
 /**
  * Contains helper methods to facilitate inference of relationship types from field and methods and vice versa.

@@ -25,39 +25,47 @@ import org.neo4j.ogm.response.model.PropertyModel;
  */
 public class DefaultNodeBuilder implements NodeBuilder {
 
-	NodeModel node = new NodeModel();
+    NodeModel node = new NodeModel();
 
 
-	public DefaultNodeBuilder(Long reference) {
-		node.setId(reference);
-	}
+    public DefaultNodeBuilder(Long reference) {
+        node.setId(reference);
+    }
 
-	@Override
-	public NodeBuilder addProperty(String key, Object value) {
-		node.getPropertyList().add(new PropertyModel<>(key, value));
-		return this;
-	}
+    @Override
+    public NodeBuilder addProperty(String key, Object value) {
+        node.getPropertyList().add(new PropertyModel<>(key, value));
+        return this;
+    }
 
-	@Override
-	public NodeBuilder setLabels(Collection<String> newLabels) {
-		String[] labels = new String[newLabels.size()];
-		labels = newLabels.toArray(labels);
-		node.setLabels(labels);
-		return this;
-	}
+    @Override
+    public NodeBuilder addLabels(Collection<String> newLabels) {
+        String[] labels;
+        labels = newLabels.toArray(new String[newLabels.size()]);
+        node.setLabels(labels);
+        return this;
+    }
 
-	@Override
-	public Long reference() {
-		return node.getId();
-	}
+    @Override
+    public Long reference() {
+        return node.getId();
+    }
 
-	@Override
-	public String[] labels() {
-		return node.getLabels();
-	}
+    @Override
+    public String[] addedLabels() {
+        return node.getLabels();
+    }
 
-	@Override
-	public Node node() {
-		return node;
-	}
+    @Override
+    public NodeBuilder removeLabels(Collection<String> removedLabels) {
+        String[] labels;
+        labels = removedLabels.toArray(new String[removedLabels.size()]);
+        node.removeLabels(labels);
+        return this;
+    }
+
+    @Override
+    public Node node() {
+        return node;
+    }
 }

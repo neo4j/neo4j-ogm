@@ -24,7 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import org.neo4j.ogm.ClassUtils;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.metadata.ClassFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

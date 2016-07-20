@@ -6,7 +6,7 @@ The framework will then apply conventions to decide what to do.
 
 == Maven Dependency
 
-Before we can use any Neo4j OGM annotations, we need to add the maven dependency.
+Before we can use the library, we need to add a dependency.
 
 .Maven dependencies for Neo4j OGM 2.x
 [source,xml]
@@ -23,7 +23,14 @@ Before we can use any Neo4j OGM annotations, we need to add the maven dependency
 </dependency>
 ----
 
-Refer to <<reference_setup>> for Gradle or Ivy dependencies.
+.Gradle dependencies for Neo4j OGM 2.x
+[source,groovy]
+----
+compile "org.neo4j:neo4j-ogm-core:{version}"
+compile "org.neo4j:neo4j-ogm-http-driver:{version}"
+----
+
+Refer to <<reference_setup>> for more information on dependencies.
 
 Note that the dependencies for Neo4j OGM 1.x differ -
 
@@ -37,9 +44,16 @@ Note that the dependencies for Neo4j OGM 1.x differ -
 </dependency>
 ----
 
-== Nodes
-POJOs annotated with `@NodeEntity` will be represented as nodes in the graph. The label assigned to this node can be specified via the `label` property on the annotation;
-if not specified, it will default to the simple class name of the entity. Each parent class in addition also contributes a label to the entity (with the exception of java.lang.Object).
+.Gradle dependencies for Neo4j OGM 1.x
+[source,groovy]
+----
+compile "org.neo4j:neo4j-ogm:{version}"
+----
+
+== Nodes, Properties & Labels
+POJOs annotated with `@NodeEntity` will be represented as nodes in the graph. The label assigned to this node can be
+specified via the `label` property on the annotation; if not specified, it will default to the simple class name of the
+entity. Each parent class in addition also contributes a label to the entity (with the exception of java.lang.Object).
 This is useful when we want to retrieve collections of super types.
 
 Let's go ahead and annotate all our node entities. Note that we're overriding the default label for a `Course` with `Class`
@@ -82,6 +96,28 @@ public class Student {
 }
 
 ```
+
+=== Runtime Managed Labels
+
+As stated above, the label applied to a node is the contents of the `@NodeEntity` label property, or if not specified,
+it will default to the simple class name of the entity. Sometimes it might be necessary to add and remove additional
+labels to a node at _runtime_. We can do this using the `@Labels` annotation. Let's provide a facility for adding
+additional labels to the `Student` entity:
+
+```
+@NodeEntity
+public class Student {
+
+    @Labels
+    private List<String> labels = new ArrayList<>();
+
+}
+```
+
+Now, upon save, the node's labels will correspond to the entity's class hierarchy _plus_ whatever the contents of the
+backing field are. We can use one `@Labels` field per class hierarchy - it should be exposed or hidden from sub-classes
+as appropriate.
+
 
 == Relationships
 

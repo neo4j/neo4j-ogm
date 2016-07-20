@@ -11,25 +11,25 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata;
 
-import org.junit.Test;
+package org.neo4j.ogm.invalid.labels.method;
 
-import static org.junit.Assert.assertEquals;
+import org.neo4j.ogm.annotations.Labels;
 
-/**
- * @author vince
- */
-public class AnnotationsTest {
+import java.util.ArrayList;
+import java.util.Collection;
 
+public class LabelsAnnotationOnGettersAndSetters {
 
-    @Test
-    public void shouldLoadMetaDataWithComplexAnnotations() {
+    private Collection<String> labels = new ArrayList<>();
 
-        MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
+    @Labels
+    public Collection<String> getLabels() {
+        return labels;
+    }
 
-        assertEquals("org.neo4j.ogm.domain.annotations.SimpleNode", metaData.classInfo("SimpleNode").name());
-        assertEquals("org.neo4j.ogm.domain.annotations.OtherNode", metaData.classInfo("OtherNode").name());
-
+    @Labels
+    public void setLabels(Collection<String> labels) {
+        this.labels = labels;
     }
 }

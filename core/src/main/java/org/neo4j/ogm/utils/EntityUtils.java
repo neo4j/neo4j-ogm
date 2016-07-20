@@ -18,7 +18,7 @@ import org.neo4j.ogm.annotations.EntityAccessStrategy;
 import org.neo4j.ogm.annotations.FieldReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.MetaData;
 
 import java.util.Collection;
 

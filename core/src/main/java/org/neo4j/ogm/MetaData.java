@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm;
 
 
 import java.util.Arrays;
@@ -25,6 +25,9 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
+import org.neo4j.ogm.metadata.AnnotationInfo;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

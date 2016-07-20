@@ -18,7 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphRowListModel;

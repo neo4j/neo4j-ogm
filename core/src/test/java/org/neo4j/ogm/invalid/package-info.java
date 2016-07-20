@@ -11,25 +11,8 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.invalid;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
-/**
- * @author vince
+/*
+ * Contains entities that will result in a {@link org.neo4j.ogm.exception.MappingException
  */
-public class AnnotationsTest {
-
-
-    @Test
-    public void shouldLoadMetaDataWithComplexAnnotations() {
-
-        MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
-
-        assertEquals("org.neo4j.ogm.domain.annotations.SimpleNode", metaData.classInfo("SimpleNode").name());
-        assertEquals("org.neo4j.ogm.domain.annotations.OtherNode", metaData.classInfo("OtherNode").name());
-
-    }
-}

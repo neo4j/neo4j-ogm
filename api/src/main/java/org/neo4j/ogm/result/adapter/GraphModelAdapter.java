@@ -106,7 +106,7 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
             nodeModel.setId(nodeId(node));
             List<String> labelNames = labels(node);
 
-            nodeModel.setLabels(labelNames.toArray(new String[] {}));            
+            nodeModel.setLabels(labelNames.toArray(new String[] {}));
             
             nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
 

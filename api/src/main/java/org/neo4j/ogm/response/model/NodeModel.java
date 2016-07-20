@@ -27,8 +27,10 @@ public class NodeModel implements Node {
 
     private Long id;
     private String[] labels;
+    private String[] removedLabels;
     private List<Property<String, Object>> properties = new ArrayList<>();
 
+    @Override
     public List<Property<String, Object>> getPropertyList() {
         return properties;
     }
@@ -40,24 +42,36 @@ public class NodeModel implements Node {
         }
     }
 
-    public void setPropertyList(List<Property<String, Object>> properties) {
-        this.properties = properties;
-    }
-
+    @Override
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String[] getLabels() {
         return labels;
     }
 
+    @Override
+    public String[] getRemovedLabels() {
+        return removedLabels;
+    }
+
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setPropertyList(List<Property<String, Object>> properties) {
+        this.properties = properties;
+    }
+
     public void setLabels(String[] labels) {
         this.labels = labels;
+    }
+
+    public void removeLabels(String[] labels) {
+        this.removedLabels = labels;
     }
 
     public Object property(String key) {

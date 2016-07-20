@@ -12,5 +12,7 @@ It is a fully functioning web-application built using the following components
 
 The application's domain is a fictitious educational institution - Hilly Fields Technical College.
 
-It leverages the power of Spring Boot and in particular the new Neo4j Object Graph mapping technology to provide a RESTful interface with which the web client interacts.
-The application is entirely stateless; every interaction involves a call to a Neo4j server, hopefully demonstrating the speed of the new technology, even over the wire.
+It leverages the power of Spring Boot and in particular the new Neo4j Object Graph mapping technology to provide a
+RESTful interface with which the web client interacts.
+The application is entirely stateless; every interaction involves a call to a Neo4j server, hopefully demonstrating the
+speed of the technology, even over the wire.

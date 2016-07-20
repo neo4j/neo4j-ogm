@@ -19,7 +19,10 @@ import java.util.List;
  * @author vince
  */
 public interface Node {
+
     String[] getLabels();
+
+    String[] getRemovedLabels();
 
     Long getId();
 

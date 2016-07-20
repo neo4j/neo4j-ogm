@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.session;
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 
@@ -32,7 +32,7 @@ public interface GraphCallback<T> {
      *
      * @param requestHandler The {@link org.neo4j.ogm.request.Request} for communication with the database
      * @param transaction The {@link Transaction} in which the database communication is taking place
-     * @param metaData The mapping {@link org.neo4j.ogm.MetaData} that pertains to the current session
+     * @param metaData The mapping {@link MetaData} that pertains to the current session
      * @return An arbitrary result (or <code>null</code>) based on the desired behaviour of this callback function
      */
     T apply(Request requestHandler, Transaction transaction, MetaData metaData);

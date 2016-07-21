@@ -1,4 +1,7 @@
-2.0.4-SNAPSHOT
+2.0.5-SNAPSHOT
+--------------
+
+2.0.4
 --------------
 o Adds support for event listeners
 o Support for an @Labels annotation that allows dynamically applying/removing labels for an entity at runtime.

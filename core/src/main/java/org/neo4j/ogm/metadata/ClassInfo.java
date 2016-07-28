@@ -372,8 +372,7 @@ public class ClassInfo {
             lock.lock();
             if (!labelFieldMapped) {
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Labels.CLASS);
-                    if (annotationInfo != null) {
+                    if (fieldInfo.isLabelField()) {
                         if (!fieldInfo.isCollection()) {
                             throw new MappingException(String.format(
                                     "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +

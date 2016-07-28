@@ -15,7 +15,7 @@
 package org.neo4j.ogm.invalid.labels.relationship;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotations.Labels;
+import org.neo4j.ogm.annotation.Labels;
 
 import java.util.Collection;
 

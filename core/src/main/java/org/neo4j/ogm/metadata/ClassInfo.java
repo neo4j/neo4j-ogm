@@ -38,7 +38,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.Transient;
-import org.neo4j.ogm.annotations.Labels;
+import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
 import org.slf4j.Logger;
@@ -372,8 +372,7 @@ public class ClassInfo {
             lock.lock();
             if (!labelFieldMapped) {
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Labels.CLASS);
-                    if (annotationInfo != null) {
+                    if (fieldInfo.isLabelField()) {
                         if (!fieldInfo.isCollection()) {
                             throw new MappingException(String.format(
                                     "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +

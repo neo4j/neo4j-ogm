@@ -1,7 +1,5 @@
 package org.neo4j.ogm.domain.pizza;
 
-import org.neo4j.ogm.annotations.Labels;
-
 import java.util.Collection;
 
 /**

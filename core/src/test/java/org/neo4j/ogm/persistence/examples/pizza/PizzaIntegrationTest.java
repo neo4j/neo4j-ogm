@@ -16,7 +16,6 @@ package org.neo4j.ogm.persistence.examples.pizza;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Session;
@@ -363,6 +362,29 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         } catch (MappingException e) {
             assertEquals("Multiple classes found in type hierarchy that map to: [Pizza, Studio]", e.getCause().getMessage());
         }
+    }
+
+    /**
+     * @see issue #209
+     */
+    @Test
+    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated()
+    {
+        Pizza entity = new Pizza();
+        List<String> labels = new ArrayList<>();
+        labels.add("TestLabel1");
+        labels.add("TestLabel2");
+        entity.setLabels(labels);
+        session.save(entity);
+        session.clear();
+
+        entity = session.load(Pizza.class, entity.getId());
+        entity.getLabels().remove("TestLabel1");
+        session.save(entity);
+        session.clear();
+
+        labels = session.load(Pizza.class, entity.getId()).getLabels();
+        assertEquals(1, labels.size());
     }
 
 }

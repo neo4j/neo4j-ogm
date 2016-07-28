@@ -17,7 +17,7 @@ package org.neo4j.ogm.metadata;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotations.Labels;
+import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
@@ -239,7 +239,8 @@ public class FieldInfo {
     }
 
     public boolean isLabelField() {
-        return this.getAnnotations().get(Labels.CLASS) != null;
+        return this.getAnnotations().get(Labels.CLASS) != null ||
+                this.getAnnotations().get(org.neo4j.ogm.annotations.Labels.CLASS) != null;
     }
 
     public boolean isArray() {

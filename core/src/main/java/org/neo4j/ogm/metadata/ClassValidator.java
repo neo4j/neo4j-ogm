@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotations.Labels;
+import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.exception.MappingException;
 
 public class ClassValidator {

@@ -295,7 +295,7 @@ public class EntityGraphMapper implements EntityMapper {
     private void removePreviousLabelsIfRequired(Long id, ClassInfo classInfo, NodeBuilder nodeBuilder) {
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
-            Collection<String> labelDeltas = mappingContext.labels(id);
+            Collection<String> labelDeltas = mappingContext.labelHistory(id).getPreviousValues();
             if (labelDeltas != null && labelDeltas.size() > 0) {
                 nodeBuilder.removeLabels(labelDeltas);
             }

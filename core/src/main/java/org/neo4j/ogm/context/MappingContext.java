@@ -53,7 +53,7 @@ public class MappingContext {
     private final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
 
     //TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
-    private final ConcurrentHashMap<Long, Collection<String>> labelRegister = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, LabelHistory> labelRegister = new ConcurrentHashMap<>();
 
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
@@ -134,17 +134,23 @@ public class MappingContext {
 
     private void remember(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
-        objectMemo.remember((Long) id, entity, classInfo);
+        Long id = (Long) entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        objectMemo.remember(id, entity, classInfo);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, fieldInfo);
-            labelRegister.put((Long) id, (Collection<String>) reader.read(entity));
+            Collection<String> labels = (Collection<String>) reader.read(entity);
+            labelHistory(id).push(labels);
         }
     }
 
-    public Collection<String> labels(Long identity) {
-        return labelRegister.get(identity);
+    public synchronized LabelHistory labelHistory(Long identity) {
+        LabelHistory labelDelta = labelRegister.get(identity);
+        if (labelDelta == null) {
+            labelDelta = new LabelHistory();
+            labelRegister.put(identity, labelDelta);
+        }
+        return labelDelta;
     }
 
     public boolean isDirty(Object entity) {

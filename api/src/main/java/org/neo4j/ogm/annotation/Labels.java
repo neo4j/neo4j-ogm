@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

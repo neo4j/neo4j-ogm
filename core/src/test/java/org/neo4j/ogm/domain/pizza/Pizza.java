@@ -15,7 +15,7 @@ package org.neo4j.ogm.domain.pizza;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotations.Labels;
+import org.neo4j.ogm.annotation.Labels;
 
 import java.util.ArrayList;
 import java.util.HashSet;

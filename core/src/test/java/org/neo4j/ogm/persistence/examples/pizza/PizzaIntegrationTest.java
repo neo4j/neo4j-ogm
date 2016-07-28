@@ -16,7 +16,6 @@ package org.neo4j.ogm.persistence.examples.pizza;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.annotations.Labels;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Session;

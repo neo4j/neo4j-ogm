@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.invalid.labels.method;
 
-import org.neo4j.ogm.annotations.Labels;
+import org.neo4j.ogm.annotation.Labels;
 
 import java.util.ArrayList;
 import java.util.Collection;

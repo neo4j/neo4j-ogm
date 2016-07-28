@@ -364,4 +364,27 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         }
     }
 
+    /**
+     * @see issue #209
+     */
+    @Test
+    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated()
+    {
+        Pizza entity = new Pizza();
+        List<String> labels = new ArrayList<>();
+        labels.add("TestLabel1");
+        labels.add("TestLabel2");
+        entity.setLabels(labels);
+        session.save(entity);
+        session.clear();
+
+        entity = session.load(Pizza.class, entity.getId());
+        entity.getLabels().remove("TestLabel1");
+        session.save(entity);
+        session.clear();
+
+        labels = session.load(Pizza.class, entity.getId()).getLabels();
+        assertEquals(1, labels.size());
+    }
+
 }

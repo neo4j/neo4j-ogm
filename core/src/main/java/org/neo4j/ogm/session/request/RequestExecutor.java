@@ -15,6 +15,7 @@ package org.neo4j.ogm.session.request;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -34,11 +35,6 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +107,7 @@ public class RequestExecutor {
 
 			if (manageTransaction) {
 				tx.commit();
+				tx.close();
 			}
 		} else { // only update / delete statements
 			List<Statement> statements = compiler.getAllStatements();

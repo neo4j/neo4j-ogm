@@ -33,8 +33,6 @@ public class EntityUtils {
         EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
         ClassInfo classInfo = metaData.classInfo(entity);
 
-        assert (classInfo != null);
-
         Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
 
         return (id == null ? -System.identityHashCode(entity) : (Long) id);

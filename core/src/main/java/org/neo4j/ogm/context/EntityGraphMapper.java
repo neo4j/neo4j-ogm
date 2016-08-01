@@ -14,12 +14,6 @@
 package org.neo4j.ogm.context;
 
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Iterator;
-import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.utils.ClassUtils;
-import org.neo4j.ogm.utils.EntityUtils;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -31,9 +25,16 @@ import org.neo4j.ogm.compiler.RelationshipBuilder;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.utils.ClassUtils;
+import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -241,8 +242,10 @@ public class EntityGraphMapper implements EntityMapper {
      * @param nodeBuilder a {@link NodeBuilder} that knows how to compile node create/update cypher phrases
      */
     private void updateNode(Object entity, CompileContext context, NodeBuilder nodeBuilder) {
+
+        // fire pre-save event here
+
         if (mappingContext.isDirty(entity)) {
-            // fire event
             logger.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
@@ -254,6 +257,13 @@ public class EntityGraphMapper implements EntityMapper {
             context.deregister(nodeBuilder);
             logger.debug("{}, has not changed", entity);
         }
+
+//        if (mappingContext.isDirty(entity)) {
+//            context.register(entity);
+//            nodeBuilder.add(entity, metaData.classInfo(entity));
+//        } else {
+//            context.deregister(nodeBuilder);
+//        }
     }
 
     /**

@@ -203,6 +203,7 @@ public class RequestExecutor {
 		}
 		if (manageTransaction) {
 			tx.commit();
+			tx.close();
 		}
 
 		for (CompileContext context : contexts) {

@@ -13,24 +13,33 @@
 
 package org.neo4j.ogm.persistence.examples.pizza;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.ogm.domain.pizza.*;
-import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.GraphTestUtils;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.domain.pizza.Cheese;
+import org.neo4j.ogm.domain.pizza.Crust;
+import org.neo4j.ogm.domain.pizza.Pizza;
+import org.neo4j.ogm.domain.pizza.PizzaCheese;
+import org.neo4j.ogm.domain.pizza.PizzaSauce;
+import org.neo4j.ogm.domain.pizza.PizzaSeasoning;
+import org.neo4j.ogm.domain.pizza.Quantity;
+import org.neo4j.ogm.domain.pizza.Sauce;
+import org.neo4j.ogm.domain.pizza.Seasoning;
+import org.neo4j.ogm.domain.pizza.Topping;
+import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Luanne Misquitta
@@ -277,7 +286,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
-        System.out.println("##################### Labels: " + reloadedPizza.getLabels());
         assertEquals(2, reloadedPizza.getLabels().size());
         assertTrue(reloadedPizza.getLabels().contains("Cold"));
         assertTrue(reloadedPizza.getLabels().contains("Stale"));
@@ -331,7 +339,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
 
         Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
-        System.out.println("##################### Labels: " + reloadedPizza.getLabels());
         assertEquals(2, reloadedPizza.getLabels().size());
         assertTrue(reloadedPizza.getLabels().contains("Cold"));
         assertTrue(reloadedPizza.getLabels().contains("Stale"));

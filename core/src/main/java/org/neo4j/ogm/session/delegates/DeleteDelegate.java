@@ -12,8 +12,14 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.annotations.FieldWriter;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
+import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
@@ -26,12 +32,6 @@ import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Vince Bickers

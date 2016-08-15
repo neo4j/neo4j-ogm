@@ -19,18 +19,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccess;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityFactory;
-import org.neo4j.ogm.annotations.FieldWriter;
-import org.neo4j.ogm.annotations.PropertyWriter;
+import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccess;
+import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityFactory;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.PropertyWriter;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

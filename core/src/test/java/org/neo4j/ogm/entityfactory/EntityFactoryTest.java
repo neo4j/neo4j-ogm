@@ -13,17 +13,17 @@
 
 package org.neo4j.ogm.entityfactory;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotations.EntityFactory;
 import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.entity.io.EntityFactory;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Adam George

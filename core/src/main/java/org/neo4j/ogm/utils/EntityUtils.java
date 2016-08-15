@@ -12,15 +12,15 @@
  */
 package org.neo4j.ogm.utils;
 
+import java.util.Collection;
+
 import org.apache.commons.collections4.CollectionUtils;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.FieldReader;
+import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.FieldReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.MetaData;
-
-import java.util.Collection;
 
 /**
  * The utility methods here will all throw a <code>NullPointerException</code> if invoked with <code>null</code>.

@@ -13,22 +13,24 @@
 
 package org.neo4j.ogm.annotations.relationshipEntities;
 
-import org.junit.Test;
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.FieldWriter;
-import org.neo4j.ogm.annotations.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.DomainInfo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.RelationalWriter;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DomainInfo;
 
 /**
  * @author Luanne Misquitta

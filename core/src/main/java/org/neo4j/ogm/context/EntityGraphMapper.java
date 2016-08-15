@@ -14,14 +14,22 @@
 package org.neo4j.ogm.context;
 
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotations.*;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.compiler.NodeBuilder;
 import org.neo4j.ogm.compiler.RelationshipBuilder;
+import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.PropertyReader;
+import org.neo4j.ogm.entity.io.RelationalReader;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -31,10 +39,6 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Iterator;
 
 
 /**

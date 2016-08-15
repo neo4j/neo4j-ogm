@@ -13,6 +13,21 @@
 
 package org.neo4j.ogm.annotations;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -28,12 +43,17 @@ import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.satellites.Location;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
+import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccess;
+import org.neo4j.ogm.entity.io.FieldReader;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.MethodReader;
+import org.neo4j.ogm.entity.io.MethodWriter;
+import org.neo4j.ogm.entity.io.PropertyReader;
+import org.neo4j.ogm.entity.io.RelationalReader;
+import org.neo4j.ogm.entity.io.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Adam George

@@ -13,18 +13,30 @@
 
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.annotations.*;
-import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.FieldReader;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.PropertyReader;
+import org.neo4j.ogm.entity.io.RelationalReader;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration

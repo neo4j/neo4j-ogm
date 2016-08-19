@@ -15,7 +15,6 @@ package org.neo4j.ogm.drivers.http.driver;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -32,9 +31,9 @@ import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
+import org.neo4j.ogm.drivers.http.request.HttpRequestException;
 import org.neo4j.ogm.drivers.http.transaction.HttpTransaction;
 import org.neo4j.ogm.exception.ResultErrorsException;
-import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
@@ -42,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 /**
@@ -74,66 +74,52 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
     @Override
     public Request request() {
-        String url = requestUrl();
-        return new HttpRequest(httpClient(), url, driverConfig.getCredentials());
+        return new HttpRequest(httpClient(), requestUrl(), driverConfig.getCredentials());
     }
 
     @Override
     public Transaction newTransaction() {
-
-        String url = newTransactionUrl();
-        return new HttpTransaction(transactionManager, this, url);
+        return new HttpTransaction(transactionManager, this, newTransactionUrl());
     }
 
-    public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) {
+    public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
 
-        try {
-            try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, driverConfig.getCredentials())) {
-                HttpEntity responseEntity = response.getEntity();
-                if (responseEntity != null) {
-                    String responseText = EntityUtils.toString(responseEntity);
-                    LOGGER.debug("Thread {}: {}", Thread.currentThread().getId(), responseText );
-                    EntityUtils.consume(responseEntity);
-                    if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
-                        throw new ResultErrorsException(responseText);
-                    }
-                }
-                return response;
-            }
-        }
-
-        catch (HttpResponseException hre) {
-            if (hre.getStatusCode() == 404) {
-                Transaction tx = transactionManager.getCurrentTransaction();
-                if (tx != null) {
-                    transactionManager.rollback(tx);
+        try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, driverConfig.getCredentials())) {
+            HttpEntity responseEntity = response.getEntity();
+            if (responseEntity != null) {
+                String responseText = "";
+                responseText = EntityUtils.toString(responseEntity);
+                LOGGER.debug("Thread: {}, text: {}", Thread.currentThread().getId(), responseText);
+                EntityUtils.consume(responseEntity);
+                if (responseText.contains("\"errors\":[{") || responseText.contains("\"errors\": [{")) {
+                    throw new ResultErrorsException(responseText);
                 }
             }
-            throw new ResultProcessingException("HttpResponse exception: Not Found", hre);
+            return response;
         }
-
-        catch (Exception e) {
-            throw new ResultProcessingException("Failed to execute request: ", e);
+        catch (IOException ioe) {
+            throw new HttpRequestException(request, ioe);
         }
-
         finally {
             request.releaseConnection();
-            LOGGER.debug( "Thread {}: Connection released", Thread.currentThread().getId() );
+            LOGGER.debug( "Thread: {}, Connection released", Thread.currentThread().getId() );
         }
     }
 
     private String newTransactionUrl() {
 
         String url = transactionEndpoint(driverConfig.getURI());
-        LOGGER.debug( "Thread {}: POST {}", Thread.currentThread().getId(), url );
+        LOGGER.debug( "Thread: {}, POST {}", Thread.currentThread().getId(), url );
 
-        try (CloseableHttpResponse response = executeHttpRequest(new HttpPost(url))) {
+        HttpPost request = new HttpPost(url);
+
+        try (CloseableHttpResponse response = executeHttpRequest(request)) {
             Header location = response.getHeaders("Location")[0];
-            response.close();
             return location.getValue();
-        } catch (Exception e) {
-            throw new ResultProcessingException("Could not obtain new Transaction: ", e);
+        } catch (IOException ioe) {
+            throw new HttpRequestException(request, ioe);
         }
+
     }
 
     private String autoCommitUrl() {
@@ -156,15 +142,15 @@ public final class HttpDriver extends AbstractConfigurableDriver
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
-                LOGGER.debug("Thread {}: request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
+                LOGGER.debug("Thread: {}, request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
                 return ((HttpTransaction) tx).url();
             } else {
-                LOGGER.debug( "Thread {}: No current transaction, using auto-commit", Thread.currentThread().getId() );
+                LOGGER.debug( "Thread: {}, No current transaction, using auto-commit", Thread.currentThread().getId() );
             }
         } else {
-            LOGGER.debug( "Thread {}: No transaction manager available, using auto-commit", Thread.currentThread().getId() );
+            LOGGER.debug( "Thread: {}, No transaction manager available, using auto-commit", Thread.currentThread().getId() );
         }
-        LOGGER.debug( "Thread {}: request url {}", Thread.currentThread().getId(), autoCommitUrl() );
+        LOGGER.debug( "Thread: {}, request url {}", Thread.currentThread().getId(), autoCommitUrl() );
         return autoCommitUrl();
     }
 

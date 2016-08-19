@@ -58,7 +58,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
                 while (cause instanceof HttpResponseException == false) {
                     cause = cause.getCause();
                 }
-                assertEquals("Unauthorized", cause.getMessage());
+                assertTrue(cause.getMessage().startsWith("No auth"));
             }
         }
     }
@@ -94,7 +94,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
                 while (cause instanceof HttpResponseException == false) {
                     cause = cause.getCause();
                 }
-                assertEquals("Unauthorized", cause.getMessage());
+                assertEquals("Invalid username or password.", cause.getMessage());
             }
         }
     }

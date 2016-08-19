@@ -13,11 +13,8 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.NoHttpResponseException;
@@ -38,25 +35,22 @@ import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
 import org.neo4j.ogm.drivers.http.response.RestModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowModelResponse;
 import org.neo4j.ogm.exception.ConnectionException;
-import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.RowModel;
-import org.neo4j.ogm.request.DefaultRequest;
-import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.request.GraphRowListModelRequest;
-import org.neo4j.ogm.request.Request;
-import org.neo4j.ogm.request.RestModelRequest;
-import org.neo4j.ogm.request.RowModelRequest;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.request.Statements;
+import org.neo4j.ogm.request.*;
 import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -89,9 +83,7 @@ public class HttpRequest implements Request {
                 response = executeRequest( cypher );
                 return new GraphModelResponse(response);
             }
-            catch (CypherException | ConnectionException ce) {
-                throw ce;
-            } catch (Exception e) {
+            catch (IOException e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -106,10 +98,7 @@ public class HttpRequest implements Request {
             try {
                 return new RowModelResponse(executeRequest(cypher));
             }
-            catch (CypherException | ConnectionException ce) {
-                throw ce;
-            }
-            catch (Exception e) {
+            catch (IOException e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -122,10 +111,7 @@ public class HttpRequest implements Request {
         try {
             return new RowModelResponse(executeRequest(cypher));
         }
-        catch (CypherException | ConnectionException ce) {
-            throw ce;
-        }
-        catch (Exception e) {
+        catch (IOException e) {
             throw new ResultProcessingException("Could not parse response", e);
         }
     }
@@ -139,10 +125,7 @@ public class HttpRequest implements Request {
             try {
                 return new GraphRowsModelResponse(executeRequest(cypher));
             }
-            catch (CypherException | ConnectionException ce) {
-                throw ce;
-            }
-            catch (Exception e) {
+            catch (IOException e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -159,10 +142,7 @@ public class HttpRequest implements Request {
             try {
                 return new RestModelResponse(executeRequest(cypher));
             }
-            catch (CypherException | ConnectionException ce) {
-                throw ce;
-            }
-            catch (Exception e) {
+            catch (IOException e) {
                 throw new ResultProcessingException("Could not parse response", e);
             }
         }
@@ -190,23 +170,24 @@ public class HttpRequest implements Request {
         }
     }
 
-    private CloseableHttpResponse executeRequest(String cypher) throws Exception {
+    private CloseableHttpResponse executeRequest(String cypher) throws HttpRequestException {
 
         String url = this.url;
 
         assert (url != null);
 
-        logger.info("Thread {}: request {}", Thread.currentThread().getId(), cypher);
-
         HttpPost request = new HttpPost(url);
+
         request.setEntity(new StringEntity(cypher, "UTF-8"));
+
+        logger.info("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
 
         return execute(httpClient, request, credentials);
     }
 
-    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) throws Exception {
+    public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) throws HttpRequestException {
 
-        logger.info("Thread {}: {}", Thread.currentThread().getId(), request);
+        logger.debug("Thread: {}, request: {}", Thread.currentThread().getId(), request);
 
 
         CloseableHttpResponse response = null;
@@ -230,57 +211,48 @@ public class HttpRequest implements Request {
                 HttpEntity responseEntity = response.getEntity();
 
                 if (statusLine.getStatusCode() >= 300) {
+                    String responseText = statusLine.getReasonPhrase();
                     if (responseEntity != null) {
-                        String responseText = EntityUtils.toString(responseEntity);
-                        logger.debug("Thread {}: Response Status: {} response: {}", Thread.currentThread().getId(), statusLine.getStatusCode(), responseText);
-                        EntityUtils.consume(responseEntity);
+                        responseText = parseError(EntityUtils.toString(responseEntity));
+                        logger.warn("Thread: {}, response: {}", Thread.currentThread().getId(), responseText);
                     }
-                    throw new HttpResponseException(
-                            statusLine.getStatusCode(),
-                            statusLine.getReasonPhrase());
+                    throw new HttpResponseException(statusLine.getStatusCode(), responseText);
                 }
                 if (responseEntity == null) {
                     throw new ClientProtocolException("Response contains no content");
                 }
 
-                logger.debug("Thread {}: HttpResponse {}", Thread.currentThread().getId(), response);
-                return response;
+                return response; // don't close response yet, it is not consumed!
 
-            } catch (NoHttpResponseException nhre) {
-                try {
-                    logger.debug("Thread {}: No response from server.  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
-                    retryStrategy.errorOccured();
-                } catch (Exception e) {
-                    throw e;
-                    //throw new ResultProcessingException("Request retry has failed", e);
-                }
             }
+
+            // if we didn't get a response at all, try again
+            catch (NoHttpResponseException nhre) {
+                logger.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
+                retryStrategy.errorOccured();
+            }
+
+            catch (RetryException re) {
+                throw new HttpRequestException(request, re);
+            }
+
+            catch (UnknownHostException uhe) {
+                throw new ConnectionException(request.getURI().toString(), uhe);
+            }
+
             catch (IOException ioe) {
-                logger.warn("Thread {}: Caught IOException : {}", Thread.currentThread().getId(), ioe.getLocalizedMessage());
-                request.releaseConnection();
-                throw new ConnectionException("Error connecting to remote graph over HTTP", ioe);
+                throw new HttpRequestException(request, ioe);
             }
-            // the catch-all exception handler, will ensure all resources are properly closed in the event we cannot proceed
-            // or there is a problem parsing the response from the server.
-            catch (Exception e) {
 
-                logger.warn("Thread {}: Caught HttpResponse exception: {}", Thread.currentThread().getId(), e.getLocalizedMessage());
-
+            // here we catch any exception we throw above (plus any we didn't throw ouselves),
+            // log the problem, close any connection held by the request
+            // and then rethrow the exception to the caller.
+            catch (Exception exception) {
+                logger.warn("Thread: {}, exception: {}", Thread.currentThread().getId(), exception.getCause().getLocalizedMessage());
                 request.releaseConnection();
-
-                if (response != null) {
-                    try {
-                        response.close();
-                    } catch (IOException ioe) {
-                        throw e;
-                        //throw new ResultProcessingException("Failed to close response: ", e);
-                    }
-                }
-                throw e;
-                //throw new ResultProcessingException("Failed to execute request", e);
+                throw exception;
             }
         }
-        request.releaseConnection();
         throw new RuntimeException("Fatal Exception: Should not have occurred!");
     }
 
@@ -310,10 +282,10 @@ public class HttpRequest implements Request {
             return numberOfTriesLeft > 0;
         }
 
-        public void errorOccured() throws Exception {
+        public void errorOccured() {
             numberOfTriesLeft--;
             if (!shouldRetry()) {
-                throw new Exception("Retry Failed: Total " + numberOfRetries
+                throw new RetryException("Retry Failed: Total " + numberOfRetries
                         + " attempts made at interval " + getTimeToWait()
                         + "ms");
             }
@@ -329,6 +301,29 @@ public class HttpRequest implements Request {
                 Thread.sleep(getTimeToWait());
             } catch (InterruptedException ignored) {
             }
+        }
+    }
+
+    private static String parseError(String results) {
+        try {
+            ObjectMapper mapper = ObjectMapperFactory.objectMapper();
+            JsonNode responseNode = mapper.readTree(results);
+            JsonNode errors = responseNode.findValue("errors");
+            if (errors.elements().hasNext()) {
+                JsonNode errorNode = errors.elements().next();
+                return errorNode.findValue("message").asText();
+            } else {
+                return results;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    static class RetryException extends RuntimeException {
+
+        public RetryException(String msg) {
+            super(msg);
         }
     }
 }

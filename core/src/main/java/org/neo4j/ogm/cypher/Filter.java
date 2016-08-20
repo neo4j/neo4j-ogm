@@ -28,7 +28,7 @@ public class Filter {
 	/**
 	 * The value of the property to filter on
 	 */
-	private Object propertyValue;
+	private Object value;
 
 	/**
 	 * @deprecated as of 2.0.4 This is a SDN only concern and has been moved to that project.
@@ -88,12 +88,19 @@ public class Filter {
 	 */
 	private boolean nestedRelationshipEntity;
 
+	private FilterFunction function = FilterFunction.NONE;
+
 	public Filter() {
 	}
 
 	public Filter(String propertyName, Object propertyValue) {
 		this.propertyName = propertyName;
-		this.propertyValue = propertyValue;
+		this.value = propertyValue;
+	}
+
+	public Filter(FilterFunction function, Object propertyValue) {
+		this.function = function;
+		this.setValue(propertyValue);
 	}
 
 	public String getRelationshipDirection() {
@@ -112,17 +119,20 @@ public class Filter {
 		this.propertyName = propertyName;
 	}
 
-	public Object getPropertyValue() {
-		return propertyValue;
+	public Object getValue() {
+		return value;
 	}
 
-	public void setPropertyValue(Object propertyValue) {
-		this.propertyValue = propertyValue;
+	public void setValue(Object value) {
+		if (this.function == FilterFunction.DISTANCE && !(value instanceof DistanceComparison)) {
+			throw new IllegalArgumentException("Filter function is DISTANCE therefore value must be a type of DistanceComparison");
+		}
+		this.value = value;
 	}
 
 	/**
-	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
 	 * @return
+	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
 	 */
 	@Deprecated
 	public Integer getPropertyPosition() {
@@ -130,8 +140,8 @@ public class Filter {
 	}
 
 	/**
-	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
 	 * @param propertyPosition
+	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
 	 */
 	@Deprecated
 	public void setPropertyPosition(Integer propertyPosition) {
@@ -222,14 +232,67 @@ public class Filter {
 		this.nestedRelationshipEntity = nestedRelationshipEntity;
 	}
 
-    /**
-     * Returns the result of passing the property value through the transformer associated with the comparison operator
-     * on this {@link Filter}.
-     *
-     * @return The transformed property value
-     */
-    public Object getTransformedPropertyValue() {
-       return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.propertyValue);
-    }
+	/**
+	 * Returns the result of passing the property value through the transformer associated with the comparison operator
+	 * on this {@link Filter}.
+	 *
+	 * @return The transformed property value
+	 */
+	public Object getTransformedPropertyValue() {
+		return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.value);
+	}
 
+	public FilterFunction getFunction() {
+		return function;
+	}
+
+	public void setFunction(FilterFunction function) {
+		this.function = function;
+	}
+
+	/**
+	 * @param nodeIdentifier
+	 * @param addWhereClause
+	 * @return The filter state as a CYPHER fragment.
+	 */
+	public String toCypher(String nodeIdentifier, boolean addWhereClause) {
+		StringBuilder cypher = new StringBuilder();
+		if (this.function == FilterFunction.NONE) {
+			String uniquePropertyName = isNested() ?
+					getNestedPropertyName() + "_" + getPropertyName() : getPropertyName();
+			cypher.append(String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, getPropertyName(),
+					getComparisonOperator().getValue(), uniquePropertyName));
+		} else if (this.function == FilterFunction.DISTANCE) {
+			cypher.append(String.format("distance(point(%s),point({latitude:{lat}, longitude:{lon}})) " +
+					"%s {distance} ", nodeIdentifier, getComparisonOperator().getValue()));
+		}
+		String suffix = isNegated() ? negate(cypher.toString()) : cypher.toString();
+		return cypherPrefix(addWhereClause) + suffix;
+	}
+
+	public String uniquePropertyName() {
+		String uniquePropertyName = getPropertyName();
+		if (isNested()) {
+			//Nested entities may have the same property name, so we make them unique by qualifying them with the
+			// nested property name on the owning entity
+			uniquePropertyName = getNestedPropertyName() + "_" + getPropertyName();
+		}
+		return uniquePropertyName;
+	}
+
+	private String cypherPrefix(boolean addWhereClause) {
+		StringBuilder cypher = new StringBuilder();
+		if (addWhereClause) {
+			cypher.append("WHERE ");
+		} else {
+			if (!getBooleanOperator().equals(BooleanOperator.NONE)) {
+				cypher.append(getBooleanOperator().getValue()).append(" ");
+			}
+		}
+		return cypher.toString();
+	}
+
+	private String negate(String expression) {
+		return String.format("NOT(%s) ", expression);
+	}
 }

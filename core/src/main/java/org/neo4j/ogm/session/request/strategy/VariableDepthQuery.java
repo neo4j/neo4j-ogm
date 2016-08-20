@@ -16,9 +16,7 @@ package org.neo4j.ogm.session.request.strategy;
 import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.cypher.BooleanOperator;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.*;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
@@ -168,6 +166,28 @@ public class VariableDepthQuery implements QueryStatements {
         return buildQuery(matchClauses, relationshipClauses);
     }
 
+	/**
+	 * Append a filter to a query in the form of a parameter
+	 * @param filter the {@link Filter} to extract the parameter from
+	 * @param nodeIdentifier the node identifier that the parameter belongs to
+	 * @param query the query
+	 * @param properties property map containing the parameter name and value to bind to the query
+	 */
+	private static void appendFilter(Filter filter, String nodeIdentifier, StringBuilder query, Map<String, Object> properties) {
+		query.append(filter.toCypher(nodeIdentifier, query.indexOf(" WHERE ") == -1));
+		switch (filter.getFunction()) {
+			case DISTANCE:
+				DistanceComparison comparison = (DistanceComparison) filter.getValue();
+				properties.put("lat", comparison.getLatitude());
+				properties.put("lon", comparison.getLongitude());
+				properties.put("distance", comparison.getDistance());
+				break;
+			default:
+				properties.put(filter.uniquePropertyName(), filter.getTransformedPropertyValue());
+				break;
+		}
+	}
+
     private static StringBuilder buildQuery(Map<String, StringBuilder> matchClauses, List<StringBuilder> relationshipClauses) {
         StringBuilder query = new StringBuilder();
         for(StringBuilder matchClause : matchClauses.values()) {
@@ -177,35 +197,6 @@ public class VariableDepthQuery implements QueryStatements {
             query.append(relationshipClause);
         }
         return query;
-    }
-
-    /**
-     * Append a filter to a query in the form of a parameter
-     * @param filter the {@link Filter} to extract the parameter from
-     * @param nodeIdentifier the node identifier that the parameter belongs to
-     * @param query the query
-     * @param properties property map containing the parameter name and value to bind to the query
-     */
-    private static void appendFilter(Filter filter, String nodeIdentifier, StringBuilder query, Map<String, Object> properties) {
-        String uniquePropertyName = filter.getPropertyName();
-        if(filter.isNested()) {
-            //Nested entities may have the same property name, so we make them unique by qualifying them with the nested property name on the owning entity
-            uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
-        }
-
-        if(query.indexOf(" WHERE ") == -1) {
-            query.append("WHERE ");
-        }
-        else {
-            if (!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-                query.append(filter.getBooleanOperator().getValue()).append(" ");
-            }
-        }
-        String propertyExpressionPattern = filter.isNegated()
-                ? "NOT(%s.`%s` %s { `%s` }) "
-                : "%s.`%s` %s { `%s` } ";
-        query.append(String.format(propertyExpressionPattern, nodeIdentifier, filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
-        properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
     }
 
     /**

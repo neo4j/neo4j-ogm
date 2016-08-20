@@ -35,6 +35,11 @@ public class Filters implements Iterable<Filter> {
         return this;
     }
 
+    public Filters add(FilterFunction function, Object value) {
+        this.filters.add(new Filter(function, value));
+        return this;
+    }
+
     @Override
     public Iterator<Filter> iterator() {
         return filters.iterator();

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.DistanceComparison;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.FilterFunction;
@@ -64,6 +65,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		session.save(restaurant);
 
 		Filter filter = new Filter(FilterFunction.DISTANCE, new DistanceComparison(37.61649, -122.38681, 1000 * 1000.0));
+		filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
 		Assert.assertNotNull(found);
 		Assert.assertTrue(found.size() == 1);

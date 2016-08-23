@@ -14,8 +14,7 @@
 package org.neo4j.ogm.session.delegates;
 
 
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
@@ -38,8 +37,7 @@ public class GraphIdDelegate implements Capability.GraphId {
 			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
 			try {
 				if (classInfo != null) {
-					EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-					Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(possibleEntity);
+					Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(possibleEntity);
 					if (id != null) {
 						return (long) id;
 					}

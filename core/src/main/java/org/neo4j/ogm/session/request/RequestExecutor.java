@@ -24,7 +24,7 @@ import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.TransientRelationship;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.PropertyReader;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -311,7 +311,7 @@ public class RequestExecutor {
 					for (Object obj : context.registry()) { //TODO find a better way to do this instead of iterating through the log
 						if (!(obj instanceof TransientRelationship)) {
 							ClassInfo classInfo = session.metaData().classInfo(obj);
-							PropertyReader idReader = new DefaultEntityAccessStrategy().getIdentityPropertyReader(classInfo);
+							PropertyReader idReader = new EntityAccessManager().getIdentityPropertyReader(classInfo);
 							Long id = (Long) idReader.read(obj);
 							if (id != null && id.equals(referenceMapping.id)) {
 								registerEntity(session.context(), classInfo, referenceMapping.id, obj);

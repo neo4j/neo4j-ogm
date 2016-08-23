@@ -14,8 +14,7 @@ package org.neo4j.ogm.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -29,13 +28,11 @@ import java.util.Collection;
  */
 public class EntityUtils {
 
-    private static final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-
     public static Long identity(Object entity, MetaData metaData) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
 
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
 
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }

@@ -20,9 +20,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.EntityAccess;
-import org.neo4j.ogm.entity.io.EntityAccessStrategy;
 import org.neo4j.ogm.entity.io.EntityFactory;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.PropertyWriter;
@@ -45,7 +44,6 @@ public class SingleUseEntityMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(SingleUseEntityMapper.class);
 
-    private final EntityAccessStrategy entityAccessStrategy;
     private final EntityFactory entityFactory;
     private final MetaData metadata;
 
@@ -53,11 +51,11 @@ public class SingleUseEntityMapper {
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
      * @param mappingMetaData The {@link MetaData} to use for performing mappings
+     * @param entityFactory The entity factory to use.
      */
     public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
         this.metadata = mappingMetaData;
         this.entityFactory = new EntityFactory(mappingMetaData);
-        this.entityAccessStrategy = new DefaultEntityAccessStrategy();
     }
 
     /**
@@ -104,7 +102,7 @@ public class SingleUseEntityMapper {
 
     // TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
     private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
-        PropertyWriter writer = this.entityAccessStrategy.getPropertyWriter(classInfo, property.getKey());
+        PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey());
 
         if (writer == null) {
             FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());

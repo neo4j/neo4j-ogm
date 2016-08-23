@@ -23,8 +23,7 @@ import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.RelationalReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class SaveEventDelegate {
 
-    private static final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
     private Neo4jSession session;
@@ -269,7 +267,7 @@ public final class SaveEventDelegate {
 
         if (parentClassInfo != null) {
 
-            for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(parentClassInfo)) {
+            for (RelationalReader reader : EntityAccessManager.getRelationalReaders(parentClassInfo)) {
 
                 Object reference = reader.read(parent);
 
@@ -300,7 +298,7 @@ public final class SaveEventDelegate {
 
 
     private Collection<RelationalReader> relationalReaders(Object object) {
-        return entityAccessStrategy.getRelationalReaders(this.session.metaData().classInfo(object));
+        return EntityAccessManager.getRelationalReaders(this.session.metaData().classInfo(object));
     }
 
 
@@ -370,11 +368,11 @@ public final class SaveEventDelegate {
 
             else {
                 // graph relationship is transitive across the RE domain object
-                Object startNode =  entityAccessStrategy.getStartNodeReader(referenceInfo).read(reference);
+                Object startNode =  EntityAccessManager.getStartNodeReader(referenceInfo).read(reference);
                 ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
                 Long startNodeId = EntityUtils.identity(startNode, session.metaData());
 
-                Object endNode =  entityAccessStrategy.getEndNodeReader(referenceInfo).read(reference);
+                Object endNode =  EntityAccessManager.getEndNodeReader(referenceInfo).read(reference);
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = EntityUtils.identity(endNode, session.metaData());
 

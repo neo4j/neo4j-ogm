@@ -27,9 +27,8 @@ import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.EntityAccess;
-import org.neo4j.ogm.entity.io.EntityAccessStrategy;
 import org.neo4j.ogm.entity.io.EntityFactory;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.PropertyReader;
@@ -62,13 +61,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	private final MappingContext mappingContext;
 	private final EntityFactory entityFactory;
 	private final MetaData metadata;
-	private final EntityAccessStrategy entityAccessStrategy;
 
 	public GraphEntityMapper(MetaData metaData, MappingContext mappingContext) {
 		this.metadata = metaData;
 		this.entityFactory = new EntityFactory(metadata);
 		this.mappingContext = mappingContext;
-		this.entityAccessStrategy = new DefaultEntityAccessStrategy();
 	}
 
     @Override
@@ -214,7 +211,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 	private void writeProperty(ClassInfo classInfo, Object instance, Property<?, ?> property) {
 
-		PropertyWriter writer = entityAccessStrategy.getPropertyWriter(classInfo, property.getKey().toString());
+		PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey().toString());
 
 		if (writer == null) {
 			logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
@@ -222,7 +219,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			Object value = property.getValue();
 			// merge iterable / arrays and co-erce to the correct attribute type
 			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-				PropertyReader reader = entityAccessStrategy.getPropertyReader(classInfo, property.getKey().toString());
+				PropertyReader reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
 				if (reader != null) {
 					Object currentValue = reader.read(instance);
 					Class<?> paramType = writer.type();
@@ -243,7 +240,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		String edgeLabel = edge.getType();
 		ClassInfo sourceInfo = metadata.classInfo(source);
 
-		RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edgeLabel, relationshipDirection, parameter);
+		RelationalWriter writer = EntityAccessManager.getRelationalWriter(sourceInfo, edgeLabel, relationshipDirection, parameter);
 		if (writer != null && writer.forScalar()) {
 			writer.write(source, parameter);
 			return true;
@@ -294,7 +291,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (!oneToOne) {
 			oneToMany.add(edge);
 		} else {
-			RelationalWriter writer = entityAccessStrategy.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
+			RelationalWriter writer = EntityAccessManager.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
 			mappingContext.registerRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
 		}
 	}
@@ -312,7 +309,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 		// If the source has a writer for an outgoing relationship for the rel entity, then write the rel entity on the source if it's a scalar writer
 		ClassInfo sourceInfo = metadata.classInfo(source);
-		RelationalWriter writer = entityAccessStrategy.getRelationalWriter(sourceInfo, edge.getType(), Relationship.OUTGOING, relationshipEntity);
+		RelationalWriter writer = EntityAccessManager.getRelationalWriter(sourceInfo, edge.getType(), Relationship.OUTGOING, relationshipEntity);
 		if (writer == null) {
 			logger.debug("No writer for {}", target);
 		} else {
@@ -326,7 +323,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 		//If the target has a writer for an incoming relationship for the rel entity, then write the rel entity on the target if it's a scalar writer
 		ClassInfo targetInfo = metadata.classInfo(target);
-		writer = entityAccessStrategy.getRelationalWriter(targetInfo, edge.getType(), Relationship.INCOMING, relationshipEntity);
+		writer = EntityAccessManager.getRelationalWriter(targetInfo, edge.getType(), Relationship.INCOMING, relationshipEntity);
 
 		if (writer == null) {
 			logger.debug("No writer for {}", target);
@@ -354,14 +351,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		// set the start and end entities
 		ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
 
-		RelationalWriter startNodeWriter = entityAccessStrategy.getRelationalEntityWriter(relEntityInfo, StartNode.class);
+		RelationalWriter startNodeWriter = EntityAccessManager.getRelationalEntityWriter(relEntityInfo, StartNode.class);
 		if (startNodeWriter != null) {
 			startNodeWriter.write(relationshipEntity, startEntity);
 		} else {
 			throw new RuntimeException("Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
 		}
 
-		RelationalWriter endNodeWriter = entityAccessStrategy.getRelationalEntityWriter(relEntityInfo, EndNode.class);
+		RelationalWriter endNodeWriter = EntityAccessManager.getRelationalEntityWriter(relEntityInfo, EndNode.class);
 		if (endNodeWriter != null) {
 			endNodeWriter.write(relationshipEntity, endEntity);
 		} else {
@@ -444,7 +441,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             if (!registeredEdges.contains(edge)) {
                 Object source = mappingContext.getNodeEntity(edge.getStartNode());
                 Object target = mappingContext.getNodeEntity(edge.getEndNode());
-                RelationalWriter writer = entityAccessStrategy.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
+                RelationalWriter writer = EntityAccessManager.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
                 // ensures its tracked in the domain
                 if (writer != null) {
                     MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor()));
@@ -466,7 +463,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	 */
 	private RelationalWriter findIterableWriter(Object instance, Object parameter, String relationshipType, String relationshipDirection) {
 		ClassInfo classInfo = metadata.classInfo(instance);
-		return entityAccessStrategy.getIterableWriter(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
+		return EntityAccessManager.getIterableWriter(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
 	}
 
 
@@ -483,10 +480,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 		ClassInfo classInfo = metadata.classInfo(instance);
 
-		RelationalWriter writer = entityAccessStrategy.getIterableWriter(classInfo, valueType, relationshipType, relationshipDirection);
+		RelationalWriter writer = EntityAccessManager.getIterableWriter(classInfo, valueType, relationshipType, relationshipDirection);
 		if (writer != null) {
 			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-				RelationalReader reader = entityAccessStrategy.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
+				RelationalReader reader = EntityAccessManager.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
 				Object currentValues;
 				if (reader != null) {
 					currentValues = reader.read(instance);

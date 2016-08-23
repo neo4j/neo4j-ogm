@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.PlainUser;
 import org.neo4j.ogm.domain.entityMapping.iterables.*;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldReader;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.MethodReader;
@@ -43,12 +43,12 @@ public class IterableRelationalReaderWriterTest {
 
     final String KNOWS = "KNOWS";
     final String LIKES = "LIKES";
-    private DefaultEntityAccessStrategy entityAccessStrategy;
+    private EntityAccessManager entityAccessStrategy;
     private DomainInfo domainInfo;
 
     @Before
     public void setup() {
-        entityAccessStrategy = new DefaultEntityAccessStrategy();
+        entityAccessStrategy = new EntityAccessManager();
         domainInfo = new DomainInfo("org.neo4j.ogm.domain.entityMapping.iterables");
     }
 

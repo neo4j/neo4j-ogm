@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -33,7 +33,7 @@ import org.neo4j.ogm.metadata.DomainInfo;
  */
 public class RelationshipWriterPlainFieldsTest {
 
-    private DefaultEntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
+    private EntityAccessManager entityAccessStrategy = new EntityAccessManager();
     private DomainInfo domainInfo = new DomainInfo(this.getClass().getPackage().getName());
 
     @Test

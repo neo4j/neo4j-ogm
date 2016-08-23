@@ -27,8 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.entity.io.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.entity.io.EntityAccessStrategy;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldReader;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.PropertyReader;
@@ -62,7 +61,6 @@ public class MappingContext {
     private final EntityMemo objectMemo;
 
     private final MetaData metaData;
-    private final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
 
     //TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
     private final ConcurrentHashMap<Long, LabelHistory> labelRegister = new ConcurrentHashMap<>();
@@ -146,7 +144,7 @@ public class MappingContext {
 
     private void remember(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Long id = (Long) entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
         objectMemo.remember(id, entity, classInfo);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
@@ -167,7 +165,7 @@ public class MappingContext {
 
     public boolean isDirty(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
         return !objectMemo.remembered((Long) id, entity, classInfo);
     }
 
@@ -229,7 +227,7 @@ public class MappingContext {
                 }
             }
         } else {
-            PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+            PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
             clear(type, identityReader);
         }
     }
@@ -267,7 +265,7 @@ public class MappingContext {
     public void clear(Object entity) {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+        PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
         Long id = (Long) identityReader.read(entity);
 
         purge(entity, identityReader, type);
@@ -303,8 +301,8 @@ public class MappingContext {
         while (relationshipEntityIdIterator.hasNext()) {
             Long relationshipEntityId = relationshipEntityIdIterator.next();
             Object relationshipEntity = relationshipEntityRegister.get(relationshipEntityId);
-            RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(relationshipEntity));
-            RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(relationshipEntity));
+            RelationalReader startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(relationshipEntity));
+            RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(relationshipEntity));
             if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity == endNodeReader.read(relationshipEntity)) {
                 relationshipEntityIdIterator.remove();
             }
@@ -338,7 +336,7 @@ public class MappingContext {
                                 if (relEntity != null) {
                                     String relType = mappedRelationship.getRelationshipType();
                                     ClassInfo relClassInfo = metaData.classInfo(relType);
-                                    PropertyReader relIdentityReader = entityAccessStrategy.getIdentityPropertyReader(relClassInfo);
+                                    PropertyReader relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
                                     purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
                                 }
                             }
@@ -351,10 +349,10 @@ public class MappingContext {
             } else {
                 if (relationshipEntityRegister.containsKey(id)) {
                     relationshipEntityRegister.remove(id);
-                    RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity));
+                    RelationalReader startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(entity));
                     Object startNode = startNodeReader.read(entity);
                     clear(startNode);
-                    RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(entity));
+                    RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(entity));
                     Object endNode = endNodeReader.read(entity);
                     clear(endNode);
                 }
@@ -369,7 +367,7 @@ public class MappingContext {
 
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        PropertyReader identityReader = entityAccessStrategy.getIdentityPropertyReader(classInfo);
+        PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 
         Long id = (Long) identityReader.read(entity);
 
@@ -390,8 +388,8 @@ public class MappingContext {
                     }
                 }
             } else if (relationshipEntityRegister.containsKey(id)) {
-                RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(classInfo);
-                RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(classInfo);
+                RelationalReader startNodeReader = EntityAccessManager.getStartNodeReader(classInfo);
+                RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(classInfo);
                 neighbours.add(startNodeReader.read(entity));
                 neighbours.add(endNodeReader.read(entity));
             }

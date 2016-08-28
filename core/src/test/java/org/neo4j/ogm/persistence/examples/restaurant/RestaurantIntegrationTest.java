@@ -63,11 +63,12 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	public void shouldQueryByDistanceUsingFilter() {
 		Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)", 37.61649, -122.38681, 94128);
 		session.save(restaurant);
+		session.clear();
 
 		Filter filter = new Filter(FilterFunction.DISTANCE, new DistanceComparison(37.61649, -122.38681, 1000 * 1000.0));
 		filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
 		Assert.assertNotNull(found);
-		Assert.assertTrue(found.size() == 1);
+		Assert.assertTrue(found.size() >= 1);
 	}
 }

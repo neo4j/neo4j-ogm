@@ -1,0 +1,44 @@
+[[reference-overview]]
+= Overview
+
+The basic concepts of the Object-Graph Mapping (OGM) library are explained in this chapter.
+
+.Getting started
+To get started with a simple application, you need only your domain model and (optionally) the <<reference-programming-model-annotations, annotations>> provided by the library.
+You use annotations to mark domain objects to be reflected by nodes and relationships of the graph database.
+For individual fields the annotations allow you to declare how they should be processed and mapped to the graph.
+For property fields and references to other entities this is straightforward.
+
+
+.Adding Neo4j graph queries
+To use advanced functionality like Cypher queries, a basic understanding of the graph data model is required.
+The graph data model is explained in the chapter about <<introduction, Neo4j>>.
+
+
+.Managing relationships
+Relationships between entities are first class citizens in a graph database and therefore worth a <<reference-programming-model-relationships, separate chapter>> describing their usage in Neo4j OGM.
+
+
+.Session
+Neo4j OGM offers a <<reference-programming-model-session, session>> for interacting with the mapped entities and the Neo4j graph database.
+
+
+.Mapping strategies
+Because Neo4j is a schema-free database, the OGM uses a simple mechanism to map Java types to Neo4j nodes using labels.
+How that works is explained here: <<reference-programming-model-typerepresentationstrategy, entity type representation>>.
+
+
+.Transactional support
+Neo4j uses transactions to guarantee the integrity of your data and Neo4j OGM supports this fully.
+The implications of this are described <<reference-programming-model-transactions, here>>.
+
+
+.Event handling
+The Events mechanism allows users to register event listeners for handling persistence events related both to top-level objects being saved as well as connected objects.
+<<reference-programming-model-events, Event handling>> is discussed in more detail later in the reference chapter.
+
+////
+== Examples
+The provided samples, which are also publicly hosted on http://github.com/neo4j-examples[Github], are explained in <<reference_samples>>.
+////
+

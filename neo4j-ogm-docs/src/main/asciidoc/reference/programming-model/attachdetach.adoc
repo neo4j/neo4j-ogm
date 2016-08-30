@@ -1,18 +1,18 @@
-[[reference_programming-model_attachdetach]]
-= Entity Management
+[[reference-programming-model-attachdetach]]
+= Entity management
 
-[[reference_programming-model_lifecycle_persistence]]
-== Persisting Entities
+[[reference-programming-model-lifecycle-persistence]]
+== Persisting entities
 
 Entity persistence is performed through the `save()` method on the underlying `Session` object.
 
-Under the bonnet, the implementation of `Session` has access to the `MappingContext` that keeps track of the data that has been loaded from Neo4j during the lifetime of the session.  
-Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.  
+Under the bonnet, the implementation of `Session` has access to the `MappingContext` that keeps track of the data that has been loaded from Neo4j during the lifetime of the session.
+Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.
 The differences are used to construct a Cypher query that persists the deltas to Neo4j before repopulating it's state based on the response from the database server.
 
 .Persisting entities
 ====
-[source,java]
+[source, java]
 ----
 @NodeEntity
 public class Person {
@@ -28,10 +28,11 @@ session.save(p);
 ----
 ====
 
-[[reference_programming-model_detached_relating]]
-== Save Depth 
 
-As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, where depth dictates the number of related entities to save starting from the given entity.  
+[[reference-programming-model-detached-relating]]
+== Save depth
+
+As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, where depth dictates the number of related entities to save starting from the given entity.
 The default depth, -1, will persist properties of the specified entity as well as every modified entity in the object graph reachable from it.
 A depth of 0 will persist only the properties of the specified entity to the database.
 
@@ -39,7 +40,7 @@ Specifying the save depth is handy when it comes to dealing with complex collect
 
 .Relationship save cascading
 ====
-[source,java]
+[source, java]
 ----
 @NodeEntity
 class Movie {
@@ -62,15 +63,15 @@ movie.setTopActor(actor);
 ----
 ====
 
-Neither the actor nor the movie has been assigned a node in the graph. 
+Neither the actor nor the movie has been assigned a node in the graph.
 If we were to call `session.save(movie)`, then the OGM would first create a node for the movie.
-It would then note that there is a relationship to an actor, so it would save the actor in a cascading fashion.  
-Once the actor has been persisted, it will create the relationship from the movie to the actor. 
+It would then note that there is a relationship to an actor, so it would save the actor in a cascading fashion.
+Once the actor has been persisted, it will create the relationship from the movie to the actor.
 All of this will be done atomically in one transaction.
 
 The important thing to note here is that if `session.save(actor)` is called instead, then only the actor will be persisted.
-The reason for this is that the actor entity knows nothing about the movie entity - it is the movie entity that has the reference to the actor. 
-Also note that this behaviour is not dependent on any configured relationship direction on the annotations. 
+The reason for this is that the actor entity knows nothing about the movie entity - it is the movie entity that has the reference to the actor.
+Also note that this behaviour is not dependent on any configured relationship direction on the annotations.
 It is a matter of Java references and is not related to the data model in the database.
 
 In the following example, the actor and the movie are both managed entities, having both been previously persisted to the graph:
@@ -87,45 +88,6 @@ session.save(movie);
 [NOTE]
 ====
 In this case, even though the movie has a reference to the actor, the property change on the actor will not be persisted by the call to `save(movie)`.
-The reason for this is, as mentioned above, that cascading will only be done for fields that have been modified. 
+The reason for this is, as mentioned above, that cascading will only be done for fields that have been modified.
 Since the `movie.topActor` field has not been modified, it will not cascade the persist operation to the actor.
-====
-
-[[reference_programming-model_sorting_and_paging]]
-= Sorting and Paging
-
-Neo4j OGM supports Sorting and Paging of results when using the Session object.
-The Session object methods take independent arguments for Sorting and Pagination
-
-.Paging
-[source,java]
-----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new Pagination(pageNumber,itemsPerPage), depth)
-----
-
-.Sorting
-[source,java]
-----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new SortOrder().add("name"), depth)
-----
-
-.Sort in descending order
-[source,java]
-----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new SortOrder().add(SortOrder.Direction.DESC,"name"))
-----
-
-.Sorting with paging
-[source,java]
-----
-Iterable<World> worlds = session.loadAll(World.class,
-                                        new SortOrder().add("name"), new Pagination(pageNumber,itemsPerPage))
-----
-
-[NOTE]
-====
-Neo4j OGM does not yet support sorting and paging on custom queries.
 ====

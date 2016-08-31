@@ -1,5 +1,5 @@
-[[tutorial_model]]
-= Domain Model
+[[tutorial-model]]
+= Domain model
 
 Before we get to any code, we want to whiteboard our graph model.
 
@@ -10,12 +10,12 @@ We're also going to model a Study Buddy which represents a group of students tha
 
 Here's what we came up with.
 
+image::model.png[Graph model, 770, 370]
 
-image:model.png[Graph Model]
+In Java, this is straightforward:
 
-In Java, this is straightforward-
-
-```java
+[source, java]
+----
 public class Department {
     private String name;
     private Set<Subject> subjects;
@@ -52,8 +52,7 @@ public class Enrollment {
     private Course course;
     private Date enrolledDate;
 }
-
-```
+----
 
 Note that when a student enrolls for a course, we're going to keep track of the enrollment date.
 In the graph, this will be stored as a property on the ENROLLED relationship between a student and a course.

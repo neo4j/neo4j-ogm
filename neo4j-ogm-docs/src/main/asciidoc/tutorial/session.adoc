@@ -1,17 +1,23 @@
-[[tutorial_session]]
+[[tutorial-configuration]]
 = Configuration
+
 Since the OGM 2.x works both against a remote server as well as embedded Neo4j, we'll need to configure it to use the appropriate driver.
 We'll allow the OGM to auto-configure itself by providing a file called `ogm.properties` in the classpath.
 
-```
+[source, properties]
+----
 driver=org.neo4j.ogm.drivers.http.driver.HttpDriver
 URI=http://username:password@localhost:7474
-```
+----
+
 Here, we're setting up the HTTP Driver to connect to our local Neo4j server.
 
 [NOTE]
-OGM 1.x does not require this configuration. Instead, the URL to the Neo4j server is provided to the `Session` described below.
+OGM 1.x does not require this configuration.
+Instead, the URL to the Neo4j server is provided to the `Session` described below.
 
+
+[[tutorial-session]]
 = Session
 
 So our domain entities are annotated, now we're ready persist them to the graph!
@@ -21,35 +27,39 @@ A `Session` is obtained from a `SessionFactory`.
 
 We're going to set up the `SessionFactory` just once and have it produce as many sessions as required.
 
-```java
+[source, java]
+----
 public class Neo4jSessionFactory {
 
-	private final static SessionFactory sessionFactory = new SessionFactory("school.domain");
-	private static Neo4jSessionFactory factory = new Neo4jSessionFactory();
+    private final static SessionFactory sessionFactory = new SessionFactory("school.domain");
+    private static Neo4jSessionFactory factory = new Neo4jSessionFactory();
 
-	public static Neo4jSessionFactory getInstance() {
-		return factory;
-	}
+    public static Neo4jSessionFactory getInstance() {
+        return factory;
+    }
 
-	private Neo4jSessionFactory() {
-	}
+    private Neo4jSessionFactory() {
+    }
 
-	public Session getNeo4jSession() {
-		return sessionFactory.openSession();
-	}
+    public Session getNeo4jSession() {
+        return sessionFactory.openSession();
+    }
 }
-```
+----
 
-OGM 1.x needs to provide the URL to the Neo4j Server to the `openSession` method like this
+OGM 1.x needs to provide the URL to the Neo4j Server to the `openSession` method like this:
 
-```
-	sessionFactory.openSession("http://localhost:7474");
-```
+[source, java]
+----
+    sessionFactory.openSession("http://localhost:7474");
+----
 
-The `SessionFactory` constructor accepts packages that are to be scanned for domain metadata. The domain objects in our university application are grouped under `school.domain`.
+The `SessionFactory` constructor accepts packages that are to be scanned for domain metadata.
+The domain objects in our university application are grouped under `school.domain`.
 When the `SessionFactory` is created, it will scan `school.domain` for potential domain classes and construct the object mapping metadata to be used by all sessions created thereafter.
 
-A `Session` requires a URL of the remote Neo4j database. All operations within the session will be performed against this remote database.
+A `Session` requires a URL of the remote Neo4j database.
+All operations within the session will be performed against this remote database.
 The `Session` keeps track of changes made to entities and relationships and persists ones that have been modified on save.
 Once an entity is tracked by the session, reloading this entity within the scope of the same session will result in the session cache returning the previously loaded entity.
 However, the subgraph in the session will expand if the entity or its related entities retrieve additional relationships from the graph.
@@ -58,7 +68,8 @@ For the purpose of this demo application, we'll use short lived sessions - a new
 
 Our university application will use the following operations
 
-```java
+[source, java]
+----
 public interface Service<T> {
 
     Iterable<T> findAll();
@@ -70,61 +81,71 @@ public interface Service<T> {
     T createOrUpdate(T object);
 
 }
-```
+----
 
-These CRUD interactions with the graph are all handled by the `Session`. We wrote `GenericService` to deal with `Session` operations.
+These CRUD interactions with the graph are all handled by the `Session`.
+We wrote `GenericService` to deal with `Session` operations.
 
-```java
-
+[source, java]
+----
 public abstract class GenericService<T> implements Service<T> {
 
- private static final int DEPTH_LIST = 0;
- private static final int DEPTH_ENTITY = 1;
- private Session session = Neo4jSessionFactory.getInstance().getNeo4jSession();
+    private static final int DEPTH_LIST = 0;
+    private static final int DEPTH_ENTITY = 1;
+    private Session session = Neo4jSessionFactory.getInstance().getNeo4jSession();
 
- @Override
- public Iterable<T> findAll() {
-     return session.loadAll(getEntityType(), DEPTH_LIST);
- }
+    @Override
+    public Iterable<T> findAll() {
+        return session.loadAll(getEntityType(), DEPTH_LIST);
+    }
 
- @Override
- public T find(Long id) {
-     return session.load(getEntityType(), id, DEPTH_ENTITY);
- }
+    @Override
+    public T find(Long id) {
+        return session.load(getEntityType(), id, DEPTH_ENTITY);
+    }
 
- @Override
- public void delete(Long id) {
-     session.delete(session.load(getEntityType(), id));
- }
+    @Override
+    public void delete(Long id) {
+        session.delete(session.load(getEntityType(), id));
+    }
 
- @Override
- public T createOrUpdate(T entity) {
-     session.save(entity, DEPTH_ENTITY);
-     return find(((Entity) entity).getId());
- }
+    @Override
+    public T createOrUpdate(T entity) {
+        session.save(entity, DEPTH_ENTITY);
+        return find(((Entity) entity).getId());
+    }
 
- public abstract Class<T> getEntityType();
+    public abstract Class<T> getEntityType();
 }
-```
+----
 
-One of the features of Neo4j OGM is variable depth persistence. This means you can vary the depth of fetches depending on the shape of your data and application.
-The default depth is 1, which loads simple properties of the entity and its immediate relations. This is sufficient for the `find` method, which is used in the application to present a create or edit form for an entity.
+One of the features of Neo4j OGM is variable depth persistence.
+This means you can vary the depth of fetches depending on the shape of your data and application.
+The default depth is 1, which loads simple properties of the entity and its immediate relations.
+This is sufficient for the `find` method, which is used in the application to present a create or edit form for an entity.
 
-image:classDetail.png[Class detail]
+image::classDetail.png[Class detail, 896, 457]
 
-Loading relationships is not required however when listing all entities of a type. We merely require the id and name of the entity, and so a depth of 0 is used by `findAll` to only load simple properties
-of the entity but skip its relationships.
+Loading relationships is not required however when listing all entities of a type.
+We merely require the id and name of the entity, and so a depth of 0 is used by `findAll` to only load simple properties of the entity but skip its relationships.
 
-image:departmentListing.png[Department Listing]
+image::departmentListing.png[Department listing, 896, 457]
 
-The default save depth is -1, or everything that has been modified and can be reached from the entity up to an infinite depth. This means we can persist all our changes in one go.
+The default save depth is -1, or everything that has been modified and can be reached from the entity up to an infinite depth.
+This means we can persist all our changes in one go.
 
-This `GenericService` takes care of CRUD operations for all our entities! All we did was delegate to the `Session`; no need to write persistence logic for every entity.
+This `GenericService` takes care of CRUD operations for all our entities!
+All we did was delegate to the `Session`; no need to write persistence logic for every entity.
+
 
 == Queries
-Popular Study Buddies is a report that lists the most popular peer study groups. This requires a custom Cypher query. It is easy to supply a Cypher query to the `query` method available on the `Session`.
 
-```java
+Popular Study Buddies is a report that lists the most popular peer study groups.
+This requires a custom Cypher query.
+It is easy to supply a Cypher query to the `query` method available on the `Session`.
+
+[source, java]
+----
 Service("studyBuddyService")
 public class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements StudyBuddyService {
 
@@ -142,6 +163,7 @@ public class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements
         return StudyBuddy.class;
     }
 }
-```
+----
 
 The `query` provided by the `Session` can return a domain object, a collection of them, or a `org.neo4j.ogm.model.Result`.
+

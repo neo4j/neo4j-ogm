@@ -1,30 +1,28 @@
-[[reference_programming-model]]
+[[reference-programming-model]]
 = Programming model
 
 This chapter covers the fundamentals of the programming model behind Neo4j OGM.
 It discusses the mapping mode, the annotations provided by the OGM and how to use them.
 
-:leveloffset: +1
+include::mapping.adoc[leveloffset=+1]
 
-include::mapping.adoc[]
+include::typerepresentationstrategy.adoc[leveloffset=+1]
 
-include::typerepresentationstrategy.adoc[]
+include::simple_mapping.adoc[leveloffset=+1]
 
-include::simple_mapping.adoc[]
+include::node-entities.adoc[leveloffset=+1]
 
-include::node-entities.adoc[]
+include::relationships.adoc[leveloffset=+1]
 
-include::relationships.adoc[]
+include::session.adoc[leveloffset=+1]
 
-include::session.adoc[]
+include::conversion.adoc[leveloffset=+1]
 
-include::conversion.adoc[]
+include::transactions.adoc[leveloffset=+1]
 
-include::transactions.adoc[]
+include::attachdetach.adoc[leveloffset=+1]
 
-include::attachdetach.adoc[]
+include::sorting-paging.adoc[leveloffset=+1]
 
-include::events.adoc[]
-
-:leveloffset: -1
+include::events.adoc[leveloffset=+1]
 

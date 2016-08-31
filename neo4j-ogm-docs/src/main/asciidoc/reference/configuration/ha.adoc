@@ -1,21 +1,31 @@
-[[reference_configuration_ha]]
-= Configuring the OGM in an HA environment
+[[reference-configuration-ha]]
+= Configuring Neo4j OGM for HA
 
-[[reference_configuration_transactions]]
-== Transaction Binding in HA mode
-A typical Neo4j HA cluster will consist of a master node and a couple of slave nodes for providing failover capability and optionally for handling reads. (Although it is possible to write to slaves, this is uncommon because it requires additional effort to synchronise a slave with the master node)
+
+[[reference-configuration-transactions]]
+== Transaction binding in HA mode
+
+A typical Neo4j HA cluster will consist of a master node and a couple of slave nodes for providing failover capability and optionally for handling reads.
+(Although it is possible to write to slaves, this is uncommon because it requires additional effort to synchronise a slave with the master node)
 
 image:neo4j-cluster.png[Typical HA Cluster]
 
-When operating in HA mode, Neo4j does not make open transactions available across all nodes in the cluster. This means we must bind every request within a specific transaction to the same node in the cluster, or the commit will fail with `404 Not Found`.
+When operating in HA mode, Neo4j does not make open transactions available across all nodes in the cluster.
+This means we must bind every request within a specific transaction to the same node in the cluster, or the commit will fail with `404 Not Found`.
 
-[[reference_configuration_readwrite]]
-== Read-only Transactions
 
-As of version 1.1.1 the OGM does not distinguish between WRITE transactions and READ-ONLY transactions. We cannot therefore bind read-only transactions to slaves and write transactions to master. A future version will address this deficiency, but in the meantime the only way to ensure that everything works as expected is to direct every transaction to master. There are a couple of ways to to achieve this.
+[[reference-configuration-readwrite]]
+== Read-only transactions
 
-[[reference_configuration_staticbinding]]
+As of version 1.1.1 the OGM does not distinguish between WRITE transactions and READ-ONLY transactions.
+We cannot therefore bind read-only transactions to slaves and write transactions to master.
+A future version will address this deficiency, but in the meantime the only way to ensure that everything works as expected is to direct every transaction to master.
+There are a couple of ways to to achieve this.
+
+
+[[reference-configuration-staticbinding]]
 == Static binding to a designated master
+
 
 === Example cluster:
 
@@ -23,23 +33,29 @@ As of version 1.1.1 the OGM does not distinguish between WRITE transactions and 
 . slave1:    192.168.0.56
 . slave2:    192.168.0.67
 
-.OGM Binding to master ip address
-[source,java]
+.OGM Binding to master IP address
+[source, java]
 ----
-
- Components.driver().setURI("http://192.168.0.55:7474");
-
+Components.driver().setURI("http://192.168.0.55:7474");
 ----
 
 [NOTE]
 ====
-We don't really recommend this approach, except for testing purposes and non-critical deployments. Firstly, it will only work if you always bring up the designated master first, and secondly, if the master goes down all subsequent transactions will fail until it is restarted. In HA mode, the cluster is able to elect a new master when this happens, but as of the current version of the OGM, there is no mechanism for querying the cluster to identify the current master. The solution in this case is to use a load balancer such as HAProxy that can do this for us. This is described in the next section.
-
+We don't really recommend this approach, except for testing purposes and non-critical deployments.
+Firstly, it will only work if you always bring up the designated master first, and secondly, if the master goes down all subsequent transactions will fail until it is restarted.
+In HA mode, the cluster is able to elect a new master when this happens, but as of the current version of the OGM, there is no mechanism for querying the cluster to identify the current master.
+The solution in this case is to use a load balancer such as HAProxy that can do this for us.
+This is described in the next section.
 ====
 
-[[reference_configuration_haproxy]]
+
+[[reference-configuration-haproxy]]
 == Dynamic binding via a load balancer
-In the Neo4j HA architecture, a cluster is typically fronted by a load balancer. The following example shows how to configure your application and set up HAProxy as a load balancer to route all requests to whichever machine in the cluster is currently identified as the master. Since only one machine can ever be the elected master, this should work exactly as we would like. Furthermore, should the elected master fail, a new server will be elected from the cluster as master and HAProxy will automatically route transactions to this server.
+
+In the Neo4j HA architecture, a cluster is typically fronted by a load balancer.
+The following example shows how to configure your application and set up HAProxy as a load balancer to route all requests to whichever machine in the cluster is currently identified as the master.
+Since only one machine can ever be the elected master, this should work exactly as we would like.
+Furthermore, should the elected master fail, a new server will be elected from the cluster as master and HAProxy will automatically route transactions to this server.
 
 
 === Example cluster fronted by HAProxy
@@ -50,16 +66,15 @@ In the Neo4j HA architecture, a cluster is typically fronted by a load balancer.
 . neo4j-server3:    10.0.1.12
 
 .OGM Binding via HAProxy
-[source,java]
+[source, java]
 ----
-
-   Components.driver().setURI("http://10.0.2.200");
-
+Components.driver().setURI("http://10.0.2.200");
 ----
 
 .Sample haproxy.cfg
 
-```
+[source, config]
+----
 global
     daemon
     maxconn 256
@@ -83,4 +98,4 @@ backend neo4j
 listen admin
     bind *:8080
     stats enable
-```
+----

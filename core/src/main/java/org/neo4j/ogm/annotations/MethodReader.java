@@ -38,7 +38,7 @@ public class MethodReader implements RelationalReader, PropertyReader {
     public Object read(Object instance) {
         Object value = MethodWriter.read(classInfo.getMethod(methodInfo), instance);
         if (methodInfo.hasConverter()) {
-            value = methodInfo.converter().toGraphProperty(value);
+            value = methodInfo.getConverter().toGraphProperty(value);
         }
         return value;
     }

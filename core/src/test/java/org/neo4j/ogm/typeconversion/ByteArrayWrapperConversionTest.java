@@ -40,7 +40,7 @@ public class ByteArrayWrapperConversionTest {
     public void setImageAndCheck() {
 
         PhotoWrapper photo = new PhotoWrapper();
-        AttributeConverter converter = photoInfo.propertyGetter("image").converter();
+        AttributeConverter converter = photoInfo.propertyGetter("image").getConverter();
 
         photo.setImage(new Byte[]{1, 2, 3, 4});
 
@@ -51,7 +51,7 @@ public class ByteArrayWrapperConversionTest {
     public void getImageAndCheck() {
 
         PhotoWrapper photo = new PhotoWrapper();
-        AttributeConverter converter = photoInfo.propertyGetter("image").converter();
+        AttributeConverter converter = photoInfo.propertyGetter("image").getConverter();
 
         photo.setImage((Byte[]) converter.toEntityAttribute("AQIDBA=="));
 

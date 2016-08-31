@@ -48,20 +48,20 @@ public class ObjectAnnotations {
         return annotations.isEmpty();
     }
 
-    AttributeConverter<?, ?> getConverter() {
+    Object getConverter() {
 
-        // try to get a custom type converter
+        // try to get a custom type getConverter
         AnnotationInfo customType = get(Convert.CLASS);
         if (customType != null) {
             String classDescriptor = customType.get(Convert.CONVERTER, null);
             if (classDescriptor == null) {
-                return null; // will have a default proxy converter applied later on
+                return null; // will have a default proxy getConverter applied later on
             }
 
             try {
                 String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
                 Class<?> clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
-                return (AttributeConverter<?, ?>) clazz.newInstance();
+                return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

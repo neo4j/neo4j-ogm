@@ -19,7 +19,7 @@ import java.lang.reflect.Array;
  * java.lang.Number to and from its String array representation.
  *
  * By default, the OGM will automatically convert arrays of BigInteger and BigDecimal
- * entity attributes using this converter.
+ * entity attributes using this getConverter.
  *
  * @author Luanne Misquitta
  */

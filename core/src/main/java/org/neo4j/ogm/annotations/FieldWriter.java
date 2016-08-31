@@ -60,7 +60,7 @@ public class FieldWriter extends EntityAccess {
     public void write(Object instance, Object value) {
 
         if (fieldInfo.hasConverter()) {
-            value = fieldInfo.converter().toEntityAttribute(value);
+            value = fieldInfo.getConverter().toEntityAttribute(value);
             FieldWriter.write(field, instance, value);
         }
 
@@ -77,7 +77,7 @@ public class FieldWriter extends EntityAccess {
     public Class<?> type() {
         if (fieldInfo.hasConverter()) {
             try {
-                for(Method method : fieldInfo.converter().getClass().getDeclaredMethods()) {
+                for(Method method : fieldInfo.getConverter().getClass().getDeclaredMethods()) {
                     if(method.getName().equals("toGraphProperty") && !method.isSynthetic()) { //we don't want the method on the AttributeConverter interface
                         return method.getReturnType();
                     }

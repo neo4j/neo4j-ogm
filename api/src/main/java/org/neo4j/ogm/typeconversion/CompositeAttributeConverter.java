@@ -11,31 +11,15 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.convertible.bytes;
 
+package org.neo4j.ogm.typeconversion;
 
-import org.neo4j.ogm.annotation.typeconversion.Convert;
-import org.neo4j.ogm.typeconversion.ByteArrayBase64Converter;
+import java.util.Map;
 
-/**
- * @author Vince Bickers
- */
-public class Photo {
+public interface CompositeAttributeConverter<T> {
 
-    Long id;
+    Map<String, ?> toGraphProperties(T value);
 
-    // user-defined getConverter
-    @Convert(ByteArrayBase64Converter.class)
-    private byte[] image;
+    T toEntityAttribute(Map<String, ?> value);
 
-
-    // should use default getConverter
-    public byte[] getImage() {
-        return image;
-    }
-
-    // should use default getConverter
-    public void setImage(byte[] image) {
-        this.image = image;
-    }
 }

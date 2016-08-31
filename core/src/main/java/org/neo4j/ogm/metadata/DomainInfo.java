@@ -370,15 +370,15 @@ public class DomainInfo implements ClassFileProcessor {
             } else if (methodInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
                 methodInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
-                // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
+                // could do 'if annotated @Convert but no getConverter set then proxy one' but not sure if that's worthwhile
                 // FIXME: this won't really work unless I infer the source and target types from the descriptor here
                 // well, I can't infer the thing that gets put in the graph until the moment it's given, can I!?
                 // so this has to be done at real-time for reading from the graph, convert what you get
                 // then, writing back to the graph, we just return whatever
                 // the caveat, therefore, is that when writing to the graph you could get anything back!
-                // ... and to look up the correct converter from Spring you always need the target type :(
+                // ... and to look up the correct getConverter from Spring you always need the target type :(
                 if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
-                    // no converter's been set but this method is annotated with @Convert so we need to proxy it
+                    // no getConverter's been set but this method is annotated with @Convert so we need to proxy it
                     Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
                     String graphTypeDescriptor = methodInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
@@ -401,10 +401,10 @@ public class DomainInfo implements ClassFileProcessor {
                 }
                 if (!enumConverterSet) {
                     if (descriptorClass != null && descriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                        LOGGER.debug("Setting default enum getConverter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
                         setEnumMethodConverter(methodInfo, descriptorClass);
                     } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                        LOGGER.debug("Setting default enum getConverter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
                         setEnumMethodConverter(methodInfo, typeParamDescriptorClass);
                     }
                 }
@@ -478,7 +478,7 @@ public class DomainInfo implements ClassFileProcessor {
                 fieldInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
                 if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
-                    // no converter's been set but this method is annotated with @Convert so we need to proxy it
+                    // no getConverter's been set but this method is annotated with @Convert so we need to proxy it
                     Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getDescriptor());
                     String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
@@ -501,10 +501,10 @@ public class DomainInfo implements ClassFileProcessor {
                 }
                 if (!enumConverterSet) {
                     if (descriptorClass != null && descriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        LOGGER.debug("Setting default enum getConverter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
                         setEnumFieldConverter(fieldInfo, descriptorClass);
                     } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
+                        LOGGER.debug("Setting default enum getConverter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
                         setEnumFieldConverter(fieldInfo, typeParamDescriptorClass);
                     }
                 }

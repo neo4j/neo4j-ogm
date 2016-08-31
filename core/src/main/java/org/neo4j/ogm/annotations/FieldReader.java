@@ -38,7 +38,7 @@ public class FieldReader implements RelationalReader, PropertyReader {
     public Object read(Object instance) {
         Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
         if (fieldInfo.hasConverter()) {
-            value = fieldInfo.converter().toGraphProperty(value);
+            value = fieldInfo.getConverter().toGraphProperty(value);
         }
         return value;
     }

@@ -21,7 +21,7 @@ import org.apache.commons.lang3.ArrayUtils;
  * String values when being stored as a node / relationship property
  *
  * The conversion between the primitive byte[] class and its wrapper
- * Byte[] means that this converter is slightly slower than
+ * Byte[] means that this getConverter is slightly slower than
  * using the ByteArray64Converter, which works with primitive
  * byte arrays directly.
  *

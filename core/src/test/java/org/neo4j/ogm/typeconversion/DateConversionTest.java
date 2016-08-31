@@ -42,7 +42,7 @@ public class DateConversionTest {
     public void assertFieldDateConversionToISO8601FormatByDefault() {
         FieldInfo fieldInfo = memoInfo.propertyField("recorded");
         assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
+        AttributeConverter attributeConverter = fieldInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         assertEquals("1970-01-01T00:00:00.000Z", attributeConverter.toGraphProperty(new Date(0)));
     }
@@ -51,7 +51,7 @@ public class DateConversionTest {
     public void assertFieldDateConversionWithUserDefinedFormat() {
         FieldInfo fieldInfo = memoInfo.propertyField("actioned");
         assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
+        AttributeConverter attributeConverter = fieldInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         assertEquals("1970-01-01", attributeConverter.toGraphProperty(new Date(0)));
     }
@@ -60,7 +60,7 @@ public class DateConversionTest {
     public void assertFieldDateLongConversion() {
         FieldInfo fieldInfo = memoInfo.propertyField("closed");
         assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
+        AttributeConverter attributeConverter = fieldInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateLongConverter.class));
         Date date = new Date(0);
         Long value = (Long) attributeConverter.toGraphProperty(date);
@@ -71,7 +71,7 @@ public class DateConversionTest {
     public void assertFieldCustomTypeConversion() {
         FieldInfo fieldInfo = memoInfo.propertyField("approved");
         assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
+        AttributeConverter attributeConverter = fieldInfo.getConverter();
         assertEquals("20090213113130", attributeConverter.toGraphProperty(new Date(1234567890123L)));
     }
 
@@ -79,7 +79,7 @@ public class DateConversionTest {
     public void assertMethodDateConversionToISO8601FormatByDefault() {
         MethodInfo methodInfo = memoInfo.propertyGetter("recorded");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         assertEquals("1970-01-01T00:00:00.000Z", attributeConverter.toGraphProperty(new Date(0)));
     }
@@ -88,7 +88,7 @@ public class DateConversionTest {
     public void assertMethodDateConversionWithUserDefinedFormat() {
         MethodInfo methodInfo = memoInfo.propertySetter("actioned");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateStringConverter.class));
         Date date = new Date(0);
         String value = (String) attributeConverter.toGraphProperty(date);
@@ -99,7 +99,7 @@ public class DateConversionTest {
     public void assertMethodDateLongConversion() {
         MethodInfo methodInfo = memoInfo.propertyGetter("closed");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateLongConverter.class));
         Date date = new Date(0);
         assertEquals(new Long(0), attributeConverter.toGraphProperty(date));
@@ -109,7 +109,7 @@ public class DateConversionTest {
     public void assertMethodCustomTypeConversion() {
         MethodInfo methodInfo = memoInfo.propertySetter("approved");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         Date date = new Date(1234567890123L);
         assertEquals("20090213113130", attributeConverter.toGraphProperty(date));
     }
@@ -118,7 +118,7 @@ public class DateConversionTest {
     public void assertConvertingNullGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertySetter("approved");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
     }
 
@@ -126,7 +126,7 @@ public class DateConversionTest {
     public void assertConvertingNullAttributeWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertySetter("approved");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 
@@ -139,7 +139,7 @@ public class DateConversionTest {
         Date[] dates = new Date[]{new Date(0), new Date(20000)};
         FieldInfo fieldInfo = memoInfo.propertyField("escalations");
         assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
+        AttributeConverter attributeConverter = fieldInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateArrayStringConverter.class));
         String[] converted = (String[]) attributeConverter.toGraphProperty(dates);
         assertTrue(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z"));
@@ -156,7 +156,7 @@ public class DateConversionTest {
 
         MethodInfo methodInfo = memoInfo.propertyGetter("escalations");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateArrayStringConverter.class));
         String[] converted = (String[]) attributeConverter.toGraphProperty(dates);
         assertTrue(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z"));
@@ -175,7 +175,7 @@ public class DateConversionTest {
         Memo memo = new Memo();
         MethodInfo methodInfo = memoInfo.propertySetter("escalations");
         assertTrue(methodInfo.hasConverter());
-        memo.setEscalations((Date[]) methodInfo.converter().toEntityAttribute(stringDates));
+        memo.setEscalations((Date[]) methodInfo.getConverter().toEntityAttribute(stringDates));
         Assert.assertArrayEquals(dates, memo.getEscalations());
 
     }
@@ -187,7 +187,7 @@ public class DateConversionTest {
     public void assertConvertingNullArrayGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertyGetter("escalations");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
     }
 
@@ -198,7 +198,7 @@ public class DateConversionTest {
     public void assertConvertingNullArrayAttributeWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertyGetter("escalations");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 
@@ -213,7 +213,7 @@ public class DateConversionTest {
         dates.add(new Date(20000));
         FieldInfo fieldInfo = memoInfo.propertyField("implementations");
         assertTrue(fieldInfo.hasConverter());
-        AttributeConverter attributeConverter = fieldInfo.converter();
+        AttributeConverter attributeConverter = fieldInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateCollectionStringConverter.class));
         String[] converted = (String[]) attributeConverter.toGraphProperty(dates);
         assertTrue(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z"));
@@ -232,7 +232,7 @@ public class DateConversionTest {
 
         MethodInfo methodInfo = memoInfo.propertyGetter("implementations");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertTrue(attributeConverter.getClass().isAssignableFrom(DateCollectionStringConverter.class));
         String[] converted = (String[]) attributeConverter.toGraphProperty(dates);
         assertTrue(converted[0].equals("1970-01-01T00:00:00.000Z") || converted[1].equals("1970-01-01T00:00:00.000Z"));
@@ -254,7 +254,7 @@ public class DateConversionTest {
         Memo memo = new Memo();
         MethodInfo methodInfo = memoInfo.propertySetter("implementations");
         assertTrue(methodInfo.hasConverter());
-        memo.setImplementations((Set<Date>) methodInfo.converter().toEntityAttribute(stringDates));
+        memo.setImplementations((Set<Date>) methodInfo.getConverter().toEntityAttribute(stringDates));
         Assert.assertEquals(dates, memo.getImplementations());
 
     }
@@ -266,7 +266,7 @@ public class DateConversionTest {
     public void assertConvertingNullCollectionGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertyGetter("implementations");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
     }
 
@@ -277,7 +277,7 @@ public class DateConversionTest {
     public void assertConvertingNullCollectionAttributeWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertyGetter("implementations");
         assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.converter();
+        AttributeConverter attributeConverter = methodInfo.getConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 }

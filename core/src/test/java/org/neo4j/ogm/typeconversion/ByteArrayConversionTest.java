@@ -42,7 +42,7 @@ public class ByteArrayConversionTest {
     public void setImageAndCheck() {
 
         Photo photo = new Photo();
-        AttributeConverter converter = photoInfo.propertyGetter("image").converter();
+        AttributeConverter converter = photoInfo.propertyGetter("image").getConverter();
 
         photo.setImage(new byte[]{1, 2, 3, 4});
 
@@ -53,7 +53,7 @@ public class ByteArrayConversionTest {
     public void getImageAndCheck() {
 
         Photo photo = new Photo();
-        AttributeConverter converter = photoInfo.propertyGetter("image").converter();
+        AttributeConverter converter = photoInfo.propertyGetter("image").getConverter();
 
         photo.setImage((byte[]) converter.toEntityAttribute("AQIDBA=="));
 

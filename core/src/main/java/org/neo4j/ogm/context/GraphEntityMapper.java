@@ -163,7 +163,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 							setLabels(node, entity);
 						}
 					}
-					mappingContext.registerNodeEntity(entity, node.getId());
+					mappingContext.addNodeEntity(entity, node.getId());
 
 					nodeIds.add(node.getId());
 
@@ -292,7 +292,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			oneToMany.add(edge);
 		} else {
 			RelationalWriter writer = EntityAccessManager.getRelationalWriter(metadata.classInfo(source), edge.getType(), Relationship.OUTGOING, target);
-			mappingContext.registerRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
+			mappingContext.addRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
 		}
 	}
 
@@ -315,7 +315,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		} else {
 			if (writer.forScalar()) {
 				writer.write(source, relationshipEntity);
-				mappingContext.registerRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
+				mappingContext.addRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
 			} else {
 				oneToMany.add(edge);
 			}
@@ -346,7 +346,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		setProperties(edge, relationshipEntity);
 
 		// register it in the mapping context
-		mappingContext.registerRelationshipEntity(relationshipEntity, edge.getId());
+		mappingContext.addRelationshipEntity(relationshipEntity, edge.getId());
 
 		// set the start and end entities
 		ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
@@ -433,7 +433,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 		// now register all the relationships we've mapped as iterable types into the mapping context
 		for (MappedRelationship mappedRelationship : relationshipsToRegister) {
-			mappingContext.registerRelationship(mappedRelationship);
+			mappingContext.addRelationship(mappedRelationship);
 		}
         // finally, register anything left over. These will be singleton relationships that
         // were not mapped during one->one mapping, or one->many mapping.
@@ -445,8 +445,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 // ensures its tracked in the domain
                 if (writer != null) {
                     MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor()));
-                    if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
-                        mappingContext.registerRelationship(mappedRelationship);
+                    if (!mappingContext.containsRelationship(mappedRelationship)) {
+                        mappingContext.addRelationship(mappedRelationship);
                     }
                 }
             }

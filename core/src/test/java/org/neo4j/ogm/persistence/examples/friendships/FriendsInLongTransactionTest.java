@@ -35,8 +35,7 @@ public class FriendsInLongTransactionTest extends MultiDriverTestClass {
      */
     @Test
     public void createPersonAndFriendsInLongTransaction() {
-        DefaultTransactionManager txRequestHandler = new DefaultTransactionManager(session);
-        try (Transaction tx = txRequestHandler.openTransaction()) {
+        try (Transaction tx = session.beginTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
             Person john = new Person("John");
             session.save(john);

@@ -56,7 +56,7 @@ public final class SaveEventDelegate {
     public void preSave(Object object) {
 
         this.registeredRelationships.clear();
-        this.registeredRelationships.addAll(session.context().mappedRelationships());
+        this.registeredRelationships.addAll(session.context().getRelationships());
 
         if (Collection.class.isAssignableFrom(object.getClass())) {
             for (Object element : (Collection) object) {
@@ -184,7 +184,7 @@ public final class SaveEventDelegate {
             // compare the set of current relationships with the ones in the mapping context
             // if are there any missing from the mapping context, the object is dirty because
             // a previously mapped relationship has been deleted.
-            for (MappedRelationship previous : session.context().mappedRelationships()) {
+            for (MappedRelationship previous : session.context().getRelationships()) {
                 if (isDeleted(previous)) {
                     logger.debug("deleted: {} from {}", previous, parent);
                     return true;
@@ -198,7 +198,7 @@ public final class SaveEventDelegate {
     // returns true if the specified mapped relationship is not found in the list
     // of mapped relationships that existed when the object being saved was originally loaded
     private boolean isNew(MappedRelationship mappedRelationship) {
-        return !this.session.context().mappedRelationships().contains(mappedRelationship);
+        return !this.session.context().getRelationships().contains(mappedRelationship);
     }
 
     // returns true if the specified mapped relationship is not found in the list

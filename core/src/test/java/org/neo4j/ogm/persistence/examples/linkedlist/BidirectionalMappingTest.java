@@ -19,6 +19,7 @@ import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.transaction.Transaction;
 
 import java.io.IOException;
 
@@ -83,6 +84,22 @@ public class BidirectionalMappingTest extends MultiDriverTestClass {
         assertEquals(first.getId(), first.next.previous.getId());
         assertEquals(second.getId(), first.next.next.previous.getId());
 
+    }
+
+    @Test
+    public void shouldHandleSelfReferencingObjectOnRollback() {
+
+        Item item = new Item();
+        item.next = item;
+        item.previous = item;
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            session.save(item);
+
+            session.deleteAll(Item.class);
+
+        }
     }
 
 }

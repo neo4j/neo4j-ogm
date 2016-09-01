@@ -13,29 +13,18 @@
 
 package org.neo4j.ogm.context;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.FieldReader;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.PropertyReader;
-import org.neo4j.ogm.entity.io.RelationalReader;
+import org.neo4j.ogm.context.register.EntityRegister;
+import org.neo4j.ogm.context.register.LabelHistoryRegister;
+import org.neo4j.ogm.context.register.RelationshipRegister;
+import org.neo4j.ogm.context.register.TypeRegister;
+import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -47,23 +36,19 @@ import org.slf4j.LoggerFactory;
  */
 public class MappingContext {
 
-    private final Logger logger = LoggerFactory.getLogger(MappingContext.class);
-
-    private final ConcurrentMap<Long, Object> relationshipEntityRegister = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Long, Object> nodeEntityRegister = new ConcurrentHashMap<>();
-    private final Set<MappedRelationship> relationshipRegister = Collections.newSetFromMap(
-            new ConcurrentHashMap<MappedRelationship, Boolean>());
-
     /**
      * register of all mapped entities of a specific type (including supertypes)
      */
-    private final ConcurrentMap<Class<?>, Map<Long, Object>> typeRegister = new ConcurrentHashMap<>();
+    private final TypeRegister typeRegister = new TypeRegister();
+    private final EntityRegister nodeEntityRegister = new EntityRegister();
+    private final EntityRegister relationshipEntityRegister = new EntityRegister();
+    private final RelationshipRegister relationshipRegister = new RelationshipRegister();
+    private final LabelHistoryRegister labelHistoryRegister = new LabelHistoryRegister();
+
     private final EntityMemo objectMemo;
 
     private final MetaData metaData;
 
-    //TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
-    private final ConcurrentHashMap<Long, LabelHistory> labelRegister = new ConcurrentHashMap<>();
 
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
@@ -74,42 +59,17 @@ public class MappingContext {
         return nodeEntityRegister.get(id);
     }
 
-    // why don't we put anything in the object memo? it clearly belongs here
-    public Object registerNodeEntity(Object entity, Long id) {
-        if (nodeEntityRegister.putIfAbsent(id, entity) == null) {
+    public Object addNodeEntity(Object entity, Long id) {
+        if (nodeEntityRegister.add(id, entity)) {
             entity = nodeEntityRegister.get(id);
-            registerTypes(entity.getClass(), entity, id);
+            addType(entity.getClass(), entity, id);
         }
         remember(entity);
         return entity;
     }
 
-    private void registerTypes(Class type, Object entity, Long id) {
-        getAll(type).put(id, entity);
-        if (type.getSuperclass() != null
-                && metaData != null
-                && metaData.classInfo(type.getSuperclass().getName()) != null
-                && !type.getSuperclass().getName().equals("java.lang.Object")) {
-            registerTypes(type.getSuperclass(), entity, id);
-        }
-        if (type.getInterfaces() != null
-                && metaData != null) {
-            for (Class interfaceClass : type.getInterfaces()) {
-                if (metaData.classInfo(interfaceClass.getName()) != null) {
-                    registerTypes(interfaceClass, entity, id);
-                }
-            }
-        }
-    }
-
-    private void deregisterTypes(Class type, Long id) {
-        Map<Long, Object> entities = typeRegister.get(type);
-        if (entities != null) {
-            if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
-                entities.remove(id);
-                deregisterTypes(type.getSuperclass(), id);
-            }
-        }
+    public boolean removeRelationship(MappedRelationship mappedRelationship) {
+        return relationshipRegister.remove(mappedRelationship);
     }
 
     /**
@@ -121,46 +81,24 @@ public class MappingContext {
      * @param entity the object to deregister
      * @param id     the id of the object in Neo4j
      */
-    public void deregister(Object entity, Long id) {
-        deregisterTypes(entity.getClass(), id);
+    public void removeNodeEntity(Object entity, Long id) {
+        removeType(entity.getClass(), id);
         nodeEntityRegister.remove(id);
         deregisterDependentRelationshipEntity(entity);
     }
 
-    public void replace(Object entity, Long id) {
+    public void replaceNodeEntity(Object entity, Long id) {
         nodeEntityRegister.remove(id);
-        registerNodeEntity(entity, id);
+        addNodeEntity(entity, id);
         remember(entity);
     }
 
-    public Map<Long, Object> getAll(Class<?> type) {
-        Map<Long, Object> objectList = typeRegister.get(type);
-        if (objectList == null) {
-            typeRegister.putIfAbsent(type, Collections.synchronizedMap(new HashMap<Long, Object>()));
-            objectList = typeRegister.get(type);
-        }
-        return objectList;
+    public Collection<Object> getEntities(Class<?> type) {
+        return typeRegister.get(type).values();
     }
 
-    private void remember(Object entity) {
-        ClassInfo classInfo = metaData.classInfo(entity);
-        Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
-        objectMemo.remember(id, entity, classInfo);
-        FieldInfo fieldInfo = classInfo.labelFieldOrNull();
-        if (fieldInfo != null) {
-            FieldReader reader = new FieldReader(classInfo, fieldInfo);
-            Collection<String> labels = (Collection<String>) reader.read(entity);
-            labelHistory(id).push(labels);
-        }
-    }
-
-    public synchronized LabelHistory labelHistory(Long identity) {
-        LabelHistory labelDelta = labelRegister.get(identity);
-        if (labelDelta == null) {
-            labelDelta = new LabelHistory();
-            labelRegister.put(identity, labelDelta);
-        }
-        return labelDelta;
+    public LabelHistory labelHistory(Long identity) {
+        return labelHistoryRegister.get(identity);
     }
 
     public boolean isDirty(Object entity) {
@@ -169,16 +107,15 @@ public class MappingContext {
         return !objectMemo.remembered((Long) id, entity, classInfo);
     }
 
-    // these methods belong on the relationship registry
-    public boolean isRegisteredRelationship(MappedRelationship relationship) {
+    public boolean containsRelationship(MappedRelationship relationship) {
         return relationshipRegister.contains(relationship);
     }
 
-    public Set<MappedRelationship> mappedRelationships() {
-        return relationshipRegister;
+    public Set<MappedRelationship> getRelationships() {
+        return relationshipRegister.values();
     }
 
-    public void registerRelationship(MappedRelationship relationship) {
+    public void addRelationship(MappedRelationship relationship) {
         if (relationship.getRelationshipId() != null && relationshipEntityRegister.get(relationship.getRelationshipId()) == null) {
             relationship.setRelationshipId(null); //We're only interested in id's of relationship entities
         }
@@ -191,16 +128,18 @@ public class MappingContext {
         nodeEntityRegister.clear();
         typeRegister.clear();
         relationshipEntityRegister.clear();
-        labelRegister.clear();
+        labelHistoryRegister.clear();
     }
 
     public Object getRelationshipEntity(Long relationshipId) {
         return relationshipEntityRegister.get(relationshipId);
     }
 
-    public Object registerRelationshipEntity(Object relationshipEntity, Long id) {
-        relationshipEntityRegister.putIfAbsent(id, relationshipEntity);
-        registerTypes(relationshipEntity.getClass(), relationshipEntity, id);
+    public Object addRelationshipEntity(Object relationshipEntity, Long id) {
+        if (relationshipEntityRegister.add(id, relationshipEntity)) {
+            relationshipEntity = relationshipEntityRegister.get(id);
+            addType(relationshipEntity.getClass(), relationshipEntity, id);
+        }
         remember(relationshipEntity);
         return relationshipEntity;
     }
@@ -212,7 +151,7 @@ public class MappingContext {
      *
      * @param type the type whose object references and relationship mappings we want to purge
      */
-    public void clear(Class<?> type) {
+    public void removeType(Class<?> type) {
 
         ClassInfo classInfo = metaData.classInfo(type.getName());
 
@@ -221,14 +160,14 @@ public class MappingContext {
             for (ClassInfo implementingClass : implementingClasses) {
                 try {
                     String implementingClassName = implementingClass.name();
-                    clear(MetaDataClassLoader.loadClass(implementingClassName));
+                    removeType(MetaDataClassLoader.loadClass(implementingClassName));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
         } else {
             PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
-            clear(type, identityReader);
+            removeType(type, identityReader);
         }
     }
 
@@ -239,7 +178,7 @@ public class MappingContext {
     public boolean detachNodeEntity(Long id) {
         Object objectToDetach = nodeEntityRegister.get(id);
         if (objectToDetach != null) {
-            clear(objectToDetach);
+            removeEntity(objectToDetach);
             return true;
         }
         return false;
@@ -251,18 +190,18 @@ public class MappingContext {
     public boolean detachRelationshipEntity(Long id) {
         Object objectToDetach = relationshipEntityRegister.get(id);
         if (objectToDetach != null) {
-            clear(objectToDetach);
+            removeEntity(objectToDetach);
             return true;
         }
         return false;
     }
 
     /**
-     * purges all information about this object from the mapping context
+     * removes all information about this object from the mapping context
      *
      * @param entity the instance whose references and relationship mappings we want to purge
      */
-    public void clear(Object entity) {
+    public void removeEntity(Object entity) {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
@@ -271,7 +210,7 @@ public class MappingContext {
         purge(entity, identityReader, type);
 
         if (id != null) {
-            getAll(type).remove(id);
+            typeRegister.remove(metaData, type, id);
         }
     }
 
@@ -284,11 +223,47 @@ public class MappingContext {
      * @param entity the instance whose references and relationship mappings we want to reset
      */
     public void reset(Object entity) {
-        clear(entity);
+        removeEntity(entity);
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         Field identityField = classInfo.getField(classInfo.identityField());
         FieldWriter.write(identityField, entity, null);
+    }
+
+
+    public Set<Object> neighbours(Object entity) {
+
+        Set<Object> neighbours = new HashSet<>();
+
+        Class<?> type = entity.getClass();
+        ClassInfo classInfo = metaData.classInfo(type.getName());
+        PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+
+        Long id = (Long) identityReader.read(entity);
+
+        if (id != null) {
+            if (!metaData.isRelationshipEntity(type.getName())) {
+                if (nodeEntityRegister.contains(id)) {
+                    // todo: this will be very slow for many objects
+                    // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
+                    for (MappedRelationship mappedRelationship : getRelationships()) {
+                        if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
+                            Object affectedObject = mappedRelationship.getEndNodeId() == id ? nodeEntityRegister.get(mappedRelationship.getStartNodeId()) : nodeEntityRegister.get(mappedRelationship.getEndNodeId());
+                            if (affectedObject != null) {
+                                neighbours.add(affectedObject);
+                            }
+                        }
+                    }
+                }
+            } else if (relationshipEntityRegister.contains(id)) {
+                RelationalReader startNodeReader = EntityAccessManager.getStartNodeReader(classInfo);
+                RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(classInfo);
+                neighbours.add(startNodeReader.read(entity));
+                neighbours.add(endNodeReader.read(entity));
+            }
+        }
+
+        return neighbours;
     }
 
     /**
@@ -297,7 +272,7 @@ public class MappingContext {
      * @param startOrEndEntity the entity that might be the start or end node of a relationship entity
      */
     private void deregisterDependentRelationshipEntity(Object startOrEndEntity) {
-        Iterator<Long> relationshipEntityIdIterator = relationshipEntityRegister.keySet().iterator();
+        Iterator<Long> relationshipEntityIdIterator = relationshipEntityRegister.iterator();
         while (relationshipEntityIdIterator.hasNext()) {
             Long relationshipEntityId = relationshipEntityIdIterator.next();
             Object relationshipEntity = relationshipEntityRegister.get(relationshipEntityId);
@@ -309,23 +284,25 @@ public class MappingContext {
         }
     }
 
-    private void clear(Class<?> type, PropertyReader identityReader) {
+    private void removeType(Class<?> type, PropertyReader identityReader) {
 
-        for (Object entity : getAll(type).values()) {
+        for (Object entity : getEntities(type)) {
             purge(entity, identityReader, type);
         }
-        getAll(type).clear();
+        typeRegister.delete(type);
 
     }
 
     private void purge(Object entity, PropertyReader identityReader, Class type) {
         Long id = (Long) identityReader.read(entity);
         if (id != null) {
+            // remove a NodeEntity
             if (!metaData.isRelationshipEntity(type.getName())) {
-                if (nodeEntityRegister.containsKey(id)) {
+                if (nodeEntityRegister.contains(id)) {
+                    // remove the object from the node register
                     nodeEntityRegister.remove(id);
                     // remove all relationship mappings to/from this object
-                    Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
+                    Iterator<MappedRelationship> mappedRelationshipIterator = getRelationships().iterator();
                     while (mappedRelationshipIterator.hasNext()) {
                         MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
@@ -342,57 +319,46 @@ public class MappingContext {
                             }
 
                             // finally remove the mapped relationship
-                            mappedRelationshipIterator.remove();
+                            relationshipRegister.remove(mappedRelationship);
                         }
                     }
                 }
             } else {
-                if (relationshipEntityRegister.containsKey(id)) {
+                // remove a RelationshipEntity
+                if (relationshipEntityRegister.contains(id)) {
                     relationshipEntityRegister.remove(id);
                     RelationalReader startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(entity));
                     Object startNode = startNodeReader.read(entity);
-                    clear(startNode);
+                    removeEntity(startNode);
                     RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(entity));
                     Object endNode = endNodeReader.read(entity);
-                    clear(endNode);
+                    removeEntity(endNode);
                 }
             }
         }
 
     }
 
-    public Set<Object> neighbours(Object entity) {
-
-        Set<Object> neighbours = new HashSet<>();
-
-        Class<?> type = entity.getClass();
-        ClassInfo classInfo = metaData.classInfo(type.getName());
-        PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
-
-        Long id = (Long) identityReader.read(entity);
-
-        if (id != null) {
-            if (!metaData.isRelationshipEntity(type.getName())) {
-                if (nodeEntityRegister.containsKey(id)) {
-                    // todo: this will be very slow for many objects
-                    // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
-                    for (MappedRelationship mappedRelationship : mappedRelationships()) {
-                        if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
-                            Object affectedObject = mappedRelationship.getEndNodeId() == id ? nodeEntityRegister.get(mappedRelationship.getStartNodeId()) : nodeEntityRegister.get(mappedRelationship.getEndNodeId());
-                            if (affectedObject != null) {
-                                neighbours.add(affectedObject);
-                            }
-                        }
-                    }
-                }
-            } else if (relationshipEntityRegister.containsKey(id)) {
-                RelationalReader startNodeReader = EntityAccessManager.getStartNodeReader(classInfo);
-                RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(classInfo);
-                neighbours.add(startNodeReader.read(entity));
-                neighbours.add(endNodeReader.read(entity));
-            }
-        }
-
-        return neighbours;
+    private void addType(Class type, Object entity, Long id) {
+        typeRegister.add(metaData, type, entity, id);
     }
+
+    private void removeType(Class type, Long id) {
+        typeRegister.remove(metaData, type, id);
+    }
+
+    private void remember(Object entity) {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
+        objectMemo.remember(id, entity, classInfo);
+        FieldInfo fieldInfo = classInfo.labelFieldOrNull();
+        if (fieldInfo != null) {
+            FieldReader reader = new FieldReader(classInfo, fieldInfo);
+            Collection<String> labels = (Collection<String>) reader.read(entity);
+            labelHistory(id).push(labels);
+        }
+    }
+
+
+
 }

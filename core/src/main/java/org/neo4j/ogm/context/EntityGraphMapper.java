@@ -14,10 +14,6 @@
 package org.neo4j.ogm.context;
 
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -38,6 +34,10 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -80,12 +80,12 @@ public class EntityGraphMapper implements EntityMapper {
 
         // add all the relationships we know about. This includes the relationships that
         // won't be modified by the mapping request.
-        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
             logger.debug("context-init: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
             compiler.context().registerRelationship(mappedRelationship);
         }
 
-        logger.debug("context initialised with {} relationships", mappingContext.mappedRelationships().size());
+        logger.debug("context initialised with {} relationships", mappingContext.getRelationships().size());
 
         // if the object is a RelationshipEntity, persist it by persisting both the start node and the end node
         // and then ensure the relationship between the two is created or updated as necessary
@@ -148,7 +148,7 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private void deleteObsoleteRelationships(Compiler compiler) {
         CompileContext context = compiler.context();
-        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.mappedRelationships().iterator();
+        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
 
         while (mappedRelationshipIterator.hasNext()) {
 
@@ -177,26 +177,26 @@ public class EntityGraphMapper implements EntityMapper {
                 clearRelatedObjects(mappedRelationship.getStartNodeId());
 
                 // finally remove the relationship from the mapping context
-                mappedRelationshipIterator.remove();
+                mappingContext.removeRelationship(mappedRelationship);
             }
         }
     }
 
     private void clearRelatedObjects(Long node) {
 
-        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
             if (mappedRelationship.getStartNodeId() == node || mappedRelationship.getEndNodeId() == node) {
 
                 Object dirty = mappingContext.getNodeEntity(mappedRelationship.getEndNodeId());
                 if (dirty != null) {
                     logger.debug("flushing end node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                    mappingContext.deregister(dirty, mappedRelationship.getEndNodeId());
+                    mappingContext.removeNodeEntity(dirty, mappedRelationship.getEndNodeId());
                 }
 
                 dirty = mappingContext.getNodeEntity(mappedRelationship.getStartNodeId());
                 if (dirty != null) {
                     logger.debug("flushing start node of: (${})-[:{}]->(${})", mappedRelationship.getStartNodeId(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());
-                    mappingContext.deregister(dirty, mappedRelationship.getStartNodeId());
+                    mappingContext.removeNodeEntity(dirty, mappedRelationship.getStartNodeId());
                 }
             }
         }
@@ -530,7 +530,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         boolean relationshipEndsChanged = false;
 
-        for (MappedRelationship mappedRelationship : mappingContext.mappedRelationships()) {
+        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
             if (mappedRelationship.getRelationshipId() != null && relId != null && mappedRelationship.getRelationshipId().equals(relId)) {
                 if (srcIdentity == null || tgtIdentity == null || mappedRelationship.getStartNodeId() != srcIdentity || mappedRelationship.getEndNodeId() != tgtIdentity) {
                     relationshipEndsChanged = true;
@@ -584,7 +584,7 @@ public class EntityGraphMapper implements EntityMapper {
             context.register(relationshipEntity);
             if (tgtIdentity != null && srcIdentity != null) {
                 MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
-                if (mappingContext.mappedRelationships().remove(mappedRelationship)) {
+                if (context.removeRegisteredRelationship(mappedRelationship)) {
                     logger.debug("RE successfully marked for re-writing");
                 } else {
                     logger.debug("RE is new");
@@ -689,7 +689,7 @@ public class EntityGraphMapper implements EntityMapper {
             mappedRelationshipOutgoing.setRelationshipId(null);
         }
         if (relationshipBuilder.hasDirection(Relationship.UNDIRECTED)) {
-            if (mappingContext.isRegisteredRelationship(mappedRelationshipIncoming)) {
+            if (mappingContext.containsRelationship(mappedRelationshipIncoming)) {
                 return mappedRelationshipIncoming;
             }
             return mappedRelationshipOutgoing;
@@ -760,7 +760,7 @@ public class EntityGraphMapper implements EntityMapper {
             maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
         } else {
             MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
-            if (!mappingContext.isRegisteredRelationship(mappedRelationship)) {
+            if (!mappingContext.containsRelationship(mappedRelationship)) {
                 maybeCreateRelationship(context, srcNodeBuilder.reference(), relationshipBuilder, tgtNodeBuilder.reference(), relNodes.sourceType, relNodes.targetType);
             } else {
                 logger.debug("context-add: ({})-[{}:{}]->({})", mappedRelationship.getStartNodeId(), relationshipBuilder.reference(), mappedRelationship.getRelationshipType(), mappedRelationship.getEndNodeId());

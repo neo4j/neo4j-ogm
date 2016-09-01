@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
@@ -36,6 +32,10 @@ import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Plans request execution and processes the response.
@@ -136,7 +136,7 @@ public class RequestExecutor {
 				ClassInfo classInfo = session.metaData().classInfo(targetObject);
 				Field identityField = classInfo.getField(classInfo.identityField());
 				Object value = FieldWriter.read(identityField, targetObject);
-				if (value != null) session.context().replace(targetObject, (Long) value);
+				if (value != null) session.context().replaceNodeEntity(targetObject, (Long) value);
 			}
 		}
 	}
@@ -369,7 +369,7 @@ public class RequestExecutor {
 						if (session.context().getRelationshipEntity(referenceMapping.id) != null) {
 							mappedRelationship.setRelationshipId(referenceMapping.id);
 						}
-						session.context().mappedRelationships().add(mappedRelationship);
+						session.context().addRelationship(mappedRelationship);
 					}
 				}
 			}
@@ -402,9 +402,9 @@ public class RequestExecutor {
 	private static void registerEntity(MappingContext mappingContext, ClassInfo classInfo, Long identity, Object entity) {
 		// ensure the newly created domain object is added into the mapping context
 		if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-			mappingContext.registerNodeEntity(entity, identity);
+			mappingContext.addNodeEntity(entity, identity);
 		} else {
-			mappingContext.registerRelationshipEntity( entity, identity );
+			mappingContext.addRelationshipEntity(entity, identity);
 		}
 
 	}

@@ -13,6 +13,7 @@
 package org.neo4j.ogm.cypher;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,9 +25,7 @@ public class Filters implements Iterable<Filter> {
     private List<Filter> filters = new ArrayList<>();
 
     public Filters add(Filter... filters) {
-        for (Filter filter : filters) {
-            this.filters.add(filter);
-        }
+        Collections.addAll(this.filters, filters);
         return this;
     }
 

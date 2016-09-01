@@ -42,7 +42,7 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
     @Override
     public Enum toEntityAttribute(String value) {
         if (value == null) return null;
-        return Enum.valueOf(enumClass, value.toString());
+        return Enum.valueOf(enumClass, value);
     }
 
 }

@@ -87,7 +87,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
         try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, driverConfig.getCredentials())) {
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
-                String responseText = "";
+                String responseText;
                 responseText = EntityUtils.toString(responseEntity);
                 LOGGER.debug("Thread: {}, text: {}", Thread.currentThread().getId(), responseText);
                 EntityUtils.consume(responseEntity);

@@ -32,15 +32,13 @@ import java.util.*;
  */
 public class DateCollectionStringConverter implements AttributeConverter<Collection<Date>, String[]> {
 
-    private String format;
     private SimpleDateFormat simpleDateFormat;
     private final Class<? extends Collection> collectionClass;
 
 
     public DateCollectionStringConverter(String userDefinedFormat,Class<? extends Collection> collectionClass) {
-        this.format = userDefinedFormat;
         this.collectionClass = collectionClass;
-        simpleDateFormat = new SimpleDateFormat(format);
+        simpleDateFormat = new SimpleDateFormat(userDefinedFormat);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
@@ -62,9 +60,8 @@ public class DateCollectionStringConverter implements AttributeConverter<Collect
         if (dateValues == null) {
             return null;
         }
-        Date[] dates = new Date[dateValues.length];
 
-        Collection<Date> values = null;
+        Collection<Date> values;
         if (List.class.isAssignableFrom(collectionClass)) {
             values = new ArrayList<>(dateValues.length);
         } else if (Vector.class.isAssignableFrom(collectionClass)) {

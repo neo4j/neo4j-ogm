@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
@@ -11,14 +10,13 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
+package org.neo4j.ogm.json;
 
 /**
  * The JSONException is thrown by the JSON.org classes then things are amiss.
  * @author JSON.org
  * @version 2008-09-18
  */
-package org.neo4j.ogm.json;
-
 public class JSONException extends Exception {
     private Throwable cause;
 

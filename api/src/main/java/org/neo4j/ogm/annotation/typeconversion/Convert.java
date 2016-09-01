@@ -30,9 +30,9 @@ import java.lang.annotation.*;
 @Inherited
 public @interface Convert {
 
-    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.Convert";
-    static final String CONVERTER = "value";
-    static final String GRAPH_TYPE = "graphPropertyType";
+    String CLASS = "org.neo4j.ogm.annotation.typeconversion.Convert";
+    String CONVERTER = "value";
+    String GRAPH_TYPE = "graphPropertyType";
 
     /**
      * The type of {@link org.neo4j.ogm.typeconversion.AttributeConverter} implementation to use on this property.
@@ -50,7 +50,7 @@ public @interface Convert {
     Class<?> graphPropertyType() default Unset.class;
 
     /** Placeholder to allow the annotation to be applied without specifying an explicit converter implementation. */
-    static abstract class Unset implements AttributeConverter<Object, Object> {}
+    abstract class Unset implements AttributeConverter<Object, Object> {}
 
 }
 

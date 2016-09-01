@@ -128,16 +128,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             try {
                 Method pathMethod = factory.getClass().getMethod("newEmbeddedDatabase", String.class);
                 graphDatabaseService = (GraphDatabaseService) pathMethod.invoke(factory, file.getAbsolutePath());
-            } catch (NoSuchMethodException nsme2) {
+            } catch (NoSuchMethodException | InvocationTargetException| IllegalAccessException nsme2) {
                 throw new RuntimeException(nsme2);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
             }
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

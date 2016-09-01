@@ -56,7 +56,7 @@ public class EnumArrayStringConverter implements AttributeConverter<Enum[],Strin
         Enum[] values = (Enum[])Array.newInstance(enumClass,stringValues.length);
         int i=0;
         for(String value : stringValues) {
-            values[i++] = Enum.valueOf(enumClass, value.toString());
+            values[i++] = Enum.valueOf(enumClass, value);
         }
         return values;
     }

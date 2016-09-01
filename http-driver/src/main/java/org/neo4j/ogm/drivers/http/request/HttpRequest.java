@@ -74,18 +74,13 @@ public class HttpRequest implements Request {
 
     @Override
     public Response<GraphModel> execute(GraphModelRequest request) {
-        CloseableHttpResponse response = null;
+        CloseableHttpResponse response;
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         } else {
             String cypher = cypherRequest(request);
-            try {
-                response = executeRequest( cypher );
-                return new GraphModelResponse(response);
-            }
-            catch (IOException e) {
-                throw new ResultProcessingException("Could not parse response", e);
-            }
+            response = executeRequest( cypher );
+            return new GraphModelResponse(response);
         }
     }
 
@@ -95,12 +90,8 @@ public class HttpRequest implements Request {
             return new EmptyResponse();
         } else {
             String cypher = cypherRequest(request);
-            try {
-                return new RowModelResponse(executeRequest(cypher));
-            }
-            catch (IOException e) {
-                throw new ResultProcessingException("Could not parse response", e);
-            }
+            return new RowModelResponse(executeRequest(cypher));
+
         }
     }
 
@@ -108,12 +99,8 @@ public class HttpRequest implements Request {
     public Response<RowModel> execute(DefaultRequest query) {
         Statements statements = new Statements(query.getStatements());
         String cypher = cypherRequest(statements);
-        try {
-            return new RowModelResponse(executeRequest(cypher));
-        }
-        catch (IOException e) {
-            throw new ResultProcessingException("Could not parse response", e);
-        }
+        return new RowModelResponse(executeRequest(cypher));
+
     }
 
     @Override
@@ -122,12 +109,8 @@ public class HttpRequest implements Request {
             return new EmptyResponse();
         } else {
             String cypher = cypherRequest(request);
-            try {
-                return new GraphRowsModelResponse(executeRequest(cypher));
-            }
-            catch (IOException e) {
-                throw new ResultProcessingException("Could not parse response", e);
-            }
+            return new GraphRowsModelResponse(executeRequest(cypher));
+
         }
 
     }
@@ -139,12 +122,7 @@ public class HttpRequest implements Request {
         }
         else {
             String cypher = cypherRequest(request);
-            try {
-                return new RestModelResponse(executeRequest(cypher));
-            }
-            catch (IOException e) {
-                throw new ResultProcessingException("Could not parse response", e);
-            }
+            return new RestModelResponse(executeRequest(cypher));
         }
     }
 
@@ -190,7 +168,7 @@ public class HttpRequest implements Request {
         logger.debug("Thread: {}, request: {}", Thread.currentThread().getId(), request);
 
 
-        CloseableHttpResponse response = null;
+        CloseableHttpResponse response;
 
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
         request.setHeader(new BasicHeader(HTTP.USER_AGENT, "neo4j-ogm.java/2.0"));

@@ -345,7 +345,7 @@ public class EntityGraphMapper implements EntityMapper {
             if (srcIdentity != null) {
                 boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
                 if (!cleared) {
-                    logger.debug("this relationship is already being managed: {}-{}-{}-()", new Object[]{entity, relationshipType, relationshipDirection});
+                    logger.debug("this relationship is already being managed: {}-{}-{}-()", entity, relationshipType, relationshipDirection);
                     continue;
                 }
             }
@@ -855,8 +855,6 @@ public class EntityGraphMapper implements EntityMapper {
 
         if (relBuilder.isNew()) {  //We only want to create or log new relationships
             ctx.register(new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
-            if (relBuilder.isBidirectional()) {
-            }
         }
     }
 
@@ -869,10 +867,7 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private boolean isRelationshipEntity(Object potentialRelationshipEntity) {
         ClassInfo classInfo = metaData.classInfo(potentialRelationshipEntity);
-        if (classInfo == null) {
-            return false;
-        }
-        return null != classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+        return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
     }
 
     /**

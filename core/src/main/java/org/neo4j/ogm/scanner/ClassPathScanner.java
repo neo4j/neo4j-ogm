@@ -94,7 +94,7 @@ public class ClassPathScanner {
 
         for (String pathToScan : classPaths) {
             if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
-                LOGGER.debug("{} admits {} for entry: {}", new Object[] {pathToScan, path ,name});
+                LOGGER.debug("{} admits {} for entry: {}", pathToScan, path,name);
                 processor.process(inputStream);
                 break;
             }

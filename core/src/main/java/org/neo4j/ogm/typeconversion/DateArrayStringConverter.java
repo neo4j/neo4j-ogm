@@ -66,7 +66,7 @@ public class DateArrayStringConverter implements AttributeConverter<Date[], Stri
         int i = 0;
         try {
             for (String date : dateValues) {
-                dates[i++] = new SimpleDateFormat(format).parse((String) date);
+                dates[i++] = new SimpleDateFormat(format).parse(date);
             }
         } catch (ParseException e) {
             throw new RuntimeException(e);

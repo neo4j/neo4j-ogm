@@ -41,9 +41,8 @@ public class InterfaceInfo {
 
         InterfaceInfo that = (InterfaceInfo) o;
 
-        if (!interfaceName.equals(that.interfaceName)) return false;
+        return interfaceName.equals(that.interfaceName);
 
-        return true;
     }
 
     @Override

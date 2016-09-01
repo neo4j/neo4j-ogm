@@ -36,7 +36,7 @@ public class SortClause {
 
 		if (properties.length > 0) {
 			for (String n : properties) {
-				sb.append("$." + n);
+				sb.append("$.").append(n);
 				if (direction == SortOrder.Direction.DESC) {
 					sb.append(" DESC");
 				}

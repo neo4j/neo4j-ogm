@@ -19,30 +19,28 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 
-import java.io.IOException;
-
 /**
  * @author vince
  * @author Luanne Misquitta
  */
 public class RowModelResponse extends AbstractHttpResponse<ResultRowModel> implements Response<RowModel> {
 
-	public RowModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-		super(httpResponse, ResultRowModel.class);
-	}
+    public RowModelResponse(CloseableHttpResponse httpResponse) {
+        super(httpResponse, ResultRowModel.class);
+    }
 
-	@Override
-	public RowModel next() {
-		ResultRowModel rowModel = nextDataRecord("row");
+    @Override
+    public RowModel next() {
+        ResultRowModel rowModel = nextDataRecord("row");
 
-		if (rowModel != null) {
-			return new DefaultRowModel(rowModel.queryResults(), columns());
-		}
-		return null;
-	}
+        if (rowModel != null) {
+            return new DefaultRowModel(rowModel.queryResults(), columns());
+        }
+        return null;
+    }
 
-	@Override
-	public void close() {
-		//Nothing to do, the response has been closed already
-	}
+    @Override
+    public void close() {
+        //Nothing to do, the response has been closed already
+    }
 }

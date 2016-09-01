@@ -62,19 +62,14 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
 
             else if (mapEntry.getValue() instanceof Iterable) {
                 Iterable<Object> collection = (Iterable) mapEntry.getValue();
-                Iterator<Object> iterator = collection.iterator();
-                while (iterator.hasNext()) {
-                    Object element = iterator.next();
+                for (Object element : collection) {
                     if (isPath(element)) {
                         buildPath(element, graphModel, nodeIdentities, edgeIdentities);
-                    }
-                    else if (isNode(element)) {
+                    } else if (isNode(element)) {
                         buildNode(element, graphModel, nodeIdentities);
-                    }
-                    else if (isRelationship(element)) {
+                    } else if (isRelationship(element)) {
                         buildRelationship(element, graphModel, nodeIdentities, edgeIdentities);
-                    }
-                    else {
+                    } else {
                         throw new RuntimeException("Not handled:" + mapEntry.getValue().getClass());
                     }
                 }
@@ -94,7 +89,7 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
 
         while (nodeIterator.hasNext()) {
             buildNode(nodeIterator.next(), graphModel, nodeIdentities);
-        }     
+        }
     }
 
     public void buildNode(Object node, GraphModel graphModel, Set nodeIdentities) {
@@ -107,11 +102,11 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
             List<String> labelNames = labels(node);
 
             nodeModel.setLabels(labelNames.toArray(new String[] {}));
-            
+
             nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
 
             graphModel.getNodes().add(nodeModel);
-        }    
+        }
     }
 
     public void buildRelationship(Object relationship, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
@@ -133,9 +128,7 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
 
     public Map<String, Object> convertArrayPropertiesToIterable(Map<String, Object> properties) {
         Map<String, Object> props = new HashMap<>();
-        Iterator<String> i = properties.keySet().iterator();
-        while (i.hasNext()) {
-            String k = i.next();
+        for (String k : properties.keySet()) {
             Object v = properties.get(k);
             if (v.getClass().isArray()) {
                 props.put(k, AdapterUtils.convertToIterable(v));

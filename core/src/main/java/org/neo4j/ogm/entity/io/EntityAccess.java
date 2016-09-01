@@ -158,7 +158,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             char[] chars = ((String) value).toCharArray();
             List<Character> characters = new ArrayList<>(chars.length);
             for (char c : chars) {
-                characters.add(Character.valueOf(c));
+                characters.add(c);
             }
             return characters;
         }

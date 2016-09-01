@@ -66,7 +66,7 @@ public class EnumCollectionStringConverter implements AttributeConverter<Collect
             return null;
         }
         for (String value : stringValues) {
-            values.add(Enum.valueOf(enumClass, value.toString()));
+            values.add(Enum.valueOf(enumClass, value));
         }
         return values;
     }

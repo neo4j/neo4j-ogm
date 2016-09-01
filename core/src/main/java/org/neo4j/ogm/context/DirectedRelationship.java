@@ -42,8 +42,7 @@ public class DirectedRelationship {
 
 		DirectedRelationship that = (DirectedRelationship) o;
 
-		if (!relationshipType.equals(that.relationshipType)) return false;
-		return relationshipDirection.equals(that.relationshipDirection);
+		return relationshipType.equals(that.relationshipType) && relationshipDirection.equals(that.relationshipDirection);
 	}
 
 	@Override

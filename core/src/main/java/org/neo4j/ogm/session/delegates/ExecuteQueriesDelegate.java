@@ -80,7 +80,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
-        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper<T>());
+        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper());
     }
 
     @Override

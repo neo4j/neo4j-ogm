@@ -13,7 +13,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +55,7 @@ public class DeleteDelegate implements Capability.Delete {
     private <T> void deleteAll(T object) {
         List<T> list;
         if (object.getClass().isArray()) {
-            list = Arrays.asList(object);
+            list = Collections.singletonList(object);
         } else {
             list = (List<T>) object;
         }
@@ -74,7 +74,7 @@ public class DeleteDelegate implements Capability.Delete {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             deleteAll(object);
         } else {
-            deleteOneOrMoreObjects(session.context().neighbours(object), Arrays.asList(object));
+            deleteOneOrMoreObjects(session.context().neighbours(object), Collections.singletonList(object));
         }
     }
 

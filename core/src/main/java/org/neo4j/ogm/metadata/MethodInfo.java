@@ -271,11 +271,7 @@ public class MethodInfo {
     }
 
     public boolean isScalar() {
-
-        if (typeParameterDescriptor != null) return false;
-        if (descriptor.contains("[")) return false;
-
-        return true;
+        return typeParameterDescriptor == null && !descriptor.contains("[");
     }
 
     public boolean hasAnnotation(String annotationName) {

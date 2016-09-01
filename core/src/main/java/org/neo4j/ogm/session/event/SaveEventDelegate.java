@@ -14,8 +14,8 @@
 package org.neo4j.ogm.session.event;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -64,7 +64,7 @@ public final class SaveEventDelegate {
             }
         }
         else if (object.getClass().isArray()) {
-            for (Object element : (Arrays.asList(object))) {
+            for (Object element : (Collections.singletonList(object))) {
                 preSave(element);
             }
         }
@@ -273,7 +273,7 @@ public final class SaveEventDelegate {
 
                 if (reference != null) {
                     if (reference.getClass().isArray()) {
-                        addChildren(children, Arrays.asList(reference));
+                        addChildren(children, Collections.singletonList(reference));
                     } else if (Collection.class.isAssignableFrom(reference.getClass())) {
                         addChildren(children, (Collection) reference);
                     } else {
@@ -325,7 +325,7 @@ public final class SaveEventDelegate {
 
         if (reference != null) {
             if (reference.getClass().isArray()) {
-                mapCollection(mappedRelationships, parent, reader, Arrays.asList(reference));
+                mapCollection(mappedRelationships, parent, reader, Collections.singletonList(reference));
             } else if (Collection.class.isAssignableFrom(reference.getClass())) {
                 mapCollection(mappedRelationships, parent, reader, (Collection) reference);
             } else {

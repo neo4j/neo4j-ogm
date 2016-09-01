@@ -29,8 +29,8 @@ import java.lang.annotation.*;
 @Inherited
 public @interface GraphId {
 
-    static final String CLASS = "org.neo4j.ogm.annotation.GraphId";
-    static final String NAME = "name";
+    String CLASS = "org.neo4j.ogm.annotation.GraphId";
+    String NAME = "name";
 
     String name() default "";
 

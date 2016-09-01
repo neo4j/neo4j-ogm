@@ -54,7 +54,7 @@ public class NumberCollectionStringConverter implements AttributeConverter<Colle
         if (stringValues == null) {
             return null;
         }
-        Collection<Number> values = null;
+        Collection<Number> values;
 
         if (List.class.isAssignableFrom(collectionClass)) {
             values = new ArrayList<>(stringValues.length);

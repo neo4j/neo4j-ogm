@@ -488,9 +488,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				if (reader != null) {
 					currentValues = reader.read(instance);
 					if (writer.type().isArray()) {
-						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues, valueType);
+						values = EntityAccess.merge(writer.type(), values, (Object[]) currentValues, valueType);
 					} else {
-						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Collection) currentValues, valueType);
+						values = EntityAccess.merge(writer.type(), values, (Collection) currentValues, valueType);
 					}
 				}
 			}

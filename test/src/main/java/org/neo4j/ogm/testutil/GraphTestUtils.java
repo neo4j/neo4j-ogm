@@ -124,20 +124,14 @@ public final class GraphTestUtils {
                     Object instance = at.invoke(null, graphDatabaseService);
                     Method allNodes = instance.getClass().getMethod("getAllNodes");
                     return (Iterable<Node>) allNodes.invoke(instance);
-                } catch (NoSuchMethodException nsme2) {
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException nsme2) {
                     throw new RuntimeException(nsme2);
-                } catch (InvocationTargetException ite) {
-                    throw new RuntimeException(ite);
-                } catch (IllegalAccessException iae) {
-                    throw new RuntimeException(iae);
                 }
             } catch (ClassNotFoundException cnfe) {
                 throw new RuntimeException(cnfe);
             }
-        } catch (InvocationTargetException ite) {
+        } catch (InvocationTargetException | IllegalAccessException ite) {
             throw new RuntimeException(ite);
-        } catch (IllegalAccessException iae) {
-            throw new RuntimeException(iae);
         }
     }
 
@@ -154,20 +148,14 @@ public final class GraphTestUtils {
                     Object instance = at.invoke(null, graphDatabaseService);
                     Method allRelationships = instance.getClass().getMethod("getAllRelationships");
                     return (Iterable<Relationship>) allRelationships.invoke(instance);
-                } catch (NoSuchMethodException nsme2) {
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException nsme2) {
                     throw new RuntimeException(nsme2);
-                } catch (InvocationTargetException ite) {
-                    throw new RuntimeException(ite);
-                } catch (IllegalAccessException iae) {
-                    throw new RuntimeException(iae);
                 }
             } catch (ClassNotFoundException cnfe) {
                 throw new RuntimeException(cnfe);
             }
-        } catch (InvocationTargetException ite) {
+        } catch (InvocationTargetException | IllegalAccessException ite) {
             throw new RuntimeException(ite);
-        } catch (IllegalAccessException iae) {
-            throw new RuntimeException(iae);
         }
     }
 

@@ -41,7 +41,7 @@ public class ByteArrayWrapperBase64Converter implements AttributeConverter<Byte[
         byte[] bytes = Base64.decodeBase64(value);
         Byte[] wrapper = new Byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
-            wrapper[i] = Byte.valueOf(bytes[i]);  // preferable to new Byte(..) hence not using Apache toObject()
+            wrapper[i] = bytes[i];  // preferable to new Byte(..) hence not using Apache toObject()
         }
         return wrapper;
     }

@@ -13,18 +13,8 @@
 
 package org.neo4j.ogm.context;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.EntityAccess;
-import org.neo4j.ogm.entity.io.EntityFactory;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.PropertyWriter;
+import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -32,6 +22,12 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Simple graph-to-entity mapper suitable for ad-hoc, one-off mappings.  This doesn't interact with a
@@ -51,7 +47,7 @@ public class SingleUseEntityMapper {
      * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
      *
      * @param mappingMetaData The {@link MetaData} to use for performing mappings
-     * @param entityFactory The entity factory to use.
+     * @param entityFactory   The entity factory to use.
      */
     public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
         this.metadata = mappingMetaData;
@@ -61,10 +57,10 @@ public class SingleUseEntityMapper {
     /**
      * Maps a row-based result onto a new instance of the specified type.
      *
-     * @param <T> The class of object to return
-     * @param type The {@link Class} denoting the type of object to create
+     * @param <T>         The class of object to return
+     * @param type        The {@link Class} denoting the type of object to create
      * @param columnNames The names of the columns in each row of the result
-     * @param rowModel The {@link org.neo4j.ogm.model.RowModel} containing the data to map
+     * @param rowModel    The {@link org.neo4j.ogm.model.RowModel} containing the data to map
      * @return A new instance of <tt>T</tt> populated with the data in the specified row model
      */
     public <T> T map(Class<T> type, String[] columnNames, RowModel rowModel) {
@@ -78,7 +74,7 @@ public class SingleUseEntityMapper {
         return entity;
     }
 
-    public <T> T map(Class<T> type, Map<String,Object> row) {
+    public <T> T map(Class<T> type, Map<String, Object> row) {
         T entity = this.entityFactory.newObject(type);
         setPropertiesOnEntity(entity, row);
         return entity;
@@ -120,18 +116,17 @@ public class SingleUseEntityMapper {
 
         if (writer != null) {
             Object value = property.getValue();
-            if (value!=null && value.getClass().isArray()) {
+            if (value != null && value.getClass().isArray()) {
                 value = Arrays.asList((Object[]) value);
             }
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
+                Class elementType = underlyingElementType(classInfo, property.getKey());
                 value = writer.type().isArray()
-                        ? EntityAccess.merge(writer.type(), (Iterable<?>) value, new Object[]{}, elementType)
-                        : EntityAccess.merge(writer.type(), (Iterable<?>) value, Collections.EMPTY_LIST, elementType);
+                        ? EntityAccess.merge(writer.type(), value, new Object[]{}, elementType)
+                        : EntityAccess.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
             }
             writer.write(instance, value);
-        }
-        else {
+        } else {
             logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
         }
     }
@@ -139,7 +134,7 @@ public class SingleUseEntityMapper {
     private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
         FieldInfo fieldInfo = classInfo.propertyField(propertyName);
         if (fieldInfo != null) {
-            String descriptor =  fieldInfo.getTypeDescriptor() == null ? fieldInfo.getTypeParameterDescriptor() : fieldInfo.getTypeDescriptor();
+            String descriptor = fieldInfo.getTypeDescriptor() == null ? fieldInfo.getTypeParameterDescriptor() : fieldInfo.getTypeDescriptor();
             if (descriptor != null) {
                 return ClassUtils.getType(descriptor);
             }

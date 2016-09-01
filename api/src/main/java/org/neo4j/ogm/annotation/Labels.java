@@ -32,6 +32,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 public @interface Labels {
 
-    String CLASS = Labels.class.getCanonicalName();
+    String CLASS = "org.neo4j.ogm.annotation.Labels";
     String[] defaultValue() default {};
 }

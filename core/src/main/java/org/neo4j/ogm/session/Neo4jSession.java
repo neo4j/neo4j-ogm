@@ -79,13 +79,10 @@ public class Neo4jSession implements Session {
 
     @Override
     public void notifyListeners(Event event) {
-        Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
-        while (eventListenerIterator.hasNext()) {
-            EventListener eventListener = eventListenerIterator.next();
+        for (EventListener eventListener : registeredEventListeners) {
             if (eventListener == null) {
                 registeredEventListeners.remove(eventListener);
-            }
-            else {
+            } else {
                 switch (event.getLifeCycle()) {
                     case PRE_SAVE:
                         eventListener.onPreSave(event);
@@ -114,10 +111,7 @@ public class Neo4jSession implements Session {
     @Override
     public boolean dispose(EventListener eventListener) {
 
-        Iterator<EventListener> eventListenerIterator = registeredEventListeners.iterator();
-
-        while (eventListenerIterator.hasNext()) {
-            EventListener next = eventListenerIterator.next();
+        for (EventListener next : registeredEventListeners) {
             if (eventListener == next) {
                 registeredEventListeners.remove(eventListener);
                 return true;

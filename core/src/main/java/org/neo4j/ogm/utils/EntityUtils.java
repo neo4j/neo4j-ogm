@@ -39,10 +39,6 @@ public class EntityUtils {
 
     /**
      * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
-     *
-     * @param entity
-     * @param metaData
-     * @return
      */
     public static Collection<String> labels(Object entity, MetaData metaData) {
         ClassInfo classInfo = metaData.classInfo(entity);

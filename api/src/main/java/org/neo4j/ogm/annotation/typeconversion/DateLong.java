@@ -22,6 +22,6 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Inherited
 public @interface DateLong {
-    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.DateLong";
+    String CLASS = "org.neo4j.ogm.annotation.typeconversion.DateLong";
 }
 

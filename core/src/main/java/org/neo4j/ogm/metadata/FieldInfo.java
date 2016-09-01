@@ -232,10 +232,8 @@ public class FieldInfo {
 
     public boolean isScalar() {
 
-        if (typeParameterDescriptor != null) return false;
-        if (descriptor.startsWith("[")) return false;
+        return typeParameterDescriptor == null && !descriptor.startsWith("[");
 
-        return true;
     }
 
     public boolean isLabelField() {

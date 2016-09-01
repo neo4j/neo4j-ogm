@@ -26,7 +26,7 @@ import org.neo4j.ogm.model.Property;
  */
 public class Utils {
 
-    public static final Map<String, Object> map(final Object... keysAndValues) {
+    public static Map<String, Object> map(final Object... keysAndValues) {
         return new HashMap<String, Object>() {
             {
                 for (int i = 0; i < keysAndValues.length; i+=2 ) {
@@ -36,7 +36,7 @@ public class Utils {
         };
     }
 
-    public static final Map<String, Object> mapCollection(final String collectionName, final Collection<Property<String, Object>> properties) {
+    public static Map<String, Object> mapCollection(final String collectionName, final Collection<Property<String, Object>> properties) {
 
         return new HashMap<String, Object>() {
             {
@@ -222,7 +222,7 @@ public class Utils {
             return 0.0f;
         }
         if ("long".equals(className)) {
-            return 0l;
+            return 0L;
         }
         return value;
     }

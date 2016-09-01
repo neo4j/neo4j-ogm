@@ -75,8 +75,6 @@ public class ClassInfo {
      * ConcurrentModificationException stops occurring.
      */
     private final Lock lock = new ReentrantLock();
-    private int majorVersion;
-    private int minorVersion;
     private String className;
     private String directSuperclassName;
     private String neo4jName;
@@ -95,6 +93,7 @@ public class ClassInfo {
     private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
     private volatile Set<FieldInfo> fieldInfos;
     private volatile Map<String, FieldInfo> propertyFields;
+    private volatile Map<String, FieldInfo> indexFields;
     private volatile FieldInfo identityField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
@@ -109,8 +108,8 @@ public class ClassInfo {
             return;
         }
 
-        minorVersion = dataInputStream.readUnsignedShort();    //minor version
-        majorVersion = dataInputStream.readUnsignedShort();    // major version
+        dataInputStream.readUnsignedShort();    //minor version
+        dataInputStream.readUnsignedShort();    // major version
 
         ConstantPool constantPool = new ConstantPool(dataInputStream);
 
@@ -460,6 +459,8 @@ public class ClassInfo {
         }
         return propertyFields.get(propertyName.toLowerCase());
     }
+
+
 
     /**
      * Finds the property field with a specific field name from the ClassInfo's property fields
@@ -872,6 +873,7 @@ public class ClassInfo {
     }
 
 
+    @SuppressWarnings("unchecked")
     public Method getMethod(MethodInfo methodInfo, Class... parameterTypes) {
         try {
             return MetaDataClassLoader.loadClass(name()).getMethod(methodInfo.getName(), parameterTypes);
@@ -1257,7 +1259,7 @@ public class ClassInfo {
                 }
             }
         } catch (RuntimeException e) {
-            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", new Object[]{className, relationshipType, relationshipDirection});
+            LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", className, relationshipType, relationshipDirection);
         }
         return null;
 

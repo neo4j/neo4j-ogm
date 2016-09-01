@@ -376,9 +376,7 @@ public class MappingContext {
                 if (nodeEntityRegister.containsKey(id)) {
                     // todo: this will be very slow for many objects
                     // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
-                    Iterator<MappedRelationship> mappedRelationshipIterator = mappedRelationships().iterator();
-                    while (mappedRelationshipIterator.hasNext()) {
-                        MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+                    for (MappedRelationship mappedRelationship : mappedRelationships()) {
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
                             Object affectedObject = mappedRelationship.getEndNodeId() == id ? nodeEntityRegister.get(mappedRelationship.getStartNodeId()) : nodeEntityRegister.get(mappedRelationship.getEndNodeId());
                             if (affectedObject != null) {

@@ -15,7 +15,6 @@ package org.neo4j.ogm.session.request;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -132,10 +131,8 @@ public class RequestExecutor {
 	}
 
 	private void updateSessionContext(CompileContext context) {
-		Iterator<Object> iterator = context.registry().iterator();
-		while (iterator.hasNext()) {
-			Object targetObject = iterator.next();
-			if(!(targetObject instanceof TransientRelationship)) {
+		for (Object targetObject : context.registry()) {
+			if (!(targetObject instanceof TransientRelationship)) {
 				ClassInfo classInfo = session.metaData().classInfo(targetObject);
 				Field identityField = classInfo.getField(classInfo.identityField());
 				Object value = FieldWriter.read(identityField, targetObject);
@@ -311,7 +308,7 @@ public class RequestExecutor {
 					for (Object obj : context.registry()) { //TODO find a better way to do this instead of iterating through the log
 						if (!(obj instanceof TransientRelationship)) {
 							ClassInfo classInfo = session.metaData().classInfo(obj);
-							PropertyReader idReader = new EntityAccessManager().getIdentityPropertyReader(classInfo);
+							PropertyReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 							Long id = (Long) idReader.read(obj);
 							if (id != null && id.equals(referenceMapping.id)) {
 								registerEntity(session.context(), classInfo, referenceMapping.id, obj);

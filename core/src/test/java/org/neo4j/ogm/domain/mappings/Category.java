@@ -26,7 +26,6 @@ public class Category extends Entity {
 
     @Relationship(type = "HAS", direction = Relationship.INCOMING)
     private Set<Event> events = new HashSet<Event>();
-    ;
 
     public Category() {
     }

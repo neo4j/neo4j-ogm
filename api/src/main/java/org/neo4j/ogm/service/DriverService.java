@@ -19,7 +19,6 @@ import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -34,11 +33,8 @@ public class DriverService {
 
     private static Driver load(String className) {
 
-        Iterator<Driver> iterator = ServiceLoader.load(Driver.class).iterator();
-
-        while (iterator.hasNext()) {
+        for (Driver driver : ServiceLoader.load(Driver.class)) {
             try {
-                Driver driver = iterator.next();
                 if (driver.getClass().getName().equals(className)) {
                     logger.info("Using driver: {}", className);
                     return driver;

@@ -84,9 +84,7 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
 
 			if (value!=null && value.getClass().isArray()) {
 				Iterable<Object> collection = AdapterUtils.convertToIterable(value);
-				Iterator objects = collection.iterator();
-				while (objects.hasNext()) {
-					Object element = objects.next();
+				for (Object element : collection) {
 					adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
 				}
 			} else {

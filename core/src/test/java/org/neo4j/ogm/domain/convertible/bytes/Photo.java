@@ -24,18 +24,19 @@ public class Photo {
 
     Long id;
 
-    // user-defined getConverter
+    // user-defined converter
     @Convert(ByteArrayBase64Converter.class)
     private byte[] image;
 
 
-    // should use default getConverter
+    // should use default converter
     public byte[] getImage() {
         return image;
     }
 
-    // should use default getConverter
+    // should use default converter
     public void setImage(byte[] image) {
         this.image = image;
     }
+
 }

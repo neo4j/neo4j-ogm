@@ -42,12 +42,12 @@ public class EnumConversionTest {
     @Test
     public void testSaveFieldWithAnnotatedConverter() {
         FieldInfo fieldInfo = algebraInfo.propertyField("numberSystem");
-        assertTrue(fieldInfo.hasConverter());
+        assertTrue(fieldInfo.hasPropertyConverter());
 
         Algebra algebra = new Algebra();
         algebra.setNumberSystem(NumberSystem.NATURAL);
         Assert.assertEquals("N", algebra.getNumberSystem().getDomain());
-        String value = (String) fieldInfo.getConverter().toGraphProperty(algebra.getNumberSystem());
+        String value = (String) fieldInfo.getPropertyConverter().toGraphProperty(algebra.getNumberSystem());
         // the converted enum value that will be stored as a neo4j node / rel property
         assertEquals("NATURAL", value);
     }
@@ -55,11 +55,11 @@ public class EnumConversionTest {
     @Test
     public void testLoadFieldWithAnnotatedConverter() {
         FieldInfo fieldInfo = algebraInfo.propertyField("numberSystem");
-        assertTrue(fieldInfo.hasConverter());
+        assertTrue(fieldInfo.hasPropertyConverter());
         // a node / rel property value loaded from neo4j, to be stored in on an enum
         String value = "INTEGER";
         Algebra algebra = new Algebra();
-        algebra.setNumberSystem((NumberSystem) fieldInfo.getConverter().toEntityAttribute(value));
+        algebra.setNumberSystem((NumberSystem) fieldInfo.getPropertyConverter().toEntityAttribute(value));
 
         Assert.assertEquals(NumberSystem.INTEGER, algebra.getNumberSystem());
         Assert.assertEquals("Z", algebra.getNumberSystem().getDomain());
@@ -68,13 +68,13 @@ public class EnumConversionTest {
     @Test
     public void testCustomConverter() {
         MethodInfo methodInfo = algebraInfo.propertyGetter("numberSystem");
-        assertTrue(methodInfo.hasConverter());
-        Assert.assertEquals(NumberSystemDomainConverter.class, methodInfo.getConverter().getClass());
+        assertTrue(methodInfo.hasPropertyConverter());
+        Assert.assertEquals(NumberSystemDomainConverter.class, methodInfo.getPropertyConverter().getClass());
 
         String domain = "Z";  // an algebraic domain (i.e. the integers)
 
         Algebra algebra = new Algebra();
-        algebra.setNumberSystem((NumberSystem) methodInfo.getConverter().toEntityAttribute(domain));
+        algebra.setNumberSystem((NumberSystem) methodInfo.getPropertyConverter().toEntityAttribute(domain));
 
         Assert.assertEquals(NumberSystem.INTEGER, algebra.getNumberSystem());
         Assert.assertEquals("Z", algebra.getNumberSystem().getDomain());
@@ -88,8 +88,8 @@ public class EnumConversionTest {
 
         FieldInfo fieldInfo = personInfo.propertyField("gender");
 
-        assertTrue(fieldInfo.hasConverter());
-        Assert.assertEquals("MALE", fieldInfo.getConverter().toGraphProperty(bob.getGender()));
+        assertTrue(fieldInfo.hasPropertyConverter());
+        Assert.assertEquals("MALE", fieldInfo.getPropertyConverter().toGraphProperty(bob.getGender()));
 
     }
 
@@ -97,8 +97,8 @@ public class EnumConversionTest {
     public void testGenderSetterWithAutoDetectedConverter() {
         Person bob = new Person();
         MethodInfo methodInfo = personInfo.propertySetter("gender");
-        assertTrue(methodInfo.hasConverter());
-        bob.setGender((Gender) methodInfo.getConverter().toEntityAttribute("MALE"));
+        assertTrue(methodInfo.hasPropertyConverter());
+        bob.setGender((Gender) methodInfo.getPropertyConverter().toEntityAttribute("MALE"));
         Assert.assertEquals(Gender.MALE, bob.getGender());
 
     }
@@ -108,23 +108,23 @@ public class EnumConversionTest {
         Person bob = new Person();
         bob.setGender(Gender.MALE);
         MethodInfo methodInfo = personInfo.propertyGetter("gender");
-        assertTrue(methodInfo.hasConverter());
-        Assert.assertEquals("MALE", methodInfo.getConverter().toGraphProperty(bob.getGender()));
+        assertTrue(methodInfo.hasPropertyConverter());
+        Assert.assertEquals("MALE", methodInfo.getPropertyConverter().toGraphProperty(bob.getGender()));
     }
 
     @Test
     public void assertConvertingNullGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = personInfo.propertyGetter("gender");
-        assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.getConverter();
+        assertTrue(methodInfo.hasPropertyConverter());
+        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
     }
 
     @Test
     public void assertConvertingNullAttributeWorksCorrectly() {
         MethodInfo methodInfo = personInfo.propertyGetter("gender");
-        assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.getConverter();
+        assertTrue(methodInfo.hasPropertyConverter());
+        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 
@@ -141,8 +141,8 @@ public class EnumConversionTest {
 
         FieldInfo fieldInfo = personInfo.propertyField("inProgressEducation");
 
-        assertTrue(fieldInfo.hasConverter());
-        String[] converted = (String[]) fieldInfo.getConverter().toGraphProperty(bob.getInProgressEducation());
+        assertTrue(fieldInfo.hasPropertyConverter());
+        String[] converted = (String[]) fieldInfo.getPropertyConverter().toGraphProperty(bob.getInProgressEducation());
         assertTrue("MASTERS".equals(converted[0]) || "MASTERS".equals(converted[1]));
         assertTrue("PHD".equals(converted[0]) || "PHD".equals(converted[1]));
 
@@ -156,8 +156,8 @@ public class EnumConversionTest {
         Person bob = new Person();
         Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
         MethodInfo methodInfo = personInfo.propertySetter("inProgressEducation");
-        assertTrue(methodInfo.hasConverter());
-        bob.setInProgressEducation((Education[]) methodInfo.getConverter().toEntityAttribute(new String[]{"MASTERS", "PHD"}));
+        assertTrue(methodInfo.hasPropertyConverter());
+        bob.setInProgressEducation((Education[]) methodInfo.getPropertyConverter().toEntityAttribute(new String[]{"MASTERS", "PHD"}));
         Assert.assertArrayEquals(inProgress, bob.getInProgressEducation());
 
     }
@@ -171,8 +171,8 @@ public class EnumConversionTest {
         Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
         bob.setInProgressEducation(inProgress);
         MethodInfo methodInfo = personInfo.propertyGetter("inProgressEducation");
-        assertTrue(methodInfo.hasConverter());
-        String[] converted = (String[]) methodInfo.getConverter().toGraphProperty(bob.getInProgressEducation());
+        assertTrue(methodInfo.hasPropertyConverter());
+        String[] converted = (String[]) methodInfo.getPropertyConverter().toGraphProperty(bob.getInProgressEducation());
         assertTrue("MASTERS".equals(converted[0]) || "MASTERS".equals(converted[1]));
         assertTrue("PHD".equals(converted[0]) || "PHD".equals(converted[1]));
     }
@@ -183,8 +183,8 @@ public class EnumConversionTest {
     @Test
     public void assertConvertingNullArrayGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = personInfo.propertyGetter("inProgressEducation");
-        assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.getConverter();
+        assertTrue(methodInfo.hasPropertyConverter());
+        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
     }
 
@@ -194,8 +194,8 @@ public class EnumConversionTest {
     @Test
     public void assertConvertingNullArrayAttributeWorksCorrectly() {
         MethodInfo methodInfo = personInfo.propertyGetter("inProgressEducation");
-        assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.getConverter();
+        assertTrue(methodInfo.hasPropertyConverter());
+        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 
@@ -213,8 +213,8 @@ public class EnumConversionTest {
 
         FieldInfo fieldInfo = personInfo.propertyField("completedEducation");
 
-        assertTrue(fieldInfo.hasConverter());
-        String[] converted = (String[]) fieldInfo.getConverter().toGraphProperty(bob.getCompletedEducation());
+        assertTrue(fieldInfo.hasPropertyConverter());
+        String[] converted = (String[]) fieldInfo.getPropertyConverter().toGraphProperty(bob.getCompletedEducation());
         assertTrue("HIGHSCHOOL".equals(converted[0]) || "HIGHSCHOOL".equals(converted[1]));
         assertTrue("BACHELORS".equals(converted[0]) || "BACHELORS".equals(converted[1]));
     }
@@ -226,8 +226,8 @@ public class EnumConversionTest {
     public void testEducationCollectionSetterWithAutoDetectedConverter() {
         Person bob = new Person();
         MethodInfo methodInfo = personInfo.propertySetter("completedEducation");
-        assertTrue(methodInfo.hasConverter());
-        bob.setCompletedEducation((List) methodInfo.getConverter().toEntityAttribute(new String[]{"HIGHSCHOOL", "BACHELORS"}));
+        assertTrue(methodInfo.hasPropertyConverter());
+        bob.setCompletedEducation((List) methodInfo.getPropertyConverter().toEntityAttribute(new String[]{"HIGHSCHOOL", "BACHELORS"}));
         assertTrue(bob.getCompletedEducation().contains(Education.HIGHSCHOOL));
         assertTrue(bob.getCompletedEducation().contains(Education.BACHELORS));
     }
@@ -241,8 +241,8 @@ public class EnumConversionTest {
         List<Education> completed = Arrays.asList(Education.HIGHSCHOOL, Education.BACHELORS);
         bob.setCompletedEducation(completed);
         MethodInfo methodInfo = personInfo.propertySetter("completedEducation");
-        assertTrue(methodInfo.hasConverter());
-        String[] converted = (String[]) methodInfo.getConverter().toGraphProperty(bob.getCompletedEducation());
+        assertTrue(methodInfo.hasPropertyConverter());
+        String[] converted = (String[]) methodInfo.getPropertyConverter().toGraphProperty(bob.getCompletedEducation());
         assertTrue("HIGHSCHOOL".equals(converted[0]) || "HIGHSCHOOL".equals(converted[1]));
         assertTrue("BACHELORS".equals(converted[0]) || "BACHELORS".equals(converted[1]));
     }
@@ -253,8 +253,8 @@ public class EnumConversionTest {
     @Test
     public void assertConvertingNullCollectionGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = personInfo.propertyGetter("completedEducation");
-        assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.getConverter();
+        assertTrue(methodInfo.hasPropertyConverter());
+        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
     }
 
@@ -264,8 +264,8 @@ public class EnumConversionTest {
     @Test
     public void assertConvertingNullCollectionAttributeWorksCorrectly() {
         MethodInfo methodInfo = personInfo.propertyGetter("completedEducation");
-        assertTrue(methodInfo.hasConverter());
-        AttributeConverter attributeConverter = methodInfo.getConverter();
+        assertTrue(methodInfo.hasPropertyConverter());
+        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
     }
 
@@ -275,6 +275,6 @@ public class EnumConversionTest {
     @Test
     public void shouldNotRegisterEnumWhenTypeContainsEnumType() {
         FieldInfo fieldInfo = tagEntityInfo.relationshipFieldByName("tags");
-        assertFalse(fieldInfo.hasConverter());
+        assertFalse(fieldInfo.hasPropertyConverter());
     }
 }

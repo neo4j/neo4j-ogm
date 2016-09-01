@@ -20,6 +20,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.ObjectAnnotations;
 
+import java.util.Map;
+
 /**
  * @author Adam George
  * @author Luanne Misquitta
@@ -37,8 +39,11 @@ public class FieldReader implements RelationalReader, PropertyReader {
     @Override
     public Object read(Object instance) {
         Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
-        if (fieldInfo.hasConverter()) {
-            value = fieldInfo.getConverter().toGraphProperty(value);
+        if (fieldInfo.hasPropertyConverter()) {
+            value = fieldInfo.getPropertyConverter().toGraphProperty(value);
+        }
+        else if (fieldInfo.hasCompositeConverter()) {
+            value = fieldInfo.getCompositeConverter().toGraphProperties(value);
         }
         return value;
     }

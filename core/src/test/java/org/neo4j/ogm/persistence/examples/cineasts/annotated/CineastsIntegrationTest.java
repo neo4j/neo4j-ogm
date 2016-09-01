@@ -33,12 +33,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.domain.cineasts.annotated.Actor;
-import org.neo4j.ogm.domain.cineasts.annotated.Movie;
-import org.neo4j.ogm.domain.cineasts.annotated.Rating;
-import org.neo4j.ogm.domain.cineasts.annotated.SecurityRole;
-import org.neo4j.ogm.domain.cineasts.annotated.Title;
-import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -134,6 +129,22 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         assertEquals("Daniela", daniela.getName());
         assertEquals(1, daniela.getSecurityRoles().length);
         assertEquals(SecurityRole.USER, daniela.getSecurityRoles()[0]);
+    }
+
+    @Test
+    public void saveAndRetrieveUserWithLocation() {
+        User user = new User();
+        user.setLogin("daniela");
+        user.setName("Daniela");
+        user.setPassword("daniela");
+        user.setLocation(new Location(37.0, -122.0));
+        session.save(user);
+
+        Collection<User> users = session.loadAll(User.class, new Filter("login", "daniela"));
+        assertEquals(1, users.size());
+        User daniela = users.iterator().next();
+        assertEquals("Daniela", daniela.getName());
+        assertNotNull(user.getLocation());
     }
 
     @Test

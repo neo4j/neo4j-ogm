@@ -18,7 +18,7 @@ package org.neo4j.ogm.typeconversion;
  * java.lang.Number to and from its String representation.
  *
  * By default, the OGM will automatically convert BigInteger and BigDecimal
- * entity attributes using this getConverter.
+ * entity attributes using this converter.
  *
  * @author Vince Bickers
  */

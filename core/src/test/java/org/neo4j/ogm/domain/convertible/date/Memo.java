@@ -33,7 +33,7 @@ public class Memo {
     // uses default ISO 8601 date format
     private Date recorded;
 
-    // declares a custom getConverter
+    // declares a custom converter
     @Convert(DateNumericStringConverter.class)
     private Date approved;
 

@@ -354,7 +354,7 @@ public class ClassInfoTest {
         List<MethodInfo> methodInfos = classInfo.findSetters(Date.class);
         MethodInfo methodInfo = methodInfos.iterator().next();
         assertEquals("setRenewalDate", methodInfo.getName());
-        assertTrue(methodInfo.hasConverter());
+        assertTrue(methodInfo.hasPropertyConverter());
     }
 
     @Test
@@ -363,7 +363,7 @@ public class ClassInfoTest {
         List<MethodInfo> methodInfos = classInfo.findGetters(Date.class);
         MethodInfo methodInfo = methodInfos.iterator().next();
         assertEquals("getRenewalDate", methodInfo.getName());
-        assertTrue(methodInfo.hasConverter());
+        assertTrue(methodInfo.hasPropertyConverter());
     }
 
     @Test
@@ -372,7 +372,7 @@ public class ClassInfoTest {
         List<FieldInfo> fieldInfos = classInfo.findFields(Date.class);
         FieldInfo fieldInfo = fieldInfos.iterator().next();
         assertEquals("renewalDate", fieldInfo.getName());
-        assertTrue(fieldInfo.hasConverter());
+        assertTrue(fieldInfo.hasPropertyConverter());
     }
 
     @Test

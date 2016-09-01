@@ -38,14 +38,14 @@ public class MethodInfo {
     private final String typeParameterDescriptor;
 
     /**
-     * The associated attribute getConverter for this field, if applicable, otherwise null.
+     * The associated attribute propertyConverter for this field, if applicable, otherwise null.
      */
-    private AttributeConverter<?, ?> converter;
+    private AttributeConverter<?, ?> propertyConverter;
 
     /**
-     * The associated composite attribute getConverter for this field, if applicable, otherwise null.
+     * The associated composite attribute propertyConverter for this field, if applicable, otherwise null.
      */
-    private CompositeAttributeConverter<?> compositeAttributeConverter;
+    private CompositeAttributeConverter<?> compositeConverter;
 
 
     /**
@@ -66,11 +66,11 @@ public class MethodInfo {
         if (!this.getAnnotations().isEmpty()) {
             // TODO would like to pass in the CustomAttributeConverterIndex here but I've got no idea where it should come from
             /*
-             * I can't really do it here, this is called during classpath scanning and I don't want to pass getConverter-specific
+             * I can't really do it here, this is called during classpath scanning and I don't want to pass propertyConverter-specific
              * stuff into the classpath scanner code.
              *
-             * maybe I go if getConverter is proxy then set index?
-             * so in DomainInfo '...else { methodInfo.getConverter() instanceof proxy then register this repository }
+             * maybe I go if propertyConverter is proxy then set index?
+             * so in DomainInfo '...else { methodInfo.getPropertyConverter() instanceof proxy then register this repository }
              *  - also a bit shit, really
              * I also don't really want to add public methods to MethodInfo if they're not called for meta-data use
              * - i.e., don't like the idea of methodInfo.hasProxyConverter() or methodInfo.needsProxyConverter()
@@ -79,12 +79,12 @@ public class MethodInfo {
              *
              * hang on, what if we had no annotation and just handled it all in DomainInfo?
              * - ...probably, it's a case of null vs non-null converters when we run through DomainInfo
-             * - have to remember that the getConverter makes it a simple field, which is important
+             * - have to remember that the propertyConverter makes it a simple field, which is important
              *
-             * my reservation is that if we add a getConverter to everything then it's unnecessarily complicated
+             * my reservation is that if we add a propertyConverter to everything then it's unnecessarily complicated
              * - this is true, but it's probably less filthy than 'instanceof Proxy'
-             *   or 'method has no getConverter but is annotated with @Convert therefore give it a proxy'
-             * - it's not even an option because a non-null getConverter means everything's a "simple" attribute!
+             *   or 'method has no propertyConverter but is annotated with @Convert therefore give it a proxy'
+             * - it's not even an option because a non-null propertyConverter means everything's a "simple" attribute!
              *
              * Therefore, I genuinely don't think we have a choice other than to ask for @Convert in DomainInfo,
              * since we cannot magically get the proxy in here any other way
@@ -92,12 +92,12 @@ public class MethodInfo {
             if (!this.annotations.isEmpty()) {
                 Object converter = getAnnotations().getConverter();
                 if (converter instanceof AttributeConverter) {
-                    setConverter((AttributeConverter<?, ?>) converter);
+                    setPropertyConverter((AttributeConverter<?, ?>) converter);
                 } else if (converter instanceof CompositeAttributeConverter) {
-                    setCompositeAttributeConverter((CompositeAttributeConverter<?>) converter);
+                    setCompositeConverter((CompositeAttributeConverter<?>) converter);
                 } else if (converter != null) {
                     throw new IllegalStateException(String.format(
-                            "The getConverter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
+                            "The propertyConverter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
                             this.name));
                 }
 
@@ -170,13 +170,13 @@ public class MethodInfo {
 
     public boolean isSimpleGetter() {
         return primitiveGetters.contains(descriptor)
-                || hasConverter()
+                || hasPropertyConverter()
                 || usesSimpleJavaTypes();
     }
 
     public boolean isSimpleSetter() {
         return primitiveSetters.contains(descriptor)
-                || hasConverter()
+                || hasPropertyConverter()
                 || usesSimpleJavaTypes();
     }
 
@@ -185,27 +185,27 @@ public class MethodInfo {
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 
-    public boolean hasConverter() {
-        return converter != null;
+    public boolean hasPropertyConverter() {
+        return propertyConverter != null;
     }
 
-    public AttributeConverter getConverter() {
-        return converter;
+    public AttributeConverter getPropertyConverter() {
+        return propertyConverter;
     }
 
-    void setConverter(AttributeConverter<?, ?> converter) {
-        if (this.converter == null && this.compositeAttributeConverter == null && converter != null) {
-            this.converter = converter;
-        } // we maybe set an annotated getConverter when object was constructed, so don't override with a default one
+    void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && propertyConverter != null) {
+            this.propertyConverter = propertyConverter;
+        } // we maybe set an annotated propertyConverter when object was constructed, so don't override with a default one
     }
 
-    public CompositeAttributeConverter<?> getCompositeAttributeConverter() {
-        return compositeAttributeConverter;
+    public CompositeAttributeConverter<?> getCompositeConverter() {
+        return compositeConverter;
     }
 
-    public void setCompositeAttributeConverter(CompositeAttributeConverter<?> converter) {
-        if (this.converter == null && this.compositeAttributeConverter == null && converter != null) {
-            this.compositeAttributeConverter = converter;
+    public void setCompositeConverter(CompositeAttributeConverter<?> converter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && converter != null) {
+            this.compositeConverter = converter;
         }
     }
 

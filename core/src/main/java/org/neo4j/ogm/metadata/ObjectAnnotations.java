@@ -50,12 +50,12 @@ public class ObjectAnnotations {
 
     Object getConverter() {
 
-        // try to get a custom type getConverter
+        // try to get a custom type converter
         AnnotationInfo customType = get(Convert.CLASS);
         if (customType != null) {
             String classDescriptor = customType.get(Convert.CONVERTER, null);
             if (classDescriptor == null) {
-                return null; // will have a default proxy getConverter applied later on
+                return null; // will have a default proxy converter applied later on
             }
 
             try {

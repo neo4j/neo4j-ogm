@@ -20,7 +20,7 @@ Two Date converters are provided "out of the box"
 . @DateString
 . @DateLong
 
-By default, the OGM will use the @DateString converter as described above. However if you want to use a different date
+By default, the OGM will use the @DateString propertyConverter as described above. However if you want to use a different date
 format, you can annotate your entity attribute accordingly:
 
 .Example of user-defined date format
@@ -54,7 +54,7 @@ or strings respectively.
 In order to define bespoke type conversions for particular members, you can annotate a field or method with `@Convert`
 to specify an implementation of `org.neo4j.ogm.typeconversion.AttributeConverter` to use.
 
-.Example of custom type converter
+.Example of custom type propertyConverter
 [source,java]
 ----
 public class MoneyConverter implements AttributeConverter<DecimalCurrencyAmount, Integer> {

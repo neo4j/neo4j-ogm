@@ -59,8 +59,8 @@ public class MethodWriter extends EntityAccess {
     @Override
     public void write(Object instance, Object value) {
 
-        if (setterMethodInfo.hasConverter()) {
-            value = setterMethodInfo.getConverter().toEntityAttribute(value);
+        if (setterMethodInfo.hasPropertyConverter()) {
+            value = setterMethodInfo.getPropertyConverter().toEntityAttribute(value);
             MethodWriter.write(method, instance, value);
         }
 
@@ -75,9 +75,9 @@ public class MethodWriter extends EntityAccess {
 
     @Override
     public Class<?> type() {
-        if (setterMethodInfo.hasConverter()) {
+        if (setterMethodInfo.hasPropertyConverter()) {
             try {
-                for(Method method : setterMethodInfo.getConverter().getClass().getDeclaredMethods()) {
+                for(Method method : setterMethodInfo.getPropertyConverter().getClass().getDeclaredMethods()) {
                     if(method.getName().equals("toGraphProperty") && !method.isSynthetic()) { //we don't want the method on the AttributeConverter interface
                         return method.getReturnType();
                     }

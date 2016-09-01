@@ -38,14 +38,14 @@ public class FieldInfo {
     private final ObjectAnnotations annotations;
 
     /**
-     * The associated attribute getConverter for this field, if applicable, otherwise null.
+     * The associated attribute propertyConverter for this field, if applicable, otherwise null.
      */
-    private AttributeConverter<?, ?> converter;
+    private AttributeConverter<?, ?> propertyConverter;
 
     /**
-     * The associated composite attribute getConverter for this field, if applicable, otherwise null.
+     * The associated composite attribute propertyConverter for this field, if applicable, otherwise null.
      */
-    private CompositeAttributeConverter<?> compositeAttributeConverter;
+    private CompositeAttributeConverter<?> compositeConverter;
 
 
     /**
@@ -66,12 +66,12 @@ public class FieldInfo {
         if (!this.annotations.isEmpty()) {
             Object converter = getAnnotations().getConverter();
             if (converter instanceof AttributeConverter) {
-                setConverter((AttributeConverter<?, ?>) converter);
+                setPropertyConverter((AttributeConverter<?, ?>) converter);
             } else if (converter instanceof CompositeAttributeConverter) {
-                setCompositeAttributeConverter((CompositeAttributeConverter<?>) converter);
+                setCompositeConverter((CompositeAttributeConverter<?>) converter);
             } else if (converter != null){
                 throw new IllegalStateException(String.format(
-                        "The getConverter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
+                        "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
                         this.name));
             }
 
@@ -136,33 +136,37 @@ public class FieldInfo {
 
     public boolean isSimple() {
         return primitives.contains(descriptor)
-                || converter != null
+                || propertyConverter != null
                 || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 
-    public AttributeConverter getConverter() {
-        return converter;
+    public AttributeConverter getPropertyConverter() {
+        return propertyConverter;
     }
 
-    void setConverter(AttributeConverter<?, ?> converter) {
-        if (this.converter == null && this.compositeAttributeConverter == null && converter != null) {
-            this.converter = converter;
-        } // we maybe set an annotated getConverter when object was constructed, so don't override with a default one
+    void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && propertyConverter != null) {
+            this.propertyConverter = propertyConverter;
+        } // we maybe set an annotated converter when object was constructed, so don't override with a default one
     }
 
-    public CompositeAttributeConverter<?> getCompositeAttributeConverter() {
-        return compositeAttributeConverter;
+    public boolean hasPropertyConverter() {
+        return propertyConverter != null;
     }
 
-    public void setCompositeAttributeConverter(CompositeAttributeConverter<?> converter) {
-        if (this.converter == null && this.compositeAttributeConverter == null && converter != null) {
-            this.compositeAttributeConverter = converter;
+    public CompositeAttributeConverter<?> getCompositeConverter() {
+        return compositeConverter;
+    }
+
+    public void setCompositeConverter(CompositeAttributeConverter<?> converter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && converter != null) {
+            this.compositeConverter = converter;
         }
     }
 
-    public boolean hasConverter() {
-        return converter != null;
+    public boolean hasCompositeConverter() {
+        return compositeConverter != null;
     }
 
     public String relationshipDirection(String defaultDirection) {

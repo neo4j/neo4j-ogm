@@ -48,8 +48,8 @@ public class User {
 
     String[] nicknames;
 
-//    @Convert(LocationConverter.class)
-//    Location location;
+    @Convert(LocationConverter.class)
+    Location location;
 
     Rating rate(Movie movie, int stars, String comment) {
         return null;
@@ -136,6 +136,14 @@ public class User {
 
     public void setNicknames(String[] nicknames) {
         this.nicknames = nicknames;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     @Override

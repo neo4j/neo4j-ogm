@@ -25,17 +25,17 @@ public class PhotoWrapper {
 
     Long id;
 
-    // user-defined getConverter
+    // user-defined converter
     @Convert(ByteArrayWrapperBase64Converter.class)
     private Byte[] image;
 
 
-    // should use default getConverter
+    // should use default converter
     public Byte[] getImage() {
         return image;
     }
 
-    // should use default getConverter
+    // should use default converter
     public void setImage(Byte[] image) {
         this.image = image;
     }

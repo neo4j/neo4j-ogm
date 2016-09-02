@@ -28,6 +28,8 @@ public interface Driver extends AutoCloseable, LoadableService {
 
     Transaction newTransaction();
 
+    Transaction newTransaction(Transaction.Type type);
+
     void close();
 
     Request request();

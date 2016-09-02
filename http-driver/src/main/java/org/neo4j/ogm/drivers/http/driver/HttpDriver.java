@@ -74,12 +74,22 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
     @Override
     public Request request() {
-        return new HttpRequest(httpClient(), requestUrl(), driverConfig.getCredentials());
+        Transaction tx = transactionManager.getCurrentTransaction();
+        if (tx == null) {
+            return new HttpRequest(httpClient(), requestUrl(), driverConfig.getCredentials());
+        } else {
+            return new HttpRequest(httpClient(), requestUrl(), driverConfig.getCredentials(), tx.isReadOnly());
+        }
     }
 
     @Override
     public Transaction newTransaction() {
-        return new HttpTransaction(transactionManager, this, newTransactionUrl());
+        return newTransaction(Transaction.Type.READ_WRITE);
+    }
+
+    @Override
+    public Transaction newTransaction(Transaction.Type type) {
+        return new HttpTransaction(transactionManager, this, newTransactionUrl(), type);
     }
 
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
@@ -112,6 +122,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
         LOGGER.debug( "Thread: {}, POST {}", Thread.currentThread().getId(), url );
 
         HttpPost request = new HttpPost(url);
+        request.setHeader("X-WRITE", readOnly() ? "0" : "1");
 
         try (CloseableHttpResponse response = executeHttpRequest(request)) {
             Header location = response.getHeaders("Location")[0];
@@ -152,6 +163,16 @@ public final class HttpDriver extends AbstractConfigurableDriver
         }
         LOGGER.debug( "Thread: {}, request url {}", Thread.currentThread().getId(), autoCommitUrl() );
         return autoCommitUrl();
+    }
+
+    private boolean readOnly()  {
+        if (transactionManager != null) {
+            Transaction tx = transactionManager.getCurrentTransaction();
+            if (tx != null) {
+                return tx.isReadOnly();
+            }
+        }
+        return false; // its read-write by default
     }
 
     private synchronized CloseableHttpClient httpClient()  {

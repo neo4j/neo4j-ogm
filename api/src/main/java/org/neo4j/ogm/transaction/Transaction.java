@@ -34,6 +34,13 @@ public interface Transaction extends AutoCloseable {
      */
     Status status();
 
+    /**
+     * Obtains the read-only status of a transaction.
+     * Transaction are read-write by default
+     * @return true if this is a read-only transaction, false otherwise
+     */
+    boolean isReadOnly();
+
 //    /**
 //     * Register a new object on the transaction. A new object is
 //     * one that was not previously stored in the graph.
@@ -54,6 +61,9 @@ public interface Transaction extends AutoCloseable {
         OPEN, PENDING, ROLLEDBACK, COMMITTED, CLOSED, ROLLBACK_PENDING, COMMIT_PENDING
     }
 
+    enum Type {
+        READ_ONLY, READ_WRITE
+    }
     /**
      * close this transaction.
      */

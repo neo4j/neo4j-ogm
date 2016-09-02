@@ -19,13 +19,22 @@ package org.neo4j.ogm.transaction;
 public interface TransactionManager {
 
     /**
-     * Opens a new transaction against a database instance.
+     * Opens a new READ_WRITE transaction against a database instance.
      *
      * Instantiation of the transaction is left to the driver
      *
      * @return a new @{link Transaction}
      */
     Transaction openTransaction();
+
+    /**
+     * Opens a new transaction of the specified type against a database instance.
+     *
+     * Instantiation of the transaction is left to the driver
+     *
+     * @return a new @{link Transaction}
+     */
+    Transaction openTransaction(Transaction.Type type);
 
     /**
      * Rolls back the specified transaction.
@@ -63,4 +72,5 @@ public interface TransactionManager {
     boolean canCommit();
 
     boolean canRollback();
+
 }

@@ -40,7 +40,6 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public abstract class StubHttpDriver extends AbstractConfigurableDriver
 {
-
     private final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     protected abstract String[] getResponse();
@@ -52,6 +51,11 @@ public abstract class StubHttpDriver extends AbstractConfigurableDriver
 
     @Override
     public Transaction newTransaction() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public Transaction newTransaction(Transaction.Type type) {
         throw new RuntimeException("not implemented");
     }
 

@@ -68,9 +68,13 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
 	@Override
 	public Transaction newTransaction() {
-		Session session = newSession(); //A bolt session can have at most one transaction running at a time
-		return new BoltTransaction(transactionManager, nativeTransaction(session), session);
+		return newTransaction(Transaction.Type.READ_WRITE);
 	}
+
+	@Override
+	public Transaction newTransaction(Transaction.Type type) {
+		Session session = newSession(); //A bolt session can have at most one transaction running at a time
+		return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);	}
 
 	@Override
 	public synchronized void close() {

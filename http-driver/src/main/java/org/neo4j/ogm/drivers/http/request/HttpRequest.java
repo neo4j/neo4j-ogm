@@ -65,22 +65,26 @@ public class HttpRequest implements Request {
     private final String url;
     private final CloseableHttpClient httpClient;
     private final Credentials credentials;
+    private final boolean readOnly;
 
     public HttpRequest(CloseableHttpClient httpClient, String url, Credentials credentials) {
+        this(httpClient, url, credentials, false);
+    }
+
+    public HttpRequest(CloseableHttpClient httpClient, String url, Credentials credentials, boolean readOnly) {
         this.httpClient = httpClient;
         this.url = url;
         this.credentials = credentials;
+        this.readOnly = readOnly;
     }
 
     @Override
     public Response<GraphModel> execute(GraphModelRequest request) {
-        CloseableHttpResponse response;
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
         } else {
             String cypher = cypherRequest(request);
-            response = executeRequest( cypher );
-            return new GraphModelResponse(response);
+            return new GraphModelResponse(executeRequest( cypher ));
         }
     }
 
@@ -157,6 +161,7 @@ public class HttpRequest implements Request {
         HttpPost request = new HttpPost(url);
 
         request.setEntity(new StringEntity(cypher, "UTF-8"));
+        request.setHeader("X-WRITE", readOnly ? "0" : "1");
 
         logger.info("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
 
@@ -173,6 +178,7 @@ public class HttpRequest implements Request {
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
         request.setHeader(new BasicHeader(HTTP.USER_AGENT, "neo4j-ogm.java/2.0"));
         request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
+
 
         HttpAuthorization.authorize(request, credentials);
 

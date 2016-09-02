@@ -34,10 +34,13 @@ public class BoltTransaction extends AbstractTransaction {
 	private final Session nativeSession;
 	private final Logger LOGGER = LoggerFactory.getLogger(BoltTransaction.class);
 
-	public BoltTransaction(TransactionManager transactionManager, Transaction transaction, Session session) {
+	public BoltTransaction(TransactionManager transactionManager, Transaction transaction, Session session, org.neo4j.ogm.transaction.Transaction.Type type) {
 		super(transactionManager);
 		this.nativeTransaction = transaction;
 		this.nativeSession = session;
+		this.type = type; // TODO: bolt doesn't yet support READ_ONLY transactions/sessions, so we need to wait for this
+
+
 	}
 
 	@Override

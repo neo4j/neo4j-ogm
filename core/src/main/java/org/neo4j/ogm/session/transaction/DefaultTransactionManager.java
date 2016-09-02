@@ -53,14 +53,29 @@ public class DefaultTransactionManager implements TransactionManager {
      * @return a new {@link Transaction}
      */
     public Transaction openTransaction() {
-        if (TRANSACTION_THREAD_LOCAL.get() == null) {
-            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction());
+        AbstractTransaction tx = ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get());
+        if (tx == null) {
+            return openTransaction(Transaction.Type.READ_WRITE);
         } else {
-            ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend();
+            return openTransaction(tx.type());
+        }
+    }
+
+    /**
+     * Opens a new TRANSACTION_THREAD_LOCAL against a database instance.
+     *
+     * Instantiation of the TRANSACTION_THREAD_LOCAL is left to the driver
+     *
+     * @return a new {@link Transaction}
+     */
+    public Transaction openTransaction(Transaction.Type type) {
+        if (TRANSACTION_THREAD_LOCAL.get() == null) {
+            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type));
+        } else {
+            ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend(type);
         }
         return TRANSACTION_THREAD_LOCAL.get();
     }
-
 
     /**
      * Rolls back the specified TRANSACTION_THREAD_LOCAL.

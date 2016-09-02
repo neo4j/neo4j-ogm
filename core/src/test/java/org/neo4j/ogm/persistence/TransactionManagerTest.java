@@ -13,9 +13,11 @@
 
 package org.neo4j.ogm.persistence;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.drivers.http.request.HttpRequestException;
+import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
@@ -174,6 +176,79 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         latch.await(); // pause until the count reaches 0
         executor.shutdownNow();
     }
+
+    @Test
+    public void shouldNotBeReadOnlyByDefault()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx = session.beginTransaction();
+        Assert.assertFalse(tx.isReadOnly());
+    }
+
+    @Test
+    public void shouldBeAbleToCreateReadOnlyTransaction()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY);
+        Assert.assertTrue(tx.isReadOnly());
+    }
+
+    @Test
+    public void shouldNotBeAbleToExtendAReadTransactionWithAReadWriteInnerTransaction()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        try {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            fail("Should not have allowed transaction extension of different type");
+        } catch (TransactionException tme) {
+            Assert.assertEquals("Incompatible transaction type specified: must be 'READ_ONLY'", tme.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotBeAbleToExtendAReadWriteTransactionWithAReadOnlyInnerTransaction()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        try {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            fail("Should not have allowed transaction extension of different type");
+        } catch (TransactionException tme) {
+            Assert.assertEquals("Incompatible transaction type specified: must be 'READ_WRITE'", tme.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldAutomaticallyExtendAReadOnlyTransactionWithAReadOnlyExtension()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+        Transaction tx2 = session.beginTransaction();
+        Assert.assertTrue(tx2.isReadOnly());
+    }
+
+    @Test
+    public void shouldAutomaticallyExtendAReadWriteTransactionWithAReadWriteExtension()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+        Transaction tx2 = session.beginTransaction();
+        Assert.assertFalse(tx2.isReadOnly());
+    }
+
 
     class QueryRunner implements Runnable {
 

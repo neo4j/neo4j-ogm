@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.drivers.embedded.transaction;
 
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -37,10 +38,13 @@ public class EmbeddedTransaction extends AbstractTransaction {
      *
      * @param transactionManager an instance of {@link TransactionManager}
      * @param nativeTransaction the {@link org.neo4j.graphdb.Transaction} backing this Transaction object
+     * @param type the {@link org.neo4j.ogm.transaction.Transaction.Type} of this transaction
+     *
      */
-    public EmbeddedTransaction(TransactionManager transactionManager, org.neo4j.graphdb.Transaction nativeTransaction) {
+    public EmbeddedTransaction(TransactionManager transactionManager, Transaction nativeTransaction, Type type) {
         super(transactionManager);
         this.nativeTransaction = nativeTransaction;
+        this.type = type; // TODO: implement when support for Embedded in HA Mode has been done
     }
 
     @Override

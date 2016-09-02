@@ -20,6 +20,7 @@ import org.apache.http.protocol.HTTP;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.transaction.AbstractTransaction;
+import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -30,10 +31,11 @@ public class HttpTransaction extends AbstractTransaction {
     private final HttpDriver driver;
     private final String url;
 
-    public HttpTransaction(TransactionManager transactionManager, HttpDriver driver, String url) {
+    public HttpTransaction(TransactionManager transactionManager, HttpDriver driver, String url, Transaction.Type type) {
         super(transactionManager);
         this.driver = driver;
         this.url = url;
+        this.type = type;
     }
 
     @Override

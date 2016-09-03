@@ -311,8 +311,7 @@ public class MappingContext {
                             if (mappedRelationship.getRelationshipId() != null) {
                                 Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
                                 if (relEntity != null) {
-                                    String relType = mappedRelationship.getRelationshipType();
-                                    ClassInfo relClassInfo = metaData.classInfo(relType);
+                                    ClassInfo relClassInfo = metaData.classInfo(relEntity);
                                     PropertyReader relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
                                     purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
                                 }

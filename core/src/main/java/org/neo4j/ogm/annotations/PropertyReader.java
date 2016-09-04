@@ -36,4 +36,6 @@ public interface PropertyReader {
      */
     Object read(Object instance);
 
+    boolean isComposite();
+
 }

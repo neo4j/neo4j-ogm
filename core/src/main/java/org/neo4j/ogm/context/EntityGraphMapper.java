@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -242,16 +243,22 @@ public class EntityGraphMapper implements EntityMapper {
      * @param nodeBuilder a {@link NodeBuilder} that knows how to compile node create/update cypher phrases
      */
     private void updateNode(Object entity, CompileContext context, NodeBuilder nodeBuilder) {
-
         // fire pre-save event here
-
         if (mappingContext.isDirty(entity)) {
             logger.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
             for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(classInfo)) {
-                Object value = propertyReader.read(entity);
-                nodeBuilder.addProperty(propertyReader.propertyName(), value);
+                if (propertyReader.isComposite()) {
+                    //TODO: Avoid type-hiding cast here
+                    Map<String, ?> values = (Map<String, ?>) propertyReader.read(entity);
+                    for (String key : values.keySet()) {
+                        nodeBuilder.addProperty(key, values.get(key));
+                    }
+                } else {
+                    Object value = propertyReader.read(entity);
+                    nodeBuilder.addProperty(propertyReader.propertyName(), value);
+                }
             }
         } else {
             context.deregister(nodeBuilder);

@@ -199,7 +199,7 @@ public class MethodInfo {
         } // we maybe set an annotated propertyConverter when object was constructed, so don't override with a default one
     }
 
-    public CompositeAttributeConverter<?> getCompositeConverter() {
+    public CompositeAttributeConverter getCompositeConverter() {
         return compositeConverter;
     }
 
@@ -207,6 +207,10 @@ public class MethodInfo {
         if (this.propertyConverter == null && this.compositeConverter == null && converter != null) {
             this.compositeConverter = converter;
         }
+    }
+
+    public boolean hasCompositeConverter() {
+        return compositeConverter != null;
     }
 
     public String relationshipDirection(String defaultDirection) {

@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 /**
@@ -69,7 +70,7 @@ public class FieldInfo {
                 setPropertyConverter((AttributeConverter<?, ?>) converter);
             } else if (converter instanceof CompositeAttributeConverter) {
                 setCompositeConverter((CompositeAttributeConverter<?>) converter);
-            } else if (converter != null){
+            } else if (converter != null) {
                 throw new IllegalStateException(String.format(
                         "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
                         this.name));
@@ -137,6 +138,7 @@ public class FieldInfo {
     public boolean isSimple() {
         return primitives.contains(descriptor)
                 || propertyConverter != null
+                || compositeConverter != null
                 || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
@@ -155,7 +157,7 @@ public class FieldInfo {
         return propertyConverter != null;
     }
 
-    public CompositeAttributeConverter<?> getCompositeConverter() {
+    public CompositeAttributeConverter getCompositeConverter() {
         return compositeConverter;
     }
 
@@ -293,4 +295,25 @@ public class FieldInfo {
         }
         return typeParameterDescriptor;
     }
+
+    public Class convertedType() {
+        if (hasPropertyConverter() || hasCompositeConverter()) {
+            Class converterClass = hasPropertyConverter() ?
+                    getPropertyConverter().getClass() : getCompositeConverter().getClass();
+            String methodName = hasPropertyConverter()? "toGraphProperty" : "toGraphProperties";
+
+            try {
+                for (Method method : converterClass.getDeclaredMethods()) {
+                    //we don't want the method on the AttributeConverter interface
+                    if (method.getName().equals(methodName) && !method.isSynthetic()) {
+                        return method.getReturnType();
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
 }

@@ -80,7 +80,8 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         if(!propertyWriterCache.containsKey(classInfo)) {
             propertyWriterCache.put(classInfo,new HashMap<String, EntityAccess>());
         }
-        if(propertyWriterCache.get(classInfo).containsKey(propertyName)) {
+        Map<String, EntityAccess> entityAccessMap = propertyWriterCache.get(classInfo);
+        if(entityAccessMap.containsKey(propertyName)) {
             return propertyWriterCache.get(classInfo).get(propertyName);
         }
 

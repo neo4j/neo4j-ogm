@@ -48,6 +48,7 @@ import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
+import org.neo4j.ogm.utils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,8 +185,20 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	}
 
 	private void setProperties(Node nodeModel, Object instance) {
+		List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
 		ClassInfo classInfo = metadata.classInfo(instance);
-		for (Property<?, ?> property : nodeModel.getPropertyList()) {
+
+		Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
+		if (compositeFields.size() > 0) {
+			Map<String, ?> propertyMap = PropertyUtils.toMap(propertyList);
+			for (FieldInfo field : compositeFields) {
+				Object value  = field.getCompositeConverter().toEntityAttribute(propertyMap);
+				PropertyWriter writer = entityAccessStrategy.getPropertyWriter(classInfo, field.getName());
+				writer.write(instance, value);
+			}
+		}
+
+		for (Property<?, ?> property : propertyList) {
 			writeProperty(classInfo, instance, property);
 		}
 	}

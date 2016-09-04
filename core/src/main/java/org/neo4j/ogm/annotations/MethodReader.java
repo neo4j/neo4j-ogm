@@ -51,13 +51,18 @@ public class MethodReader implements RelationalReader, PropertyReader {
     @Override
     public String relationshipDirection() {
         ObjectAnnotations annotations = methodInfo.getAnnotations();
-        if(annotations != null) {
+        if (annotations != null) {
             AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-            if(relationshipAnnotation != null) {
+            if (relationshipAnnotation != null) {
                 return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
             }
         }
         return Relationship.UNDIRECTED;
+    }
+
+    @Override
+    public boolean isComposite() {
+        return methodInfo.hasCompositeConverter();
     }
 
     @Override

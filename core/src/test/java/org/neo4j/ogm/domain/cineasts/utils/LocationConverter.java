@@ -25,8 +25,10 @@ public class LocationConverter implements CompositeAttributeConverter<Location> 
     @Override
     public Map<String, ?> toGraphProperties(Location location) {
         Map<String, Double> properties = new HashMap<>();
-        properties.put("latitude", location.getLatitude());
-        properties.put("longitude", location.getLongitude());
+        if (location != null)  {
+            properties.put("latitude", location.getLatitude());
+            properties.put("longitude", location.getLongitude());
+        }
         return properties;
     }
 
@@ -34,7 +36,10 @@ public class LocationConverter implements CompositeAttributeConverter<Location> 
     public Location toEntityAttribute(Map<String, ?> map) {
         Double latitude = (Double) map.get("latitude");
         Double longitude = (Double) map.get("longitude");
-        return new Location(latitude, longitude);
+        if (latitude != null && longitude != null) {
+            return new Location(latitude, longitude);
+        }
+        return null;
     }
 
 }

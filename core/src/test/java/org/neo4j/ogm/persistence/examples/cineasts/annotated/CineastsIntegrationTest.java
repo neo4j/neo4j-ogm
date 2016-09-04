@@ -139,12 +139,15 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setPassword("daniela");
         user.setLocation(new Location(37.0, -122.0));
         session.save(user);
+        session.clear();
 
         Collection<User> users = session.loadAll(User.class, new Filter("login", "daniela"));
         assertEquals(1, users.size());
         User daniela = users.iterator().next();
         assertEquals("Daniela", daniela.getName());
         assertNotNull(user.getLocation());
+        assertEquals(37.0, user.getLocation().getLatitude(), 0);
+        assertEquals(-122.0, user.getLocation().getLongitude(), 0);
     }
 
     @Test

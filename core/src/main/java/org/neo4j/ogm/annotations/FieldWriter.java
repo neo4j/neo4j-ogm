@@ -66,7 +66,8 @@ public class FieldWriter extends EntityAccess {
 
         else {
             if (fieldInfo.isScalar()) {
-                String descriptor = fieldInfo.getTypeParameterDescriptor() == null ? fieldInfo.getDescriptor() : fieldInfo.getTypeParameterDescriptor();
+                String descriptor = fieldInfo.getTypeParameterDescriptor() == null ? fieldInfo.getDescriptor()
+                        : fieldInfo.getTypeParameterDescriptor();
                 value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
             }
             FieldWriter.write(field, instance, value);
@@ -75,16 +76,9 @@ public class FieldWriter extends EntityAccess {
 
     @Override
     public Class<?> type() {
-        if (fieldInfo.hasPropertyConverter()) {
-            try {
-                for(Method method : fieldInfo.getPropertyConverter().getClass().getDeclaredMethods()) {
-                    if(method.getName().equals("toGraphProperty") && !method.isSynthetic()) { //we don't want the method on the AttributeConverter interface
-                        return method.getReturnType();
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        Class convertedType = fieldInfo.convertedType();
+        if (convertedType != null) {
+            return convertedType;
         }
         return fieldType;
     }

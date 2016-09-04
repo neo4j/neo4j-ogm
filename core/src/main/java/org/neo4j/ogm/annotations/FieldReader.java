@@ -59,6 +59,11 @@ public class FieldReader implements RelationalReader, PropertyReader {
     }
 
     @Override
+    public boolean isComposite() {
+        return fieldInfo.hasCompositeConverter();
+    }
+
+    @Override
     public String relationshipDirection() {
         ObjectAnnotations annotations = fieldInfo.getAnnotations();
         if(annotations != null) {

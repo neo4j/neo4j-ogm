@@ -11,22 +11,26 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.model;
 
+package org.neo4j.ogm.utils;
+
+import org.neo4j.ogm.model.Property;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * @author vince
- */
-public interface Edge {
-    String getType();
+public class PropertyUtils {
 
-    Long getStartNode();
+    public static Map<String, ?> toMap(List<Property<String, Object>> propertyList) {
 
-    Long getEndNode();
+        Map map = new HashMap();
 
-    Long getId();
+        for (Property<String, Object> property : propertyList) {
+            map.put(property.getKey(), property.getValue());
+        }
 
-    List<Property<String, Object>> getPropertyList();
+        return map;
+    }
 
 }

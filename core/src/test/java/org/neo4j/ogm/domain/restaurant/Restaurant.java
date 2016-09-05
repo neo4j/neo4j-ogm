@@ -15,55 +15,48 @@
 package org.neo4j.ogm.domain.restaurant;
 
 import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 public class Restaurant {
 
-	@GraphId
-	private Long id;
-	private String name;
-	private Double latitude;
-	private Double longitude;
-	private int zip;
+    @GraphId
+    private Long id;
+    private String name;
+    private int zip;
 
-	public Restaurant() {
-	}
+    @Convert(LocationConverter.class)
+    Location location;
 
-	public Restaurant(String name, Double latitude, Double longitude, int zip) {
-		this.name = name;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.zip = zip;
-	}
+    public Restaurant() {
+    }
 
-	public String getName() {
-		return name;
-	}
+    public Restaurant(String name, Location location, int zip) {
+        this.name = name;
+        this.location = location;
+        this.zip = zip;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Double getLatitude() {
-		return latitude;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setLatitude(Double latitude) {
-		this.latitude = latitude;
-	}
+    public int getZip() {
+        return zip;
+    }
 
-	public Double getLongitude() {
-		return longitude;
-	}
+    public void setZip(int zip) {
+        this.zip = zip;
+    }
 
-	public void setLongitude(Double longitude) {
-		this.longitude = longitude;
-	}
+    public Location getLocation() {
+        return location;
+    }
 
-	public int getZip() {
-		return zip;
-	}
-
-	public void setZip(int zip) {
-		this.zip = zip;
-	}
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 }

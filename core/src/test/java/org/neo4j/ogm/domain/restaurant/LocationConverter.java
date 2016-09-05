@@ -12,9 +12,8 @@
  */
 
 
-package org.neo4j.ogm.domain.cineasts.utils;
+package org.neo4j.ogm.domain.restaurant;
 
-import org.neo4j.ogm.domain.cineasts.annotated.Location;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 import java.util.HashMap;

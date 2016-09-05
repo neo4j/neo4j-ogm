@@ -12,7 +12,7 @@
  */
 
 
-package org.neo4j.ogm.domain.cineasts.annotated;
+package org.neo4j.ogm.domain.restaurant;
 
 
 public class Location {

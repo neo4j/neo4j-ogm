@@ -1,5 +1,9 @@
 2.0.5-SNAPSHOT
 --------------
+o Support non-string annotation element types. Fixes #228
+o Correct rollback problem with RelationshipEntities. Fixes #351.
+o Support read-only transactions.
+o Fix Concurrent Modification Exception when save is followed deleteAll
 o Refactor classes from neo4j-ogm-core org.neo4j.ogm.annotations to org.neo4j.ogm.entity.io
 o Fixes an issue #209, where removal of labels fails in certain cases.
 o Deprecate @Labels annotation in the org.neo4j.ogm.annotations package. It has been moved to org.neo4j.ogm.annotation

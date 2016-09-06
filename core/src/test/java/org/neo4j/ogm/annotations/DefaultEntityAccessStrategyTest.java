@@ -126,7 +126,7 @@ public class DefaultEntityAccessStrategyTest {
         // test reading via field
         PropertyReader reader = this.entityAccessStrategy.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant reader shouldn't be null", reader);
-        assertEquals(domainObject.propertyWithoutAccessorMethods, reader.read(domainObject));
+        assertEquals(domainObject.propertyWithoutAccessorMethods, reader.readProperty(domainObject));
     }
 
     @Test
@@ -255,7 +255,7 @@ public class DefaultEntityAccessStrategyTest {
 
         PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "testAnnoProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertEquals(domainObject.fullyAnnotatedProperty, objectAccess.read(domainObject));
+        assertEquals(domainObject.fullyAnnotatedProperty, objectAccess.readProperty(domainObject));
         assertTrue("The accessor method wasn't used to get the value", domainObject.fullyAnnotatedPropertyAccessorWasCalled);
     }
 
@@ -268,7 +268,7 @@ public class DefaultEntityAccessStrategyTest {
 
         PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertEquals(domainObject.annotatedTestProperty, objectAccess.read(domainObject));
+        assertEquals(domainObject.annotatedTestProperty, objectAccess.readProperty(domainObject));
     }
 
     @Test
@@ -282,7 +282,7 @@ public class DefaultEntityAccessStrategyTest {
 
         PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "differentAnnotationOnGetter");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertEquals(domainObject.propertyWithDifferentAnnotatedGetter, objectAccess.read(domainObject));
+        assertEquals(domainObject.propertyWithDifferentAnnotatedGetter, objectAccess.readProperty(domainObject));
 
         for (PropertyReader reader : readers) {
             if (reader.propertyName().equals("differentAnnotationOnGetter")) {
@@ -300,7 +300,7 @@ public class DefaultEntityAccessStrategyTest {
 
         PropertyReader objectAccess = this.entityAccessStrategy.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.read(domainObject));
+        assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.readProperty(domainObject));
     }
 
     @Test
@@ -312,7 +312,7 @@ public class DefaultEntityAccessStrategyTest {
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertSame(member.getActivityList(), reader.read(member));
+        assertSame(member.getActivityList(), reader.readProperty(member));
         assertEquals("HAS_ACTIVITY", reader.relationshipType());
     }
 
@@ -326,12 +326,12 @@ public class DefaultEntityAccessStrategyTest {
 
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
-        assertSame(domainObject.member, reader.read(domainObject));
+        assertSame(domainObject.member, reader.readProperty(domainObject));
         assertEquals("CONTAINS", reader.relationshipType());
 
         reader = this.entityAccessStrategy.getRelationalReader(classInfo, "REGISTERED", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
-        assertSame(domainObject.registeredMember, reader.read(domainObject));
+        assertSame(domainObject.registeredMember, reader.readProperty(domainObject));
         assertEquals("REGISTERED", reader.relationshipType());
 
     }
@@ -348,7 +348,7 @@ public class DefaultEntityAccessStrategyTest {
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "LOCATION", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertSame(satellite.getLocation(), reader.read(satellite));
+        assertSame(satellite.getLocation(), reader.readProperty(satellite));
         assertEquals("LOCATION", reader.relationshipType());
     }
 
@@ -361,7 +361,7 @@ public class DefaultEntityAccessStrategyTest {
 
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
-        assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
+        assertSame(domainObject.postWithoutAccessorMethods, reader.readProperty(domainObject));
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
     }
 
@@ -375,7 +375,7 @@ public class DefaultEntityAccessStrategyTest {
 
         PropertyReader idReader = this.entityAccessStrategy.getIdentityPropertyReader(classInfo);
         assertNotNull("The resultant ID reader shouldn't be null", idReader);
-        assertEquals(id, idReader.read(domainObject));
+        assertEquals(id, idReader.readProperty(domainObject));
     }
 
     @Test
@@ -408,7 +408,7 @@ public class DefaultEntityAccessStrategyTest {
             String relType = objectAccess.relationshipType();
             assertTrue("Relationship type " + relType + " wasn't expected", expectedRelationalReaders.containsKey(relType));
             assertEquals(expectedRelationalReaders.get(relType), objectAccess.getClass());
-            assertNotNull(objectAccess.read(domainObject));
+            assertNotNull(objectAccess.readProperty(domainObject));
         }
     }
 
@@ -422,7 +422,7 @@ public class DefaultEntityAccessStrategyTest {
         ForumTopicLink forumTopicLink = new ForumTopicLink();
         Topic topic = new Topic();
         forumTopicLink.setTopic(topic);
-        assertSame("The value wasn't read correctly", topic, endNodeReader.read(forumTopicLink));
+        assertSame("The value wasn't readProperty correctly", topic, endNodeReader.readProperty(forumTopicLink));
     }
 
     @Test
@@ -465,7 +465,7 @@ public class DefaultEntityAccessStrategyTest {
         assertNotNull("The resultant object accessor shouldn't be null", relationalReader);
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.naturalSatellites = natural;
-        Object o = relationalReader.read(domainObject);
+        Object o = relationalReader.readProperty(domainObject);
         assertEquals(natural, o);
     }
 

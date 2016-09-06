@@ -311,7 +311,7 @@ public class RequestExecutor {
 						if (!(obj instanceof TransientRelationship)) {
 							ClassInfo classInfo = session.metaData().classInfo(obj);
 							PropertyReader idReader = new DefaultEntityAccessStrategy().getIdentityPropertyReader(classInfo);
-							Long id = (Long) idReader.read(obj);
+							Long id = (Long) idReader.readProperty(obj);
 							if (id != null && id.equals(referenceMapping.id)) {
 								registerEntity(session.context(), classInfo, referenceMapping.id, obj);
 							}

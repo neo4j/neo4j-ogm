@@ -28,7 +28,7 @@ import java.util.TimeZone;
  * {@link org.neo4j.ogm.annotation.typeconversion.DateString#FORMAT} will convert between dates and strings
  * using a user defined date format, e.g. "yy-MM-dd"
  *
- * {@link org.neo4j.ogm.annotation.typeconversion.DateLong} will read and write dates as Long values in the database.
+ * {@link org.neo4j.ogm.annotation.typeconversion.DateLong} will readProperty and write dates as Long values in the database.
  *
  * @author Vince Bickers
  */

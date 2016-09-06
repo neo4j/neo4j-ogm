@@ -265,7 +265,7 @@ public final class SaveEventDelegate {
 
             for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(parentClassInfo)) {
 
-                Object reference = reader.read(parent);
+                Object reference = reader.readProperty(parent);
 
                 if (reference != null) {
                     if (reference.getClass().isArray()) {
@@ -308,7 +308,7 @@ public final class SaveEventDelegate {
     }
 
     // given an object and a reader, returns a collection of
-    // MappedRelationships from the reference or references read by the reader from
+    // MappedRelationships from the reference or references readProperty by the reader from
     // the parent object.
     //
     // note that even if the reference is a singleton, a collection is always
@@ -317,7 +317,7 @@ public final class SaveEventDelegate {
 
         Set<MappedRelationship> mappedRelationships = new HashSet<>();
 
-        Object reference = reader.read(parent);
+        Object reference = reader.readProperty(parent);
 
         if (reference != null) {
             if (reference.getClass().isArray()) {
@@ -364,11 +364,11 @@ public final class SaveEventDelegate {
 
             else {
                 // graph relationship is transitive across the RE domain object
-                Object startNode =  entityAccessStrategy.getStartNodeReader(referenceInfo).read(reference);
+                Object startNode =  entityAccessStrategy.getStartNodeReader(referenceInfo).readProperty(reference);
                 ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
                 Long startNodeId = EntityUtils.identity(startNode, session.metaData());
 
-                Object endNode =  entityAccessStrategy.getEndNodeReader(referenceInfo).read(reference);
+                Object endNode =  entityAccessStrategy.getEndNodeReader(referenceInfo).readProperty(reference);
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = EntityUtils.identity(endNode, session.metaData());
 

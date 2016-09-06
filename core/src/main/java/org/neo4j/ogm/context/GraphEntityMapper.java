@@ -237,7 +237,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
 				PropertyReader reader = entityAccessStrategy.getPropertyReader(classInfo, property.getKey().toString());
 				if (reader != null) {
-					Object currentValue = reader.read(instance);
+					Object currentValue = reader.readProperty(instance);
 					Class<?> paramType = writer.type();
 					Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
 					if (paramType.isArray()) {
@@ -502,7 +502,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				RelationalReader reader = entityAccessStrategy.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
 				Object currentValues;
 				if (reader != null) {
-					currentValues = reader.read(instance);
+					currentValues = reader.readProperty(instance);
 					if (writer.type().isArray()) {
 						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues, valueType);
 					} else {

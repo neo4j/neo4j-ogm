@@ -37,15 +37,26 @@ public class FieldReader implements RelationalReader, PropertyReader {
     }
 
     @Override
-    public Object read(Object instance) {
+    public Object readProperty(Object instance) {
+        if (fieldInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "The readComposite method should be used for fields with a CompositeAttributeConverter");
+        }
         Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
         if (fieldInfo.hasPropertyConverter()) {
             value = fieldInfo.getPropertyConverter().toGraphProperty(value);
         }
-        else if (fieldInfo.hasCompositeConverter()) {
-            value = fieldInfo.getCompositeConverter().toGraphProperties(value);
-        }
         return value;
+    }
+
+    @Override
+    public Map<String, ?> readComposite(Object instance) {
+        if (!fieldInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
+        }
+        Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
+        return fieldInfo.getCompositeConverter().toGraphProperties(value);
     }
 
     @Override
@@ -66,9 +77,9 @@ public class FieldReader implements RelationalReader, PropertyReader {
     @Override
     public String relationshipDirection() {
         ObjectAnnotations annotations = fieldInfo.getAnnotations();
-        if(annotations != null) {
+        if (annotations != null) {
             AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-            if(relationshipAnnotation != null) {
+            if (relationshipAnnotation != null) {
                 return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
             }
         }
@@ -77,6 +88,6 @@ public class FieldReader implements RelationalReader, PropertyReader {
 
     @Override
     public String typeParameterDescriptor() {
-       return fieldInfo.getTypeDescriptor();
+        return fieldInfo.getTypeDescriptor();
     }
 }

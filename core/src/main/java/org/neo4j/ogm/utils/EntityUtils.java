@@ -33,7 +33,7 @@ public class EntityUtils {
         EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
         ClassInfo classInfo = metaData.classInfo(entity);
 
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).readProperty(entity);
 
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }
@@ -51,7 +51,7 @@ public class EntityUtils {
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, labelFieldInfo);
-            Collection<String> labels = (Collection<String>) reader.read(entity);
+            Collection<String> labels = (Collection<String>) reader.readProperty(entity);
             return CollectionUtils.union(staticLabels, labels);
         }
         return staticLabels;

@@ -93,12 +93,12 @@ public class EntityGraphMapper implements EntityMapper {
 
             ClassInfo reInfo = metaData.classInfo(entity);
 
-            Object startNode = entityAccessStrategy.getStartNodeReader(reInfo).read(entity);
+            Object startNode = entityAccessStrategy.getStartNodeReader(reInfo).readProperty(entity);
             if (startNode == null) {
                 throw new RuntimeException("@StartNode of relationship entity may not be null");
             }
 
-            Object endNode = entityAccessStrategy.getEndNodeReader(reInfo).read(entity);
+            Object endNode = entityAccessStrategy.getEndNodeReader(reInfo).readProperty(entity);
             if (endNode == null) {
                 throw new RuntimeException("@EndNode of relationship entity may not be null");
             }
@@ -122,8 +122,8 @@ public class EntityGraphMapper implements EntityMapper {
                 ClassInfo targetInfo = metaData.classInfo(endNode);
                 ClassInfo startInfo = metaData.classInfo(startNode);
 
-                Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startNode);
-                Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(endNode);
+                Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).readProperty(startNode);
+                Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).readProperty(endNode);
 
                 RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
 
@@ -250,14 +250,9 @@ public class EntityGraphMapper implements EntityMapper {
             ClassInfo classInfo = metaData.classInfo(entity);
             for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(classInfo)) {
                 if (propertyReader.isComposite()) {
-                    //TODO: Avoid type-hiding cast here
-                    Map<String, ?> values = (Map<String, ?>) propertyReader.read(entity);
-                    for (String key : values.keySet()) {
-                        nodeBuilder.addProperty(key, values.get(key));
-                    }
+                    nodeBuilder.addProperties(propertyReader.readComposite(entity));
                 } else {
-                    Object value = propertyReader.read(entity);
-                    nodeBuilder.addProperty(propertyReader.propertyName(), value);
+                    nodeBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(entity));
                 }
             }
         } else {
@@ -290,7 +285,7 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         CompileContext context = compiler.context();
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).readProperty(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         NodeBuilder nodeBuilder;
@@ -346,7 +341,7 @@ public class EntityGraphMapper implements EntityMapper {
             DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
 
             CompileContext context = compiler.context();
-            Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(srcInfo).read(entity);
+            Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(srcInfo).readProperty(entity);
 
             if (srcIdentity != null) {
                 boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
@@ -356,7 +351,7 @@ public class EntityGraphMapper implements EntityMapper {
                 }
             }
 
-            Object relatedObject = reader.read(entity);
+            Object relatedObject = reader.readProperty(entity);
             if (relatedObject != null) {
 
                 // if the type of a relationship backed by a relationship entity is not the same as its declared type
@@ -489,7 +484,7 @@ public class EntityGraphMapper implements EntityMapper {
         RelationshipBuilder relationshipBuilder;
 
         if (isRelationshipEntity(entity)) {
-            Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
+            Long relId = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(entity)).readProperty(entity);
 
             boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
 
@@ -531,8 +526,8 @@ public class EntityGraphMapper implements EntityMapper {
         }
         ClassInfo targetInfo = metaData.classInfo(targetEntity);
         ClassInfo startInfo = metaData.classInfo(startEntity);
-        Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
-        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startEntity);
+        Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).readProperty(targetEntity);
+        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).readProperty(startEntity);
 
         boolean relationshipEndsChanged = false;
 
@@ -571,8 +566,8 @@ public class EntityGraphMapper implements EntityMapper {
         ClassInfo targetInfo = metaData.classInfo(targetEntity);
         ClassInfo startInfo = metaData.classInfo(startEntity);
 
-        Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).read(targetEntity);
-        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).read(startEntity);
+        Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(targetInfo).readProperty(targetEntity);
+        Long srcIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(startInfo).readProperty(startEntity);
 
 
         // create or update the relationship mapping register between the start and end nodes. Note, this
@@ -640,19 +635,19 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         // if the RE is new, register it in the context so that we can set its ID correctly when it is created,
-        if (entityAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).read(relationshipEntity) == null) {
+        if (entityAccessStrategy.getIdentityPropertyReader(relEntityClassInfo).readProperty(relationshipEntity) == null) {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 
         for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(relEntityClassInfo)) {
-            relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.read(relationshipEntity));
+            relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
         }
     }
 
     private Object getStartEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
         RelationalReader actualStartNodeReader = entityAccessStrategy.getStartNodeReader(relEntityClassInfo);
         if (actualStartNodeReader != null) {
-            return actualStartNodeReader.read(relationshipEntity);
+            return actualStartNodeReader.readProperty(relationshipEntity);
         }
         throw new RuntimeException("@StartNode of a relationship entity may not be null");
     }
@@ -660,7 +655,7 @@ public class EntityGraphMapper implements EntityMapper {
     private Object getTargetEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
         RelationalReader actualEndNodeReader = entityAccessStrategy.getEndNodeReader(relEntityClassInfo);
         if (actualEndNodeReader != null) {
-            return actualEndNodeReader.read(relationshipEntity);
+            return actualEndNodeReader.readProperty(relationshipEntity);
         }
         throw new RuntimeException("@EndNode of a relationship entity may not be null");
     }
@@ -729,7 +724,7 @@ public class EntityGraphMapper implements EntityMapper {
         // tgtNodeBuilder will be null if tgtObject is a transient class, or a subclass of a transient class
         if (tgtNodeBuilder != null) {
             logger.debug("trying to map relationship between {} and {}", relNodes.source, relNodes.target);
-            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(relNodes.target)).read(relNodes.target);
+            Long tgtIdentity = (Long) entityAccessStrategy.getIdentityPropertyReader(metaData.classInfo(relNodes.target)).readProperty(relNodes.target);
             CompileContext context = compiler.context();
             relNodes.targetId = tgtIdentity;
             updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);
@@ -905,7 +900,7 @@ public class EntityGraphMapper implements EntityMapper {
                 //Moreover, the source must be related to the target and vice versa in the SAME direction
                 if (relationshipDirection.equals(tgtRelationshipDirection)) {
 
-                    Object target = tgtRelReader.read(tgtObject);
+                    Object target = tgtRelReader.readProperty(tgtObject);
                     if (target != null) {
                         if (target instanceof Iterable) {
                             for (Object relatedObject : (Iterable<?>) target) {

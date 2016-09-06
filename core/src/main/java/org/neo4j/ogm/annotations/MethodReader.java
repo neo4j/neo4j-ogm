@@ -20,6 +20,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.metadata.ObjectAnnotations;
 
+import java.util.Map;
+
 /**
  * @author Adam George
  * @author Luanne Misquitta
@@ -35,12 +37,26 @@ public class MethodReader implements RelationalReader, PropertyReader {
     }
 
     @Override
-    public Object read(Object instance) {
+    public Object readProperty(Object instance) {
+        if (methodInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "The readComposite method should be used for fields with a CompositeAttributeConverter");
+        }
         Object value = MethodWriter.read(classInfo.getMethod(methodInfo), instance);
         if (methodInfo.hasPropertyConverter()) {
             value = methodInfo.getPropertyConverter().toGraphProperty(value);
         }
         return value;
+    }
+
+    @Override
+    public Map<String, ?> readComposite(Object instance) {
+        if (!methodInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
+        }
+        Object value = MethodWriter.read(classInfo.getMethod(methodInfo), instance);
+        return methodInfo.getCompositeConverter().toGraphProperties(value);
     }
 
     @Override

@@ -159,7 +159,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
         bscComputerScience.setStudents(Arrays.asList(lakshmipathy, gianFranco));
 
-        // XXX: NB: currently using a dodgy relationship type because of simple strategy read/write relationship naming inconsistency
+        // XXX: NB: currently using a dodgy relationship type because of simple strategy readProperty/write relationship naming inconsistency
         session.save(bscComputerScience);
 
         GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (c:Course {name:'BSc Computer Science'}), " +

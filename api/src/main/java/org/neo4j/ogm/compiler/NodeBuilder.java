@@ -14,6 +14,7 @@
 package org.neo4j.ogm.compiler;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.neo4j.ogm.model.Node;
 
@@ -27,6 +28,8 @@ public interface NodeBuilder {
     Long reference();
 
     NodeBuilder addProperty(String key, Object value);
+
+    NodeBuilder addProperties(Map<String, ?> properties);
 
     NodeBuilder addLabels(Collection<String> labels);
 

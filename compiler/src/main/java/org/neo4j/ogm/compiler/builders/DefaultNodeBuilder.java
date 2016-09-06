@@ -14,6 +14,7 @@
 package org.neo4j.ogm.compiler.builders;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.neo4j.ogm.compiler.NodeBuilder;
 import org.neo4j.ogm.model.Node;
@@ -35,6 +36,14 @@ public class DefaultNodeBuilder implements NodeBuilder {
     @Override
     public NodeBuilder addProperty(String key, Object value) {
         node.getPropertyList().add(new PropertyModel<>(key, value));
+        return this;
+    }
+
+    @Override
+    public NodeBuilder addProperties(Map<String, ?> properties) {
+        for (String key : properties.keySet()) {
+            addProperty(key, properties.get(key));
+        }
         return this;
     }
 

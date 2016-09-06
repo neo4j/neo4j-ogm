@@ -39,7 +39,7 @@ public class GraphIdDelegate implements Capability.GraphId {
 			try {
 				if (classInfo != null) {
 					EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
-					Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).read(possibleEntity);
+					Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).readProperty(possibleEntity);
 					if (id != null) {
 						return (long) id;
 					}

@@ -38,13 +38,13 @@ public class MethodsInfo {
         int methodCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < methodCount; i++) {
             dataInputStream.skipBytes(2); // access_flags
-            String methodName = constantPool.lookup(dataInputStream.readUnsignedShort()); // name_index
-            String descriptor = constantPool.lookup(dataInputStream.readUnsignedShort()); // descriptor
+            String methodName = constantPool.readString(dataInputStream.readUnsignedShort()); // name_index
+            String descriptor = constantPool.readString(dataInputStream.readUnsignedShort()); // descriptor
             ObjectAnnotations objectAnnotations = new ObjectAnnotations();
             int attributesCount = dataInputStream.readUnsignedShort();
             String typeParameterDescriptor = null; // available as an attribute for parameterised collections
             for (int j = 0; j < attributesCount; j++) {
-                String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
+                String attributeName = constantPool.readString(dataInputStream.readUnsignedShort());
                 int attributeLength = dataInputStream.readInt();
                 if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                     int annotationCount = dataInputStream.readUnsignedShort();
@@ -54,7 +54,7 @@ public class MethodsInfo {
                         objectAnnotations.put(info.getName(), info);
                     }
                 } else if ("Signature".equals(attributeName)) {
-                    String signature = constantPool.lookup(dataInputStream.readUnsignedShort());
+                    String signature = constantPool.readString(dataInputStream.readUnsignedShort());
                     if (signature.contains("<")) {
                         typeParameterDescriptor = signature.substring(signature.indexOf('<') + 1, signature.indexOf('>'));
                     }

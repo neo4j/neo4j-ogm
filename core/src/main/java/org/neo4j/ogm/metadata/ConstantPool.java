@@ -35,13 +35,18 @@ class ConstantPool {
                     pool[i] = stream.readUTF();
                     break;
                 case ConstantPoolTags.INTEGER:
+                    pool[i] = stream.readInt();
+                    break;
                 case ConstantPoolTags.FLOAT:
-                    stream.skipBytes(4);
+                    pool[i] = stream.readFloat();
                     break;
                 case ConstantPoolTags.LONG:
+                    pool[i] = stream.readLong();
+                    i++; // double 4-byte slot
+                    break;
                 case ConstantPoolTags.DOUBLE:
-                    stream.skipBytes(8);
-                    i++; // double slot
+                    pool[i] = stream.readDouble();
+                    i++; // double 4-byte slot
                     break;
                 case ConstantPoolTags.CLASS:
                 case ConstantPoolTags.STRING:
@@ -51,7 +56,7 @@ class ConstantPool {
                 case ConstantPoolTags.METHOD_REF:
                 case ConstantPoolTags.INTERFACE_REF:
                 case ConstantPoolTags.NAME_AND_TYPE:
-                    stream.skipBytes(2); // cypherReference to owning class
+                    stream.skipBytes(2); // reference to owning class
                     pool[i]=stream.readUnsignedShort();
                     break;
                 case ConstantPoolTags.METHOD_HANDLE:
@@ -69,11 +74,53 @@ class ConstantPool {
         }
     }
 
+    // returns an indexed lookup, entry contains the index of the actual value in the pool
     public String lookup(int entry) {
 
         Object constantPoolObj = pool[entry];
-        return (constantPoolObj instanceof Integer
-                ? (String) pool[(Integer) constantPoolObj]
-                : (String) constantPoolObj);
+
+        if (constantPoolObj instanceof Integer) {
+            return String.valueOf(pool[(Integer) constantPoolObj]);
+        }
+        else {
+            throw new RuntimeException("Not expected here!");
+        }
     }
+
+    public Boolean readBoolean(int entry) {
+        return (Integer) pool[entry] == 1 ? true : false;
+    }
+
+    public Byte readByte(int entry) {
+        return new Byte(String.valueOf(pool[entry]));
+    }
+
+    public Character readChar(int entry) {
+        return Character.forDigit((Integer) pool[entry], 10);
+    }
+
+    public Double readDouble(int entry) {
+        return (Double) pool[entry];
+    }
+
+    public Float readFloat(int entry) {
+        return (Float) pool[entry];
+    }
+
+    public Integer readInteger(int entry) {
+        return (Integer) pool[entry];
+    }
+
+    public Long readLong(int entry) {
+        return (Long) pool[entry];
+    }
+
+    public Short readShort(int entry) {
+        return Short.decode(String.valueOf(pool[entry]));
+    }
+
+    public String readString(int entry) {
+        return (String) pool[entry];
+    }
+
 }

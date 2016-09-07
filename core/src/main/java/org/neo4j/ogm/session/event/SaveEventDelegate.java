@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
@@ -49,7 +50,7 @@ public final class SaveEventDelegate {
 
     public SaveEventDelegate(Neo4jSession session) {
         this.session = session;
-        this.preSaved = new HashSet();
+        this.preSaved = Collections.newSetFromMap(new ConcurrentHashMap());
         this.visited = new HashSet();
     }
 

@@ -13,14 +13,6 @@
 
 package org.neo4j.ogm.session.event;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.entity.io.EntityAccessManager;
@@ -31,6 +23,8 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * @author vince
@@ -51,21 +45,22 @@ public final class SaveEventDelegate {
         this.session = session;
         this.preSaved = new HashSet();
         this.visited = new HashSet();
-    }
-
-    public void preSave(Object object) {
 
         this.registeredRelationships.clear();
         this.registeredRelationships.addAll(session.context().getRelationships());
 
+    }
+
+    public void preSave(Object object) {
+
         if (Collection.class.isAssignableFrom(object.getClass())) {
             for (Object element : (Collection) object) {
-                preSave(element);
+                preSaveCheck(element);
             }
         }
         else if (object.getClass().isArray()) {
             for (Object element : (Collections.singletonList(object))) {
-                preSave(element);
+                preSaveCheck(element);
             }
         }
         else {
@@ -87,7 +82,7 @@ public final class SaveEventDelegate {
                 preSaveCheck(child);
             }
             if (!preSaveFired(object) && dirty(object)) {
-                fire(Event.TYPE.PRE_SAVE, object);
+                firePreSave(object);
             }
         } else {
             logger.debug("already visited: {}", object);
@@ -97,17 +92,30 @@ public final class SaveEventDelegate {
         // and which therefore have been possibly rendered unreachable from the object graph traversal
         for(Object other : unreachable()) {
             if (visit(other) && !preSaveFired(other)) { // only if not yet visited and not yet fired
-                fire(Event.TYPE.PRE_SAVE, other);
+                firePreSave(other);
             }
         }
 
         // fire events for existing nodes that are not dirty, but which have had an edge added:
         for (Object other: touched()) {
             if (!preSaveFired(other)) { // only if not yet already fired
-                fire(Event.TYPE.PRE_SAVE, other);
+                firePreSave(other);
             }
         }
 
+    }
+
+    private void firePreSave(Object object) {
+        fire(Event.TYPE.PRE_SAVE, object);
+        this.preSaved.add(object);
+
+    }
+    private void fire(Event.TYPE eventType, Object object) {
+        this.session.notifyListeners(new PersistenceEvent(object, eventType));
+    }
+
+    private boolean preSaveFired(Object object) {
+        return this.preSaved.contains(object);
     }
 
     private Set<Object> touched() {
@@ -302,15 +310,6 @@ public final class SaveEventDelegate {
     }
 
 
-    private void fire(Event.TYPE eventType, Object object) {
-        this.session.notifyListeners(new PersistenceEvent(object, eventType));
-        this.preSaved.add(object);
-    }
-
-    private boolean preSaveFired(Object object) {
-        return this.preSaved.contains(object);
-    }
-
     // given an object and a reader, returns a collection of
     // MappedRelationships from the reference or references read by the reader from
     // the parent object.
@@ -390,4 +389,6 @@ public final class SaveEventDelegate {
         }
 
     }
+
+
 }

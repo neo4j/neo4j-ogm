@@ -14,7 +14,6 @@
 package org.neo4j.ogm.annotations;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.Relationship;
@@ -63,7 +62,6 @@ public class FieldWriter extends EntityAccess {
             value = fieldInfo.getPropertyConverter().toEntityAttribute(value);
             FieldWriter.write(field, instance, value);
         }
-
         else {
             if (fieldInfo.isScalar()) {
                 String descriptor = fieldInfo.getTypeParameterDescriptor() == null ? fieldInfo.getDescriptor()

@@ -248,7 +248,8 @@ public class EntityGraphMapper implements EntityMapper {
             logger.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
-            for (PropertyReader propertyReader : entityAccessStrategy.getPropertyReaders(classInfo)) {
+            Collection<PropertyReader> propertyReaders = entityAccessStrategy.getPropertyReaders(classInfo);
+            for (PropertyReader propertyReader : propertyReaders) {
                 if (propertyReader.isComposite()) {
                     nodeBuilder.addProperties(propertyReader.readComposite(entity));
                 } else {

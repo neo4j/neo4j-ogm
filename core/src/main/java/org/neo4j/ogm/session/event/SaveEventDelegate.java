@@ -308,7 +308,7 @@ public final class SaveEventDelegate {
     }
 
     // given an object and a reader, returns a collection of
-    // MappedRelationships from the reference or references readProperty by the reader from
+    // MappedRelationships from the reference or references read by the reader from
     // the parent object.
     //
     // note that even if the reference is a singleton, a collection is always

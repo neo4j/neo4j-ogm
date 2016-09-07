@@ -43,7 +43,7 @@ public class FileClassPathScanner extends ClassPathScanner {
 			jars.add(new File(radio.toURI()));
 			jars.add(new File(event.toURI()));*/
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to readProperty test jars", e);
+            throw new RuntimeException("Failed to read test jars", e);
         }
         return jars;
     }

@@ -270,7 +270,7 @@ The OGM also requires an public no-args constructor to be able to construct obje
 == Converters
 
 Neo4j supports numerics, Strings, booleans and arrays of these as property values.
-How do we handle the `enrolledDate` since `Date` is not a valid data type? Luckily for us, Neo4j OGM provides many converters out of the box, one of which is a Date to Long propertyConverter.
+How do we handle the `enrolledDate` since `Date` is not a valid data type? Luckily for us, Neo4j OGM provides many converters out of the box, one of which is a Date to Long converter.
 We simply annotate the field with `@DateLong` and the conversion of the Date to it's Long representation and back is handled by the OGM when persisting and loading from the graph.
 
 ```java

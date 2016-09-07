@@ -422,7 +422,7 @@ public class DefaultEntityAccessStrategyTest {
         ForumTopicLink forumTopicLink = new ForumTopicLink();
         Topic topic = new Topic();
         forumTopicLink.setTopic(topic);
-        assertSame("The value wasn't readProperty correctly", topic, endNodeReader.readProperty(forumTopicLink));
+        assertSame("The value wasn't read correctly", topic, endNodeReader.readProperty(forumTopicLink));
     }
 
     @Test

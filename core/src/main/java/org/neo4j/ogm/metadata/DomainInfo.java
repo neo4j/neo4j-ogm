@@ -355,7 +355,7 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void registerDefaultMethodConverters(ClassInfo classInfo, MethodInfo methodInfo) {
-        if (!methodInfo.hasPropertyConverter()) {
+        if (!methodInfo.hasPropertyConverter() && !methodInfo.hasCompositeConverter()) {
             if (methodInfo.getDescriptor().contains(dateSignature)
                     || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(dateSignature))) {
                 setDateMethodConverter(methodInfo);

@@ -39,12 +39,12 @@ public class FieldInfo {
     private final ObjectAnnotations annotations;
 
     /**
-     * The associated attribute propertyConverter for this field, if applicable, otherwise null.
+     * The associated attribute converter for this field, if applicable, otherwise null.
      */
     private AttributeConverter<?, ?> propertyConverter;
 
     /**
-     * The associated composite attribute propertyConverter for this field, if applicable, otherwise null.
+     * The associated composite attribute converter for this field, if applicable, otherwise null.
      */
     private CompositeAttributeConverter<?> compositeConverter;
 
@@ -136,11 +136,12 @@ public class FieldInfo {
     }
 
     public boolean isSimple() {
-        return primitives.contains(descriptor)
+        boolean simple = primitives.contains(descriptor)
                 || propertyConverter != null
                 || compositeConverter != null
                 || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
+        return simple;
     }
 
     public AttributeConverter getPropertyConverter() {
@@ -300,7 +301,7 @@ public class FieldInfo {
         if (hasPropertyConverter() || hasCompositeConverter()) {
             Class converterClass = hasPropertyConverter() ?
                     getPropertyConverter().getClass() : getCompositeConverter().getClass();
-            String methodName = hasPropertyConverter()? "toGraphProperty" : "toGraphProperties";
+            String methodName = hasPropertyConverter() ? "toGraphProperty" : "toGraphProperties";
 
             try {
                 for (Method method : converterClass.getDeclaredMethods()) {

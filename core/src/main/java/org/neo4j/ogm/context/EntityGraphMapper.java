@@ -93,12 +93,12 @@ public class EntityGraphMapper implements EntityMapper {
 
             ClassInfo reInfo = metaData.classInfo(entity);
 
-            Object startNode = entityAccessStrategy.getStartNodeReader(reInfo).readProperty(entity);
+            Object startNode = entityAccessStrategy.getStartNodeReader(reInfo).read(entity);
             if (startNode == null) {
                 throw new RuntimeException("@StartNode of relationship entity may not be null");
             }
 
-            Object endNode = entityAccessStrategy.getEndNodeReader(reInfo).readProperty(entity);
+            Object endNode = entityAccessStrategy.getEndNodeReader(reInfo).read(entity);
             if (endNode == null) {
                 throw new RuntimeException("@EndNode of relationship entity may not be null");
             }
@@ -352,7 +352,7 @@ public class EntityGraphMapper implements EntityMapper {
                 }
             }
 
-            Object relatedObject = reader.readProperty(entity);
+            Object relatedObject = reader.read(entity);
             if (relatedObject != null) {
 
                 // if the type of a relationship backed by a relationship entity is not the same as its declared type
@@ -648,7 +648,7 @@ public class EntityGraphMapper implements EntityMapper {
     private Object getStartEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
         RelationalReader actualStartNodeReader = entityAccessStrategy.getStartNodeReader(relEntityClassInfo);
         if (actualStartNodeReader != null) {
-            return actualStartNodeReader.readProperty(relationshipEntity);
+            return actualStartNodeReader.read(relationshipEntity);
         }
         throw new RuntimeException("@StartNode of a relationship entity may not be null");
     }
@@ -656,7 +656,7 @@ public class EntityGraphMapper implements EntityMapper {
     private Object getTargetEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
         RelationalReader actualEndNodeReader = entityAccessStrategy.getEndNodeReader(relEntityClassInfo);
         if (actualEndNodeReader != null) {
-            return actualEndNodeReader.readProperty(relationshipEntity);
+            return actualEndNodeReader.read(relationshipEntity);
         }
         throw new RuntimeException("@EndNode of a relationship entity may not be null");
     }
@@ -901,7 +901,7 @@ public class EntityGraphMapper implements EntityMapper {
                 //Moreover, the source must be related to the target and vice versa in the SAME direction
                 if (relationshipDirection.equals(tgtRelationshipDirection)) {
 
-                    Object target = tgtRelReader.readProperty(tgtObject);
+                    Object target = tgtRelReader.read(tgtObject);
                     if (target != null) {
                         if (target instanceof Iterable) {
                             for (Object relatedObject : (Iterable<?>) target) {

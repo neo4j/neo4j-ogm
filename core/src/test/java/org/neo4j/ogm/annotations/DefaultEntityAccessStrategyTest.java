@@ -312,7 +312,7 @@ public class DefaultEntityAccessStrategyTest {
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "HAS_ACTIVITY", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertSame(member.getActivityList(), reader.readProperty(member));
+        assertSame(member.getActivityList(), reader.read(member));
         assertEquals("HAS_ACTIVITY", reader.relationshipType());
     }
 
@@ -326,12 +326,12 @@ public class DefaultEntityAccessStrategyTest {
 
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
-        assertSame(domainObject.member, reader.readProperty(domainObject));
+        assertSame(domainObject.member, reader.read(domainObject));
         assertEquals("CONTAINS", reader.relationshipType());
 
         reader = this.entityAccessStrategy.getRelationalReader(classInfo, "REGISTERED", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
-        assertSame(domainObject.registeredMember, reader.readProperty(domainObject));
+        assertSame(domainObject.registeredMember, reader.read(domainObject));
         assertEquals("REGISTERED", reader.relationshipType());
 
     }
@@ -348,7 +348,7 @@ public class DefaultEntityAccessStrategyTest {
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "LOCATION", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertSame(satellite.getLocation(), reader.readProperty(satellite));
+        assertSame(satellite.getLocation(), reader.read(satellite));
         assertEquals("LOCATION", reader.relationshipType());
     }
 
@@ -361,7 +361,7 @@ public class DefaultEntityAccessStrategyTest {
 
         RelationalReader reader = this.entityAccessStrategy.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
-        assertSame(domainObject.postWithoutAccessorMethods, reader.readProperty(domainObject));
+        assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
     }
 
@@ -408,7 +408,7 @@ public class DefaultEntityAccessStrategyTest {
             String relType = objectAccess.relationshipType();
             assertTrue("Relationship type " + relType + " wasn't expected", expectedRelationalReaders.containsKey(relType));
             assertEquals(expectedRelationalReaders.get(relType), objectAccess.getClass());
-            assertNotNull(objectAccess.readProperty(domainObject));
+            assertNotNull(objectAccess.read(domainObject));
         }
     }
 
@@ -422,7 +422,7 @@ public class DefaultEntityAccessStrategyTest {
         ForumTopicLink forumTopicLink = new ForumTopicLink();
         Topic topic = new Topic();
         forumTopicLink.setTopic(topic);
-        assertSame("The value wasn't read correctly", topic, endNodeReader.readProperty(forumTopicLink));
+        assertSame("The value wasn't read correctly", topic, endNodeReader.read(forumTopicLink));
     }
 
     @Test
@@ -465,7 +465,7 @@ public class DefaultEntityAccessStrategyTest {
         assertNotNull("The resultant object accessor shouldn't be null", relationalReader);
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.naturalSatellites = natural;
-        Object o = relationalReader.readProperty(domainObject);
+        Object o = relationalReader.read(domainObject);
         assertEquals(natural, o);
     }
 

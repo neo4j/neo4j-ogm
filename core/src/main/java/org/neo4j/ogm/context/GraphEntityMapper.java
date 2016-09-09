@@ -502,7 +502,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				RelationalReader reader = entityAccessStrategy.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
 				Object currentValues;
 				if (reader != null) {
-					currentValues = reader.readProperty(instance);
+					currentValues = reader.read(instance);
 					if (writer.type().isArray()) {
 						values = EntityAccess.merge(writer.type(), (Iterable<?>) values, (Object[]) currentValues, valueType);
 					} else {

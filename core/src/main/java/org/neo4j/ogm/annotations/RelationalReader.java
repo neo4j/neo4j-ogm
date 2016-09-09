@@ -21,7 +21,7 @@ package org.neo4j.ogm.annotations;
  */
 public interface RelationalReader {
 
-    Object readProperty(Object instance);
+    Object read(Object instance);
 
     String propertyName();
 

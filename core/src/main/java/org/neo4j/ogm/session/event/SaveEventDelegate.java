@@ -265,7 +265,7 @@ public final class SaveEventDelegate {
 
             for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(parentClassInfo)) {
 
-                Object reference = reader.readProperty(parent);
+                Object reference = reader.read(parent);
 
                 if (reference != null) {
                     if (reference.getClass().isArray()) {
@@ -317,7 +317,7 @@ public final class SaveEventDelegate {
 
         Set<MappedRelationship> mappedRelationships = new HashSet<>();
 
-        Object reference = reader.readProperty(parent);
+        Object reference = reader.read(parent);
 
         if (reference != null) {
             if (reference.getClass().isArray()) {
@@ -364,11 +364,11 @@ public final class SaveEventDelegate {
 
             else {
                 // graph relationship is transitive across the RE domain object
-                Object startNode =  entityAccessStrategy.getStartNodeReader(referenceInfo).readProperty(reference);
+                Object startNode =  entityAccessStrategy.getStartNodeReader(referenceInfo).read(reference);
                 ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
                 Long startNodeId = EntityUtils.identity(startNode, session.metaData());
 
-                Object endNode =  entityAccessStrategy.getEndNodeReader(referenceInfo).readProperty(reference);
+                Object endNode =  entityAccessStrategy.getEndNodeReader(referenceInfo).read(reference);
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = EntityUtils.identity(endNode, session.metaData());
 

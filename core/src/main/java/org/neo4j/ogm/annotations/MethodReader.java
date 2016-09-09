@@ -37,6 +37,11 @@ public class MethodReader implements RelationalReader, PropertyReader {
     }
 
     @Override
+    public Object read(Object instance) {
+        return MethodWriter.read(classInfo.getMethod(methodInfo), instance);
+    }
+
+    @Override
     public Object readProperty(Object instance) {
         if (methodInfo.hasCompositeConverter()) {
             throw new IllegalStateException(

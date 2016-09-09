@@ -37,6 +37,11 @@ public class FieldReader implements RelationalReader, PropertyReader {
     }
 
     @Override
+    public Object read(Object instance) {
+        return FieldWriter.read(classInfo.getField(fieldInfo), instance);
+    }
+
+    @Override
     public Object readProperty(Object instance) {
         if (fieldInfo.hasCompositeConverter()) {
             throw new IllegalStateException(

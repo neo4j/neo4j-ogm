@@ -63,7 +63,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnownBy());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -89,7 +89,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -114,7 +114,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -139,7 +139,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -164,7 +164,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -192,7 +192,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnowsPerson());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -217,7 +217,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -242,7 +242,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -264,7 +264,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
-        assertEquals(relatedObjectOut, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectOut, relationalReader.read(instance));
 
         relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
@@ -274,7 +274,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
-        assertEquals(relatedObjectIn, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectIn, relationalReader.read(instance));
     }
 
     /**
@@ -295,7 +295,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
-        assertEquals(relatedObjectOut, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectOut, relationalReader.read(instance));
 
         relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
@@ -305,7 +305,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
-        assertEquals(relatedObjectIn, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectIn, relationalReader.read(instance));
     }
 
     /**
@@ -326,7 +326,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
-        assertEquals(relatedObjectOut, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectOut, relationalReader.read(instance));
 
         relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
@@ -336,7 +336,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
-        assertEquals(relatedObjectIn, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectIn, relationalReader.read(instance));
     }
 
     /**
@@ -357,7 +357,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
-        assertEquals(relatedObjectOut, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectOut, relationalReader.read(instance));
 
         relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
@@ -367,7 +367,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
-        assertEquals(relatedObjectIn, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectIn, relationalReader.read(instance));
     }
 
     /**
@@ -391,7 +391,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -416,7 +416,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
     }
 
     /**
@@ -437,7 +437,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
-        assertEquals(relatedObjectOut, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectOut, relationalReader.read(instance));
 
         instance = new UserV15();
 
@@ -449,7 +449,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
-        assertEquals(relatedObjectIn, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectIn, relationalReader.read(instance));
     }
 
     /**
@@ -470,7 +470,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
-        assertEquals(relatedObjectOut, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectOut, relationalReader.read(instance));
 
         instance = new UserV16();
 
@@ -482,7 +482,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
-        assertEquals(relatedObjectIn, relationalReader.readProperty(instance));
+        assertEquals(relatedObjectIn, relationalReader.read(instance));
     }
 
     /**
@@ -505,7 +505,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -530,7 +530,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 
@@ -555,7 +555,7 @@ public class RelationalReaderWriterTest {
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.readProperty(instance));
+        assertEquals(relatedObject, relationalReader.read(instance));
 
     }
 

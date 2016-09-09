@@ -293,7 +293,7 @@ public class MappingContext {
             Object relationshipEntity = relationshipEntityRegister.get(relationshipEntityId);
             RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(relationshipEntity));
             RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(relationshipEntity));
-            if (startOrEndEntity == startNodeReader.readProperty(relationshipEntity) || startOrEndEntity == endNodeReader.readProperty(relationshipEntity)) {
+            if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity == endNodeReader.read(relationshipEntity)) {
                 relationshipEntityIdIterator.remove();
             }
         }
@@ -340,10 +340,10 @@ public class MappingContext {
                 if (relationshipEntityRegister.containsKey(id)) {
                     relationshipEntityRegister.remove(id);
                     RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(metaData.classInfo(entity));
-                    Object startNode = startNodeReader.readProperty(entity);
+                    Object startNode = startNodeReader.read(entity);
                     clear(startNode);
                     RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(metaData.classInfo(entity));
-                    Object endNode = endNodeReader.readProperty(entity);
+                    Object endNode = endNodeReader.read(entity);
                     clear(endNode);
                 }
             }
@@ -380,8 +380,8 @@ public class MappingContext {
             } else if (relationshipEntityRegister.containsKey(id)) {
                 RelationalReader startNodeReader = entityAccessStrategy.getStartNodeReader(classInfo);
                 RelationalReader endNodeReader = entityAccessStrategy.getEndNodeReader(classInfo);
-                neighbours.add(startNodeReader.readProperty(entity));
-                neighbours.add(endNodeReader.readProperty(entity));
+                neighbours.add(startNodeReader.read(entity));
+                neighbours.add(endNodeReader.read(entity));
             }
         }
 

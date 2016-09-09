@@ -131,6 +131,22 @@ public class Filter {
 	}
 
 	/**
+	 * @deprecated use {@link #getValue()} instead.
+	 */
+	@Deprecated
+	public Object getPropertyValue() {
+		return value;
+	}
+
+	/**
+	 * @deprecated use {@link #setValue(Object)} ()} instead.
+	 */
+	@Deprecated
+	public void setPropertyValue(Object propertyValue) {
+		this.value = propertyValue;
+	}
+
+	/**
 	 * @return
 	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
 	 */

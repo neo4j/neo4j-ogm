@@ -12,7 +12,7 @@
  */
 
 
-package org.neo4j.ogm.invalid.convert;
+package org.neo4j.ogm.invalid.convert.diner;
 
 
 import org.neo4j.ogm.annotation.GraphId;

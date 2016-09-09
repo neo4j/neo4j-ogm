@@ -143,4 +143,11 @@ public class NumberConversionTest {
         converter = accountInfo.propertyGetter("loans").getPropertyConverter();
         assertEquals(null, converter.toGraphProperty(null));
     }
+
+    @Test
+    public void assertHasCompositeConverter() {
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.restaurant");
+        ClassInfo restaurantInfo = metaData.classInfo("Restaurant");
+        assertTrue(restaurantInfo.propertyField("location").hasCompositeConverter());
+    }
 }

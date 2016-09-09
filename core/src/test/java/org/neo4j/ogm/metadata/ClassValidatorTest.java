@@ -17,7 +17,8 @@ package org.neo4j.ogm.metadata;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.invalid.convert.InvalidDiner;
+import org.neo4j.ogm.invalid.convert.diner.InvalidDiner;
+import org.neo4j.ogm.invalid.convert.props.PropertyAndConvertTogether;
 import org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters;
 
 import static org.junit.Assert.*;
@@ -54,13 +55,24 @@ public class ClassValidatorTest {
     }
 
     @Test
-    public void throwsExceptionWhenConvertAnnotionOnMethods() {
+    public void throwsExceptionWhenConvertAnnotationOnMethods() {
         try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.convert");
+            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.convert.diner");
             metaData.classInfo(InvalidDiner.class.getSimpleName());
             fail("Should have thrown exception.");
         } catch (MappingException e) {
-            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.convert.InvalidDiner' has the @Convert annotation applied to method 'setLocation'"));
+            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.convert.diner.InvalidDiner' has the @Convert annotation applied to method 'setLocation'"));
+        }
+    }
+
+    @Test
+    public void throwsExceptionWhenPropertyAndConvertTogether() {
+        try {
+            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.convert.props");
+            metaData.classInfo(PropertyAndConvertTogether.class.getSimpleName());
+            fail("Should have thrown exception");
+        } catch (MappingException e) {
+            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.convert.props.PropertyAndConvertTogether' has both @Convert and @Property annotations applied to the field 'location'"));
         }
     }
 

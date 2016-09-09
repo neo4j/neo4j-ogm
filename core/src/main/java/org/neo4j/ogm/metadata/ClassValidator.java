@@ -28,6 +28,7 @@ public class ClassValidator {
 
     public void validate() throws MappingException {
         validateRelationshipEntity();
+        validateFields();
         validateMethods();
     }
 
@@ -35,6 +36,16 @@ public class ClassValidator {
         if (classInfo.isRelationshipEntity() && classInfo.labelFieldOrNull() != null) {
             throw new MappingException(String.format("'%s' is a relationship entity. The @Labels annotation can't be applied to " +
                     "relationship entities.", classInfo.name()));
+        }
+    }
+
+    private void validateFields() throws MappingException {
+        for (FieldInfo fieldInfo : classInfo.propertyFields()) {
+            if (fieldInfo.hasCompositeConverter()) {
+
+                throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
+                        classInfo.name(), fieldInfo.getName()));
+            }
         }
     }
 

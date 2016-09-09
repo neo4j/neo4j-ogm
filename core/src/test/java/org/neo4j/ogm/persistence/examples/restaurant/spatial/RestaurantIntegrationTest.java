@@ -30,6 +30,7 @@ import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import static org.junit.Assert.assertEquals;
@@ -51,10 +52,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
     }
 
     @Test
-    public void shouldSaveRestaurant() {
+    public void shouldSaveRestaurantWithCompositeLocationConverter() {
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
                 new Location(37.61649, -122.38681), 94128);
         session.save(restaurant);
+
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+                "CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128})");
     }
 
     @Test

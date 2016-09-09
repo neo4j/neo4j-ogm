@@ -14,8 +14,9 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.Labels;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 public class ClassValidator {
 
@@ -40,9 +41,8 @@ public class ClassValidator {
     }
 
     private void validateFields() throws MappingException {
-        for (FieldInfo fieldInfo : classInfo.propertyFields()) {
-            if (fieldInfo.hasCompositeConverter()) {
-
+        for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
+            if (fieldInfo.hasAnnotation(Property.CLASS) && fieldInfo.hasCompositeConverter()) {
                 throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
                         classInfo.name(), fieldInfo.getName()));
             }

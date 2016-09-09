@@ -106,15 +106,6 @@ public class DateConversionTest {
     }
 
     @Test
-    public void assertMethodCustomTypeConversion() {
-        MethodInfo methodInfo = memoInfo.propertySetter("approved");
-        assertTrue(methodInfo.hasPropertyConverter());
-        AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
-        Date date = new Date(1234567890123L);
-        assertEquals("20090213113130", attributeConverter.toGraphProperty(date));
-    }
-
-    @Test
     public void assertConvertingNullGraphPropertyWorksCorrectly() {
         MethodInfo methodInfo = memoInfo.propertySetter("approved");
         assertTrue(methodInfo.hasPropertyConverter());

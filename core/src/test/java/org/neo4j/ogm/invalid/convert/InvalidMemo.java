@@ -11,21 +11,19 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.convertible.date;
+
+package org.neo4j.ogm.invalid.convert;
 
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.domain.convertible.date.DateNumericStringConverter;
 
 import java.util.Date;
 import java.util.Set;
 
-/**
- * @author Vince Bickers
- * @author Luanne Misquitta
- */
-public class Memo {
+public class InvalidMemo {
 
     private Long id;
     private String memo;
@@ -33,8 +31,6 @@ public class Memo {
     // uses default ISO 8601 date format
     private Date recorded;
 
-    // declares a custom converter
-    @Convert(DateNumericStringConverter.class)
     private Date approved;
 
     @DateString("yyyy-MM-dd")
@@ -49,7 +45,7 @@ public class Memo {
     // uses default ISO 8601 date format
     private Set<Date> implementations;
 
-    public Memo() {
+    public InvalidMemo() {
     }
 
     public Long getId() {
@@ -98,6 +94,7 @@ public class Memo {
         return approved;
     }
 
+    @Convert(DateNumericStringConverter.class)
     public void setApproved(Date approved) {
         this.approved = approved;
     }

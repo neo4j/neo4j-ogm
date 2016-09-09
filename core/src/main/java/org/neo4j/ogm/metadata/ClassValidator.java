@@ -14,6 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
 
 public class ClassValidator {
@@ -42,6 +43,12 @@ public class ClassValidator {
             if (methodInfo.hasAnnotation(Labels.CLASS)) {
                 throw new MappingException(String.format("'%s' has the @Labels annotation applied to method '%s'. " +
                                 "The @Labels annotation can only be applied to a field.",
+                        classInfo.name(), methodInfo.getName()));
+            }
+            //TODO: Support and remove this restriction
+            if (methodInfo.hasAnnotation(Convert.CLASS)) {
+                throw new MappingException(String.format("'%s' has the @Convert annotation applied to method '%s'. " +
+                                "The @Convert annotation can only be applied to a field.",
                         classInfo.name(), methodInfo.getName()));
             }
         }

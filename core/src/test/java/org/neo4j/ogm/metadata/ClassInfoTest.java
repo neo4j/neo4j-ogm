@@ -456,34 +456,6 @@ public class ClassInfoTest {
      * @see issue #159
      */
     @Test
-    public void labelAnnotationOnMethodsThrowsMappingException() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.method");
-            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters' has the @Labels annotation applied to"));
-        }
-    }
-
-    /**
-     * @see issue #159
-     */
-    @Test
-    public void labelAnnotationWithRelationshipEntityThrowsException() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.relationship");
-            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertEquals("'org.neo4j.ogm.invalid.labels.relationship.LabelsAnnotationRelationshipEntity' is a relationship entity. The @Labels annotation can't be applied to relationship entities.", e.getMessage());
-        }
-    }
-
-    /**
-     * @see issue #159
-     */
-    @Test
     public void labelFieldOrNullThrowsMappingExceptionForInvalidType() {
         try {
             LabelsAnnotationWithWrongTye entity = new LabelsAnnotationWithWrongTye();

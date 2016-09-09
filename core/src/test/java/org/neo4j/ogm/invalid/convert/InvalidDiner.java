@@ -12,17 +12,18 @@
  */
 
 
-package org.neo4j.ogm.domain.restaurant;
+package org.neo4j.ogm.invalid.convert;
+
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.domain.restaurant.Location;
+import org.neo4j.ogm.domain.restaurant.LocationConverter;
 
 /**
- * A kind of entity that is willing to consume food from a Restaurant. Not to be confused with a roadside style eatery.
- *
- * @see Restaurant
+ * This poor diner is invalid because it has a convert annotation on setLocation.
  */
-public class Diner {
+public class InvalidDiner {
 
     @GraphId
     private Long id;
@@ -30,10 +31,10 @@ public class Diner {
     private String lastName;
     private Location location;
 
-    public Diner() {
+    public InvalidDiner() {
     }
 
-    public Diner(String firstName, String lastName, Location location) {
+    public InvalidDiner(String firstName, String lastName, Location location) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.location = location;
@@ -59,7 +60,9 @@ public class Diner {
         return location;
     }
 
+    @Convert(LocationConverter.class)
     public void setLocation(Location location) {
         this.location = location;
     }
+
 }

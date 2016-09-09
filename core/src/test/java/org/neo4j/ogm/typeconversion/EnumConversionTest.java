@@ -66,21 +66,6 @@ public class EnumConversionTest {
     }
 
     @Test
-    public void testCustomConverter() {
-        MethodInfo methodInfo = algebraInfo.propertyGetter("numberSystem");
-        assertTrue(methodInfo.hasPropertyConverter());
-        Assert.assertEquals(NumberSystemDomainConverter.class, methodInfo.getPropertyConverter().getClass());
-
-        String domain = "Z";  // an algebraic domain (i.e. the integers)
-
-        Algebra algebra = new Algebra();
-        algebra.setNumberSystem((NumberSystem) methodInfo.getPropertyConverter().toEntityAttribute(domain));
-
-        Assert.assertEquals(NumberSystem.INTEGER, algebra.getNumberSystem());
-        Assert.assertEquals("Z", algebra.getNumberSystem().getDomain());
-    }
-
-    @Test
     public void testGenderFieldWithAutoDetectedConverter() {
 
         Person bob = new Person();

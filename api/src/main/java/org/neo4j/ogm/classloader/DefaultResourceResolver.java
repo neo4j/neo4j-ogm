@@ -15,6 +15,7 @@ package org.neo4j.ogm.classloader;
 
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -25,15 +26,15 @@ public class DefaultResourceResolver implements ResourceResolver
 {
 
     @Override
-    public File resolve( final URL resource ) throws URISyntaxException
+    public File resolve( final URL resource ) throws URISyntaxException, MalformedURLException
     {
         if(resource.getProtocol().equals("file")) {
             return new File(resource.toURI());
         }
 
         if(resource.getProtocol().equals("jar")) {
-            String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!"));  //Strip out the jar protocol
-            return new File(jarPath);
+            String jarFileURL = resource.getPath().substring(0, resource.getPath().indexOf("!"));  //Strip out the jar protocol
+            return resolve(new URL(jarFileURL));
         }
 
         return null; // not handled

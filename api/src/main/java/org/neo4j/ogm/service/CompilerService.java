@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.service;
 
-import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -50,16 +49,13 @@ abstract class CompilerService {
      */
     private static org.neo4j.ogm.compiler.Compiler load(String className) {
 
-        Iterator<Compiler> iterator = ServiceLoader.load(Compiler.class).iterator();
-
-        while (iterator.hasNext()) {
+        for (Compiler compiler : ServiceLoader.load(Compiler.class)) {
             try {
-                Compiler compiler = iterator.next();
                 if (compiler.getClass().getName().equals(className)) {
                     return compiler;
                 }
             } catch (ServiceConfigurationError sce) {
-                logger.warn("{}, reason: {}",sce.getLocalizedMessage(), sce.getCause());
+                logger.warn("{}, reason: {}", sce.getLocalizedMessage(), sce.getCause());
             }
         }
 
@@ -75,8 +71,7 @@ abstract class CompilerService {
      */
     public static Compiler load(CompilerConfiguration configuration) {
         String compilerClassName = configuration.getCompilerClassName();
-        Compiler compiler = load(compilerClassName);
-        return compiler;
+        return load(compilerClassName);
     }
 
 }

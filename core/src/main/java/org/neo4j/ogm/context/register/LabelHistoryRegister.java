@@ -11,14 +11,26 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.context.register;
+
+import org.neo4j.ogm.context.LabelHistory;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Vince Bickers
+ * @author vince
  */
-public class EntityAccessException extends RuntimeException {
+public class LabelHistoryRegister {
 
-    public EntityAccessException(String msg, Exception cause) {
-        super(msg, cause);
+    //TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
+    private final ConcurrentHashMap<Long, LabelHistory> register = new ConcurrentHashMap<>();
+
+    public void clear() {
+        register.clear();
+    }
+
+    public LabelHistory get(Long identity) {
+        register.putIfAbsent(identity, new LabelHistory());
+        return register.get(identity);
     }
 }

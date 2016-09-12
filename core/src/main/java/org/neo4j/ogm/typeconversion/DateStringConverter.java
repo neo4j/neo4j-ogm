@@ -45,7 +45,7 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
         if (value == null) return null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return simpleDateFormat.format((Date) value);
+        return simpleDateFormat.format(value);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class DateStringConverter implements AttributeConverter<Date, String> {
         try {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return simpleDateFormat.parse((String) value);
+            return simpleDateFormat.parse(value);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }

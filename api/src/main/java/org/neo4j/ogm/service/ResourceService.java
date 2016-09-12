@@ -16,7 +16,6 @@ package org.neo4j.ogm.service;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -36,12 +35,9 @@ public class ResourceService
 
     public static File resolve( URL url ) throws Exception {
 
-        Iterator<ResourceResolver > iterator = serviceLoader.iterator();
-
-        while (iterator.hasNext()) {
+        for (ResourceResolver resourceResolver : serviceLoader) {
             try {
-                ResourceResolver resourceResolver = iterator.next();
-                File file = resourceResolver.resolve( url );
+                File file = resourceResolver.resolve(url);
                 if (file != null) {
                     return file;
                 }

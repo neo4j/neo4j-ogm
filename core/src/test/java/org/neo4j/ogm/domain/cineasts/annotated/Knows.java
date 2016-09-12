@@ -75,9 +75,7 @@ public class Knows {
         Knows knows = (Knows) o;
 
         if (!firstActor.equals(knows.firstActor)) return false;
-        if (!secondActor.equals(knows.secondActor)) return false;
-
-        return true;
+        return secondActor.equals(knows.secondActor);
 
     }
 

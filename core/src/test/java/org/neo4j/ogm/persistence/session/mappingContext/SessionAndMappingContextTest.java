@@ -1,8 +1,5 @@
 package org.neo4j.ogm.persistence.session.mappingContext;
 
-import java.io.IOException;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,15 +7,16 @@ import org.junit.Test;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
-import org.neo4j.ogm.domain.music.Album;
-import org.neo4j.ogm.domain.music.Artist;
-import org.neo4j.ogm.domain.music.Recording;
-import org.neo4j.ogm.domain.music.ReleaseFormat;
-import org.neo4j.ogm.domain.music.Studio;
+import org.neo4j.ogm.domain.music.*;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.transaction.AbstractTransaction;
+import org.neo4j.ogm.transaction.Transaction;
+
+import java.io.IOException;
+import java.util.Collections;
 
 /**
  * @author Mihai Raulea
@@ -167,6 +165,67 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     public void testDetachRelationshipEntity() {
         Assert.assertTrue(session.detachRelationshipEntity(knows.id));
         Assert.assertFalse(session.detachRelationshipEntity(knows.id));
+    }
+
+    @Test
+    public void shouldRollbackRelationshipEntityWithDifferentStartAndEndNodes() {
+
+        Actor mary = new Actor("Mary");
+        Actor john = new Actor("John");
+
+        Knows maryKnowsJohn = new Knows();
+
+        maryKnowsJohn.setFirstActor(mary);
+        maryKnowsJohn.setSecondActor(john);
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            session.save(maryKnowsJohn);
+
+            Assert.assertNotNull(mary.getId());
+            Assert.assertNotNull(maryKnowsJohn.id);
+            Assert.assertNotNull(john.getId());
+
+            tx.rollback();
+
+            Assert.assertNull(mary.getId());
+            Assert.assertNull(maryKnowsJohn.id);
+            Assert.assertNull(john.getId());
+
+        }
+
+    }
+
+    @Test
+    public void shouldWhat() {
+
+        Actor mary = new Actor("Mary");
+
+        Knows maryKnowsMary = new Knows();
+
+        maryKnowsMary.setFirstActor(mary);
+        maryKnowsMary.setSecondActor(mary);
+
+        mary.getKnows().add(maryKnowsMary);
+
+        try (Transaction tx = session.beginTransaction()) {
+
+            session.save(mary);
+
+            session.context().reset(mary);
+
+        }
+
+    }
+
+    @Test
+    public void shouldNotThrowConcurrentModificationException() {
+
+        try (Transaction tx = session.beginTransaction()) {
+            session.save(new Actor("Mary"));
+            session.deleteAll(Actor.class);
+        }
+
     }
 
 }

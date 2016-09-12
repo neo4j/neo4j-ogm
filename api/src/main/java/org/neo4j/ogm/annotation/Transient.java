@@ -29,6 +29,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
 @Inherited
 public @interface Transient {
-    static final String CLASS = "org.neo4j.ogm.annotation.Transient";
+    String CLASS = "org.neo4j.ogm.annotation.Transient";
 }
 

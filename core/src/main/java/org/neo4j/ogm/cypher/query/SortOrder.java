@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class SortOrder {
 
-    public static enum Direction {
+    public enum Direction {
 
         ASC, DESC
     }

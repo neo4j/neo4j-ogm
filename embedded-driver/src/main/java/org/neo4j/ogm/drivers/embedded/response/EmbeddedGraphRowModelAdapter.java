@@ -90,9 +90,7 @@ public class EmbeddedGraphRowModelAdapter extends GraphRowModelAdapter {
             if (value.getClass().isArray()) {
                 value = AdapterUtils.convertToIterable(value);
                 Iterable collection = (Iterable) value;
-                Iterator objects = collection.iterator();
-                while (objects.hasNext()) {
-                    Object element = objects.next();
+                for (Object element : collection) {
                     adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
                 }
             }

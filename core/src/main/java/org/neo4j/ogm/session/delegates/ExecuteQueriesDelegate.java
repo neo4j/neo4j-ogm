@@ -14,11 +14,14 @@ package org.neo4j.ogm.session.delegates;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.*;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.Result;
@@ -32,6 +35,7 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
+import org.neo4j.ogm.utils.ClassUtils;
 
 import java.util.Collection;
 import java.util.Map;
@@ -80,7 +84,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
         if (type == null || type.equals(Void.class)) {
             throw new RuntimeException("Supplied type must not be null or void.");
         }
-        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper<T>());
+        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper());
     }
 
     @Override
@@ -126,8 +130,32 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return 0;
         }
 
-        Collection<String> labels = classInfo.staticLabels();
-        DefaultRowModelRequest countStatement = new AggregateStatements().countNodesLabelledWith(labels);
+        DefaultRowModelRequest countStatement;
+        if (classInfo.isRelationshipEntity()) {
+
+            ClassInfo startNodeInfo = null;
+            ClassInfo endNodeInfo   = null;
+
+            for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
+                if (fieldInfo.hasAnnotation(StartNode.CLASS)) {
+                    startNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+                }
+                else if (fieldInfo.hasAnnotation(EndNode.CLASS)) {
+                    endNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+                }
+                if (endNodeInfo != null && startNodeInfo != null) {
+                    break;
+                }
+            }
+
+            String start = startNodeInfo.neo4jName();
+            String end = endNodeInfo.neo4jName();
+            String type = classInfo.neo4jName();
+            countStatement = new AggregateStatements().countEdges(start, type, end);
+        } else {
+            Collection<String> labels = classInfo.staticLabels();
+            countStatement = new AggregateStatements().countNodesLabelledWith(labels);
+        }
         try (Response<RowModel> response = session.requestHandler().execute(countStatement)) {
             RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();

@@ -13,15 +13,6 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +20,21 @@ import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
+import org.neo4j.ogm.domain.music.Recording;
+import org.neo4j.ogm.domain.music.Studio;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
@@ -163,6 +165,30 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
 
         context = new EntityGraphMapper(neo4jSession.metaData(), neo4jSession.context()).map(loadedLeann, depth);
         assertEquals("Should have two node to save" , 2, context.registry().size());
+    }
+
+    @Test
+    public void shouldCountRelationshipEntities() {
+
+
+        Album greatestHits = new Album("Greatest Hits");
+
+        Studio chessRecordsStudios = new Studio("Chess Records");
+        Studio mercuryStudios = new Studio("Mercury");
+
+        Recording recording1 = new Recording(greatestHits, chessRecordsStudios, 1962);
+        Recording recording2 = new Recording(greatestHits, mercuryStudios, 1967);
+
+        greatestHits.setRecording(recording1);
+        greatestHits.setRecording(recording2);
+
+        session.save(recording1);
+        session.save(recording2);
+
+        assertEquals(2, session.countEntitiesOfType(Recording.class));
+
+
+
     }
 
 }

@@ -14,10 +14,9 @@
 package org.neo4j.ogm.session.event;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.RelationalReader;
 import org.neo4j.ogm.context.MappedRelationship;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.entity.io.RelationalReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.utils.ClassUtils;
@@ -32,7 +31,6 @@ import java.util.*;
  */
 public final class SaveEventDelegate {
 
-    private static final EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
     private Neo4jSession session;
@@ -47,21 +45,22 @@ public final class SaveEventDelegate {
         this.session = session;
         this.preSaved = new HashSet();
         this.visited = new HashSet();
+
+        this.registeredRelationships.clear();
+        this.registeredRelationships.addAll(session.context().getRelationships());
+
     }
 
     public void preSave(Object object) {
 
-        this.registeredRelationships.clear();
-        this.registeredRelationships.addAll(session.context().mappedRelationships());
-
         if (Collection.class.isAssignableFrom(object.getClass())) {
             for (Object element : (Collection) object) {
-                preSave(element);
+                preSaveCheck(element);
             }
         }
         else if (object.getClass().isArray()) {
-            for (Object element : (Arrays.asList(object))) {
-                preSave(element);
+            for (Object element : (Collections.singletonList(object))) {
+                preSaveCheck(element);
             }
         }
         else {
@@ -83,7 +82,7 @@ public final class SaveEventDelegate {
                 preSaveCheck(child);
             }
             if (!preSaveFired(object) && dirty(object)) {
-                fire(Event.TYPE.PRE_SAVE, object);
+                firePreSave(object);
             }
         } else {
             logger.debug("already visited: {}", object);
@@ -93,17 +92,30 @@ public final class SaveEventDelegate {
         // and which therefore have been possibly rendered unreachable from the object graph traversal
         for(Object other : unreachable()) {
             if (visit(other) && !preSaveFired(other)) { // only if not yet visited and not yet fired
-                fire(Event.TYPE.PRE_SAVE, other);
+                firePreSave(other);
             }
         }
 
         // fire events for existing nodes that are not dirty, but which have had an edge added:
         for (Object other: touched()) {
             if (!preSaveFired(other)) { // only if not yet already fired
-                fire(Event.TYPE.PRE_SAVE, other);
+                firePreSave(other);
             }
         }
 
+    }
+
+    private void firePreSave(Object object) {
+        fire(Event.TYPE.PRE_SAVE, object);
+        this.preSaved.add(object);
+
+    }
+    private void fire(Event.TYPE eventType, Object object) {
+        this.session.notifyListeners(new PersistenceEvent(object, eventType));
+    }
+
+    private boolean preSaveFired(Object object) {
+        return this.preSaved.contains(object);
     }
 
     private Set<Object> touched() {
@@ -180,7 +192,7 @@ public final class SaveEventDelegate {
             // compare the set of current relationships with the ones in the mapping context
             // if are there any missing from the mapping context, the object is dirty because
             // a previously mapped relationship has been deleted.
-            for (MappedRelationship previous : session.context().mappedRelationships()) {
+            for (MappedRelationship previous : session.context().getRelationships()) {
                 if (isDeleted(previous)) {
                     logger.debug("deleted: {} from {}", previous, parent);
                     return true;
@@ -194,7 +206,7 @@ public final class SaveEventDelegate {
     // returns true if the specified mapped relationship is not found in the list
     // of mapped relationships that existed when the object being saved was originally loaded
     private boolean isNew(MappedRelationship mappedRelationship) {
-        return !this.session.context().mappedRelationships().contains(mappedRelationship);
+        return !this.session.context().getRelationships().contains(mappedRelationship);
     }
 
     // returns true if the specified mapped relationship is not found in the list
@@ -263,13 +275,13 @@ public final class SaveEventDelegate {
 
         if (parentClassInfo != null) {
 
-            for (RelationalReader reader : entityAccessStrategy.getRelationalReaders(parentClassInfo)) {
+            for (RelationalReader reader : EntityAccessManager.getRelationalReaders(parentClassInfo)) {
 
                 Object reference = reader.read(parent);
 
                 if (reference != null) {
                     if (reference.getClass().isArray()) {
-                        addChildren(children, Arrays.asList(reference));
+                        addChildren(children, Collections.singletonList(reference));
                     } else if (Collection.class.isAssignableFrom(reference.getClass())) {
                         addChildren(children, (Collection) reference);
                     } else {
@@ -294,18 +306,9 @@ public final class SaveEventDelegate {
 
 
     private Collection<RelationalReader> relationalReaders(Object object) {
-        return entityAccessStrategy.getRelationalReaders(this.session.metaData().classInfo(object));
+        return EntityAccessManager.getRelationalReaders(this.session.metaData().classInfo(object));
     }
 
-
-    private void fire(Event.TYPE eventType, Object object) {
-        this.session.notifyListeners(new PersistenceEvent(object, eventType));
-        this.preSaved.add(object);
-    }
-
-    private boolean preSaveFired(Object object) {
-        return this.preSaved.contains(object);
-    }
 
     // given an object and a reader, returns a collection of
     // MappedRelationships from the reference or references read by the reader from
@@ -321,7 +324,7 @@ public final class SaveEventDelegate {
 
         if (reference != null) {
             if (reference.getClass().isArray()) {
-                mapCollection(mappedRelationships, parent, reader, Arrays.asList(reference));
+                mapCollection(mappedRelationships, parent, reader, Collections.singletonList(reference));
             } else if (Collection.class.isAssignableFrom(reference.getClass())) {
                 mapCollection(mappedRelationships, parent, reader, (Collection) reference);
             } else {
@@ -364,11 +367,11 @@ public final class SaveEventDelegate {
 
             else {
                 // graph relationship is transitive across the RE domain object
-                Object startNode =  entityAccessStrategy.getStartNodeReader(referenceInfo).read(reference);
+                Object startNode =  EntityAccessManager.getStartNodeReader(referenceInfo).read(reference);
                 ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
                 Long startNodeId = EntityUtils.identity(startNode, session.metaData());
 
-                Object endNode =  entityAccessStrategy.getEndNodeReader(referenceInfo).read(reference);
+                Object endNode =  EntityAccessManager.getEndNodeReader(referenceInfo).read(reference);
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = EntityUtils.identity(endNode, session.metaData());
 
@@ -386,4 +389,6 @@ public final class SaveEventDelegate {
         }
 
     }
+
+
 }

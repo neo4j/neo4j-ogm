@@ -18,7 +18,6 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.result.ResultRestModel;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> imp
 
 	private RestModelAdapter restModelAdapter = new RestModelAdapter();
 
-	public RestModelResponse(CloseableHttpResponse httpResponse) throws IOException {
+	public RestModelResponse(CloseableHttpResponse httpResponse) {
 		super(httpResponse, ResultRestModel.class);
 		restModelAdapter.setColumns(columns());
 	}

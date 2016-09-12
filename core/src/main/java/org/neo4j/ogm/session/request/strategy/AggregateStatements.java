@@ -15,6 +15,7 @@ package org.neo4j.ogm.session.request.strategy;
 
 
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
+import org.neo4j.ogm.session.Utils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -35,4 +36,7 @@ public class AggregateStatements {
                 Collections.<String, String> emptyMap());
     }
 
+    public DefaultRowModelRequest countEdges(String startLabel, String type, String endLabel) {
+        return new DefaultRowModelRequest(String.format("MATCH (:`%s`)-[r:`%s`]->(:`%s`) RETURN count(r)", startLabel, type, endLabel), Utils.map());
+    }
 }

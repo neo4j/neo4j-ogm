@@ -1,4 +1,4 @@
-[[reference_programming-model_transactions]]
+[[reference-programming-model-transactions]]
 = Transactions
 
 Neo4j is a transactional database, only allowing operations to be performed within transaction boundaries.
@@ -6,7 +6,7 @@ Neo4j is a transactional database, only allowing operations to be performed with
 Transactions can be managed explicitly by calling the `beginTransaction()` method on the `Session` followed by a `commit()` or `rollback()` as required.
 
 .Transaction management
-[source,java]
+[source, java]
 ----
 Transaction tx = session.beginTransaction();
 Person person = session.load(Person.class,personId);

@@ -13,20 +13,15 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.FieldWriter;
-import org.neo4j.ogm.annotations.PropertyReader;
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.TransientRelationship;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.PropertyReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
@@ -37,6 +32,10 @@ import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Plans request execution and processes the response.
@@ -132,14 +131,12 @@ public class RequestExecutor {
 	}
 
 	private void updateSessionContext(CompileContext context) {
-		Iterator<Object> iterator = context.registry().iterator();
-		while (iterator.hasNext()) {
-			Object targetObject = iterator.next();
-			if(!(targetObject instanceof TransientRelationship)) {
+		for (Object targetObject : context.registry()) {
+			if (!(targetObject instanceof TransientRelationship)) {
 				ClassInfo classInfo = session.metaData().classInfo(targetObject);
 				Field identityField = classInfo.getField(classInfo.identityField());
 				Object value = FieldWriter.read(identityField, targetObject);
-				if (value != null) session.context().replace(targetObject, (Long) value);
+				if (value != null) session.context().replaceNodeEntity(targetObject, (Long) value);
 			}
 		}
 	}
@@ -203,6 +200,7 @@ public class RequestExecutor {
 		}
 		if (manageTransaction) {
 			tx.commit();
+			tx.close();
 		}
 
 		for (CompileContext context : contexts) {
@@ -310,7 +308,7 @@ public class RequestExecutor {
 					for (Object obj : context.registry()) { //TODO find a better way to do this instead of iterating through the log
 						if (!(obj instanceof TransientRelationship)) {
 							ClassInfo classInfo = session.metaData().classInfo(obj);
-							PropertyReader idReader = new DefaultEntityAccessStrategy().getIdentityPropertyReader(classInfo);
+							PropertyReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 							Long id = (Long) idReader.readProperty(obj);
 							if (id != null && id.equals(referenceMapping.id)) {
 								registerEntity(session.context(), classInfo, referenceMapping.id, obj);
@@ -371,7 +369,7 @@ public class RequestExecutor {
 						if (session.context().getRelationshipEntity(referenceMapping.id) != null) {
 							mappedRelationship.setRelationshipId(referenceMapping.id);
 						}
-						session.context().mappedRelationships().add(mappedRelationship);
+						session.context().addRelationship(mappedRelationship);
 					}
 				}
 			}
@@ -404,9 +402,9 @@ public class RequestExecutor {
 	private static void registerEntity(MappingContext mappingContext, ClassInfo classInfo, Long identity, Object entity) {
 		// ensure the newly created domain object is added into the mapping context
 		if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-			mappingContext.registerNodeEntity(entity, identity);
+			mappingContext.addNodeEntity(entity, identity);
 		} else {
-			mappingContext.registerRelationshipEntity( entity, identity );
+			mappingContext.addRelationshipEntity(entity, identity);
 		}
 
 	}

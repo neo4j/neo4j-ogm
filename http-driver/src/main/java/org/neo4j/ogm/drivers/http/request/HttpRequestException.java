@@ -11,21 +11,16 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.drivers.http.request;
+
+import org.apache.http.client.methods.HttpRequestBase;
 
 /**
- * Specialisation of {@link PropertyWriter} that also exposes the relationship type represented by the corresponding
- * object member.
- *
- * @author Adam George
+ * @author vince
  */
-public interface RelationalWriter extends PropertyWriter {
+public class HttpRequestException extends RuntimeException {
 
-    String relationshipName();
-
-    String relationshipDirection();
-
-    boolean forScalar();
-
-    String typeParameterDescriptor();
+    public HttpRequestException(HttpRequestBase request, Exception hre) {
+        super(request.getURI().toString() + ": " + hre.getLocalizedMessage(), hre);
+    }
 }

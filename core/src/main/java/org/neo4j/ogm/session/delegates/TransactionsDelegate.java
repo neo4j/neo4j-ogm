@@ -30,7 +30,6 @@ public class TransactionsDelegate implements Capability.Transactions {
 
     @Override
     public Transaction beginTransaction() {
-
         session.debug("beginTransaction()");
         session.debug("Neo4jSession identity: " + this);
 
@@ -38,6 +37,19 @@ public class TransactionsDelegate implements Capability.Transactions {
 
         session.debug("Transaction, tx id: " + tx);
         return tx;
+    }
+
+    @Override
+    public Transaction beginTransaction(Transaction.Type type) {
+
+        session.debug("beginTransaction()");
+        session.debug("Neo4jSession identity: " + this);
+
+        Transaction tx = session.transactionManager().openTransaction(type);
+
+        session.debug("Transaction, tx id: " + tx);
+        return tx;
+
     }
 
     @Override

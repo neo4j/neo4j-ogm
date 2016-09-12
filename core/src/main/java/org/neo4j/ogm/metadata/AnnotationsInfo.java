@@ -31,7 +31,7 @@ public class AnnotationsInfo {
     public AnnotationsInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         int attributesCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
-            String attributeName = constantPool.lookup(dataInputStream.readUnsignedShort());
+            String attributeName = constantPool.readString(dataInputStream.readUnsignedShort());
             int attributeLength = dataInputStream.readInt();
             if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                 int annotationCount = dataInputStream.readUnsignedShort();

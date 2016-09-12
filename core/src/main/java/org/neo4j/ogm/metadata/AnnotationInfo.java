@@ -28,7 +28,7 @@ public class AnnotationInfo {
 
     public AnnotationInfo(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
 
-        String annotationFieldDescriptor = constantPool.lookup(dataInputStream.readUnsignedShort());
+        String annotationFieldDescriptor = constantPool.readString(dataInputStream.readUnsignedShort());
         String annotationClassName;
         if (annotationFieldDescriptor.charAt(0) == 'L'
                 && annotationFieldDescriptor.charAt(annotationFieldDescriptor.length() - 1) == ';') {
@@ -42,7 +42,7 @@ public class AnnotationInfo {
         int numElementValuePairs = dataInputStream.readUnsignedShort();
 
         for (int i = 0; i < numElementValuePairs; i++) {
-            String elementName = constantPool.lookup(dataInputStream.readUnsignedShort());
+            String elementName = constantPool.readString(dataInputStream.readUnsignedShort());
             Object value = readAnnotationElementValue(dataInputStream, constantPool);
             if (elementName != null && value != null) {
                 put(elementName, value.toString());
@@ -88,16 +88,23 @@ public class AnnotationInfo {
 
         switch (tag) {
             case 'B':
+                return constantPool.readByte(dataInputStream.readUnsignedShort());
             case 'C':
+                return constantPool.readChar(dataInputStream.readUnsignedShort());
             case 'D':
+                return constantPool.readDouble(dataInputStream.readUnsignedShort());
             case 'F':
+                return constantPool.readFloat(dataInputStream.readUnsignedShort());
             case 'I':
+                return constantPool.readInteger(dataInputStream.readUnsignedShort());
             case 'J':
+                return constantPool.readLong(dataInputStream.readUnsignedShort());
             case 'S':
-            case 'Z':
+                return constantPool.readShort(dataInputStream.readUnsignedShort());
             case 's':
-                // const_value_index
-                return constantPool.lookup(dataInputStream.readUnsignedShort());
+                return constantPool.readString(dataInputStream.readUnsignedShort());
+            case 'Z':
+                return constantPool.readBoolean(dataInputStream.readUnsignedShort());
             case 'e':
                 // enum_const_value (NOT HANDLED)
                 dataInputStream.skipBytes(4);
@@ -105,7 +112,7 @@ public class AnnotationInfo {
                 //return constantPool.lookup(dataInputStream.);
             case 'c':
                 // class_info_index
-                return constantPool.lookup(dataInputStream.readUnsignedShort());
+                return constantPool.readString(dataInputStream.readUnsignedShort());
             case '@':
                 // Nested annotation
                 return new AnnotationInfo(dataInputStream, constantPool);

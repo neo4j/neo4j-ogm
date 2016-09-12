@@ -11,24 +11,20 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.domain.knowledge;
+
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
- * Specialisation of {@link PropertyReader} that also exposes the relationship type represented by the corresponding
- * object member.
- *
- * @author Adam George
+ * @author vince
  */
-public interface RelationalReader {
+@NodeEntity
+public class Language extends Entity {
 
-    Object read(Object instance);
+    public Language() {}
 
-    String propertyName();
-
-    String relationshipType();
-
-    String relationshipDirection();
-
-    String typeParameterDescriptor();
+    public Language(String name) {
+        this.name = name;
+    }
 
 }

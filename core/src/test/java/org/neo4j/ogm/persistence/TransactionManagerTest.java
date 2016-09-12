@@ -13,16 +13,11 @@
 
 package org.neo4j.ogm.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.exception.ConnectionException;
+import org.neo4j.ogm.drivers.http.request.HttpRequestException;
+import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
@@ -31,6 +26,13 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Transactions in the OGM
@@ -120,7 +122,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
                 // Try to purge database using timed-out transaction
                 session.purgeDatabase();
                 fail("Should have caught exception");
-            } catch (ConnectionException rpe) {
+            } catch (HttpRequestException rpe) {
                 // expected
             }
             // should pass, because previous transaction will be closed by try block
@@ -174,6 +176,79 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         latch.await(); // pause until the count reaches 0
         executor.shutdownNow();
     }
+
+    @Test
+    public void shouldNotBeReadOnlyByDefault()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx = session.beginTransaction();
+        Assert.assertFalse(tx.isReadOnly());
+    }
+
+    @Test
+    public void shouldBeAbleToCreateReadOnlyTransaction()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY);
+        Assert.assertTrue(tx.isReadOnly());
+    }
+
+    @Test
+    public void shouldNotBeAbleToExtendAReadTransactionWithAReadWriteInnerTransaction()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        try {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            fail("Should not have allowed transaction extension of different type");
+        } catch (TransactionException tme) {
+            Assert.assertEquals("Incompatible transaction type specified: must be 'READ_ONLY'", tme.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotBeAbleToExtendAReadWriteTransactionWithAReadOnlyInnerTransaction()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        try {
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            fail("Should not have allowed transaction extension of different type");
+        } catch (TransactionException tme) {
+            Assert.assertEquals("Incompatible transaction type specified: must be 'READ_WRITE'", tme.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldAutomaticallyExtendAReadOnlyTransactionWithAReadOnlyExtension()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+        Transaction tx2 = session.beginTransaction();
+        Assert.assertTrue(tx2.isReadOnly());
+    }
+
+    @Test
+    public void shouldAutomaticallyExtendAReadWriteTransactionWithAReadWriteExtension()  {
+
+        SessionFactory sessionFactory = new SessionFactory();
+        session = sessionFactory.openSession();
+
+        Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+        Transaction tx2 = session.beginTransaction();
+        Assert.assertFalse(tx2.isReadOnly());
+    }
+
 
     class QueryRunner implements Runnable {
 

@@ -1,22 +1,26 @@
-[[reference_programming-model_events]]
+[[reference-programming-model-events]]
 = Events
 
 As of version 2.0.4, Neo4j OGM supports persistence events.
 
-== Event Types
+
+== Event types
 
 There are four types of events:
 
-  Event.LIFECYCLE.PRE_SAVE
-  Event.LIFECYCLE.POST_SAVE
-  Event.LIFECYCLE.PRE_DELETE
-  Event.LIFECYCLE.POST_DELETE
+....
+Event.LIFECYCLE.PRE_SAVE
+Event.LIFECYCLE.POST_SAVE
+Event.LIFECYCLE.PRE_DELETE
+Event.LIFECYCLE.POST_DELETE
+....
 
-Events are fired for every `@NodeEntity` or `@RelationshipEntity` object that is created, updated or deleted, or otherwise affected by a save or delete request. This includes:
+Events are fired for every `@NodeEntity` or `@RelationshipEntity` object that is created, updated or deleted, or otherwise affected by a save or delete request.
+This includes:
 
- - the top-level objects or objects being created, modified or deleted.
- - any connected objects that have been modified, created or deleted.
- - any objects affected by the creation, modification or removal of a relationship in the graph.
+* The top-level objects or objects being created, modified or deleted.
+* Any connected objects that have been modified, created or deleted.
+* Any objects affected by the creation, modification or removal of a relationship in the graph.
 
 [NOTE]
 ====
@@ -24,7 +28,9 @@ Events will only fire when one of the `session.save()` or `session.delete()` met
 Directly executing Cypher queries against the database using `session.query()` will not trigger any events.
 ====
 
+
 == Interfaces
+
 The Events mechanism introduces two new interfaces, `Event` and `EventListener`.
 
 *The Event interface*
@@ -32,24 +38,24 @@ The Events mechanism introduces two new interfaces, `Event` and `EventListener`.
 The `Event` interface is implemented by `org.neo4j.ogm.session.event.PersistenceEvent`.
 Whenever an application wishes to handle an event it will be given an instance of `Event`, which exposes the following methods:
 
-[source,java]
+[source, java]
 ----
-  public interface Event {
+public interface Event {
 
-      Object getObject();
-      LIFECYCLE getLifeCycle();
+    Object getObject();
+    LIFECYCLE getLifeCycle();
 
-      enum LIFECYCLE {
-          PRE_SAVE, POST_SAVE, PRE_DELETE, POST_DELETE
-      }
-  }
+    enum LIFECYCLE {
+        PRE_SAVE, POST_SAVE, PRE_DELETE, POST_DELETE
+    }
+}
 ----
 
 *The Event Listener interface*
 
 The `EventListener` interface provides methods allowing implementing classes to handle each of the different `Event` types:
 
-[source,java]
+[source, java]
 ----
 public interface EventListener {
 
@@ -66,13 +72,14 @@ public interface EventListener {
 Although the `Event` interface allows you to retrieve the event type, in most cases, your code won't need it because the `EventListener` provides methods to capture each type of event explicitly.
 ====
 
+
 == Registering an EventListener
 
 Your code must register one or more EventListeners with the `Session`
 
 In this example we register an anonymous EventListener to inject a UUID onto new objects before they're saved
 
-[source,java]
+[source, java]
 ----
 EventListener eventListener session.register(new EventListener() {
 
@@ -94,10 +101,14 @@ EventListener eventListener session.register(new EventListener() {
 
 [NOTE]
 ====
-It’s possible and sometimes desirable to add several EventListener objects to the session, depending on the application’s requirements. For example, our business logic might require us to add a UUID to a new object, as well as manage wider concerns such as ensuring that a particular persistence event won’t leave our domain model in a logically inconsistent state. It’s usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
+It’s possible and sometimes desirable to add several EventListener objects to the session, depending on the application’s requirements.
+For example, our business logic might require us to add a UUID to a new object, as well as manage wider concerns such as ensuring that a particular persistence event won’t leave our domain model in a logically inconsistent state.
+It’s usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
 ====
 
+
 == Using the EventListenerAdapter
+
 The `EventListener` above is fine, but we've had to create three methods for events we don't intend to handle.
 It would be preferable if we didn't have to do this each time we needed an `EventListener`.
 
@@ -106,39 +117,45 @@ If you don't need to handle all the different types of persistence event you can
 
 For example:
 
-[source,java]
+[source, java]
 ----
 class PreSaveEventListener extends EventListenerAdaper {
-  @Override
-  void onPreSave(Event event) {
-    DomainEntity entity = (DomainEntity) event.getObject();
-    if (entity.id == null) {
-      entity.UUID = UUID.randomUUID();
+    @Override
+    void onPreSave(Event event) {
+        DomainEntity entity = (DomainEntity) event.getObject();
+        if (entity.id == null) {
+            entity.UUID = UUID.randomUUID();
+        }
     }
-  }
 }
 ----
 
+
 == Disposing of an EventListener
 
-Something to bear in mind is that once an `EventListener` has been registered it will continue to respond to any and all persistence events.  Sometimes you may want only to handle events for a short period of time, rather than for the duration of the entire session.
+Something to bear in mind is that once an `EventListener` has been registered it will continue to respond to any and all persistence events.
+Sometimes you may want only to handle events for a short period of time, rather than for the duration of the entire session.
 
 If you're done with an EventListener you can stop it from firing any more events by invoking `session.dispose(...)`, passing in the EventListener to be disposed of.
 
 [NOTE]
 ====
-The process of collecting persistence events prior to dispatching them to any EventListeners adds a small performance overhead to the persistence layer. Consequently, the OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session. Using `dispose()` when you're finished with an EventListener is good practice!
+The process of collecting persistence events prior to dispatching them to any EventListeners adds a small performance overhead to the persistence layer.
+Consequently, the OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session.
+Using `dispose()` when you're finished with an EventListener is good practice!
 ====
+
 
 == Connected objects
 
 As mentioned previously, events are not only fired for the top-level objects being saved but for all their connected objects as well.
 
-Connected objects are any objects reachable in the domain model from the top-level object being saved. Connected objects can be many levels deep in the domain model graph.
+Connected objects are any objects reachable in the domain model from the top-level object being saved.
+Connected objects can be many levels deep in the domain model graph.
 
 In this way, the Events mechanism allows us to capture events for objects that we didn't explicitly save ourselves.
 
-[source,java]
+[source, java]
 ----
 // initialise the graph
 Folder folder = new Folder("folder");
@@ -157,13 +174,14 @@ b.setName("B");
 session.save(a);
 ----
 
-== Events and Types
+
+== Events and types
 
 When we delete a Type, all the nodes with a label corresponding to that Type are deleted in the graph.
 The affected objects are not enumerated by the Events mechanism (they may not even be known).
 Instead, `_DELETE` events will be raised for the Type:
 
-[source,java]
+[source, java]
 ----
     // 2 events will be fired when the type is deleted.
     // - PRE_DELETE Document.class
@@ -171,11 +189,12 @@ Instead, `_DELETE` events will be raised for the Type:
     session.delete(Document.class);
 ----
 
-== Events and Collections
+
+== Events and collections
 
 When saving or deleting a collection of objects, separate events are fired for each object in the collection, rather than for the collection itself.
 
-[source,java]
+[source, java]
 ----
 Document a = new Document("a");
 Document b = new Document("b");
@@ -189,15 +208,16 @@ Document b = new Document("b");
 session.save(Arrays.asList(a, b));
 ----
 
+
 == Event ordering
 
-Events are partially ordered. `PRE_` events are guaranteed to fire before any `POST_` event within the same `save` or `delete` request.
+Events are partially ordered.
+`PRE_` events are guaranteed to fire before any `POST_` event within the same `save` or `delete` request.
 However, the *internal* ordering of the `PRE_` events and `POST_` events with the request is undefined.
 
 .Example: Partial ordering of events
-[source,java]
+[source, java]
 ----
-
 Document a = new Document("a");
 Document b = new Document("b");
 
@@ -208,6 +228,7 @@ Document b = new Document("b");
 session.save(Arrays.asList(a, b));
 ----
 
+
 == Relationship events
 
 The previous examples show how events fire when the underlying *node* representing an entity is updated or deleted in the graph.
@@ -216,7 +237,7 @@ Events are also fired when a save or delete request results in the modification,
 For example, if you delete a Document object that is a member of a Folder's documents collection, events will be fired for the Document as well as the Folder, to reflect the fact that the relationship between the folder and the document has been removed in the graph
 
 .Example: Deleting a Document attached to a Folder
-[source,java]
+[source, java]
 ----
 Folder folder = new Folder();
 Document a = new Document("a");
@@ -240,12 +261,13 @@ In this example, the folder is still holding a reference to the Document, even t
 As always, your code must take care of domain model synchronisation.
 ====
 
+
 == Event uniqueness
 
 The event mechanism guarantees to not fire more than one event of the same type for an object in a save or delete request.
 
 .Example: Multiple changes, single event of each type
-[source,java]
+[source, java]
 ----
  // Even though we're making changes to both the folder node, and its relationships,
  // only one PRE_SAVE and one POST_SAVE event will be fired.
@@ -258,5 +280,6 @@ The event mechanism guarantees to not fire more than one event of the same type 
 ////
 == Integration with Spring Data Neo4j
 
-The OGM events mechanism has been designed to integrate easily with Spring Data Neo4j. Please refer to the Spring Data Neo4j documentation for details of how to integrate OGM Events with the SDN event mechanism.////
+The OGM events mechanism has been designed to integrate easily with Spring Data Neo4j. Please refer to the Spring Data Neo4j documentation for details of how to integrate OGM Events with the SDN event mechanism.
+////
 

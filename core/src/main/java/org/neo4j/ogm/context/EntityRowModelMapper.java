@@ -20,12 +20,13 @@ import org.neo4j.ogm.session.Utils;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- *
- * @param <T> The type of entity to which the row is to be mapped
- */
-public class EntityRowModelMapper<T> implements ResponseMapper<RowModel> {
 
+public class EntityRowModelMapper implements ResponseMapper<RowModel> {
+
+    /**
+     *
+     * @param <T> The type of entity to which the row is to be mapped
+     */
     @Override
     public <T> Iterable<T> map(Class<T> type, Response<RowModel> response) {
 

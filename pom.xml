@@ -47,8 +47,8 @@
 
         <!-- default for build, if no profiles invoked -->
         <neo4j>2.3.6</neo4j>
-        <bolt>1.0.4</bolt>
-        <ogm.properties>ogm-http.properties</ogm.properties>
+        <bolt>1.0.5</bolt>
+        <ogm.properties>ogm-bolt.properties</ogm.properties>
     </properties>
 
     <dependencyManagement>

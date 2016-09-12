@@ -30,6 +30,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD,ElementType.METHOD})
 public @interface EndNode {
 
-    static final String CLASS = "org.neo4j.ogm.annotation.EndNode";
+    String CLASS = "org.neo4j.ogm.annotation.EndNode";
 
 }

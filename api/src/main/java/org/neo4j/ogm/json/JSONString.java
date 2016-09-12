@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
@@ -11,6 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
+package org.neo4j.ogm.json;
 
 /**
  * The <code>JSONString</code> interface allows a <code>toJSONString()</code>
@@ -20,8 +20,6 @@
  * <code>toJSONString</code> method will be used instead of the default behavior
  * of using the Object's <code>toString()</code> method and quoting the result.
  */
-package org.neo4j.ogm.json;
-
 public interface JSONString {
     /**
      * The <code>toJSONString</code> method allows a class to produce its own JSON
@@ -29,5 +27,5 @@ public interface JSONString {
      *
      * @return A strictly syntactically correct JSON text.
      */
-    public String toJSONString();
+    String toJSONString();
 }

@@ -13,20 +13,28 @@
 
 package org.neo4j.ogm.annotations.relationships;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotations.*;
-import org.neo4j.ogm.domain.entityMapping.PlainUser;
-import org.neo4j.ogm.domain.entityMapping.iterables.*;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.DomainInfo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.domain.entityMapping.PlainUser;
+import org.neo4j.ogm.domain.entityMapping.iterables.*;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.entity.io.FieldReader;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.MethodReader;
+import org.neo4j.ogm.entity.io.MethodWriter;
+import org.neo4j.ogm.entity.io.RelationalReader;
+import org.neo4j.ogm.entity.io.RelationalWriter;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DomainInfo;
 
 /**
  * @author Luanne Misquitta
@@ -35,12 +43,12 @@ public class IterableRelationalReaderWriterTest {
 
     final String KNOWS = "KNOWS";
     final String LIKES = "LIKES";
-    private DefaultEntityAccessStrategy entityAccessStrategy;
+    private EntityAccessManager entityAccessStrategy;
     private DomainInfo domainInfo;
 
     @Before
     public void setup() {
-        entityAccessStrategy = new DefaultEntityAccessStrategy();
+        entityAccessStrategy = new EntityAccessManager();
         domainInfo = new DomainInfo("org.neo4j.ogm.domain.entityMapping.iterables");
     }
 

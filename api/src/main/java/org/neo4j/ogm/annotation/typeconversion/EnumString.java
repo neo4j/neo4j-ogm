@@ -23,8 +23,8 @@ import java.lang.annotation.*;
 @Inherited
 public @interface EnumString {
 
-    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.EnumString";
-    static final String TYPE = "value";
+    String CLASS = "org.neo4j.ogm.annotation.typeconversion.EnumString";
+    String TYPE = "value";
 
     Class<? extends Enum> value();
 }

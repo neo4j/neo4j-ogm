@@ -55,10 +55,10 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
             if (cause instanceof HttpHostConnectException) {
                 fail("Please start Neo4j 2.2.0 or later to run these tests");
             } else {
-                while (cause instanceof HttpResponseException == false) {
+                while (!(cause instanceof HttpResponseException)) {
                     cause = cause.getCause();
                 }
-                assertEquals("Unauthorized", cause.getMessage());
+                assertTrue(cause.getMessage().startsWith("No auth"));
             }
         }
     }
@@ -91,10 +91,10 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
             if (cause instanceof HttpHostConnectException) {
                 fail("Please start Neo4j 2.2.0 or later to run these tests");
             } else {
-                while (cause instanceof HttpResponseException == false) {
+                while (!(cause instanceof HttpResponseException)) {
                     cause = cause.getCause();
                 }
-                assertEquals("Unauthorized", cause.getMessage());
+                assertEquals("Invalid username or password.", cause.getMessage());
             }
         }
     }

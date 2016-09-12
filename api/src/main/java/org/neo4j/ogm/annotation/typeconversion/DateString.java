@@ -23,10 +23,10 @@ import java.lang.annotation.*;
 @Inherited
 public @interface DateString {
 
-    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.DateString";
-    static final String FORMAT = "value";
+    String CLASS = "org.neo4j.ogm.annotation.typeconversion.DateString";
+    String FORMAT = "value";
 
-    static final String ISO_8601 ="yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    String ISO_8601 ="yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     String value() default ISO_8601;
 

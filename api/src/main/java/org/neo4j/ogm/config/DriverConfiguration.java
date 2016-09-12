@@ -65,7 +65,7 @@ public class DriverConfiguration {
                 determineDefaultDriverName(url);
             }
         } catch (Exception e) {
-            ; // do nothing here. user not obliged to supply a URL, or to pass in credentials
+            // do nothing here. user not obliged to supply a URL, or to pass in credentials
         }
         return this;
     }
@@ -162,12 +162,17 @@ public class DriverConfiguration {
     }
 
     private void determineDefaultDriverName(URL url) {
-        if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
-            setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        } else if (url.getProtocol().equals("bolt")) {
-            setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
-        } else {
-            setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+        switch (url.getProtocol()) {
+            case "http":
+            case "https":
+                setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
+                break;
+            case "bolt":
+                setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+                break;
+            default:
+                setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+                break;
         }
     }
 

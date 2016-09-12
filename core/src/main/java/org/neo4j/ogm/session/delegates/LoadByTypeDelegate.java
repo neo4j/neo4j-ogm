@@ -47,7 +47,6 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 public class LoadByTypeDelegate implements Capability.LoadByType {
 
     private final Neo4jSession session;
-    private final String escapedProperty = "`%s`";
 
     public LoadByTypeDelegate(Neo4jSession session) {
         this.session = session;
@@ -236,6 +235,8 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
     }
 
     private void resolvePropertyAnnotations(Class entityType, SortOrder sortOrder) {
+        final String escapedProperty = "`%s`";
+
         if (sortOrder != null) {
             for (SortClause sortClause : sortOrder.sortClauses()) {
                 for (int i = 0; i < sortClause.getProperties().length; i++) {

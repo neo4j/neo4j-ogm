@@ -133,7 +133,7 @@ public class Components {
         return CompilerService.load(configuration.compilerConfiguration());
     }
 
-    private static InputStream configurationFile() throws Exception {
+    private static InputStream configurationFile() {
         String configFileName;
         configFileName = System.getenv("ogm.properties");
 

@@ -18,8 +18,6 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.result.ResultGraphModel;
 
-import java.io.IOException;
-
 /**
  * @author vince
  * @author Luanne Misquitta
@@ -27,24 +25,23 @@ import java.io.IOException;
 public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
 
 
-	public GraphModelResponse(CloseableHttpResponse httpResponse) throws IOException {
-		super(httpResponse, ResultGraphModel.class);
-	}
+    public GraphModelResponse(CloseableHttpResponse httpResponse) {
+        super(httpResponse, ResultGraphModel.class);
+    }
 
-	@Override
-	public GraphModel next() {
-		ResultGraphModel graphModel = nextDataRecord("graph");
+    @Override
+    public GraphModel next() {
+        ResultGraphModel graphModel = nextDataRecord("graph");
 
-		if (graphModel != null) {
-			return graphModel.queryResults();
-		}
-		return null;
-	}
+        if (graphModel != null) {
+            return graphModel.queryResults();
+        }
+        return null;
+    }
 
-	@Override
-	public void close()
-	{
-		// nothing to do here
-	}
+    @Override
+    public void close() {
+        // nothing to do here
+    }
 
 }

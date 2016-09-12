@@ -20,21 +20,21 @@ Please see the Neo4j documention on indexes for for information:  http://neo4j.c
 
 Schema indexes are automatically used by Neo4j's Cypher engine, so using the annotated or derived repository finders or the query methods in `Neo4jTemplate` will use them out of the box.
 
-== Neo4j Auto Indexes
+== Neo4j auto indexes
 
-Neo4j allows to configure (legacy) http://neo4j.com/docs/stable/auto-indexing.html[auto-indexing] for certain properties on nodes and relationships.  
+Neo4j allows to configure (legacy) http://neo4j.com/docs/stable/auto-indexing.html[auto-indexing] for certain properties on nodes and relationships.
 It is possible to use the specific index names `node_auto_index` and `relationship_auto_index` when querying indexes in Spring Data Neo4j either with the query methods in template and repositories or via Cypher.
 
-== Full-Text Indexes
+== Full-text indexes
 
-Previous versions of Spring Data Neo4j offered support for full-text queries using the manual index facilities. 
+Previous versions of Spring Data Neo4j offered support for full-text queries using the manual index facilities.
 However, as of SDN 4 milestone 1 at least, this is no longer supported.
 To create fulltext entries for an entity you can add the updated nodes within `AfterSaveEvents` to a remote fulltext-index via Neo4j's REST API.
 Fulltext query support is still available via Cypher queries and will be fully addressed by a future Neo4j version.
 
-== Spatial Indexes
+== Spatial indexes
 
-Previous versions of Spring Data Neo4j offered support for spatial queries using the `neo4j-spatial` library. 
+Previous versions of Spring Data Neo4j offered support for spatial queries using the `neo4j-spatial` library.
 However, as of SDN 4 milestone 1 at least, this is no longer supported.
 To create spatial entries for an entity you can add the updated nodes within `AfterSaveEvents` to a remote fulltext-index via Neo4j's REST API.
 Spatial query support is still available via Cypher queries and will be fully addressed by a future Neo4j version.

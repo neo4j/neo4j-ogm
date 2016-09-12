@@ -13,12 +13,11 @@
 package org.neo4j.ogm.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.neo4j.ogm.annotations.DefaultEntityAccessStrategy;
-import org.neo4j.ogm.annotations.EntityAccessStrategy;
-import org.neo4j.ogm.annotations.FieldReader;
+import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.entity.io.FieldReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.MetaData;
 
 import java.util.Collection;
 
@@ -30,20 +29,14 @@ import java.util.Collection;
 public class EntityUtils {
 
     public static Long identity(Object entity, MetaData metaData) {
-        EntityAccessStrategy entityAccessStrategy = new DefaultEntityAccessStrategy();
+
         ClassInfo classInfo = metaData.classInfo(entity);
-
-        Object id = entityAccessStrategy.getIdentityPropertyReader(classInfo).readProperty(entity);
-
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }
 
     /**
      * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
-     *
-     * @param entity
-     * @param metaData
-     * @return
      */
     public static Collection<String> labels(Object entity, MetaData metaData) {
         ClassInfo classInfo = metaData.classInfo(entity);

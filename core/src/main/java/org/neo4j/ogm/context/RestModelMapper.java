@@ -15,8 +15,8 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 					}
 				}
 				else {
-					if (isMappable(Arrays.asList(value))) {
+					if (isMappable(Collections.singletonList(value))) {
 						Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns);
 						if (mapped != null) {
 							entry.setValue(mapped);
@@ -106,7 +106,7 @@ public class RestModelMapper implements ResponseMapper<RestModel> {
 			model = response.next();
 		}
 		restStatisticsModel.setResult(result);
-		return (Iterable<T>) Arrays.asList(restStatisticsModel);
+		return (Iterable<T>) Collections.singletonList(restStatisticsModel);
 	}
 
 	private void convertListValueToArray(List entityList, Map.Entry<String, Object> entry) {

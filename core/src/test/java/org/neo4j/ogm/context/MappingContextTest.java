@@ -13,19 +13,17 @@
 
 package org.neo4j.ogm.context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -51,13 +49,13 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        collector.registerNodeEntity(jim, jim.getId());
-        collector.registerNodeEntity(policy, policy.getId());
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        collector.addNodeEntity(jim, jim.getId());
+        collector.addNodeEntity(policy, policy.getId());
+        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
 
         assertEquals(jim, collector.getNodeEntity(jim.getId()));
         assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertTrue(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertTrue(collector.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
 
     }
 
@@ -70,14 +68,14 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        collector.registerNodeEntity(jim, jim.getId());
-        collector.registerNodeEntity(policy, policy.getId());
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
-        collector.clear(jim);
+        collector.addNodeEntity(jim, jim.getId());
+        collector.addNodeEntity(policy, policy.getId());
+        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        collector.removeEntity(jim);
 
         assertEquals(null, collector.getNodeEntity(jim.getId()));
         assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertFalse(collector.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
     }
 
 	/**
@@ -95,16 +93,16 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        collector.registerNodeEntity(jim, jim.getId());
-        collector.registerNodeEntity(another, another.getId());
-        collector.registerNodeEntity(policy, policy.getId());
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
-        collector.clear(jim);
+        collector.addNodeEntity(jim, jim.getId());
+        collector.addNodeEntity(another, another.getId());
+        collector.addNodeEntity(policy, policy.getId());
+        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        collector.removeEntity(jim);
 
         assertEquals(null, collector.getNodeEntity(jim.getId()));
         assertEquals(policy, collector.getNodeEntity(policy.getId()));
         assertEquals(another, collector.getNodeEntity(another.getId()));
-        assertFalse(collector.isRegisteredRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertFalse(collector.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
 
     }
 
@@ -122,24 +120,24 @@ public class MappingContextTest {
         Person rik = new Person("rik");
         rik.setId(4L);
 
-        collector.registerNodeEntity(jim, jim.getId());
-        collector.registerNodeEntity(rik, rik.getId());
-        collector.registerNodeEntity(healthcare, healthcare.getId());
-        collector.registerNodeEntity(immigration, immigration.getId());
+        collector.addNodeEntity(jim, jim.getId());
+        collector.addNodeEntity(rik, rik.getId());
+        collector.addNodeEntity(healthcare, healthcare.getId());
+        collector.addNodeEntity(immigration, immigration.getId());
 
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
-        collector.registerRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), Person.class, Person.class));
+        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
+        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
+        collector.addRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), Person.class, Person.class));
 
-        collector.clear(Policy.class);
+        collector.removeType(Policy.class);
 
-        assertEquals(0, collector.getAll(Policy.class).size());
+        assertEquals(0, collector.getEntities(Policy.class).size());
         assertEquals(null, collector.getNodeEntity(healthcare.getId()));
         assertEquals(null, collector.getNodeEntity(immigration.getId()));
 
         assertEquals(jim, collector.getNodeEntity(jim.getId()));
         assertEquals(rik, collector.getNodeEntity(rik.getId()));
-        assertEquals(1, collector.mappedRelationships().size());
+        assertEquals(1, collector.getRelationships().size());
 
     }
 
@@ -157,10 +155,10 @@ public class MappingContextTest {
         Person rik = new Person("rik");
         rik.setId(4L);
 
-        collector.registerNodeEntity(jim, jim.getId());
-        collector.registerNodeEntity(rik, rik.getId());
-        collector.registerNodeEntity(healthcare, healthcare.getId());
-        collector.registerNodeEntity(immigration, immigration.getId());
+        collector.addNodeEntity(jim, jim.getId());
+        collector.addNodeEntity(rik, rik.getId());
+        collector.addNodeEntity(healthcare, healthcare.getId());
+        collector.addNodeEntity(immigration, immigration.getId());
 
         rik.setName("newRik");
 
@@ -185,13 +183,13 @@ public class MappingContextTest {
             threads.get(i).join();
         }
 
-        Map<Long,Object> objects = collector.getAll(TestObject.class);
+        Collection<Object> objects = collector.getEntities(TestObject.class);
 
         assertEquals(NUM_OBJECTS, objects.size());
 
         int sum = (NUM_OBJECTS * (NUM_OBJECTS + 1)) / 2;
 
-        for (Object object : objects.values()) {
+        for (Object object : objects) {
             TestObject testObject = (TestObject) object;
             sum -= testObject.id;                           // remove this id from sum of all ids
             assertEquals(1, testObject.notes.size());       // only one thread created this object
@@ -220,7 +218,7 @@ public class MappingContextTest {
                         testObject = new TestObject();
                         testObject.notes.add(String.valueOf(Thread.currentThread().getId()));
                         testObject.id = id;
-                        collector.registerNodeEntity(testObject, id);
+                        collector.addNodeEntity(testObject, id);
                     }
                 }
 

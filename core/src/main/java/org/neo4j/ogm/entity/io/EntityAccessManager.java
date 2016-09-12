@@ -1,17 +1,15 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
- * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
  *
- * This product may include a number of subcomponents with
- * separate copyright notices and license terms. Your use of the source
- * code for these subcomponents is subject to the terms and
- *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ * This product may include a number of subcomponents with separate copyright notices and license terms. Your use of the source code for these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
+ *
+ *
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.entity.io;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -30,11 +27,14 @@ import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MethodInfo;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of {@link EntityAccessStrategy} that looks up information from {@link ClassInfo} in the following order.
+ * Determines how entities should be accessed in both reading and writing scenarios by looking up information from
+ * {@link ClassInfo} in the following order.
+ *
  * <ol>
  * <li>Annotated Method (getter/setter)</li>
  * <li>Annotated Field</li>
@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
  * @author Adam George
  * @author Luanne Misquitta
  */
-public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
+public class EntityAccessManager {
 
-    private final Logger logger = LoggerFactory.getLogger(DefaultEntityAccessStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityAccessManager.class);
 
     //TODO make these LRU caches with configurable size
     private static Map<ClassInfo, Map<DirectedRelationship,RelationalReader>> relationalReaderCache = new HashMap<>();
@@ -64,19 +64,18 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     private static Map<ClassInfo, PropertyReader> identityPropertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<RelationalReader>> relationalReaders = new HashMap<>();
 
-    private final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
-    private final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
+    private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
+    private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
 
 
 
     /** Used internally to hide differences in object construction from strategy algorithm. */
-    private static interface AccessorFactory<T> {
+    private interface AccessorFactory<T> {
         T makeMethodAccessor(MethodInfo methodInfo);
         T makeFieldAccessor(FieldInfo fieldInfo);
     }
 
-    @Override
-    public EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
+    public static EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         if(!propertyWriterCache.containsKey(classInfo)) {
             propertyWriterCache.put(classInfo,new HashMap<String, EntityAccess>());
         }
@@ -101,8 +100,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return propertyWriter;
     }
 
-    @Override
-    public PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
+    public static PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
         if(!propertyReaderCache.containsKey(classInfo)) {
             propertyReaderCache.put(classInfo, new HashMap<String, PropertyReader>());
         }
@@ -126,7 +124,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return propertyReader;
     }
 
-    private <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, MethodInfo accessorMethodInfo,
+    private static <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, MethodInfo accessorMethodInfo,
                                             AccessorFactory<T> factory) {
         if (accessorMethodInfo != null) {
             if (!accessorMethodInfo.hasAnnotation(Property.CLASS)) {
@@ -147,8 +145,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
-    @Override
-    public RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
+    public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
         if (!relationalWriterCache.containsKey(classInfo)) {
             relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
         }
@@ -265,8 +262,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
-    @Override
-    public RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
+    public static RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
         if(!relationalReaderCache.containsKey(classInfo)) {
             relationalReaderCache.put(classInfo, new HashMap<DirectedRelationship, RelationalReader>());
         }
@@ -330,8 +326,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
-    @Override
-    public Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
+    public static Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
         // do we care about "implicit" fields?  i.e., setX/getX with no matching X field
         if(propertyReaders.containsKey(classInfo)) {
             return propertyReaders.get(classInfo);
@@ -351,8 +346,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return readers;
     }
 
-    @Override
-    public Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
+    public static Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
         if(relationalReaders.containsKey(classInfo)) {
             return relationalReaders.get(classInfo);
         }
@@ -378,8 +372,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return getterNameBuilder.insert(0, "get").toString();
     }
 
-    @Override
-    public RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if(!iterableWriterCache.containsKey(classInfo)) {
             iterableWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
         }
@@ -428,9 +421,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
     }
 
 
-
-    @Override
-    public RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if(!iterableReaderCache.containsKey(classInfo)) {
             iterableReaderCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalReader>());
         }
@@ -478,8 +469,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
-    @Override
-    public PropertyReader getIdentityPropertyReader(ClassInfo classInfo) {
+    public static PropertyReader getIdentityPropertyReader(ClassInfo classInfo) {
         PropertyReader propertyReader = identityPropertyReaderCache.get(classInfo);
         if (propertyReader != null) {
             return propertyReader;
@@ -489,30 +479,27 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return propertyReader;
     }
 
-    @Override
-    public RelationalReader getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
+    public static RelationalReader getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(EndNode.CLASS) != null) {
                 return new FieldReader(relationshipEntityClassInfo, fieldInfo);
             }
         }
-        logger.warn("Failed to find an @EndNode on {}", relationshipEntityClassInfo);
+        LOGGER.warn("Failed to find an @EndNode on {}", relationshipEntityClassInfo);
         return null;
     }
 
-    @Override
-    public RelationalReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
+    public static RelationalReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(StartNode.CLASS) != null) {
                 return new FieldReader(relationshipEntityClassInfo, fieldInfo);
             }
         }
-        logger.warn("Failed to find an @StartNode on {}", relationshipEntityClassInfo);
+        LOGGER.warn("Failed to find an @StartNode on {}", relationshipEntityClassInfo);
         return null;
     }
 
-    @Override
-    public RelationalWriter getRelationalEntityWriter(ClassInfo classInfo, Class entityAnnotation) {
+    public static RelationalWriter getRelationalEntityWriter(ClassInfo classInfo, Class entityAnnotation) {
         if (entityAnnotation.getName() == null) {
             throw new RuntimeException(entityAnnotation.getSimpleName() + " is not defined on " + classInfo.name());
         }
@@ -552,7 +539,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         return null;
     }
 
-    private MethodInfo getIterableSetterMethodInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
+    private static MethodInfo getIterableSetterMethodInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
         List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType, relationshipType, relationshipDirection, strict);
         if (methodInfos.size() == 0) {
             if(!strict) {
@@ -581,14 +568,14 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
 
         if (methodInfos.size() > 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching setter found.",
+            LOGGER.warn("Cannot map iterable of {} to instance of {}. More than one potential matching setter found.",
                     parameterType, classInfo.name());
         }
 
         return null;
     }
 
-    private MethodInfo getIterableGetterMethodInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
+    private static MethodInfo getIterableGetterMethodInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
         List<MethodInfo> methodInfos = classInfo.findIterableGetters(parameterType, relationshipType, relationshipDirection, strict);
         if(methodInfos.size() == 0) {
             if(!strict) {
@@ -616,13 +603,13 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
 
         if (methodInfos.size() > 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
+            LOGGER.warn("Cannot map iterable of {} to instance of {}.  More than one potential matching getter found.",
                     parameterType, classInfo.name());
         }
         return null;
     }
 
-    private FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
+    private static FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
         List<FieldInfo> fieldInfos = classInfo.findIterableFields(parameterType, relationshipType, relationshipDirection, strict);
         if(fieldInfos.size() == 0) {
             if(!strict) {
@@ -650,14 +637,14 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         }
 
         if (fieldInfos.size() > 0) {
-            logger.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
+            LOGGER.warn("Cannot map iterable of {} to instance of {}. More than one potential matching field found.",
                     parameterType, classInfo.name());
         }
 
         return null;
     }
 
-    private void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo, FieldWriter fieldWriter) {
+    private static void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo, FieldWriter fieldWriter) {
         if(fieldInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param
             directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, ClassUtils.getType(fieldInfo.getTypeParameterDescriptor()));
@@ -665,7 +652,7 @@ public class DefaultEntityAccessStrategy implements EntityAccessStrategy {
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldWriter);
     }
 
-    private void cacheIterableMethodWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, MethodInfo methodInfo, MethodWriter methodWriter) {
+    private static void cacheIterableMethodWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, MethodInfo methodInfo, MethodWriter methodWriter) {
         if(methodInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param
             directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, ClassUtils.getType(methodInfo.getTypeParameterDescriptor()));

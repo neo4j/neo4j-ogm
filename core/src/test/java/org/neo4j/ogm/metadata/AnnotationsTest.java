@@ -33,4 +33,29 @@ public class AnnotationsTest {
         assertEquals("org.neo4j.ogm.domain.annotations.OtherNode", metaData.classInfo("OtherNode").name());
 
     }
+
+    @Test
+    public void shouldReadIndexAnnotationElement() {
+
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
+        ClassInfo classInfo = metaData.classInfo("IndexedEntity");
+
+        FieldInfo fieldInfo = classInfo.propertyField("ref");
+        AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get("org.neo4j.ogm.domain.annotations.IndexedEntity$Indexed");
+
+        // string-y types
+        assertEquals("97", annotationInfo.get("b", ""));
+        assertEquals("1", annotationInfo.get("c", ""));
+        assertEquals("t", annotationInfo.get("t", ""));
+        // numeric types
+        assertEquals("0.01", annotationInfo.get("d", "0.0d"));
+        assertEquals("0.02", annotationInfo.get("f", "0.0f"));
+        assertEquals("3", annotationInfo.get("s", "0"));
+        assertEquals("5", annotationInfo.get("i", "0"));
+        assertEquals("6", annotationInfo.get("j", "0"));
+        // boolean
+        assertEquals("true", annotationInfo.get("z", "false"));
+    }
+
+
 }

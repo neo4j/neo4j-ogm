@@ -25,7 +25,7 @@ import org.neo4j.ogm.service.Components;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class SessionFactory implements SessionFactoryProvider {
+public class SessionFactory {
 
     private final MetaData metaData;
 
@@ -53,7 +53,8 @@ public class SessionFactory implements SessionFactoryProvider {
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
      * </p>
      *
-     * @param packages The packages to scan for domain objects
+     * @param configuration The configuration to use
+     * @param packages      The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
         Components.configure(configuration);
@@ -80,4 +81,6 @@ public class SessionFactory implements SessionFactoryProvider {
         return new Neo4jSession(metaData, Components.driver());
     }
 
+    public void close() {
+    }
 }

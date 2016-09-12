@@ -23,8 +23,8 @@ import java.lang.annotation.*;
 @Inherited
 public @interface NumberString {
 
-    static final String CLASS = "org.neo4j.ogm.annotation.typeconversion.NumberString";
-    static final String TYPE = "value";
+    String CLASS = "org.neo4j.ogm.annotation.typeconversion.NumberString";
+    String TYPE = "value";
 
     Class<? extends Number> value();
 }

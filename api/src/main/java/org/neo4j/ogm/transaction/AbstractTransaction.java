@@ -41,6 +41,7 @@ public abstract class AbstractTransaction implements Transaction {
      */
     protected final AtomicLong extendsCount = new AtomicLong();
 
+
     /* Objects which are newly persisted into the graph should be registered on the transaction.
      * In the event that a rollback occurs, these objects will have been assigned an id from the database
      * but will be deleted from the graph, so we can reset their ids to null, in order to allow
@@ -48,6 +49,7 @@ public abstract class AbstractTransaction implements Transaction {
     private List<Object> registeredNew = new ArrayList<>();
 
     private Transaction.Status status = Transaction.Status.OPEN;
+    protected Transaction.Type type = Type.READ_WRITE;
 
     public AbstractTransaction(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
@@ -101,13 +103,25 @@ public abstract class AbstractTransaction implements Transaction {
     /**
      * Extends the current transaction.
      */
-    public void extend() {
-        long extensions = extendsCount.incrementAndGet();
-        logger.debug("Thread {}: Transaction extended: {}", Thread.currentThread().getId(), extensions);
+    public void extend(Type type) {
+        if (this.type == type) {
+            long extensions = extendsCount.incrementAndGet();
+            logger.debug("Thread {}: Transaction extended: {}", Thread.currentThread().getId(), extensions);
+        } else {
+            throw new TransactionException("Incompatible transaction type specified: must be '" + this.type + "'");
+        }
     }
 
     public final Status status() {
         return status;
+    }
+
+    public boolean isReadOnly() {
+        return type == Type.READ_ONLY;
+    }
+
+    public Type type() {
+        return type;
     }
 
     public void close()

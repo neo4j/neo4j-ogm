@@ -11,17 +11,36 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.domain.annotations;
+
+import java.lang.annotation.*;
 
 /**
- * Simple interface through which a particular property of a given object can be set.
- *
- * @author Adam George
+ * @author vince
  */
-public interface PropertyWriter {
+public class IndexedEntity {
 
-    void write(Object instance, Object valueToSet);
+    Long id;
 
-    Class<?> type();
+    @Indexed(b = 'a', c = 1, d = 0.01d, f = 0.02f, i = 5, j = 6, s = 3, t = "t", z = true)
+    String ref;
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD, ElementType.METHOD})
+    @Inherited
+    public @interface Indexed {
+        byte b();
+        char c();
+        double d();
+        float f();
+        int i();
+        long j();
+        short s();
+        String t();
+        boolean z();
+
+    }
 
 }
+
+

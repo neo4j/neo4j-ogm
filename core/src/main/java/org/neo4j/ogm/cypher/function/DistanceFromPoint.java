@@ -11,17 +11,17 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.cypher;
+package org.neo4j.ogm.cypher.function;
 
-public class DistanceComparison {
+public class DistanceFromPoint {
 
 	private double latitude;
 	private double longitude;
 	private double distance;
 
-	public DistanceComparison(Double latitude, Double longitute, Double distance) {
+	public DistanceFromPoint(Double latitude, Double longitude, Double distance) {
 		this.latitude = latitude;
-		this.longitude = longitute;
+		this.longitude = longitude;
 		this.distance = distance;
 	}
 

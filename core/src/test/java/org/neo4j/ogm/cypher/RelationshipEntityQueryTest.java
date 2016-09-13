@@ -113,7 +113,7 @@ public class RelationshipEntityQueryTest {
         Filter planetFilter = new Filter();
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
-        planetFilter.setValue("Earth");
+        planetFilter.setPropertyValue("Earth");
         planetFilter.setPropertyName("name");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("OUTGOING");
@@ -130,7 +130,7 @@ public class RelationshipEntityQueryTest {
         Filter planetFilter = new Filter();
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
-        planetFilter.setValue("Earth");
+        planetFilter.setPropertyValue("Earth");
         planetFilter.setPropertyName("name");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("INCOMING");
@@ -147,7 +147,7 @@ public class RelationshipEntityQueryTest {
         Filter planetNameFilter = new Filter();
         planetNameFilter.setNestedPropertyName("world");
         planetNameFilter.setNestedEntityTypeLabel("Planet");
-        planetNameFilter.setValue("Earth");
+        planetNameFilter.setPropertyValue("Earth");
         planetNameFilter.setPropertyName("name");
         planetNameFilter.setRelationshipType("ORBITS");
         planetNameFilter.setRelationshipDirection("OUTGOING");
@@ -156,7 +156,7 @@ public class RelationshipEntityQueryTest {
         Filter planetMoonsFilter = new Filter();
         planetMoonsFilter.setNestedPropertyName("moons");
         planetMoonsFilter.setNestedEntityTypeLabel("Planet");
-        planetMoonsFilter.setValue("Earth");
+        planetMoonsFilter.setPropertyValue("Earth");
         planetMoonsFilter.setPropertyName("moons");
         planetMoonsFilter.setRelationshipType("ORBITS");
         planetMoonsFilter.setRelationshipDirection("OUTGOING");
@@ -176,7 +176,7 @@ public class RelationshipEntityQueryTest {
         Filter moonFilter = new Filter();
         moonFilter.setNestedPropertyName("world");
         moonFilter.setNestedEntityTypeLabel("Moon");
-        moonFilter.setValue("Earth");
+        moonFilter.setPropertyValue("Earth");
         moonFilter.setPropertyName("name");
         moonFilter.setRelationshipType("ORBITS");
         moonFilter.setRelationshipDirection("OUTGOING");
@@ -185,7 +185,7 @@ public class RelationshipEntityQueryTest {
         Filter planetFilter = new Filter();
         planetFilter.setNestedPropertyName("colour");
         planetFilter.setNestedEntityTypeLabel("Planet");
-        planetFilter.setValue("Red");
+        planetFilter.setPropertyValue("Red");
         planetFilter.setPropertyName("colour");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("INCOMING");
@@ -253,7 +253,7 @@ public class RelationshipEntityQueryTest {
         Filter planetFilter = new Filter();
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
-        planetFilter.setValue("Earth");
+        planetFilter.setPropertyValue("Earth");
         planetFilter.setPropertyName("name");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("OUTGOING");
@@ -273,7 +273,7 @@ public class RelationshipEntityQueryTest {
         Filter planetFilter = new Filter();
         planetFilter.setNestedPropertyName("world");
         planetFilter.setNestedEntityTypeLabel("Planet");
-        planetFilter.setValue("Earth");
+        planetFilter.setPropertyValue("Earth");
         planetFilter.setPropertyName("name");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("INCOMING");
@@ -292,7 +292,7 @@ public class RelationshipEntityQueryTest {
         Filter moonFilter = new Filter();
         moonFilter.setNestedPropertyName("world");
         moonFilter.setNestedEntityTypeLabel("Moon");
-        moonFilter.setValue("Earth");
+        moonFilter.setPropertyValue("Earth");
         moonFilter.setPropertyName("name");
         moonFilter.setRelationshipType("ORBITS");
         moonFilter.setRelationshipDirection("OUTGOING");
@@ -301,7 +301,7 @@ public class RelationshipEntityQueryTest {
         Filter planetFilter = new Filter();
         planetFilter.setNestedPropertyName("colour");
         planetFilter.setNestedEntityTypeLabel("Planet");
-        planetFilter.setValue("Red");
+        planetFilter.setPropertyValue("Red");
         planetFilter.setPropertyName("colour");
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("INCOMING");
@@ -334,7 +334,7 @@ public class RelationshipEntityQueryTest {
         Filter planetNameFilter = new Filter();
         planetNameFilter.setNestedPropertyName("world");
         planetNameFilter.setNestedEntityTypeLabel("Planet");
-        planetNameFilter.setValue("Earth");
+        planetNameFilter.setPropertyValue("Earth");
         planetNameFilter.setPropertyName("name");
         planetNameFilter.setRelationshipType("ORBITS");
         planetNameFilter.setRelationshipDirection("OUTGOING");
@@ -343,7 +343,7 @@ public class RelationshipEntityQueryTest {
         Filter planetMoonsFilter = new Filter();
         planetMoonsFilter.setNestedPropertyName("moons");
         planetMoonsFilter.setNestedEntityTypeLabel("Planet");
-        planetMoonsFilter.setValue("Earth");
+        planetMoonsFilter.setPropertyValue("Earth");
         planetMoonsFilter.setPropertyName("moons");
         planetMoonsFilter.setRelationshipType("ORBITS");
         planetMoonsFilter.setRelationshipDirection("OUTGOING");

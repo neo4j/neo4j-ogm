@@ -14,6 +14,9 @@
 package org.neo4j.ogm.cypher;
 
 import org.junit.Test;
+import org.neo4j.ogm.cypher.function.DistanceComparison;
+import org.neo4j.ogm.cypher.function.DistanceFromPoint;
+import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
@@ -54,8 +57,8 @@ public class NodeEntityQueryTest {
 
 	@Test
 	public void testFindByDistance() {
-		Filters filters = new Filters().add(FilterFunction.DISTANCE,
-				new DistanceComparison(37.4d, 112.9d, 1000.0d));
+		FilterFunction function = new DistanceComparison(new DistanceFromPoint(37.4d, 112.9d, 1000.0d));
+		Filters filters = new Filters().add(function);
 		String statement = queryStatements.findByProperties("Restaurant",
 				filters, 4).getStatement();
 		assertEquals("MATCH (n:`Restaurant`) WHERE distance(point(n),point({latitude:{lat}, longitude:{lon}})) = {distance} WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)", statement);
@@ -290,7 +293,7 @@ public class NodeEntityQueryTest {
 	public void testFindByNestedPropertyOutgoing() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -306,7 +309,7 @@ public class NodeEntityQueryTest {
 	public void testFindByNestedPropertyIncoming() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -322,7 +325,7 @@ public class NodeEntityQueryTest {
 	public void testFindByNestedPropertyUndirected() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -341,7 +344,7 @@ public class NodeEntityQueryTest {
 
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setBooleanOperator(BooleanOperator.AND);
 		planetParam.setNestedPropertyName("collidesWith");
@@ -361,7 +364,7 @@ public class NodeEntityQueryTest {
 
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setBooleanOperator(BooleanOperator.AND);
 		planetParam.setNestedPropertyName("collidesWith");
@@ -382,7 +385,7 @@ public class NodeEntityQueryTest {
 
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setBooleanOperator(BooleanOperator.OR);
 		planetParam.setNestedPropertyName("collidesWith");
@@ -403,7 +406,7 @@ public class NodeEntityQueryTest {
 
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setBooleanOperator(BooleanOperator.OR);
 		planetParam.setNestedPropertyName("collidesWith");
@@ -421,7 +424,7 @@ public class NodeEntityQueryTest {
 	public void testFindByNestedREProperty() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("totalDestructionProbability");
-		planetParam.setValue("20");
+		planetParam.setPropertyValue("20");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collision");
 		planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
@@ -440,7 +443,7 @@ public class NodeEntityQueryTest {
 	public void testFindByNestedBaseAndREProperty() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("totalDestructionProbability");
-		planetParam.setValue("20");
+		planetParam.setPropertyValue("20");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collision");
 		planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
@@ -451,7 +454,7 @@ public class NodeEntityQueryTest {
 
 		Filter moonParam = new Filter();
 		moonParam.setPropertyName("name");
-		moonParam.setValue("Moon");
+		moonParam.setPropertyValue("Moon");
 		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		moonParam.setNestedPropertyName("moon");
 		moonParam.setNestedEntityTypeLabel("Moon");
@@ -473,7 +476,7 @@ public class NodeEntityQueryTest {
 	public void testFindByDifferentNestedPropertiesAnded() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -482,7 +485,7 @@ public class NodeEntityQueryTest {
 
 		Filter moonParam = new Filter();
 		moonParam.setPropertyName("name");
-		moonParam.setValue("Moon");
+		moonParam.setPropertyValue("Moon");
 		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		moonParam.setNestedPropertyName("moon");
 		moonParam.setNestedEntityTypeLabel("Moon");
@@ -504,7 +507,7 @@ public class NodeEntityQueryTest {
 	public void testFindByDifferentNestedPropertiesOred() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -513,7 +516,7 @@ public class NodeEntityQueryTest {
 
 		Filter moonParam = new Filter();
 		moonParam.setPropertyName("name");
-		moonParam.setValue("Moon");
+		moonParam.setPropertyValue("Moon");
 		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		moonParam.setNestedPropertyName("moon");
 		moonParam.setNestedEntityTypeLabel("Moon");
@@ -530,7 +533,7 @@ public class NodeEntityQueryTest {
 	public void testFindByMultipleNestedPropertiesAnded() {
 		Filter planetParam = new Filter();
 		planetParam.setPropertyName("name");
-		planetParam.setValue("Earth");
+		planetParam.setPropertyValue("Earth");
 		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -539,7 +542,7 @@ public class NodeEntityQueryTest {
 
 		Filter moonParam = new Filter();
 		moonParam.setPropertyName("size");
-		moonParam.setValue("5");
+		moonParam.setPropertyValue("5");
 		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
 		moonParam.setNestedPropertyName("collidesWith");
 		moonParam.setNestedEntityTypeLabel("Planet");

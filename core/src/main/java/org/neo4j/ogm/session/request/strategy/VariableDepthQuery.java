@@ -17,6 +17,8 @@ import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.*;
+import org.neo4j.ogm.cypher.function.DistanceFromPoint;
+import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
@@ -173,19 +175,12 @@ public class VariableDepthQuery implements QueryStatements {
 	 * @param query the query
 	 * @param properties property map containing the parameter name and value to bind to the query
 	 */
-	private static void appendFilter(Filter filter, String nodeIdentifier, StringBuilder query, Map<String, Object> properties) {
+	private static void appendFilter(Filter filter, String nodeIdentifier, StringBuilder query,
+                                     Map<String, Object> properties) {
+
 		query.append(filter.toCypher(nodeIdentifier, query.indexOf(" WHERE ") == -1));
-		switch (filter.getFunction()) {
-			case DISTANCE:
-				DistanceComparison comparison = (DistanceComparison) filter.getValue();
-				properties.put("lat", comparison.getLatitude());
-				properties.put("lon", comparison.getLongitude());
-				properties.put("distance", comparison.getDistance());
-				break;
-			default:
-				properties.put(filter.uniquePropertyName(), filter.getTransformedPropertyValue());
-				break;
-		}
+        FilterFunction function = filter.getFunction();
+        properties.putAll(function.cypherProperties(filter));
 	}
 
     private static StringBuilder buildQuery(Map<String, StringBuilder> matchClauses, List<StringBuilder> relationshipClauses) {

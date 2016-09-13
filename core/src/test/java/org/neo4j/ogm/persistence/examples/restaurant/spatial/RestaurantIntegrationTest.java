@@ -22,10 +22,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
-import org.neo4j.ogm.cypher.DistanceComparison;
+import org.neo4j.ogm.cypher.function.DistanceComparison;
+import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.FilterFunction;
-import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.session.Session;
@@ -84,7 +84,8 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         session.save(restaurant);
         session.clear();
 
-        Filter filter = new Filter(FilterFunction.DISTANCE, new DistanceComparison(37.61649, -122.38681, 1000 * 1000.0));
+        FilterFunction function = new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0));
+        Filter filter = new Filter(function);
         filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
         Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
         Assert.assertNotNull(found);

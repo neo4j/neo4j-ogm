@@ -11,9 +11,20 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.cypher;
+package org.neo4j.ogm.cypher.function;
 
-public enum FilterFunction {
-	NONE,
-	DISTANCE
+import org.neo4j.ogm.cypher.Filter;
+
+import java.util.Map;
+
+public interface FilterFunction<T> {
+
+    T getValue();
+
+    void setValue(T value);
+
+    String cypherFragment(Filter filter, String nodeIdentifier);
+
+    Map<String, Object> cypherProperties(Filter filter);
+
 }

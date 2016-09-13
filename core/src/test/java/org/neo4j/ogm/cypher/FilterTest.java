@@ -16,6 +16,9 @@ package org.neo4j.ogm.cypher;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.neo4j.ogm.cypher.function.DistanceComparison;
+import org.neo4j.ogm.cypher.function.DistanceFromPoint;
+import org.neo4j.ogm.cypher.function.FilterFunction;
 
 
 public class FilterTest {
@@ -30,20 +33,13 @@ public class FilterTest {
 
 	@Test
 	public void toCypher_function() {
-		Filter filter = new Filter(FilterFunction.DISTANCE, new DistanceComparison(37.4, 112.1, 1000.0));
+		FilterFunction function = new DistanceComparison(new DistanceFromPoint(37.4, 112.1, 1000.0));
+		Filter filter = new Filter(function);
 		filter.setBooleanOperator(BooleanOperator.AND);
 		filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		filter.setNegated(true);
 		assertEquals("WHERE NOT(distance(point(n),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ", filter.toCypher("n", true));
 	}
 
-	@Test
-	public void setValue_shouldThrowIllegalArgumentExceptionForInvalidDistanceType() {
-		try {
-			new Filter(FilterFunction.DISTANCE, 23);
-			fail("Should have thrown exception");
-		} catch (IllegalArgumentException e) {
-			assertEquals("Filter function is DISTANCE therefore value must be a type of DistanceComparison", e.getMessage());
-		}
-	}
+
 }

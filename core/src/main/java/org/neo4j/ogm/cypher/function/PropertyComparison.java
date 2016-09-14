@@ -22,9 +22,14 @@ import java.util.Map;
 public class PropertyComparison implements FilterFunction<Object> {
 
     private Object value;
+    private Filter filter;
 
-    public PropertyComparison(Object value) {
+    public PropertyComparison() {
+    }
+
+    public PropertyComparison(Object value, Filter filter) {
         this.value = value;
+        this.filter = filter;
     }
 
     @Override
@@ -38,7 +43,17 @@ public class PropertyComparison implements FilterFunction<Object> {
     }
 
     @Override
-    public String cypherFragment(Filter filter, String nodeIdentifier) {
+    public Filter getFilter() {
+        return filter;
+    }
+
+    @Override
+    public void setFilter(Filter filter) {
+        this.filter = filter;
+    }
+
+    @Override
+    public String expression(String nodeIdentifier) {
         String uniquePropertyName = filter.isNested() ?
                 filter.getNestedPropertyName() + "_" + filter.getPropertyName() : filter.getPropertyName();
         return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
@@ -46,7 +61,7 @@ public class PropertyComparison implements FilterFunction<Object> {
     }
 
     @Override
-    public Map<String, Object> cypherProperties(Filter filter) {
+    public Map<String, Object> parameters() {
         Map<String, Object> map = new HashMap<>();
         map.put(filter.uniquePropertyName(), filter.getTransformedPropertyValue());
         return map;

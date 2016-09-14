@@ -16,6 +16,8 @@ package org.neo4j.ogm.cypher;
 import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 
+import java.util.Map;
+
 /**
  * A parameter along with filter information to be added to a query.
  *
@@ -89,16 +91,18 @@ public class Filter {
     private FilterFunction function;
 
     public Filter() {
-        this(new PropertyComparison(null));
+        this(new PropertyComparison());
     }
 
     public Filter(String propertyName, Object propertyValue) {
         this.propertyName = propertyName;
-        this.function = new PropertyComparison(propertyValue);
+        this.function = new PropertyComparison(propertyValue, this);
     }
 
     public Filter(FilterFunction function) {
+
         this.function = function;
+        this.function.setFilter(this);
     }
 
     public String getRelationshipDirection() {
@@ -257,10 +261,12 @@ public class Filter {
      * @return The filter state as a CYPHER fragment.
      */
     public String toCypher(String nodeIdentifier, boolean addWhereClause) {
-        String fragment = this.function.cypherFragment(this, nodeIdentifier);
+        String fragment = this.function.expression(nodeIdentifier);
         String suffix = isNegated() ? negate(fragment) : fragment;
         return cypherPrefix(addWhereClause) + suffix;
     }
+
+    public Map<String, Object> parameters() { return function.parameters(); }
 
     public String uniquePropertyName() {
         String uniquePropertyName = getPropertyName();

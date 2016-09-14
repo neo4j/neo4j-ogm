@@ -19,12 +19,16 @@ import java.util.Map;
 
 public interface FilterFunction<T> {
 
+    Filter getFilter();
+
+    void setFilter(Filter filter);
+
     T getValue();
 
     void setValue(T value);
 
-    String cypherFragment(Filter filter, String nodeIdentifier);
+    String expression(String nodeIdentifier);
 
-    Map<String, Object> cypherProperties(Filter filter);
+    Map<String, Object> parameters();
 
 }

@@ -22,15 +22,20 @@ import java.util.Map;
 public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
     private DistanceFromPoint value;
+    private Filter filter;
 
     public DistanceComparison(DistanceFromPoint value) {
         this.value = value;
     }
 
     @Override
-    public String cypherFragment(Filter filter, String nodeIdentifier) {
-        return String.format("distance(point(%s),point({latitude:{lat}, longitude:{lon}})) " +
-                "%s {distance} ", nodeIdentifier, filter.getComparisonOperator().getValue());
+    public Filter getFilter() {
+        return filter;
+    }
+
+    @Override
+    public void setFilter(Filter filter) {
+        this.filter = filter;
     }
 
     @Override
@@ -44,11 +49,20 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
     }
 
     @Override
-    public Map<String, Object> cypherProperties(Filter filter) {
+    public String expression(String nodeIdentifier) {
+
+        return String.format("distance(point(%s),point({latitude:{lat}, longitude:{lon}})) " +
+                "%s {distance} ", nodeIdentifier, filter.getComparisonOperator().getValue());
+    }
+
+    @Override
+    public Map<String, Object> parameters() {
+
         Map<String, Object> map = new HashMap<>();
         map.put("lat", value.getLatitude());
         map.put("lon", value.getLongitude());
         map.put("distance", value.getDistance());
         return map;
     }
+
 }

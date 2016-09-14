@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.scanner;
 
+import org.neo4j.ogm.metadata.ClassFileProcessor;
+import org.neo4j.ogm.utils.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,11 +28,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
-import org.neo4j.ogm.utils.ClassUtils;
-import org.neo4j.ogm.metadata.ClassFileProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -76,7 +76,7 @@ public class ClassPathScanner {
                 try (InputStream inputStream = zipFile.getInputStream(entry) ) {
                     if (entry.getName().endsWith(".class")) {
                         scanClassFileEntry(inputStream, entry);
-                    } else if (entry.getName().endsWith(".jar") || entry.getName().endsWith(".zip")) {
+                    } else if (isArchive(entry.getName())) {
                         scanZippedEntry(inputStream, entry);
                     }
                 }
@@ -114,7 +114,7 @@ public class ClassPathScanner {
             if (!zipEntry.isDirectory()) {
                 if (zipEntry.getName().endsWith(".class")) {
                     scanClassFileEntry(zipInputStream, zipEntry);
-                } else if (zipEntry.getName().endsWith(".jar") || zipEntry.getName().endsWith(".zip")) {
+                } else if (isArchive(zipEntry.getName())) {
                     scanZippedEntry(zipInputStream, zipEntry);
                 }
             }
@@ -140,8 +140,7 @@ public class ClassPathScanner {
                 if (classPathElement.isDirectory()) {
                     scanFolder(classPathElement, path.length() + 1);
                 } else if (classPathElement.isFile()) {
-                    String pathLower = path.toLowerCase();
-                    if (pathLower.endsWith(".jar") || pathLower.endsWith(".zip")) {
+                    if (isArchive(path)) {
                         scanZipFile(new ZipFile(classPathElement));
                     } else {
                         scanFile(classPathElement, classPathElement.getName());
@@ -158,4 +157,8 @@ public class ClassPathScanner {
         return ClassUtils.getUniqueClasspathElements(classPaths);
     }
 
+    private boolean isArchive(String s) {
+        s = s.toLowerCase();
+        return (s.endsWith(".jar") || s.endsWith(".zip") || s.endsWith(".war"));
+    }
 }

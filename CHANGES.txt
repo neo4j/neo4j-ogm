@@ -1,5 +1,6 @@
 2.0.5-SNAPSHOT
 --------------
+o Support scanning web archives for domain classes. Fixes #211.
 o Support non-string annotation element types. Fixes #228
 o Correct rollback problem with RelationshipEntities. Fixes #351.
 o Support read-only transactions.

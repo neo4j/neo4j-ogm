@@ -16,13 +16,69 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-ogm</artifactId>
+        <version>2.0.5-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
 
-    <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-docs</artifactId>
-    <version>2.0.5-SNAPSHOT</version>
 
     <name>Neo4j OGM Documentation</name>
     <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-api</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-compiler</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-http-driver</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-embedded-driver</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-bolt-driver</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-core</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-test</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+    </dependencies>
 
     <!--
         See: https://github.com/asciidoctor/asciidoctor-maven-examples/blob/master/asciidoc-to-html-example/
@@ -57,6 +113,70 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependency-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>sources</classifier>
+                            <includeClassifiers>sources</includeClassifiers>
+                            <excludeTransitive>true</excludeTransitive>
+                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
+                            <excludes>META-INF,META-INF/**</excludes>
+                            <type>jar</type>
+                            <outputDirectory>${project.build.directory}/javadoc-sources</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>create-javadocs</id>
+                        <phase>package</phase>
+                        <goals><goal>javadoc</goal></goals>
+                        <configuration>
+                            <sourcepath>${project.build.directory}/javadoc-sources</sourcepath>
+                            <detectLinks>false</detectLinks>
+                            <header>Neo4j OGM</header>
+                            <doctitle>Neo4j OGM ${project.version} API</doctitle>
+                            <windowtitle>Neo4j OGM ${project.version} API</windowtitle>
+                            <show>public</show>
+                            <subpackages>org.neo4j.ogm</subpackages>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <attach>true</attach>
+                            <descriptors>
+                                <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

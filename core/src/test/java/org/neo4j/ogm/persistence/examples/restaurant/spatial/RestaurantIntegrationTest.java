@@ -84,8 +84,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         session.save(restaurant);
         session.clear();
 
-        FilterFunction function = new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0));
-        Filter filter = new Filter(function);
+        Filter filter = new Filter(new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0)));
         filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
         Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
         Assert.assertNotNull(found);

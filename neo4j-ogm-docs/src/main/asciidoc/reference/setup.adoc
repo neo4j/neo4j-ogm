@@ -302,16 +302,18 @@ trust.certificate.file=/tmp/cert
 
 TRUST_ON_FIRST_USE means that the Bolt Driver will trust the first connection to a host to be safe and intentional. On subsequent connections, the driver will verify that the host is the same as on that first connection.
 
-.ogm.properties (driver):
+.ogm.properties (http):
 [source, properties]
 ----
-trust.trategy = ACCEPT_UNSIGNED
+trust.strategy = ACCEPT_UNSIGNED
 ----
 
 The ACCEPT_UNSIGNED strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
 
-_Note: Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
-
+[NOTE]
+====
+Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
+====
 == Testing
 
 In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
@@ -368,7 +370,7 @@ If you want don't want to use the Embedded Driver to run your tests, it is still
 Just like the Embedded Driver, a TestServer exposes a GraphDatabaseService instance which you can use in your tests.
 You should always close the server when you're done with it.
 
-You'll first need to add the OGM test-jar dependency to your pom:
+You'll first need to add the OGM test dependency to your pom:
 
 [source, xml, subs="attributes, specialcharacters"]
 ----
@@ -376,7 +378,6 @@ You'll first need to add the OGM test-jar dependency to your pom:
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-test</artifactId>
     <version>{version}</version>
-    <type>test-jar</type>
     <scope>test</scope>
 </dependency>
 ----

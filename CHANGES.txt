@@ -1,4 +1,4 @@
-2.0.5-SNAPSHOT
+2.0.5
 --------------
 o Support scanning web archives for domain classes. Fixes #211.
 o Support non-string annotation element types. Fixes #228

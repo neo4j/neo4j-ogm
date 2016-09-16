@@ -18,7 +18,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 
 import static org.junit.Assert.assertNotNull;
 

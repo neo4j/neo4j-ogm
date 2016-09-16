@@ -18,7 +18,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
 

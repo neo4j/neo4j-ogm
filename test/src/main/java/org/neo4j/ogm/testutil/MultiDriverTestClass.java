@@ -20,7 +20,7 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 

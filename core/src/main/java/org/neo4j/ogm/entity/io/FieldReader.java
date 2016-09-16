@@ -18,6 +18,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.ObjectAnnotations;
 
+import java.util.Map;
+
 /**
  * @author Adam George
  * @author Luanne Misquitta
@@ -34,11 +36,30 @@ public class FieldReader implements RelationalReader, PropertyReader {
 
     @Override
     public Object read(Object instance) {
+        return FieldWriter.read(classInfo.getField(fieldInfo), instance);
+    }
+
+    @Override
+    public Object readProperty(Object instance) {
+        if (fieldInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "The readComposite method should be used for fields with a CompositeAttributeConverter");
+        }
         Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
-        if (fieldInfo.hasConverter()) {
-            value = fieldInfo.converter().toGraphProperty(value);
+        if (fieldInfo.hasPropertyConverter()) {
+            value = fieldInfo.getPropertyConverter().toGraphProperty(value);
         }
         return value;
+    }
+
+    @Override
+    public Map<String, ?> readComposite(Object instance) {
+        if (!fieldInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
+        }
+        Object value = FieldWriter.read(classInfo.getField(fieldInfo), instance);
+        return fieldInfo.getCompositeConverter().toGraphProperties(value);
     }
 
     @Override
@@ -52,11 +73,16 @@ public class FieldReader implements RelationalReader, PropertyReader {
     }
 
     @Override
+    public boolean isComposite() {
+        return fieldInfo.hasCompositeConverter();
+    }
+
+    @Override
     public String relationshipDirection() {
         ObjectAnnotations annotations = fieldInfo.getAnnotations();
-        if(annotations != null) {
+        if (annotations != null) {
             AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-            if(relationshipAnnotation != null) {
+            if (relationshipAnnotation != null) {
                 return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
             }
         }
@@ -65,6 +91,6 @@ public class FieldReader implements RelationalReader, PropertyReader {
 
     @Override
     public String typeParameterDescriptor() {
-       return fieldInfo.getTypeDescriptor();
+        return fieldInfo.getTypeDescriptor();
     }
 }

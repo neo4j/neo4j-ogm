@@ -98,7 +98,6 @@ public class Memo {
         return approved;
     }
 
-    @Convert(DateNumericStringConverter.class)
     public void setApproved(Date approved) {
         this.approved = approved;
     }

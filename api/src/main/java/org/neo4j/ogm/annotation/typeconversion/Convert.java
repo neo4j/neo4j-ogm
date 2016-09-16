@@ -37,7 +37,7 @@ public @interface Convert {
     /**
      * The type of {@link org.neo4j.ogm.typeconversion.AttributeConverter} implementation to use on this property.
      */
-    Class<? extends AttributeConverter<?, ?>> value() default Unset.class;
+    Class<?> value() default Unset.class;
 
     /**
      * The type to which the value of the annotated member should be converted before saving as a property in the graph

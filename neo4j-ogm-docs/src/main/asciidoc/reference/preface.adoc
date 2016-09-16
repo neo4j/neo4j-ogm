@@ -41,7 +41,7 @@ Please see the <<reference-setup>> for more details about how to configure the O
 
 Cypher is Neo4j's powerful query language.
 It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
-This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plugin the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
 
 
 [[reference-design-considerations]]

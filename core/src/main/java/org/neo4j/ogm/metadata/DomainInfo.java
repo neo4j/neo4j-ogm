@@ -354,7 +354,7 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void registerDefaultMethodConverters(ClassInfo classInfo, MethodInfo methodInfo) {
-        if (!methodInfo.hasConverter()) {
+        if (!methodInfo.hasPropertyConverter() && !methodInfo.hasCompositeConverter()) {
             if (methodInfo.getDescriptor().contains(dateSignature)
                     || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(dateSignature))) {
                 setDateMethodConverter(methodInfo);
@@ -365,9 +365,9 @@ public class DomainInfo implements ClassFileProcessor {
                     || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
                 setBigDecimalMethodConverter(methodInfo);
             } else if (methodInfo.getDescriptor().contains(byteArraySignature)) {
-                methodInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
+                methodInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
             } else if (methodInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
-                methodInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
+                methodInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
                 // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
                 // FIXME: this won't really work unless I infer the source and target types from the descriptor here
@@ -385,7 +385,7 @@ public class DomainInfo implements ClassFileProcessor {
                                 + " on " + classInfo.name() + '.' + methodInfo.getName()
                                 + " but no target graph property type or specific AttributeConverter have been specified.");
                     }
-                    methodInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+                    methodInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
                 Class descriptorClass = getDescriptorClass(methodInfo.getDescriptor());
@@ -414,54 +414,54 @@ public class DomainInfo implements ClassFileProcessor {
 
     private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
-            methodInfo.setConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
+            methodInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
         else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
-            methodInfo.setConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, methodInfo.getCollectionClassname()));
+            methodInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, methodInfo.getCollectionClassname()));
         }
         else {
-            methodInfo.setConverter(ConvertibleTypes.getEnumConverter(enumClass));
+            methodInfo.setPropertyConverter(ConvertibleTypes.getEnumConverter(enumClass));
         }
     }
 
     private void setBigDecimalMethodConverter(MethodInfo methodInfo) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
-            methodInfo.setConverter(ConvertibleTypes.getBigDecimalArrayConverter());
+            methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         }
         else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
-            methodInfo.setConverter(ConvertibleTypes.getBigDecimalCollectionConverter(methodInfo.getCollectionClassname()));
+            methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
-            methodInfo.setConverter(ConvertibleTypes.getBigDecimalConverter());
+            methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalConverter());
         }
     }
 
     private void setBigIntegerMethodConverter(MethodInfo methodInfo) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
-            methodInfo.setConverter(ConvertibleTypes.getBigIntegerArrayConverter());
+            methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         }
         else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
-            methodInfo.setConverter(ConvertibleTypes.getBigIntegerCollectionConverter(methodInfo.getCollectionClassname()));
+            methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
-            methodInfo.setConverter(ConvertibleTypes.getBigIntegerConverter());
+            methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerConverter());
         }
     }
 
     private void setDateMethodConverter(MethodInfo methodInfo) {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
-            methodInfo.setConverter(ConvertibleTypes.getDateArrayConverter());
+            methodInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         }
         else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
-            methodInfo.setConverter(ConvertibleTypes.getDateCollectionConverter(methodInfo.getCollectionClassname()));
+            methodInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
-            methodInfo.setConverter(ConvertibleTypes.getDateConverter());
+            methodInfo.setPropertyConverter(ConvertibleTypes.getDateConverter());
         }
     }
 
     private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {
-        if (!fieldInfo.hasConverter()) {
+        if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
             if (fieldInfo.getDescriptor().contains(dateSignature)
                     || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(dateSignature))) {
                 setDateFieldConverter(fieldInfo);
@@ -472,9 +472,9 @@ public class DomainInfo implements ClassFileProcessor {
                     || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
                 setBigDecimalConverter(fieldInfo);
             } else if (fieldInfo.getDescriptor().contains(byteArraySignature)) {
-                fieldInfo.setConverter(ConvertibleTypes.getByteArrayBase64Converter());
+                fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
             } else if (fieldInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
-                fieldInfo.setConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
+                fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
                 if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
@@ -485,7 +485,7 @@ public class DomainInfo implements ClassFileProcessor {
                                 + " on " + classInfo.name() + '.' + fieldInfo.getName()
                                 + " but no target graph property type or specific AttributeConverter have been specified.");
                     }
-                    fieldInfo.setConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
+                    fieldInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
                 Class descriptorClass = getDescriptorClass(fieldInfo.getDescriptor());
@@ -514,49 +514,49 @@ public class DomainInfo implements ClassFileProcessor {
 
     private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
-            fieldInfo.setConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
         else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
-            fieldInfo.setConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
         }
         else {
-            fieldInfo.setConverter(ConvertibleTypes.getEnumConverter(enumClass));
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumConverter(enumClass));
         }
     }
 
     private void setBigDecimalConverter(FieldInfo fieldInfo) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
-            fieldInfo.setConverter(ConvertibleTypes.getBigDecimalArrayConverter());
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         }
         else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
-            fieldInfo.setConverter(ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
-            fieldInfo.setConverter(ConvertibleTypes.getBigDecimalConverter());
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalConverter());
         }
     }
 
     private void setBigIntegerFieldConverter(FieldInfo fieldInfo) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
-            fieldInfo.setConverter(ConvertibleTypes.getBigIntegerArrayConverter());
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         }
         else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
-            fieldInfo.setConverter(ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
-            fieldInfo.setConverter(ConvertibleTypes.getBigIntegerConverter());
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerConverter());
         }
     }
 
     private void setDateFieldConverter(FieldInfo fieldInfo) {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
-            fieldInfo.setConverter(ConvertibleTypes.getDateArrayConverter());
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         }
         else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
-            fieldInfo.setConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
-            fieldInfo.setConverter(ConvertibleTypes.getDateConverter());
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getDateConverter());
         }
     }
 

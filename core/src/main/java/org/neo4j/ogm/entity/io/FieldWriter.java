@@ -12,7 +12,6 @@
 package org.neo4j.ogm.entity.io;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -57,14 +56,14 @@ public class FieldWriter extends EntityAccess {
     @Override
     public void write(Object instance, Object value) {
 
-        if (fieldInfo.hasConverter()) {
-            value = fieldInfo.converter().toEntityAttribute(value);
+        if (fieldInfo.hasPropertyConverter()) {
+            value = fieldInfo.getPropertyConverter().toEntityAttribute(value);
             FieldWriter.write(field, instance, value);
         }
-
         else {
             if (fieldInfo.isScalar()) {
-                String descriptor = fieldInfo.getTypeParameterDescriptor() == null ? fieldInfo.getDescriptor() : fieldInfo.getTypeParameterDescriptor();
+                String descriptor = fieldInfo.getTypeParameterDescriptor() == null ? fieldInfo.getDescriptor()
+                        : fieldInfo.getTypeParameterDescriptor();
                 value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
             }
             FieldWriter.write(field, instance, value);
@@ -73,16 +72,9 @@ public class FieldWriter extends EntityAccess {
 
     @Override
     public Class<?> type() {
-        if (fieldInfo.hasConverter()) {
-            try {
-                for(Method method : fieldInfo.converter().getClass().getDeclaredMethods()) {
-                    if(method.getName().equals("toGraphProperty") && !method.isSynthetic()) { //we don't want the method on the AttributeConverter interface
-                        return method.getReturnType();
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        Class convertedType = fieldInfo.convertedType();
+        if (convertedType != null) {
+            return convertedType;
         }
         return fieldType;
     }

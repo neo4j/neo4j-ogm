@@ -122,8 +122,8 @@ public class EntityGraphMapper implements EntityMapper {
                 ClassInfo targetInfo = metaData.classInfo(endNode);
                 ClassInfo startInfo = metaData.classInfo(startNode);
 
-                Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).read(startNode);
-                Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).read(endNode);
+                Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).readProperty(startNode);
+                Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).readProperty(endNode);
 
                 RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
 
@@ -235,6 +235,7 @@ public class EntityGraphMapper implements EntityMapper {
         return nodeBuilder;
     }
 
+
     /**
      * Creates a new node or updates an existing one in the graph, if it has changed.
      *
@@ -243,16 +244,18 @@ public class EntityGraphMapper implements EntityMapper {
      * @param nodeBuilder a {@link NodeBuilder} that knows how to compile node create/update cypher phrases
      */
     private void updateNode(Object entity, CompileContext context, NodeBuilder nodeBuilder) {
-
         // fire pre-save event here
-
         if (mappingContext.isDirty(entity)) {
             logger.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
-            for (PropertyReader propertyReader : EntityAccessManager.getPropertyReaders(classInfo)) {
-                Object value = propertyReader.read(entity);
-                nodeBuilder.addProperty(propertyReader.propertyName(), value);
+            Collection<PropertyReader> propertyReaders = EntityAccessManager.getPropertyReaders(classInfo);
+            for (PropertyReader propertyReader : propertyReaders) {
+                if (propertyReader.isComposite()) {
+                    nodeBuilder.addProperties(propertyReader.readComposite(entity));
+                } else {
+                    nodeBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(entity));
+                }
             }
         } else {
             context.deregister(nodeBuilder);
@@ -284,7 +287,7 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         CompileContext context = compiler.context();
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         NodeBuilder nodeBuilder;
@@ -340,7 +343,7 @@ public class EntityGraphMapper implements EntityMapper {
             DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
 
             CompileContext context = compiler.context();
-            Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(srcInfo).read(entity);
+            Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(srcInfo).readProperty(entity);
 
             if (srcIdentity != null) {
                 boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
@@ -483,7 +486,7 @@ public class EntityGraphMapper implements EntityMapper {
         RelationshipBuilder relationshipBuilder;
 
         if (isRelationshipEntity(entity)) {
-            Long relId = (Long) EntityAccessManager.getIdentityPropertyReader(metaData.classInfo(entity)).read(entity);
+            Long relId = (Long) EntityAccessManager.getIdentityPropertyReader(metaData.classInfo(entity)).readProperty(entity);
 
             boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
 
@@ -525,8 +528,8 @@ public class EntityGraphMapper implements EntityMapper {
         }
         ClassInfo targetInfo = metaData.classInfo(targetEntity);
         ClassInfo startInfo = metaData.classInfo(startEntity);
-        Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).read(targetEntity);
-        Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).read(startEntity);
+        Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).readProperty(targetEntity);
+        Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).readProperty(startEntity);
 
         boolean relationshipEndsChanged = false;
 
@@ -565,8 +568,8 @@ public class EntityGraphMapper implements EntityMapper {
         ClassInfo targetInfo = metaData.classInfo(targetEntity);
         ClassInfo startInfo = metaData.classInfo(startEntity);
 
-        Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).read(targetEntity);
-        Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).read(startEntity);
+        Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).readProperty(targetEntity);
+        Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).readProperty(startEntity);
 
 
         // create or update the relationship mapping register between the start and end nodes. Note, this
@@ -634,12 +637,12 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         // if the RE is new, register it in the context so that we can set its ID correctly when it is created,
-        if (EntityAccessManager.getIdentityPropertyReader(relEntityClassInfo).read(relationshipEntity) == null) {
+        if (EntityAccessManager.getIdentityPropertyReader(relEntityClassInfo).readProperty(relationshipEntity) == null) {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 
         for (PropertyReader propertyReader : EntityAccessManager.getPropertyReaders(relEntityClassInfo)) {
-            relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.read(relationshipEntity));
+            relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
         }
     }
 
@@ -723,7 +726,7 @@ public class EntityGraphMapper implements EntityMapper {
         // tgtNodeBuilder will be null if tgtObject is a transient class, or a subclass of a transient class
         if (tgtNodeBuilder != null) {
             logger.debug("trying to map relationship between {} and {}", relNodes.source, relNodes.target);
-            Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(metaData.classInfo(relNodes.target)).read(relNodes.target);
+            Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(metaData.classInfo(relNodes.target)).readProperty(relNodes.target);
             CompileContext context = compiler.context();
             relNodes.targetId = tgtIdentity;
             updateRelationship(context, srcNodeBuilder, tgtNodeBuilder, relationshipBuilder, relNodes);

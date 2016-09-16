@@ -48,7 +48,7 @@ public class ObjectAnnotations {
         return annotations.isEmpty();
     }
 
-    AttributeConverter<?, ?> getConverter() {
+    Object getConverter() {
 
         // try to get a custom type converter
         AnnotationInfo customType = get(Convert.CLASS);
@@ -61,7 +61,7 @@ public class ObjectAnnotations {
             try {
                 String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
                 Class<?> clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
-                return (AttributeConverter<?, ?>) clazz.newInstance();
+                return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

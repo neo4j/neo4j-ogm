@@ -13,6 +13,7 @@
 package org.neo4j.ogm.persistence.types.convertible;
 
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
@@ -45,6 +46,11 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
     @BeforeClass
     public static void init() throws IOException {
         session = new SessionFactory("org.neo4j.ogm.domain.convertible").openSession();
+    }
+
+    @After
+    public void teardown() {
+        session.purgeDatabase();
     }
 
     /**
@@ -137,6 +143,8 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertEquals(date100000.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
 
     }
+
+
 
     /**
      * @see DATAGRAPH-550

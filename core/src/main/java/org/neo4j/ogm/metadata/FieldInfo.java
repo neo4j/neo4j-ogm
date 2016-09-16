@@ -14,6 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -21,6 +22,7 @@ import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 /**
@@ -36,7 +38,16 @@ public class FieldInfo {
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
 
-    private AttributeConverter<?, ?> converter;
+    /**
+     * The associated attribute converter for this field, if applicable, otherwise null.
+     */
+    private AttributeConverter<?, ?> propertyConverter;
+
+    /**
+     * The associated composite attribute converter for this field, if applicable, otherwise null.
+     */
+    private CompositeAttributeConverter<?> compositeConverter;
+
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -49,11 +60,22 @@ public class FieldInfo {
      */
     public FieldInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.name = name;
+
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
         if (!this.annotations.isEmpty()) {
-            setConverter(getAnnotations().getConverter());
+            Object converter = getAnnotations().getConverter();
+            if (converter instanceof AttributeConverter) {
+                setPropertyConverter((AttributeConverter<?, ?>) converter);
+            } else if (converter instanceof CompositeAttributeConverter) {
+                setCompositeConverter((CompositeAttributeConverter<?>) converter);
+            } else if (converter != null) {
+                throw new IllegalStateException(String.format(
+                        "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
+                        this.name));
+            }
+
         }
     }
 
@@ -114,28 +136,40 @@ public class FieldInfo {
     }
 
     public boolean isSimple() {
-        return primitives.contains(descriptor)
-                || converter != null
+        boolean simple = primitives.contains(descriptor)
+                || propertyConverter != null
+                || compositeConverter != null
                 || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
+        return simple;
     }
 
-    public AttributeConverter converter() {
-        return converter;
+    public AttributeConverter getPropertyConverter() {
+        return propertyConverter;
     }
 
-    void setConverter(AttributeConverter<?, ?> converter) {
-        if (this.converter == null && converter != null) {
-            this.converter = converter;
+    void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && propertyConverter != null) {
+            this.propertyConverter = propertyConverter;
         } // we maybe set an annotated converter when object was constructed, so don't override with a default one
     }
 
-    public boolean hasConverter() {
-        return converter != null;
+    public boolean hasPropertyConverter() {
+        return propertyConverter != null;
     }
 
-    private AttributeConverter<?, ?> getAnnotatedTypeConverter() {
-        return getAnnotations().getConverter();
+    public CompositeAttributeConverter getCompositeConverter() {
+        return compositeConverter;
+    }
+
+    public void setCompositeConverter(CompositeAttributeConverter<?> converter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && converter != null) {
+            this.compositeConverter = converter;
+        }
+    }
+
+    public boolean hasCompositeConverter() {
+        return compositeConverter != null;
     }
 
     public String relationshipDirection(String defaultDirection) {
@@ -260,4 +294,25 @@ public class FieldInfo {
         }
         return typeParameterDescriptor;
     }
+
+    public Class convertedType() {
+        if (hasPropertyConverter() || hasCompositeConverter()) {
+            Class converterClass = hasPropertyConverter() ?
+                    getPropertyConverter().getClass() : getCompositeConverter().getClass();
+            String methodName = hasPropertyConverter() ? "toGraphProperty" : "toGraphProperties";
+
+            try {
+                for (Method method : converterClass.getDeclaredMethods()) {
+                    //we don't want the method on the AttributeConverter interface
+                    if (method.getName().equals(methodName) && !method.isSynthetic()) {
+                        return method.getReturnType();
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
 }

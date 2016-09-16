@@ -14,9 +14,13 @@
 package org.neo4j.ogm.compiler.builders;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.compiler.NodeBuilder;
+import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.model.Node;
+import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.model.NodeModel;
 import org.neo4j.ogm.response.model.PropertyModel;
 
@@ -34,7 +38,23 @@ public class DefaultNodeBuilder implements NodeBuilder {
 
     @Override
     public NodeBuilder addProperty(String key, Object value) {
-        node.getPropertyList().add(new PropertyModel<>(key, value));
+        List<Property<String, Object>> propertyList = node.getPropertyList();
+
+        for (Property<String, Object> property : propertyList) {
+            if (property.getKey().equals(key)) {
+                throw new MappingException("Node model already contains property: " + key);
+            }
+        }
+
+        propertyList.add(new PropertyModel<>(key, value));
+        return this;
+    }
+
+    @Override
+    public NodeBuilder addProperties(Map<String, ?> properties) {
+        for (String key : properties.keySet()) {
+            addProperty(key, properties.get(key));
+        }
         return this;
     }
 

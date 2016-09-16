@@ -31,9 +31,7 @@ public class EntityUtils {
     public static Long identity(Object entity, MetaData metaData) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
-
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
-
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }
 
@@ -46,7 +44,7 @@ public class EntityUtils {
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, labelFieldInfo);
-            Collection<String> labels = (Collection<String>) reader.read(entity);
+            Collection<String> labels = (Collection<String>) reader.readProperty(entity);
             return CollectionUtils.union(staticLabels, labels);
         }
         return staticLabels;

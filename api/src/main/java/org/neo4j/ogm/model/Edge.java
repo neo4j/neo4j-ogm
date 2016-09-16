@@ -28,4 +28,5 @@ public interface Edge {
     Long getId();
 
     List<Property<String, Object>> getPropertyList();
+
 }

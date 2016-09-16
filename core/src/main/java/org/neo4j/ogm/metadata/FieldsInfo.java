@@ -17,9 +17,7 @@ import org.neo4j.ogm.annotation.Transient;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -32,7 +30,8 @@ public class FieldsInfo {
 
     private final Map<String, FieldInfo> fields = new HashMap<>();
 
-    FieldsInfo() {}
+    FieldsInfo() {
+    }
 
     public FieldsInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         // get the field information for this class
@@ -59,8 +58,7 @@ public class FieldsInfo {
                     if (signature.contains("<")) {
                         typeParameterDescriptor = signature.substring(signature.indexOf('<') + 1, signature.indexOf('>'));
                     }
-                }
-                else {
+                } else {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
@@ -73,6 +71,17 @@ public class FieldsInfo {
     public Collection<FieldInfo> fields() {
         return fields.values();
     }
+
+    public Collection<FieldInfo> compositeFields() {
+        List<FieldInfo> fields = new ArrayList<>();
+        for (FieldInfo field : fields()) {
+            if (field.hasCompositeConverter()) {
+                fields.add(field);
+            }
+        }
+        return Collections.unmodifiableList(fields);
+    }
+
 
     public FieldInfo get(String name) {
         return fields.get(name);

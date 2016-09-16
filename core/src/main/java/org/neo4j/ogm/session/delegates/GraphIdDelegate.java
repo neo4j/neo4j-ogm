@@ -37,7 +37,7 @@ public class GraphIdDelegate implements Capability.GraphId {
 			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
 			try {
 				if (classInfo != null) {
-					Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(possibleEntity);
+					Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(possibleEntity);
 					if (id != null) {
 						return (long) id;
 					}

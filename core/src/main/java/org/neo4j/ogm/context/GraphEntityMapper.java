@@ -47,6 +47,7 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
+import org.neo4j.ogm.utils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,12 +181,24 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
 	}
 
-	private void setProperties(Node nodeModel, Object instance) {
-		ClassInfo classInfo = metadata.classInfo(instance);
-		for (Property<?, ?> property : nodeModel.getPropertyList()) {
-			writeProperty(classInfo, instance, property);
-		}
-	}
+    private void setProperties(Node nodeModel, Object instance) {
+        List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
+        ClassInfo classInfo = metadata.classInfo(instance);
+
+        Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
+        if (compositeFields.size() > 0) {
+            Map<String, ?> propertyMap = PropertyUtils.toMap(propertyList);
+            for (FieldInfo field : compositeFields) {
+                Object value = field.getCompositeConverter().toEntityAttribute(propertyMap);
+                PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
+                writer.write(instance, value);
+            }
+        }
+
+        for (Property<?, ?> property : propertyList) {
+            writeProperty(classInfo, instance, property);
+        }
+    }
 
 	private void setProperties(Edge relationshipModel, Object instance) {
 		ClassInfo classInfo = metadata.classInfo(instance);
@@ -221,7 +234,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
 				PropertyReader reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
 				if (reader != null) {
-					Object currentValue = reader.read(instance);
+					Object currentValue = reader.readProperty(instance);
 					Class<?> paramType = writer.type();
 					Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
 					if (paramType.isArray()) {

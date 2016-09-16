@@ -16,6 +16,8 @@ package org.neo4j.ogm.domain.cineasts.annotated;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.domain.restaurant.LocationConverter;
+import org.neo4j.ogm.domain.restaurant.Location;
 
 import java.net.URL;
 import java.util.List;

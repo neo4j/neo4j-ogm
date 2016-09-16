@@ -14,6 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -28,25 +29,34 @@ import java.util.Collection;
  */
 public class MethodInfo {
 
-    private static final String primitiveGetters="()I,()J,()S,()B,()C,()F,()D,()Z,()[I,()[J,()[S,()[B,()[C,()[F,()[D,()[Z";
-    private static final String primitiveSetters="(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
+    private static final String primitiveGetters = "()I,()J,()S,()B,()C,()F,()D,()Z,()[I,()[J,()[S,()[B,()[C,()[F,()[D,()[Z";
+    private static final String primitiveSetters = "(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
 
     private final String name;
     private final String descriptor;
     private final ObjectAnnotations annotations;
     private final String typeParameterDescriptor;
 
-    private AttributeConverter<?, ?> converter;
+    /**
+     * The associated attribute converter for this field, if applicable, otherwise null.
+     */
+    private AttributeConverter<?, ?> propertyConverter;
+
+    /**
+     * The associated composite attribute converter for this field, if applicable, otherwise null.
+     */
+    private CompositeAttributeConverter<?> compositeConverter;
+
 
     /**
      * Constructs a new {@link MethodInfo} based on the given arguments.
      *
-     * @param name The name of the method
-     * @param descriptor The method descriptor that expresses the parameters and return type using Java signature string
-     *        notation
+     * @param name                    The name of the method
+     * @param descriptor              The method descriptor that expresses the parameters and return type using Java signature string
+     *                                notation
      * @param typeParameterDescriptor If the method parameter or return type is parameterised, this is the descriptor that
-     *        expresses its generic type, or <code>null</code> if that's not appropriate
-     * @param annotations The {@link ObjectAnnotations} applied to the field
+     *                                expresses its generic type, or <code>null</code> if that's not appropriate
+     * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
     public MethodInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.name = name;
@@ -60,7 +70,7 @@ public class MethodInfo {
              * stuff into the classpath scanner code.
              *
              * maybe I go if converter is proxy then set index?
-             * so in DomainInfo '...else { methodInfo.getConverter() instanceof proxy then register this repository }
+             * so in DomainInfo '...else { methodInfo.getPropertyConverter() instanceof proxy then register this repository }
              *  - also a bit shit, really
              * I also don't really want to add public methods to MethodInfo if they're not called for meta-data use
              * - i.e., don't like the idea of methodInfo.hasProxyConverter() or methodInfo.needsProxyConverter()
@@ -79,8 +89,19 @@ public class MethodInfo {
              * Therefore, I genuinely don't think we have a choice other than to ask for @Convert in DomainInfo,
              * since we cannot magically get the proxy in here any other way
              */
-            setConverter(getAnnotations().getConverter());
+
+            Object converter = getAnnotations().getConverter();
+            if (converter instanceof AttributeConverter) {
+                setPropertyConverter((AttributeConverter<?, ?>) converter);
+            } else if (converter instanceof CompositeAttributeConverter) {
+                setCompositeConverter((CompositeAttributeConverter<?>) converter);
+            } else if (converter != null) {
+                throw new IllegalStateException(String.format(
+                        "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
+                        this.name));
+            }
         }
+
     }
 
     public String getName() {
@@ -88,28 +109,28 @@ public class MethodInfo {
     }
 
     public String property() {
-       if (isSimpleSetter() || isSimpleGetter()) {
-           if(annotations!=null) {
-               AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
-               if(propertyAnnotation!=null) {
-                   return propertyAnnotation.get(Property.NAME, getName());
-               }
-           }
-           if (name.startsWith("get") || name.startsWith("set")) {
-               StringBuilder sb = new StringBuilder(name.substring(3));
-               sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-               return sb.toString();
-           }
-           return getName();
+        if (isSimpleSetter() || isSimpleGetter()) {
+            if (annotations != null) {
+                AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
+                if (propertyAnnotation != null) {
+                    return propertyAnnotation.get(Property.NAME, getName());
+                }
+            }
+            if (name.startsWith("get") || name.startsWith("set")) {
+                StringBuilder sb = new StringBuilder(name.substring(3));
+                sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+                return sb.toString();
+            }
+            return getName();
         }
         return null;
     }
 
     public String relationship() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
-            if(annotations!=null) {
+            if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-                if(relationshipAnnotation!=null) {
+                if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
                 }
             }
@@ -120,9 +141,9 @@ public class MethodInfo {
 
     public String relationshipTypeAnnotation() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
-            if(annotations!=null) {
+            if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
-                if(relationshipAnnotation!=null) {
+                if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, null);
                 }
             }
@@ -148,13 +169,15 @@ public class MethodInfo {
 
     public boolean isSimpleGetter() {
         return primitiveGetters.contains(descriptor)
-                || hasConverter()
+                || hasPropertyConverter()
+                || hasCompositeConverter()
                 || usesSimpleJavaTypes();
     }
 
     public boolean isSimpleSetter() {
         return primitiveSetters.contains(descriptor)
-                || hasConverter()
+                || hasPropertyConverter()
+                || hasCompositeConverter()
                 || usesSimpleJavaTypes();
     }
 
@@ -163,18 +186,32 @@ public class MethodInfo {
                 || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
     }
 
-    public AttributeConverter converter() {
-        return converter;
+    public boolean hasPropertyConverter() {
+        return propertyConverter != null;
     }
 
-    public boolean hasConverter() {
-        return converter != null;
+    public AttributeConverter getPropertyConverter() {
+        return propertyConverter;
     }
 
-    public void setConverter(AttributeConverter<?, ?> converter) {
-        if (this.converter == null && converter != null) {
-            this.converter = converter;
+    void setPropertyConverter(AttributeConverter<?, ?> propertyConverter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && propertyConverter != null) {
+            this.propertyConverter = propertyConverter;
+        } // we maybe set an annotated converter when object was constructed, so don't override with a default one
+    }
+
+    public CompositeAttributeConverter getCompositeConverter() {
+        return compositeConverter;
+    }
+
+    public void setCompositeConverter(CompositeAttributeConverter<?> converter) {
+        if (this.propertyConverter == null && this.compositeConverter == null && converter != null) {
+            this.compositeConverter = converter;
         }
+    }
+
+    public boolean hasCompositeConverter() {
+        return compositeConverter != null;
     }
 
     public String relationshipDirection(String defaultDirection) {
@@ -243,7 +280,7 @@ public class MethodInfo {
     }
 
     public boolean isCollection() {
-        String descriptorClass =getCollectionClassname();
+        String descriptorClass = getCollectionClassname();
         try {
             Class descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);//Class.forName(descriptorClass);
             if (Collection.class.isAssignableFrom(descriptorClazz)) {
@@ -257,15 +294,16 @@ public class MethodInfo {
 
     /**
      * Get the collection class name for the method
+     *
      * @return collection class name
      */
     public String getCollectionClassname() {
         String descriptorClass = descriptor.replace("/", ".");
         if (descriptorClass.startsWith("(L")) {
-            descriptorClass = descriptorClass.substring(2,descriptorClass.length()-3); //remove the leading (L and trailing ;)V
+            descriptorClass = descriptorClass.substring(2, descriptorClass.length() - 3); //remove the leading (L and trailing ;)V
         }
-        if(descriptorClass.startsWith("()L")) {
-            descriptorClass = descriptorClass.substring(3,descriptorClass.length()-1); //remove the leading ()L and trailing ;
+        if (descriptorClass.startsWith("()L")) {
+            descriptorClass = descriptorClass.substring(3, descriptorClass.length() - 1); //remove the leading ()L and trailing ;
         }
         return descriptorClass;
     }
@@ -284,10 +322,11 @@ public class MethodInfo {
 
     /**
      * Get the type descriptor
+     *
      * @return the descriptor if the field is scalar or an array, otherwise the type parameter descriptor.
      */
     public String getTypeDescriptor() {
-        if(isScalar() || isArray()) {
+        if (isScalar() || isArray()) {
             return descriptor;
         }
         return typeParameterDescriptor;

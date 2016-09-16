@@ -354,7 +354,7 @@ public class ClassInfoTest {
         List<MethodInfo> methodInfos = classInfo.findSetters(Date.class);
         MethodInfo methodInfo = methodInfos.iterator().next();
         assertEquals("setRenewalDate", methodInfo.getName());
-        assertTrue(methodInfo.hasConverter());
+        assertTrue(methodInfo.hasPropertyConverter());
     }
 
     @Test
@@ -363,7 +363,7 @@ public class ClassInfoTest {
         List<MethodInfo> methodInfos = classInfo.findGetters(Date.class);
         MethodInfo methodInfo = methodInfos.iterator().next();
         assertEquals("getRenewalDate", methodInfo.getName());
-        assertTrue(methodInfo.hasConverter());
+        assertTrue(methodInfo.hasPropertyConverter());
     }
 
     @Test
@@ -372,7 +372,7 @@ public class ClassInfoTest {
         List<FieldInfo> fieldInfos = classInfo.findFields(Date.class);
         FieldInfo fieldInfo = fieldInfos.iterator().next();
         assertEquals("renewalDate", fieldInfo.getName());
-        assertTrue(fieldInfo.hasConverter());
+        assertTrue(fieldInfo.hasPropertyConverter());
     }
 
     @Test
@@ -450,34 +450,6 @@ public class ClassInfoTest {
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         assertNotNull(fieldInfo);
         assertEquals("labels", fieldInfo.getName());
-    }
-
-    /**
-     * @see issue #159
-     */
-    @Test
-    public void labelAnnotationOnMethodsThrowsMappingException() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.method");
-            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters' has the @Labels annotation applied to"));
-        }
-    }
-
-    /**
-     * @see issue #159
-     */
-    @Test
-    public void labelAnnotationWithRelationshipEntityThrowsException() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.relationship");
-            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertEquals("'org.neo4j.ogm.invalid.labels.relationship.LabelsAnnotationRelationshipEntity' is a relationship entity. The @Labels annotation can't be applied to relationship entities.", e.getMessage());
-        }
     }
 
     /**

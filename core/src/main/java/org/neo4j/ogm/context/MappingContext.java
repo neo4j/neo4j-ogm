@@ -103,7 +103,7 @@ public class MappingContext {
 
     public boolean isDirty(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         return !objectMemo.remembered((Long) id, entity, classInfo);
     }
 
@@ -205,7 +205,7 @@ public class MappingContext {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
-        Long id = (Long) identityReader.read(entity);
+        Long id = (Long) identityReader.readProperty(entity);
 
         purge(entity, identityReader, type);
 
@@ -239,7 +239,7 @@ public class MappingContext {
         ClassInfo classInfo = metaData.classInfo(type.getName());
         PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 
-        Long id = (Long) identityReader.read(entity);
+        Long id = (Long) identityReader.readProperty(entity);
 
         if (id != null) {
             if (!metaData.isRelationshipEntity(type.getName())) {
@@ -294,7 +294,7 @@ public class MappingContext {
     }
 
     private void purge(Object entity, PropertyReader identityReader, Class type) {
-        Long id = (Long) identityReader.read(entity);
+        Long id = (Long) identityReader.readProperty(entity);
         if (id != null) {
             // remove a NodeEntity
             if (!metaData.isRelationshipEntity(type.getName())) {
@@ -348,7 +348,7 @@ public class MappingContext {
 
     private void remember(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).read(entity);
+        Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         objectMemo.remember(id, entity, classInfo);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {

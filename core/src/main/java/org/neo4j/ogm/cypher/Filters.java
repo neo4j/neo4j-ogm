@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.cypher;
 
+import org.neo4j.ogm.cypher.function.FilterFunction;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,13 +26,42 @@ public class Filters implements Iterable<Filter> {
 
     private List<Filter> filters = new ArrayList<>();
 
+
+    public Filters() {
+    }
+
+    public Filters(String key, Object value) {
+        add(key, value);
+    }
+
+    public Filters(Filter... filters) {
+        add(filters);
+    }
+
+    public Filters(Iterable<Filter> filters) {
+        add(filters);
+    }
+
+
+    public Filters add(String key, Object value) {
+        this.filters.add(new Filter(key, value));
+        return this;
+    }
+
     public Filters add(Filter... filters) {
         Collections.addAll(this.filters, filters);
         return this;
     }
 
-    public Filters add(String key, Object value) {
-        this.filters.add(new Filter(key, value));
+    public Filters add(Iterable<Filter> filters) {
+        for (Filter filter : filters) {
+            this.filters.add(filter);
+        }
+        return this;
+    }
+
+    public Filters add(FilterFunction function) {
+        this.filters.add(new Filter(function));
         return this;
     }
 

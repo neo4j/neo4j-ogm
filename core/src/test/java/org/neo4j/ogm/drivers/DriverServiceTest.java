@@ -13,14 +13,7 @@
 
 package org.neo4j.ogm.drivers;
 
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.junit.*;
-import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.config.DriverConfiguration;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.service.DriverService;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,120 +21,121 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertNotNull;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.junit.*;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.DriverConfiguration;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 
 /**
  * @author vince
  */
 public class DriverServiceTest {
 
-    public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
-    private DriverConfiguration driverConfiguration = new Configuration().driverConfiguration();
+	public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
+	private DriverConfiguration driverConfiguration = new Configuration().driverConfiguration();
 
-    @BeforeClass
-    public static void createEmbeddedStore() throws IOException {
-        try {
-            Files.createDirectory(Paths.get(TMP_NEO4J_DB));
-        } catch(FileAlreadyExistsException e){
-            // the directory already exists.
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	@BeforeClass
+	public static void createEmbeddedStore() throws IOException {
+		try {
+			Files.createDirectory(Paths.get(TMP_NEO4J_DB));
+		} catch (FileAlreadyExistsException e) {
+			// the directory already exists.
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    @AfterClass
-    public static void deleteEmbeddedStore() throws IOException {
-        deleteDirectory(new File(TMP_NEO4J_DB));
-    }
+	@AfterClass
+	public static void deleteEmbeddedStore() throws IOException {
+		deleteDirectory(new File(TMP_NEO4J_DB));
+	}
 
-    @Test
-    public void shouldLoadHttpDriver() {
+	@Test
+	public void shouldLoadHttpDriver() {
 
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
-        driverConfiguration.setURI("http://neo4j:password@localhost:7474");
+		driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
+		driverConfiguration.setURI("http://neo4j:password@localhost:7474");
 
-        Driver driver = DriverService.load(driverConfiguration);
-        assertNotNull(driver);
-        driver.close();
-    }
+		Driver driver = Components.loadDriver(driverConfiguration);
+		assertNotNull(driver);
+		driver.close();
+	}
 
-    @Test
-    public void shouldLoadEmbeddedDriver() {
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+	@Test
+	public void shouldLoadEmbeddedDriver() {
+		driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 
-        String uri = "file://" + TMP_NEO4J_DB;
+		String uri = "file://" + TMP_NEO4J_DB;
 
-        driverConfiguration.setURI(uri);
+		driverConfiguration.setURI(uri);
 
-        Driver driver = DriverService.load(driverConfiguration);
-        assertNotNull(driver);
-        driver.close();
-    }
+		Driver driver = Components.loadDriver(driverConfiguration);
+		assertNotNull(driver);
+		driver.close();
+	}
 
-    @Test
-    public void loadLoadBoltDriver() {
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
-        driverConfiguration.setURI("bolt://neo4j:password@localhost");
-        Driver driver = DriverService.load(driverConfiguration);
-        assertNotNull(driver);
-        driver.close();
-    }
+	@Test
+	public void loadLoadBoltDriver() {
+		driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+		driverConfiguration.setURI("bolt://neo4j:password@localhost");
+		Driver driver = Components.loadDriver(driverConfiguration);
+		assertNotNull(driver);
+		driver.close();
+	}
 
-    static void deleteDirectory(File dir) throws IOException {
-        if (dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
-                deleteDirectory(file);
-            }
-        }
-        if (!dir.delete()) {
-            throw new RuntimeException("Failed to delete file: " + dir);
-        }
-    }
-
-
-    /**
-     * This test is marked @Ignore by default because it requires a locally running
-     * Neo4j server to be installed, authenticating with 'neo4j:password'.
-     *
-     * Note: The mechanism to ignore SSL handshaking installs a trust-everybody trust manager into
-     * any HttpDriver that is created with the 'ACCEPT_UNSIGNED' trust strategy configuration setting.
-     *
-     * It does not contaminate the behaviour of other any HttpDrivers that may be running.
-     *
-     */
-    @Test
-    @Ignore
-    public void shouldDisableCertificateValidationIfIgnoreSSLHandshake() {
-
-        HttpPost request = new HttpPost("https://neo4j:password@localhost:7473/db/data/transaction/commit");
-        request.setEntity(new StringEntity("{\n" +
-                "  \"statements\" : [ {\n" +
-                "    \"statement\" : \"MATCH (n) RETURN id(n)\"\n" +
-                "  } ]\n" +
-                "}", "UTF-8"));
+	static void deleteDirectory(File dir) throws IOException {
+		if (dir.isDirectory()) {
+			for (File file : dir.listFiles()) {
+				deleteDirectory(file);
+			}
+		}
+		if (!dir.delete()) {
+			throw new RuntimeException("Failed to delete file: " + dir);
+		}
+	}
 
 
-        // note that the default driver class is set from the URI if a driver class has not yet been configured
-        DriverConfiguration driverConfiguration = new DriverConfiguration(new Configuration());
-        driverConfiguration.setURI("https://neo4j:password@localhost:7473");
+	/**
+	 * This test is marked @Ignore by default because it requires a locally running
+	 * Neo4j server to be installed, authenticating with 'neo4j:password'.
+	 * Note: The mechanism to ignore SSL handshaking installs a trust-everybody trust manager into
+	 * any HttpDriver that is created with the 'ACCEPT_UNSIGNED' trust strategy configuration setting.
+	 * It does not contaminate the behaviour of other any HttpDrivers that may be running.
+	 */
+	@Test
+	@Ignore
+	public void shouldDisableCertificateValidationIfIgnoreSSLHandshake() {
 
-        try (HttpDriver driver = (HttpDriver) DriverService.load(driverConfiguration)) {
-            driver.executeHttpRequest(request);
-            Assert.fail("Should have thrown security exception");
-        } catch (Exception e) {
-            // expected
-        }
+		HttpPost request = new HttpPost("https://neo4j:password@localhost:7473/db/data/transaction/commit");
+		request.setEntity(new StringEntity("{\n" +
+				"  \"statements\" : [ {\n" +
+				"    \"statement\" : \"MATCH (n) RETURN id(n)\"\n" +
+				"  } ]\n" +
+				"}", "UTF-8"));
 
+		// note that the default driver class is set from the URI if a driver class has not yet been configured
+		DriverConfiguration driverConfiguration = new DriverConfiguration(new Configuration());
+		driverConfiguration.setURI("https://neo4j:password@localhost:7473");
 
-        // now set the config to ignore SSL handshaking and try again;
-        driverConfiguration.setTrustStrategy("ACCEPT_UNSIGNED");
+		try (HttpDriver driver = (HttpDriver) Components.loadDriver(driverConfiguration)) {
+			driver.executeHttpRequest(request);
+			Assert.fail("Should have thrown security exception");
+		} catch (Exception e) {
+			// expected
+		}
 
-        try (HttpDriver driver = (HttpDriver) DriverService.load(driverConfiguration)) {
-            driver.executeHttpRequest(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail("Should NOT have thrown security exception");
-        }
-    }
+		// now set the config to ignore SSL handshaking and try again;
+		driverConfiguration.setTrustStrategy("ACCEPT_UNSIGNED");
 
+		try (HttpDriver driver = (HttpDriver) Components.loadDriver(driverConfiguration)) {
+			driver.executeHttpRequest(request);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail("Should NOT have thrown security exception");
+		}
+	}
 }

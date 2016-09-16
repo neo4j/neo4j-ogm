@@ -1246,10 +1246,16 @@ public class ClassInfo {
 		return null;
 	}
 
+	/**
+	 * @return If this class contains any fields/properties annotated with @Index.
+	 */
 	public boolean containsIndexes() {
 		return !getIndexFields().isEmpty();
 	}
 
+	/**
+	 * @return The <code>FieldInfo</code>s representing the Indexed fields in this class.
+	 */
 	public Collection<FieldInfo> getIndexFields() {
 		if (indexFields == null) {
 			try {

@@ -316,6 +316,9 @@ public class FieldInfo {
         return null;
     }
 
+    /**
+     * @return <code>true</code> is this field is a constraint rather than just a plain index.
+     */
     public boolean isConstraint() {
         AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getCanonicalName());
         return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");

@@ -1,9 +1,26 @@
+/*
+ * Copyright (c) 2002-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ */
 package org.neo4j.ogm.config;
+
+import java.util.Arrays;
 
 import org.neo4j.ogm.index.AutoIndexMode;
 
 /**
- * Created by markangrish on 16/09/2016.
+ * Represents the configuration for Auto Index.
+ * TODO: can we just consolidate all configuration into one class? It's getting unweildy to keep adding subconfiguration objects.
+ *
+ * @author Mark Angrish
  */
 public class AutoIndexConfiguration {
 
@@ -23,7 +40,7 @@ public class AutoIndexConfiguration {
 	public AutoIndexConfiguration setAutoIndex(String value) {
 
 		if (AutoIndexMode.fromString(value) == null) {
-			throw new RuntimeException("Invalid index value: " + value + ". Value must be one of: " + AutoIndexMode.stringValues());
+			throw new RuntimeException("Invalid index value: " + value + ". Value must be one of: " + Arrays.toString(AutoIndexMode.values()));
 		}
 
 		configuration.set(AUTO_INDEX[0], value);

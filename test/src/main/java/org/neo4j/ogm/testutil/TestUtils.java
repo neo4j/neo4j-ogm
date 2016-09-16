@@ -23,36 +23,44 @@ import java.util.Scanner;
  */
 public final class TestUtils {
 
-    public static int getAvailablePort() {
-        try {
-            try (ServerSocket socket = new ServerSocket(0)) {
-                return socket.getLocalPort();
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException("Cannot find available port: " + e.getMessage(), e);
-        }
-    }
+	public static int getAvailablePort() {
+		try {
+			try (ServerSocket socket = new ServerSocket(0)) {
+				return socket.getLocalPort();
+			}
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot find available port: " + e.getMessage(), e);
+		}
+	}
 
-    public static <T> T firstOrNull(Iterable<T> iterable) {
-        return firstOrNull(iterable.iterator());
-    }
+	public static <T> T firstOrNull(Iterable<T> iterable) {
+		return firstOrNull(iterable.iterator());
+	}
 
-    public static <T> T firstOrNull(Iterator<T> iterator) {
-        return iterator.hasNext()?iterator.next():null;
-    }
+	public static <T> T firstOrNull(Iterator<T> iterator) {
+		return iterator.hasNext() ? iterator.next() : null;
+	}
 
-    public static StringBuilder readCQLFile(String cqlFileName) {
+	public static StringBuilder readCQLFile(String cqlFileName) {
 
-        StringBuilder cypher = new StringBuilder();
-        try (Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
-            scanner.useDelimiter(System.getProperty("line.separator"));
-            while (scanner.hasNext()) {
-                cypher.append(scanner.next()).append(' ');
-            }
-        }
-        return cypher;
-    }
+		StringBuilder cypher = new StringBuilder();
+		try (Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(cqlFileName))) {
+			scanner.useDelimiter(System.getProperty("line.separator"));
+			while (scanner.hasNext()) {
+				cypher.append(scanner.next()).append(' ');
+			}
+		}
+		return cypher;
+	}
 
-    private TestUtils() {
-    }
+	/**
+	 * Returns the Neo4j version specified by the Maven Profile. We use this approach to exclude certain tests from
+	 * 2.x runs, so that the build server and maven can share the same approach.
+	 */
+	public static String neo4jVersion() {
+		return System.getProperty("neo4j.version").trim();
+	}
+
+	private TestUtils() {
+	}
 }

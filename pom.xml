@@ -194,10 +194,10 @@
                             <excludes>
                                 <exclude>**/defects/**</exclude>
                                 <exclude>**/BoltDriverTest.java</exclude>
-                                <exclude>**/spatial/**</exclude>
                             </excludes>
 
                             <systemPropertyVariables>
+                                <neo4j.version>${neo4j}</neo4j.version>
                                 <ogm.properties>${ogm.properties}</ogm.properties>
                             </systemPropertyVariables>
 
@@ -269,10 +269,10 @@
                                     </includes>
                                     <excludes>
                                         <exclude>**/defects/**</exclude>
-                                        <exclude>**/spatial/**</exclude>
                                         <exclude>**/BoltDriverTest.java</exclude>
                                     </excludes>
                                     <systemPropertyVariables>
+                                        <neo4j.version>${neo4j}</neo4j.version>
                                         <ogm.properties>${ogm.properties}</ogm.properties>
                                     </systemPropertyVariables>
 
@@ -306,10 +306,10 @@
                                     </includes>
                                     <excludes>
                                         <exclude>**/defects/**</exclude>
-                                        <exclude>**/spatial/**</exclude>
                                         <exclude>**/BoltDriverTest.java</exclude>
                                     </excludes>
                                     <systemPropertyVariables>
+                                        <neo4j.version>${neo4j}</neo4j.version>
                                         <ogm.properties>${ogm.properties}</ogm.properties>
                                     </systemPropertyVariables>
 
@@ -327,6 +327,30 @@
             <properties>
                 <neo4j>3.0.4</neo4j>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.18.1</version>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <configuration>
+                                    <forkMode>once</forkMode>
+                                    <includes>
+                                        <include>**/*.java</include>
+                                    </includes>
+                                    <systemPropertyVariables>
+                                        <neo4j.version>${neo4j}</neo4j.version>
+                                        <ogm.properties>${ogm.properties}</ogm.properties>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>

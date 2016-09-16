@@ -16,7 +16,8 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.index.IndexManager;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -28,6 +29,7 @@ import org.neo4j.ogm.service.Components;
 public class SessionFactory {
 
     private final MetaData metaData;
+    private IndexManager indexManager;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -42,6 +44,7 @@ public class SessionFactory {
      */
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);
+        index();
     }
 
     /**
@@ -59,6 +62,18 @@ public class SessionFactory {
     public SessionFactory(Configuration configuration, String... packages) {
         Components.configure(configuration);
         this.metaData = new MetaData(packages);
+        index();
+    }
+
+    private void index() {
+        this.indexManager = new IndexManager(this.metaData, Components.driver());
+        this.indexManager.build();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                indexManager.drop();
+            }
+        });
     }
 
     /**

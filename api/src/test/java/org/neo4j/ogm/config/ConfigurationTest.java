@@ -16,6 +16,7 @@ package org.neo4j.ogm.config;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.neo4j.ogm.index.AutoIndexMode;
 
 /**
  * @author vince
@@ -28,6 +29,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration();
 
         configuration.compilerConfiguration().setCompilerClassName("compiler");
+        configuration.autoIndexConfiguration().setAutoIndex("create-drop");
         configuration.driverConfiguration().setDriverClassName("driver");
         configuration.driverConfiguration().setCredentials("fred", "flintstone");
         configuration.driverConfiguration().setURI("http://localhost:8080");
@@ -37,6 +39,7 @@ public class ConfigurationTest {
         configuration.driverConfiguration().setTrustCertFile("/tmp/cert");
 
         assertEquals("compiler", configuration.compilerConfiguration().getCompilerClassName());
+        assertEquals(AutoIndexMode.CREATE_DROP, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("driver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("ZnJlZDpmbGludHN0b25l", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://localhost:8080", configuration.driverConfiguration().getURI());
@@ -58,6 +61,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration("ogm-simple.properties");
 
         assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
+        assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
@@ -69,6 +73,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration("ogm-namespace.properties");
 
         assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
+        assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
@@ -85,6 +90,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration("application.properties");
 
         assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
+        assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());

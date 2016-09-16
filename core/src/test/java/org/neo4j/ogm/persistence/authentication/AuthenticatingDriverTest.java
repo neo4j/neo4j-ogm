@@ -19,7 +19,7 @@ import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;

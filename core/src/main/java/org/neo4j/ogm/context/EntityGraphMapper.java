@@ -29,7 +29,7 @@ import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;

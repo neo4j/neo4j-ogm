@@ -29,7 +29,7 @@ import org.neo4j.ogm.index.IndexManager;
 public class SessionFactory {
 
 	private final MetaData metaData;
-	private IndexManager indexManager;
+	private final IndexManager indexManager;
 
 	/**
 	 * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -45,7 +45,8 @@ public class SessionFactory {
 	 */
 	public SessionFactory(String... packages) {
 		this.metaData = new MetaData(packages);
-		index();
+		this.indexManager = new IndexManager(this.metaData, Components.driver());
+		this.indexManager.build();
 	}
 
 	/**
@@ -64,10 +65,6 @@ public class SessionFactory {
 	public SessionFactory(Configuration configuration, String... packages) {
 		Components.configure(configuration);
 		this.metaData = new MetaData(packages);
-		index();
-	}
-
-	private void index() {
 		this.indexManager = new IndexManager(this.metaData, Components.driver());
 		this.indexManager.build();
 	}

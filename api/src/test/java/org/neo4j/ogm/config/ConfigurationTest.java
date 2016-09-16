@@ -29,7 +29,7 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration();
 
         configuration.compilerConfiguration().setCompilerClassName("compiler");
-        configuration.autoIndexConfiguration().setAutoIndex("create-drop");
+        configuration.autoIndexConfiguration().setAutoIndex("assert");
         configuration.driverConfiguration().setDriverClassName("driver");
         configuration.driverConfiguration().setCredentials("fred", "flintstone");
         configuration.driverConfiguration().setURI("http://localhost:8080");
@@ -39,7 +39,7 @@ public class ConfigurationTest {
         configuration.driverConfiguration().setTrustCertFile("/tmp/cert");
 
         assertEquals("compiler", configuration.compilerConfiguration().getCompilerClassName());
-        assertEquals(AutoIndexMode.CREATE_DROP, configuration.autoIndexConfiguration().getAutoIndex());
+        assertEquals(AutoIndexMode.ASSERT, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("driver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("ZnJlZDpmbGludHN0b25l", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://localhost:8080", configuration.driverConfiguration().getURI());

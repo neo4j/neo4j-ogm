@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2002-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ */
 package org.neo4j.ogm.index;
 
 import java.io.File;
@@ -21,10 +33,14 @@ import org.neo4j.ogm.session.request.RowDataStatement;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 
 /**
+ * This class controls the deletion and creation of indexes in the OGM.
+ *
+ * @author Mark Angrish
  */
 public class IndexManager {
 
 	private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
+	private static final String DEFAULT_GENERATED_INDEXES_FILENAME = "generated_indexes.cql";
 
 	private List<Index> indexes;
 
@@ -34,47 +50,59 @@ public class IndexManager {
 
 	public IndexManager(MetaData metaData, Driver driver) {
 
-		this.driver = driver;
-		this.driver.setTransactionManager(new DefaultTransactionManager(null, driver));
-		this.mode =Components.autoIndexMode();
+		this.driver = initialiseDriver(driver);
+		this.mode = Components.autoIndexMode();
+		this.indexes = initialiseIndexMetadata(metaData);
+	}
 
-		this.indexes = new ArrayList<>();
+	private Driver initialiseDriver(Driver driver) {
+		driver.setTransactionManager(new DefaultTransactionManager(null, driver));
+		return driver;
+	}
+
+	private List<Index> initialiseIndexMetadata(MetaData metaData) {
+		List<Index> indexMetadata = new ArrayList<>();
 		for (ClassInfo classInfo : metaData.persistentEntities()) {
 
 			if (classInfo.containsIndexes()) {
 				for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
-					indexes.add(new Index(classInfo.neo4jName(), fieldInfo.property(), fieldInfo.isConstraint()));
+					indexMetadata.add(new Index(classInfo.neo4jName(), fieldInfo.property(), fieldInfo.isConstraint()));
 				}
 			}
 		}
+		return indexMetadata;
 	}
 
+	/**
+	 * Builds indexes according to the configured mode.
+	 */
 	public void build() {
 		switch (mode) {
-			case CREATE_DROP:
-				create();
-				break;
 			case ASSERT:
-				verify();
+				assertIndexes();
 				break;
 			case VALIDATE:
-				validate();
+				validateIndexes();
 				break;
 			case DUMP:
-				dump();
+				dumpIndexes();
 			default:
 		}
 	}
 
-	private void dump() {
-		// Generate indexes in file at root directory.
+	private void dumpIndexes() {
 		final String newLine = System.lineSeparator();
+
 		StringBuilder sb = new StringBuilder();
 		for (Index index : indexes) {
 			sb.append(index.getCreateStatement().getStatement()).append(newLine);
 		}
-		File file = new File("generated_indexes.cql");
+
+		// Generate indexes in file at root directory.
+		// TODO: should this be configurable too?
+		File file = new File(DEFAULT_GENERATED_INDEXES_FILENAME);
 		FileWriter writer = null;
+
 		try {
 			writer = new FileWriter(file);
 			writer.write(sb.toString());
@@ -88,19 +116,10 @@ public class IndexManager {
 		}
 	}
 
-	private void validate() {
-		// confirm all indexes defined in metadata exist on startup or else throw exception.
-		if (Components.neo4jVersion() < 3.0) {
-			throw new RuntimeException("Auto indexing with value 'assert' requires Neo4j version 3.0 or higher.");
-		}
+	private void validateIndexes() {
+		DefaultRequest getIndexesRequest = buildProcedures();
 		List<Index> copyOfIndexes = new ArrayList<>(indexes);
-		List<Statement> procedures = new ArrayList<>();
 
-		procedures.add(new RowDataStatement("CALL db.constraints()", EMPTY_MAP));
-		procedures.add(new RowDataStatement("CALL db.indexes()", EMPTY_MAP));
-
-		DefaultRequest getIndexesRequest = new DefaultRequest();
-		getIndexesRequest.setStatements(procedures);
 		try (Response<RowModel> response = driver.request().execute(getIndexesRequest)) {
 			RowModel rowModel;
 			while ((rowModel = response.next()) != null) {
@@ -127,25 +146,17 @@ public class IndexManager {
 		}
 	}
 
-	private void verify() {
-		// drop all indexes and build from scratch.
-		if (Components.neo4jVersion() < 3.0) {
-			throw new RuntimeException("Auto indexing with value 'assert' requires Neo4j version 3.0 or higher.");
-		}
-		List<Statement> procedures = new ArrayList<>();
+	private void assertIndexes() {
+		DefaultRequest getIndexesRequest = buildProcedures();
 		List<Statement> dropStatements = new ArrayList<>();
 
-		procedures.add(new RowDataStatement("CALL db.constraints()", EMPTY_MAP));
-		procedures.add(new RowDataStatement("CALL db.indexes()", EMPTY_MAP));
-
-		DefaultRequest getIndexesRequest = new DefaultRequest();
-		getIndexesRequest.setStatements(procedures);
 		try (Response<RowModel> response = driver.request().execute(getIndexesRequest)) {
 			RowModel rowModel;
 			while ((rowModel = response.next()) != null) {
 				if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
 					continue;
 				}
+				// can replace this with a lookup of the Index by description but attaching DROP here is faster.
 				dropStatements.add(new RowDataStatement("DROP " + rowModel.getValues()[0], EMPTY_MAP));
 			}
 		}
@@ -158,6 +169,20 @@ public class IndexManager {
 		create();
 	}
 
+	private DefaultRequest buildProcedures() {
+		if (Components.neo4jVersion() < 3.0) {
+			throw new RuntimeException("This configuration of auto indexing requires Neo4j version 3.0 or higher.");
+		}
+		List<Statement> procedures = new ArrayList<>();
+
+		procedures.add(new RowDataStatement("CALL db.constraints()", EMPTY_MAP));
+		procedures.add(new RowDataStatement("CALL db.indexes()", EMPTY_MAP));
+
+		DefaultRequest getIndexesRequest = new DefaultRequest();
+		getIndexesRequest.setStatements(procedures);
+		return getIndexesRequest;
+	}
+
 	private void create() {
 		// build indexes according to metadata
 		List<Statement> statements = new ArrayList<>();
@@ -168,22 +193,6 @@ public class IndexManager {
 		request.setStatements(statements);
 		try (Response<RowModel> response = driver.request().execute(request)) {
 			// Success
-		}
-	}
-
-	public void drop() {
-		if (mode.equals(AutoIndexMode.CREATE_DROP)) {
-			// drop indexes according to metadata
-			List<Statement> statements = new ArrayList<>();
-
-			for (Index index : indexes) {
-				statements.add(index.getDropStatement());
-			}
-			DefaultRequest request = new DefaultRequest();
-			request.setStatements(statements);
-			try (Response<RowModel> response = driver.request().execute(request)) {
-				// Success
-			}
 		}
 	}
 }

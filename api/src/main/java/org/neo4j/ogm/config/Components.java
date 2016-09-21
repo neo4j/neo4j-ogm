@@ -212,7 +212,7 @@ public class Components {
 	 * Using this method, you can load a class as a service provider by specifying its
 	 * fully qualified class name.
 	 *
-	 * @param className the fully qualified class name of the required Driver
+	 * @param className the fully qualified class name of the required Component
 	 * @return the named Service Class if found, otherwise throws a ServiceNotFoundException
 	 */
 	private static <T> T load(Class<T> type, String className) {
@@ -228,5 +228,10 @@ public class Components {
 			}
 		}
 		throw new ServiceNotFoundException("Service: " + className);
+	}
+
+	// FIXME: Configuration is a bit too tightly coupled to Component.
+	public static Configuration getConfiguration() {
+		return configuration;
 	}
 }

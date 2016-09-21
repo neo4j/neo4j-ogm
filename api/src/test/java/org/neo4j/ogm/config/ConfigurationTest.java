@@ -30,6 +30,8 @@ public class ConfigurationTest {
 
         configuration.compilerConfiguration().setCompilerClassName("compiler");
         configuration.autoIndexConfiguration().setAutoIndex("assert");
+        configuration.autoIndexConfiguration().setDumpDir("dir");
+        configuration.autoIndexConfiguration().setDumpFilename("filename");
         configuration.driverConfiguration().setDriverClassName("driver");
         configuration.driverConfiguration().setCredentials("fred", "flintstone");
         configuration.driverConfiguration().setURI("http://localhost:8080");
@@ -40,6 +42,8 @@ public class ConfigurationTest {
 
         assertEquals("compiler", configuration.compilerConfiguration().getCompilerClassName());
         assertEquals(AutoIndexMode.ASSERT, configuration.autoIndexConfiguration().getAutoIndex());
+        assertEquals("dir", configuration.autoIndexConfiguration().getDumpDir());
+        assertEquals("filename", configuration.autoIndexConfiguration().getDumpFilename());
         assertEquals("driver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("ZnJlZDpmbGludHN0b25l", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://localhost:8080", configuration.driverConfiguration().getURI());
@@ -73,7 +77,9 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration("ogm-namespace.properties");
 
         assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
-        assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
+        assertEquals(AutoIndexMode.DUMP, configuration.autoIndexConfiguration().getAutoIndex());
+        assertEquals("hello", configuration.autoIndexConfiguration().getDumpDir());
+        assertEquals("generated-indexes2.cql", configuration.autoIndexConfiguration().getDumpFilename());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
         assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());

@@ -18,14 +18,20 @@ import org.neo4j.ogm.index.AutoIndexMode;
 
 /**
  * Represents the configuration for Auto Index.
- * TODO: can we just consolidate all configuration into one class? It's getting unweildy to keep adding subconfiguration objects.
+ * TODO: can we just consolidate all configuration into one class? It's getting unwieldy to keep adding subconfiguration objects.
  *
  * @author Mark Angrish
  */
 public class AutoIndexConfiguration {
 
 	private static final String[] AUTO_INDEX = {"neo4j.ogm.indexes.auto", "indexes.auto"};
+	private static final String[] GENERATED_INDEXES_OUTPUT_DIR = {"neo4j.ogm.indexes.auto.dump.dir", "indexes.auto.dump.dir"};
+	private static final String[] GENERATED_INDEXES_OUTPUT_FILENAME = {"neo4j.ogm.indexes.auto.dump.filename", "indexes.auto.dump.filename"};
+
+
 	private static final AutoIndexMode DEFAULT_AUTO_INDEX_VALUE = AutoIndexMode.NONE;
+	private static final String DEFAULT_GENERATED_INDEXES_FILENAME = "generated_indexes.cql";
+	public static final String DEFAULT_GENERATED_INDEXES_DIR = ".";
 
 	private final Configuration configuration;
 
@@ -52,5 +58,30 @@ public class AutoIndexConfiguration {
 			return DEFAULT_AUTO_INDEX_VALUE;
 		}
 		return AutoIndexMode.fromString((String) configuration.get(AUTO_INDEX));
+	}
+
+
+	public AutoIndexConfiguration setDumpDir(String dumpDir) {
+		configuration.set(GENERATED_INDEXES_OUTPUT_DIR[0], dumpDir);
+		return this;
+	}
+
+	public String getDumpDir() {
+		if (configuration.get(GENERATED_INDEXES_OUTPUT_DIR) == null) {
+			return DEFAULT_GENERATED_INDEXES_DIR;
+		}
+		return (String) configuration.get(GENERATED_INDEXES_OUTPUT_DIR);
+	}
+
+	public AutoIndexConfiguration setDumpFilename(String dumpFilename) {
+		configuration.set(GENERATED_INDEXES_OUTPUT_FILENAME[0], dumpFilename);
+		return this;
+	}
+
+	public String getDumpFilename() {
+		if (configuration.get(GENERATED_INDEXES_OUTPUT_FILENAME) == null) {
+			return DEFAULT_GENERATED_INDEXES_FILENAME;
+		}
+		return (String) configuration.get(GENERATED_INDEXES_OUTPUT_FILENAME);
 	}
 }

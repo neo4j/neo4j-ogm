@@ -40,13 +40,12 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 public class IndexManager {
 
 	private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
-	private static final String DEFAULT_GENERATED_INDEXES_FILENAME = "generated_indexes.cql";
 
-	private List<Index> indexes;
+	private final List<Index> indexes;
 
-	private AutoIndexMode mode;
+	private final AutoIndexMode mode;
 
-	private Driver driver;
+	private final Driver driver;
 
 	public IndexManager(MetaData metaData, Driver driver) {
 
@@ -98,9 +97,8 @@ public class IndexManager {
 			sb.append(index.getCreateStatement().getStatement()).append(newLine);
 		}
 
-		// Generate indexes in file at root directory.
-		// TODO: should this be configurable too?
-		File file = new File(DEFAULT_GENERATED_INDEXES_FILENAME);
+		File file = new File(Components.getConfiguration().autoIndexConfiguration().getDumpDir(),
+				Components.getConfiguration().autoIndexConfiguration().getDumpFilename());
 		FileWriter writer = null;
 
 		try {
@@ -117,10 +115,10 @@ public class IndexManager {
 	}
 
 	private void validateIndexes() {
-		DefaultRequest getIndexesRequest = buildProcedures();
+		DefaultRequest indexRequests = buildProcedures();
 		List<Index> copyOfIndexes = new ArrayList<>(indexes);
 
-		try (Response<RowModel> response = driver.request().execute(getIndexesRequest)) {
+		try (Response<RowModel> response = driver.request().execute(indexRequests)) {
 			RowModel rowModel;
 			while ((rowModel = response.next()) != null) {
 				if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
@@ -147,10 +145,10 @@ public class IndexManager {
 	}
 
 	private void assertIndexes() {
-		DefaultRequest getIndexesRequest = buildProcedures();
+		DefaultRequest indexRequests = buildProcedures();
 		List<Statement> dropStatements = new ArrayList<>();
 
-		try (Response<RowModel> response = driver.request().execute(getIndexesRequest)) {
+		try (Response<RowModel> response = driver.request().execute(indexRequests)) {
 			RowModel rowModel;
 			while ((rowModel = response.next()) != null) {
 				if (rowModel.getValues().length == 3 && rowModel.getValues()[2].equals("node_unique_property")) {
@@ -171,7 +169,7 @@ public class IndexManager {
 
 	private DefaultRequest buildProcedures() {
 		if (Components.neo4jVersion() < 3.0) {
-			throw new RuntimeException("This configuration of auto indexing requires Neo4j version 3.0 or higher.");
+			throw new Neo4jVersionException("This configuration of auto indexing requires Neo4j version 3.0 or higher.");
 		}
 		List<Statement> procedures = new ArrayList<>();
 

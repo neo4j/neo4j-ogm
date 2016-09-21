@@ -1272,12 +1272,32 @@ public class ClassInfo {
 
 	private Map<String, FieldInfo> addIndexes() {
 		Map<String, FieldInfo> indexes = new HashMap<>();
+
+		// No way to get declared fields from current byte code impl. Using reflection instead.
+		List<Field> declaredFields;
+		try {
+			declaredFields = Arrays.asList(Class.forName(className).getDeclaredFields());
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
 		for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-			if (fieldInfo.hasAnnotation(Index.class.getCanonicalName())) {
+
+			if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(Index.class.getCanonicalName())) {
 				indexes.put(fieldInfo.property(), fieldInfo);
 			}
 		}
 		return indexes;
+	}
+
+	private boolean isDeclaredField(List<Field> declaredFields, String name) {
+
+		for (Field field : declaredFields) {
+			if (field.getName().equals(name)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

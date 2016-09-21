@@ -19,7 +19,7 @@ import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowDataStatement;
 
 /**
- * Represents
+ * Represents an Index in Neo4j.
  *
  * @author Mark Angrish
  */
@@ -35,9 +35,9 @@ class Index {
 	public Index(String label, String property, boolean unique) {
 
 		if (unique) {
-			this.description = "CONSTRAINT ON (" + label.toLowerCase() + ":`" + label + "`) ASSERT " + label.toLowerCase() + ".`" + property + "` IS UNIQUE";
+			this.description = "CONSTRAINT ON ( " + label.toLowerCase() + ":" + label + " ) ASSERT " + label.toLowerCase() + "." + property + " IS UNIQUE";
 		} else {
-			this.description = "INDEX ON :`" + label + "`(`" + property + "`)";
+			this.description = "INDEX ON :" + label + "( " + property + " )";
 		}
 	}
 

@@ -53,14 +53,6 @@ public final class TestUtils {
 		return cypher;
 	}
 
-	/**
-	 * Returns the Neo4j version specified by the Maven Profile. We use this approach to exclude certain tests from
-	 * 2.x runs, so that the build server and maven can share the same approach.
-	 */
-	public static String neo4jVersion() {
-		return System.getProperty("neo4j.version").trim();
-	}
-
 	private TestUtils() {
 	}
 }

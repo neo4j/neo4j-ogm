@@ -197,7 +197,6 @@
                             </excludes>
 
                             <systemPropertyVariables>
-                                <neo4j.version>${neo4j}</neo4j.version>
                                 <ogm.properties>${ogm.properties}</ogm.properties>
                             </systemPropertyVariables>
 
@@ -272,7 +271,6 @@
                                         <exclude>**/BoltDriverTest.java</exclude>
                                     </excludes>
                                     <systemPropertyVariables>
-                                        <neo4j.version>${neo4j}</neo4j.version>
                                         <ogm.properties>${ogm.properties}</ogm.properties>
                                     </systemPropertyVariables>
 
@@ -309,7 +307,6 @@
                                         <exclude>**/BoltDriverTest.java</exclude>
                                     </excludes>
                                     <systemPropertyVariables>
-                                        <neo4j.version>${neo4j}</neo4j.version>
                                         <ogm.properties>${ogm.properties}</ogm.properties>
                                     </systemPropertyVariables>
 
@@ -342,7 +339,6 @@
                                         <include>**/*.java</include>
                                     </includes>
                                     <systemPropertyVariables>
-                                        <neo4j.version>${neo4j}</neo4j.version>
                                         <ogm.properties>${ogm.properties}</ogm.properties>
                                     </systemPropertyVariables>
                                 </configuration>

@@ -11,6 +11,7 @@
 
 package org.neo4j.ogm.entity.io;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -137,6 +138,10 @@ public class EntityAccessManager {
         }
 
         // fall back to the field if method cannot be found
+        FieldInfo labelField = classInfo.labelFieldOrNull();
+        if (labelField != null && labelField.getName().equals(propertyName)) {
+            return factory.makeFieldAccessor(labelField);
+        }
         FieldInfo fieldInfo = classInfo.propertyField(propertyName);
         if (fieldInfo != null) {
             return factory.makeFieldAccessor(fieldInfo);

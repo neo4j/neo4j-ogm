@@ -250,7 +250,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
      * @see issue #159
      */
     @Test
-    public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
+    public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity_noGetterOrSetter() {
 
         Pizza pizza = new Pizza();
         pizza.setName("Mushroom & Pepperoni");

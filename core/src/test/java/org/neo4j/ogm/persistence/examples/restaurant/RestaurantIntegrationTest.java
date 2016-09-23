@@ -14,8 +14,10 @@
 package org.neo4j.ogm.persistence.examples.restaurant;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import org.junit.*;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -23,6 +25,7 @@ import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.function.FilterFunction;
+import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.service.Components;
@@ -43,7 +46,6 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	@Before
 	public void init() throws IOException {
 		session = new SessionFactory("org.neo4j.ogm.domain.restaurant").openSession();
-		Assume.assumeTrue(Components.neo4jVersion() >= 3);
 	}
 
 	@After
@@ -53,6 +55,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 	@Test
 	public void shouldSaveRestaurantWithCompositeLocationConverter() {
+		Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
 		Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
 				new Location(37.61649, -122.38681), 94128);
@@ -64,6 +67,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 	@Test
 	public void shouldQueryByDistance() {
+		Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
 		Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
 				new Location(37.61649, -122.38681), 94128);
@@ -81,6 +85,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 	@Test
 	public void shouldQueryByDistanceUsingFilter() {
+		Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
 		Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
 				new Location(37.61649, -122.38681), 94128);
@@ -96,6 +101,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 	@Test
 	public void saveAndRetrieveRestaurantWithLocation() {
+		Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
 		Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
 				new Location(37.61649, -122.38681), 94128);
@@ -111,4 +117,30 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		assertEquals(37.61649, result.getLocation().getLatitude(), 0);
 		assertEquals(-122.38681, result.getLocation().getLongitude(), 0);
 	}
+
+	/**
+	 * @see issue #159
+	 */
+	@Test
+	public void shouldSyncMappedLabelsFromEntityToTheNode_and_NodeToEntity() {
+
+		Restaurant restaurant = new Restaurant();
+		restaurant.setName("House of Mushroom & Pepperoni");
+		List<String> labels = new ArrayList<>();
+		labels.add("Delicious");
+		labels.add("Ambiance");
+		labels.add("Convenience");
+		restaurant.labels = labels;
+
+		session.save(restaurant);
+		session.clear();
+//		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Restaurant`:`Delicious`:`Ambiance`:`Convenience` {name: 'House of Mushroom & Pepperoni'})");
+
+		Restaurant loaded = session.load(Restaurant.class, restaurant.getId());
+		assertTrue(loaded.labels.contains("Delicious"));
+		assertTrue(loaded.labels.contains("Ambiance"));
+		assertTrue(loaded.labels.contains("Convenience"));
+		assertEquals(3, loaded.labels.size());
+	}
+
 }

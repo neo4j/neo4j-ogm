@@ -20,7 +20,7 @@ import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -13,17 +13,19 @@
 
 package org.neo4j.ogm.drivers;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+import org.neo4j.ogm.authentication.Credentials;
+import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author vince
  */
 
-public class DriverConfigTest {
+public class DriverConfigurationTest {
 
     @Test
     public void shouldLoadHttpDriverConfigFromPropertiesFile() {
@@ -45,6 +47,19 @@ public class DriverConfigTest {
         assertEquals("NONE", driverConfig.getEncryptionLevel());
         assertEquals("TRUST_ON_FIRST_USE", driverConfig.getTrustStrategy());
         assertEquals("/tmp/cert", driverConfig.getTrustCertFile());
+    }
+
+    @Test
+    public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
+        String username = "neo4j";
+        String password = "password";
+        Configuration dbConfig = new Configuration();
+        dbConfig.driverConfiguration().setURI("bolt://" + username + ":" + password + "@localhost");
+        Credentials credentials = dbConfig.driverConfiguration().getCredentials();
+        UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
+        assert basic != null;
+        assert username.equals(basic.getUsername());
+        assert password.equals(basic.getPassword());
     }
 
 }

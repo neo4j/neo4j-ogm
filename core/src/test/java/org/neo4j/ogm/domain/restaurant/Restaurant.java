@@ -14,49 +14,61 @@
 
 package org.neo4j.ogm.domain.restaurant;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 public class Restaurant {
 
-    @GraphId
-    private Long id;
-    private String name;
-    private int zip;
+	@GraphId
+	private Long id;
+	private String name;
+	private int zip;
 
-    @Convert(LocationConverter.class)
-    Location location;
+	@Convert(LocationConverter.class)
+	Location location;
 
-    public Restaurant() {
-    }
+	@Labels
+	public Collection<String> labels = new ArrayList<>();
 
-    public Restaurant(String name, Location location, int zip) {
-        this.name = name;
-        this.location = location;
-        this.zip = zip;
-    }
+	public Restaurant() {
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Restaurant(String name, Location location, int zip) {
+		this.name = name;
+		this.location = location;
+		this.zip = zip;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public int getZip() {
-        return zip;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setZip(int zip) {
-        this.zip = zip;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public Location getLocation() {
-        return location;
-    }
+	public int getZip() {
+		return zip;
+	}
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
+	public void setZip(int zip) {
+		this.zip = zip;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
 }

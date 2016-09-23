@@ -24,6 +24,9 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
     private DistanceFromPoint value;
     private Filter filter;
 
+    public DistanceComparison() {
+    }
+
     public DistanceComparison(DistanceFromPoint value) {
         this.value = value;
     }

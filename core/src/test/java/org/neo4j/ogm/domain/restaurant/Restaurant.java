@@ -71,11 +71,4 @@ public class Restaurant {
 		this.location = location;
 	}
 
-	public Collection<String> getLabels() {
-		return labels;
-	}
-
-	public void setLabels(Collection<String> labels) {
-		this.labels = labels;
-	}
 }

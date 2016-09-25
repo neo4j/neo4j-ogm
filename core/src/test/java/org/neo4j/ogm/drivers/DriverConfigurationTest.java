@@ -20,6 +20,7 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author vince
@@ -57,9 +58,9 @@ public class DriverConfigurationTest {
         dbConfig.driverConfiguration().setURI("bolt://" + username + ":" + password + "@localhost");
         Credentials credentials = dbConfig.driverConfiguration().getCredentials();
         UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
-        assert basic != null;
-        assert username.equals(basic.getUsername());
-        assert password.equals(basic.getPassword());
+        assertNotNull(basic);
+        assertEquals(username, basic.getUsername());
+        assertEquals(password, basic.getPassword());
     }
 
 }

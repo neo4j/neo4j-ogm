@@ -19,6 +19,7 @@ import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -33,10 +34,13 @@ public class DriverService {
 
     private static Driver load(String className) {
 
-        for (Driver driver : ServiceLoader.load(Driver.class)) {
+        Iterator<Driver> iterator = ServiceLoader.load(Driver.class).iterator();
+
+        while (iterator.hasNext()) {
             try {
+                Driver driver = iterator.next();
                 if (driver.getClass().getName().equals(className)) {
-                    logger.info("Using driver: {}", className);
+                    logger.debug("Using driver: {}", className);
                     return driver;
                 }
             } catch (ServiceConfigurationError sce) {
@@ -44,7 +48,7 @@ public class DriverService {
             }
         }
 
-        throw new ServiceNotFoundException("Driver: " + className);
+        throw new ServiceNotFoundException(className);
 
     }
 

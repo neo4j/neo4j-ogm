@@ -16,7 +16,7 @@ package org.neo4j.ogm.config;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 
-import java.net.URL;
+import java.net.URI;
 
 /**
  *
@@ -55,7 +55,7 @@ public class DriverConfiguration {
     public DriverConfiguration setURI(String uri) {
         configuration.set(URI[0], uri);
         try { // if this URI is a genuine resource, see if it has an embedded user-info and set credentials accordingly
-            URL url = new URL(uri);
+            URI url = new URI(uri);
             String userInfo = url.getUserInfo();
             if (userInfo != null) {
                 String[] userPass = userInfo.split(":");
@@ -161,8 +161,8 @@ public class DriverConfiguration {
         return null;
     }
 
-    private void determineDefaultDriverName(URL url) {
-        switch (url.getProtocol()) {
+    private void determineDefaultDriverName(URI uri) {
+        switch (uri.getScheme()) {
             case "http":
             case "https":
                 setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");

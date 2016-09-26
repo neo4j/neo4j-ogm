@@ -252,7 +252,9 @@ public class Filter {
     }
 
     public void setFunction(FilterFunction function) {
+        assert function != null;
         this.function = function;
+        this.function.setFilter(this);
     }
 
     /**

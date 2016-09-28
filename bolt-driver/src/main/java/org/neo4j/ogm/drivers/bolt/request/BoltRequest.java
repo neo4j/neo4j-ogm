@@ -158,7 +158,7 @@ public class BoltRequest implements Request {
 				return statementResult;
 			}
 			tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-			return tx.nativeBoltTransaction().run(request.getStatement(), request.getParameters());
+			return tx.nativeBoltTransaction().run(request.getStatement(), parameterMap);
 		} catch (CypherException|ConnectionException ce) {
 			throw ce;
 		} catch (ClientException ce) {

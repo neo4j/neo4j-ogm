@@ -552,13 +552,13 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		Class clazz = null;
 		if (fieldInfo != null) {
 			if (fieldInfo.getTypeDescriptor() != null) {
-				clazz = ClassUtils.getTypeOrNull(fieldInfo.getTypeDescriptor());
+				clazz = ClassUtils.getType(fieldInfo.getTypeDescriptor());
 			}
 			if (clazz == null && fieldInfo.getTypeParameterDescriptor() != null) {
-				clazz = ClassUtils.getTypeOrNull(fieldInfo.getTypeParameterDescriptor());
+				clazz = ClassUtils.getType(fieldInfo.getTypeParameterDescriptor());
 			}
 			if (clazz == null && fieldInfo.getDescriptor() != null) {
-				clazz = ClassUtils.getTypeOrNull(fieldInfo.getDescriptor());
+				clazz = ClassUtils.getType(fieldInfo.getDescriptor());
 			}
 		}
 		return clazz;

@@ -372,7 +372,7 @@ public class ClassInfo {
             if (!labelFieldMapped) {
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                     if (fieldInfo.isLabelField()) {
-                        if (!fieldInfo.isCollection()) {
+                        if (!fieldInfo.isIterable()) {
                             throw new MappingException(String.format(
                                     "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
                                             "type of collection.", fieldInfo.getName(), this.name()));
@@ -417,7 +417,7 @@ public class ClassInfo {
                         if (fieldInfo != identityField && !fieldInfo.isLabelField()) {
                             AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
                             if (annotationInfo == null) {
-                                if (fieldInfo.isSimple()) {
+                                if (fieldInfo.persistableAsProperty()) {
                                     fieldInfos.add(fieldInfo);
                                 }
                             } else {
@@ -490,7 +490,7 @@ public class ClassInfo {
             if (fieldInfo != identityField) {
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.CLASS);
                 if (annotationInfo == null) {
-                    if (!fieldInfo.isSimple()) {
+                    if (!fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
                     }
                 } else {

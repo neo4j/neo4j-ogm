@@ -85,6 +85,27 @@ public class ClassInfoTest {
         assertEquals(0, count);
     }
 
+	@Test
+	public void testIndexFieldInfo() {
+
+		ClassInfo classInfo = metaData.classInfo("Login");
+
+		assertTrue(classInfo.containsIndexes());
+
+		Collection<FieldInfo> fieldInfos = classInfo.getIndexFields();
+
+		int count = 1;
+		assertEquals(count, fieldInfos.size());
+		for (FieldInfo fieldInfo : fieldInfos) {
+			if (fieldInfo.getName().equals("userName")) count--;
+		}
+		assertEquals(0, count);
+
+		FieldInfo userNameField = fieldInfos.iterator().next();
+
+		assertTrue(userNameField.isConstraint());
+	}
+
     /**
      * Node property names available via .property() (annotation)
      */

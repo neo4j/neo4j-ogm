@@ -41,11 +41,14 @@ public class Configuration implements AutoCloseable {
 
     private CompilerConfiguration compilerConfiguration;
 
+    private AutoIndexConfiguration autoIndexConfiguration;
+
     public Configuration() {}
 
     public Configuration(String propertiesFilename) {
         driverConfiguration = null;
         compilerConfiguration = null;
+        autoIndexConfiguration = null;
         configure(propertiesFilename);
     }
 
@@ -98,6 +101,14 @@ public class Configuration implements AutoCloseable {
 
         }
         return compilerConfiguration;
+    }
+
+    public synchronized AutoIndexConfiguration autoIndexConfiguration() {
+        if (autoIndexConfiguration == null) {
+            autoIndexConfiguration = new AutoIndexConfiguration(this);
+
+        }
+        return autoIndexConfiguration;
     }
 
     @Override

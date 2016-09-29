@@ -14,6 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
 import org.neo4j.ogm.annotation.Property;
@@ -315,4 +316,11 @@ public class FieldInfo {
         return null;
     }
 
+    /**
+     * @return <code>true</code> is this field is a constraint rather than just a plain index.
+     */
+    public boolean isConstraint() {
+        AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getCanonicalName());
+        return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
+    }
 }

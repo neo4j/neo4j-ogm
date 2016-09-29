@@ -17,6 +17,7 @@ import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.index.AutoIndexMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,5 +180,14 @@ public class Components {
         if (configuration != null) {
             configuration.clear();
         }
+    }
+
+    // FIXME: Configuration is a bit too tightly coupled to Component.
+    public static Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public static AutoIndexMode autoIndexMode() {
+        return configuration.autoIndexConfiguration().getAutoIndex();
     }
 }

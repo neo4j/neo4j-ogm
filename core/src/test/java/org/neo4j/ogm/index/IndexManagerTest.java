@@ -1,10 +1,10 @@
 package org.neo4j.ogm.index;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.*;
 
 import java.io.File;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.config.Configuration;
@@ -34,6 +34,7 @@ public class IndexManagerTest extends MultiDriverTestClass {
 
 		getGraphDatabaseService().execute("CREATE CONSTRAINT ON (login:`Login`) ASSERT login.`userName` IS UNIQUE");
 		configuration.autoIndexConfiguration().setAutoIndex("validate");
+
 		new SessionFactory(configuration, "org.neo4j.ogm.domain.forum");
 	}
 
@@ -41,12 +42,15 @@ public class IndexManagerTest extends MultiDriverTestClass {
 	public void testDumpIndexes() {
 
 		getGraphDatabaseService().execute("CREATE CONSTRAINT ON (login:`Login`) ASSERT login.`userName` IS UNIQUE");
+
 		configuration.autoIndexConfiguration().setAutoIndex("dump");
 		configuration.autoIndexConfiguration().setDumpDir(".");
 		configuration.autoIndexConfiguration().setDumpFilename("test.cql");
+
 		new SessionFactory(configuration, "org.neo4j.ogm.domain.forum");
+
 		File file = new File("./test.cql");
-		assertTrue(file.exists());
+		Assert.assertTrue(file.exists());
 		file.delete();
 	}
 

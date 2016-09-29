@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.config;
 
-import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.service.Components;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.neo4j.ogm.service.Components;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -50,6 +50,14 @@ public class Configuration implements AutoCloseable {
         compilerConfiguration = null;
         autoIndexConfiguration = null;
         configure(propertiesFilename);
+    }
+
+    public void copyFrom(Configuration configuration) {
+        this.driverConfiguration = configuration.driverConfiguration;
+        this.compilerConfiguration = configuration.compilerConfiguration;
+        this.autoIndexConfiguration = configuration.autoIndexConfiguration;
+        this.config.clear();
+        this.config.putAll(configuration.config);
     }
 
     public void set(String key, Object value) {
@@ -134,6 +142,6 @@ public class Configuration implements AutoCloseable {
     }
 
     public void close() {
-        Components.destroy();
+        Components.close();
     }
 }

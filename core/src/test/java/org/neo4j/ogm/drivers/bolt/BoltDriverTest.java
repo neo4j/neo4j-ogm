@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.drivers.bolt;
 
+import static org.junit.Assume.assumeTrue;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.harness.ServerControls;
@@ -21,9 +26,6 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.service.Components;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @author Luanne Misquitta
@@ -35,27 +37,37 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 
 	@BeforeClass
 	public static void configure() {
-		neoServer = TestServerBuilders.newInProcessBuilder()
-				.withConfig("dbms.connector.0.enabled", "true")
-				.newServer();
 
-		Configuration configuration = new Configuration();
-				configuration.driverConfiguration()
-				.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-				.setURI(boltURI())
-				.setEncryptionLevel("NONE");
+	    // this will ensure all tests get ignored if the current neo4j kernel is < 3.0
+		assumeTrue(Components.neo4jVersion() >= 3.0);
 
-		Components.configure(configuration);
+		// but we also need to ensure the rest of the static configuration does not run for a non-bolt kernel
+		if (Components.neo4jVersion() < 3.0) {
+			neoServer = TestServerBuilders.newInProcessBuilder()
+					.withConfig("dbms.connector.0.enabled", "true")
+					.newServer();
+
+			Configuration configuration = new Configuration();
+			configuration.driverConfiguration()
+					.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+					.setURI(boltURI())
+					.setEncryptionLevel("NONE");
+
+			Components.configure(configuration);
+		}
+
 	}
 
 	@AfterClass
 	public static void reset() {
-		Components.driver().close();
-		neoServer.close();
+		if (Components.neo4jVersion() < 3.0) {
+			Components.close();
+			neoServer.close();
+		}
 	}
 	@Override
 	public void setUp() {
-		assert Components.driver() instanceof BoltDriver;
+		assumeTrue(Components.driver() instanceof BoltDriver);
 	}
 
 	private static String boltURI() {

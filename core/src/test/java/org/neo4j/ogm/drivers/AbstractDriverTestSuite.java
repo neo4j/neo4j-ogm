@@ -12,12 +12,8 @@
  */
 package org.neo4j.ogm.drivers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,12 +24,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;

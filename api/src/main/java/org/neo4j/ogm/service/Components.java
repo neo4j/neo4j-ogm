@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.service;
 
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Properties;
+
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.Configuration;
@@ -20,10 +24,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.index.AutoIndexMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Properties;
 
 /**
  * This class is responsible for ensuring that the various pluggable components
@@ -60,9 +60,10 @@ public class Components {
      * @param configuration The configuration to use
      */
     public static void configure(Configuration configuration) {
-        destroy();
-        Components.configuration = configuration;
+        close();
+        Components.configuration.copyFrom(configuration);
     }
+
 
     /**
      * Configure the OGM from the specified config file
@@ -109,8 +110,9 @@ public class Components {
     }
 
     private static void configure(InputStream is) throws Exception {
-        configuration.clear();
-        driver = null;
+        //driver = null;
+        //configuration.clear();
+        close();
         Properties properties = new Properties();
         properties.load(is);
         Enumeration propertyNames = properties.propertyNames();
@@ -158,28 +160,34 @@ public class Components {
         Components.driver = driver;
     }
 
+    /**
+     * @return  The major.minor part of a Neo4j version string, as a double
+     */
     public static double neo4jVersion() {
         String neo4jVersion = (String) configuration.get("neo4j.version");
         if (neo4jVersion != null) {
             try {
-                return new Double(neo4jVersion);
+                String[] versionElements = neo4jVersion.split("\\.");
+                if (versionElements.length < 2) {
+                    throw new NumberFormatException();
+                }
+                return new Double(versionElements[0] + "." + versionElements[1]);
             } catch (NumberFormatException nfe) {
-                logger.warn("Configuration property 'neo4j.version' is not in the correct form: expected something like '2.3'");
+                logger.warn("Configuration property 'neo4j.version' is not in the correct form: expected something like '2.3', but got '{}' instead", neo4jVersion);
             }
         }
         return 9.9; // unknown version
     }
 
-    // destroys the current Components object, releasing all resources
-    public synchronized static void destroy() {
+    // releases
+    public synchronized static void close() {
 
         if (driver != null) {
             driver.close();
             driver = null;
         }
-        if (configuration != null) {
-            configuration.clear();
-        }
+
+        configuration.clear();
     }
 
     // FIXME: Configuration is a bit too tightly coupled to Component.

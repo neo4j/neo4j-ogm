@@ -1,5 +1,6 @@
 package org.neo4j.ogm.index;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.*;
 
 import java.io.File;
@@ -14,9 +15,9 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 /**
  * Make sure this tests works across all drivers supporting Neo4j 3.x and above.
  *
- * TODO: Not finished. No assertions. Have to refactor to find a way to expose indexes.
+ * FIXME: Configuration makes trying to set up these tests very difficult. We need to change the way Configuration/Components works.
  *
- * Created by markangrish on 16/09/2016.
+ * @author Mark Angrish
  */
 public class IndexManagerTest extends MultiDriverTestClass {
 
@@ -41,10 +42,11 @@ public class IndexManagerTest extends MultiDriverTestClass {
 
 		getGraphDatabaseService().execute("CREATE CONSTRAINT ON (login:`Login`) ASSERT login.`userName` IS UNIQUE");
 		configuration.autoIndexConfiguration().setAutoIndex("dump");
-		configuration.autoIndexConfiguration().setDumpDir("tmp");
+		configuration.autoIndexConfiguration().setDumpDir(".");
 		configuration.autoIndexConfiguration().setDumpFilename("test.cql");
 		new SessionFactory(configuration, "org.neo4j.ogm.domain.forum");
-		File file = new File("./tmp/test.cql");
+		File file = new File("./test.cql");
+		assertTrue(file.exists());
 		file.delete();
 	}
 

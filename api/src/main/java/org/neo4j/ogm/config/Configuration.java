@@ -57,7 +57,6 @@ public class Configuration implements AutoCloseable {
         return config.get(key);
     }
 
-
     public Object get(String... keys) {
         for (String key : keys) {
             Object obj = config.get(key);

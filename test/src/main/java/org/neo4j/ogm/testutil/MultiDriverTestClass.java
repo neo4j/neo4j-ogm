@@ -35,7 +35,7 @@ public class MultiDriverTestClass {
 
 
     @BeforeClass
-    public static void setupMultiDriverTestEnvironment() {
+    public static synchronized void setupMultiDriverTestEnvironment() {
 
         Driver driver = Components.driver(); // this will load the driver
 
@@ -68,24 +68,27 @@ public class MultiDriverTestClass {
     }
 
     @AfterClass
-    public static void tearDownMultiDriverTestEnvironment() {
+    public static synchronized void tearDownMultiDriverTestEnvironment() {
         close();
     }
 
     private static void close() {
 
         if (testServer != null) {
-            testServer.shutdown();
+            if (testServer.isRunning(100)) {
+                testServer.shutdown();
+            }
             testServer = null;
         }
         if (impermanentDb != null) {
-            impermanentDb.shutdown();
+            if (impermanentDb.isAvailable(100)) {
+                impermanentDb.shutdown();
+            }
             impermanentDb = null;
         }
-
     }
 
-    public static GraphDatabaseService getGraphDatabaseService() {
+    public static synchronized GraphDatabaseService getGraphDatabaseService() {
         if (testServer != null) {
             return testServer.getGraphDatabaseService();
         }

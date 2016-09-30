@@ -150,7 +150,7 @@ public class EmbeddedRequest implements Request {
             String cypher = statement.getStatement();
             String params = mapper.writeValueAsString(statement.getParameters());
             TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
-            HashMap<String, Object> parameterMap = mapper.readValue(params.getBytes(), typeRef);
+            HashMap<String, Object> parameterMap = mapper.readValue(params, typeRef);
 
             logger.info("Request: {} with params {}", cypher, parameterMap);
 

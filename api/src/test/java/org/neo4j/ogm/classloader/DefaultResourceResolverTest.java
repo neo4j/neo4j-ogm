@@ -29,7 +29,7 @@ public class DefaultResourceResolverTest {
 
         DefaultResourceResolver resourceResolver = new DefaultResourceResolver();
         File f = resourceResolver.resolve(new URL("file:///foo%23bar/WEB-INF/classes/Dependency.class"));
-        Assert.assertEquals("/foo#bar/WEB-INF/classes/Dependency.class", f.getPath());
+        Assert.assertEquals("/foo#bar/WEB-INF/classes/Dependency.class", f.getPath().replace('\\', '/'));
 
     }
 
@@ -38,7 +38,7 @@ public class DefaultResourceResolverTest {
 
         DefaultResourceResolver resourceResolver = new DefaultResourceResolver();
         File f = resourceResolver.resolve(new URL("jar:file:///foo%23bar/WEB-INF/lib/dependencies.jar!/Dependency.class"));
-        Assert.assertEquals("/foo#bar/WEB-INF/lib/dependencies.jar", f.getPath());
+        Assert.assertEquals("/foo#bar/WEB-INF/lib/dependencies.jar", f.getPath().replace('\\', '/'));
 
     }
 

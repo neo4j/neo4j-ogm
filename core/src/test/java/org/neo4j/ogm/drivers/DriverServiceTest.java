@@ -69,7 +69,7 @@ public class DriverServiceTest {
     public void shouldLoadEmbeddedDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 
-        String uri = "file://" + TMP_NEO4J_DB;
+        String uri = new File(TMP_NEO4J_DB).toURI().toString();
 
         driverConfiguration.setURI(uri);
 

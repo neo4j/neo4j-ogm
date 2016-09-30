@@ -35,10 +35,6 @@ public class AutoIndexConfiguration {
 
 	private final Configuration configuration;
 
-	public AutoIndexConfiguration() {
-		this.configuration = new Configuration();
-	}
-
 	public AutoIndexConfiguration(Configuration configuration) {
 		this.configuration = configuration;
 	}

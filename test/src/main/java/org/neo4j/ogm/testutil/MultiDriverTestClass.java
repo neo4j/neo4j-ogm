@@ -75,14 +75,17 @@ public class MultiDriverTestClass {
     private static void close() {
 
         if (testServer != null) {
-            testServer.shutdown();
+            if (testServer.isRunning(100)) {
+                testServer.shutdown();
+            }
             testServer = null;
         }
         if (impermanentDb != null) {
-            impermanentDb.shutdown();
+            if (impermanentDb.isAvailable(100)) {
+                impermanentDb.shutdown();
+            }
             impermanentDb = null;
         }
-
     }
 
     public static GraphDatabaseService getGraphDatabaseService() {

@@ -52,14 +52,6 @@ public class Configuration implements AutoCloseable {
         configure(propertiesFilename);
     }
 
-    public void copyFrom(Configuration configuration) {
-        this.driverConfiguration = configuration.driverConfiguration;
-        this.compilerConfiguration = configuration.compilerConfiguration;
-        this.autoIndexConfiguration = configuration.autoIndexConfiguration;
-        this.config.clear();
-        this.config.putAll(configuration.config);
-    }
-
     public void set(String key, Object value) {
         config.put(key, value);
     }
@@ -67,7 +59,6 @@ public class Configuration implements AutoCloseable {
     public Object get(String key) {
         return config.get(key);
     }
-
 
     public Object get(String... keys) {
         for (String key : keys) {
@@ -142,6 +133,6 @@ public class Configuration implements AutoCloseable {
     }
 
     public void close() {
-        Components.close();
+        Components.destroy();
     }
 }

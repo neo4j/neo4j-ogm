@@ -17,7 +17,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.testutil.TestServer;
 
@@ -31,18 +30,21 @@ public class HttpDriverTest extends AbstractDriverTestSuite {
     @BeforeClass
     public static void configure() {
         Components.configure("ogm-http.properties");
+        System.out.println("Http: " + Components.neo4jVersion());
         testServer = new TestServer.Builder().build();
     }
 
     @AfterClass
     public static void reset() {
         testServer.shutdown();
-        Components.autoConfigure();
+        Components.destroy();
     }
 
     @Before
-    public void setUp() {
-        assert Components.driver() instanceof HttpDriver;
+    public void setUpTest() {
     }
 
+    @Override
+    public void tearDownTest() {
+    }
 }

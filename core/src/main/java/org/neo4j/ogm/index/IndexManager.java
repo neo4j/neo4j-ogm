@@ -31,6 +31,8 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class controls the deletion and creation of indexes in the OGM.
@@ -38,6 +40,8 @@ import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
  * @author Mark Angrish
  */
 public class IndexManager {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
 
 	private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
 
@@ -60,12 +64,15 @@ public class IndexManager {
 	}
 
 	private List<Index> initialiseIndexMetadata(MetaData metaData) {
+		LOGGER.debug("Building Index Metadata.");
 		List<Index> indexMetadata = new ArrayList<>();
 		for (ClassInfo classInfo : metaData.persistentEntities()) {
 
 			if (classInfo.containsIndexes()) {
 				for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
-					indexMetadata.add(new Index(classInfo.neo4jName(), fieldInfo.property(), fieldInfo.isConstraint()));
+					final Index index = new Index(classInfo.neo4jName(), fieldInfo.property(), fieldInfo.isConstraint());
+					LOGGER.debug("Adding Index [description={}]", index);
+					indexMetadata.add(index);
 				}
 			}
 		}
@@ -101,6 +108,8 @@ public class IndexManager {
 				Components.getConfiguration().autoIndexConfiguration().getDumpFilename());
 		FileWriter writer = null;
 
+		LOGGER.debug("Dumping Indexes to: [{}]", file.toString());
+
 		try {
 			writer = new FileWriter(file);
 			writer.write(sb.toString());
@@ -115,6 +124,9 @@ public class IndexManager {
 	}
 
 	private void validateIndexes() {
+
+		LOGGER.debug("Validating Indexes");
+
 		DefaultRequest indexRequests = buildProcedures();
 		List<Index> copyOfIndexes = new ArrayList<>(indexes);
 
@@ -140,11 +152,14 @@ public class IndexManager {
 				missingIndexes += s.getDescription() + ", ";
 			}
 			missingIndexes += "]";
-			throw new RuntimeException("Validation of Constraints and IndexManager failed. Could not find the following : " + missingIndexes);
+			throw new MissingIndexException("Validation of Constraints and Indexes failed. Could not find the following : " + missingIndexes);
 		}
 	}
 
 	private void assertIndexes() {
+
+		LOGGER.debug("Asserting Indexes.");
+
 		DefaultRequest indexRequests = buildProcedures();
 		List<Statement> dropStatements = new ArrayList<>();
 
@@ -155,12 +170,16 @@ public class IndexManager {
 					continue;
 				}
 				// can replace this with a lookup of the Index by description but attaching DROP here is faster.
-				dropStatements.add(new RowDataStatement("DROP " + rowModel.getValues()[0], EMPTY_MAP));
+				final String dropStatement = "DROP " + rowModel.getValues()[0];
+				LOGGER.debug("[{}] added to drop statements.", dropStatement);
+				dropStatements.add(new RowDataStatement(dropStatement, EMPTY_MAP));
 			}
 		}
 
 		DefaultRequest dropIndexesRequest = new DefaultRequest();
 		dropIndexesRequest.setStatements(dropStatements);
+		LOGGER.debug("Dropping all indexes and constraints");
+
 		try (Response<RowModel> response = driver.request().execute(dropIndexesRequest)) {
 		}
 
@@ -185,10 +204,14 @@ public class IndexManager {
 		// build indexes according to metadata
 		List<Statement> statements = new ArrayList<>();
 		for (Index index : indexes) {
-			statements.add(index.getCreateStatement());
+			final Statement createStatement = index.getCreateStatement();
+			LOGGER.debug("[{}] added to create statements.", createStatement);
+			statements.add(createStatement);
 		}
 		DefaultRequest request = new DefaultRequest();
 		request.setStatements(statements);
+		LOGGER.debug("Creating indexes and constraints.");
+
 		try (Response<RowModel> response = driver.request().execute(request)) {
 			// Success
 		}

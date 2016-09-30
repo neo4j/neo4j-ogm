@@ -27,9 +27,11 @@ import org.neo4j.ogm.result.ResultGraphModel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Set;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -126,7 +128,12 @@ public class JsonGraphResponseTest {
                 "  \"errors\": []\n" +
                 "}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream noGraphResultsAndNoErrors() {
@@ -143,7 +150,12 @@ public class JsonGraphResponseTest {
                 "  \"errors\": []\n" +
                 "}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream loadByIdsGraphResults() {
@@ -327,7 +339,13 @@ public class JsonGraphResponseTest {
                 "  ],\n" +
                 "  \"errors\": []\n" +
                 "}";
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
+
 
     }
 

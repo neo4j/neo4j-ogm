@@ -29,9 +29,11 @@ import org.neo4j.ogm.result.ResultRestModel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -105,14 +107,24 @@ public class JsonRestResponseTest {
 
         final String s= "{\"results\":[{\"columns\":[\"count\",\"director\",\"movie\"],\"data\":[{\"rest\":[1,{\"outgoing_relationships\":\"http://localhost:7474/db/data/node/396/relationships/out\",\"labels\":\"http://localhost:7474/db/data/node/396/labels\",\"all_typed_relationships\":\"http://localhost:7474/db/data/node/396/relationships/all/{-list|&|types}\",\"traverse\":\"http://localhost:7474/db/data/node/396/traverse/{returnType}\",\"self\":\"http://localhost:7474/db/data/node/396\",\"property\":\"http://localhost:7474/db/data/node/396/properties/{key}\",\"outgoing_typed_relationships\":\"http://localhost:7474/db/data/node/396/relationships/out/{-list|&|types}\",\"properties\":\"http://localhost:7474/db/data/node/396/properties\",\"incoming_relationships\":\"http://localhost:7474/db/data/node/396/relationships/in\",\"create_relationship\":\"http://localhost:7474/db/data/node/396/relationships\",\"paged_traverse\":\"http://localhost:7474/db/data/node/396/paged/traverse/{returnType}{?pageSize,leaseTime}\",\"all_relationships\":\"http://localhost:7474/db/data/node/396/relationships/all\",\"incoming_typed_relationships\":\"http://localhost:7474/db/data/node/396/relationships/in/{-list|&|types}\",\"metadata\":{\"id\":396,\"labels\":[\"Person\"]},\"data\":{\"born\":1931,\"name\":\"Mike Nichols\"}},{\"outgoing_relationships\":\"http://localhost:7474/db/data/node/395/relationships/out\",\"labels\":\"http://localhost:7474/db/data/node/395/labels\",\"all_typed_relationships\":\"http://localhost:7474/db/data/node/395/relationships/all/{-list|&|types}\",\"traverse\":\"http://localhost:7474/db/data/node/395/traverse/{returnType}\",\"self\":\"http://localhost:7474/db/data/node/395\",\"property\":\"http://localhost:7474/db/data/node/395/properties/{key}\",\"outgoing_typed_relationships\":\"http://localhost:7474/db/data/node/395/relationships/out/{-list|&|types}\",\"properties\":\"http://localhost:7474/db/data/node/395/properties\",\"incoming_relationships\":\"http://localhost:7474/db/data/node/395/relationships/in\",\"create_relationship\":\"http://localhost:7474/db/data/node/395/relationships\",\"paged_traverse\":\"http://localhost:7474/db/data/node/395/paged/traverse/{returnType}{?pageSize,leaseTime}\",\"all_relationships\":\"http://localhost:7474/db/data/node/395/relationships/all\",\"incoming_typed_relationships\":\"http://localhost:7474/db/data/node/395/relationships/in/{-list|&|types}\",\"metadata\":{\"id\":395,\"labels\":[\"Movie\"]},\"data\":{\"released\":1996,\"title\":\"The Birdcage\",\"tagline\":\"Come as you are\"}}]},{\"rest\":[1,{\"outgoing_relationships\":\"http://localhost:7474/db/data/node/396/relationships/out\",\"labels\":\"http://localhost:7474/db/data/node/396/labels\",\"all_typed_relationships\":\"http://localhost:7474/db/data/node/396/relationships/all/{-list|&|types}\",\"traverse\":\"http://localhost:7474/db/data/node/396/traverse/{returnType}\",\"self\":\"http://localhost:7474/db/data/node/396\",\"property\":\"http://localhost:7474/db/data/node/396/properties/{key}\",\"outgoing_typed_relationships\":\"http://localhost:7474/db/data/node/396/relationships/out/{-list|&|types}\",\"properties\":\"http://localhost:7474/db/data/node/396/properties\",\"incoming_relationships\":\"http://localhost:7474/db/data/node/396/relationships/in\",\"create_relationship\":\"http://localhost:7474/db/data/node/396/relationships\",\"paged_traverse\":\"http://localhost:7474/db/data/node/396/paged/traverse/{returnType}{?pageSize,leaseTime}\",\"all_relationships\":\"http://localhost:7474/db/data/node/396/relationships/all\",\"incoming_typed_relationships\":\"http://localhost:7474/db/data/node/396/relationships/in/{-list|&|types}\",\"metadata\":{\"id\":396,\"labels\":[\"Person\"]},\"data\":{\"born\":1931,\"name\":\"Mike Nichols\"}},{\"outgoing_relationships\":\"http://localhost:7474/db/data/node/457/relationships/out\",\"labels\":\"http://localhost:7474/db/data/node/457/labels\",\"all_typed_relationships\":\"http://localhost:7474/db/data/node/457/relationships/all/{-list|&|types}\",\"traverse\":\"http://localhost:7474/db/data/node/457/traverse/{returnType}\",\"self\":\"http://localhost:7474/db/data/node/457\",\"property\":\"http://localhost:7474/db/data/node/457/properties/{key}\",\"outgoing_typed_relationships\":\"http://localhost:7474/db/data/node/457/relationships/out/{-list|&|types}\",\"properties\":\"http://localhost:7474/db/data/node/457/properties\",\"incoming_relationships\":\"http://localhost:7474/db/data/node/457/relationships/in\",\"create_relationship\":\"http://localhost:7474/db/data/node/457/relationships\",\"paged_traverse\":\"http://localhost:7474/db/data/node/457/paged/traverse/{returnType}{?pageSize,leaseTime}\",\"all_relationships\":\"http://localhost:7474/db/data/node/457/relationships/all\",\"incoming_typed_relationships\":\"http://localhost:7474/db/data/node/457/relationships/in/{-list|&|types}\",\"metadata\":{\"id\":457,\"labels\":[\"Movie\"]},\"data\":{\"released\":2007,\"title\":\"Charlie Wilson's War\",\"tagline\":\"A stiff drink. A little mascara. A lot of nerve. Who said they couldn't bring down the Soviet empire.\"}}]}]}],\"errors\":[]}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream noRowResultsAndNoErrors() {
 
         final String s = "{\"results\":[{\"columns\":[\"count\",\"director\",\"movie\"],\"data\":[]}],\"errors\":[]}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
 

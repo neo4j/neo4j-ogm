@@ -29,9 +29,11 @@ import org.neo4j.ogm.result.ResultGraphRowListModel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -438,7 +440,12 @@ public class JsonGraphRowResponseTest
                 "  ],\n" +
                 "  \"errors\": []\n" +
                 "}";
-        return new ByteArrayInputStream( s.getBytes() );
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     static class TestGraphRowHttpResponse extends AbstractHttpResponse< ResultGraphRowListModel > implements Response< GraphRowListModel >

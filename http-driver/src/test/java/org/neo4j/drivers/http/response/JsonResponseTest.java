@@ -25,7 +25,9 @@ import org.neo4j.ogm.result.ResultRowModel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -112,7 +114,12 @@ public class JsonResponseTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream noResultsAndErrors() {
@@ -126,21 +133,36 @@ public class JsonResponseTest {
                 "  ]\n" +
                 "}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream rowResultsAndNoErrors() {
 
         final String s= "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream noRowResultsAndNoErrors() {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
 

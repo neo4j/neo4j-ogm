@@ -26,9 +26,11 @@ import org.neo4j.ogm.result.ResultRowModel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -124,14 +126,24 @@ public class JsonRowResponseTest {
 
         final String s= "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream noRowResultsAndNoErrors() {
 
         final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[]]}]}],\"errors\": []}";
 
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
 
@@ -159,7 +171,12 @@ public class JsonRowResponseTest {
                 "  ],\n" +
                 "  \"errors\": []\n" +
                 "}";
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     private InputStream customQueryRowResults() {
@@ -204,7 +221,12 @@ public class JsonRowResponseTest {
                 "  ],\n" +
                 "  \"errors\": []\n" +
                 "}";
-        return new ByteArrayInputStream(s.getBytes());
+        try {
+            return new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            fail("UTF-8 encoding not supported on this platform");
+            throw new IllegalStateException("cannot be reached");
+        }
     }
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {

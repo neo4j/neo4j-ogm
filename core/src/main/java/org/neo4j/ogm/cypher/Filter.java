@@ -23,10 +23,15 @@ import java.util.UUID;
  * A parameter along with filter information to be added to a query.
  *
  * @author Luanne Misquitta
+ * @author Jasper Blues
  */
 public class Filter {
 
-	private String uuid;
+	/**
+	 * Index is used to to ensure unique parameter names when a collection of filters are used.
+	 * @see Filters
+	 */
+	private int index;
 
 	/**
 	 * The property name on the entity to be used in the filter
@@ -95,7 +100,7 @@ public class Filter {
 
 	//Primary Constructor
 	public Filter(FilterFunction function) {
-		this.uuid = UUID.randomUUID().toString();
+		this.index = 0;
 		this.function = function;
 		this.function.setFilter(this);
 	}
@@ -244,8 +249,8 @@ public class Filter {
 	}
 
 	public String uniqueParameterName() {
-		return isNested() ? uuid + "_" + getNestedPropertyName() + "_" + getPropertyName() :
-				uuid + "_" + getPropertyName();
+		return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index:
+				getPropertyName() + "_" + index;
 	}
 
 	/**
@@ -266,6 +271,15 @@ public class Filter {
 		assert function != null;
 		this.function = function;
 		this.function.setFilter(this);
+	}
+
+	/**
+	 * Used by Filters to assign an index, so that unique parameter names are ensured when filters are used in a
+	 * collection. Should not be called directly.
+	 * @param index
+	 */
+	void setIndex(int index) {
+		this.index = index;
 	}
 
 	/**

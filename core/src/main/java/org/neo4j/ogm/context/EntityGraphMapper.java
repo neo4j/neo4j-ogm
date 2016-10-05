@@ -14,6 +14,10 @@
 package org.neo4j.ogm.context;
 
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -34,10 +38,6 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Iterator;
 
 
 /**
@@ -338,7 +338,7 @@ public class EntityGraphMapper implements EntityMapper {
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
             Class startNodeType = srcInfo.getUnderlyingClass();
-            Class endNodeType = ClassUtils.getType(reader.typeParameterDescriptor());
+            Class endNodeType = ClassUtils.getType(reader.typeDescriptor());
 
             DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, relationshipDirection);
 
@@ -810,7 +810,7 @@ public class EntityGraphMapper implements EntityMapper {
             //If its a rel entity then we want to rebase the startClass to the @StartNode of the rel entity and the endClass to the rel entity
             if (metaData.isRelationshipEntity(tgtClass.getName())) {
                 srcClass = tgtClass;
-                String start = EntityAccessManager.getStartNodeReader(metaData.classInfo(tgtClass.getName())).typeParameterDescriptor();
+                String start = EntityAccessManager.getStartNodeReader(metaData.classInfo(tgtClass.getName())).typeDescriptor();
                 tgtClass = ClassUtils.getType(start);
             }
             reallyCreateRelationship(context, tgt, relationshipBuilder, src, tgtClass, srcClass);

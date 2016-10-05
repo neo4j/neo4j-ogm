@@ -85,7 +85,7 @@ public class MethodReader implements RelationalReader, PropertyReader {
     }
 
     @Override
-    public String typeParameterDescriptor() {
+    public String typeDescriptor() {
         return methodInfo.getTypeDescriptor();
     }
 

@@ -27,6 +27,6 @@ public interface RelationalReader {
 
     String relationshipDirection();
 
-    String typeParameterDescriptor();
+    String typeDescriptor();
 
 }

@@ -38,21 +38,8 @@ public class DriverExceptionTest {
 	@Test(expected = ConnectionException.class)
 	public void shouldThrowExceptionWhenEmbeddedDriverCannotConnect() {
 		Components.configure("ogm-embedded-invalid.properties");
-		final GraphDatabaseService db = ((EmbeddedDriver)Components.driver()).getGraphDatabaseService();
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				db.shutdown();
-			}
-		});
 		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
 		Session session = sessionFactory.openSession();
-		session.purgeDatabase();
-
-		//Try to reconnect to the same database
-		Components.configure("ogm-embedded-invalid.properties");
-		sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
-		session = sessionFactory.openSession();
 		session.purgeDatabase();
 	}
 

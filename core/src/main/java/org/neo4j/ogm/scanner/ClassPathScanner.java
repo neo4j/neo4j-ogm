@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.scanner;
 
-import org.neo4j.ogm.metadata.ClassFileProcessor;
-import org.neo4j.ogm.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +23,11 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import org.neo4j.ogm.metadata.ClassFileProcessor;
+import org.neo4j.ogm.utils.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
@@ -89,12 +89,10 @@ public class ClassPathScanner {
         String name = entry.getName();
 
         LOGGER.debug("Scanning class entry: {}", name);
-        int i = name.lastIndexOf("/");
-        String path = (i == -1) ? "" : name.substring(0, i);
 
         for (String pathToScan : classPaths) {
-            if (path.equals(pathToScan) || path.startsWith(pathToScan.concat("/"))) {
-                LOGGER.debug("{} admits {} for entry: {}", pathToScan, path,name);
+            if (name.contains(pathToScan)) {
+                LOGGER.debug("{} found in {}", pathToScan, name);
                 processor.process(inputStream);
                 break;
             }

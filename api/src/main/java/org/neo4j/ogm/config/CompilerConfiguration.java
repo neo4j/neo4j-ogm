@@ -23,10 +23,6 @@ public class CompilerConfiguration {
 
     private final Configuration configuration;
 
-    public CompilerConfiguration() {
-        this.configuration = new Configuration();
-    }
-
     public CompilerConfiguration(Configuration configuration) {
         this.configuration = configuration;
     }

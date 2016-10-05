@@ -22,7 +22,6 @@
 
   <logger name="org.neo4j.ogm" level="info" />
 
-
   <root level="warn">
 		<appender-ref ref="console" />
 	</root>

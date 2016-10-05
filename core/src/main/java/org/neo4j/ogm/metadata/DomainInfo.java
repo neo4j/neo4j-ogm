@@ -310,6 +310,10 @@ public class DomainInfo implements ClassFileProcessor {
 
         for (String packageName : packages) {
             String path = packageName.replace(".", "/");
+            // ensure classpath entries are complete, to ensure we don't accidentally admit partial matches.
+            if (!path.endsWith("/")) {
+                path = path.concat("/");
+            }
             classPaths.add(path);
         }
 

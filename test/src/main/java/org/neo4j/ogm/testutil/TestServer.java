@@ -13,6 +13,13 @@
 
 package org.neo4j.ogm.testutil;
 
+import java.io.FileWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
@@ -21,13 +28,6 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
-
-import java.io.FileWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  *
@@ -150,8 +150,10 @@ public class TestServer {
         System.out.println("******************************************************************************");
         System.out.println("* Stopping in memory test server on: " + url());
         System.out.println("******************************************************************************");
-
-        database.shutdown();
+        if (database != null && database.isAvailable(100)) {
+            database.shutdown();
+            database = null;
+        }
         controls.close();
 
     }

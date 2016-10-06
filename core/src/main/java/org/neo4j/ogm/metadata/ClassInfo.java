@@ -158,9 +158,7 @@ public class ClassInfo {
     }
 
     void extend(ClassInfo classInfo) {
-        //this.interfaces.addAll(classInfo.interfaces());
         this.interfacesInfo.append(classInfo.interfacesInfo());
-
         this.fieldsInfo.append(classInfo.fieldsInfo());
         this.methodsInfo.append(classInfo.methodsInfo());
     }
@@ -324,7 +322,7 @@ public class ClassInfo {
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                     AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
                     if (annotationInfo != null) {
-                        if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
+                        if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
                             identityField = fieldInfo;
                             return fieldInfo;
                         }
@@ -332,7 +330,7 @@ public class ClassInfo {
                 }
                 FieldInfo fieldInfo = fieldsInfo().get("id");
                 if (fieldInfo != null) {
-                    if (fieldInfo.getDescriptor().equals("Ljava/lang/Long;")) {
+                    if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
                         identityField = fieldInfo;
                         return fieldInfo;
                     }
@@ -572,14 +570,14 @@ public class ClassInfo {
         for (MethodInfo methodInfo : methodsInfo().getters()) {
             AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
-                if (methodInfo.getDescriptor().equals("()Ljava/lang/Long;")) {
+                if (methodInfo.getTypeDescriptor().equals("()Ljava/lang/Long;")) {
                     return methodInfo;
                 }
             }
         }
         MethodInfo methodInfo = methodsInfo().get("getId");
         if (methodInfo != null) {
-            if (methodInfo.getDescriptor().equals("()Ljava/lang/Long;")) {
+            if (methodInfo.getTypeDescriptor().equals("()Ljava/lang/Long;")) {
                 return methodInfo;
             }
         }
@@ -596,14 +594,14 @@ public class ClassInfo {
         for (MethodInfo methodInfo : methodsInfo().setters()) {
             AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
             if (annotationInfo != null) {
-                if (methodInfo.getDescriptor().equals("(Ljava/lang/Long;)V")) {
+                if (methodInfo.getTypeDescriptor().equals("(Ljava/lang/Long;)V")) {
                     return methodInfo;
                 }
             }
         }
         MethodInfo methodInfo = methodsInfo().get("setId");
         if (methodInfo != null) {
-            if (methodInfo.getDescriptor().equals("(Ljava/lang/Long;)V")) {
+            if (methodInfo.getTypeDescriptor().equals("(Ljava/lang/Long;)V")) {
                 return methodInfo;
             }
         }
@@ -860,14 +858,14 @@ public class ClassInfo {
 
     }
 
-
-    @SuppressWarnings("unchecked")
-    public Method getMethod(MethodInfo methodInfo, Class... parameterTypes) {
-        try {
-            return MetaDataClassLoader.loadClass(name()).getMethod(methodInfo.getName(), parameterTypes);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    /**
+     * Returns the Method corresponding to the supplied MethodInfo as declared by the class represented by this ClassInfo
+     *
+     * @param methodInfo the MethodInfo used to obtain the Method
+     * @return a Method
+     */
+    public Method getMethod(MethodInfo methodInfo) {
+        return methodInfo.getMethod(name());
     }
 
     /**
@@ -880,7 +878,7 @@ public class ClassInfo {
         String setterSignature = "(L" + parameterType.getName().replace(".", "/") + ";)V";
         List<MethodInfo> methodInfos = new ArrayList<>();
         for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.getDescriptor().equals(setterSignature)) {
+            if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
                 methodInfos.add(methodInfo);
             }
         }
@@ -897,7 +895,7 @@ public class ClassInfo {
         String setterSignature = "()L" + returnType.getName().replace(".", "/") + ";";
         List<MethodInfo> methodInfos = new ArrayList<>();
         for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.getDescriptor().equals(setterSignature)) {
+            if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
                 methodInfos.add(methodInfo);
             }
         }
@@ -914,7 +912,7 @@ public class ClassInfo {
         String fieldSignature = "L" + fieldType.getName().replace(".", "/") + ";";
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (fieldInfo.getDescriptor().equals(fieldSignature)) {
+            if (fieldInfo.getTypeDescriptor().equals(fieldSignature)) {
                 fieldInfos.add(fieldInfo);
             }
         }
@@ -974,11 +972,11 @@ public class ClassInfo {
         String arrayOfTypeSignature = "[" + typeSignature;
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                if (fieldInfo.getTypeParameterDescriptor() != null) {
-                    if (fieldInfo.getTypeParameterDescriptor().equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType)) {
-                        fieldInfos.add(fieldInfo);
-                    }
-                } else if (fieldInfo.getDescriptor().equals(arrayOfTypeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType)) {
+                String fieldType = fieldInfo.getTypeDescriptor();
+                if (fieldInfo.isArray() && (fieldType.equals(arrayOfTypeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
+                    fieldInfos.add(fieldInfo);
+                }
+                else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
                     fieldInfos.add(fieldInfo);
                 }
             }
@@ -1031,26 +1029,20 @@ public class ClassInfo {
         String arrayOfTypeSignature = "([" + typeSignature + ")V";
         try {
             for (MethodInfo methodInfo : propertySetters()) {
-                if (methodInfo.getTypeParameterDescriptor() != null) {
-                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
-                        methodInfos.add(methodInfo);
-                    }
-                } else {
-                    if (methodInfo.getDescriptor().equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
-                        methodInfos.add(methodInfo);
-                    }
+                String methodType = methodInfo.getTypeDescriptor();
+                if (methodInfo.isArray() && (methodType.equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
+                    methodInfos.add(methodInfo);
+                } else if (methodInfo.isIterable() && (methodType.equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
+                    methodInfos.add(methodInfo);
                 }
             }
-
             for (MethodInfo methodInfo : relationshipSetters()) {
-                if (methodInfo.getTypeParameterDescriptor() != null) {
-                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
-                        methodInfos.add(methodInfo);
-                    } else {
-                        if (methodInfo.getDescriptor().equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType)) {
-                            methodInfos.add(methodInfo);
-                        }
-                    }
+                String methodType = methodInfo.getTypeDescriptor();
+                if (methodInfo.isArray() && (methodType.equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
+                    methodInfos.add(methodInfo);
+                }
+                else if (methodInfo.isIterable() && (methodType.equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
+                    methodInfos.add(methodInfo);
                 }
             }
             iterableSettersForType.put(iteratedType, methodInfos);
@@ -1103,26 +1095,22 @@ public class ClassInfo {
         String arrayOfTypeSignature = "()[" + typeSignature;
         try {
             for (MethodInfo methodInfo : propertyGetters()) {
-                if (methodInfo.getTypeParameterDescriptor() != null) {
-                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
-                        methodInfos.add(methodInfo);
-                    }
-                } else {
-                    if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
-                        methodInfos.add(methodInfo);
-                    }
+                String methodType = methodInfo.getTypeDescriptor();
+                if (methodInfo.isArray() && methodType.equals(arrayOfTypeSignature)) {
+                    methodInfos.add(methodInfo);
+                }
+                else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
+                    methodInfos.add(methodInfo);
                 }
             }
 
             for (MethodInfo methodInfo : relationshipGetters()) {
-                if (methodInfo.getTypeParameterDescriptor() != null) {
-                    if (methodInfo.getTypeParameterDescriptor().equals(typeSignature)) {
-                        methodInfos.add(methodInfo);
-                    } else {
-                        if (methodInfo.getDescriptor().equals(arrayOfTypeSignature)) {
-                            methodInfos.add(methodInfo);
-                        }
-                    }
+                String methodType = methodInfo.getTypeDescriptor();
+                if (methodInfo.isArray() && methodType.equals(arrayOfTypeSignature)) {
+                    methodInfos.add(methodInfo);
+                }
+                else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
+                    methodInfos.add(methodInfo);
                 }
             }
             iterableGettersForType.put(iteratedType, methodInfos);

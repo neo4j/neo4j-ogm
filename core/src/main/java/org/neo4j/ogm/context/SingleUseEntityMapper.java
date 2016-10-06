@@ -13,6 +13,12 @@
 
 package org.neo4j.ogm.context;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.exception.MappingException;
@@ -22,12 +28,6 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Simple graph-to-entity mapper suitable for ad-hoc, one-off mappings.  This doesn't interact with a
@@ -134,10 +134,7 @@ public class SingleUseEntityMapper {
     private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
         FieldInfo fieldInfo = classInfo.propertyField(propertyName);
         if (fieldInfo != null) {
-            String descriptor = fieldInfo.getTypeDescriptor() == null ? fieldInfo.getTypeParameterDescriptor() : fieldInfo.getTypeDescriptor();
-            if (descriptor != null) {
-                return ClassUtils.getType(descriptor);
-            }
+            return ClassUtils.getType(fieldInfo.getTypeDescriptor());
         }
         return classInfo.getUnderlyingClass();
     }

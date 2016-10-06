@@ -11,12 +11,7 @@
 
 package org.neo4j.ogm.entity.io;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
@@ -652,7 +647,7 @@ public class EntityAccessManager {
     private static void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo, FieldWriter fieldWriter) {
         if(fieldInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param
-            directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, ClassUtils.getType(fieldInfo.getTypeParameterDescriptor()));
+            directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, ClassUtils.getType(fieldInfo.getTypeDescriptor()));
         }
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldWriter);
     }
@@ -660,7 +655,7 @@ public class EntityAccessManager {
     private static void cacheIterableMethodWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, MethodInfo methodInfo, MethodWriter methodWriter) {
         if(methodInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param
-            directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, ClassUtils.getType(methodInfo.getTypeParameterDescriptor()));
+            directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, ClassUtils.getType(methodInfo.getTypeDescriptor()));
         }
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, methodWriter);
     }

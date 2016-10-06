@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotation.Transient;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.annotation.Transient;
 
 /**
  * @author Vince Bickers
@@ -99,12 +99,11 @@ public class MethodsInfo {
 
     private void addMethod(MethodInfo methodInfo) {
         String methodName = methodInfo.getName();
-        String descriptor = methodInfo.getDescriptor();
         methods.put(methodName, methodInfo);
-        if (methodName.startsWith("get") && descriptor.startsWith("()")) {
+        if (methodInfo.isGetter()) {
             getters.put(methodName, methodInfo);
         }
-        else if (methodName.startsWith("set") && descriptor.endsWith(")V")) {
+        else if (methodInfo.isSetter()) {
             setters.put(methodName, methodInfo);
         }
     }

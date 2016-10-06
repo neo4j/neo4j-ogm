@@ -358,21 +358,19 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void registerDefaultMethodConverters(ClassInfo classInfo, MethodInfo methodInfo) {
-        if (!methodInfo.hasPropertyConverter() && !methodInfo.hasCompositeConverter()) {
-            if (methodInfo.getDescriptor().contains(dateSignature)
-                    || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(dateSignature))) {
+        if (!methodInfo.hasPropertyConverter() && !methodInfo.hasCompositeConverter() && (methodInfo.isGetter() || methodInfo.isSetter())) {
+            if (methodInfo.getTypeDescriptor().contains(dateSignature)) {
                 setDateMethodConverter(methodInfo);
-            } else if (methodInfo.getDescriptor().contains(bigIntegerSignature)
-                    || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(bigIntegerSignature))) {
+            } else if (methodInfo.getTypeDescriptor().contains(bigIntegerSignature)) {
                 setBigIntegerMethodConverter(methodInfo);
-            } else if (methodInfo.getDescriptor().contains(bigDecimalSignature)
-                    || (methodInfo.getTypeParameterDescriptor() != null && methodInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
+            } else if (methodInfo.getTypeDescriptor().contains(bigDecimalSignature)) {
                 setBigDecimalMethodConverter(methodInfo);
-            } else if (methodInfo.getDescriptor().contains(byteArraySignature)) {
+            } else if (methodInfo.getTypeDescriptor().contains(byteArraySignature)) {
                 methodInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (methodInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
+            } else if (methodInfo.getTypeDescriptor().contains(byteArrayWrapperSignature)) {
                 methodInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
-            } else {
+            }
+            else {
                 // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
                 // FIXME: this won't really work unless I infer the source and target types from the descriptor here
                 // well, I can't infer the thing that gets put in the graph until the moment it's given, can I!?
@@ -382,7 +380,7 @@ public class DomainInfo implements ClassFileProcessor {
                 // ... and to look up the correct converter from Spring you always need the target type :(
                 if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                    Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getDescriptor());
+                    Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getTypeDescriptor());
                     String graphTypeDescriptor = methodInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
                         throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
@@ -391,24 +389,22 @@ public class DomainInfo implements ClassFileProcessor {
                     }
                     methodInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
+                Class methodType = ClassUtils.getType(methodInfo.getTypeDescriptor());
+                if (methodType != null) {
 
-                Class descriptorClass = getDescriptorClass(methodInfo.getDescriptor());
-                Class typeParamDescriptorClass = getDescriptorClass(methodInfo.getTypeParameterDescriptor());
-                boolean enumConverterSet = false;
-                for (Class enumClass : enumTypes) {
-                    if (descriptorClass != null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass != null && typeParamDescriptorClass.equals(enumClass))) {
-                        setEnumMethodConverter(methodInfo, enumClass);
-                        enumConverterSet = true;
-                        break;
+                    boolean enumConverterSet = false;
+                    for (Class enumClass : enumTypes) {
+                        if (methodType.equals(enumClass) || (methodType.isArray() && methodType.getComponentType().equals(enumClass))) {
+                            setEnumMethodConverter(methodInfo, enumClass);
+                            enumConverterSet = true;
+                            break;
+                        }
                     }
-                }
-                if (!enumConverterSet) {
-                    if (descriptorClass != null && descriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
-                        setEnumMethodConverter(methodInfo, descriptorClass);
-                    } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
-                        setEnumMethodConverter(methodInfo, typeParamDescriptorClass);
+                    if (!enumConverterSet) {
+                        if (methodType.isEnum()) {
+                            LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
+                            setEnumMethodConverter(methodInfo, methodType);
+                        }
                     }
                 }
             }
@@ -417,10 +413,10 @@ public class DomainInfo implements ClassFileProcessor {
 
 
     private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
-        if(methodInfo.getDescriptor().contains(arraySignature)) {
+        if(methodInfo.isArray()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
+        else if(methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, methodInfo.getCollectionClassname()));
         }
         else {
@@ -429,10 +425,10 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void setBigDecimalMethodConverter(MethodInfo methodInfo) {
-        if(methodInfo.getDescriptor().contains(arraySignature)) {
+        if(methodInfo.isArray()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
+        else if(methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
@@ -441,10 +437,10 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void setBigIntegerMethodConverter(MethodInfo methodInfo) {
-        if(methodInfo.getDescriptor().contains(arraySignature)) {
+        if(methodInfo.isArray()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
+        else if(methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
@@ -453,10 +449,10 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void setDateMethodConverter(MethodInfo methodInfo) {
-        if(methodInfo.getDescriptor().contains(arraySignature)) {
+        if(methodInfo.isArray()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
+        else if(methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
@@ -465,24 +461,24 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {
+        
         if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
-            if (fieldInfo.getDescriptor().contains(dateSignature)
-                    || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(dateSignature))) {
+        
+            if (fieldInfo.getTypeDescriptor().contains(dateSignature)) {
                 setDateFieldConverter(fieldInfo);
-            } else if (fieldInfo.getDescriptor().contains(bigIntegerSignature)
-                    || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(bigIntegerSignature))) {
+            } else if (fieldInfo.getTypeDescriptor().contains(bigIntegerSignature)) {
                 setBigIntegerFieldConverter(fieldInfo);
-            } else if (fieldInfo.getDescriptor().contains(bigDecimalSignature)
-                    || (fieldInfo.getTypeParameterDescriptor() != null && fieldInfo.getTypeParameterDescriptor().contains(bigDecimalSignature))) {
+            } else if (fieldInfo.getTypeDescriptor().contains(bigDecimalSignature)) {
                 setBigDecimalConverter(fieldInfo);
-            } else if (fieldInfo.getDescriptor().contains(byteArraySignature)) {
+            } else if (fieldInfo.getTypeDescriptor().contains(byteArraySignature)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (fieldInfo.getDescriptor().contains(byteArrayWrapperSignature)) {
+            } else if (fieldInfo.getTypeDescriptor().contains(byteArrayWrapperSignature)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
-            } else {
+            }
+            else {
                 if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                    Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getDescriptor());
+                    Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
                     String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
                         throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
@@ -492,23 +488,21 @@ public class DomainInfo implements ClassFileProcessor {
                     fieldInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
-                Class descriptorClass = getDescriptorClass(fieldInfo.getDescriptor());
-                Class typeParamDescriptorClass = getDescriptorClass(fieldInfo.getTypeParameterDescriptor());
+                Class fieldType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+
                 boolean enumConverterSet = false;
                 for (Class enumClass : enumTypes) {
-                    if (descriptorClass != null && descriptorClass.equals(enumClass) || (typeParamDescriptorClass != null && typeParamDescriptorClass.equals(enumClass))) {
+                    if (fieldType.equals(enumClass)) {
                         setEnumFieldConverter(fieldInfo, enumClass);
                         enumConverterSet = true;
                         break;
                     }
                 }
+                
                 if (!enumConverterSet) {
-                    if (descriptorClass != null && descriptorClass.isEnum()) {
+                    if (fieldType.isEnum()) {
                         LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
-                        setEnumFieldConverter(fieldInfo, descriptorClass);
-                    } else if (typeParamDescriptorClass != null && typeParamDescriptorClass.isEnum()) {
-                        LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", field: " + fieldInfo.getName());
-                        setEnumFieldConverter(fieldInfo, typeParamDescriptorClass);
+                        setEnumFieldConverter(fieldInfo, fieldType);
                     }
                 }
             }
@@ -517,10 +511,10 @@ public class DomainInfo implements ClassFileProcessor {
 
 
     private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
-        if(fieldInfo.getDescriptor().contains(arraySignature)) {
+        if(fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
+        else if(fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
         }
         else {
@@ -529,10 +523,10 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void setBigDecimalConverter(FieldInfo fieldInfo) {
-        if(fieldInfo.getDescriptor().contains(arraySignature)) {
+        if(fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
+        else if(fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
@@ -541,10 +535,10 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void setBigIntegerFieldConverter(FieldInfo fieldInfo) {
-        if(fieldInfo.getDescriptor().contains(arraySignature)) {
+        if(fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
+        else if(fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
@@ -553,10 +547,10 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void setDateFieldConverter(FieldInfo fieldInfo) {
-        if(fieldInfo.getDescriptor().contains(arraySignature)) {
+        if(fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
+        else if(fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
@@ -572,20 +566,4 @@ public class DomainInfo implements ClassFileProcessor {
     public List<ClassInfo> getClassInfos(String interfaceName) {
         return interfaceNameToClassInfo.get(interfaceName);
     }
-
-    private Class getDescriptorClass(String descriptor) {
-        Class descriptorClass = null;
-        if(descriptor!=null) {
-            try {
-                descriptorClass = ClassUtils.getType(descriptor);
-                if (descriptorClass.isArray()) {
-                    descriptorClass = descriptorClass.getComponentType();
-                }
-            } catch (RuntimeException e) {
-                LOGGER.debug("Could not load class for descriptor {}", descriptor);
-            }
-        }
-        return descriptorClass;
-    }
-
 }

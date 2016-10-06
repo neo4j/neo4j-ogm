@@ -17,7 +17,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.utils.ClassUtils;
 
 /**
  * @author Vince Bickers
@@ -31,8 +30,8 @@ public class MethodWriter extends EntityAccess {
 
     MethodWriter(ClassInfo classInfo, MethodInfo methodInfo) {
         this.setterMethodInfo = methodInfo;
-        this.parameterType = ClassUtils.getType(setterMethodInfo.getDescriptor());
-        this.method = classInfo.getMethod(setterMethodInfo, parameterType);
+        this.method = classInfo.getMethod(setterMethodInfo);
+        this.parameterType = method.getParameterTypes()[0];
     }
 
     private static void write(Method method, Object instance, Object value) {
@@ -64,8 +63,9 @@ public class MethodWriter extends EntityAccess {
 
         else {
             if (setterMethodInfo.isScalar()) {
-                String descriptor = setterMethodInfo.getTypeParameterDescriptor() == null ? setterMethodInfo.getDescriptor() : setterMethodInfo.getTypeParameterDescriptor();
-                value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
+                if (value.getClass() != parameterType) {
+                    value = Utils.coerceTypes(parameterType, value);
+                }
             }
             MethodWriter.write(method, instance, value);
         }

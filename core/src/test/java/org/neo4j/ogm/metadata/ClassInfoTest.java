@@ -14,7 +14,15 @@
 
 package org.neo4j.ogm.metadata;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
@@ -27,15 +35,7 @@ import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters;
 import org.neo4j.ogm.utils.EntityUtils;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 
 public class ClassInfoTest {
@@ -227,8 +227,6 @@ public class ClassInfoTest {
         MethodInfo methodInfo = classInfo.identityGetter();
 
         assertEquals("getId", methodInfo.getName());
-        //assertEquals(null, methodInfo.property());       todo: fixme
-        //assertEquals(null, methodInfo.relationship());
     }
 
     /**
@@ -240,8 +238,6 @@ public class ClassInfoTest {
         MethodInfo methodInfo = classInfo.identitySetter();
 
         assertEquals("setId", methodInfo.getName());
-        //assertEquals(null, methodInfo.property());       todo: fixme
-        //assertEquals(null, methodInfo.relationship());
     }
 
     /**
@@ -394,19 +390,6 @@ public class ClassInfoTest {
         FieldInfo fieldInfo = fieldInfos.iterator().next();
         assertEquals("renewalDate", fieldInfo.getName());
         assertTrue(fieldInfo.hasPropertyConverter());
-    }
-
-    @Test
-    public void testFindListFields() {
-        ClassInfo classInfo = metaData.classInfo("User");
-        List<FieldInfo> fieldInfos = classInfo.findFields(List.class);
-        int count = 2;
-        assertEquals(count, fieldInfos.size());
-        for (FieldInfo fieldInfo : fieldInfos) {
-            if (fieldInfo.getName().equals("followees")) count--;
-            if (fieldInfo.getName().equals("followers")) count--;
-        }
-        assertEquals(0, count);
     }
 
     @Test

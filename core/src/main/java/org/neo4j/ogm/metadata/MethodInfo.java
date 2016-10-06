@@ -14,11 +14,14 @@
 package org.neo4j.ogm.metadata;
 
 
+import java.lang.reflect.Method;
+
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
@@ -190,20 +193,20 @@ public class MethodInfo {
         return null;
     }
 
-    public String getDescriptor() {
-        return descriptor;
-    }
-
-    public String getTypeParameterDescriptor() {
-        return typeParameterDescriptor;
-    }
-
     public ObjectAnnotations getAnnotations() {
         return annotations;
     }
 
     public boolean isEquallyNamed(MethodInfo other) {
         return other != null && getName().equals(other.getName());
+    }
+
+    public boolean isGetter() {
+        return getName().startsWith("get") && descriptor.startsWith("()");
+    }
+
+    public boolean isSetter() {
+        return getName().startsWith("set") && descriptor.endsWith(")V");
     }
 
     public boolean isSimpleGetter() {
@@ -377,4 +380,26 @@ public class MethodInfo {
         return typeParameterDescriptor;
     }
 
+    /**
+     * Returns an instance of the Method represented by this MethodInfo
+     *
+     * The expectation here is that only java bean getter and setter methods will be called
+     *
+     * @param className The class declaring this method. TODO: methodInfo should know this?
+     * @return a Method, if it exists on the corresponding class.
+     */
+    public Method getMethod(String className) {
+        try {
+            if (isSetter()) {
+                return MetaDataClassLoader.loadClass(className).getMethod(name, ClassUtils.getType(descriptor));
+            }
+            if (isGetter()) {
+                return MetaDataClassLoader.loadClass(className).getMethod(name);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        throw new RuntimeException("Only JavaBean-style getter and setter methods can be invoked");
+    }
 }

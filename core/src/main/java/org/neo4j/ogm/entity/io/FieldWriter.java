@@ -62,8 +62,7 @@ public class FieldWriter extends EntityAccess {
         }
         else {
             if (fieldInfo.isScalar()) {
-                String descriptor = fieldInfo.getTypeParameterDescriptor() == null ? fieldInfo.getDescriptor()
-                        : fieldInfo.getTypeParameterDescriptor();
+                String descriptor = fieldInfo.getTypeDescriptor();
                 value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
             }
             FieldWriter.write(field, instance, value);

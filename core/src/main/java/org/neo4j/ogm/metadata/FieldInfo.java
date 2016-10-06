@@ -145,14 +145,6 @@ public class FieldInfo {
         return null;
     }
 
-    public String getDescriptor() {
-        return descriptor;
-    }
-
-    public String getTypeParameterDescriptor() {
-        return typeParameterDescriptor;
-    }
-
     public ObjectAnnotations getAnnotations() {
         return annotations;
     }

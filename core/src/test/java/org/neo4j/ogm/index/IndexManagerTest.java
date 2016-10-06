@@ -54,7 +54,6 @@ public class IndexManagerTest extends MultiDriverTestClass {
 		dropLoginConstraint();
 	}
 
-	// Success if does not fail
 	@Test
 	public void testIndexesAreSuccessfullyValidated() {
 
@@ -63,6 +62,7 @@ public class IndexManagerTest extends MultiDriverTestClass {
 		Components.getConfiguration().autoIndexConfiguration().setAutoIndex("validate");
 		IndexManager indexManager = new IndexManager(metaData, Components.driver());
 		assertEquals(AutoIndexMode.VALIDATE, Components.autoIndexMode());
+		assertEquals(1, indexManager.getIndexes().size());
 		indexManager.build();
 
 		dropLoginConstraint();
@@ -90,6 +90,7 @@ public class IndexManagerTest extends MultiDriverTestClass {
 		try {
 			IndexManager indexManager = new IndexManager(metaData, Components.driver());
 			assertEquals(AutoIndexMode.DUMP, Components.autoIndexMode());
+			assertEquals(1, indexManager.getIndexes().size());
 			indexManager.build();
 			assertTrue(file.exists());
 			assertTrue(file.length() > 0);
@@ -98,15 +99,12 @@ public class IndexManagerTest extends MultiDriverTestClass {
 			assertEquals(CREATE_LOGIN_CONSTRAINT_CYPHER, actual);
 			reader.close();
 		} finally {
-			if (!file.delete()) {
-				fail("Could not delete generated file. Check files system permissions");
-			}
+			file.delete();
 		}
 
 		dropLoginConstraint();
 	}
 
-	// Success if does not fail.
 	@Test
 	public void testIndexesAreSuccessfullyAsserted() {
 
@@ -116,6 +114,7 @@ public class IndexManagerTest extends MultiDriverTestClass {
 
 		IndexManager indexManager = new IndexManager(metaData, Components.driver());
 		assertEquals(AutoIndexMode.ASSERT, Components.autoIndexMode());
+		assertEquals(1, indexManager.getIndexes().size());
 		indexManager.build();
 
 		dropLoginConstraint();

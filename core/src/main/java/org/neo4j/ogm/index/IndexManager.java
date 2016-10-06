@@ -79,6 +79,10 @@ public class IndexManager {
 		return indexMetadata;
 	}
 
+	public List<Index> getIndexes() {
+		return indexes;
+	}
+
 	/**
 	 * Builds indexes according to the configured mode.
 	 */

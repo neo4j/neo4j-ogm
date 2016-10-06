@@ -46,30 +46,13 @@ public abstract class ClassUtils {
     }};
 
     /**
-     * Return the reified class for the parameter of a parameterised setter or field from the parameter signature
-     *
-     * @param descriptor parameter descriptor
-     * @return reified class for the parameter
-     * @throws NullPointerException if invoked with <code>null</code>
-     */
-    public static Class<?> getType(String descriptor) {
-        if (descriptorTypeMappings.containsKey(descriptor)) {
-            return descriptorTypeMappings.get(descriptor);
-        }
-        Class<?> type = computeType(descriptor);
-        descriptorTypeMappings.put(descriptor, type);
-        return type;
-    }
-
-    /**
      * Return the reified class for the parameter of a parameterised setter or field from the parameter signature.
      * Return null if the class could not be determined
      *
      * @param descriptor parameter descriptor
      * @return reified class for the parameter or null
-     * @throws NullPointerException if invoked with <code>null</code>
      */
-    public static Class<?> getTypeOrNull(String descriptor) {
+    public static Class<?> getType(String descriptor) {
         if (descriptorTypeMappings.containsKey(descriptor)) {
             return descriptorTypeMappings.get(descriptor);
         }
@@ -77,7 +60,7 @@ public abstract class ClassUtils {
         try {
             type = computeType(descriptor);
         }
-        catch (Exception e) {
+        catch (Throwable t) {
             //return null and swallow the exception
             return null;
         }
@@ -85,25 +68,37 @@ public abstract class ClassUtils {
         return type;
     }
 
-    private static Class<?> computeType(String descriptor) {
-        // user has defined a wild card parameter / return type in a generic signature.
-        // we can't handle this.
-        if (descriptor.startsWith("+") || descriptor.startsWith("-") || descriptor.contains(":")) {
-            throw new RuntimeException("The use of wild cards in generic return types of method parameters is not supported");
+    private static Class<?> computeType(String descriptor) throws ClassNotFoundException {
+
+        if (descriptor == null) {
+            return null;
         }
 
-        // generic type signature <S extends T> we want to get T
+        // handle Void
+        if (descriptor.equals("V")) {
+            return Void.class;
+        }
+
+
         if (descriptor.contains(":")) {
             return getType(descriptor.substring(descriptor.indexOf(":") + 1));
         }
 
+        // generic types and wildcards are replaced by Object in the compiler
+        if (descriptor.startsWith("+") || descriptor.startsWith("-") || descriptor.startsWith("*")) {
+            return Object.class;
+        }
+
+        // function returns - strip off, and pass in the just the type part
         if(descriptor.startsWith("()")) {
             return getType(descriptor.substring(2));
         }
 
+        // type is a function parameter?
         int p = descriptor.indexOf("(");
         int q = descriptor.indexOf(")");
 
+        // if the parameter is not an array of some type
         if (!descriptor.contains("[")) {
             if (descriptor.endsWith(";)V")) {
                 q--;
@@ -116,6 +111,8 @@ public abstract class ClassUtils {
                 q = descriptor.length()-1;
             }
         }
+
+        // type is an array?
         if(descriptor.startsWith("[")) { //handles descriptors of the format [F
             p = 0;
             q = 2;
@@ -124,33 +121,34 @@ public abstract class ClassUtils {
             p = 1;
             q = descriptor.length()-1;
         }
+
         if(descriptor.length()==1) { //handles descriptors of the format I
             q=1;
         }
+
         if(q == p+1) { //handles descriptors of the format ()Lpackage/Class;
             p = q + 1;
             q = descriptor.length() - 1;
         }
+
+        // some generic type we've lost through type erasure. JVM will use Object. so will we
+        if (p == -1 && q == -1) {
+            return Object.class;
+        }
+        // construct a type name
         String typeName = descriptor.substring(p + 1, q).replace("/", ".");
+
+        // is it a primitive?
         if (typeName.length() == 1) {
             return PRIMITIVE_TYPE_MAP.get(typeName);
         }
 
         // if class is parametrized, obtain simple class signature.
-
-        if (typeName.contains("<T")) {
-            typeName = typeName.substring(0, typeName.indexOf("<T"));
+        if (typeName.contains("<")) {
+            typeName = typeName.substring(0, typeName.indexOf("<"));
         }
 
-        if (typeName.contains("<L")) {
-            typeName = typeName.substring(0, typeName.indexOf("<L"));
-        }
-
-        try {
-            return MetaDataClassLoader.loadClass(typeName);//Class.forName(typeName);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
+        return MetaDataClassLoader.loadClass(typeName);
     }
 
     /**

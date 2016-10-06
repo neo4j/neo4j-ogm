@@ -13,13 +13,13 @@
 
 package org.neo4j.ogm.utils;
 
-import org.junit.Test;
-import org.neo4j.ogm.domain.convertible.enums.Education;
-import org.neo4j.ogm.domain.education.School;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.neo4j.ogm.domain.convertible.enums.Education;
+import org.neo4j.ogm.domain.education.School;
 
 /**
  * @author Adam George
@@ -44,25 +44,8 @@ public class ClassUtilsTest {
         assertEquals(Education[].class, ClassUtils.getType("([Lorg/neo4j/ogm/domain/convertible/enums/Education;)V"));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void shouldThrowRuntimeExceptionWhenClassCannotBeLoaded() {
-        ClassUtils.getType("Lorg/mozilla/javascript/xml/impl/xmlbeans/XML$XScriptAnnotation;");
+    @Test
+    public void shouldReturnNullWhenClassCannotBeLoaded() {
+        assertEquals(null, ClassUtils.getType("Lorg/mozilla/javascript/xml/impl/xmlbeans/XML$XScriptAnnotation;"));
     }
-
-    @Test(expected = RuntimeException.class) // <? extends Date>
-    public void shouldFailWithAnyWildCardExtendType() {
-        assertEquals(Date.class, ClassUtils.getType("+Ljava/util/Date;"));
-    }
-
-
-    @Test(expected = RuntimeException.class) // <? super Date>
-    public void shouldFailWithAnyWildCardSuperType() {
-        assertEquals(Date.class, ClassUtils.getType("-Ljava/util/Date;"));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void shouldFailForGenericReturnType() { //<T extends Date>
-        assertEquals(Date.class, ClassUtils.getType("T:Ljava/util/Date;"));
-    }
-
 }

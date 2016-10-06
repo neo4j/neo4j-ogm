@@ -12,6 +12,12 @@
  */
 package org.neo4j.ogm.drivers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -24,7 +30,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;

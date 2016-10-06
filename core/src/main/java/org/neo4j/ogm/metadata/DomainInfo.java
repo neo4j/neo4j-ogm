@@ -168,7 +168,7 @@ public class DomainInfo implements ClassFileProcessor {
             Iterator<FieldInfo> fieldInfoIterator = classInfo.fieldsInfo().fields().iterator();
             while (fieldInfoIterator.hasNext()) {
                 FieldInfo fieldInfo = fieldInfoIterator.next();
-                if (!fieldInfo.isSimple()) {
+                if (!fieldInfo.persistableAsProperty()) {
                     Class fieldClass = null;
                     try {
                         fieldClass = ClassUtils.getType(fieldInfo.getTypeDescriptor());
@@ -310,6 +310,10 @@ public class DomainInfo implements ClassFileProcessor {
 
         for (String packageName : packages) {
             String path = packageName.replace(".", "/");
+            // ensure classpath entries are complete, to ensure we don't accidentally admit partial matches.
+            if (!path.endsWith("/")) {
+                path = path.concat("/");
+            }
             classPaths.add(path);
         }
 
@@ -416,7 +420,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
+        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, methodInfo.getCollectionClassname()));
         }
         else {
@@ -428,7 +432,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
+        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
@@ -440,7 +444,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
+        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
@@ -452,7 +456,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(methodInfo.getDescriptor().contains(arraySignature)) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         }
-        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isCollection()) {
+        else if(methodInfo.getDescriptor().contains(collectionSignature) && methodInfo.isIterable()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(methodInfo.getCollectionClassname()));
         }
         else {
@@ -516,7 +520,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
+        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, fieldInfo.getCollectionClassname()));
         }
         else {
@@ -528,7 +532,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
+        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
@@ -540,7 +544,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
+        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {
@@ -552,7 +556,7 @@ public class DomainInfo implements ClassFileProcessor {
         if(fieldInfo.getDescriptor().contains(arraySignature)) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         }
-        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isCollection()) {
+        else if(fieldInfo.getDescriptor().contains(collectionSignature) && fieldInfo.isIterable()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(fieldInfo.getCollectionClassname()));
         }
         else {

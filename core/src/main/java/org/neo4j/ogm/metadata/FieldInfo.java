@@ -33,6 +33,27 @@ import java.util.Collection;
 public class FieldInfo {
 
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
+    private static final String autoboxers =
+            "Ljava/lang/Character;" +
+                    "Ljava/lang/Byte;" +
+                    "Ljava/lang/Short;" +
+                    "Ljava/lang/Integer;" +
+                    "Ljava/lang/Long;" +
+                    "Ljava/lang/Float;" +
+                    "Ljava/lang/Double;" +
+                    "Ljava/lang/Boolean;" +
+                    "Ljava/lang/String;" +
+                    "[Ljava/lang/Character;" +
+                    "[Ljava/lang/Byte;" +
+                    "[Ljava/lang/Short;" +
+                    "[Ljava/lang/Integer;" +
+                    "[Ljava/lang/Long;" +
+                    "[Ljava/lang/Float;" +
+                    "[Ljava/lang/Double;" +
+                    "[Ljava/lang/Boolean;" +
+                    "[Ljava/lang/String;";
+
+
 
     private final String name;
     private final String descriptor;
@@ -87,7 +108,7 @@ public class FieldInfo {
 
     // should these two methods be on PropertyReader, RelationshipReader respectively?
     public String property() {
-        if (isSimple()) {
+        if (persistableAsProperty()) {
             if (annotations != null) {
                 AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
                 if (propertyAnnotation != null) {
@@ -100,7 +121,7 @@ public class FieldInfo {
     }
 
     public String relationship() {
-        if (!isSimple()) {
+        if (!persistableAsProperty()) {
             if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
                 if (relationshipAnnotation != null) {
@@ -113,7 +134,7 @@ public class FieldInfo {
     }
 
     public String relationshipTypeAnnotation() {
-        if (!isSimple()) {
+        if (!persistableAsProperty()) {
             if (annotations != null) {
                 AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
                 if (relationshipAnnotation != null) {
@@ -136,12 +157,12 @@ public class FieldInfo {
         return annotations;
     }
 
-    public boolean isSimple() {
+    public boolean persistableAsProperty() {
         boolean simple = primitives.contains(descriptor)
+                || (autoboxers.contains(descriptor) && typeParameterDescriptor == null)
+                || (typeParameterDescriptor != null && autoboxers.contains(typeParameterDescriptor))
                 || propertyConverter != null
-                || compositeConverter != null
-                || (descriptor.contains("java/lang/") && typeParameterDescriptor == null)
-                || (typeParameterDescriptor != null && typeParameterDescriptor.contains("java/lang/"));
+                || compositeConverter != null;
         return simple;
     }
 
@@ -203,11 +224,11 @@ public class FieldInfo {
         return false;
     }
 
-    public boolean isCollection() {
+    public boolean isIterable() {
         String descriptorClass = getCollectionClassname();
         try {
-            Class descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);//Class.forName(descriptorClass);
-            if (Collection.class.isAssignableFrom(descriptorClazz)) {
+            Class descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);
+            if (Iterable.class.isAssignableFrom(descriptorClazz)) {
                 return true;
             }
         } catch (ClassNotFoundException e) {
@@ -266,9 +287,7 @@ public class FieldInfo {
     }
 
     public boolean isScalar() {
-
-        return typeParameterDescriptor == null && !descriptor.startsWith("[");
-
+        return !isIterable() && !isArray();
     }
 
     public boolean isLabelField() {
@@ -290,7 +309,8 @@ public class FieldInfo {
      * @return the descriptor if the field is scalar or an array, otherwise the type parameter descriptor.
      */
     public String getTypeDescriptor() {
-        if (isScalar() || isArray()) {
+
+        if (!isIterable() || isArray()) {
             return descriptor;
         }
         return typeParameterDescriptor;

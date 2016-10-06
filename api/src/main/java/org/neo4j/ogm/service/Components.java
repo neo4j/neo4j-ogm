@@ -61,7 +61,6 @@ public class Components {
      * @param configuration The configuration to use
      */
     public static void configure(Configuration configuration) {
-
         // new configuration object, or update of current one?
         if (Components.configuration != configuration) {
             destroy();
@@ -74,9 +73,7 @@ public class Components {
                 driver = null;
             }
         }
-
     }
-
 
     /**
      * Configure the OGM from the specified config file
@@ -253,9 +250,16 @@ public class Components {
             driver.close();
             driver = null;
         }
-
         configuration.clear();
     }
+
+	/**
+	 * Return the {@link AutoIndexMode} from the AutoIndexConfiguration
+	 * @return the configured autoIndexMode or AutoIndexMode.NONE if not configured
+	 */
+	public static AutoIndexMode autoIndexMode() {
+		return configuration.autoIndexConfiguration().getAutoIndex();
+	}
 
     /**
      * There is a single configuration object, which should never be null, associated with the Components class
@@ -267,11 +271,4 @@ public class Components {
         return configuration;
     }
 
-    /**
-     * Return the {@link AutoIndexMode} from the AutoIndexConfiguration
-     * @return the configured autoIndexMode or AutoIndexMode.NONE if not configured
-     */
-    public static AutoIndexMode autoIndexMode() {
-        return configuration.autoIndexConfiguration().getAutoIndex();
-    }
 }

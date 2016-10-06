@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.session.event;
 
+import java.util.*;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.entity.io.EntityAccessManager;
@@ -23,8 +25,6 @@ import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author vince
@@ -224,7 +224,7 @@ public final class SaveEventDelegate {
 
         Long id = EntityUtils.identity(parent, session.metaData());
         String type = reader.relationshipType();
-        Class endNodeType = ClassUtils.getType(reader.typeParameterDescriptor());
+        Class endNodeType = ClassUtils.getType(reader.typeDescriptor());
 
         if (reader.relationshipDirection().equals(Relationship.INCOMING)) {
             deregisterIncomingRelationship(id, type, endNodeType);

@@ -12,13 +12,13 @@
 package org.neo4j.ogm.entity.io;
 
 
+import java.util.Map;
+
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.ObjectAnnotations;
-
-import java.util.Map;
 
 /**
  * @author Adam George
@@ -90,7 +90,7 @@ public class FieldReader implements RelationalReader, PropertyReader {
     }
 
     @Override
-    public String typeParameterDescriptor() {
+    public String typeDescriptor() {
         return fieldInfo.getTypeDescriptor();
     }
 }

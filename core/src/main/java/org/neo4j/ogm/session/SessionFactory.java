@@ -17,6 +17,7 @@ package org.neo4j.ogm.session;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.index.IndexManager;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -28,6 +29,7 @@ import org.neo4j.ogm.service.Components;
 public class SessionFactory {
 
     private final MetaData metaData;
+	private final IndexManager indexManager;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -37,11 +39,14 @@ public class SessionFactory {
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
      * </p>
+	 * Indexes will also be checked or built if configured.
      *
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);
+		this.indexManager = new IndexManager(this.metaData, Components.driver());
+		this.indexManager.build();
     }
 
     /**
@@ -52,6 +57,7 @@ public class SessionFactory {
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
      * </p>
+	 * Indexes will also be checked or built if configured.
      *
      * @param configuration The configuration to use
      * @param packages      The packages to scan for domain objects
@@ -59,6 +65,8 @@ public class SessionFactory {
     public SessionFactory(Configuration configuration, String... packages) {
         Components.configure(configuration);
         this.metaData = new MetaData(packages);
+		this.indexManager = new IndexManager(this.metaData, Components.driver());
+		this.indexManager.build();
     }
 
     /**

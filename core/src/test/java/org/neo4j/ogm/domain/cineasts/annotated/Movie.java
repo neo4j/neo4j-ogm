@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -27,6 +28,8 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 public class Movie {
 
     Long id;
+
+    @Index
     String title;
     int year;
 

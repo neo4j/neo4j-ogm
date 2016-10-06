@@ -14,15 +14,17 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.lang.reflect.Method;
-
-import org.neo4j.ogm.annotation.Labels;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+
+import java.lang.reflect.Method;
+import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -334,4 +336,11 @@ public class FieldInfo {
         return null;
     }
 
+    /**
+     * @return <code>true</code> is this field is a constraint rather than just a plain index.
+     */
+    public boolean isConstraint() {
+        AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getCanonicalName());
+        return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
+    }
 }

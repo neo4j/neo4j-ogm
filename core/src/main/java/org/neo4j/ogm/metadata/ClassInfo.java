@@ -19,26 +19,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.utils.ClassUtils;
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.Transient;
-import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
 import org.slf4j.Logger;
@@ -1262,8 +1250,60 @@ public class ClassInfo {
             LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", className, relationshipType, relationshipDirection);
         }
         return null;
+	}
 
+	/**
+	 * @return If this class contains any fields/properties annotated with @Index.
+	 */
+	public boolean containsIndexes() {
+		return !getIndexFields().isEmpty();
     }
 
+	/**
+	 * @return The <code>FieldInfo</code>s representing the Indexed fields in this class.
+	 */
+	public Collection<FieldInfo> getIndexFields() {
+		if (indexFields == null) {
+			try {
+				lock.lock();
+				if (indexFields == null) {
+					indexFields = addIndexes();
+				}
+			} finally {
+				lock.unlock();
+			}
+		}
+		return indexFields.values();
+	}
+
+	private Map<String, FieldInfo> addIndexes() {
+		Map<String, FieldInfo> indexes = new HashMap<>();
+
+		// No way to get declared fields from current byte code impl. Using reflection instead.
+		List<Field> declaredFields;
+		try {
+			declaredFields = Arrays.asList(Class.forName(className).getDeclaredFields());
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
+		for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+
+			if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(Index.class.getCanonicalName())) {
+				indexes.put(fieldInfo.property(), fieldInfo);
+			}
+		}
+		return indexes;
+	}
+
+	private boolean isDeclaredField(List<Field> declaredFields, String name) {
+
+		for (Field field : declaredFields) {
+			if (field.getName().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 

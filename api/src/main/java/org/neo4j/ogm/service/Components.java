@@ -21,6 +21,7 @@ import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.index.AutoIndexMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,6 +252,14 @@ public class Components {
         }
         configuration.clear();
     }
+
+	/**
+	 * Return the {@link AutoIndexMode} from the AutoIndexConfiguration
+	 * @return the configured autoIndexMode or AutoIndexMode.NONE if not configured
+	 */
+	public static AutoIndexMode autoIndexMode() {
+		return configuration.autoIndexConfiguration().getAutoIndex();
+	}
 
     /**
      * There is a single configuration object, which should never be null, associated with the Components class

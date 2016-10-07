@@ -14,13 +14,27 @@
 package org.neo4j.ogm.context;
 
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.entity.io.*;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.entity.io.EntityAccess;
+import org.neo4j.ogm.entity.io.EntityFactory;
+import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.entity.io.PropertyReader;
+import org.neo4j.ogm.entity.io.PropertyWriter;
+import org.neo4j.ogm.entity.io.RelationalReader;
+import org.neo4j.ogm.entity.io.RelationalWriter;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -40,9 +54,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
- * @author Mark Angrish
  */
-public class GraphEntityMapper extends AbstractEntityMapper implements ResponseMapper<GraphModel> {
+public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 	private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
 
@@ -205,6 +218,32 @@ public class GraphEntityMapper extends AbstractEntityMapper implements ResponseM
 				}
 			}
 			writeProperty(classInfo, instance, PropertyModel.with(labelFieldInfo.getName(), dynamicLabels));
+		}
+	}
+
+	private void writeProperty(ClassInfo classInfo, Object instance, Property<?, ?> property) {
+
+		PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey().toString());
+
+		if (writer == null) {
+			logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+		} else {
+			Object value = property.getValue();
+			// merge iterable / arrays and co-erce to the correct attribute type
+			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
+				PropertyReader reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
+				if (reader != null) {
+					Object currentValue = reader.readProperty(instance);
+					Class<?> paramType = writer.type();
+					Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
+					if (paramType.isArray()) {
+						value = EntityAccess.merge(paramType, value, (Object[]) currentValue, elementType);
+					} else {
+						value = EntityAccess.merge(paramType, value, (Collection) currentValue, elementType);
+					}
+				}
+			}
+			writer.write(instance, value);
 		}
 	}
 
@@ -427,7 +466,6 @@ public class GraphEntityMapper extends AbstractEntityMapper implements ResponseM
 
 	/**
 	 * Return an iterable writer to map a relationship onto an entity for the given relationshipType and relationshipDirection
-	 *
 	 * @param instance the instance onto which the relationship is to be mapped
 	 * @param parameter the value to be mapped
 	 * @param relationshipType the relationship type
@@ -491,7 +529,6 @@ public class GraphEntityMapper extends AbstractEntityMapper implements ResponseM
 
 	/**
 	 * Checks that the class of the node matches the class defined in the class info for a given annotation
-	 *
 	 * @param classInfo the ClassInfo
 	 * @param node the node object
 	 * @param annotation the annotation to match
@@ -507,4 +544,22 @@ public class GraphEntityMapper extends AbstractEntityMapper implements ResponseM
 		}
 		return false;
 	}
+
+	private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
+		FieldInfo fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
+		Class clazz = null;
+		if (fieldInfo != null) {
+			clazz = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+		}
+		return clazz;
+	}
+
+	private FieldInfo fieldInfoForPropertyName(String propertyName, ClassInfo classInfo) {
+		FieldInfo labelField = classInfo.labelFieldOrNull();
+		if (labelField != null && labelField.getName().toLowerCase().equals(propertyName.toLowerCase())) {
+			return labelField;
+		}
+		return classInfo.propertyField(propertyName);
+	}
+
 }

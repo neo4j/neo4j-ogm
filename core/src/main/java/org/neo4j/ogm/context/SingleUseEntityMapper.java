@@ -13,15 +13,19 @@
 
 package org.neo4j.ogm.context;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.entity.io.EntityFactory;
+import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.RowModel;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +35,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Adam George
  * @author Luanne Misquitta
- * @author Mark Angrish
  */
-public class SingleUseEntityMapper extends AbstractEntityMapper {
+public class SingleUseEntityMapper {
 
 	private static final Logger logger = LoggerFactory.getLogger(SingleUseEntityMapper.class);
 
@@ -92,4 +95,47 @@ public class SingleUseEntityMapper extends AbstractEntityMapper {
 		throw new MappingException("Error mapping to ad-hoc " + type +
 				".  At present, only @Result types that are discovered by the domain entity package scanning can be mapped.");
 	}
+
+	// TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
+	private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
+		PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey());
+
+		if (writer == null) {
+			FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());
+			if (fieldInfo != null) {
+				writer = new FieldWriter(classInfo, fieldInfo);
+			}
+		}
+
+		if (writer == null && property.getKey().equals("id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
+			FieldInfo idField = classInfo.identityField();
+			if (idField != null) {
+				writer = new FieldWriter(classInfo, idField);
+			}
+		}
+
+		if (writer != null) {
+			Object value = property.getValue();
+			if (value != null && value.getClass().isArray()) {
+				value = Arrays.asList((Object[]) value);
+			}
+			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
+				Class elementType = underlyingElementType(classInfo, property.getKey());
+				value = writer.type().isArray()
+						? EntityAccess.merge(writer.type(), value, new Object[]{}, elementType)
+						: EntityAccess.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
+			}
+			writer.write(instance, value);
+		} else {
+			logger.warn("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
+		}
+	}
+
+    private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
+        FieldInfo fieldInfo = classInfo.propertyField(propertyName);
+        if (fieldInfo != null) {
+            return ClassUtils.getType(fieldInfo.getTypeDescriptor());
+        }
+        return classInfo.getUnderlyingClass();
+    }
 }

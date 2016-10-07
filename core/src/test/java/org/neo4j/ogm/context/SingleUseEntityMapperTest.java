@@ -20,6 +20,8 @@ import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.entity.io.EntityFactory;
 
 /**
+ * TODO: This test doesn't assert anything.
+ *
  * @author vince
  */
 public class SingleUseEntityMapperTest {
@@ -43,7 +45,6 @@ public class SingleUseEntityMapperTest {
 		for (Map<String, Object> result : results) {
 			toReturn.add(entityMapper.map(UserResult.class, result));
 		}
-
 	}
 
 	private Iterable<Map<String, Object>> getQueryResults() {

@@ -21,89 +21,87 @@ import org.neo4j.ogm.session.Utils;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class MethodWriter extends EntityAccess {
 
-    private final MethodInfo setterMethodInfo;
-    private final Class<?> parameterType;
-    private final Method method;
+	private final MethodInfo setterMethodInfo;
+	private final Class<?> parameterType;
+	private final Method method;
 
-    MethodWriter(ClassInfo classInfo, MethodInfo methodInfo) {
-        this.setterMethodInfo = methodInfo;
-        this.method = classInfo.getMethod(setterMethodInfo);
-        this.parameterType = method.getParameterTypes()[0];
-    }
+	MethodWriter(ClassInfo classInfo, MethodInfo methodInfo) {
+		this.setterMethodInfo = methodInfo;
+		this.method = classInfo.getMethod(setterMethodInfo);
+		this.parameterType = method.getParameterTypes()[0];
+	}
 
-    private static void write(Method method, Object instance, Object value) {
-        try {
-            method.invoke(instance, value);
-        } catch (IllegalArgumentException iae) {
-            throw new EntityAccessException("Failed to invoke method '" + method.getName() + "'. Expected argument type: " + method.getParameterTypes()[0] + " actual argument type: " + value.getClass(), iae);
-        } catch (Exception e) {
-            throw new EntityAccessException("Failed to invoke method '" + method.getName() + "'", e);
-        }
+	private static void write(Method method, Object instance, Object value) {
+		try {
+			method.invoke(instance, value);
+		} catch (IllegalArgumentException iae) {
+			throw new EntityAccessException("Failed to invoke method '" + method.getName() + "'. Expected argument type: " + method.getParameterTypes()[0] + " actual argument type: " + value.getClass(), iae);
+		} catch (Exception e) {
+			throw new EntityAccessException("Failed to invoke method '" + method.getName() + "'", e);
+		}
+	}
 
-    }
+	public static Object read(Method method, Object instance) {
+		try {
+			return method.invoke(instance);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public static Object read(Method method, Object instance) {
-        try {
-            return method.invoke(instance);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	@Override
+	public void write(Object instance, Object value) {
 
-    @Override
-    public void write(Object instance, Object value) {
+		if (setterMethodInfo.hasPropertyConverter()) {
+			value = setterMethodInfo.getPropertyConverter().toEntityAttribute(value);
+			MethodWriter.write(method, instance, value);
+		} else {
+			if (setterMethodInfo.isScalar()) {
+				if ((value != null && value.getClass() != parameterType) || value == null) {
+					value = Utils.coerceTypes(parameterType, value);
+				}
+			}
+			MethodWriter.write(method, instance, value);
+		}
+	}
 
-        if (setterMethodInfo.hasPropertyConverter()) {
-            value = setterMethodInfo.getPropertyConverter().toEntityAttribute(value);
-            MethodWriter.write(method, instance, value);
-        }
+	@Override
+	public Class<?> type() {
+		if (setterMethodInfo.hasPropertyConverter()) {
+			try {
+				for (Method method : setterMethodInfo.getPropertyConverter().getClass().getDeclaredMethods()) {
+					if (method.getName().equals("toGraphProperty") && !method.isSynthetic()) { //we don't want the method on the AttributeConverter interface
+						return method.getReturnType();
+					}
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return parameterType;
+	}
 
-        else {
-            if (setterMethodInfo.isScalar()) {
-                if (value.getClass() != parameterType) {
-                    value = Utils.coerceTypes(parameterType, value);
-                }
-            }
-            MethodWriter.write(method, instance, value);
-        }
-    }
+	@Override
+	public String relationshipName() {
+		return this.setterMethodInfo.relationship();
+	}
 
-    @Override
-    public Class<?> type() {
-        if (setterMethodInfo.hasPropertyConverter()) {
-            try {
-                for(Method method : setterMethodInfo.getPropertyConverter().getClass().getDeclaredMethods()) {
-                    if(method.getName().equals("toGraphProperty") && !method.isSynthetic()) { //we don't want the method on the AttributeConverter interface
-                        return method.getReturnType();
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return parameterType;
-    }
+	@Override
+	public String relationshipDirection() {
+		return setterMethodInfo.relationshipDirection(Relationship.UNDIRECTED);
+	}
 
-    @Override
-    public String relationshipName() {
-        return this.setterMethodInfo.relationship();
-    }
+	@Override
+	public boolean forScalar() {
+		return !Iterable.class.isAssignableFrom(type()) && !type().isArray();
+	}
 
-    @Override
-    public String relationshipDirection() {
-        return setterMethodInfo.relationshipDirection(Relationship.UNDIRECTED);
-    }
-
-    @Override
-    public boolean forScalar() {
-        return !Iterable.class.isAssignableFrom(type()) && !type().isArray();
-    }
-
-    @Override
-    public String typeParameterDescriptor() {
-        return setterMethodInfo.getTypeDescriptor();
-    }
+	@Override
+	public String typeParameterDescriptor() {
+		return setterMethodInfo.getTypeDescriptor();
+	}
 }

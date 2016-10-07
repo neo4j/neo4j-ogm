@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.*;
+import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.cypher.Filter;
@@ -134,13 +136,43 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 		session.save(restaurant);
 		session.clear();
-//		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:`Restaurant`:`Delicious`:`Ambiance`:`Convenience` {name: 'House of Mushroom & Pepperoni'})");
 
 		Restaurant loaded = session.load(Restaurant.class, restaurant.getId());
 		assertTrue(loaded.labels.contains("Delicious"));
 		assertTrue(loaded.labels.contains("Ambiance"));
 		assertTrue(loaded.labels.contains("Convenience"));
 		assertEquals(3, loaded.labels.size());
+	}
+
+	/**
+	 * @see issue #137
+	 */
+	@Test
+	public void shouldProvideUniqueParameterNamesForFilters()
+	{
+		Restaurant restaurant = new Restaurant();
+		restaurant.setName("La Cocina De Flaming Lips");
+		session.save(restaurant);
+
+		Restaurant another = new Restaurant();
+		another.setName("Antica Pesa");
+		session.save(another);
+
+		Filters filters = new Filters();
+
+		Filter firstFilter = new Filter("name", "Foobar");
+		firstFilter.setBooleanOperator(BooleanOperator.OR);
+		firstFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+		filters.add(firstFilter);
+
+		Filter secondFilter = new Filter("name", "Antica Pesa");
+		secondFilter.setBooleanOperator(BooleanOperator.OR);
+		secondFilter.setComparisonOperator(ComparisonOperator.EQUALS);
+		filters.add(secondFilter);
+
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, filters);
+		Assert.assertTrue(results.size() >= 1);
+
 	}
 
 }

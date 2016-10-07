@@ -28,7 +28,7 @@ public class FilterTest {
 		Filter filter = new Filter("moons", 23);
 		filter.setBooleanOperator(BooleanOperator.AND);
 		filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
-		assertEquals("WHERE n.`moons` < { `moons` } ", filter.toCypher("n", true));
+		assertEquals("WHERE n.`moons` < { `moons_0` } ", filter.toCypher("n", true));
 	}
 
 	@Test

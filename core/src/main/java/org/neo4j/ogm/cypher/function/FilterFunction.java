@@ -17,6 +17,9 @@ import org.neo4j.ogm.cypher.Filter;
 
 import java.util.Map;
 
+/**
+ * @author Jasper Blues
+ */
 public interface FilterFunction<T> {
 
     Filter getFilter();

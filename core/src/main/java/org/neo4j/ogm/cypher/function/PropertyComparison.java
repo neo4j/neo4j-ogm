@@ -19,12 +19,19 @@ import org.neo4j.ogm.cypher.Filter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Jasper Blues
+ */
 public class PropertyComparison implements FilterFunction<Object> {
 
     private Object value;
     private Filter filter;
 
     public PropertyComparison() {
+    }
+
+    public PropertyComparison(Object value) {
+        this.value = value;
     }
 
     public PropertyComparison(Object value, Filter filter) {
@@ -54,16 +61,14 @@ public class PropertyComparison implements FilterFunction<Object> {
 
     @Override
     public String expression(String nodeIdentifier) {
-        String uniquePropertyName = filter.isNested() ?
-                filter.getNestedPropertyName() + "_" + filter.getPropertyName() : filter.getPropertyName();
         return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
-                filter.getComparisonOperator().getValue(), uniquePropertyName);
+                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
     }
 
     @Override
     public Map<String, Object> parameters() {
         Map<String, Object> map = new HashMap<>();
-        map.put(filter.uniquePropertyName(), filter.getTransformedPropertyValue());
+        map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
         return map;
     }
 

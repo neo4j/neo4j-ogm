@@ -17,282 +17,299 @@ import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.function.PropertyComparison;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A parameter along with filter information to be added to a query.
  *
  * @author Luanne Misquitta
+ * @author Jasper Blues
  */
 public class Filter {
 
-    /**
-     * The property name on the entity to be used in the filter
-     */
-    private String propertyName;
+	/**
+	 * Index is used to to ensure unique parameter names when a collection of filters are used.
+	 * @see Filters
+	 */
+	private int index;
 
-    /**
-     * @deprecated as of 2.0.4 This is a SDN only concern and has been moved to that project.
-     * The position of the property as specified in a derived finder method
-     */
-    @Deprecated
-    private Integer propertyPosition;
+	/**
+	 * The property name on the entity to be used in the filter
+	 */
+	private String propertyName;
 
-    /**
-     * The comparison operator to use in the property filter
-     */
-    private ComparisonOperator comparisonOperator = ComparisonOperator.EQUALS;
+	/**
+	 * @deprecated as of 2.0.4 This is a SDN only concern and has been moved to that project.
+	 * The position of the property as specified in a derived finder method
+	 */
+	@Deprecated
+	private Integer propertyPosition;
 
-    /**
-     * The boolean operator used to append this filter to the previous ones.
-     * Mandatory if the filter is not the first and only filter in the list.
-     */
-    private BooleanOperator booleanOperator = BooleanOperator.NONE;
+	/**
+	 * The comparison operator to use in the property filter
+	 */
+	private ComparisonOperator comparisonOperator = ComparisonOperator.EQUALS;
 
-    /**
-     * Determines whether or not this filter condition should be negated when added to the query.
-     */
-    private boolean negated;
+	/**
+	 * The boolean operator used to append this filter to the previous ones.
+	 * Mandatory if the filter is not the first and only filter in the list.
+	 */
+	private BooleanOperator booleanOperator = BooleanOperator.NONE;
 
-    /**
-     * The parent entity which owns this filter
-     */
-    private Class<?> ownerEntityType;
+	/**
+	 * Determines whether or not this filter condition should be negated when added to the query.
+	 */
+	private boolean negated;
 
-    /**
-     * The label of the entity which contains the nested property
-     */
-    private String nestedEntityTypeLabel;
+	/**
+	 * The parent entity which owns this filter
+	 */
+	private Class<?> ownerEntityType;
 
-    /**
-     * The property name of the nested property on the parent entity
-     */
-    private String nestedPropertyName;
+	/**
+	 * The label of the entity which contains the nested property
+	 */
+	private String nestedEntityTypeLabel;
 
-    /**
-     * The type of the entity that owns the nested property
-     */
-    private Class<?> nestedPropertyType;
+	/**
+	 * The property name of the nested property on the parent entity
+	 */
+	private String nestedPropertyName;
 
-    /**
-     * The relationship type to be used for a nested property
-     */
-    private String relationshipType;
+	/**
+	 * The type of the entity that owns the nested property
+	 */
+	private Class<?> nestedPropertyType;
 
-    /**
-     * The relationship direction from the parent entity to the nested property
-     */
-    private String relationshipDirection;
+	/**
+	 * The relationship type to be used for a nested property
+	 */
+	private String relationshipType;
 
-    /**
-     * Whether the nested property is backed by a relationship entity
-     */
-    private boolean nestedRelationshipEntity;
+	/**
+	 * The relationship direction from the parent entity to the nested property
+	 */
+	private String relationshipDirection;
 
-    private FilterFunction function;
+	/**
+	 * Whether the nested property is backed by a relationship entity
+	 */
+	private boolean nestedRelationshipEntity;
 
-    public Filter() {
-        this(new PropertyComparison());
-    }
+	private FilterFunction function;
 
-    public Filter(String propertyName, Object propertyValue) {
-        this.propertyName = propertyName;
-        this.function = new PropertyComparison(propertyValue, this);
-    }
+	//Primary Constructor
+	public Filter(FilterFunction function) {
+		this.index = 0;
+		this.function = function;
+		this.function.setFilter(this);
+	}
 
-    public Filter(FilterFunction function) {
+	//Convenience Constructor
+	public Filter(String propertyName, Object propertyValue) {
+		this(new PropertyComparison(propertyValue));
+		this.propertyName = propertyName;
+	}
 
-        this.function = function;
-        this.function.setFilter(this);
-    }
+	//Convenience Constructor
+	public Filter() {
+		this(new PropertyComparison());
+	}
 
-    public String getRelationshipDirection() {
-        return relationshipDirection;
-    }
+	public String getRelationshipDirection() {
+		return relationshipDirection;
+	}
 
-    public void setRelationshipDirection(String relationshipDirection) {
-        this.relationshipDirection = relationshipDirection;
-    }
+	public void setRelationshipDirection(String relationshipDirection) {
+		this.relationshipDirection = relationshipDirection;
+	}
 
-    public String getPropertyName() {
-        return propertyName;
-    }
+	public String getPropertyName() {
+		return propertyName;
+	}
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-    }
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
+	}
 
-    /**
-     * @deprecated use {@link FilterFunction#getValue()} instead.
-     */
-    @Deprecated
-    public Object getPropertyValue() {
-        return this.function.getValue();
-    }
+	/**
+	 * @deprecated use {@link FilterFunction#getValue()} instead.
+	 */
+	@Deprecated
+	public Object getPropertyValue() {
+		return this.function.getValue();
+	}
 
-    /**
-     * @deprecated use {@link FilterFunction#setValue(Object)} ()} instead.
-     */
-    @Deprecated
-    public void setPropertyValue(Object propertyValue) {
-        this.function.setValue(propertyValue);
-    }
+	/**
+	 * @deprecated use {@link FilterFunction#setValue(Object)} ()} instead.
+	 */
+	@Deprecated
+	public void setPropertyValue(Object propertyValue) {
+		this.function.setValue(propertyValue);
+	}
 
-    /**
-     * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
-     */
-    @Deprecated
-    public Integer getPropertyPosition() {
-        return propertyPosition;
-    }
+	/**
+	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
+	 */
+	@Deprecated
+	public Integer getPropertyPosition() {
+		return propertyPosition;
+	}
 
-    /**
-     * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
-     */
-    @Deprecated
-    public void setPropertyPosition(Integer propertyPosition) {
-        this.propertyPosition = propertyPosition;
-    }
+	/**
+	 * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
+	 */
+	@Deprecated
+	public void setPropertyPosition(Integer propertyPosition) {
+		this.propertyPosition = propertyPosition;
+	}
 
-    public ComparisonOperator getComparisonOperator() {
-        return comparisonOperator;
-    }
+	public ComparisonOperator getComparisonOperator() {
+		return comparisonOperator;
+	}
 
-    public void setComparisonOperator(ComparisonOperator comparisonOperator) {
-        this.comparisonOperator = comparisonOperator;
-    }
+	public void setComparisonOperator(ComparisonOperator comparisonOperator) {
+		this.comparisonOperator = comparisonOperator;
+	}
 
-    public BooleanOperator getBooleanOperator() {
-        return booleanOperator;
-    }
+	public BooleanOperator getBooleanOperator() {
+		return booleanOperator;
+	}
 
-    public void setBooleanOperator(BooleanOperator booleanOperator) {
-        this.booleanOperator = booleanOperator;
-    }
+	public void setBooleanOperator(BooleanOperator booleanOperator) {
+		this.booleanOperator = booleanOperator;
+	}
 
-    /**
-     * @return <code>true</code> if this filter expression is to be negated when it's appended to the query, <code>false</code>
-     * if not
-     */
-    public boolean isNegated() {
-        return negated;
-    }
+	/**
+	 * @return <code>true</code> if this filter expression is to be negated when it's appended to the query, <code>false</code>
+	 * if not
+	 */
+	public boolean isNegated() {
+		return negated;
+	}
 
-    /**
-     * @param negated Whether or not the filter expression is to be negated
-     */
-    public void setNegated(boolean negated) {
-        this.negated = negated;
-    }
+	/**
+	 * @param negated Whether or not the filter expression is to be negated
+	 */
+	public void setNegated(boolean negated) {
+		this.negated = negated;
+	}
 
 
-    public Class<?> getOwnerEntityType() {
-        return ownerEntityType;
-    }
+	public Class<?> getOwnerEntityType() {
+		return ownerEntityType;
+	}
 
-    public void setOwnerEntityType(Class<?> ownerEntityType) {
-        this.ownerEntityType = ownerEntityType;
-    }
+	public void setOwnerEntityType(Class<?> ownerEntityType) {
+		this.ownerEntityType = ownerEntityType;
+	}
 
-    public String getNestedPropertyName() {
-        return nestedPropertyName;
-    }
+	public String getNestedPropertyName() {
+		return nestedPropertyName;
+	}
 
-    public void setNestedPropertyName(String nestedPropertyName) {
-        this.nestedPropertyName = nestedPropertyName;
-    }
+	public void setNestedPropertyName(String nestedPropertyName) {
+		this.nestedPropertyName = nestedPropertyName;
+	}
 
-    public String getRelationshipType() {
-        return relationshipType;
-    }
+	public String getRelationshipType() {
+		return relationshipType;
+	}
 
-    public void setRelationshipType(String relationshipType) {
-        this.relationshipType = relationshipType;
-    }
+	public void setRelationshipType(String relationshipType) {
+		this.relationshipType = relationshipType;
+	}
 
-    public boolean isNested() {
-        return this.nestedPropertyName != null;
-    }
+	public boolean isNested() {
+		return this.nestedPropertyName != null;
+	}
 
-    public Class<?> getNestedPropertyType() {
-        return nestedPropertyType;
-    }
+	public Class<?> getNestedPropertyType() {
+		return nestedPropertyType;
+	}
 
-    public void setNestedPropertyType(Class<?> nestedPropertyType) {
-        this.nestedPropertyType = nestedPropertyType;
-    }
+	public void setNestedPropertyType(Class<?> nestedPropertyType) {
+		this.nestedPropertyType = nestedPropertyType;
+	}
 
-    public String getNestedEntityTypeLabel() {
-        return nestedEntityTypeLabel;
-    }
+	public String getNestedEntityTypeLabel() {
+		return nestedEntityTypeLabel;
+	}
 
-    public void setNestedEntityTypeLabel(String nestedEntityTypeLabel) {
-        this.nestedEntityTypeLabel = nestedEntityTypeLabel;
-    }
+	public void setNestedEntityTypeLabel(String nestedEntityTypeLabel) {
+		this.nestedEntityTypeLabel = nestedEntityTypeLabel;
+	}
 
-    public boolean isNestedRelationshipEntity() {
-        return nestedRelationshipEntity;
-    }
+	public boolean isNestedRelationshipEntity() {
+		return nestedRelationshipEntity;
+	}
 
-    public void setNestedRelationshipEntity(boolean nestedRelationshipEntity) {
-        this.nestedRelationshipEntity = nestedRelationshipEntity;
-    }
+	public void setNestedRelationshipEntity(boolean nestedRelationshipEntity) {
+		this.nestedRelationshipEntity = nestedRelationshipEntity;
+	}
 
-    /**
-     * Returns the result of passing the property value through the transformer associated with the comparison operator
-     * on this {@link Filter}.
-     *
-     * @return The transformed property value
-     */
-    public Object getTransformedPropertyValue() {
-        return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.function.getValue());
-    }
+	public String uniqueParameterName() {
+		return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index:
+				getPropertyName() + "_" + index;
+	}
 
-    public FilterFunction getFunction() {
-        return function;
-    }
+	/**
+	 * Returns the result of passing the property value through the transformer associated with the comparison operator
+	 * on this {@link Filter}.
+	 *
+	 * @return The transformed property value
+	 */
+	public Object getTransformedPropertyValue() {
+		return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.function.getValue());
+	}
 
-    public void setFunction(FilterFunction function) {
-        assert function != null;
-        this.function = function;
-        this.function.setFilter(this);
-    }
+	public FilterFunction getFunction() {
+		return function;
+	}
 
-    /**
-     * @param nodeIdentifier
-     * @param addWhereClause
-     * @return The filter state as a CYPHER fragment.
-     */
-    public String toCypher(String nodeIdentifier, boolean addWhereClause) {
-        String fragment = this.function.expression(nodeIdentifier);
-        String suffix = isNegated() ? negate(fragment) : fragment;
-        return cypherPrefix(addWhereClause) + suffix;
-    }
+	public void setFunction(FilterFunction function) {
+		assert function != null;
+		this.function = function;
+		this.function.setFilter(this);
+	}
 
-    public Map<String, Object> parameters() { return function.parameters(); }
+	/**
+	 * Used by Filters to assign an index, so that unique parameter names are ensured when filters are used in a
+	 * collection. Should not be called directly.
+	 * @param index
+	 */
+	void setIndex(int index) {
+		this.index = index;
+	}
 
-    public String uniquePropertyName() {
-        String uniquePropertyName = getPropertyName();
-        if (isNested()) {
-            //Nested entities may have the same property name, so we make them unique by qualifying them with the
-            // nested property name on the owning entity
-            uniquePropertyName = getNestedPropertyName() + "_" + getPropertyName();
-        }
-        return uniquePropertyName;
-    }
+	/**
+	 * @param nodeIdentifier
+	 * @param addWhereClause
+	 * @return The filter state as a CYPHER fragment.
+	 */
+	public String toCypher(String nodeIdentifier, boolean addWhereClause) {
+		String fragment = this.function.expression(nodeIdentifier);
+		String suffix = isNegated() ? negate(fragment) : fragment;
+		return cypherPrefix(addWhereClause) + suffix;
+	}
 
-    private String cypherPrefix(boolean addWhereClause) {
-        StringBuilder cypher = new StringBuilder();
-        if (addWhereClause) {
-            cypher.append("WHERE ");
-        } else {
-            if (!getBooleanOperator().equals(BooleanOperator.NONE)) {
-                cypher.append(getBooleanOperator().getValue()).append(" ");
-            }
-        }
-        return cypher.toString();
-    }
+	public Map<String, Object> parameters() {
+		return function.parameters();
+	}
 
-    private String negate(String expression) {
-        return String.format("NOT(%s) ", expression);
-    }
+	private String cypherPrefix(boolean addWhereClause) {
+		StringBuilder cypher = new StringBuilder();
+		if (addWhereClause) {
+			cypher.append("WHERE ");
+		} else {
+			if (!getBooleanOperator().equals(BooleanOperator.NONE)) {
+				cypher.append(getBooleanOperator().getValue()).append(" ");
+			}
+		}
+		return cypher.toString();
+	}
+
+	private String negate(String expression) {
+		return String.format("NOT(%s) ", expression);
+	}
 }

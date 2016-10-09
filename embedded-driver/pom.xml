@@ -23,7 +23,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
+    <name>Neo4j-OGM Embedded Driver</name>
 
+    <!--
+    The embedded driver is no bundle yet, because it requires Neo4j itself
+    being a bundle which needs to be implemted first
+    -->
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -33,6 +38,7 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -45,4 +51,5 @@
             <version>2.4</version>
         </dependency>
     </dependencies>
+
 </project>

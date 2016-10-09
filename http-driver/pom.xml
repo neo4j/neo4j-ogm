@@ -23,6 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>neo4j-ogm-http-driver</artifactId>
+    <name>Neo4j-OGM HTTP Driver</name>
 
     <dependencies>
         <dependency>
@@ -52,4 +53,50 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!--
+    Creates a fragement with the HTTP driver to the host org.neo4j.ogm-api
+    and registers the class for the ServiceLoader.
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.2.0</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <instructions>
+                        <SPI-Consumer>*</SPI-Consumer>
+                        <SPI-Provider>*</SPI-Provider>
+                        <Provide-Capability>
+                            osgi.serviceloader; osgi.serviceloader=org.neo4j.ogm.driver.Driver
+                        </Provide-Capability>
+                        <Require-Capability>
+                            osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)",
+                        </Require-Capability>
+                        <Fragment-Host>org.neo4j.ogm-api</Fragment-Host>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

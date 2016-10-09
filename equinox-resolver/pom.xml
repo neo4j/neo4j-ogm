@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>neo4j-ogm</artifactId>
+        <groupId>org.neo4j</groupId>
+        <version>2.1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>neo4j-ogm-equinox-resolver</artifactId>
+    <name>Neo4j-OGM ResourceResolver Equinox</name>
+    <description>A ResourceResolver for Neo4j-OGM that converts a URL bundleresource to file</description>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-api</artifactId>
+            <version>[2.0.0-SNAPSHOT,)</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.core</groupId>
+            <artifactId>org.eclipse.core.runtime</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.2.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            org.neo4j.ogm.classloader,
+                            org.eclipse.core.runtime
+                        </Import-Package>
+                        <SPI-Consumer>*</SPI-Consumer>
+                        <SPI-Provider>*</SPI-Provider>
+                        <Provide-Capability>
+                            osgi.serviceloader; osgi.serviceloader=org.neo4j.ogm.classloader.ResourceResolver
+                        </Provide-Capability>
+                        <Require-Capability>
+                            osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)",
+                        </Require-Capability>
+                        <Fragment-Host>org.neo4j.ogm-api</Fragment-Host>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

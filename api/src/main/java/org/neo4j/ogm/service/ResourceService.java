@@ -14,15 +14,15 @@
 package org.neo4j.ogm.service;
 
 
-import java.io.File;
-import java.net.URL;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
-
 import org.neo4j.ogm.classloader.ResourceResolver;
 import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URL;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
 /**
  * @author vince

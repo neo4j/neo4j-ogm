@@ -25,6 +25,7 @@
             <groupId>org.eclipse.core</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
             <version>3.7.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -92,7 +92,9 @@
                         <Require-Capability>
                             osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)",
                         </Require-Capability>
+                        <!--
                         <Fragment-Host>org.neo4j.ogm-api</Fragment-Host>
+                        -->
                     </instructions>
                 </configuration>
             </plugin>

@@ -13,7 +13,10 @@
 
 package org.neo4j.ogm.drivers.embedded.transaction;
 
+import java.lang.reflect.Field;
+
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.kernel.api.KernelTransaction;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -26,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class EmbeddedTransaction extends AbstractTransaction {
 
     private final org.neo4j.graphdb.Transaction nativeTransaction;
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedTransaction.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(EmbeddedTransaction.class);
     private boolean autoCommit;
 
     /**
@@ -52,9 +55,14 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
         try {
             if (transactionManager.canRollback()) {
-                logger.debug("rolling back native transaction: {}", nativeTransaction );
-                nativeTransaction.failure();
-                nativeTransaction.close();
+
+                LOGGER.debug("rolling back native transaction: {}", nativeTransaction);
+                if (transactionIsOpen()) {
+                    nativeTransaction.failure();
+                    nativeTransaction.close();
+                } else {
+                    LOGGER.warn("Transaction is already closed");
+                }
             }
         }
         catch (Exception e) {
@@ -69,9 +77,13 @@ public class EmbeddedTransaction extends AbstractTransaction {
     public void commit() {
         try {
             if (transactionManager.canCommit()) {
-                logger.debug("Committing native transaction: {}", nativeTransaction);
-                nativeTransaction.success();
-                nativeTransaction.close();
+                LOGGER.debug("Committing native transaction: {}", nativeTransaction);
+                if (transactionIsOpen()) {
+                    nativeTransaction.success();
+                    nativeTransaction.close();
+                } else {
+                    throw new IllegalStateException("This transaction has already been completed.");
+                }
             }
         }
         catch (Exception e) {
@@ -92,5 +104,17 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     public boolean isAutoCommit() {
         return autoCommit;
+    }
+
+    public boolean transactionIsOpen() {
+
+        try {
+            Field transactionField = nativeTransaction.getClass().getDeclaredField("transaction");
+            transactionField.setAccessible(true);
+            KernelTransaction kernelTransaction = (KernelTransaction) transactionField.get(nativeTransaction);
+            return kernelTransaction.isOpen();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

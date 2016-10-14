@@ -13,10 +13,15 @@
 
 package org.neo4j.ogm.persistence;
 
+import static org.junit.Assert.*;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.drivers.http.request.HttpRequestException;
+import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.service.Components;
@@ -25,14 +30,8 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Transactions in the OGM
@@ -59,8 +58,6 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         try (Transaction tx = transactionManager.openTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
-        Transaction tx = transactionManager.getCurrentTransaction();
-
     }
 
     @Test(expected = TransactionManagerException.class)
@@ -86,6 +83,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         }
     }
 
+    //@Ignore
     @Test
     public void shouldBeAbleToStartMultipleConcurrentLongRunningTransactions() throws InterruptedException {
 
@@ -105,31 +103,27 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
     }
 
+    //@Ignore
     @Test
-    public void shouldRollbackExplicitTransactionWhenServerTransactionTimeout() throws InterruptedException {
+    public void shouldRollbackExplicitTransactionWhenServerTransactionTimeout() {
 
-        // we can't force the embedded instance tx timeout to < 60 seconds,
-        // and we're not gonna wait that long.
-        if (Components.driver() instanceof HttpDriver) {
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
+        session = sessionFactory.openSession();
 
-            SessionFactory sessionFactory = new SessionFactory();
-            session = sessionFactory.openSession();
-
-            // the transaction manager must manage transactions
-            try (Transaction tx = transactionManager.openTransaction()) {
-                // Wait for transaction to timeout on server
-                Thread.sleep(3000);
-                // Try to purge database using timed-out transaction
-                session.purgeDatabase();
-                fail("Should have caught exception");
-            } catch (HttpRequestException rpe) {
-                // expected
-            }
-            // should pass, because previous transaction will be closed by try block
-            session.purgeDatabase();
+        try (Transaction tx = session.beginTransaction()) {
+            // Force transaction to close on server
+            tx.close();
+            transactionManager.reinstate((AbstractTransaction) tx);
+            session.loadAll(Bike.class);
+            fail("Should have caught exception");
+        } catch (Exception te) {
+            //te.printStackTrace();//System.out.println(te.getLocalizedMessage());
         }
+        // should pass, because previous transaction will be closed by try block
+        session.purgeDatabase();
     }
 
+    //@Ignore
     @Test
     public void shouldBeAbleToRunMultiThreadedLongRunningQueriesWithoutLosingConnectionResources() throws InterruptedException {
 
@@ -141,10 +135,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         CountDownLatch latch = new CountDownLatch( numThreads );
 
-        // valid query. should succeed, response should be closed automatically, and connection released
-        // if this does not happen, the session.query method in the query runner will block forever, once
-        // the available connections are used up.
-        String query = "FOREACH (n in RANGE(1, 10000) | CREATE (a)-[:KNOWS]->(b))";
+        String query = "FOREACH (n in RANGE(1, 10) | CREATE (a)-[:KNOWS]->(b))";
         long now = System.currentTimeMillis();
         for (int i = 0; i < numThreads; i++) {
             executor.submit(new QueryRunner(latch, query));
@@ -154,6 +145,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         System.out.println( "elapsed: " + ( System.currentTimeMillis() - now));
     }
 
+    //@Ignore
     @Test
     public void shouldBeAbleToHandleMultiThreadedFailingQueriesWithoutLosingConnectionResources() throws InterruptedException {
 
@@ -168,7 +160,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         // invalid query. should fail, response should be closed automatically, and connection released
         // if this does not happen, the session.query method in the query runner will block forever,
         // once the available connections are used up.
-        String query = "FOREACH (n in RANGE(1, 10000) ? CREATE (a)-[:KNOWS]->(b))";
+        String query = "FOREACH (n in RANGE(1, 10) ? CREATE (a)-[:KNOWS]->(b))";
 
         for (int i = 0; i < numThreads; i++) {
             executor.submit(new QueryRunner(latch, query));
@@ -183,8 +175,9 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory();
         session = sessionFactory.openSession();
 
-        Transaction tx = session.beginTransaction();
-        Assert.assertFalse(tx.isReadOnly());
+        try(Transaction tx = session.beginTransaction()) {
+            Assert.assertFalse(tx.isReadOnly());
+        }
     }
 
     @Test
@@ -193,8 +186,10 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory();
         session = sessionFactory.openSession();
 
-        Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY);
-        Assert.assertTrue(tx.isReadOnly());
+        try (Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY)) {
+            Assert.assertTrue(tx.isReadOnly());
+        }
+
     }
 
     @Test
@@ -203,9 +198,10 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory();
         session = sessionFactory.openSession();
 
-        try {
+
+        try (
             Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
-            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE)) {
             fail("Should not have allowed transaction extension of different type");
         } catch (TransactionException tme) {
             Assert.assertEquals("Incompatible transaction type specified: must be 'READ_ONLY'", tme.getLocalizedMessage());
@@ -218,9 +214,9 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory();
         session = sessionFactory.openSession();
 
-        try {
+        try (
             Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
-            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY)) {
             fail("Should not have allowed transaction extension of different type");
         } catch (TransactionException tme) {
             Assert.assertEquals("Incompatible transaction type specified: must be 'READ_WRITE'", tme.getLocalizedMessage());
@@ -233,9 +229,11 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory();
         session = sessionFactory.openSession();
 
-        Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
-        Transaction tx2 = session.beginTransaction();
-        Assert.assertTrue(tx2.isReadOnly());
+        try (
+            Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+            Transaction tx2 = session.beginTransaction()) {
+            Assert.assertTrue(tx2.isReadOnly());
+        }
     }
 
     @Test
@@ -244,11 +242,11 @@ public class TransactionManagerTest extends MultiDriverTestClass {
         SessionFactory sessionFactory = new SessionFactory();
         session = sessionFactory.openSession();
 
-        Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
-        Transaction tx2 = session.beginTransaction();
-        Assert.assertFalse(tx2.isReadOnly());
+        try (Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+            Transaction tx2 = session.beginTransaction()) {
+            Assert.assertFalse(tx2.isReadOnly());
+        }
     }
-
 
     class QueryRunner implements Runnable {
 
@@ -272,17 +270,18 @@ public class TransactionManagerTest extends MultiDriverTestClass {
                 System.out.println( Thread.currentThread().getName() + ": caught exception ");
             }
             finally {
-                System.out.println( Thread.currentThread().getName() + ": finished" );
                 latch.countDown();
             }
 
             while(!Thread.currentThread().isInterrupted()){
                 try{
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 } catch(InterruptedException e){
+                    System.out.println( Thread.currentThread().getName() + ": finished" );
                     Thread.currentThread().interrupt(); //propagate interrupt
                 }
             }
+
 
         }
     }
@@ -297,7 +296,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
         @Override
         public void run() {
-            try(Transaction tx = Components.driver().newTransaction()) {
+            try(Transaction tx = transactionManager.openTransaction()) {
                 latch.countDown();
                 // run forever
                 // but let the executor interrupt us to shut us down
@@ -306,7 +305,6 @@ public class TransactionManagerTest extends MultiDriverTestClass {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        tx.rollback();
                         transactionManager.rollback(tx);
                         Thread.currentThread().interrupt(); //propagate interrupt
                     }
@@ -314,4 +312,5 @@ public class TransactionManagerTest extends MultiDriverTestClass {
             }
         }
     }
+
 }

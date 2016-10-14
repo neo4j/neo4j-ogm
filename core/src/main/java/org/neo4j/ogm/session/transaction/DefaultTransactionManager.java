@@ -157,4 +157,14 @@ public class DefaultTransactionManager implements TransactionManager {
         }
         return false;
     }
+
+    // this is for testing purposes only
+    public void reinstate(AbstractTransaction tx) {
+        tx.reOpen();
+        TRANSACTION_THREAD_LOCAL.set(tx);
+    }
+
+    public void clear() {
+        TRANSACTION_THREAD_LOCAL.remove();
+    }
 }

@@ -66,7 +66,7 @@ public class DomainInfo implements ClassFileProcessor {
         long startTime = System.nanoTime();
         load(packages);
 
-        LOGGER.info("{} classes loaded in {} milliseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
+        LOGGER.info("{} classes loaded in {} nanoseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
     }
 
     private void buildAnnotationNameToClassInfoMap() {

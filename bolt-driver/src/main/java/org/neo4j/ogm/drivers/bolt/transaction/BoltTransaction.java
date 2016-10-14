@@ -39,8 +39,6 @@ public class BoltTransaction extends AbstractTransaction {
 		this.nativeTransaction = transaction;
 		this.nativeSession = session;
 		this.type = type; // TODO: bolt doesn't yet support READ_ONLY transactions/sessions, so we need to wait for this
-
-
 	}
 
 	@Override
@@ -48,13 +46,19 @@ public class BoltTransaction extends AbstractTransaction {
 		try {
 			if (transactionManager.canRollback()) {
 				LOGGER.debug("Rolling back native transaction: {}", nativeTransaction);
-				nativeTransaction.failure();
-				nativeTransaction.close();
+				if (nativeTransaction.isOpen()) {
+					nativeTransaction.failure();
+					nativeTransaction.close();
+					nativeSession.close();
+				} else {
+					LOGGER.warn("Transaction is already closed");
+				}
+			}
+		}
+		catch (Exception e) {
+			if (nativeSession.isOpen()) {
 				nativeSession.close();
 			}
-		} catch (ClientException ce) {
-			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
-		} catch (Exception e) {
 			throw new TransactionException(e.getLocalizedMessage());
 		} finally {
 			super.rollback();
@@ -66,20 +70,30 @@ public class BoltTransaction extends AbstractTransaction {
 		try {
 			if (transactionManager.canCommit()) {
 				LOGGER.debug("Committing native transaction: {}", nativeTransaction);
-				nativeTransaction.success();
-				nativeTransaction.close();
+				if (nativeTransaction.isOpen()) {
+					nativeTransaction.success();
+					nativeTransaction.close();
+					nativeSession.close();
+				} else {
+					throw new IllegalStateException("Transaction is already closed");
+				}
+			}
+		}
+		catch (ClientException ce) {
+			if (nativeSession.isOpen()) {
 				nativeSession.close();
 			}
-		} catch (ClientException ce) {
-			nativeSession.close();
 			if (ce.neo4jErrorCode().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
 				throw new ConnectionException("Security Error: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
 			}
 			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
 		} catch (Exception e) {
-			nativeSession.close();
+			if (nativeSession.isOpen()) {
+				nativeSession.close();
+			};
 			throw new TransactionException(e.getLocalizedMessage());
-		} finally {
+		}
+		finally {
 			super.commit();
 		}
 	}

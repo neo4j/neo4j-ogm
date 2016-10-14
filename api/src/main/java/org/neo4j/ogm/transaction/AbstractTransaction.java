@@ -14,13 +14,13 @@
 package org.neo4j.ogm.transaction;
 
 
-import org.neo4j.ogm.exception.TransactionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.neo4j.ogm.exception.TransactionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
@@ -157,6 +157,11 @@ public abstract class AbstractTransaction implements Transaction {
 
     public List<Object> registeredNew() {
         return registeredNew;
+    }
+
+    // for testing
+    public void reOpen() {
+        status = Status.OPEN;
     }
 
 }

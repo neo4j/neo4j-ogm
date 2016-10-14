@@ -22,11 +22,15 @@ import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author vince
  */
 public class HttpTransaction extends AbstractTransaction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpDriver.class);
 
     private final HttpDriver driver;
     private final String url;
@@ -48,7 +52,7 @@ public class HttpTransaction extends AbstractTransaction {
             }
         }
         catch (Exception e) {
-            throw new TransactionException(e.getLocalizedMessage());
+            LOGGER.warn(e.getLocalizedMessage());
         }
         finally {
             super.rollback(); // must always be done to keep extension depth correct

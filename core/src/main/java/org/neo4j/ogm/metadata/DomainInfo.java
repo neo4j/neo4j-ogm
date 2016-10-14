@@ -63,10 +63,10 @@ public class DomainInfo implements ClassFileProcessor {
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
     public DomainInfo(String... packages) {
-        long now = -System.currentTimeMillis();
+        long startTime = System.nanoTime();
         load(packages);
 
-        LOGGER.info("{} classes loaded in {} milliseconds", classNameToClassInfo.entrySet().size(),(now + System.currentTimeMillis()));
+        LOGGER.info("{} classes loaded in {} nanoseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
     }
 
     private void buildAnnotationNameToClassInfoMap() {

@@ -58,6 +58,29 @@ public class POJO<S, T extends Comparable, U extends Serializable> {
 	private Float f;
 	private Boolean z;
 
+	// untyped object
+	private Object o;
+
+	public Object[] getOo() {
+		return oo;
+	}
+
+	public void setOo(Object[] oo) {
+		this.oo = oo;
+	}
+
+	public Object getO() {
+		return o;
+	}
+
+	public void setO(Object o) {
+		this.o = o;
+	}
+
+	public boolean isPz() {
+		return pz;
+	}
+
 	// autobox arrays
 	private Short[] ss;
 	private Integer[] ii;
@@ -67,6 +90,9 @@ public class POJO<S, T extends Comparable, U extends Serializable> {
 	private Double[] dd;
 	private Float[] ff;
 	private Boolean[] zz;
+
+	// untyped object array
+	private Object[] oo;
 
 	// generic types
 	private S genericObject;

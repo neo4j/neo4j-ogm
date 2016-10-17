@@ -109,6 +109,11 @@ public class GenericsMethodParameterTypesTest extends TestMetaDataTypeResolution
 	}
 
 	@Test
+	public void testObjectArray () {
+		checkMethod("setOo", "([Ljava/lang/Object;)V", Object[].class);
+	}
+
+	@Test
 	public void testStringArray () {
 		checkMethod("setXx", "([Ljava/lang/String;)V", String[].class);
 	}
@@ -151,6 +156,11 @@ public class GenericsMethodParameterTypesTest extends TestMetaDataTypeResolution
 	@Test
 	public void testIntegerArray() {
 		checkMethod("setIi", "([Ljava/lang/Integer;)V", Integer[].class);
+	}
+
+	@Test
+	public void testObject() {
+		checkMethod("setO", "(Ljava/lang/Object;)V", Object.class);
 	}
 
 	@Test

@@ -109,6 +109,11 @@ public class GenericsMethodReturnTypesTest extends TestMetaDataTypeResolution {
 	}
 
 	@Test
+	public void testObjectArray () {
+		checkMethod("getOo", "()[Ljava/lang/Object;", Object.class);
+	}
+
+	@Test
 	public void testStringArray () {
 		checkMethod("getXx", "()[Ljava/lang/String;", String.class);
 	}
@@ -151,6 +156,11 @@ public class GenericsMethodReturnTypesTest extends TestMetaDataTypeResolution {
 	@Test
 	public void testIntegerArray() {
 		checkMethod("getIi", "()[Ljava/lang/Integer;", Integer.class);
+	}
+
+	@Test
+	public void testObject() {
+		checkMethod("getO", "()Ljava/lang/Object;", Object.class);
 	}
 
 	@Test

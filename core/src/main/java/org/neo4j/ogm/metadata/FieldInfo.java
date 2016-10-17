@@ -14,17 +14,16 @@
 package org.neo4j.ogm.metadata;
 
 
+import java.lang.reflect.Method;
+
 import org.neo4j.ogm.annotation.Index;
-import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
-import org.neo4j.ogm.utils.RelationshipUtils;
+import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
  * @author Vince Bickers
@@ -34,24 +33,26 @@ public class FieldInfo {
 
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
     private static final String autoboxers =
+            "Ljava/lang/Object;" +
             "Ljava/lang/Character;" +
-                    "Ljava/lang/Byte;" +
-                    "Ljava/lang/Short;" +
-                    "Ljava/lang/Integer;" +
-                    "Ljava/lang/Long;" +
-                    "Ljava/lang/Float;" +
-                    "Ljava/lang/Double;" +
-                    "Ljava/lang/Boolean;" +
-                    "Ljava/lang/String;" +
-                    "[Ljava/lang/Character;" +
-                    "[Ljava/lang/Byte;" +
-                    "[Ljava/lang/Short;" +
-                    "[Ljava/lang/Integer;" +
-                    "[Ljava/lang/Long;" +
-                    "[Ljava/lang/Float;" +
-                    "[Ljava/lang/Double;" +
-                    "[Ljava/lang/Boolean;" +
-                    "[Ljava/lang/String;";
+            "Ljava/lang/Byte;" +
+            "Ljava/lang/Short;" +
+            "Ljava/lang/Integer;" +
+            "Ljava/lang/Long;" +
+            "Ljava/lang/Float;" +
+            "Ljava/lang/Double;" +
+            "Ljava/lang/Boolean;" +
+            "Ljava/lang/String;" +
+            "[Ljava/lang/Object;" +
+            "[Ljava/lang/Character;" +
+            "[Ljava/lang/Byte;" +
+            "[Ljava/lang/Short;" +
+            "[Ljava/lang/Integer;" +
+            "[Ljava/lang/Long;" +
+            "[Ljava/lang/Float;" +
+            "[Ljava/lang/Double;" +
+            "[Ljava/lang/Boolean;" +
+            "[Ljava/lang/String;";
 
 
 
@@ -155,6 +156,7 @@ public class FieldInfo {
                 || (typeParameterDescriptor != null && autoboxers.contains(typeParameterDescriptor))
                 || propertyConverter != null
                 || compositeConverter != null;
+
         return simple;
     }
 

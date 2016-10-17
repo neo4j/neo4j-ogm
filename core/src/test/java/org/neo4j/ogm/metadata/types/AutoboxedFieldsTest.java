@@ -21,6 +21,11 @@ import org.junit.Test;
 public class AutoboxedFieldsTest extends TestMetaDataTypeResolution {
 
 	@Test
+	public void testObjectArray() {
+		checkField("oo", "[Ljava/lang/Object;", Object.class);
+	}
+
+	@Test
 	public void testStringArray () {
 		checkField("xx", "[Ljava/lang/String;", String.class);
 	}
@@ -63,6 +68,11 @@ public class AutoboxedFieldsTest extends TestMetaDataTypeResolution {
 	@Test
 	public void testIntegerArray() {
 		checkField("ii", "[Ljava/lang/Integer;", Integer.class);
+	}
+
+	@Test
+	public void testObject() {
+		checkField("o", "Ljava/lang/Object;", Object.class);
 	}
 
 	@Test

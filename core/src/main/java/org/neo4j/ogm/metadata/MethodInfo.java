@@ -34,6 +34,7 @@ public class MethodInfo {
     private static final String primitiveSetters = "(I)V,(J)V,(S)V,(B)V,(C)V,(F)V,(D)V,(Z)V,([I)V,([J)V,([S)V,([B)V,([C)V,([F)V,([D)V,([Z)V";
 
     private static final String simpleJavaObjectGetters =
+                    "()Ljava/lang/Object;" +
                     "()Ljava/lang/Character;" +
                     "()Ljava/lang/Byte;" +
                     "()Ljava/lang/Short;" +
@@ -43,6 +44,7 @@ public class MethodInfo {
                     "()Ljava/lang/Double;" +
                     "()Ljava/lang/Boolean;" +
                     "()Ljava/lang/String;" +
+                    "()[Ljava/lang/Object;" +
                     "()[Ljava/lang/Character;" +
                     "()[Ljava/lang/Byte;" +
                     "()[Ljava/lang/Short;" +
@@ -54,6 +56,7 @@ public class MethodInfo {
                     "()[Ljava/lang/String;";
 
     private static final String simpleJavaObjectSetters =
+                    "(Ljava/lang/Object;)V" +
                     "(Ljava/lang/Character;)V" +
                     "(Ljava/lang/Byte;)V" +
                     "(Ljava/lang/Short;)V" +
@@ -63,6 +66,7 @@ public class MethodInfo {
                     "(Ljava/lang/Double;)V" +
                     "(Ljava/lang/Boolean;)V" +
                     "(Ljava/lang/String;)V" +
+                    "([Ljava/lang/Object;)V" +
                     "([Ljava/lang/Character;)V" +
                     "([Ljava/lang/Byte;)V" +
                     "([Ljava/lang/Short;)V" +

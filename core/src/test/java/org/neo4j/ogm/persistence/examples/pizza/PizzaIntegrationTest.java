@@ -371,6 +371,27 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         }
     }
 
+    @Test
+    public void shouldBeAbleToModifyPropertiesAndRelsWithinSingleSave() {
+
+        Pizza pizza = new Pizza();
+        session.save(pizza);
+
+        session.clear();
+        Pizza loadedPizza = session.load(Pizza.class, pizza.getId());
+        assertNotNull(loadedPizza);
+
+        pizza.setName("Just bread");
+        Crust crust = new Crust("Thin Crust");
+        pizza.setCrust(crust);
+        session.save(pizza);
+
+        Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
+        assertEquals("Just bread", reloadedPizza.getName());
+        assertEquals("Thin Crust", reloadedPizza.getCrust().getName());
+    }
+
+
     /**
      * @see issue #209
      */

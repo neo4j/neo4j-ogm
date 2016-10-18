@@ -13,14 +13,14 @@
 
 package org.neo4j.ogm.domain.pizza;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Labels;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * An entity that contains multiple relationships and RE's with the same relationship type and direction.
@@ -33,19 +33,19 @@ public class Pizza {
     private Long id;
     private String name;
 
-    @Relationship(type = "FOR", direction = "INCOMING")
+    @Relationship(type = "FOR_CRUST", direction = "INCOMING")
     private Crust crust;
 
-    @Relationship(type = "FOR", direction = "INCOMING")
+    @Relationship(type = "FOR_TOPPING", direction = "INCOMING")
     private List<Topping> toppings;
 
-    @Relationship(type = "FOR", direction = "INCOMING")
+    @Relationship(type = "FOR_SAUCE", direction = "INCOMING")
     private PizzaSauce pizzaSauce;
 
-    @Relationship(type = "HAS", direction = "OUTGOING")
+    @Relationship(type = "HAS_SEASONING", direction = "OUTGOING")
     private Set<PizzaSeasoning> seasonings = new HashSet<>();
 
-    @Relationship(type = "HAS", direction = "OUTGOING")
+    @Relationship(type = "HAS_CHEESE", direction = "OUTGOING")
     private Set<PizzaCheese> cheeses = new HashSet<>();
 
     @Labels

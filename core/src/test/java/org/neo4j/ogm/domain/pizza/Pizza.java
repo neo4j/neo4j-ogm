@@ -41,7 +41,7 @@ public class Pizza {
 
     @Relationship(type = "FOR", direction = "INCOMING")
     private PizzaSauce pizzaSauce;
-    
+
     @Relationship(type = "HAS", direction = "OUTGOING")
     private Set<PizzaSeasoning> seasonings = new HashSet<>();
 

@@ -14,10 +14,10 @@
 package org.neo4j.ogm.session.request.strategy;
 
 
-import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.AbstractRequest;
-
 import java.util.Collection;
+
+import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 
 /**
  * @author Vince Bickers
@@ -29,49 +29,49 @@ public interface QueryStatements {
      * construct a query to fetch a single object with the specified id
      * @param id the id of the object to find
      * @param depth the depth to traverse for any related objects
-     * @return a Cypher expression
+     * @return a {@link PagingAndSortingQuery}
      */
-    AbstractRequest findOne(Long id, int depth);
+    PagingAndSortingQuery findOne(Long id, int depth);
 
     /**
      * construct a query to fetch all objects
-     * @return a Cypher expression
+     * @return a {@link PagingAndSortingQuery}
      */
-    AbstractRequest findAll();
+    PagingAndSortingQuery findAll();
 
     /**
      * construct a query to fetch all objects with the specified ids
      * @param ids the ids of the objects to find
      * @param depth the depth to traverse for any related objects
-     * @return a Cypher expression
+     * @return a {@link PagingAndSortingQuery}
      */
-    AbstractRequest findAll(Collection<Long> ids, int depth);
+    PagingAndSortingQuery findAll(Collection<Long> ids, int depth);
 
     /**
      * construct a query to fetch all objects with the specified ids
      * @param type the label attached to the object, or the relationship type
      * @param ids the ids of the objects to find
      * @param depth the depth to traverse for any related objects
-     * @return a Cypher expression
+     * @return a {@link PagingAndSortingQuery}
      */
-    AbstractRequest findAllByType(String type, Collection<Long> ids, int depth);
+    PagingAndSortingQuery findAllByType(String type, Collection<Long> ids, int depth);
 
     /**
      * construct queries to fetch all objects with the specified label or relationship type
      * @param type the label attached to the object, or the relationship type
      * @param depth the depth to traverse for related objects
-     * @return a Cypher expression
+     * @return a {@link PagingAndSortingQuery}
      */
-    AbstractRequest findByType(String type, int depth);
+    PagingAndSortingQuery findByType(String type, int depth);
 
     /**
-     * construct queries to fetch all objects with the specified label and property
+     * construct queries to fetch all objects with the specified label that match the specified filters
      * @param type the label value or relationship type to filter on
      * @param filters parameters to filter on
      * @param depth the depth to traverse for related objects
-     * @return a Cypher expression
+     * @return a {@link PagingAndSortingQuery}
      */
 
-    AbstractRequest findByProperties(String type, Filters filters, int depth);
+    PagingAndSortingQuery findByType(String type, Filters filters, int depth);
 
 }

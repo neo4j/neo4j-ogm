@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.request.GraphRowListModelRequest;
-
 import java.util.Map;
+
+import org.neo4j.ogm.request.GraphRowListModelRequest;
 
 /**
  * A {@link CypherQuery} which returns data in both row and graph formats.
  *
  * @author Luanne Misquitta
  */
-public class DefaultGraphRowListModelRequest extends AbstractRequest implements GraphRowListModelRequest {
+public class DefaultGraphRowListModelRequest extends PagingAndSortingQuery implements GraphRowListModelRequest {
 
     private final static String[] resultDataContents = new String[] {"graph", "row"};
 

@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.session;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.Filter;
@@ -26,14 +31,12 @@ import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-import org.neo4j.ogm.session.request.strategy.VariableDepthRelationshipQuery;
+import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
+import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -476,9 +479,9 @@ public class Neo4jSession implements Session {
     //
     public QueryStatements queryStatementsFor(Class type) {
         if (metaData.isRelationshipEntity(type.getName())) {
-            return new VariableDepthRelationshipQuery();
+            return new RelationshipQueryStatements();
         }
-        return new VariableDepthQuery();
+        return new NodeQueryStatements();
     }
 
     public String entityType(String name) {

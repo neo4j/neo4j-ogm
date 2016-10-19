@@ -13,10 +13,16 @@
 package org.neo4j.ogm.session.delegates;
 
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.*;
+import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
@@ -34,13 +40,8 @@ import org.neo4j.ogm.response.model.QueryResultModel;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
-import org.neo4j.ogm.session.request.strategy.AggregateStatements;
+import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
 import org.neo4j.ogm.utils.ClassUtils;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Vince Bickers
@@ -130,7 +131,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             return 0;
         }
 
-        DefaultRowModelRequest countStatement;
+        CypherQuery countStatement;
         if (classInfo.isRelationshipEntity()) {
 
             ClassInfo startNodeInfo = null;
@@ -151,12 +152,12 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             String start = startNodeInfo.neo4jName();
             String end = endNodeInfo.neo4jName();
             String type = classInfo.neo4jName();
-            countStatement = new AggregateStatements().countEdges(start, type, end);
+            countStatement = new CountStatements().countEdges(start, type, end);
         } else {
             Collection<String> labels = classInfo.staticLabels();
-            countStatement = new AggregateStatements().countNodesLabelledWith(labels);
+            countStatement = new CountStatements().countNodes(labels);
         }
-        try (Response<RowModel> response = session.requestHandler().execute(countStatement)) {
+        try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
             RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
         }

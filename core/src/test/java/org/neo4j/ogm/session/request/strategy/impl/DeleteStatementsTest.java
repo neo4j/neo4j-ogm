@@ -11,16 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.cypher;
+package org.neo4j.ogm.session.request.strategy.impl;
 
-import org.junit.Test;
-import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteStatements;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
 /**
  * @author Vince Bickers
@@ -28,8 +26,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class DeleteStatementsTest {
 
-    private final DeleteStatements deleteNodeStatements = new DeleteNodeStatements();
-    private final DeleteStatements deleteRelStatements = new DeleteRelationshipStatements();
+    private final DeleteStatements deleteNodeStatements = new NodeDeleteStatements();
+    private final DeleteStatements deleteRelStatements = new RelationshipDeleteStatements();
 
     @Test
     public void testDeleteOneNode() {
@@ -38,17 +36,17 @@ public class DeleteStatementsTest {
 
     @Test
     public void testDeleteAllNodes() {
-        assertEquals("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", deleteNodeStatements.deleteAll(Arrays.asList(1L, 2L)).getStatement());
+        assertEquals("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", deleteNodeStatements.delete(Arrays.asList(1L, 2L)).getStatement());
     }
 
     @Test
     public void testPurge() {
-        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", deleteNodeStatements.purge().getStatement());
+        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", deleteNodeStatements.deleteAll().getStatement());
     }
 
     @Test
     public void testDeleteByLabel() {
-        assertEquals("MATCH (n:`TRAFFIC_WARDENS`) OPTIONAL MATCH (n)-[r]-() DELETE r, n", deleteNodeStatements.deleteByType("TRAFFIC_WARDENS").getStatement());
+        assertEquals("MATCH (n:`TRAFFIC_WARDENS`) OPTIONAL MATCH (n)-[r]-() DELETE r, n", deleteNodeStatements.delete("TRAFFIC_WARDENS").getStatement());
     }
 
     @Test
@@ -58,12 +56,12 @@ public class DeleteStatementsTest {
 
     @Test
     public void testDeleteAllRels() {
-        assertEquals("MATCH (n)-[r]->() WHERE id(r) in { ids } DELETE r", deleteRelStatements.deleteAll(Arrays.asList(1L, 2L)).getStatement());
+        assertEquals("MATCH (n)-[r]->() WHERE id(r) in { ids } DELETE r", deleteRelStatements.delete(Arrays.asList(1L, 2L)).getStatement());
     }
 
 
     @Test
     public void testDeleteByType() {
-        assertEquals("MATCH (n)-[r:`TRAFFIC_WARDEN`]-() DELETE r", deleteRelStatements.deleteByType("TRAFFIC_WARDEN").getStatement());
+        assertEquals("MATCH (n)-[r:`TRAFFIC_WARDEN`]-() DELETE r", deleteRelStatements.delete("TRAFFIC_WARDEN").getStatement());
     }
 }

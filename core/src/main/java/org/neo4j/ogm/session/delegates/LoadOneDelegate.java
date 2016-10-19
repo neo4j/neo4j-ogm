@@ -18,7 +18,7 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
@@ -42,7 +42,7 @@ public class LoadOneDelegate implements Capability.LoadOne {
     @Override
     public <T> T load(Class<T> type, Long id, int depth) {
         QueryStatements queryStatements = session.queryStatementsFor(type);
-        AbstractRequest qry = queryStatements.findOne(id,depth);
+        PagingAndSortingQuery qry = queryStatements.findOne(id,depth);
 
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
             new GraphEntityMapper(session.metaData(), session.context()).map(type, response);

@@ -13,30 +13,77 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
-
-import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.session.Utils;
-
-import java.util.Collection;
-import java.util.Collections;
+import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.CypherQuery;
 
 /**
- * Encapsulates Cypher statements used to execute aggregation queries.
- *
- * @author Adam George
+ * @author vince
  */
-public class AggregateStatements {
+public interface AggregateStatements {
 
-    public DefaultRowModelRequest countNodesLabelledWith(Collection<String> labels) {
-        StringBuilder cypherLabels = new StringBuilder();
-        for (String label : labels) {
-            cypherLabels.append(":`").append(label).append('`');
-        }
-        return new DefaultRowModelRequest(String.format("MATCH (n%s) RETURN COUNT(n)", cypherLabels.toString()),
-                Collections.<String, String> emptyMap());
-    }
+	/**
+	 * construct a query to count all objects
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countAll();
 
-    public DefaultRowModelRequest countEdges(String startLabel, String type, String endLabel) {
-        return new DefaultRowModelRequest(String.format("MATCH (:`%s`)-[r:`%s`]->(:`%s`) RETURN count(r)", startLabel, type, endLabel), Utils.map());
-    }
+	/**
+	 * construct a query to count all nodes
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countNodes();
+
+	/**
+	 * construct queries to count all nodes with the specified label
+	 * @param label the label attached to the object
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countNodes(String label);
+
+	/**
+	 * construct queries to count all nodes with the specified label
+	 * @param labels the labels attached to the object
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countNodes(Iterable<String> labels);
+
+	/**
+	 * construct queries to count all nodes with the specified label that match the specified filters
+	 * @param label the label value to filter on
+	 * @param filters additional parameters to filter on
+	 * @return a {@link CypherQuery}
+	 */
+
+	CypherQuery countNodes(String label, Filters filters);
+
+	/**
+	 * construct a query to count all relationships
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countEdges();
+
+	/**
+	 * construct queries to count all nodes with the specified label
+	 * @param type the relationship type
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countEdges(String type);
+
+	/**
+	 * construct queries to count all relationships with the specified type that match the specified filters
+	 * @param type the relationship type to filter on
+	 * @param filters additional parameters to filter on
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countEdges(String type, Filters filters);
+
+	/**
+	 * construct queries to count all single-length paths with the specified start label, relationship type and end label that match the specified filters
+	 * @param startLabel the start node label to filter on
+	 * @param relationshipType the type of relationship to filter on
+	 * @param endLabel the end node label to filter on
+	 * @return a {@link CypherQuery}
+	 */
+	CypherQuery countEdges(String startLabel, String relationshipType, String endLabel);
+
 }

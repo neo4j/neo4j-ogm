@@ -116,12 +116,13 @@ public class RequestExecutor {
 				try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
 					registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
 					registerNewRelIds(response, relReferenceMappings);
-					// if we had any update statements, then refresh the hashes of the objects
-					if(compiler.updateNodesStatements().size()>0) {
-						updateSessionContext(context);
-					}
 				}
 			}
+		}
+
+		// if we had any update statements, then refresh the hashes of the objects
+		if(compiler.updateNodesStatements().size()>0) {
+			updateSessionContext(context);
 		}
 
 		//Update the mapping context now that the request is successful

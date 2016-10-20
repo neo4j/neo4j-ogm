@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.domain.social;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * POJO to test the direction of an incoming relationships.
@@ -54,5 +54,13 @@ public class Mortal {
     @Relationship(type = "KNOWN_BY", direction = "INCOMING")
     public void setKnownBy(Set<Mortal> knownBy) {
         this.knownBy = knownBy;
+    }
+
+    /*
+     * this method is here to prove that only true JavaBean style setters/getters are invoked by the mapper
+     * see ClassInfo.findSetters() and ClassInfo.findGetters()
+     */
+    public void addKnownBy(Mortal mortal) {
+        knownBy.add(mortal);
     }
 }

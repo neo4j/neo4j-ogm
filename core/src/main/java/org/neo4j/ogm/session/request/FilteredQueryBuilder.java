@@ -21,16 +21,33 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.exception.MissingOperatorException;
 
 /**
- * @author vince
+ * All statements that take a {@link org.neo4j.ogm.cypher.Filters} parameter delegate the generation of the appropriate
+ * Cypher to this class
+ *
+ * The FilteredQueryBuilder, as its name suggests, returns instances of {@link FilteredQuery}
+ *
+* @author vince
  */
 public class FilteredQueryBuilder {
 
+	/**
+	 * Create a {@link FilteredQuery} which matches nodes filtered by one or more property expressions
+	 * @param nodeLabel the label of the node to match
+	 * @param filterList a list of {@link Filter} objects defining the property filter expressions
+	 * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
+	 */
 	public static FilteredQuery buildNodeQuery(String nodeLabel, Iterable<Filter> filterList) {
 		Map<String, Object> properties = new HashMap<>();
 		StringBuilder sb =  constructNodeQuery(nodeLabel, filterList, properties);
 		return new FilteredQuery(sb, properties);
 	}
 
+	/**
+	 * Create a {@link FilteredQuery} which matches edges filtered by one or more property expressions
+	 * @param relationshipType the type of the edge to match
+	 * @param filterList a list of {@link Filter} objects defining the property filter expressions
+     * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
+	 */
 	public static FilteredQuery buildRelationshipQuery(String relationshipType, Iterable<Filter> filterList) {
 		Map<String, Object> properties = new HashMap<>();
 		StringBuilder sb = constructRelationshipQuery(relationshipType, filterList, properties);
@@ -38,15 +55,24 @@ public class FilteredQueryBuilder {
 	}
 
 	private static StringBuilder constructNodeQuery(String label, Iterable<Filter> filters, Map<String, Object> properties) {
+
 		Map<String, StringBuilder> matchClauses = new LinkedHashMap<>(); //All individual MATCH classes, grouped by node label
-		Map<String, String> matchClauseIdentifiers = new HashMap<>(); //Mapping of the node label to the identifier used in the query
 		List<StringBuilder> relationshipClauses = new ArrayList<>(); //All relationship clauses
-		int matchClauseId = 0;
-		boolean noneOperatorEncountered = false;
 		String nodeIdentifier = "n";
 
 		//Create a match required to support the node entity we're supposed to return
 		createOrFetchNodeQueryMatchClause(label, nodeIdentifier, matchClauses);
+		// Create the required WHERE clauses
+		createNodePredicateClauses(filters, properties, matchClauses, relationshipClauses, label, nodeIdentifier);
+		//Construct the final query by appending all match clauses followed by all relationship clauses
+		return buildQuery(matchClauses, relationshipClauses);
+	}
+
+	private static void createNodePredicateClauses(Iterable<Filter> filters, Map<String, Object> properties, Map<String, StringBuilder> matchClauses, List<StringBuilder> relationshipClauses, String label, String nodeIdentifier) {
+
+		int matchClauseId = 0;
+		boolean noneOperatorEncountered = false;
+		Map<String, String> matchClauseIdentifiers = new HashMap<>(); //Mapping of the node label to the identifier used in the query
 
 		for (Filter filter : filters) {
 			StringBuilder matchClause;
@@ -86,8 +112,7 @@ public class FilteredQueryBuilder {
 			matchClause.append(filter.toCypher(nodeIdentifier, matchClause.indexOf(" WHERE ") == -1));
 			properties.putAll(filter.parameters());
 		}
-		//Construct the query by appending all match clauses followed by all relationship clauses
-		return buildQuery(matchClauses, relationshipClauses);
+
 	}
 
 	private static StringBuilder buildQuery(Map<String, StringBuilder> matchClauses, List<StringBuilder> relationshipClauses) {

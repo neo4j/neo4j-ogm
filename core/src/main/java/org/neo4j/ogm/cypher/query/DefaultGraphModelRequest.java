@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.cypher.query;
 
+import java.util.Map;
+
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.Utils;
 
-import java.util.Map;
-
 /**
  * @author Vince Bickers
  */
-public class DefaultGraphModelRequest extends AbstractRequest implements GraphModelRequest {
+public class DefaultGraphModelRequest extends PagingAndSortingQuery implements GraphModelRequest {
 
     private final static String[] resultDataContents = new String[] {"graph"};
 

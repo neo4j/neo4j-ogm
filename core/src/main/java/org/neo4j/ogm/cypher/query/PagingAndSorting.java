@@ -12,15 +12,12 @@
  */
 package org.neo4j.ogm.cypher.query;
 
-import org.neo4j.ogm.cypher.Filters;
-
 /**
  * @author Vince Bickers
  */
-public interface FilteringPagingAndSorting {
+public interface PagingAndSorting {
 
-    AbstractRequest setPagination(Pagination page);
-    AbstractRequest setFilters(Filters filters);
-    AbstractRequest setSortOrder(SortOrder sortOrder);
+    PagingAndSortingQuery setPagination(Pagination page);
+    PagingAndSortingQuery setSortOrder(SortOrder sortOrder);
 
 }

@@ -29,8 +29,8 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PersistenceEvent;
-import org.neo4j.ogm.session.request.strategy.DeleteNodeStatements;
-import org.neo4j.ogm.session.request.strategy.DeleteRelationshipStatements;
+import org.neo4j.ogm.session.request.strategy.impl.NodeDeleteStatements;
+import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 
 /**
@@ -46,9 +46,9 @@ public class DeleteDelegate implements Capability.Delete {
 
     private DeleteStatements getDeleteStatementsBasedOnType(Class type) {
         if (session.metaData().isRelationshipEntity(type.getName())) {
-            return new DeleteRelationshipStatements();
+            return new RelationshipDeleteStatements();
         }
-        return new DeleteNodeStatements();
+        return new NodeDeleteStatements();
     }
 
 
@@ -141,7 +141,7 @@ public class DeleteDelegate implements Capability.Delete {
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
-            Statement request = getDeleteStatementsBasedOnType(type).deleteByType(session.entityType(classInfo.name()));
+            Statement request = getDeleteStatementsBasedOnType(type).delete(session.entityType(classInfo.name()));
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
             session.notifyListeners(new PersistenceEvent(type, Event.TYPE.PRE_DELETE));
             try (Response<RowModel> response = session.requestHandler().execute(query)) {
@@ -158,7 +158,7 @@ public class DeleteDelegate implements Capability.Delete {
 
     @Override
     public void purgeDatabase() {
-        Statement stmt = new DeleteNodeStatements().purge();
+        Statement stmt = new NodeDeleteStatements().deleteAll();
         RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
         session.requestHandler().execute(query).close();
         session.context().clear();

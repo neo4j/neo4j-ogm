@@ -21,7 +21,7 @@ import org.neo4j.ogm.session.Utils;
 /**
  * @author Luanne Misquitta
  */
-public class DefaultRestModelRequest extends AbstractRequest implements RestModelRequest {
+public class DefaultRestModelRequest extends PagingAndSortingQuery implements RestModelRequest {
 
 	private final static String[] resultDataContents = new String[] {"rest"};
 

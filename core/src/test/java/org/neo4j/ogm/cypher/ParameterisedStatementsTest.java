@@ -13,17 +13,17 @@
 
 package org.neo4j.ogm.cypher;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.json.ObjectMapperFactory;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.Statements;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
 
 /**
  * @author Vince Bickers
@@ -36,11 +36,11 @@ public class ParameterisedStatementsTest {
     public void testStatement() throws Exception {
 
         List<Statement> statements = new ArrayList<>();
-        statements.add(new VariableDepthQuery().findOne(123L, 1));
+        statements.add(new NodeQueryStatements().findOne(123L, 1));
 
         String cypher = mapper.writeValueAsString(new Statements(statements));
 
-        assertEquals("{\"statements\":[{\"statement\":\"MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}", cypher);
+        assertEquals("{\"statements\":[{\"statement\":\"MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p\",\"parameters\":{\"id\":123},\"resultDataContents\":[\"graph\"],\"includeStats\":false}]}", cypher);
 
     }
 

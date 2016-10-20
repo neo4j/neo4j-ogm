@@ -13,7 +13,7 @@
 package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.context.GraphEntityMapper;
@@ -47,7 +47,7 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
 
-        AbstractRequest qry = queryStatements.findAllByType(entityType, ids, depth)
+        PagingAndSortingQuery qry = queryStatements.findAllByType(entityType, ids, depth)
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 

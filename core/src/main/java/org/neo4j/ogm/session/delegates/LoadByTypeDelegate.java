@@ -23,7 +23,7 @@ import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.AbstractRequest;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortClause;
@@ -66,7 +66,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
         // though they are at the moment because of the problems with "graph" response format.
         if (filters.isEmpty()) {
 
-            AbstractRequest qry = queryStatements.findByType(entityType, depth)
+            PagingAndSortingQuery qry = queryStatements.findByType(entityType, depth)
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 
@@ -85,7 +85,7 @@ public class LoadByTypeDelegate implements Capability.LoadByType {
 
             filters = resolvePropertyAnnotations(type, filters);
 
-            AbstractRequest qry = queryStatements.findByProperties(entityType, filters, depth)
+            PagingAndSortingQuery qry = queryStatements.findByType(entityType, filters, depth)
                     .setSortOrder(sortOrder)
                     .setPagination(pagination);
 

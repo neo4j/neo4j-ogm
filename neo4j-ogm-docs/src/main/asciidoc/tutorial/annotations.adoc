@@ -239,9 +239,7 @@ Otherwise, a Long field must be annotated with `@GraphId`.
 Since every entity requires an id, we're going to create an `Entity` superclass.
 This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
 
-Also observe the null checks for the `id` field in the `equals` and `hashCode`.
-This is required because the `id` is null till the entity is persisted to the graph.
-
+If you plan on implementing `hashCode` and `equals` make sure *it does not* make sure of the Graph Id. See <<reference-graphid-annotation, Node Entities>> for more information.
 [source, java]
 ----
 public abstract class Entity {
@@ -250,23 +248,6 @@ public abstract class Entity {
 
     public Long getId() {
         return id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || id == null || getClass() != o.getClass()) return false;
-
-        Entity entity = (Entity) o;
-
-        if (!id.equals(entity.id)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return (id == null) ? -1 : id.hashCode();
     }
 }
 ----

@@ -20,8 +20,9 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.session.request.FilteredQuery;
+import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Encapsulates Cypher statements used to execute aggregation queries.
@@ -32,18 +33,13 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class CountStatements implements AggregateStatements {
 
     @Override
-    public CypherQuery countAll() {
-        return new DefaultRowModelRequest("MATCH (n)-[r]-() RETURN COUNT(DISTINCT n) + COUNT(DISTINCT r)", Utils.map());
-    }
-
-    @Override
     public CypherQuery countNodes() {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest("MATCH (n) RETURN COUNT(n)", Utils.map());
     }
 
     @Override
     public CypherQuery countNodes(String label) {
-        throw new NotImplementedException();
+        return countNodes(Collections.singletonList(label));
     }
 
     @Override
@@ -58,26 +54,30 @@ public class CountStatements implements AggregateStatements {
 
     @Override
     public CypherQuery countNodes(String label, Filters filters) {
-        throw new NotImplementedException();
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
+        query.setReturnClause(" RETURN COUNT(n)");
+        return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery countEdges() {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest("MATCH (n)-[r]->() RETURN COUNT(r)", Utils.map());
     }
 
     @Override
     public CypherQuery countEdges(String type) {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest(String.format("MATCH (n)-[r:`%s`]->() RETURN COUNT(r)", type), Utils.map());
     }
 
     @Override
     public CypherQuery countEdges(String type, Filters filters) {
-        throw new NotImplementedException();
+        FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
+        query.setReturnClause(" RETURN COUNT(n)");
+        return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery countEdges(String startLabel, String type, String endLabel) {
-        return new DefaultRowModelRequest(String.format("MATCH (:`%s`)-[r:`%s`]->(:`%s`) RETURN count(r)", startLabel, type, endLabel), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (:`%s`)-[r:`%s`]->(:`%s`) RETURN COUNT(r)", startLabel, type, endLabel), Utils.map());
     }
 }

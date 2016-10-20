@@ -22,12 +22,6 @@ import org.neo4j.ogm.cypher.query.CypherQuery;
 public interface AggregateStatements {
 
 	/**
-	 * construct a query to count all objects
-	 * @return a {@link CypherQuery}
-	 */
-	CypherQuery countAll();
-
-	/**
 	 * construct a query to count all nodes
 	 * @return a {@link CypherQuery}
 	 */

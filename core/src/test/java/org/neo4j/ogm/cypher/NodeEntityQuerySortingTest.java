@@ -40,7 +40,7 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindById() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
-        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindByIdDepthZero() {
         sortOrder.add("name");
-        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name RETURN n", query.findAll(Arrays.asList(23L, 24L), 0).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n ORDER BY n.name RETURN n", query.findAll(Arrays.asList(23L, 24L), 0).setSortOrder(sortOrder).getStatement());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindByIdDepthInfinite() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
-        check("MATCH (n) WHERE id(n) in { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test

@@ -23,7 +23,6 @@ import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * @author Luanne Misquitta
@@ -35,21 +34,21 @@ public class RelationshipDeleteStatements implements DeleteStatements {
     }
 
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n)-[r]->() WHERE id(r) in { ids } DELETE r", Utils.map("ids", ids));
+        return new DefaultRowModelRequest("MATCH (n)-[r]->() WHERE ID(r) IN { ids } DELETE r", Utils.map("ids", ids));
     }
 
     public CypherQuery deleteAll() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r", Utils.map());
     }
 
     @Override
     public CypherQuery deleteAllAndCount() {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r RETURN COUNT(r)", Utils.map());
     }
 
     @Override
     public CypherQuery deleteAllAndList() {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r RETURN ID(r)", Utils.map());
     }
 
     public CypherQuery delete(String type) {
@@ -58,12 +57,12 @@ public class RelationshipDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery deleteAndCount(String type) {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest(String.format("MATCH (n)-[r:`%s`]-() DELETE r RETURN COUNT(r)", type), Utils.map());
     }
 
     @Override
     public CypherQuery deleteAndList(String type) {
-        throw new NotImplementedException();
+        return new DefaultRowModelRequest(String.format("MATCH (n)-[r:`%s`]-() DELETE r RETURN ID(r)", type), Utils.map());
     }
 
     @Override
@@ -75,11 +74,15 @@ public class RelationshipDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery deleteAndCount(String type, Filters filters) {
-        throw new NotImplementedException();
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(type, filters);
+        query.setReturnClause(" DELETE r RETURN COUNT(r)");
+        return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery deleteAndList(String type, Filters filters) {
-        throw new NotImplementedException();
+        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(type, filters);
+        query.setReturnClause(" DELETE r RETURN ID(r)");
+        return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 }

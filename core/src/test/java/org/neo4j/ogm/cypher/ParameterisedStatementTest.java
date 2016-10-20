@@ -40,7 +40,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindOne() throws Exception {
         statement = new NodeQueryStatements().findOne(123L, 1);
-        assertEquals("MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
+        assertEquals("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{\"id\":123}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -48,7 +48,7 @@ public class ParameterisedStatementTest {
     public void testFindAllWithIds() throws Exception {
         List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         statement = new NodeQueryStatements().findAll(ids, 1);
-        assertEquals("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
+        assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -123,7 +123,7 @@ public class ParameterisedStatementTest {
     @Test
     public void delete() throws Exception {
         statement = new NodeDeleteStatements().delete(123L);
-        assertEquals("MATCH (n) WHERE id(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
+        assertEquals("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
         assertEquals("{\"id\":123}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -131,7 +131,7 @@ public class ParameterisedStatementTest {
     public void deleteAll() throws Exception {
         List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         statement = new NodeDeleteStatements().delete(ids);
-        assertEquals("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
+        assertEquals("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -166,7 +166,7 @@ public class ParameterisedStatementTest {
     public void deleteAllRels() throws Exception {
         List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         statement = new RelationshipDeleteStatements().delete(ids);
-        assertEquals("MATCH (n)-[r]->() WHERE id(r) in { ids } DELETE r", statement.getStatement());
+        assertEquals("MATCH (n)-[r]->() WHERE ID(r) IN { ids } DELETE r", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 

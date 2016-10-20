@@ -40,12 +40,12 @@ public class NodeQueryStatementsTest {
 
 	@Test
 	public void testFindOne() throws Exception {
-		assertEquals("MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", queryStatements.findOne(0L, 2).getStatement());
+		assertEquals("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", queryStatements.findOne(0L, 2).getStatement());
 	}
 
 	@Test
 	public void testFindAllCollection() throws Exception {
-		assertEquals("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
+		assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindAllByLabel() throws Exception {
-		assertEquals("MATCH (n:`Orbit`) WHERE id(n) in { ids } RETURN n", queryStatements.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), 0).getStatement());
+		assertEquals("MATCH (n:`Orbit`) WHERE ID(n) IN { ids } RETURN n", queryStatements.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), 0).getStatement());
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindAllByLabelDepthOne() throws Exception {
-		assertEquals("MATCH (n:`Orbit`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), 1).getStatement());
+		assertEquals("MATCH (n:`Orbit`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), 1).getStatement());
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindAllByLabelDepthInfinity() throws Exception {
-		assertEquals("MATCH (n:`Orbit`) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), -1).getStatement());
+		assertEquals("MATCH (n:`Orbit`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findAllByType("Orbit", Arrays.asList(1L, 2L, 3L), -1).getStatement());
 	}
 
 	@Test
@@ -104,12 +104,12 @@ public class NodeQueryStatementsTest {
 
 	@Test
 	public void testFindOneZeroDepth() throws Exception {
-		assertEquals("MATCH (n) WHERE id(n) = { id } RETURN n", queryStatements.findOne(0L, 0).getStatement());
+		assertEquals("MATCH (n) WHERE ID(n) = { id } RETURN n", queryStatements.findOne(0L, 0).getStatement());
 	}
 
 	@Test
 	public void testFindAllCollectionZeroDepth() throws Exception {
-		assertEquals("MATCH (n) WHERE id(n) in { ids } RETURN n", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 0).getStatement());
+		assertEquals("MATCH (n) WHERE ID(n) IN { ids } RETURN n", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 0).getStatement());
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindOneNegativeDepth() throws Exception {
-		assertEquals("MATCH (n) WHERE id(n) = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findOne(0L, -1).getStatement());
+		assertEquals("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findOne(0L, -1).getStatement());
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindAllCollectionNegativeDepth() throws Exception {
-		assertEquals("MATCH (n) WHERE id(n) in { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), -1).getStatement());
+		assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), -1).getStatement());
 	}
 
 

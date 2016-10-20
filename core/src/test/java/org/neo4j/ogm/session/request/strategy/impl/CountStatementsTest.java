@@ -13,11 +13,13 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 
 /**
@@ -28,55 +30,50 @@ public class CountStatementsTest {
 	private AggregateStatements statements = new CountStatements();
 
 	@Test
-	public void testCountAll() throws Exception {
-		expect("", statements.countAll().getStatement());
-	}
-
-	@Test
 	public void testCountNodes() throws Exception {
-		expect("", statements.countNodes().getStatement());
+		assertEquals("MATCH (n) RETURN COUNT(n)", statements.countNodes().getStatement());
 	}
 
 	@Test
 	public void testCountNodesWithLabel() throws Exception {
-		expect("", statements.countNodes("Person").getStatement());
+		assertEquals("MATCH (n:`Person`) RETURN COUNT(n)", statements.countNodes("Person").getStatement());
 	}
 
 	@Test
 	public void testCountNodesWithMultipleLabels() throws Exception {
-		expect("MATCH (n:`Person`:`Candidate`) RETURN COUNT(n)", statements.countNodes(Arrays.asList(new String[]{"Person", "Candidate"})).getStatement());
+		assertEquals("MATCH (n:`Person`:`Candidate`) RETURN COUNT(n)", statements.countNodes(Arrays.asList(new String[]{"Person", "Candidate"})).getStatement());
 	}
 
 	@Test
 	public void testCountNodesWithLabelAndFilters() throws Exception {
-		Filters filters = new Filters();
-		expect("", statements.countNodes("Person", filters).getStatement());
+		CypherQuery query = statements.countNodes("Person", new Filters().add("name", "Jim"));
+		assertEquals("MATCH (n:`Person`) WHERE n.`name` = { `name_0` }  RETURN COUNT(n)", query.getStatement());
+		assertEquals("{name_0=Jim}", query.getParameters().toString());
 
 	}
 
 	@Test
 	public void testCountEdges() throws Exception {
-		expect("", statements.countEdges().getStatement());
+		assertEquals("MATCH (n)-[r]->() RETURN COUNT(r)", statements.countEdges().getStatement());
 	}
 
 	@Test
 	public void testCountEdgesWithType() throws Exception {
-		expect("", statements.countEdges("IN_CONSTITUENCY").getStatement());
+		assertEquals("MATCH (n)-[r:`IN_CONSTITUENCY`]->() RETURN COUNT(r)", statements.countEdges("IN_CONSTITUENCY").getStatement());
 	}
 
 	@Test
 	public void testCountEdgesWithTypeAndFilters() throws Exception {
-		Filters filters = new Filters();
-		expect("", statements.countEdges("IN_CONSTITUENCY", filters).getStatement());
+		CypherQuery query = statements.countEdges("INFLUENCE", new Filters().add("score", -12.2));
+		assertEquals("MATCH (n)-[r:`INFLUENCE`]->(m) WHERE r.`score` = { `score` }  RETURN COUNT(n)", query.getStatement());
+		assertEquals("{score=-12.2}", query.getParameters().toString());
 	}
 
 	@Test
 	public void testCountEdgesWithSpecificPath() throws Exception {
-		expect("MATCH (:`StartNode`)-[r:`TYPE`]->(:`EndNode`) RETURN count(r)", statements.countEdges("StartNode", "TYPE", "EndNode").getStatement());
+		assertEquals("MATCH (:`StartNode`)-[r:`TYPE`]->(:`EndNode`) RETURN COUNT(r)", statements.countEdges("StartNode", "TYPE", "EndNode").getStatement());
 
 	}
 
-	private static void expect(String expected, String actual) {
-		Assert.assertEquals(expected, actual);
-	}
+
 }

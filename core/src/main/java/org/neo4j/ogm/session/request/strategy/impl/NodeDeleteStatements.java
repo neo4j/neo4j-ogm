@@ -30,12 +30,12 @@ public class NodeDeleteStatements implements DeleteStatements {
     @Override
     
     public CypherQuery delete(Long id) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE id(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("id", id));
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("id", id));
     }
 
     @Override
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE id(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("ids", ids));
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("ids", ids));
     }
 
     @Override
@@ -45,12 +45,12 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery deleteAllAndCount() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN count(n)", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)", Utils.map());
     }
 
     @Override
     public CypherQuery deleteAllAndList() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN id(n)", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)", Utils.map());
     }
 
     @Override
@@ -60,12 +60,12 @@ public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
     public CypherQuery deleteAndCount(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN count(n)", label), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)", label), Utils.map());
     }
 
     @Override
     public CypherQuery deleteAndList(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN id(n)", label), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)", label), Utils.map());
     }
 
     @Override
@@ -78,13 +78,13 @@ public class NodeDeleteStatements implements DeleteStatements {
     @Override
     public CypherQuery deleteAndCount(String label, Filters filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
-        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN count(n)");
+        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery deleteAndList(String label, Filters filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
-        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN id(n)");
+        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());    }
 }

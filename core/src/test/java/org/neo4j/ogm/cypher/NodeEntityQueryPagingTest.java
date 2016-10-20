@@ -34,7 +34,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindById() {
-        check("MATCH (n) WHERE id(n) in { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setPagination(new Pagination(1, 2)).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setPagination(new Pagination(1, 2)).getStatement());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByIdDepthZero() {
-        check("MATCH (n) WHERE id(n) in { ids } WITH n SKIP 1 LIMIT 1 RETURN n", query.findAll(Arrays.asList(23L, 24L), 0).setPagination(new Pagination(1, 1)).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n SKIP 1 LIMIT 1 RETURN n", query.findAll(Arrays.asList(23L, 24L), 0).setPagination(new Pagination(1, 1)).getStatement());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByIdDepthInfinite() {
-        check("MATCH (n) WHERE id(n) in { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setPagination(new Pagination(1, 2)).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setPagination(new Pagination(1, 2)).getStatement());
     }
 
     @Test

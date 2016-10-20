@@ -89,7 +89,7 @@ In this case, a graph similar to the following would be persisted.
 ----
 
 While this will map successfully to the database, it's important to understand that the names of the properties and relationship types are tightly coupled to the class's member names.
-Renaming any of these fields will cause parts of the graph to map incorrectly, hence the recommendation to use annotations. 
+Renaming any of these fields will cause parts of the graph to map incorrectly, hence the recommendation to use annotations.
 
 
 [[reference-graphid-annotation]]
@@ -114,12 +114,10 @@ There are many debatable issues, such as whether natural keys or database identi
 Neo4j OGM does not impose a dependency upon a particular style of `equals()` or `hashCode()` implementation.
 The graph-id field is directly checked to see if two entities represent the same node and a 64-bit hash code is used for dirty checking, so you're not forced to write your code in a certain way!
 
-However, we do think it's important to mention that if you use the `@GraphId` field in your `hashCode()` method then this comes with a caveat.
-When you first persist an entity, its hashcode changes because the OGM populates the database ID on save.
-
-That causes problems if you had inserted the newly created entity into a hash-based collection before saving.
-While that can be worked around, we strongly advise you adopt a convention of not relying upon the graph ID for object equality.
-
+[WARNING]
+You are free to write your `equals` and `hashcode` in a domain specific way for managed entities.  However, *we strongly advise developers to not use the `@GraphId` field in these implementations*.
+This is because when you first persist an entity, its hashcode changes because the OGM populates the database ID on save.
+This causes problems if you had inserted the newly created entity into a hash-based collection before saving.
 
 [[reference-property-annotation]]
 == @Property: Optional annotation for property fields

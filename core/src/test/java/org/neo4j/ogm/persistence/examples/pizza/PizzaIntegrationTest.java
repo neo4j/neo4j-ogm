@@ -391,6 +391,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         // pizza should NOT be dirty - but it is, indicating it's not current in the cache.
         Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
 
+        Assert.assertEquals("Just bread", pizza.getName());
+        Assert.assertNotNull(pizza.getCrust());
+        Assert.assertEquals("Thin Crust", pizza.getCrust().getName());
+
         // As noted above, the fact that it doesn't pass is related to the fact
         // that the object is detached, AND the fact that a two statement cypher request
         // is being made. Both of these conditions must hold for the test to fail.

@@ -37,11 +37,13 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class PizzaIntegrationTest extends MultiDriverTestClass {
 
+    private SessionFactory sessionFactory;
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.pizza").openSession();
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.pizza");
+        session = sessionFactory.openSession();
     }
 
     @After
@@ -391,33 +393,68 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         // pizza should NOT be dirty - but it is, indicating it's not current in the cache.
         Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
 
-        Assert.assertEquals("Just bread", pizza.getName());
-        Assert.assertNotNull(pizza.getCrust());
-        Assert.assertEquals("Thin Crust", pizza.getCrust().getName());
+        loadedPizza = session.load(Pizza.class, pizza.getId());
 
-        // As noted above, the fact that it doesn't pass is related to the fact
-        // that the object is detached, AND the fact that a two statement cypher request
-        // is being made. Both of these conditions must hold for the test to fail.
+        // now we create a relationship and update a property on the detached pizza object.
+        // note that we don't save the Crust first. Crust is a new object when pizza is saved, so
+        // we will generate a 2-statement cypher request. This is the second condition for failure
+        Crust crust2 = new Crust("Thick Crust");
+        pizza.setCrust(crust2);
+        pizza.setName("Just bread");
 
-        // What's happening?
-        // when the pizza is saved, a 2-statement cypher request is made. The first creates the
-        // new Crust object, the second one updates the Pizza object, setting the crust relationship
-        // and updating the property.
-
-        // However as mentioned, the object in the session at the save point, which represents the pizza, is not
-        // in fact the pizza, but the earlier, loadedPizza - which hasn't changed.
-
-        // what normally happens is that the session reference should be updated to point to 'pizza',
-        // not 'loadedPizza' after the save. i.e., pizza is re-attached, by magic. And, if a single-statement request is made
-        // (e.g. by explicitly saving the Crust first), this does in fact happen.
-
-        // However, in the case of a two-statement request, the objects referenced in the second statement ('pizza') do not
-        // appear to be updated into the session cache. As a result, because the Session is now a pure-cache
-        // and no longer a read-and-merge cache, when you ask for the pizza object again, you get
-        // the cached copy of 'loadedPizza', which is now stale, and doesn't reflect the changes you just made.
-
+        // now, our detached pizza should be dirty, but it is not
+        Assert.assertTrue(((Neo4jSession) session).context().isDirty(pizza));
     }
 
+    @Test
+    public void shouldBeAbleToModifyPropertiesAndRelsWithinSingleSave_case2() {
+        Crust crust = new Crust("Thin Crust");
+        Topping pepperoni = new Topping("Pepperoni");
+        final ArrayList<Topping> toppings = new ArrayList<>();
+        toppings.add(pepperoni);
+        Pizza pizza = new Pizza("Godfather", crust, toppings);
+
+        session.save(pizza);
+
+        Topping mushroom = new Topping("Mushroom");
+
+        session.save(pepperoni);
+        session.save(mushroom);
+
+        session.clear();
+
+        Long id = pizza.getId();
+
+        Assert.assertNotNull(id);
+        // detach the pizza
+
+        Session session2 = sessionFactory.openSession();
+
+        // NOTE: if we instead reload into our pizza object, the test will pass, but what
+        // this does is create a new object in the session. And, rather than work with
+        // the new attached object 'loadedPizza', we continue to work with the detached object, 'pizza'.
+        // this is the first condition for failure.
+        Pizza loadedPizza = session2.load(Pizza.class, id);
+
+        // now we create a relationship and update a property on the detached pizza object.
+        // note that we don't save the Crust first. Crust is a new object when pizza is saved, so
+        // we will generate a 2-statement cypher request. This is the second condition for failure
+        loadedPizza.setName("Just bread");
+
+        loadedPizza.getToppings().clear();
+
+        Topping pepperoniTopping = session2.load(Topping.class, pepperoni.getId());
+        loadedPizza.getToppings().add(pepperoniTopping);
+
+        Topping mushroomTopping = session2.load(Topping.class, pepperoni.getId());
+        loadedPizza.getToppings().add(mushroomTopping);
+
+        // pizza should be dirty
+        Assert.assertTrue(((Neo4jSession) session2).context().isDirty(loadedPizza));
+        session2.save(loadedPizza);
+        // pizza should NOT be dirty - but it is, indicating it's not current in the cache.
+        Assert.assertFalse(((Neo4jSession) session2).context().isDirty(loadedPizza)); // this should pass
+    }
 
     /**
      * @see issue #209

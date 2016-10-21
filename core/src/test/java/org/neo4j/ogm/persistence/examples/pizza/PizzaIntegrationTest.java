@@ -390,17 +390,15 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         // pizza should be dirty
         Assert.assertTrue(((Neo4jSession) session).context().isDirty(pizza));
         session.save(pizza);
-        // pizza should NOT be dirty - but it is, indicating it's not current in the cache.
-        Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
+        // pizza should NOT be dirty
+        Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza));
 
         loadedPizza = session.load(Pizza.class, pizza.getId());
 
         // now we create a relationship and update a property on the detached pizza object.
         // note that we don't save the Crust first. Crust is a new object when pizza is saved, so
         // we will generate a 2-statement cypher request. This is the second condition for failure
-        Crust crust2 = new Crust("Thick Crust");
-        pizza.setCrust(crust2);
-        pizza.setName("Just bread");
+        pizza.setCrust(new Crust("Thick Crust"));
 
         // now, our detached pizza should be dirty, but it is not
         Assert.assertTrue(((Neo4jSession) session).context().isDirty(pizza));

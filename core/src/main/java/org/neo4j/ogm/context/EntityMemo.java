@@ -103,6 +103,9 @@ public class EntityMemo {
         if (classInfo.labelFieldOrNull() != null) {
             hashFields.add(classInfo.labelFieldOrNull());
         }
+        for (FieldInfo info : classInfo.relationshipFields()) {
+            hashFields.add(info);
+        }
 
         for (FieldInfo fieldInfo : hashFields) {
             Field field = classInfo.getField(fieldInfo);

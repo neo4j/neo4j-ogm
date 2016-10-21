@@ -878,8 +878,11 @@ public class ClassInfo {
         String setterSignature = "(L" + parameterType.getName().replace(".", "/") + ";)V";
         List<MethodInfo> methodInfos = new ArrayList<>();
         for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
-                methodInfos.add(methodInfo);
+            // TODO: don't admit non-javaBean style setters
+            if (methodInfo.isSetter()) {
+                if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
+                    methodInfos.add(methodInfo);
+                }
             }
         }
         return methodInfos;
@@ -895,8 +898,11 @@ public class ClassInfo {
         String setterSignature = "()L" + returnType.getName().replace(".", "/") + ";";
         List<MethodInfo> methodInfos = new ArrayList<>();
         for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
-                methodInfos.add(methodInfo);
+            // TODO: don't admit non-javaBean style getters
+            if (methodInfo.isGetter()) {
+                if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
+                    methodInfos.add(methodInfo);
+                }
             }
         }
         return methodInfos;

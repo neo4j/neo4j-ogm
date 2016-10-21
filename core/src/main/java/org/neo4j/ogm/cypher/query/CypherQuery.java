@@ -16,7 +16,6 @@ package org.neo4j.ogm.cypher.query;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.request.Statement;
 
 /**
@@ -30,16 +29,9 @@ import org.neo4j.ogm.request.Statement;
  */
 public class CypherQuery implements Statement {
 
-    private String statement;
-
-    private int withIndex;
-
-    private Map<String, Object> parameters = new HashMap<>();
-
-    private Pagination paging;
-    private SortOrder sortOrder = new SortOrder();
-    private Filters filters = new Filters();
-
+    protected String statement;
+    protected int withIndex;
+    protected Map<String, Object> parameters = new HashMap<>();
 
     /**
      * Constructs a new {@link CypherQuery} based on the given Cypher query string and query parameters.
@@ -54,55 +46,7 @@ public class CypherQuery implements Statement {
     }
 
     public String getStatement() {
-
-        String stmt = statement.trim();
-        String sorting = sortOrder().toString();
-        String pagination = paging == null ? "" : page().toString();
-
-        // these transformations are entirely dependent on the form of our base queries and
-        // binding the sorting properties to the default query variables is a terrible hack. All this
-        // needs refactoring ASAP.
-        // Update Feb 2016: It really does need refactoring ASAP!!! //TODO
-        if (sorting.length() > 0 || pagination.length() > 0) {
-
-            if (withIndex > -1) {
-                int nextClauseIndex = stmt.indexOf(" MATCH", withIndex);
-                String withClause = stmt.substring(withIndex, nextClauseIndex);
-                String newWithClause = withClause;
-                if (stmt.contains(")-[r")) {
-                    sorting = sorting.replace("$", "r");
-                    if (!withClause.contains(",r") && (!withClause.contains("r,"))) {
-                        newWithClause = newWithClause + ",r";
-                    }
-                } else {
-                    sorting = sorting.replace("$", "n");
-                }
-                stmt = stmt.replace(withClause, newWithClause + sorting + pagination);
-                //If a path is returned, also return the original entities in the page
-                if (stmt.contains("MATCH p=(") && !stmt.contains("RETURN p, ID(n)")) {
-                    stmt = stmt.replace("RETURN p","RETURN p, ID(n)");
-                }
-            } else {
-                if (stmt.startsWith("MATCH p=(")) {
-                    String withClause = "WITH p";
-                    if (stmt.contains(")-[r")) {
-                        withClause = withClause + ",r";
-                        sorting = sorting.replace("$", "r");
-                    } else {
-                        sorting = sorting.replace("$", "n");
-                    }
-                    stmt = stmt.replace("RETURN ", withClause + sorting + pagination + " RETURN ");
-                } else {
-                    sorting = sorting.replace("$", "n");
-                    stmt = stmt.replace("RETURN ", "WITH n" + sorting + pagination + " RETURN ");
-                }
-                if (stmt.contains("MATCH p=(") && stmt.contains("WITH n") && !stmt.contains("RETURN p, ID(n)")) {
-                    stmt = stmt.replace("RETURN p","RETURN p, ID(n)");
-                }
-            }
-        }
-
-        return stmt;
+        return this.statement;
     }
 
     public Map<String, Object> getParameters() {
@@ -117,26 +61,6 @@ public class CypherQuery implements Statement {
     @Override
     public boolean isIncludeStats() {
         return false;
-    }
-
-    public Pagination page() {
-        return paging;
-    }
-
-    public SortOrder sortOrder() {
-        return sortOrder;
-    }
-
-    protected void addPaging(Pagination page) {
-        this.paging = page;
-    }
-
-    public void addSortOrder(SortOrder sortOrder) {
-        this.sortOrder = sortOrder;
-    }
-
-    public void addFilters(Filters filters) {
-        this.filters = filters;
     }
 
     private void parseStatement() {

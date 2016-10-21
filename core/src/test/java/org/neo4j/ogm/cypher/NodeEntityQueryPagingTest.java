@@ -18,14 +18,14 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.session.request.strategy.VariableDepthQuery;
+import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
 
 /**
  * @author Vince Bickers
  */
 public class NodeEntityQueryPagingTest {
 
-    private final VariableDepthQuery query = new VariableDepthQuery();
+    private final NodeQueryStatements query = new NodeQueryStatements();
 
     @Test
     public void testFindAll() {
@@ -34,7 +34,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindById() {
-        check("MATCH (n) WHERE id(n) in { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setPagination(new Pagination(1, 2)).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), 1).setPagination(new Pagination(1, 2)).getStatement());
     }
 
     @Test
@@ -44,12 +44,12 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByProperty() {
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", query.findByProperties("Raptor", new Filters().add(new Filter("name", "velociraptor")), 2).setPagination(new Pagination(0, 2)).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", query.findByType("Raptor", new Filters().add(new Filter("name", "velociraptor")), 2).setPagination(new Pagination(0, 2)).getStatement());
     }
 
     @Test
     public void testFindByIdDepthZero() {
-        check("MATCH (n) WHERE id(n) in { ids } WITH n SKIP 1 LIMIT 1 RETURN n", query.findAll(Arrays.asList(23L, 24L), 0).setPagination(new Pagination(1, 1)).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n SKIP 1 LIMIT 1 RETURN n", query.findAll(Arrays.asList(23L, 24L), 0).setPagination(new Pagination(1, 1)).getStatement());
     }
 
     @Test
@@ -59,12 +59,12 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testByPropertyDepthZero() {
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 RETURN n", query.findByProperties("Raptor", new Filters().add(new Filter("name", "velociraptor")), 0).setPagination(new Pagination(0, 2)).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 RETURN n", query.findByType("Raptor", new Filters().add(new Filter("name", "velociraptor")), 0).setPagination(new Pagination(0, 2)).getStatement());
     }
 
     @Test
     public void testFindByIdDepthInfinite() {
-        check("MATCH (n) WHERE id(n) in { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setPagination(new Pagination(1, 2)).getStatement());
+        check("MATCH (n) WHERE ID(n) IN { ids } WITH n SKIP 2 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findAll(Arrays.asList(23L, 24L), -1).setPagination(new Pagination(1, 2)).getStatement());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByPropertyDepthInfinite() {
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByProperties("Raptor", new Filters().add(new Filter("name", "velociraptor")), -1).setPagination(new Pagination(0, 2)).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", new Filters().add(new Filter("name", "velociraptor")), -1).setPagination(new Pagination(0, 2)).getStatement());
     }
 
     @Test

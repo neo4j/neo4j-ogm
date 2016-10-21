@@ -77,6 +77,11 @@ public class EntityMemo {
                 isRelEntity = true;
             }
 
+            if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
+                    (isRelEntity && !relEntityHash.containsKey(entityId))) {
+                return false;
+            }
+
             long actual = hash(object, classInfo);
             long expected = isRelEntity ? relEntityHash.get(entityId) : nodeHash.get(entityId);
 
@@ -97,9 +102,6 @@ public class EntityMemo {
         List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
         if (classInfo.labelFieldOrNull() != null) {
             hashFields.add(classInfo.labelFieldOrNull());
-        }
-        for (FieldInfo info : classInfo.relationshipFields()) {
-            hashFields.add(info);
         }
 
         for (FieldInfo fieldInfo : hashFields) {

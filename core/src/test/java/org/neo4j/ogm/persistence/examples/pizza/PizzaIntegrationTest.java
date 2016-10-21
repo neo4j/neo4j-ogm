@@ -402,6 +402,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
         // now, our detached pizza should be dirty, but it is not
         Assert.assertTrue(((Neo4jSession) session).context().isDirty(pizza));
+        session.save(pizza);
+
+        loadedPizza = session.load(Pizza.class, pizza.getId());
+        assertEquals("Thick Crust", loadedPizza.getCrust().getName());
     }
 
     @Test

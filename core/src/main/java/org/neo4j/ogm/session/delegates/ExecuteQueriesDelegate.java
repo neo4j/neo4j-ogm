@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.*;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
@@ -161,6 +162,44 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
             RowModel queryResult = response.next();
             return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
         }
+    }
+
+    @Override
+    public long count(Class<?> clazz, Iterable<Filter> filters) {
+
+        ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
+
+        if (classInfo != null) {
+
+            session.resolvePropertyAnnotations(clazz, filters);
+
+            CypherQuery query;
+
+            if (classInfo.isRelationshipEntity()) {
+                query = new CountStatements().countEdges(classInfo.neo4jName(), filters);
+            } else {
+                query = new CountStatements().countNodes(classInfo.neo4jName(), filters);
+            }
+            return count(query, classInfo.isRelationshipEntity());
+        }
+
+        throw new RuntimeException(clazz.getName() + " is not a persistable class");
+
+    }
+
+    /**
+     * Executes a count query in which objects of a specific type will be counted according to some filter criteria,
+     * and returns a count of matched objects to the caller.
+     *
+     * @param query the CypherQuery that will count objects according to some filter criteria
+     * @param isRelationshipEntity whether the objects being counted are relationship entities
+     * @return a count of objects that matched the query
+     */
+    private Long count(CypherQuery query, boolean isRelationshipEntity) {
+        String resultKey = isRelationshipEntity ? "COUNT(r)" : "COUNT(n)";
+        Result result = session.query(query.getStatement(), query.getParameters(), true); // count queries are read only
+        Map<String, Object> resultMap = result.iterator().next();
+        return Long.parseLong(resultMap.get(resultKey).toString());
     }
 
     private boolean isReadOnly(String cypher) {

@@ -19,12 +19,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.metadata.AnnotationInfo;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
@@ -35,6 +43,7 @@ import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -367,6 +376,11 @@ public class Neo4jSession implements Session {
     }
 
     @Override
+    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
+        return executeQueriesDelegate.query(type, cypher, parameters);
+    }
+
+    @Override
     public Result query(String cypher, Map<String, ?> parameters) {
         return executeQueriesDelegate.query(cypher, parameters);
     }
@@ -377,15 +391,14 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
-        return executeQueriesDelegate.query(type, cypher, parameters);
-    }
-
-    @Override
     public long countEntitiesOfType(Class<?> entity) {
         return executeQueriesDelegate.countEntitiesOfType(entity);
     }
 
+    @Override
+    public long count(Class<?> clazz, Iterable<Filter> filters) {
+        return executeQueriesDelegate.count(clazz, filters);
+    }
 
     /*
     *----------------------------------------------------------------------------------------------------------
@@ -410,6 +423,11 @@ public class Neo4jSession implements Session {
     @Override
     public <T> void deleteAll(Class<T> type) {
         deleteDelegate.deleteAll(type);
+    }
+
+    @Override
+    public <T> Object delete(Class<T> type, Iterable<Filter> filters, boolean listResults) {
+        return deleteDelegate.delete(type, filters, listResults);
     }
 
     /*
@@ -520,5 +538,74 @@ public class Neo4jSession implements Session {
     public void debug(String msg) {
         logger.debug("Thread {}: {}", Thread.currentThread().getId(), msg);
     }
+
+    public void resolvePropertyAnnotations(Class entityType, Iterable<Filter> filters) {
+        for(Filter filter : filters) {
+            if(filter.getOwnerEntityType() == null) {
+                filter.setOwnerEntityType(entityType);
+            }
+            filter.setPropertyName(resolvePropertyName(filter.getOwnerEntityType(), filter.getPropertyName()));
+            if(filter.isNested()) {
+                resolveRelationshipType(filter);
+                ClassInfo nestedClassInfo = metaData().classInfo(filter.getNestedPropertyType().getName());
+                filter.setNestedEntityTypeLabel(entityType(nestedClassInfo.name()));
+                if(metaData().isRelationshipEntity(nestedClassInfo.name())) {
+                    filter.setNestedRelationshipEntity(true);
+                }
+            }
+        }
+    }
+
+    public void resolvePropertyAnnotations(Class entityType, SortOrder sortOrder) {
+        final String escapedProperty = "`%s`";
+
+        if (sortOrder != null) {
+            for (SortClause sortClause : sortOrder.sortClauses()) {
+                for (int i = 0; i < sortClause.getProperties().length; i++) {
+                    sortClause.getProperties()[i] = String.format(escapedProperty, resolvePropertyName(entityType, sortClause.getProperties()[i]));
+                }
+            }
+        }
+    }
+
+    private String resolvePropertyName(Class entityType, String propertyName) {
+        ClassInfo classInfo = metaData().classInfo(entityType.getName());
+        FieldInfo fieldInfo = classInfo.propertyFieldByName(propertyName);
+        if (fieldInfo != null && fieldInfo.getAnnotations() != null) {
+            AnnotationInfo annotation = fieldInfo.getAnnotations().get(Property.CLASS);
+            if (annotation != null) {
+                return annotation.get(Property.NAME, propertyName);
+            }
+        }
+        //session.metaData().classInfo(entityType.getName()).propertyFieldByName(propertyName).property();
+        return propertyName;
+    }
+
+    private void resolveRelationshipType(Filter parameter) {
+        ClassInfo classInfo = metaData().classInfo(parameter.getOwnerEntityType().getName());
+        FieldInfo fieldInfo = classInfo.relationshipFieldByName(parameter.getNestedPropertyName());
+
+        String defaultRelationshipType = RelationshipUtils.inferRelationshipType(parameter.getNestedPropertyName());
+        parameter.setRelationshipType(defaultRelationshipType);
+        parameter.setRelationshipDirection(Relationship.UNDIRECTED);
+        if (fieldInfo.getAnnotations() != null) {
+            AnnotationInfo annotation = fieldInfo.getAnnotations().get(Relationship.CLASS);
+            if (annotation != null) {
+                parameter.setRelationshipType(annotation.get(Relationship.TYPE, defaultRelationshipType));
+                parameter.setRelationshipDirection(annotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED));
+            }
+            if (fieldInfo.getAnnotations().get(StartNode.CLASS) != null) {
+                parameter.setRelationshipDirection(Relationship.OUTGOING);
+            }
+            if (fieldInfo.getAnnotations().get(EndNode.CLASS) != null) {
+                parameter.setRelationshipDirection(Relationship.INCOMING);
+            }
+        }
+    }
+
+
+
+
+
 
 }

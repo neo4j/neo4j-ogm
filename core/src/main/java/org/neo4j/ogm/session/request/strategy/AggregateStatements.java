@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.session.request.strategy;
 
-import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 
 /**
@@ -48,7 +48,7 @@ public interface AggregateStatements {
 	 * @return a {@link CypherQuery}
 	 */
 
-	CypherQuery countNodes(String label, Filters filters);
+	CypherQuery countNodes(String label, Iterable<Filter> filters);
 
 	/**
 	 * construct a query to count all relationships
@@ -69,7 +69,7 @@ public interface AggregateStatements {
 	 * @param filters additional parameters to filter on
 	 * @return a {@link CypherQuery}
 	 */
-	CypherQuery countEdges(String type, Filters filters);
+	CypherQuery countEdges(String type, Iterable<Filter> filters);
 
 	/**
 	 * construct queries to count all single-length paths with the specified start label, relationship type and end label that match the specified filters

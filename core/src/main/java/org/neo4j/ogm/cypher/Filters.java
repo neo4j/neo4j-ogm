@@ -12,12 +12,11 @@
  */
 package org.neo4j.ogm.cypher;
 
-import org.neo4j.ogm.cypher.function.FilterFunction;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.neo4j.ogm.cypher.function.FilterFunction;
 
 /**
  * @author Vince Bickers

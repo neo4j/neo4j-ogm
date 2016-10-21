@@ -16,7 +16,7 @@ package org.neo4j.ogm.session.request.strategy.impl;
 
 import java.util.Collections;
 
-import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.session.Utils;
@@ -53,7 +53,7 @@ public class CountStatements implements AggregateStatements {
     }
 
     @Override
-    public CypherQuery countNodes(String label, Filters filters) {
+    public CypherQuery countNodes(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
         query.setReturnClause(" RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
@@ -70,9 +70,9 @@ public class CountStatements implements AggregateStatements {
     }
 
     @Override
-    public CypherQuery countEdges(String type, Filters filters) {
+    public CypherQuery countEdges(String type, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
-        query.setReturnClause(" RETURN COUNT(n)");
+        query.setReturnClause(" RETURN COUNT(r)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 

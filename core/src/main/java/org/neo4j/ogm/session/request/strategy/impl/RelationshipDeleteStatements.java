@@ -16,7 +16,7 @@ package org.neo4j.ogm.session.request.strategy.impl;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.session.Utils;
@@ -66,22 +66,22 @@ public class RelationshipDeleteStatements implements DeleteStatements {
     }
 
     @Override
-    public CypherQuery delete(String type, Filters filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(type, filters);
+    public CypherQuery delete(String type, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
         query.setReturnClause(" DELETE r");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
-    public CypherQuery deleteAndCount(String type, Filters filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(type, filters);
+    public CypherQuery deleteAndCount(String type, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
         query.setReturnClause(" DELETE r RETURN COUNT(r)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
-    public CypherQuery deleteAndList(String type, Filters filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(type, filters);
+    public CypherQuery deleteAndList(String type, Iterable<Filter> filters) {
+        FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
         query.setReturnClause(" DELETE r RETURN ID(r)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }

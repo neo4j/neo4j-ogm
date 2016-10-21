@@ -14,7 +14,7 @@ package org.neo4j.ogm.session.request.strategy.impl;
 
 import java.util.Collection;
 
-import org.neo4j.ogm.cypher.Filters;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.session.Utils;
@@ -69,21 +69,21 @@ public class NodeDeleteStatements implements DeleteStatements {
     }
 
     @Override
-    public CypherQuery delete(String label, Filters filters) {
+    public CypherQuery delete(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
-    public CypherQuery deleteAndCount(String label, Filters filters) {
+    public CypherQuery deleteAndCount(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
-    public CypherQuery deleteAndList(String label, Filters filters) {
+    public CypherQuery deleteAndList(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());    }

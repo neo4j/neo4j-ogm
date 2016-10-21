@@ -15,6 +15,11 @@ package org.neo4j.ogm.cypher.query;
 import java.util.Map;
 
 /**
+ * Extends {@link CypherQuery} with additional functionality for Paging and Sorting.
+ *
+ * Only used by queries that return actual nodes and/or relationships from the graph. Other queries
+ * just use {@link CypherQuery}
+ *
  * @author Vince Bickers
  */
 public abstract class PagingAndSortingQuery extends CypherQuery implements PagingAndSorting {

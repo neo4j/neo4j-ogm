@@ -19,7 +19,7 @@ import java.util.Map;
 import org.neo4j.ogm.request.Statement;
 
 /**
- * Simple encapsulation of a Cypher query and its parameters and other optional parts (paging/sort).
+ * Simple encapsulation of a Cypher query and its parameters
  *
  * Note, this object will be transformed directly to JSON so don't add anything here that is
  * not part of the HTTP Transactional endpoint syntax

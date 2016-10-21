@@ -77,11 +77,6 @@ public class EntityMemo {
                 isRelEntity = true;
             }
 
-            if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
-                    (isRelEntity && !relEntityHash.containsKey(entityId))) {
-                return false;
-            }
-
             long actual = hash(object, classInfo);
             long expected = isRelEntity ? relEntityHash.get(entityId) : nodeHash.get(entityId);
 

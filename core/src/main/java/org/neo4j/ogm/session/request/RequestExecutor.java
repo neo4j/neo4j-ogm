@@ -42,6 +42,7 @@ import java.util.List;
  *
  * @author Luanne Misquitta
  * @author Vince Bickers
+ * @author Jasper Blues
  */
 public class RequestExecutor {
 
@@ -62,85 +63,9 @@ public class RequestExecutor {
 	 */
 	public void executeSave(CompileContext context) {
 
-		Compiler compiler = context.getCompiler();
-		compiler.useStatementFactory(new RowStatementFactory());
-
-		List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
-		List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
-
-		//If there are statements that depend on new nodes i.e. relationships created between new nodes,
-		//we must create the new nodes first, and then use their node IDs when creating relationships between them
-		if (compiler.hasStatementsDependentOnNewNodes()) {
-
-			boolean manageTransaction = false;
-
-			Transaction tx = session.getTransaction();
-			if (tx == null) {
-				tx = session.beginTransaction();
-				manageTransaction = true;
-			}
-
-			DefaultRequest createNodesRowRequest = new DefaultRequest();
-			createNodesRowRequest.setStatements(compiler.createNodesStatements());
-
-			// execute the statements to create new nodes. The ids will be returned
-			// and will be used in subsequent statements that refer to these new nodes.
-			try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
-				registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-			}
-
-			List<Statement> statements = new ArrayList<>();
-			statements.addAll(compiler.createRelationshipsStatements());
-			statements.addAll(compiler.updateNodesStatements());
-			statements.addAll(compiler.updateRelationshipStatements());
-			statements.addAll(compiler.deleteRelationshipStatements());
-			statements.addAll(compiler.deleteRelationshipEntityStatements());
-
-			DefaultRequest defaultRequest = new DefaultRequest();
-			defaultRequest.setStatements(statements);
-
-			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-				registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-				registerNewRelIds(response, relReferenceMappings);
-			}
-
-			if (manageTransaction) {
-				tx.commit();
-				tx.close();
-			}
-		} else { // only update / delete statements
-			List<Statement> statements = compiler.getAllStatements();
-			if (statements.size() > 0) {
-				DefaultRequest defaultRequest = new DefaultRequest();
-				defaultRequest.setStatements(statements);
-				try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-					registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-					registerNewRelIds(response, relReferenceMappings);
-				}
-			}
-		}
-
-		// if we had any update statements, then refresh the hashes of the objects
-		if(compiler.updateNodesStatements().size()>0) {
-			updateSessionContext(context);
-		}
-
-		//Update the mapping context now that the request is successful
-		updateNodeEntities(context, session, entityReferenceMappings);
-		updateRelationshipEntities(context, session, relReferenceMappings);
-		updateRelationships(context, session, relReferenceMappings);
+		executeSave(context, true);
 	}
 
-	private void updateSessionContext(CompileContext context) {
-		for (Object targetObject : context.registry()) {
-			if (!(targetObject instanceof TransientRelationship)) {
-				ClassInfo classInfo = session.metaData().classInfo(targetObject);
-				Field identityField = classInfo.getField(classInfo.identityField());
-				Object value = FieldWriter.read(identityField, targetObject);
-				if (value != null) session.context().replaceNodeEntity(targetObject, (Long) value);
-			}
-		}
-	}
 
 	/**
 	 * Execute a save request.
@@ -151,64 +76,21 @@ public class RequestExecutor {
 	 */
 	public void executeSave(List<CompileContext> contexts) {
 
-		List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
-		List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
-		List<Statement> statements = new ArrayList<>();
-
-		boolean manageTransaction = false;
-
+		boolean newTransaction = false;
 		Transaction tx = session.getTransaction();
 
 		if (tx == null) {
 			tx = session.beginTransaction();
-			manageTransaction = true;
+			newTransaction = true;
 		}
 
 		for (CompileContext context : contexts) {
-			Compiler compiler = context.getCompiler();
-			compiler.useStatementFactory(new RowStatementFactory());
-
-			if (compiler.hasStatementsDependentOnNewNodes()) {
-				DefaultRequest createNodesRowRequest = new DefaultRequest();
-				createNodesRowRequest.setStatements(compiler.createNodesStatements());
-				try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
-					registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-					if(compiler.updateNodesStatements().size()>0) {
-						updateSessionContext(context);
-					}
-				}
-				statements.addAll(compiler.createRelationshipsStatements());
-				statements.addAll(compiler.updateNodesStatements());
-				statements.addAll(compiler.updateRelationshipStatements());
-				statements.addAll(compiler.deleteRelationshipStatements());
-				statements.addAll(compiler.deleteRelationshipEntityStatements());
-			}
-			else {
-				statements.addAll(compiler.getAllStatements());
-			}
+			executeSave(context, false);
 		}
 
-		//Execute all other statements
-		if (statements.size() > 0) {
-			DefaultRequest defaultRequest = new DefaultRequest();
-			defaultRequest.setStatements(statements);
-			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
-				for (CompileContext context : contexts) {
-					registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
-				}
-				registerNewRelIds(response, relReferenceMappings);
-			}
-		}
-		if (manageTransaction) {
+		if (newTransaction) {
 			tx.commit();
 			tx.close();
-		}
-
-		for (CompileContext context : contexts) {
-			//Update the mapping context now that the request is successful
-			updateNodeEntities(context, session, entityReferenceMappings);
-			updateRelationshipEntities(context, session, relReferenceMappings);
-			updateRelationships(context, session, relReferenceMappings);
 		}
 	}
 
@@ -349,6 +231,88 @@ public class RequestExecutor {
 					LOGGER.debug("creating new relationship entity id: {}", referenceMapping.id);
 					initialiseNewEntity(referenceMapping.id, newRelationshipEntity, session);
 				}
+			}
+		}
+	}
+
+	private void executeSave(CompileContext context, boolean transactionRequired) {
+
+		Compiler compiler = context.getCompiler();
+		compiler.useStatementFactory(new RowStatementFactory());
+
+		List<ReferenceMapping> entityReferenceMappings = new ArrayList<>();
+		List<ReferenceMapping> relReferenceMappings = new ArrayList<>();
+
+		boolean newTransaction = false;
+		Transaction tx = session.getTransaction();
+		if (tx == null && transactionRequired) {
+			tx = session.beginTransaction();
+			newTransaction = true;
+		}
+
+		//If there are statements that depend on new nodes i.e. relationships created between new nodes,
+		//we must create the new nodes first, and then use their node IDs when creating relationships between them
+		if (compiler.hasStatementsDependentOnNewNodes()) {
+
+			DefaultRequest createNodesRowRequest = new DefaultRequest();
+			createNodesRowRequest.setStatements(compiler.createNodesStatements());
+
+			// execute the statements to create new nodes. The ids will be returned
+			// and will be used in subsequent statements that refer to these new nodes.
+			try (Response<RowModel> response = session.requestHandler().execute(createNodesRowRequest)) {
+				registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+			}
+
+			List<Statement> statements = new ArrayList<>();
+			statements.addAll(compiler.createRelationshipsStatements());
+			statements.addAll(compiler.updateNodesStatements());
+			statements.addAll(compiler.updateRelationshipStatements());
+			statements.addAll(compiler.deleteRelationshipStatements());
+			statements.addAll(compiler.deleteRelationshipEntityStatements());
+
+			DefaultRequest defaultRequest = new DefaultRequest();
+			defaultRequest.setStatements(statements);
+
+			try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
+				registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+				registerNewRelIds(response, relReferenceMappings);
+			}
+
+		} else { // only update / delete statements
+			List<Statement> statements = compiler.getAllStatements();
+			if (statements.size() > 0) {
+				DefaultRequest defaultRequest = new DefaultRequest();
+				defaultRequest.setStatements(statements);
+				try (Response<RowModel> response = session.requestHandler().execute(defaultRequest)) {
+					registerEntityIds(context, response, entityReferenceMappings, relReferenceMappings);
+					registerNewRelIds(response, relReferenceMappings);
+				}
+			}
+		}
+
+		if (transactionRequired && newTransaction) {
+			tx.commit();
+			tx.close();
+		}
+
+		// if we had any update statements, then refresh the hashes of the objects
+		if(compiler.updateNodesStatements().size()>0) {
+			updateSessionContext(context);
+		}
+
+		//Update the mapping context now that the request is successful
+		updateNodeEntities(context, session, entityReferenceMappings);
+		updateRelationshipEntities(context, session, relReferenceMappings);
+		updateRelationships(context, session, relReferenceMappings);
+	}
+
+	private void updateSessionContext(CompileContext context) {
+		for (Object targetObject : context.registry()) {
+			if (!(targetObject instanceof TransientRelationship)) {
+				ClassInfo classInfo = session.metaData().classInfo(targetObject);
+				Field identityField = classInfo.getField(classInfo.identityField());
+				Object value = FieldWriter.read(identityField, targetObject);
+				if (value != null) session.context().replaceNodeEntity(targetObject, (Long) value);
 			}
 		}
 	}

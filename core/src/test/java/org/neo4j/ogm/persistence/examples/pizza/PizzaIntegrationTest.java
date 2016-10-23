@@ -390,29 +390,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         // pizza should be dirty
         Assert.assertTrue(((Neo4jSession) session).context().isDirty(pizza));
         session.save(pizza);
-        // pizza should NOT be dirty - but it is, indicating it's not current in the cache.
+        // pizza should NOT be dirty
         Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
-
-        // As noted above, the fact that it doesn't pass is related to the fact
-        // that the object is detached, AND the fact that a two statement cypher request
-        // is being made. Both of these conditions must hold for the test to fail.
-
-        // What's happening?
-        // when the pizza is saved, a 2-statement cypher request is made. The first creates the
-        // new Crust object, the second one updates the Pizza object, setting the crust relationship
-        // and updating the property.
-
-        // However as mentioned, the object in the session at the save point, which represents the pizza, is not
-        // in fact the pizza, but the earlier, loadedPizza - which hasn't changed.
-
-        // what normally happens is that the session reference should be updated to point to 'pizza',
-        // not 'loadedPizza' after the save. i.e., pizza is re-attached, by magic. And, if a single-statement request is made
-        // (e.g. by explicitly saving the Crust first), this does in fact happen.
-
-        // However, in the case of a two-statement request, the objects referenced in the second statement ('pizza') do not
-        // appear to be updated into the session cache. As a result, because the Session is now a pure-cache
-        // and no longer a read-and-merge cache, when you ask for the pizza object again, you get
-        // the cached copy of 'loadedPizza', which is now stale, and doesn't reflect the changes you just made.
 
     }
 

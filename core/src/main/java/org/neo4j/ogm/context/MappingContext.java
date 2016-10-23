@@ -64,7 +64,7 @@ public class MappingContext {
             entity = nodeEntityRegister.get(id);
             addType(entity.getClass(), entity, id);
         }
-        remember(entity);
+        remember(entity, false);
         return entity;
     }
 
@@ -90,7 +90,7 @@ public class MappingContext {
     public void replaceNodeEntity(Object entity, Long id) {
         nodeEntityRegister.remove(id);
         addNodeEntity(entity, id);
-        remember(entity);
+        remember(entity, true);
     }
 
     public Collection<Object> getEntities(Class<?> type) {
@@ -140,7 +140,7 @@ public class MappingContext {
             relationshipEntity = relationshipEntityRegister.get(id);
             addType(relationshipEntity.getClass(), relationshipEntity, id);
         }
-        remember(relationshipEntity);
+        remember(relationshipEntity, false);
         return relationshipEntity;
     }
 
@@ -346,10 +346,10 @@ public class MappingContext {
         typeRegister.remove(metaData, type, id);
     }
 
-    private void remember(Object entity) {
+    private void remember(Object entity, boolean overwrite) {
         ClassInfo classInfo = metaData.classInfo(entity);
         Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
-        objectMemo.remember(id, entity, classInfo);
+        objectMemo.remember(id, entity, classInfo, overwrite);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, fieldInfo);

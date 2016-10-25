@@ -65,6 +65,7 @@ public class MappingContext {
             addType(entity.getClass(), entity, id);
         }
         remember(entity, false);
+        collectLabelHistory(entity);
         return entity;
     }
 
@@ -91,6 +92,7 @@ public class MappingContext {
         nodeEntityRegister.remove(id);
         addNodeEntity(entity, id);
         remember(entity, true);
+        collectLabelHistory(entity);
     }
 
     public Collection<Object> getEntities(Class<?> type) {
@@ -350,13 +352,21 @@ public class MappingContext {
         ClassInfo classInfo = metaData.classInfo(entity);
         Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         objectMemo.remember(id, entity, classInfo, overwrite);
+    }
+
+    private void collectLabelHistory(Object entity)
+    {
+        ClassInfo classInfo = metaData.classInfo(entity);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, fieldInfo);
             Collection<String> labels = (Collection<String>) reader.read(entity);
+            Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
             labelHistory(id).push(labels);
         }
     }
+
+
 
 
 

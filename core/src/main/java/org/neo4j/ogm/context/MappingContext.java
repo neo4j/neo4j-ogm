@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.context;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.context.register.EntityRegister;
@@ -22,9 +25,6 @@ import org.neo4j.ogm.context.register.TypeRegister;
 import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-
-import java.lang.reflect.Field;
-import java.util.*;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -63,9 +63,9 @@ public class MappingContext {
         if (nodeEntityRegister.add(id, entity)) {
             entity = nodeEntityRegister.get(id);
             addType(entity.getClass(), entity, id);
+            remember(entity);
+            collectLabelHistory(entity);
         }
-        remember(entity, false);
-        collectLabelHistory(entity);
         return entity;
     }
 
@@ -91,8 +91,11 @@ public class MappingContext {
     public void replaceNodeEntity(Object entity, Long id) {
         nodeEntityRegister.remove(id);
         addNodeEntity(entity, id);
-        remember(entity, true);
-        collectLabelHistory(entity);
+    }
+
+    public void replaceRelationshipEntity(Object entity, Long id) {
+        relationshipEntityRegister.remove(id);
+        addRelationshipEntity(entity, id);
     }
 
     public Collection<Object> getEntities(Class<?> type) {
@@ -141,8 +144,8 @@ public class MappingContext {
         if (relationshipEntityRegister.add(id, relationshipEntity)) {
             relationshipEntity = relationshipEntityRegister.get(id);
             addType(relationshipEntity.getClass(), relationshipEntity, id);
+            remember(relationshipEntity);
         }
-        remember(relationshipEntity, false);
         return relationshipEntity;
     }
 
@@ -348,10 +351,10 @@ public class MappingContext {
         typeRegister.remove(metaData, type, id);
     }
 
-    private void remember(Object entity, boolean overwrite) {
+    private void remember(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
         Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
-        objectMemo.remember(id, entity, classInfo, overwrite);
+        objectMemo.remember(id, entity, classInfo);
     }
 
     private void collectLabelHistory(Object entity)

@@ -46,16 +46,11 @@ public class EntityMemo {
      * @param object    the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
-    public void remember(Long entityId, Object object, ClassInfo classInfo, boolean overwrite) {
+    public void remember(Long entityId, Object object, ClassInfo classInfo) {
         if (metaData.isRelationshipEntity(classInfo.name())) {
             relEntityHash.put(entityId, hash(object, classInfo));
         } else {
-            final long hash = hash(object, classInfo);
-            final Long existingHash = nodeHash.get(entityId);
-
-            if (existingHash == null || overwrite) {
-                nodeHash.put(entityId, hash);
-            }
+            nodeHash.put(entityId, hash(object, classInfo));
         }
     }
 

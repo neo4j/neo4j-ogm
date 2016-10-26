@@ -68,11 +68,9 @@ public class Filters implements Iterable<Filter> {
     }
 
     public Filters add(Filter filter) {
-        synchronized (this) {
-            filter.setIndex(this.filters.size());
-            this.filters.add(filter);
-            return this;
-        }
+        filter.setIndex(this.filters.size());
+        this.filters.add(filter);
+        return this;
     }
 
     @Override

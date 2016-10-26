@@ -14,27 +14,13 @@
 package org.neo4j.ogm.context;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.EntityAccess;
-import org.neo4j.ogm.entity.io.EntityFactory;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.PropertyReader;
-import org.neo4j.ogm.entity.io.PropertyWriter;
-import org.neo4j.ogm.entity.io.RelationalReader;
-import org.neo4j.ogm.entity.io.RelationalWriter;
+import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -157,13 +143,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				Object entity = mappingContext.getNodeEntity(node.getId());
 				try {
 					if (entity == null) {
-						synchronized (this) {
-							entity = entityFactory.newObject(node);
-							setIdentity(entity, node.getId());
-							setProperties(node, entity);
-							setLabels(node, entity);
-							mappingContext.addNodeEntity(entity, node.getId());
-						}
+						entity = entityFactory.newObject(node);
+						setIdentity(entity, node.getId());
+						setProperties(node, entity);
+						setLabels(node, entity);
+						mappingContext.addNodeEntity(entity, node.getId());
 					}
 					nodeIds.add(node.getId());
 				} catch (BaseClassNotFoundException e) {
@@ -234,7 +218,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				if (reader != null) {
 					Object currentValue = reader.readProperty(instance);
 					Class<?> paramType = writer.type();
-					Class elementType =  underlyingElementType(classInfo, property.getKey().toString());
+					Class elementType = underlyingElementType(classInfo, property.getKey().toString());
 					if (paramType.isArray()) {
 						value = EntityAccess.merge(paramType, value, (Object[]) currentValue, elementType);
 					} else {
@@ -465,6 +449,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 	/**
 	 * Return an iterable writer to map a relationship onto an entity for the given relationshipType and relationshipDirection
+	 *
 	 * @param instance the instance onto which the relationship is to be mapped
 	 * @param parameter the value to be mapped
 	 * @param relationshipType the relationship type
@@ -528,6 +513,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
 	/**
 	 * Checks that the class of the node matches the class defined in the class info for a given annotation
+	 *
 	 * @param classInfo the ClassInfo
 	 * @param node the node object
 	 * @param annotation the annotation to match
@@ -560,5 +546,4 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		}
 		return classInfo.propertyField(propertyName);
 	}
-
 }

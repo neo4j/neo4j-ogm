@@ -13,104 +13,101 @@
 
 package org.neo4j.ogm.context.register;
 
-import org.neo4j.ogm.MetaData;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
+import org.neo4j.ogm.MetaData;
 
 /**
  * The TypeRegister maintains the list of active objects ids in the session, mapping each object id to its type hierarchy.
- *
  * Thus a domain object with id 5 of type Person extends Entity will have 2 entries in the type register, one
  * in the Person map, and one in the Entity map.
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class TypeRegister {
 
-    private final ConcurrentMap<Class<?>, Map<Long, Object>> register = new ConcurrentHashMap<>();
+	private final Map<Class<?>, Map<Long, Object>> register = new HashMap<>();
 
-    /**
-     * Finds the map associated with an entity's class and removes the entity's id from the map (if found)
-     *
-     * @param metaData the domain model metadata
-     * @param type the class of the entity to be removed
-     * @param id the id of the entity to be removed
-     */
-    public void remove(MetaData metaData, Class type, Long id) {
+	/**
+	 * Finds the map associated with an entity's class and removes the entity's id from the map (if found)
+	 *
+	 * @param metaData the domain model metadata
+	 * @param type the class of the entity to be removed
+	 * @param id the id of the entity to be removed
+	 */
+	public void remove(MetaData metaData, Class type, Long id) {
 
-        Map<Long, Object> entities = register.get(type);
+		Map<Long, Object> entities = register.get(type);
 
-        if (entities != null) {
-            if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
-                entities.remove(id);
-                remove(metaData, type.getSuperclass(), id);
-            }
-        }
+		if (entities != null) {
+			if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
+				entities.remove(id);
+				remove(metaData, type.getSuperclass(), id);
+			}
+		}
+	}
 
-    }
+	/**
+	 * Returns an immutable map of the objects associated with the given type
+	 *
+	 * @param type the class whose map entries we want to return
+	 * @return the map's entries
+	 */
+	public Map<Long, Object> get(Class<?> type) {
+		return Collections.unmodifiableMap(objectMap(type));
+	}
 
-    /**
-     * Returns an immutable map of the objects associated with the given type
-     *
-     * @param type the class whose map entries we want to return
-     * @return the map's entries
-     */
-    public Map<Long, Object> get(Class<?> type) {
-        return Collections.unmodifiableMap(objectMap(type));
-    }
+	/**
+	 * Removes all entries from the TypeRegister
+	 */
+	public void clear() {
+		register.clear();
+	}
 
-    /**
-     * Removes all entries from the TypeRegister
-     */
-    public void clear() {
-        register.clear();
-    }
+	/**
+	 * Finds the map associated with an entity's class and adds the id and entity to the map
+	 *
+	 * @param metaData the domain model metadata
+	 * @param type the class of the entity to be added
+	 * @param entity the entity to be added
+	 * @param id the id of the entity to be added
+	 */
+	public void add(MetaData metaData, Class type, Object entity, Long id) {
+		objectMap(type).put(id, entity);
+		if (type.getSuperclass() != null
+				&& metaData != null
+				&& metaData.classInfo(type.getSuperclass().getName()) != null
+				&& !type.getSuperclass().getName().equals("java.lang.Object")) {
+			add(metaData, type.getSuperclass(), entity, id);
+		}
+		if (type.getInterfaces() != null
+				&& metaData != null) {
+			for (Class interfaceClass : type.getInterfaces()) {
+				if (metaData.classInfo(interfaceClass.getName()) != null) {
+					add(metaData, interfaceClass, entity, id);
+				}
+			}
+		}
+	}
 
-    /**
-     * Finds the map associated with an entity's class and adds the id and entity to the map
-     *
-     * @param metaData the domain model metadata
-     * @param type the class of the entity to be added
-     * @param entity the entity to be added
-     * @param id the id of the entity to be added
-     */
-    public void add(MetaData metaData, Class type, Object entity, Long id) {
-        objectMap(type).put(id, entity);
-        if (type.getSuperclass() != null
-                && metaData != null
-                && metaData.classInfo(type.getSuperclass().getName()) != null
-                && !type.getSuperclass().getName().equals("java.lang.Object")) {
-            add(metaData, type.getSuperclass(), entity, id);
-        }
-        if (type.getInterfaces() != null
-                && metaData != null) {
-            for (Class interfaceClass : type.getInterfaces()) {
-                if (metaData.classInfo(interfaceClass.getName()) != null) {
-                    add(metaData, interfaceClass, entity, id);
-                }
-            }
-        }
-    }
+	/**
+	 * Removes the type from the register's keyset
+	 *
+	 * @param type the type to be removed
+	 */
+	public void delete(Class<?> type) {
+		register.keySet().remove(type);
+	}
 
-    /**
-     * Removes the type from the register's keyset
-     * @param type the type to be removed
-     */
-    public void delete(Class<?> type) {
-        register.keySet().remove(type);
-    }
-
-    private Map<Long, Object> objectMap(Class<?> type) {
-        Map<Long, Object> objectMap = register.get(type);
-        if (objectMap == null) {
-            register.putIfAbsent(type, Collections.synchronizedMap(new HashMap<Long, Object>()));
-            objectMap = register.get(type);
-        }
-        return objectMap;
-    }
-
+	private Map<Long, Object> objectMap(Class<?> type) {
+		Map<Long, Object> objectMap = register.get(type);
+		if (objectMap == null) {
+			objectMap = new HashMap<>();
+			register.put(type, objectMap);
+		}
+		return objectMap;
+	}
 }

@@ -13,50 +13,56 @@
 
 package org.neo4j.ogm.context.register;
 
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
-public class EntityRegister  {
+public class EntityRegister {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(EntityRegister.class);
+	private final Logger LOGGER = LoggerFactory.getLogger(EntityRegister.class);
 
-    private final ConcurrentMap<Long, Object> register = new ConcurrentHashMap<>();
+	private final Map<Long, Object> register = new HashMap<>();
 
-    public Object get(Long id) {
-        return register.get(id);
-    }
+	public Object get(Long id) {
+		return register.get(id);
+	}
 
-    public boolean add(Long id, Object entity) {
-        if (register.putIfAbsent(id, entity) == null) {
-            LOGGER.debug("Added object to node registry: {}, {}", id, entity);
-            return true;
-        }
-        LOGGER.debug("Object already in node registry: {}, {}", id, entity);
-        return false;
-    }
+	public boolean add(Long id, Object entity) {
+		final Object existing = register.get(id);
 
-    public boolean contains(Long id) {
-        return register.containsKey(id);
-    }
+		if (existing != null) {
+			LOGGER.debug("Object already in node registry: {}, {}", id, entity);
+			return false;
+		}
 
-    public void remove(Long id) {
-        LOGGER.debug("Removed object with id {}", id);
-        register.remove(id);
-    }
+		register.put(id, entity);
+		LOGGER.debug("Added object to node registry: {}, {}", id, entity);
+		return true;
+	}
 
-    public void clear() {
-        LOGGER.debug("Register has been cleared");
-        register.clear();
-    }
+	public boolean contains(Long id) {
+		return register.containsKey(id);
+	}
 
-    public Iterator<Long> iterator() {
-        return register.keySet().iterator();
-    }
+
+	public void remove(Long id) {
+		LOGGER.debug("Removed object with id {}", id);
+		register.remove(id);
+	}
+
+	public void clear() {
+		LOGGER.debug("Register has been cleared");
+		register.clear();
+	}
+
+	public Iterator<Long> iterator() {
+		return register.keySet().iterator();
+	}
 }

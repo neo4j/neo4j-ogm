@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.persistence.session.lifecycle;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -20,10 +24,6 @@ import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * These tests define the behaviour of the OGM with regard to
@@ -77,7 +77,9 @@ public class StaleObjectTest extends MultiDriverTestClass {
         b.setFolder(f);
 
         session.save(f);
-        //session.clear();
+
+        assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='a'}", a.toString());
+        assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}", b.toString());
 
 
     }
@@ -94,15 +96,33 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
         assertEquals("Folder{name='f', documents=1, archived=0}", p.toString());
 
+        // the document object loaded into the session by virtue of reloading f is no longer b. we guarantee to fetch the latest version of all reachable objects
+        // and we overwrite objects in the mapping context.
+
+        // directly after a save all objects in the save tree are guaranteed to not be dirty
+        // directly after a load, all objects in the load tree are guaranteed to not be dirty
+
+        assertFalse(p.getDocuments().iterator().next() == b);
+
+        assertEquals("Document{folder=null, name='a'}", a.toString());
+        assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}", b.toString());   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
+
+        assertEquals("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}", p.getDocuments().iterator().next().toString());
+
     }
 
     @Test
     public void testSaveDegenerateFolder() {
 
-        // note that we don't clear the current document object's folder references.
+        // note that we don't clear any of the document object's folder references.
         f.getDocuments().clear();
 
         session.save(f);
+
+        assertEquals("Folder{name='f', documents=0, archived=0}", f.toString());
+        assertEquals("Document{folder=Folder{name='f', documents=0, archived=0}, name='a'}", a.toString());
+        assertEquals("Document{folder=Folder{name='f', documents=0, archived=0}, name='b'}", b.toString());
+
 
         Document aa = session.load(Document.class, a.getId());
         Document bb = session.load(Document.class, b.getId());

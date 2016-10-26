@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -24,11 +28,6 @@ import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -66,6 +65,21 @@ public class NodeQueryStatementsTest {
 		String statement = queryStatements.findByType("Restaurant",
 				filters, 4).getStatement();
 		assertEquals("MATCH (n:`Restaurant`) WHERE distance(point(n),point({latitude:{lat}, longitude:{lon}})) = {distance} WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)", statement);
+	}
+
+	@Test
+	public void testFindByPropertyIsNull() {
+
+		Filter isNull = new Filter("score", ComparisonOperator.IS_NULL, null);
+
+		String statement = queryStatements.findByType("Restaurant", new Filters().add(isNull), 3).getStatement();
+		assertEquals("MATCH (n:`Restaurant`) WHERE n.`score` IS NULL WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)", statement);
+
+		Filter isNotNull = new Filter("score", ComparisonOperator.IS_NULL, null);
+		isNotNull.setNegated(true);
+
+		statement = queryStatements.findByType("Restaurant", new Filters().add(isNotNull), 3).getStatement();
+		assertEquals("MATCH (n:`Restaurant`) WHERE NOT(n.`score` IS NULL ) WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)", statement);
 	}
 
 	/**

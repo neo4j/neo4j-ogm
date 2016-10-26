@@ -14,12 +14,10 @@
 package org.neo4j.ogm.persistence.examples.restaurant;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.junit.*;
+import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filters;
@@ -148,8 +146,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	 * @see issue #137
 	 */
 	@Test
-	public void shouldProvideUniqueParameterNamesForFilters()
-	{
+	public void shouldProvideUniqueParameterNamesForFilters() {
 		Restaurant restaurant = new Restaurant();
 		restaurant.setName("La Cocina De Flaming Lips");
 		session.save(restaurant);
@@ -172,7 +169,36 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 		Collection<Restaurant> results = session.loadAll(Restaurant.class, filters);
 		Assert.assertTrue(results.size() >= 1);
-
 	}
+
+	@Test
+	public void shouldFilterByIsNullOrNotNull() {
+		Restaurant kuroda = new Restaurant("Kuroda", "Mainly Ramen");
+		session.save(kuroda);
+
+		Restaurant cyma = new Restaurant();
+		cyma.setName("Cyma");
+		session.save(cyma);
+
+		session.clear();
+
+		Filter descriptionIsNull = new Filter("description", ComparisonOperator.IS_NULL, null);
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(descriptionIsNull));
+
+		Assert.assertEquals(1, results.size());
+		Restaurant restaurant = results.iterator().next();
+		Assert.assertEquals("Cyma", restaurant.getName());
+
+
+		Filter descriptionIsNotNull = new Filter("description", ComparisonOperator.IS_NULL, null);
+		descriptionIsNotNull.setNegated(true);
+		results = session.loadAll(Restaurant.class, new Filters().add(descriptionIsNotNull));
+
+		Assert.assertEquals(1, results.size());
+		restaurant = results.iterator().next();
+		Assert.assertEquals("Kuroda", restaurant.getName());
+	}
+
+
 
 }

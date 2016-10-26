@@ -56,7 +56,7 @@ public class RelationshipEntityQuerySortingTest {
     public void testFindByProperty() throws Exception {
         filters.add("distance", 60.2);
         sortOrder.add("aphelion");
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` }  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.aphelion MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` }  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.aphelion MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test

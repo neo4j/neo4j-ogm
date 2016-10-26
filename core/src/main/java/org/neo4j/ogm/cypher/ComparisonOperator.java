@@ -18,38 +18,41 @@ package org.neo4j.ogm.cypher;
  *
  * @author Luanne Misquitta
  * @author Adam George
+ * @author Jasper Blues
  */
 public enum ComparisonOperator {
 	EQUALS("="),
 	MATCHES("=~"),
 	LIKE("=~", new CaseInsensitiveLikePropertyValueTransformer()),
 	GREATER_THAN(">"),
-	LESS_THAN("<");
+	LESS_THAN("<"),
+	IS_NULL("IS NULL");
 
-    private final String value;
-    private final PropertyValueTransformer valueTransformer;
 
-    ComparisonOperator(String value) {
-        this(value, new NoOpPropertyValueTransformer());
-    }
+	private final String value;
+	private final PropertyValueTransformer valueTransformer;
 
-    ComparisonOperator(String value, PropertyValueTransformer propertyValueTransformer) {
-        this.value = value;
-        this.valueTransformer = propertyValueTransformer;
-    }
+	ComparisonOperator(String value) {
+		this(value, new NoOpPropertyValueTransformer());
+	}
 
-    /**
-     * @return The textual comparison operator to use in the Cypher query
-     */
-    public String getValue() {
-        return value;
-    }
+	ComparisonOperator(String value, PropertyValueTransformer propertyValueTransformer) {
+		this.value = value;
+		this.valueTransformer = propertyValueTransformer;
+	}
 
-    /**
-     * @return The {@link PropertyValueTransformer} required for this {@link ComparisonOperator} to work
-     */
-    public PropertyValueTransformer getPropertyValueTransformer() {
-        return valueTransformer;
-    }
+	/**
+	 * @return The textual comparison operator to use in the Cypher query
+	 */
+	public String getValue() {
+		return value;
+	}
+
+	/**
+	 * @return The {@link PropertyValueTransformer} required for this {@link ComparisonOperator} to work
+	 */
+	public PropertyValueTransformer getPropertyValueTransformer() {
+		return valueTransformer;
+	}
 
 }

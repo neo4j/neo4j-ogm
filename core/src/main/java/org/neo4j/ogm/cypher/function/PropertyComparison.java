@@ -14,6 +14,7 @@
 
 package org.neo4j.ogm.cypher.function;
 
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 
 import java.util.HashMap;
@@ -61,14 +62,23 @@ public class PropertyComparison implements FilterFunction<Object> {
 
     @Override
     public String expression(String nodeIdentifier) {
-        return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
-                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
+        if (filter.getComparisonOperator().equals(ComparisonOperator.IS_NULL)) {
+            return String.format("%s.`%s` IS NULL ", nodeIdentifier, filter.getPropertyName());
+        }
+        else
+        {
+            return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
+                    filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
+        }
+
     }
 
     @Override
     public Map<String, Object> parameters() {
         Map<String, Object> map = new HashMap<>();
-        map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
+        if (!filter.getComparisonOperator().equals(ComparisonOperator.IS_NULL)) {
+            map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
+        }
         return map;
     }
 

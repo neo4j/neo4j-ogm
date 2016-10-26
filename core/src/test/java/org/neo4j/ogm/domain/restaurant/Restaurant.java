@@ -17,6 +17,8 @@ package org.neo4j.ogm.domain.restaurant;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -27,6 +29,7 @@ public class Restaurant {
 	private Long id;
 	private String name;
 	private int zip;
+	private String description;
 
 	@Convert(LocationConverter.class)
 	Location location;
@@ -41,6 +44,11 @@ public class Restaurant {
 		this.name = name;
 		this.location = location;
 		this.zip = zip;
+	}
+
+	public Restaurant(String name, String description) {
+		this.name = name;
+		this.description = description;
 	}
 
 	public Long getId() {
@@ -70,5 +78,6 @@ public class Restaurant {
 	public void setLocation(Location location) {
 		this.location = location;
 	}
+
 
 }

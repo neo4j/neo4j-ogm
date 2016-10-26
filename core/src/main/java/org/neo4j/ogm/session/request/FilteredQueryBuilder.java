@@ -241,19 +241,11 @@ public class FilteredQueryBuilder {
 
 	private static void appendFilters(List<Filter> filters, String nodeIdentifier, StringBuilder query,  Map<String, Object> properties) {
 		for(Filter filter : filters) {
-			if(!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-				query.append(filter.getBooleanOperator().getValue()).append(" ");
-			}
-			String uniquePropertyName = filter.getPropertyName();
-			if(filter.isNested()) {
-				//Nested entities may have the same property name, so we make them unique by qualifying them with the nested property name on the owning entity
-				uniquePropertyName = filter.getNestedPropertyName() + "_" + filter.getPropertyName();
-			}
-			String propertyExpressionPattern = filter.isNegated()
-					? "NOT(%s.`%s` %s { `%s` }) "
-					: "%s.`%s` %s { `%s` } ";
-			query.append(String.format(propertyExpressionPattern, nodeIdentifier, filter.getPropertyName(), filter.getComparisonOperator().getValue(), uniquePropertyName));
-			properties.put(uniquePropertyName, filter.getTransformedPropertyValue());
+//			if(!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+//				query.append(filter.getBooleanOperator().getValue()).append(" ");
+//			}
+			query.append(filter.toCypher(nodeIdentifier, false));
+			properties.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
 		}
 	}
 

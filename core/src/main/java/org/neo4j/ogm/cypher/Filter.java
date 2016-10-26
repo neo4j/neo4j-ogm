@@ -29,6 +29,7 @@ public class Filter {
 
 	/**
 	 * Index is used to to ensure unique parameter names when a collection of filters are used.
+	 *
 	 * @see Filters
 	 */
 	private int index;
@@ -107,7 +108,13 @@ public class Filter {
 
 	//Convenience Constructor
 	public Filter(String propertyName, Object propertyValue) {
+		this(propertyName, ComparisonOperator.EQUALS, propertyValue);
+	}
+
+	//Convenience Constructor
+	public Filter(String propertyName, ComparisonOperator comparisonOperator, Object propertyValue) {
 		this(new PropertyComparison(propertyValue));
+		this.comparisonOperator = comparisonOperator;
 		this.propertyName = propertyName;
 	}
 
@@ -249,7 +256,7 @@ public class Filter {
 	}
 
 	public String uniqueParameterName() {
-		return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index:
+		return isNested() ? getNestedPropertyName() + "_" + getPropertyName() + "_" + index :
 				getPropertyName() + "_" + index;
 	}
 
@@ -276,6 +283,7 @@ public class Filter {
 	/**
 	 * Used by Filters to assign an index, so that unique parameter names are ensured when filters are used in a
 	 * collection. Should not be called directly.
+	 *
 	 * @param index
 	 */
 	void setIndex(int index) {

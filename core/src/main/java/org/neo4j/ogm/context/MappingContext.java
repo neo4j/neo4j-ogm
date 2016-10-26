@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.context;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.context.register.EntityRegister;
@@ -22,9 +25,6 @@ import org.neo4j.ogm.context.register.TypeRegister;
 import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-
-import java.lang.reflect.Field;
-import java.util.*;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -63,8 +63,9 @@ public class MappingContext {
         if (nodeEntityRegister.add(id, entity)) {
             entity = nodeEntityRegister.get(id);
             addType(entity.getClass(), entity, id);
+            remember(entity);
+            collectLabelHistory(entity);
         }
-        remember(entity);
         return entity;
     }
 
@@ -90,7 +91,11 @@ public class MappingContext {
     public void replaceNodeEntity(Object entity, Long id) {
         nodeEntityRegister.remove(id);
         addNodeEntity(entity, id);
-        remember(entity);
+    }
+
+    public void replaceRelationshipEntity(Object entity, Long id) {
+        relationshipEntityRegister.remove(id);
+        addRelationshipEntity(entity, id);
     }
 
     public Collection<Object> getEntities(Class<?> type) {
@@ -139,8 +144,8 @@ public class MappingContext {
         if (relationshipEntityRegister.add(id, relationshipEntity)) {
             relationshipEntity = relationshipEntityRegister.get(id);
             addType(relationshipEntity.getClass(), relationshipEntity, id);
+            remember(relationshipEntity);
         }
-        remember(relationshipEntity);
         return relationshipEntity;
     }
 
@@ -350,13 +355,21 @@ public class MappingContext {
         ClassInfo classInfo = metaData.classInfo(entity);
         Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         objectMemo.remember(id, entity, classInfo);
+    }
+
+    private void collectLabelHistory(Object entity)
+    {
+        ClassInfo classInfo = metaData.classInfo(entity);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, fieldInfo);
             Collection<String> labels = (Collection<String>) reader.read(entity);
+            Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
             labelHistory(id).push(labels);
         }
     }
+
+
 
 
 

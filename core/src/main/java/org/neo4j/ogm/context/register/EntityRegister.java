@@ -17,10 +17,15 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author vince
  */
 public class EntityRegister  {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(EntityRegister.class);
 
     private final ConcurrentMap<Long, Object> register = new ConcurrentHashMap<>();
 
@@ -30,8 +35,10 @@ public class EntityRegister  {
 
     public boolean add(Long id, Object entity) {
         if (register.putIfAbsent(id, entity) == null) {
+            LOGGER.debug("Added object to node registry: {}, {}", id, entity);
             return true;
         }
+        LOGGER.debug("Object already in node registry: {}, {}", id, entity);
         return false;
     }
 
@@ -40,10 +47,12 @@ public class EntityRegister  {
     }
 
     public void remove(Long id) {
+        LOGGER.debug("Removed object with id {}", id);
         register.remove(id);
     }
 
     public void clear() {
+        LOGGER.debug("Register has been cleared");
         register.clear();
     }
 

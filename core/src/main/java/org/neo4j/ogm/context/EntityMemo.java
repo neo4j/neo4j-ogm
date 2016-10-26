@@ -15,11 +15,7 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.entity.io.FieldWriter;
@@ -31,8 +27,8 @@ import org.neo4j.ogm.metadata.FieldInfo;
  */
 public class EntityMemo {
 
-    private final Map<Long, Long> nodeHash = new ConcurrentHashMap<>();
-    private final Map<Long, Long> relEntityHash = new ConcurrentHashMap<>();
+    private final Map<Long, Long> nodeHash = new HashMap<>();
+    private final Map<Long, Long> relEntityHash = new HashMap<>();
     private final MetaData metaData;
 
     // objects with no properties will always hash to this value.

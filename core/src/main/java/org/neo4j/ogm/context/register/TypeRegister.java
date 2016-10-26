@@ -29,85 +29,85 @@ import org.neo4j.ogm.MetaData;
  */
 public class TypeRegister {
 
-	private final Map<Class<?>, Map<Long, Object>> register = new HashMap<>();
+    private final Map<Class<?>, Map<Long, Object>> register = new HashMap<>();
 
-	/**
-	 * Finds the map associated with an entity's class and removes the entity's id from the map (if found)
-	 *
-	 * @param metaData the domain model metadata
-	 * @param type the class of the entity to be removed
-	 * @param id the id of the entity to be removed
-	 */
-	public void remove(MetaData metaData, Class type, Long id) {
+    /**
+     * Finds the map associated with an entity's class and removes the entity's id from the map (if found)
+     *
+     * @param metaData the domain model metadata
+     * @param type the class of the entity to be removed
+     * @param id the id of the entity to be removed
+     */
+    public void remove(MetaData metaData, Class type, Long id) {
 
-		Map<Long, Object> entities = register.get(type);
+        Map<Long, Object> entities = register.get(type);
 
-		if (entities != null) {
-			if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
-				entities.remove(id);
-				remove(metaData, type.getSuperclass(), id);
-			}
-		}
-	}
+        if (entities != null) {
+            if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
+                entities.remove(id);
+                remove(metaData, type.getSuperclass(), id);
+            }
+        }
+    }
 
-	/**
-	 * Returns an immutable map of the objects associated with the given type
-	 *
-	 * @param type the class whose map entries we want to return
-	 * @return the map's entries
-	 */
-	public Map<Long, Object> get(Class<?> type) {
-		return Collections.unmodifiableMap(objectMap(type));
-	}
+    /**
+     * Returns an immutable map of the objects associated with the given type
+     *
+     * @param type the class whose map entries we want to return
+     * @return the map's entries
+     */
+    public Map<Long, Object> get(Class<?> type) {
+        return Collections.unmodifiableMap(objectMap(type));
+    }
 
-	/**
-	 * Removes all entries from the TypeRegister
-	 */
-	public void clear() {
-		register.clear();
-	}
+    /**
+     * Removes all entries from the TypeRegister
+     */
+    public void clear() {
+        register.clear();
+    }
 
-	/**
-	 * Finds the map associated with an entity's class and adds the id and entity to the map
-	 *
-	 * @param metaData the domain model metadata
-	 * @param type the class of the entity to be added
-	 * @param entity the entity to be added
-	 * @param id the id of the entity to be added
-	 */
-	public void add(MetaData metaData, Class type, Object entity, Long id) {
-		objectMap(type).put(id, entity);
-		if (type.getSuperclass() != null
-				&& metaData != null
-				&& metaData.classInfo(type.getSuperclass().getName()) != null
-				&& !type.getSuperclass().getName().equals("java.lang.Object")) {
-			add(metaData, type.getSuperclass(), entity, id);
-		}
-		if (type.getInterfaces() != null
-				&& metaData != null) {
-			for (Class interfaceClass : type.getInterfaces()) {
-				if (metaData.classInfo(interfaceClass.getName()) != null) {
-					add(metaData, interfaceClass, entity, id);
-				}
-			}
-		}
-	}
+    /**
+     * Finds the map associated with an entity's class and adds the id and entity to the map
+     *
+     * @param metaData the domain model metadata
+     * @param type the class of the entity to be added
+     * @param entity the entity to be added
+     * @param id the id of the entity to be added
+     */
+    public void add(MetaData metaData, Class type, Object entity, Long id) {
+        objectMap(type).put(id, entity);
+        if (type.getSuperclass() != null
+                && metaData != null
+                && metaData.classInfo(type.getSuperclass().getName()) != null
+                && !type.getSuperclass().getName().equals("java.lang.Object")) {
+            add(metaData, type.getSuperclass(), entity, id);
+        }
+        if (type.getInterfaces() != null
+                && metaData != null) {
+            for (Class interfaceClass : type.getInterfaces()) {
+                if (metaData.classInfo(interfaceClass.getName()) != null) {
+                    add(metaData, interfaceClass, entity, id);
+                }
+            }
+        }
+    }
 
-	/**
-	 * Removes the type from the register's keyset
-	 *
-	 * @param type the type to be removed
-	 */
-	public void delete(Class<?> type) {
-		register.keySet().remove(type);
-	}
+    /**
+     * Removes the type from the register's keyset
+     *
+     * @param type the type to be removed
+     */
+    public void delete(Class<?> type) {
+        register.keySet().remove(type);
+    }
 
-	private Map<Long, Object> objectMap(Class<?> type) {
-		Map<Long, Object> objectMap = register.get(type);
-		if (objectMap == null) {
-			objectMap = new HashMap<>();
-			register.put(type, objectMap);
-		}
-		return objectMap;
-	}
+    private Map<Long, Object> objectMap(Class<?> type) {
+        Map<Long, Object> objectMap = register.get(type);
+        if (objectMap == null) {
+            objectMap = new HashMap<>();
+            register.put(type, objectMap);
+        }
+        return objectMap;
+    }
 }

@@ -28,121 +28,121 @@ import org.neo4j.ogm.metadata.FieldInfo;
  */
 class EntityMemo {
 
-	// objects with no properties will always hash to this value.
-	private static final long SEED = 0xDEADBEEF / (11 * 257);
+    // objects with no properties will always hash to this value.
+    private static final long SEED = 0xDEADBEEF / (11 * 257);
 
-	private final Map<Long, Long> nodeHash;
+    private final Map<Long, Long> nodeHash;
 
-	private final Map<Long, Long> relEntityHash;
+    private final Map<Long, Long> relEntityHash;
 
-	private final MetaData metaData;
+    private final MetaData metaData;
 
-	EntityMemo(MetaData metaData) {
-		this.nodeHash = new HashMap<>();
-		this.relEntityHash = new HashMap<>();
-		this.metaData = metaData;
-	}
+    EntityMemo(MetaData metaData) {
+        this.nodeHash = new HashMap<>();
+        this.relEntityHash = new HashMap<>();
+        this.metaData = metaData;
+    }
 
-	/**
-	 * constructs a 64-bit hash of this object's node properties
-	 * and maps the object to that hash. The object must not be null
-	 *
-	 * @param entityId the id of the entity
-	 * @param object the object whose persistable properties we want to hash
-	 * @param classInfo metadata about the object
-	 */
-	public void remember(Long entityId, Object object, ClassInfo classInfo) {
-		if (metaData.isRelationshipEntity(classInfo.name())) {
-			relEntityHash.put(entityId, hash(object, classInfo));
-		} else {
-			nodeHash.put(entityId, hash(object, classInfo));
-		}
-	}
+    /**
+     * constructs a 64-bit hash of this object's node properties
+     * and maps the object to that hash. The object must not be null
+     *
+     * @param entityId the id of the entity
+     * @param object the object whose persistable properties we want to hash
+     * @param classInfo metadata about the object
+     */
+    public void remember(Long entityId, Object object, ClassInfo classInfo) {
+        if (metaData.isRelationshipEntity(classInfo.name())) {
+            relEntityHash.put(entityId, hash(object, classInfo));
+        } else {
+            nodeHash.put(entityId, hash(object, classInfo));
+        }
+    }
 
-	/**
-	 * determines whether the specified has already
-	 * been memorised. The object must not be null. An object
-	 * is regarded as memorised if its hash value in the memo hash
-	 * is identical to a recalculation of its hash value.
-	 *
-	 * @param entityId the id of the entity
-	 * @param object the object whose persistable properties we want to check
-	 * @param classInfo metadata about the object
-	 * @return true if the object hasn't changed since it was remembered, false otherwise
-	 */
-	boolean remembered(Long entityId, Object object, ClassInfo classInfo) {
-		boolean isRelEntity = false;
+    /**
+     * determines whether the specified has already
+     * been memorised. The object must not be null. An object
+     * is regarded as memorised if its hash value in the memo hash
+     * is identical to a recalculation of its hash value.
+     *
+     * @param entityId the id of the entity
+     * @param object the object whose persistable properties we want to check
+     * @param classInfo metadata about the object
+     * @return true if the object hasn't changed since it was remembered, false otherwise
+     */
+    boolean remembered(Long entityId, Object object, ClassInfo classInfo) {
+        boolean isRelEntity = false;
 
-		if (entityId != null) {
-			if (metaData.isRelationshipEntity(classInfo.name())) {
-				isRelEntity = true;
-			}
+        if (entityId != null) {
+            if (metaData.isRelationshipEntity(classInfo.name())) {
+                isRelEntity = true;
+            }
 
-			if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
-					(isRelEntity && !relEntityHash.containsKey(entityId))) {
-				return false;
-			}
+            if ((!isRelEntity && !nodeHash.containsKey(entityId)) ||
+                    (isRelEntity && !relEntityHash.containsKey(entityId))) {
+                return false;
+            }
 
-			long actual = hash(object, classInfo);
-			long expected = isRelEntity ? relEntityHash.get(entityId) : nodeHash.get(entityId);
+            long actual = hash(object, classInfo);
+            long expected = isRelEntity ? relEntityHash.get(entityId) : nodeHash.get(entityId);
 
-			return (actual == expected);
-		}
-		return false;
-	}
+            return (actual == expected);
+        }
+        return false;
+    }
 
-	void clear() {
-		nodeHash.clear();
-		relEntityHash.clear();
-	}
+    void clear() {
+        nodeHash.clear();
+        relEntityHash.clear();
+    }
 
 
-	private static long hash(Object object, ClassInfo classInfo) {
-		long hash = SEED;
+    private static long hash(Object object, ClassInfo classInfo) {
+        long hash = SEED;
 
-		List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
-		if (classInfo.labelFieldOrNull() != null) {
-			hashFields.add(classInfo.labelFieldOrNull());
-		}
+        List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
+        if (classInfo.labelFieldOrNull() != null) {
+            hashFields.add(classInfo.labelFieldOrNull());
+        }
 
-		for (FieldInfo fieldInfo : hashFields) {
-			Field field = classInfo.getField(fieldInfo);
-			Object value = FieldWriter.read(field, object);
-			if (value != null) {
-				if (value.getClass().isArray()) {
-					hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));
-				} else if (value instanceof Iterable) {
-					hash = hash * 31L + value.hashCode();
-				} else {
-					hash = hash * 31L + hash(value.toString());
-				}
-			}
-		}
-		return hash;
-	}
+        for (FieldInfo fieldInfo : hashFields) {
+            Field field = classInfo.getField(fieldInfo);
+            Object value = FieldWriter.read(field, object);
+            if (value != null) {
+                if (value.getClass().isArray()) {
+                    hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));
+                } else if (value instanceof Iterable) {
+                    hash = hash * 31L + value.hashCode();
+                } else {
+                    hash = hash * 31L + hash(value.toString());
+                }
+            }
+        }
+        return hash;
+    }
 
-	private static long hash(String string) {
-		long h = 1125899906842597L; // prime
-		int len = string.length();
+    private static long hash(String string) {
+        long h = 1125899906842597L; // prime
+        int len = string.length();
 
-		for (int i = 0; i < len; i++) {
-			h = 31 * h + string.charAt(i);
-		}
-		return h;
-	}
+        for (int i = 0; i < len; i++) {
+            h = 31 * h + string.charAt(i);
+        }
+        return h;
+    }
 
-	/**
-	 * Convert an array or objects or primitives to an array of objects
-	 *
-	 * @param array array of unknown type
-	 * @return array of objects
-	 */
-	private static Object[] convertToObjectArray(Object array) {
-		int len = Array.getLength(array);
-		Object[] out = new Object[len];
-		for (int i = 0; i < len; i++) {
-			out[i] = Array.get(array, i);
-		}
-		return Arrays.asList(out).toArray();
-	}
+    /**
+     * Convert an array or objects or primitives to an array of objects
+     *
+     * @param array array of unknown type
+     * @return array of objects
+     */
+    private static Object[] convertToObjectArray(Object array) {
+        int len = Array.getLength(array);
+        Object[] out = new Object[len];
+        for (int i = 0; i < len; i++) {
+            out[i] = Array.get(array, i);
+        }
+        return Arrays.asList(out).toArray();
+    }
 }

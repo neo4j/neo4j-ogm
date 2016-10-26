@@ -26,43 +26,43 @@ import org.slf4j.LoggerFactory;
  */
 public class EntityRegister {
 
-	private final Logger LOGGER = LoggerFactory.getLogger(EntityRegister.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(EntityRegister.class);
 
-	private final Map<Long, Object> register = new HashMap<>();
+    private final Map<Long, Object> register = new HashMap<>();
 
-	public Object get(Long id) {
-		return register.get(id);
-	}
+    public Object get(Long id) {
+        return register.get(id);
+    }
 
-	public boolean add(Long id, Object entity) {
-		final Object existing = register.get(id);
+    public boolean add(Long id, Object entity) {
+        final Object existing = register.get(id);
 
-		if (existing != null) {
-			LOGGER.debug("Object already in node registry: {}, {}", id, entity);
-			return false;
-		}
+        if (existing != null) {
+            LOGGER.debug("Object already in node registry: {}, {}", id, entity);
+            return false;
+        }
 
-		register.put(id, entity);
-		LOGGER.debug("Added object to node registry: {}, {}", id, entity);
-		return true;
-	}
+        register.put(id, entity);
+        LOGGER.debug("Added object to node registry: {}, {}", id, entity);
+        return true;
+    }
 
-	public boolean contains(Long id) {
-		return register.containsKey(id);
-	}
+    public boolean contains(Long id) {
+        return register.containsKey(id);
+    }
 
 
-	public void remove(Long id) {
-		LOGGER.debug("Removed object with id {}", id);
-		register.remove(id);
-	}
+    public void remove(Long id) {
+        LOGGER.debug("Removed object with id {}", id);
+        register.remove(id);
+    }
 
-	public void clear() {
-		LOGGER.debug("Register has been cleared");
-		register.clear();
-	}
+    public void clear() {
+        LOGGER.debug("Register has been cleared");
+        register.clear();
+    }
 
-	public Iterator<Long> iterator() {
-		return register.keySet().iterator();
-	}
+    public Iterator<Long> iterator() {
+        return register.keySet().iterator();
+    }
 }

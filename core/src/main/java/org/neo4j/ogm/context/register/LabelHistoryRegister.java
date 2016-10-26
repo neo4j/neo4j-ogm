@@ -24,22 +24,22 @@ import org.neo4j.ogm.context.LabelHistory;
  */
 public class LabelHistoryRegister {
 
-	//TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
-	private final Map<Long, LabelHistory> register = new HashMap<>();
+    //TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
+    private final Map<Long, LabelHistory> register = new HashMap<>();
 
-	public void clear() {
-		register.clear();
-	}
+    public void clear() {
+        register.clear();
+    }
 
-	public LabelHistory get(Long identity) {
+    public LabelHistory get(Long identity) {
 
-		LabelHistory labelHistory = register.get(identity);
+        LabelHistory labelHistory = register.get(identity);
 
-		if (labelHistory == null) {
-			labelHistory = new LabelHistory();
-			register.put(identity, labelHistory);
-		}
+        if (labelHistory == null) {
+            labelHistory = new LabelHistory();
+            register.put(identity, labelHistory);
+        }
 
-		return labelHistory;
-	}
+        return labelHistory;
+    }
 }

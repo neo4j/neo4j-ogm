@@ -13,25 +13,23 @@
 
 package org.neo4j.ogm.context.register;
 
-import org.neo4j.ogm.MetaData;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
+import org.neo4j.ogm.MetaData;
 
 /**
  * The TypeRegister maintains the list of active objects ids in the session, mapping each object id to its type hierarchy.
- *
  * Thus a domain object with id 5 of type Person extends Entity will have 2 entries in the type register, one
  * in the Person map, and one in the Entity map.
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class TypeRegister {
 
-    private final ConcurrentMap<Class<?>, Map<Long, Object>> register = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Map<Long, Object>> register = new HashMap<>();
 
     /**
      * Finds the map associated with an entity's class and removes the entity's id from the map (if found)
@@ -50,7 +48,6 @@ public class TypeRegister {
                 remove(metaData, type.getSuperclass(), id);
             }
         }
-
     }
 
     /**
@@ -98,6 +95,7 @@ public class TypeRegister {
 
     /**
      * Removes the type from the register's keyset
+     *
      * @param type the type to be removed
      */
     public void delete(Class<?> type) {
@@ -107,10 +105,9 @@ public class TypeRegister {
     private Map<Long, Object> objectMap(Class<?> type) {
         Map<Long, Object> objectMap = register.get(type);
         if (objectMap == null) {
-            register.putIfAbsent(type, Collections.synchronizedMap(new HashMap<Long, Object>()));
-            objectMap = register.get(type);
+            objectMap = new HashMap<>();
+            register.put(type, objectMap);
         }
         return objectMap;
     }
-
 }

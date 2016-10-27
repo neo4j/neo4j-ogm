@@ -15,12 +15,12 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.context.register.EntityRegister;
 import org.neo4j.ogm.context.register.LabelHistoryRegister;
-import org.neo4j.ogm.context.register.RelationshipRegister;
 import org.neo4j.ogm.context.register.TypeRegister;
 import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -39,11 +39,15 @@ public class MappingContext {
     /**
      * register of all mapped entities of a specific type (including supertypes)
      */
-    private final TypeRegister typeRegister = new TypeRegister();
-    private final EntityRegister nodeEntityRegister = new EntityRegister();
-    private final EntityRegister relationshipEntityRegister = new EntityRegister();
-    private final RelationshipRegister relationshipRegister = new RelationshipRegister();
-    private final LabelHistoryRegister labelHistoryRegister = new LabelHistoryRegister();
+    private final TypeRegister typeRegister;
+
+    private final EntityRegister nodeEntityRegister;
+
+    private final EntityRegister relationshipEntityRegister;
+
+    private final Set<MappedRelationship> relationshipRegister;
+
+    private final LabelHistoryRegister labelHistoryRegister;
 
     private final EntityMemo objectMemo;
 
@@ -53,6 +57,13 @@ public class MappingContext {
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
         this.objectMemo = new EntityMemo(metaData);
+        this.typeRegister = new TypeRegister();
+        this.nodeEntityRegister = new EntityRegister();
+        this.relationshipEntityRegister = new EntityRegister();
+        // NOTE: The use of CopyOnWriteArraySet here is to prevent ConcurrentModificationException from occurring when
+        // the purge() method is called.
+        this.relationshipRegister = new CopyOnWriteArraySet<>();
+        this.labelHistoryRegister = new LabelHistoryRegister();
     }
 
     public Object getNodeEntity(Long id) {
@@ -80,7 +91,7 @@ public class MappingContext {
      * - removes any relationship entities from relationshipEntityRegister if they have this object either as start or end node
      *
      * @param entity the object to deregister
-     * @param id     the id of the object in Neo4j
+     * @param id the id of the object in Neo4j
      */
     public void removeNodeEntity(Object entity, Long id) {
         removeType(entity.getClass(), id);
@@ -117,7 +128,7 @@ public class MappingContext {
     }
 
     public Set<MappedRelationship> getRelationships() {
-        return relationshipRegister.values();
+        return relationshipRegister;
     }
 
     public void addRelationship(MappedRelationship relationship) {
@@ -251,7 +262,7 @@ public class MappingContext {
                 if (nodeEntityRegister.contains(id)) {
                     // todo: this will be very slow for many objects
                     // todo: refactor to create a list of mappedRelationships from a nodeEntity id.
-                    for (MappedRelationship mappedRelationship : getRelationships()) {
+                    for (MappedRelationship mappedRelationship : relationshipRegister) {
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
                             Object affectedObject = mappedRelationship.getEndNodeId() == id ? nodeEntityRegister.get(mappedRelationship.getStartNodeId()) : nodeEntityRegister.get(mappedRelationship.getEndNodeId());
                             if (affectedObject != null) {
@@ -295,9 +306,19 @@ public class MappingContext {
             purge(entity, identityReader, type);
         }
         typeRegister.delete(type);
-
     }
 
+
+    /**
+     * NOTE: There was a lot of concurrent code in other classes (see commit) to prevent this method from throwing
+     * ConcurrentModificationException. This is due to: 1) not deleting through the iterator
+     * 2) using an iterative approach along with recursion and then modifying the underlying collection.
+     * To get around this we can either block all methods that are involved in the recursion stack from concurrently
+     * modifying the mapped relationship collection (previous implementation: very inefficient) to copying the collection
+     * on write (current implementation: inefficient).
+     * TODO: The best way to fix this method is to replace it with an iterative approach using a <code>Stack</code> and
+     * call remove() on the mappedRelationshipIterator. This will be both efficient and safe.
+     */
     private void purge(Object entity, PropertyReader identityReader, Class type) {
         Long id = (Long) identityReader.readProperty(entity);
         if (id != null) {
@@ -307,7 +328,7 @@ public class MappingContext {
                     // remove the object from the node register
                     nodeEntityRegister.remove(id);
                     // remove all relationship mappings to/from this object
-                    Iterator<MappedRelationship> mappedRelationshipIterator = getRelationships().iterator();
+                    Iterator<MappedRelationship> mappedRelationshipIterator = relationshipRegister.iterator();
                     while (mappedRelationshipIterator.hasNext()) {
                         MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
@@ -340,7 +361,6 @@ public class MappingContext {
                 }
             }
         }
-
     }
 
     private void addType(Class type, Object entity, Long id) {
@@ -357,8 +377,7 @@ public class MappingContext {
         objectMemo.remember(id, entity, classInfo);
     }
 
-    private void collectLabelHistory(Object entity)
-    {
+    private void collectLabelHistory(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
@@ -368,9 +387,4 @@ public class MappingContext {
             labelHistory(id).push(labels);
         }
     }
-
-
-
-
-
 }

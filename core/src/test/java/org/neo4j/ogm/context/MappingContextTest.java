@@ -13,31 +13,29 @@
 
 package org.neo4j.ogm.context;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class MappingContextTest {
 
-    private static final int NUM_OBJECTS = 100000;
-    private static final int NUM_THREADS = 15;
-    private MappingContext collector;
+    private MappingContext mappingContext;
 
     @Before
     public void setUp() {
-        collector = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy","org.neo4j.ogm.context"));
+        mappingContext = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy", "org.neo4j.ogm.context"));
     }
 
     @Test
@@ -49,14 +47,13 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        collector.addNodeEntity(jim, jim.getId());
-        collector.addNodeEntity(policy, policy.getId());
-        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        mappingContext.addNodeEntity(jim, jim.getId());
+        mappingContext.addNodeEntity(policy, policy.getId());
+        mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
 
-        assertEquals(jim, collector.getNodeEntity(jim.getId()));
-        assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertTrue(collector.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
-
+        assertEquals(jim, mappingContext.getNodeEntity(jim.getId()));
+        assertEquals(policy, mappingContext.getNodeEntity(policy.getId()));
+        assertTrue(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
     }
 
     @Test
@@ -68,17 +65,17 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        collector.addNodeEntity(jim, jim.getId());
-        collector.addNodeEntity(policy, policy.getId());
-        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
-        collector.removeEntity(jim);
+        mappingContext.addNodeEntity(jim, jim.getId());
+        mappingContext.addNodeEntity(policy, policy.getId());
+        mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        mappingContext.removeEntity(jim);
 
-        assertEquals(null, collector.getNodeEntity(jim.getId()));
-        assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertFalse(collector.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
+        assertEquals(null, mappingContext.getNodeEntity(jim.getId()));
+        assertEquals(policy, mappingContext.getNodeEntity(policy.getId()));
+        assertFalse(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
     }
 
-	/**
+    /**
      * @see Issue #96
      */
     @Test
@@ -93,17 +90,16 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        collector.addNodeEntity(jim, jim.getId());
-        collector.addNodeEntity(another, another.getId());
-        collector.addNodeEntity(policy, policy.getId());
-        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
-        collector.removeEntity(jim);
+        mappingContext.addNodeEntity(jim, jim.getId());
+        mappingContext.addNodeEntity(another, another.getId());
+        mappingContext.addNodeEntity(policy, policy.getId());
+        mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
+        mappingContext.removeEntity(jim);
 
-        assertEquals(null, collector.getNodeEntity(jim.getId()));
-        assertEquals(policy, collector.getNodeEntity(policy.getId()));
-        assertEquals(another, collector.getNodeEntity(another.getId()));
-        assertFalse(collector.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
-
+        assertEquals(null, mappingContext.getNodeEntity(jim.getId()));
+        assertEquals(policy, mappingContext.getNodeEntity(policy.getId()));
+        assertEquals(another, mappingContext.getNodeEntity(another.getId()));
+        assertFalse(mappingContext.containsRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class)));
     }
 
     @Test
@@ -120,25 +116,24 @@ public class MappingContextTest {
         Person rik = new Person("rik");
         rik.setId(4L);
 
-        collector.addNodeEntity(jim, jim.getId());
-        collector.addNodeEntity(rik, rik.getId());
-        collector.addNodeEntity(healthcare, healthcare.getId());
-        collector.addNodeEntity(immigration, immigration.getId());
+        mappingContext.addNodeEntity(jim, jim.getId());
+        mappingContext.addNodeEntity(rik, rik.getId());
+        mappingContext.addNodeEntity(healthcare, healthcare.getId());
+        mappingContext.addNodeEntity(immigration, immigration.getId());
 
-        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
-        collector.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
-        collector.addRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), Person.class, Person.class));
+        mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
+        mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
+        mappingContext.addRelationship(new MappedRelationship(jim.getId(), "WORKS_WITH", rik.getId(), Person.class, Person.class));
 
-        collector.removeType(Policy.class);
+        mappingContext.removeType(Policy.class);
 
-        assertEquals(0, collector.getEntities(Policy.class).size());
-        assertEquals(null, collector.getNodeEntity(healthcare.getId()));
-        assertEquals(null, collector.getNodeEntity(immigration.getId()));
+        assertEquals(0, mappingContext.getEntities(Policy.class).size());
+        assertEquals(null, mappingContext.getNodeEntity(healthcare.getId()));
+        assertEquals(null, mappingContext.getNodeEntity(immigration.getId()));
 
-        assertEquals(jim, collector.getNodeEntity(jim.getId()));
-        assertEquals(rik, collector.getNodeEntity(rik.getId()));
-        assertEquals(1, collector.getRelationships().size());
-
+        assertEquals(jim, mappingContext.getNodeEntity(jim.getId()));
+        assertEquals(rik, mappingContext.getNodeEntity(rik.getId()));
+        assertEquals(1, mappingContext.getRelationships().size());
     }
 
     @Test
@@ -155,75 +150,17 @@ public class MappingContextTest {
         Person rik = new Person("rik");
         rik.setId(4L);
 
-        collector.addNodeEntity(jim, jim.getId());
-        collector.addNodeEntity(rik, rik.getId());
-        collector.addNodeEntity(healthcare, healthcare.getId());
-        collector.addNodeEntity(immigration, immigration.getId());
+        mappingContext.addNodeEntity(jim, jim.getId());
+        mappingContext.addNodeEntity(rik, rik.getId());
+        mappingContext.addNodeEntity(healthcare, healthcare.getId());
+        mappingContext.addNodeEntity(immigration, immigration.getId());
 
         rik.setName("newRik");
 
-        assertFalse(collector.isDirty(jim));
-        assertTrue(collector.isDirty(rik));
-        assertFalse(collector.isDirty(healthcare));
-        assertFalse(collector.isDirty(immigration));
-    }
-
-    @Test
-    public void ensureThreadSafe() throws InterruptedException {
-
-        List<Thread> threads = new ArrayList<>();
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            Thread thread = new Thread(new Inserter());
-            threads.add(thread);
-            thread.start();
-        }
-
-        for (int i = 0; i < NUM_THREADS; i++) {
-            threads.get(i).join();
-        }
-
-        Collection<Object> objects = collector.getEntities(TestObject.class);
-
-        assertEquals(NUM_OBJECTS, objects.size());
-
-        int sum = (NUM_OBJECTS * (NUM_OBJECTS + 1)) / 2;
-
-        for (Object object : objects) {
-            TestObject testObject = (TestObject) object;
-            sum -= testObject.id;                           // remove this id from sum of all ids
-            assertEquals(1, testObject.notes.size());       // only one thread created this object
-            int id = Integer.parseInt(testObject.notes.get(0));
-        }
-
-        assertEquals(0, sum);                               // all objects were created
-
-    }
-
-    public class TestObject {
-        Long id = null;
-        List<String> notes = new ArrayList<>();
-    }
-
-    class Inserter implements Runnable {
-
-        @Override
-        public void run() {
-            for (int i = 1; i <= NUM_OBJECTS; i++) {
-                Long id = new Long(i);
-
-                TestObject testObject = (TestObject) collector.getNodeEntity(id);
-                if (testObject == null) {
-                    synchronized(this) {
-                        testObject = new TestObject();
-                        testObject.notes.add(String.valueOf(Thread.currentThread().getId()));
-                        testObject.id = id;
-                        collector.addNodeEntity(testObject, id);
-                    }
-                }
-
-            }
-        }
+        assertFalse(mappingContext.isDirty(jim));
+        assertTrue(mappingContext.isDirty(rik));
+        assertFalse(mappingContext.isDirty(healthcare));
+        assertFalse(mappingContext.isDirty(immigration));
     }
 
 }

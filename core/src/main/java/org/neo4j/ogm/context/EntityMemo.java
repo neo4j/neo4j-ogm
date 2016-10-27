@@ -24,26 +24,31 @@ import org.neo4j.ogm.metadata.FieldInfo;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
-public class EntityMemo {
-
-    private final Map<Long, Long> nodeHash = new HashMap<>();
-    private final Map<Long, Long> relEntityHash = new HashMap<>();
-    private final MetaData metaData;
+class EntityMemo {
 
     // objects with no properties will always hash to this value.
-    private static final long seed = 0xDEADBEEF / (11 * 257);
+    private static final long SEED = 0xDEADBEEF / (11 * 257);
 
-    public EntityMemo(MetaData meta) {
-        metaData = meta;
+    private final Map<Long, Long> nodeHash;
+
+    private final Map<Long, Long> relEntityHash;
+
+    private final MetaData metaData;
+
+    EntityMemo(MetaData metaData) {
+        this.nodeHash = new HashMap<>();
+        this.relEntityHash = new HashMap<>();
+        this.metaData = metaData;
     }
 
     /**
      * constructs a 64-bit hash of this object's node properties
      * and maps the object to that hash. The object must not be null
      *
-     * @param entityId  the id of the entity
-     * @param object    the object whose persistable properties we want to hash
+     * @param entityId the id of the entity
+     * @param object the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
     public void remember(Long entityId, Object object, ClassInfo classInfo) {
@@ -60,12 +65,12 @@ public class EntityMemo {
      * is regarded as memorised if its hash value in the memo hash
      * is identical to a recalculation of its hash value.
      *
-     * @param entityId  the id of the entity
-     * @param object    the object whose persistable properties we want to check
+     * @param entityId the id of the entity
+     * @param object the object whose persistable properties we want to check
      * @param classInfo metadata about the object
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
-    public boolean remembered(Long entityId, Object object, ClassInfo classInfo) {
+    boolean remembered(Long entityId, Object object, ClassInfo classInfo) {
         boolean isRelEntity = false;
 
         if (entityId != null) {
@@ -86,14 +91,14 @@ public class EntityMemo {
         return false;
     }
 
-    public void clear() {
+    void clear() {
         nodeHash.clear();
         relEntityHash.clear();
     }
 
 
     private static long hash(Object object, ClassInfo classInfo) {
-        long hash = seed;
+        long hash = SEED;
 
         List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
         if (classInfo.labelFieldOrNull() != null) {

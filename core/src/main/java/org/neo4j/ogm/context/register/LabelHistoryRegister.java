@@ -13,24 +13,33 @@
 
 package org.neo4j.ogm.context.register;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.neo4j.ogm.context.LabelHistory;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class LabelHistoryRegister {
 
     //TODO: When CYPHER supports REMOVE ALL labels, we can stop tracking label changes
-    private final ConcurrentHashMap<Long, LabelHistory> register = new ConcurrentHashMap<>();
+    private final Map<Long, LabelHistory> register = new HashMap<>();
 
     public void clear() {
         register.clear();
     }
 
     public LabelHistory get(Long identity) {
-        register.putIfAbsent(identity, new LabelHistory());
-        return register.get(identity);
+
+        LabelHistory labelHistory = register.get(identity);
+
+        if (labelHistory == null) {
+            labelHistory = new LabelHistory();
+            register.put(identity, labelHistory);
+        }
+
+        return labelHistory;
     }
 }

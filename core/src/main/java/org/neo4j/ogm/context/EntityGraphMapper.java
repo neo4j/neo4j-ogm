@@ -56,7 +56,7 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Constructs a new {@link EntityGraphMapper} that uses the given {@link MetaData}.
      *
-     * @param metaData The {@link MetaData} containing the mapping information
+     * @param metaData       The {@link MetaData} containing the mapping information
      * @param mappingContext The {@link MappingContext} for the current session
      */
     public EntityGraphMapper(MetaData metaData, MappingContext mappingContext) {
@@ -197,7 +197,7 @@ public class EntityGraphMapper implements EntityMapper {
      * Builds Cypher to save the specified object and all its composite objects into the graph database.
      *
      * @param compiler The {@link org.neo4j.ogm.compiler.Compiler} used to construct the query
-     * @param entity The object to persist into the graph database as a node
+     * @param entity   The object to persist into the graph database as a node
      * @return The "root" node of the object graph that matches
      */
     private NodeBuilder mapEntity(Object entity, int horizon, Compiler compiler) {
@@ -230,8 +230,8 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Creates a new node or updates an existing one in the graph, if it has changed.
      *
-     * @param entity the domain object to be persisted
-     * @param context the current {@link CompileContext}
+     * @param entity      the domain object to be persisted
+     * @param context     the current {@link CompileContext}
      * @param nodeBuilder a {@link NodeBuilder} that knows how to compile node create/update cypher phrases
      */
     private void updateNode(Object entity, CompileContext context, NodeBuilder nodeBuilder) {
@@ -265,7 +265,7 @@ public class EntityGraphMapper implements EntityMapper {
      * Returns a {@link NodeBuilder} responsible for handling new or updated nodes
      *
      * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
-     * @param entity the object to save
+     * @param entity   the object to save
      * @return a {@link NodeBuilder} object for either a new node or an existing one
      */
     private NodeBuilder getNodeBuilder(Compiler compiler, Object entity) {
@@ -310,12 +310,13 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Finds all the objects that can be mapped via relationships from the object 'entity' and
      * links them in the graph.
+     * <p>
      * This includes objects that are directly linked, as well as objects linked via a relationship entity
      *
-     * @param entity the node whose relationships will be updated
+     * @param entity      the node whose relationships will be updated
      * @param nodeBuilder a {@link NodeBuilder} that knows how to create node create/update cypher phrases
-     * @param horizon the depth in the tree. If this reaches 0, we stop mapping any deeper
-     * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
+     * @param horizon     the depth in the tree. If this reaches 0, we stop mapping any deeper
+     * @param compiler    the {@link org.neo4j.ogm.compiler.Compiler}
      */
     private void mapEntityReferences(final Object entity, NodeBuilder nodeBuilder, int horizon, Compiler compiler) {
 
@@ -393,9 +394,9 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Clears the relationships in the compiler context for the object represented by identity
      *
-     * @param context the {@link CompileContext} for the current compiler instance
-     * @param identity the id of the node at the the 'start' of the relationship
-     * @param endNodeType the class of the entity on the end of the relationship
+     * @param context              the {@link CompileContext} for the current compiler instance
+     * @param identity             the id of the node at the the 'start' of the relationship
+     * @param endNodeType          the class of the entity on the end of the relationship
      * @param directedRelationship {@link DirectedRelationship} representing the relationships to be cleared
      */
     private boolean clearContextRelationships(CompileContext context, Long identity, Class endNodeType, DirectedRelationship directedRelationship) {
@@ -419,18 +420,20 @@ public class EntityGraphMapper implements EntityMapper {
      * Handles the requirement to link two nodes in the graph for the cypher compiler. Either node may or
      * may not already exist in the graph. The nodes at the ends of the relationships are represented
      * by source and target, but the use of these names does not imply any particular direction in the graph.
+     * <p>
      * Instead, the direction of the relationship is established between source and target by means of
      * the relationshipDirection argument.
+     * <p>
      * In the event that the relationship being managed is represented by an instance of RelationshipEntity
      * then the target will always be a RelationshipEntity, and the actual relationship will be
      * established between the relevant start and end nodes.
      *
-     * @param cypherCompiler the {@link org.neo4j.ogm.compiler.Compiler}
+     * @param cypherCompiler       the {@link org.neo4j.ogm.compiler.Compiler}
      * @param directedRelationship the {@link DirectedRelationship} representing the relationship type and direction
-     * @param nodeBuilder a {@link NodeBuilder} that knows how to create cypher node phrases
-     * @param horizon the current depth we have mapped the domain model to.
-     * @param mapBothDirections whether the nodes should be linked in both directions
-     * @param relNodes {@link EntityGraphMapper.RelationshipNodes} representing the nodes to be linked
+     * @param nodeBuilder          a {@link NodeBuilder} that knows how to create cypher node phrases
+     * @param horizon              the current depth we have mapped the domain model to.
+     * @param mapBothDirections    whether the nodes should be linked in both directions
+     * @param relNodes             {@link EntityGraphMapper.RelationshipNodes} representing the nodes to be linked
      */
     private void link(Compiler cypherCompiler, DirectedRelationship directedRelationship, NodeBuilder nodeBuilder, int horizon, boolean mapBothDirections, RelationshipNodes relNodes) {
 
@@ -459,13 +462,14 @@ public class EntityGraphMapper implements EntityMapper {
     /**
      * Fetches and initialises an appropriate {@link RelationshipBuilder} for the specified relationship type
      * and direction to the supplied domain object, which may be a node or relationship in the graph.
+     * <p>
      * In the event that the domain object is a {@link RelationshipEntity}, we create a new relationship, collect
      * its properties and return a builder associated to the RE's end node instead
      *
-     * @param cypherBuilder the {@link org.neo4j.ogm.compiler.Compiler}
-     * @param entity an object representing a node or relationship entity in the graph
+     * @param cypherBuilder        the {@link org.neo4j.ogm.compiler.Compiler}
+     * @param entity               an object representing a node or relationship entity in the graph
      * @param directedRelationship the {@link DirectedRelationship} representing the relationship type and direction we want to establish
-     * @param mapBothDirections whether the nodes should be linked in both directions
+     * @param mapBothDirections    whether the nodes should be linked in both directions
      * @return The appropriate {@link RelationshipBuilder}
      */
     private RelationshipBuilder getRelationshipBuilder(Compiler cypherBuilder, Object entity, DirectedRelationship directedRelationship, boolean mapBothDirections) {
@@ -503,7 +507,7 @@ public class EntityGraphMapper implements EntityMapper {
      * Check if any of the end nodes of the relationship have changed or are new
      *
      * @param entity the relationship entity
-     * @param relId the id of the relationship entity
+     * @param relId  the id of the relationship entity
      * @return true if either end is new or changed
      */
     private boolean haveRelationEndsChanged(Object entity, Long relId) {
@@ -536,9 +540,9 @@ public class EntityGraphMapper implements EntityMapper {
      * that is a {@link RelationshipEntity}. Returns the the object associated with the end node of that
      * relationship in the graph.
      *
-     * @param relationshipEntity the relationship entity to create or update the relationship from
+     * @param relationshipEntity  the relationship entity to create or update the relationship from
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to build cypher phrases about relationships
-     * @param context the {@link CompileContext} for the compiler.
+     * @param context             the {@link CompileContext} for the compiler.
      */
     private void mapRelationshipEntity(Object relationshipEntity, Object parent, RelationshipBuilder relationshipBuilder, CompileContext context, NodeBuilder nodeBuilder, Compiler cypherCompiler, int horizon, Class startNodeType, Class endNodeType) {
 
@@ -557,6 +561,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).readProperty(targetEntity);
         Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).readProperty(startEntity);
+
 
         // create or update the relationship mapping register between the start and end nodes. Note, this
         // merely reflects how we're navigating the object graph at this point, it doesn't reflect the direction
@@ -582,6 +587,7 @@ public class EntityGraphMapper implements EntityMapper {
         } else {
             logger.debug("RE is new or has not changed");
         }
+
 
         // finally we continue mapping the object graph, creating/updating the edge in the graph from START->END nodes.
         // If we approached the RE from its END-NODE, we then continue mapping the object graph from the START_NODE,
@@ -650,18 +656,21 @@ public class EntityGraphMapper implements EntityMapper {
 
     /**
      * This function creates a MappedRelationship that will be added into the cypher context.
+     * <p>
      * It is only called when both aNode and bNode are already pre-existing nodes in the graph. The relationship
      * itself may or may not already exist in the graph.
+     * <p>
      * aNode and bNode here represent the ends of the relationship, and there is no implied understanding
      * of relationship direction between them. Consequently we need to look at the relationshipBuilder's direction
      * property to determine whether to create a mapping from a->b or from b->a.
+     * <p>
      * In the event that the relationshipBuilder's direction is UNDIRECTED, and the relationship pre-exists in the
      * graph, it is critical to return the mapping that represents the existing relationship, or the detection of
      * possibly deleted relationships will fail. If the UNDIRECTED relationship is new however, this is not important,
      * so the default is to always return an OUTGOING relationship: a->b
      *
      * @param relationshipBuilder describes the relationship, type, direction, etc.
-     * @param relNodes {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of the relationship
+     * @param relNodes            {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of the relationship
      * @return a mappingContext representing a new or existing relationship between aNode and bNode
      */
     private MappedRelationship createMappedRelationship(RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
@@ -685,6 +694,7 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         return mappedRelationshipOutgoing;
+
     }
 
     /**
@@ -694,11 +704,11 @@ public class EntityGraphMapper implements EntityMapper {
      * is traversed in depth-first order, and the relationships between the leaf nodes are created
      * first.
      *
-     * @param compiler the {@link org.neo4j.ogm.compiler.Compiler}
-     * @param srcNodeBuilder a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param compiler            the {@link org.neo4j.ogm.compiler.Compiler}
+     * @param srcNodeBuilder      a {@link NodeBuilder} that knows how to create cypher phrases about nodes
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param horizon a value representing how deep we are mapping
-     * @param relNodes {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of this relationship
+     * @param horizon             a value representing how deep we are mapping
+     * @param relNodes            {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the end of this relationship
      */
     private void mapRelatedEntity(Compiler compiler, NodeBuilder srcNodeBuilder, RelationshipBuilder relationshipBuilder, int horizon, RelationshipNodes relNodes) {
 
@@ -716,23 +726,27 @@ public class EntityGraphMapper implements EntityMapper {
 
     /**
      * Handles the requirement to update a relationship in the graph
+     * <p>
      * Two scenarios are handled :
+     * <p>
      * 1. one or more of the nodes between the relationship is new.
      * In this case, the relationship will also be new
+     * <p>
      * 2. both nodes already exist
      * In the case where the src object and tgt object both exist, we need to find out whether
      * the relationship we're considering was loaded previously, or if it has been created by the user
      * and so has not yet been persisted.
+     * <p>
      * If we have seen this relationship before we don't want to ask Neo4j to re-establish
      * it for us as it already exists, so we re-register it in the compile context. Because this relationship
      * was previously deleted from the compile context, but not from the mapping context, this brings both
      * mapping contexts into agreement about the status of this relationship, i.e. it has not changed.
      *
-     * @param context the {@link CompileContext} for the current statement compiler
-     * @param srcNodeBuilder a {@link NodeBuilder} that knows how to create cypher phrases about nodes
-     * @param tgtNodeBuilder a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param context             the {@link CompileContext} for the current statement compiler
+     * @param srcNodeBuilder      a {@link NodeBuilder} that knows how to create cypher phrases about nodes
+     * @param tgtNodeBuilder      a {@link NodeBuilder} that knows how to create cypher phrases about nodes
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param relNodes {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the ends of this relationship
+     * @param relNodes            {@link EntityGraphMapper.RelationshipNodes} representing the nodes at the ends of this relationship
      */
     private void updateRelationship(CompileContext context, NodeBuilder srcNodeBuilder, NodeBuilder tgtNodeBuilder, RelationshipBuilder relationshipBuilder, RelationshipNodes relNodes) {
 
@@ -748,23 +762,27 @@ public class EntityGraphMapper implements EntityMapper {
                 context.registerRelationship(mappedRelationship);
             }
         }
+
     }
 
     /**
      * This function is called when we are certain that the relationship in question does not yet exist
      * in the graph, because one of its start / end nodes is also not in the graph.
+     * <p>
      * If this is the first time we have seen this relationship as we walk the object graph, we create
      * a new relationship and register it as a transient relationship in the cypher context.
+     * <p>
      * If we come across the same relationship again and the corresponding transient relationship already
      * exists, we simply do nothing.
+     * <p>
      * The function checks the relationship creation request to ensure it will be handled correctly. This includes
      * ensuring the correct direction is observed, and that a new relationship (a)-[:TYPE]-(b) is created only
      * once from one of the participating nodes (rather than from both ends).
      *
-     * @param context the current compiler {@link CompileContext}
-     * @param src the compiler's reference to the domain object representing the start node
+     * @param context             the current compiler {@link CompileContext}
+     * @param src                 the compiler's reference to the domain object representing the start node
      * @param relationshipBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param tgt the compiler's reference to the domain object representing the end node
+     * @param tgt                 the compiler's reference to the domain object representing the end node
      */
     private void maybeCreateRelationship(CompileContext context, Long src, RelationshipBuilder relationshipBuilder, Long tgt, Class srcClass, Class tgtClass) {
 
@@ -789,6 +807,7 @@ public class EntityGraphMapper implements EntityMapper {
             reallyCreateRelationship(context, tgt, relationshipBuilder, src, tgtClass, srcClass);
         } else {
             reallyCreateRelationship(context, src, relationshipBuilder, tgt, srcClass, tgtClass);
+
         }
     }
 
@@ -797,10 +816,10 @@ public class EntityGraphMapper implements EntityMapper {
      * already been registered. The direction of the relationship is ignored. Returns true if
      * the relationship is already registered, false otherwise.
      *
-     * @param ctx the current compiler {@link CompileContext}
-     * @param src the compiler's reference to the domain object representing the start (or end) node
+     * @param ctx                 the current compiler {@link CompileContext}
+     * @param src                 the compiler's reference to the domain object representing the start (or end) node
      * @param relationshipBuilder the relationshipBuilder
-     * @param tgt the compiler's reference to the domain object representing the end (or start) node
+     * @param tgt                 the compiler's reference to the domain object representing the end (or start) node
      * @return true of a transient relationship already exists, false otherwise
      */
     private boolean hasTransientRelationship(CompileContext ctx, Long src, RelationshipBuilder relationshipBuilder, Long tgt) {
@@ -818,10 +837,10 @@ public class EntityGraphMapper implements EntityMapper {
      * Establishes a new relationship creation request with the cypher compiler, and creates a new
      * transient relationship in the new object log.
      *
-     * @param ctx the compiler {@link CompileContext}
-     * @param src the compiler's reference to the domain object representing the start (or end) node
+     * @param ctx        the compiler {@link CompileContext}
+     * @param src        the compiler's reference to the domain object representing the start (or end) node
      * @param relBuilder a {@link RelationshipBuilder} that knows how to create cypher phrases about relationships
-     * @param tgt the compiler's reference to the domain object representing the end (or start) node
+     * @param tgt        the compiler's reference to the domain object representing the end (or start) node
      */
     private void reallyCreateRelationship(CompileContext ctx, Long src, RelationshipBuilder relBuilder, Long tgt, Class srcClass, Class tgtClass) {
 
@@ -852,9 +871,9 @@ public class EntityGraphMapper implements EntityMapper {
      * Specifically, if the source and target entity are of the same type, and the related object from the source for relationship type R in direction D
      * is the same as the related object from the target for relationship type R in direction D, then the relationship is mapped both ways.
      *
-     * @param srcObject the domain object representing the start node of the relationship
-     * @param relationshipType the type of the relationship from the srcObject
-     * @param tgtObject the domain object representing the end node of the relationship
+     * @param srcObject             the domain object representing the start node of the relationship
+     * @param relationshipType      the type of the relationship from the srcObject
+     * @param tgtObject             the domain object representing the end node of the relationship
      * @param relationshipDirection the direction of the relationship from the srcObject
      * @return true if the relationship should be mapped both ways, false otherwise
      */
@@ -896,7 +915,6 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     class RelationshipNodes {
-
         Long sourceId;
         Long targetId;
         Class sourceType;

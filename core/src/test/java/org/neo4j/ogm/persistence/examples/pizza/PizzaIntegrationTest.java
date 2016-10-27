@@ -295,6 +295,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertEquals(2, zombiePizza.getLabels().size());
         assertTrue(zombiePizza.getLabels().contains("Cold"));
         assertTrue(zombiePizza.getLabels().contains("Decomposed"));
+
     }
 
     /**
@@ -329,10 +330,12 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear(); //Clear session before save
         session.save(loadedPizza);
 
+
         Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
         assertEquals(2, reloadedPizza.getLabels().size());
         assertTrue(reloadedPizza.getLabels().contains("Cold"));
         assertTrue(reloadedPizza.getLabels().contains("Stale"));
+
     }
 
 
@@ -389,6 +392,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.save(pizza);
         // pizza should NOT be dirty
         Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
+
     }
 
 
@@ -446,7 +450,8 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
      * @see issue #209
      */
     @Test
-    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated() {
+    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated()
+    {
         Pizza entity = new Pizza();
         List<String> labels = new ArrayList<>();
         labels.add("TestLabel1");
@@ -463,4 +468,5 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         labels = session.load(Pizza.class, entity.getId()).getLabels();
         assertEquals(1, labels.size());
     }
+
 }

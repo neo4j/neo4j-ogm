@@ -62,7 +62,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		session.save(restaurant);
 
 		GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-				"CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128})");
+				"CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128, score: 0.0})");
 	}
 
 	@Test

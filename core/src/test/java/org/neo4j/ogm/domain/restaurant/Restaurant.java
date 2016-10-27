@@ -25,59 +25,71 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 public class Restaurant {
 
-	@GraphId
-	private Long id;
-	private String name;
-	private int zip;
-	private String description;
+    @GraphId
+    private Long id;
+    private String name;
+    private int zip;
+    private double score;
+    private String description;
 
-	@Convert(LocationConverter.class)
-	Location location;
+    @Convert(LocationConverter.class)
+    Location location;
 
-	@Labels
-	public Collection<String> labels = new ArrayList<>();
+    @Labels
+    public Collection<String> labels = new ArrayList<>();
 
-	public Restaurant() {
-	}
+    public Restaurant() {
+    }
 
-	public Restaurant(String name, Location location, int zip) {
-		this.name = name;
-		this.location = location;
-		this.zip = zip;
-	}
+    public Restaurant(String name, Location location, int zip) {
+        this.name = name;
+        this.location = location;
+        this.zip = zip;
+    }
 
-	public Restaurant(String name, String description) {
-		this.name = name;
-		this.description = description;
-	}
+    public Restaurant(String name, double score) {
+        this.name = name;
+        this.score = score;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Restaurant(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public int getZip() {
-		return zip;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setZip(int zip) {
-		this.zip = zip;
-	}
+    public int getZip() {
+        return zip;
+    }
 
-	public Location getLocation() {
-		return location;
-	}
+    public void setZip(int zip) {
+        this.zip = zip;
+    }
 
-	public void setLocation(Location location) {
-		this.location = location;
-	}
+    public Location getLocation() {
+        return location;
+    }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
+    public double getScore() { return score; }
+
+    public void setScore(double score) { this.score = score; }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
 }

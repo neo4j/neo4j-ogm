@@ -217,6 +217,18 @@ public class NodeQueryStatementsTest {
 
 	/**
 	 * @throws Exception
+	 * @see DATAGRAPH-904
+	 */
+	@Test
+	public void testFindByPropertyGreaterThanEqual() throws Exception {
+		Filter parameter = new Filter("diameter", 60);
+		parameter.setComparisonOperator(ComparisonOperator.GREATER_THAN_EQUAL);
+		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` >= { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement());
+	}
+
+	/**
+	 * @throws Exception
 	 * @see DATAGRAPH-629
 	 */
 	@Test
@@ -224,6 +236,20 @@ public class NodeQueryStatementsTest {
 		Filter parameter = new Filter("diameter", 60);
 		parameter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` < { `diameter_0` } " +
+						"WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid",
+						new Filters().add(parameter), 4).getStatement());
+	}
+
+	/**
+	 * @throws Exception
+	 * @see DATAGRAPH-904
+	 */
+	@Test
+	public void testFindByPropertyLessThanEqual() throws Exception {
+		Filter parameter = new Filter("diameter", 60);
+		parameter.setComparisonOperator(ComparisonOperator.LESS_THAN_EQUAL);
+		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` <= { `diameter_0` } " +
 						"WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid",
 						new Filters().add(parameter), 4).getStatement());

@@ -16,6 +16,7 @@ package org.neo4j.ogm.session.request.strategy.impl;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;

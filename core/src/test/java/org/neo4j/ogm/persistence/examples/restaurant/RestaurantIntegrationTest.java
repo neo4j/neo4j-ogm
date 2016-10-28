@@ -199,6 +199,32 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		Assert.assertEquals("Kuroda", restaurant.getName());
 	}
 
+	@Test
+	public void shouldFilterByPropertyWithConverter()
+	{
+		Restaurant kuroda = new Restaurant("Kuroda", 72.4);
+		kuroda.setLaunchDate(new Date(1000));
+		session.save(kuroda);
+
+		Restaurant cyma = new Restaurant("Cyma", 80.5);
+		cyma.setLaunchDate(new Date(2000));
+		session.save(cyma);
+
+		Filter launchDateFilter = new Filter("launchDate", new Date(1001));
+		launchDateFilter.setComparisonOperator(ComparisonOperator.LESS_THAN);
+
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(launchDateFilter));
+		assertNotNull(results);
+		assertEquals(1, results.size());
+		assertEquals("Kuroda", results.iterator().next().getName());
+
+		Filter anotherFilter = new Filter("launchDate", new Date(999));
+		results = session.loadAll(Restaurant.class, new Filters().add(anotherFilter));
+
+		assertNotNull(results);
+		assertEquals(0, results.size());
+	}
+
 
 
 

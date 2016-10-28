@@ -241,11 +241,8 @@ public class FilteredQueryBuilder {
 
 	private static void appendFilters(List<Filter> filters, String nodeIdentifier, StringBuilder query,  Map<String, Object> properties) {
 		for(Filter filter : filters) {
-//			if(!filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-//				query.append(filter.getBooleanOperator().getValue()).append(" ");
-//			}
 			query.append(filter.toCypher(nodeIdentifier, false));
-			properties.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
+			properties.putAll(filter.getFunction().parameters());
 		}
 	}
 

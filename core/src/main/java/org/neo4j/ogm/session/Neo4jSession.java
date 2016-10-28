@@ -545,6 +545,12 @@ public class Neo4jSession implements Session {
                 filter.setOwnerEntityType(entityType);
             }
             filter.setPropertyName(resolvePropertyName(filter.getOwnerEntityType(), filter.getPropertyName()));
+
+            ClassInfo classInfo = metaData().classInfo(entityType.getName());
+            FieldInfo fieldInfo = classInfo.fieldsInfo().get(filter.getPropertyName());
+            filter.setPropertyConverter(fieldInfo.getPropertyConverter());
+            filter.setCompositeConverter(fieldInfo.getCompositeConverter());
+
             if(filter.isNested()) {
                 resolveRelationshipType(filter);
                 ClassInfo nestedClassInfo = metaData().classInfo(filter.getNestedPropertyType().getName());

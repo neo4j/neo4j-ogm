@@ -16,12 +16,14 @@ package org.neo4j.ogm.domain.restaurant;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 public class Restaurant {
 
@@ -34,6 +36,9 @@ public class Restaurant {
 
     @Convert(LocationConverter.class)
     Location location;
+
+    @DateString
+    private Date launchDate;
 
     @Labels
     public Collection<String> labels = new ArrayList<>();
@@ -92,4 +97,8 @@ public class Restaurant {
     public String getDescription() { return description; }
 
     public void setDescription(String description) { this.description = description; }
+
+    public Date getLaunchDate() { return launchDate; }
+
+    public void setLaunchDate(Date launchDate) { this.launchDate = launchDate; }
 }

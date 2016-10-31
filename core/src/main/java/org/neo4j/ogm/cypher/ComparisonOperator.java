@@ -23,13 +23,13 @@ package org.neo4j.ogm.cypher;
 public enum ComparisonOperator {
 	EQUALS("="),
 	MATCHES("=~"),
-	LIKE("=~", new CaseInsensitiveLikePropertyValueTransformer()),
+	LIKE("=~", new RegExpTemplatePropertyValueTransformer("(?i)%s").replaceAll("\\*", ".*")),
 	GREATER_THAN(">"),
 	GREATER_THAN_EQUAL(">="),
 	LESS_THAN("<"),
 	LESS_THAN_EQUAL("<="),
-	IS_NULL("IS NULL");
-
+	IS_NULL("IS NULL"),
+	STARTS_WITH("=~", new RegExpTemplatePropertyValueTransformer("^%s.*"));
 
 	private final String value;
 	private final PropertyValueTransformer valueTransformer;

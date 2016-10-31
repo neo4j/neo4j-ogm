@@ -17,15 +17,12 @@ import java.io.IOException;
 import java.util.*;
 
 import org.junit.*;
-import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.function.FilterFunction;
-import org.neo4j.ogm.domain.pizza.Pizza;
 import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.service.Components;
@@ -33,7 +30,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-import org.neo4j.ogm.testutil.TestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -223,6 +219,26 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
 		assertNotNull(results);
 		assertEquals(0, results.size());
+	}
+
+	@Test
+	public void shouldFilterByPropertyStartingWith()
+	{
+		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		kuroda.setLaunchDate(new Date(1000));
+		session.save(kuroda);
+
+		Restaurant cyma = new Restaurant("Kuroda", 80.5);
+		cyma.setLaunchDate(new Date(2000));
+		session.save(cyma);
+
+		Filter startsWithFilter = new Filter("name", "San Francisco");
+		startsWithFilter.setComparisonOperator(ComparisonOperator.STARTS_WITH);
+
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(startsWithFilter));
+		assertNotNull(results);
+		assertEquals(1, results.size());
+		assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
 	}
 
 

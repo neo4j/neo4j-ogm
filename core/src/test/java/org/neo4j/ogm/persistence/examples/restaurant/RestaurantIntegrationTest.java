@@ -232,10 +232,10 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		cyma.setLaunchDate(new Date(2000));
 		session.save(cyma);
 
-		Filter startsWithFilter = new Filter("name", "San Francisco");
-		startsWithFilter.setComparisonOperator(ComparisonOperator.STARTING_WITH);
+		Filter filter = new Filter("name", "San Francisco");
+		filter.setComparisonOperator(ComparisonOperator.STARTING_WITH);
 
-		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(startsWithFilter));
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
 		assertNotNull(results);
 		assertEquals(1, results.size());
 		assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
@@ -252,10 +252,10 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		cyma.setLaunchDate(new Date(2000));
 		session.save(cyma);
 
-		Filter startsWithFilter = new Filter("name", "Airport (SFO)");
-		startsWithFilter.setComparisonOperator(ComparisonOperator.ENDING_WITH);
+		Filter filter = new Filter("name", "Airport (SFO)");
+		filter.setComparisonOperator(ComparisonOperator.ENDING_WITH);
 
-		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(startsWithFilter));
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
 		assertNotNull(results);
 		assertEquals(1, results.size());
 		assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
@@ -272,13 +272,33 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		cyma.setLaunchDate(new Date(2000));
 		session.save(cyma);
 
-		Filter startsWithFilter = new Filter("name", "International Airport");
-		startsWithFilter.setComparisonOperator(ComparisonOperator.CONTAINING);
+		Filter filter = new Filter("name", "International Airport");
+		filter.setComparisonOperator(ComparisonOperator.CONTAINING);
 
-		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(startsWithFilter));
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
 		assertNotNull(results);
 		assertEquals(1, results.size());
 		assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
+	}
+
+	@Test
+	public void shouldFilterByPropertyIn()
+	{
+		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		kuroda.setLaunchDate(new Date(1000));
+		session.save(kuroda);
+
+		Restaurant cyma = new Restaurant("Kuroda", 80.5);
+		cyma.setLaunchDate(new Date(2000));
+		session.save(cyma);
+
+		Filter filter = new Filter("name", new String[]{"Kuroda", "Foo", "Bar"});
+		filter.setComparisonOperator(ComparisonOperator.IN);
+
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
+		assertNotNull(results);
+		assertEquals(1, results.size());
+		assertEquals("Kuroda", results.iterator().next().getName());
 	}
 
 

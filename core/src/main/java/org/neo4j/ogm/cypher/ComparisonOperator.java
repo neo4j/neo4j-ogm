@@ -21,42 +21,43 @@ package org.neo4j.ogm.cypher;
  * @author Jasper Blues
  */
 public enum ComparisonOperator {
-	EQUALS("="),
-	MATCHES("=~"),
-	LIKE("=~", new RegExpTemplatePropertyValueTransformer("(?i)%s").replaceAll("\\*", ".*")),
-	GREATER_THAN(">"),
-	GREATER_THAN_EQUAL(">="),
-	LESS_THAN("<"),
-	LESS_THAN_EQUAL("<="),
-	IS_NULL("IS NULL"),
-	STARTING_WITH("STARTS WITH"),
-	ENDING_WITH("ENDS WITH"),
-	CONTAINING("CONTAINS");
+    EQUALS("="),
+    MATCHES("=~"),
+    LIKE("=~", new RegExpTemplatePropertyValueTransformer("(?i)%s").replaceAll("\\*", ".*")),
+    GREATER_THAN(">"),
+    GREATER_THAN_EQUAL(">="),
+    LESS_THAN("<"),
+    LESS_THAN_EQUAL("<="),
+    IS_NULL("IS NULL"),
+    STARTING_WITH("STARTS WITH"),
+    ENDING_WITH("ENDS WITH"),
+    CONTAINING("CONTAINS"),
+    IN("IN");
 
-	private final String value;
-	private final PropertyValueTransformer valueTransformer;
+    private final String value;
+    private final PropertyValueTransformer valueTransformer;
 
-	ComparisonOperator(String value) {
-		this(value, new NoOpPropertyValueTransformer());
-	}
+    ComparisonOperator(String value) {
+        this(value, new NoOpPropertyValueTransformer());
+    }
 
-	ComparisonOperator(String value, PropertyValueTransformer propertyValueTransformer) {
-		this.value = value;
-		this.valueTransformer = propertyValueTransformer;
-	}
+    ComparisonOperator(String value, PropertyValueTransformer propertyValueTransformer) {
+        this.value = value;
+        this.valueTransformer = propertyValueTransformer;
+    }
 
-	/**
-	 * @return The textual comparison operator to use in the Cypher query
-	 */
-	public String getValue() {
-		return value;
-	}
+    /**
+     * @return The textual comparison operator to use in the Cypher query
+     */
+    public String getValue() {
+        return value;
+    }
 
-	/**
-	 * @return The {@link PropertyValueTransformer} required for this {@link ComparisonOperator} to work
-	 */
-	public PropertyValueTransformer getPropertyValueTransformer() {
-		return valueTransformer;
-	}
+    /**
+     * @return The {@link PropertyValueTransformer} required for this {@link ComparisonOperator} to work
+     */
+    public PropertyValueTransformer getPropertyValueTransformer() {
+        return valueTransformer;
+    }
 
 }

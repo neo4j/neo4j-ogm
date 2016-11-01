@@ -33,7 +33,8 @@ public enum ComparisonOperator {
     ENDING_WITH("ENDS WITH"),
     CONTAINING("CONTAINS"),
     IN("IN"),
-    EXISTS("EXISTS");
+    EXISTS("EXISTS"),
+    IS_TRUE("=");
 
     private final String value;
     private final PropertyValueTransformer valueTransformer;

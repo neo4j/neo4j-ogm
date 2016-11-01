@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -33,6 +31,7 @@ public class Restaurant {
     private int zip;
     private double score;
     private String description;
+    private boolean halal;
 
     @Convert(LocationConverter.class)
     Location location;
@@ -101,4 +100,9 @@ public class Restaurant {
     public Date getLaunchDate() { return launchDate; }
 
     public void setLaunchDate(Date launchDate) { this.launchDate = launchDate; }
+
+    public boolean isHalal() { return halal; }
+
+    public void setHalal(boolean halal) { this.halal = halal; }
+
 }

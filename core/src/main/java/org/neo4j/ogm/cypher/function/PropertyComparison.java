@@ -65,6 +65,9 @@ public class PropertyComparison implements FilterFunction<Object> {
         if (filter.getComparisonOperator().equals(ComparisonOperator.IS_NULL)) {
             return String.format("%s.`%s` IS NULL ", nodeIdentifier, filter.getPropertyName());
         }
+        else if (filter.getComparisonOperator().equals(ComparisonOperator.EXISTS)) {
+            return String.format("EXISTS(%s.`%s`) ", nodeIdentifier, filter.getPropertyName());
+        }
         else
         {
             return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),

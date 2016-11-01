@@ -224,13 +224,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	@Test
 	public void shouldFilterByPropertyStartingWith()
 	{
-		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
-		kuroda.setLaunchDate(new Date(1000));
-		session.save(kuroda);
+		Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		sfo.setLaunchDate(new Date(1000));
+		session.save(sfo);
 
-		Restaurant cyma = new Restaurant("Kuroda", 80.5);
-		cyma.setLaunchDate(new Date(2000));
-		session.save(cyma);
+		Restaurant kuroda = new Restaurant("Kuroda", 80.5);
+		kuroda.setLaunchDate(new Date(2000));
+		session.save(kuroda);
 
 		Filter filter = new Filter("name", "San Francisco");
 		filter.setComparisonOperator(ComparisonOperator.STARTING_WITH);
@@ -244,13 +244,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	@Test
 	public void shouldFilterByPropertyEndingWith()
 	{
-		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
-		kuroda.setLaunchDate(new Date(1000));
-		session.save(kuroda);
+		Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		sfo.setLaunchDate(new Date(1000));
+		session.save(sfo);
 
-		Restaurant cyma = new Restaurant("Kuroda", 80.5);
-		cyma.setLaunchDate(new Date(2000));
-		session.save(cyma);
+		Restaurant kuroda = new Restaurant("Kuroda", 80.5);
+		kuroda.setLaunchDate(new Date(2000));
+		session.save(kuroda);
 
 		Filter filter = new Filter("name", "Airport (SFO)");
 		filter.setComparisonOperator(ComparisonOperator.ENDING_WITH);
@@ -264,13 +264,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	@Test
 	public void shouldFilterByPropertyContaining()
 	{
-		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
-		kuroda.setLaunchDate(new Date(1000));
-		session.save(kuroda);
+		Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		sfo.setLaunchDate(new Date(1000));
+		session.save(sfo);
 
-		Restaurant cyma = new Restaurant("Kuroda", 80.5);
-		cyma.setLaunchDate(new Date(2000));
-		session.save(cyma);
+		Restaurant kuroda = new Restaurant("Kuroda", 80.5);
+		kuroda.setLaunchDate(new Date(2000));
+		session.save(kuroda);
 
 		Filter filter = new Filter("name", "International Airport");
 		filter.setComparisonOperator(ComparisonOperator.CONTAINING);
@@ -284,13 +284,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 	@Test
 	public void shouldFilterByPropertyIn()
 	{
-		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
-		kuroda.setLaunchDate(new Date(1000));
-		session.save(kuroda);
+		Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		sfo.setLaunchDate(new Date(1000));
+		session.save(sfo);
 
-		Restaurant cyma = new Restaurant("Kuroda", 80.5);
-		cyma.setLaunchDate(new Date(2000));
-		session.save(cyma);
+		Restaurant kuroda = new Restaurant("Kuroda", 80.5);
+		kuroda.setLaunchDate(new Date(2000));
+		session.save(kuroda);
 
 		Filter filter = new Filter("name", new String[]{"Kuroda", "Foo", "Bar"});
 		filter.setComparisonOperator(ComparisonOperator.IN);
@@ -299,6 +299,35 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		assertNotNull(results);
 		assertEquals(1, results.size());
 		assertEquals("Kuroda", results.iterator().next().getName());
+	}
+
+	@Test
+	public void shouldFilterByPropertyExists()
+	{
+		Restaurant sfo = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		sfo.setLaunchDate(new Date(1000));
+		session.save(sfo);
+
+		Restaurant kuroda = new Restaurant("Kuroda", 80.5);
+		kuroda.setLaunchDate(new Date(2000));
+		session.save(kuroda);
+
+		Filter exists = new Filter();
+		exists.setPropertyName("name");
+		exists.setComparisonOperator(ComparisonOperator.EXISTS);
+
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(exists));
+		assertNotNull(results);
+		assertEquals(2, results.size());
+
+		Filter notExists = new Filter();
+		notExists.setPropertyName("name");
+		notExists.setComparisonOperator(ComparisonOperator.EXISTS);
+		notExists.setNegated(true);
+
+		results = session.loadAll(Restaurant.class, new Filters().add(notExists));
+		assertNotNull(results);
+		assertEquals(0, results.size());
 	}
 
 

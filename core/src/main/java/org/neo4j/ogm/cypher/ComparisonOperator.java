@@ -23,7 +23,7 @@ package org.neo4j.ogm.cypher;
 public enum ComparisonOperator {
     EQUALS("="),
     MATCHES("=~"),
-    LIKE("=~", new RegExpTemplatePropertyValueTransformer("(?i)%s").replaceAll("\\*", ".*")),
+    LIKE("=~", new CaseInsensitiveLikePropertyValueTransformer()),
     GREATER_THAN(">"),
     GREATER_THAN_EQUAL(">="),
     LESS_THAN("<"),
@@ -32,7 +32,8 @@ public enum ComparisonOperator {
     STARTING_WITH("STARTS WITH"),
     ENDING_WITH("ENDS WITH"),
     CONTAINING("CONTAINS"),
-    IN("IN");
+    IN("IN"),
+    EXISTS("EXISTS");
 
     private final String value;
     private final PropertyValueTransformer valueTransformer;

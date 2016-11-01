@@ -30,7 +30,8 @@ public enum ComparisonOperator {
 	LESS_THAN_EQUAL("<="),
 	IS_NULL("IS NULL"),
 	STARTING_WITH("STARTS WITH"),
-	ENDING_WITH("ENDS WITH");
+	ENDING_WITH("ENDS WITH"),
+	CONTAINING("CONTAINS");
 
 	private final String value;
 	private final PropertyValueTransformer valueTransformer;

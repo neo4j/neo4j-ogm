@@ -29,7 +29,8 @@ public enum ComparisonOperator {
 	LESS_THAN("<"),
 	LESS_THAN_EQUAL("<="),
 	IS_NULL("IS NULL"),
-	STARTS_WITH("=~", new RegExpTemplatePropertyValueTransformer("^%s.*"));
+	STARTING_WITH("STARTS WITH"),
+	ENDING_WITH("ENDS WITH");
 
 	private final String value;
 	private final PropertyValueTransformer valueTransformer;

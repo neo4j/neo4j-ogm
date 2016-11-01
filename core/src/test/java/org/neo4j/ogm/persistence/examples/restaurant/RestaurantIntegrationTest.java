@@ -233,7 +233,27 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 		session.save(cyma);
 
 		Filter startsWithFilter = new Filter("name", "San Francisco");
-		startsWithFilter.setComparisonOperator(ComparisonOperator.STARTS_WITH);
+		startsWithFilter.setComparisonOperator(ComparisonOperator.STARTING_WITH);
+
+		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(startsWithFilter));
+		assertNotNull(results);
+		assertEquals(1, results.size());
+		assertEquals("San Francisco International Airport (SFO)", results.iterator().next().getName());
+	}
+
+	@Test
+	public void shouldFilterByPropertyEndingWith()
+	{
+		Restaurant kuroda = new Restaurant("San Francisco International Airport (SFO)", 72.4);
+		kuroda.setLaunchDate(new Date(1000));
+		session.save(kuroda);
+
+		Restaurant cyma = new Restaurant("Kuroda", 80.5);
+		cyma.setLaunchDate(new Date(2000));
+		session.save(cyma);
+
+		Filter startsWithFilter = new Filter("name", "Airport (SFO)");
+		startsWithFilter.setComparisonOperator(ComparisonOperator.ENDING_WITH);
 
 		Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(startsWithFilter));
 		assertNotNull(results);

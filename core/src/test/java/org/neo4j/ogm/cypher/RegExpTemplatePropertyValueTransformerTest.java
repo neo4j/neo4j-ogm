@@ -36,4 +36,12 @@ public class RegExpTemplatePropertyValueTransformerTest {
         assertEquals("^San Francisco International.*",
                 transformer.transformPropertyValue("San Francisco International"));
     }
+
+    @Test
+    public void shouldTransformEndsWith() throws Exception {
+
+        PropertyValueTransformer transformer = new RegExpTemplatePropertyValueTransformer("%s$");
+        assertEquals("San Francisco International$",
+                transformer.transformPropertyValue("San Francisco International"));
+    }
 }

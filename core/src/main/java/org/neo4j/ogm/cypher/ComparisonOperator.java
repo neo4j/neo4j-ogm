@@ -56,6 +56,18 @@ public enum ComparisonOperator {
     }
 
     /**
+     *
+     */
+    public boolean isOneOf(ComparisonOperator... these) {
+        for (ComparisonOperator candidate : these) {
+            if (this.equals(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return The {@link PropertyValueTransformer} required for this {@link ComparisonOperator} to work
      */
     public PropertyValueTransformer getPropertyValueTransformer() {

@@ -16,16 +16,12 @@ package org.neo4j.ogm.persistence.examples.pizza;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.ogm.domain.pizza.*;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -295,7 +291,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertEquals(2, zombiePizza.getLabels().size());
         assertTrue(zombiePizza.getLabels().contains("Cold"));
         assertTrue(zombiePizza.getLabels().contains("Decomposed"));
-
     }
 
     /**
@@ -330,12 +325,10 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.clear(); //Clear session before save
         session.save(loadedPizza);
 
-
         Pizza reloadedPizza = session.load(Pizza.class, pizza.getId());
         assertEquals(2, reloadedPizza.getLabels().size());
         assertTrue(reloadedPizza.getLabels().contains("Cold"));
         assertTrue(reloadedPizza.getLabels().contains("Stale"));
-
     }
 
 
@@ -392,7 +385,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         session.save(pizza);
         // pizza should NOT be dirty
         Assert.assertFalse(((Neo4jSession) session).context().isDirty(pizza)); // this should pass
-
     }
 
 
@@ -450,8 +442,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
      * @see issue #209
      */
     @Test
-    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated()
-    {
+    public void shouldMarkLabelsAsDirtyWhenExistingCollectionUpdated() {
         Pizza entity = new Pizza();
         List<String> labels = new ArrayList<>();
         labels.add("TestLabel1");
@@ -469,4 +460,49 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
         assertEquals(1, labels.size());
     }
 
+    @Test
+    public void shouldDeleteChangedIncomingRelationship() throws Exception {
+        Pizza pizza = new Pizza();
+        Crust deepDishCrust = new Crust("Deep Dish");
+        Crust thinNCrispyCrust = new Crust("Thin 'n Crispy");
+
+        pizza.setCrust(deepDishCrust);
+        session.save(pizza);
+
+        assertOneRelationshipInDb();
+
+        pizza.setCrust(thinNCrispyCrust);
+        session.save(pizza);
+
+        assertOneRelationshipInDb();
+    }
+
+
+    @Test
+    @Ignore("Relationship is not deleted to the deep dish pizza.")
+    public void shouldDeleteChangedIncomingRelationshipWithClearSessionAndLoad() throws Exception {
+
+        Pizza pizza = new Pizza();
+        Crust deepDishCrust = new Crust("Deep Dish");
+        Crust thinNCrispyCrust = new Crust("Thin 'n Crispy");
+
+        pizza.setCrust(deepDishCrust);
+        session.save(pizza);
+
+        assertOneRelationshipInDb();
+
+        session.clear();
+        pizza = session.load(Pizza.class, pizza.getId());
+        pizza.setCrust(thinNCrispyCrust);
+        session.save(pizza);
+
+        assertOneRelationshipInDb();
+    }
+
+    private void assertOneRelationshipInDb() {
+        Result result = session.query("MATCH (p:Pizza)-[r]-() return count(r) as c", new HashMap<String, Object>());
+        Map<String, Object> row = result.iterator().next();
+        Integer count = (Integer) row.get("c");
+        assertEquals(1, (int) count);
+    }
 }

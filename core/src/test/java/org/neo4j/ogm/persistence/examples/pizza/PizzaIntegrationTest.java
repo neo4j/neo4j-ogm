@@ -502,7 +502,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
     private void assertOneRelationshipInDb() {
         Result result = session.query("MATCH (p:Pizza)-[r]-() return count(r) as c", new HashMap<String, Object>());
         Map<String, Object> row = result.iterator().next();
-        Integer count = (Integer) row.get("c");
-        assertEquals(1, (int) count);
+        Number count = (Number) row.get("c");
+        assertEquals(1L, count.longValue());
     }
 }

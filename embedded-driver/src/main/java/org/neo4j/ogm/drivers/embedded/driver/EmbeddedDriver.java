@@ -13,6 +13,17 @@
 
 package org.neo4j.ogm.drivers.embedded.driver;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.ogm.config.DriverConfiguration;
@@ -24,17 +35,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * @author vince
@@ -65,6 +65,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
      * @param graphDatabaseService the embedded database instance
      */
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        close();
         this.graphDatabaseService = graphDatabaseService;
         registerShutdownHook();
     }

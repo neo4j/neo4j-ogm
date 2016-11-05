@@ -11,7 +11,9 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.persistence.session;
+package org.neo4j.ogm.persistence.transaction;
+
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -21,19 +23,13 @@ import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.music.Recording;
 import org.neo4j.ogm.domain.music.Studio;
+import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
 import java.io.IOException;
-import java.util.TreeSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luanne Misquitta
@@ -100,6 +96,65 @@ public class TransactionTest extends MultiDriverTestClass {
         assertEquals(1, theBeatles.getAlbums().size());
         assertEquals("Please Please Me", theBeatles.getAlbums().iterator().next().getName());
         assertEquals("EMI Studios, London", theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName());
+    }
+
+    @Test
+    public void shouldNotBeReadOnlyByDefault() {
+
+        try (Transaction tx = session.beginTransaction()) {
+            Assert.assertFalse(tx.isReadOnly());
+        }
+    }
+
+    @Test
+    public void shouldBeAbleToCreateReadOnlyTransaction() {
+
+        try (Transaction tx = session.beginTransaction(Transaction.Type.READ_ONLY)) {
+            Assert.assertTrue(tx.isReadOnly());
+        }
+    }
+
+    @Test
+    public void shouldNotBeAbleToExtendAReadTransactionWithAReadWriteInnerTransaction() {
+
+        try (
+                Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+                Transaction tx2 = session.beginTransaction(Transaction.Type.READ_WRITE)) {
+            fail("Should not have allowed transaction extension of different type");
+        } catch (TransactionException tme) {
+            Assert.assertEquals("Incompatible transaction type specified: must be 'READ_ONLY'", tme.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotBeAbleToExtendAReadWriteTransactionWithAReadOnlyInnerTransaction() {
+
+        try (
+                Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+                Transaction tx2 = session.beginTransaction(Transaction.Type.READ_ONLY)) {
+            fail("Should not have allowed transaction extension of different type");
+        } catch (TransactionException tme) {
+            Assert.assertEquals("Incompatible transaction type specified: must be 'READ_WRITE'", tme.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldAutomaticallyExtendAReadOnlyTransactionWithAReadOnlyExtension() {
+
+        try (
+                Transaction tx1 = session.beginTransaction(Transaction.Type.READ_ONLY);
+                Transaction tx2 = session.beginTransaction()) {
+            Assert.assertTrue(tx2.isReadOnly());
+        }
+    }
+
+    @Test
+    public void shouldAutomaticallyExtendAReadWriteTransactionWithAReadWriteExtension() {
+
+        try (Transaction tx1 = session.beginTransaction(Transaction.Type.READ_WRITE);
+             Transaction tx2 = session.beginTransaction()) {
+            Assert.assertFalse(tx2.isReadOnly());
+        }
     }
 
 }

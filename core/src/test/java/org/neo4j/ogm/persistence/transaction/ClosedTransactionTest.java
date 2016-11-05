@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.persistence;
+package org.neo4j.ogm.persistence.transaction;
 
 import org.junit.After;
 import org.junit.Before;

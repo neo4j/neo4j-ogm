@@ -13,12 +13,15 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
+import java.io.File;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.testutil.FileUtils;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 /**
@@ -26,7 +29,10 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  */
 public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
+    private TestGraphDatabaseFactory graphDatabaseFactory = new TestGraphDatabaseFactory();
     private GraphDatabaseService graphDatabaseService;
+    private File fileStore;
+
 
     @BeforeClass
     public static void configure() {
@@ -41,12 +47,21 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
     @Override
     public void setUpTest() {
-        graphDatabaseService = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        fileStore = FileUtils.createTemporaryGraphStore();
+        graphDatabaseService = graphDatabaseFactory.newImpermanentDatabase(fileStore);
         Components.setDriver(new EmbeddedDriver(graphDatabaseService));
     }
 
     @Override
     public void tearDownTest() {
-        graphDatabaseService.shutdown();
+        try {
+            if (graphDatabaseService.isAvailable(100)) {
+                graphDatabaseService.shutdown();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to shutdown test database correctly");
+        }
+        graphDatabaseService = null;
+        fileStore = null;
     }
 }

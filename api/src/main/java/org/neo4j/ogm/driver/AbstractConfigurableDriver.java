@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.driver;
 
+import java.net.URI;
+
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.transaction.TransactionManager;
-
-import java.net.URI;
 
 /**
  *

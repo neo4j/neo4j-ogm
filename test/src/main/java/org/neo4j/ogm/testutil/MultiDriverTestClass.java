@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.testutil;
 
+import java.io.File;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -22,6 +24,8 @@ import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.Components;
 import org.neo4j.test.TestGraphDatabaseFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -29,10 +33,10 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  */
 public class MultiDriverTestClass {
 
-
+	private static final Logger logger = LoggerFactory.getLogger(MultiDriverTestClass.class);
     private static TestServer testServer;
     private static GraphDatabaseService impermanentDb;
-
+    private static File graphStore;
 
     @BeforeClass
     public static synchronized void setupMultiDriverTestEnvironment() {
@@ -44,24 +48,26 @@ public class MultiDriverTestClass {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(false)
                         .enableBolt(false)
-                        .transactionTimeoutSeconds(2)
+                        .transactionTimeoutSeconds(30)
                         .build();
             } else {
                 testServer = new TestServer.Builder()
                         .enableAuthentication(true)
                         .enableBolt(false)
-                        .transactionTimeoutSeconds(2)
+                        .transactionTimeoutSeconds(30)
                         .build();
             }
         }
         else if (driver instanceof BoltDriver) {
             testServer = new TestServer.Builder()
                     .enableBolt(true)
-                    .transactionTimeoutSeconds(2)
+                    .transactionTimeoutSeconds(30)
                     .build();
         }
         else {
-            impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase();
+            graphStore = FileUtils.createTemporaryGraphStore();
+            impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
+			logger.info("Creating new impermanent database {}", impermanentDb);
             Components.setDriver(new EmbeddedDriver(impermanentDb));
         }
 
@@ -75,16 +81,17 @@ public class MultiDriverTestClass {
     private static void close() {
 
         if (testServer != null) {
-            if (testServer.isRunning(100)) {
+            if (testServer.isRunning(1000)) {
                 testServer.shutdown();
             }
             testServer = null;
         }
         if (impermanentDb != null) {
-            if (impermanentDb.isAvailable(100)) {
+            if (impermanentDb.isAvailable(1000)) {
                 impermanentDb.shutdown();
             }
             impermanentDb = null;
+			graphStore = null;
         }
     }
 

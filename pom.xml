@@ -46,7 +46,7 @@
         <logback>1.1.7</logback>
         <mockito>2.1.0-RC.2</mockito>
         <!-- default for build, if no profiles invoked -->
-        <neo4j>2.3.7</neo4j>
+        <neo4j>3.0.7</neo4j>
         <bolt>1.0.5</bolt>
         <ogm.properties>ogm-http.properties</ogm.properties>
     </properties>
@@ -341,7 +341,7 @@
         <profile>
             <id>3.0</id>
             <properties>
-                <neo4j>3.0.6</neo4j>
+                <neo4j>3.0.7</neo4j>
             </properties>
             <build>
                 <plugins>

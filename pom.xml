@@ -44,9 +44,9 @@
         <junit>4.12</junit>
         <slf4j>1.7.21</slf4j>
         <logback>1.1.7</logback>
-
+        <mockito>2.1.0-RC.2</mockito>
         <!-- default for build, if no profiles invoked -->
-        <neo4j>2.3.8</neo4j>
+        <neo4j>3.0.7</neo4j>
         <bolt>1.0.5</bolt>
         <ogm.properties>ogm-http.properties</ogm.properties>
     </properties>
@@ -122,6 +122,12 @@
                 <!--<scope>test</scope>-->
             </dependency>
 
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito}</version>
+                <scope>test</scope>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

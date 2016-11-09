@@ -21,7 +21,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.impl.factory.GraphDatabaseFacade;
+import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.service.Components;
@@ -29,30 +29,31 @@ import org.neo4j.ogm.service.Components;
 /**
  * @author vince
  */
-public class EmbeddedDriverTest extends AbstractDriverTestSuite {
+public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
-    private GraphDatabaseService graphDatabaseService;
+	private GraphDatabaseService graphDatabaseService;
 
-    @BeforeClass
-    public static void configure() throws Exception {
+	@BeforeClass
+	public static void configure() throws Exception {
 		// force-delete any prior version of this database
-		Components.configure("embedded.driver.properties");
+		Components.configure("embedded.ha.driver.properties");
 		FileUtils.forceDelete(new File(new URI(Components.getConfiguration().driverConfiguration().getURI())));
-		System.out.println("Embedded: " + Components.neo4jVersion());
-    }
+		System.out.println("Embedded HA: " + Components.neo4jVersion());
+	}
 
-    @AfterClass
-    public static void reset() {
-        Components.destroy();
-    }
+	@AfterClass
+	public static void reset() {
+		Components.destroy();
+	}
 
-    @Override
-    public void setUpTest() {
+	@Override
+	public void setUpTest() {
 		graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
-		Assert.assertTrue(graphDatabaseService instanceof GraphDatabaseFacade);
-    }
+		Assert.assertTrue(graphDatabaseService instanceof HighlyAvailableGraphDatabase);
+	}
 
-    @Override
-    public void tearDownTest() {
-    }
+	@Override
+	public void tearDownTest() {
+	}
+
 }

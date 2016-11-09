@@ -41,7 +41,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         CountDownLatch latch = new CountDownLatch(numThreads);
 
-        String query = "FOREACH (n in RANGE(1, 10000) | CREATE (a)-[:KNOWS]->(b))";
+        String query = "FOREACH (n in RANGE(1, 1000) | CREATE (a)-[:KNOWS]->(b))";
 
         for (int i = 0; i < numThreads; i++) {
             executor.submit(new QueryRunner(latch, query));
@@ -62,7 +62,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
         // invalid query. should fail, response should be closed automatically, and connection released
         // if this does not happen, the session.query method in the query runner will block forever,
         // once the available connections are used up.
-        String query = "FOREACH (n in RANGE(1, 10000) ? CREATE (a)-[:KNOWS]->(b))";
+        String query = "FOREACH (n in RANGE(1, 1000) ? CREATE (a)-[:KNOWS]->(b))";
 
         for (int i = 0; i < numThreads; i++) {
             executor.submit(new QueryRunner(latch, query));

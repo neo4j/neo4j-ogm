@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.config;
 
+import java.net.URI;
+
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
-
-import java.net.URI;
 
 /**
  *
@@ -37,6 +37,8 @@ public class DriverConfiguration {
     public static final String[] ENCRYPTION_LEVEL       = {"encryption.level"};
     public static final String[] TRUST_STRATEGY         = {"trust.strategy"};
     public static final String[] TRUST_CERT_FILE        = {"trust.certificate.file"};
+
+	public static final String[] NEO4J_HA_PROPERTIES_FILE = {"neo4j.ha.properties.file"};
 
     // defaults
     private static final int CONNECTION_POOL_SIZE_DEFAULT     = 50;
@@ -160,6 +162,13 @@ public class DriverConfiguration {
         }
         return null;
     }
+
+    public String getNeo4jHaPropertiesFile() {
+		if (configuration.get(NEO4J_HA_PROPERTIES_FILE) != null) {
+			return (String) configuration.get(NEO4J_HA_PROPERTIES_FILE);
+		}
+		return null;
+	}
 
     private void determineDefaultDriverName(URI uri) {
         switch (uri.getScheme()) {

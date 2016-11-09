@@ -129,6 +129,25 @@
                 <scope>test</scope>
             </dependency>
 
+            <!-- test dependencies for High Availability -->
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-cluster</artifactId>
+                <version>${neo4j}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-ha</artifactId>
+                <version>${neo4j}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-enterprise</artifactId>
+                <version>${neo4j}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

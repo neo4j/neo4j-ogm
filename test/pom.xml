@@ -52,6 +52,7 @@
     <dependency>
       <groupId>org.neo4j.test</groupId>
       <artifactId>neo4j-harness</artifactId>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>

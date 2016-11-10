@@ -344,7 +344,25 @@ public class NodeQueryStatementsTest {
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
 		planetParam.setRelationshipDirection("OUTGOING");
-		assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement());
+		assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement());
+	}
+
+	/**
+	 * @see DATAGRAPH-904
+	 */
+	@Test
+	public void testFindByNestedPropertySameEntityType() {
+		Filter filter = new Filter();
+		filter.setPropertyName("name");
+		filter.getFunction().setValue("Vesta");
+		filter.setComparisonOperator(ComparisonOperator.EQUALS);
+		filter.setNestedPropertyName("collidesWith");
+		filter.setNestedEntityTypeLabel("Asteroid");
+		filter.setRelationshipType("COLLIDES");
+		filter.setRelationshipDirection("OUTGOING");
+		assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Asteroid`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(filter), 1).getStatement());
 	}
 
 	/**

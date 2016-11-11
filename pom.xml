@@ -94,7 +94,7 @@
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j</artifactId>
                 <version>${neo4j}</version>
-                <scope>test</scope>
+                <!--<scope>test</scope>-->
             </dependency>
 
             <dependency>
@@ -136,21 +136,21 @@
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-cluster</artifactId>
                 <version>${neo4j}</version>
-                <scope>provided</scope>
+                <!--<scope>provided</scope>-->
             </dependency>
 
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-ha</artifactId>
                 <version>${neo4j}</version>
-                <scope>provided</scope>
+                <!--<scope>provided</scope>-->
             </dependency>
 
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-enterprise</artifactId>
                 <version>${neo4j}</version>
-                <scope>provided</scope>
+                <!--<scope>provided</scope>-->
             </dependency>
 
         </dependencies>

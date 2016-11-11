@@ -187,8 +187,8 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
         statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", "none")), 1);
-        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
-        assertEquals("{\"fake-property\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
+        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property_0` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
+        assertEquals("{\"fake-property_0\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
 
     }
 

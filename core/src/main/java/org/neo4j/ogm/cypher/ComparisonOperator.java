@@ -18,13 +18,23 @@ package org.neo4j.ogm.cypher;
  *
  * @author Luanne Misquitta
  * @author Adam George
+ * @author Jasper Blues
  */
 public enum ComparisonOperator {
-	EQUALS("="),
-	MATCHES("=~"),
-	LIKE("=~", new CaseInsensitiveLikePropertyValueTransformer()),
-	GREATER_THAN(">"),
-	LESS_THAN("<");
+    EQUALS("="),
+    MATCHES("=~"),
+    LIKE("=~", new CaseInsensitiveLikePropertyValueTransformer()),
+    GREATER_THAN(">"),
+    GREATER_THAN_EQUAL(">="),
+    LESS_THAN("<"),
+    LESS_THAN_EQUAL("<="),
+    IS_NULL("IS NULL"),
+    STARTING_WITH("STARTS WITH"),
+    ENDING_WITH("ENDS WITH"),
+    CONTAINING("CONTAINS"),
+    IN("IN"),
+    EXISTS("EXISTS"),
+    IS_TRUE("=");
 
     private final String value;
     private final PropertyValueTransformer valueTransformer;
@@ -43,6 +53,18 @@ public enum ComparisonOperator {
      */
     public String getValue() {
         return value;
+    }
+
+    /**
+     *
+     */
+    public boolean isOneOf(ComparisonOperator... these) {
+        for (ComparisonOperator candidate : these) {
+            if (this.equals(candidate)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

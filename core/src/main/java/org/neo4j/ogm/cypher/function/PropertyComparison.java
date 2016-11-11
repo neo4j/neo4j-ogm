@@ -14,6 +14,9 @@
 
 package org.neo4j.ogm.cypher.function;
 
+import static org.neo4j.ogm.cypher.ComparisonOperator.*;
+
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 
 import java.util.HashMap;
@@ -61,15 +64,24 @@ public class PropertyComparison implements FilterFunction<Object> {
 
     @Override
     public String expression(String nodeIdentifier) {
-        return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
-                filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
+        if (filter.getComparisonOperator().equals(IS_NULL)) {
+            return String.format("%s.`%s` IS NULL ", nodeIdentifier, filter.getPropertyName());
+        } else if (filter.getComparisonOperator().equals(EXISTS)) {
+            return String.format("EXISTS(%s.`%s`) ", nodeIdentifier, filter.getPropertyName());
+        } else if (filter.getComparisonOperator().equals(IS_TRUE)) {
+            return String.format("%s.`%s` = true ", nodeIdentifier, filter.getPropertyName());
+        } else {
+            return String.format("%s.`%s` %s { `%s` } ", nodeIdentifier, filter.getPropertyName(),
+                    filter.getComparisonOperator().getValue(), filter.uniqueParameterName());
+        }
     }
 
     @Override
     public Map<String, Object> parameters() {
         Map<String, Object> map = new HashMap<>();
-        map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
+        if (!filter.getComparisonOperator().isOneOf(IS_NULL, EXISTS, IS_TRUE)) {
+            map.put(filter.uniqueParameterName(), filter.getTransformedPropertyValue());
+        }
         return map;
     }
-
 }

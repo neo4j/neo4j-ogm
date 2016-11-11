@@ -23,18 +23,18 @@ import java.util.regex.Pattern;
  */
 public class CaseInsensitiveLikePropertyValueTransformer implements PropertyValueTransformer {
 
-	// NB: wildcard character * is absent
-	private static final Pattern CHARS_TO_ESCAPE = Pattern.compile("([{}\\(\\)\\[\\]^$?.+\\\\|!])");
+    // NB: wildcard character * is absent
+    private static final Pattern CHARS_TO_ESCAPE = Pattern.compile("([{}\\(\\)\\[\\]^$?.+\\\\|!])");
 
-	@Override
-	public Object transformPropertyValue(Object propertyValue) {
-		return propertyValue != null
-				? "(?i)" + escapeRegexCharacters(propertyValue.toString()).replaceAll("\\*", ".*")
-				: null;
-	}
+    @Override
+    public Object transformPropertyValue(Object propertyValue) {
+        return propertyValue != null
+                ? "(?i)" + escapeRegexCharacters(propertyValue.toString()).replaceAll("\\*", ".*")
+                : null;
+    }
 
-	private static String escapeRegexCharacters(String propertyValue) {
-		return CHARS_TO_ESCAPE.matcher(propertyValue).replaceAll("\\\\$1");
-	}
+    private static String escapeRegexCharacters(String propertyValue) {
+        return CHARS_TO_ESCAPE.matcher(propertyValue).replaceAll("\\\\$1");
+    }
 
 }

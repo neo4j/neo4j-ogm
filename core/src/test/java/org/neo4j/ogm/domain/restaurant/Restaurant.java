@@ -16,59 +16,93 @@ package org.neo4j.ogm.domain.restaurant;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 public class Restaurant {
 
-	@GraphId
-	private Long id;
-	private String name;
-	private int zip;
+    @GraphId
+    private Long id;
+    private String name;
+    private int zip;
+    private double score;
+    private String description;
+    private boolean halal;
 
-	@Convert(LocationConverter.class)
-	Location location;
+    @Convert(LocationConverter.class)
+    Location location;
 
-	@Labels
-	public Collection<String> labels = new ArrayList<>();
+    @DateString
+    private Date launchDate;
 
-	public Restaurant() {
-	}
+    @Labels
+    public Collection<String> labels = new ArrayList<>();
 
-	public Restaurant(String name, Location location, int zip) {
-		this.name = name;
-		this.location = location;
-		this.zip = zip;
-	}
+    public Restaurant() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Restaurant(String name, Location location, int zip) {
+        this.name = name;
+        this.location = location;
+        this.zip = zip;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public Restaurant(String name, double score) {
+        this.name = name;
+        this.score = score;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Restaurant(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 
-	public int getZip() {
-		return zip;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setZip(int zip) {
-		this.zip = zip;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Location getLocation() {
-		return location;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setLocation(Location location) {
-		this.location = location;
-	}
+    public int getZip() {
+        return zip;
+    }
+
+    public void setZip(int zip) {
+        this.zip = zip;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public double getScore() { return score; }
+
+    public void setScore(double score) { this.score = score; }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
+
+    public Date getLaunchDate() { return launchDate; }
+
+    public void setLaunchDate(Date launchDate) { this.launchDate = launchDate; }
+
+    public boolean isHalal() { return halal; }
+
+    public void setHalal(boolean halal) { this.halal = halal; }
 
 }

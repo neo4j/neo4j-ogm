@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.Date;
+
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -24,11 +29,6 @@ import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
-import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -66,6 +66,21 @@ public class NodeQueryStatementsTest {
 		String statement = queryStatements.findByType("Restaurant",
 				filters, 4).getStatement();
 		assertEquals("MATCH (n:`Restaurant`) WHERE distance(point(n),point({latitude:{lat}, longitude:{lon}})) = {distance} WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)", statement);
+	}
+
+	@Test
+	public void testFindByPropertyIsNull() {
+
+		Filter isNull = new Filter("score", ComparisonOperator.IS_NULL, null);
+
+		String statement = queryStatements.findByType("Restaurant", new Filters().add(isNull), 3).getStatement();
+		assertEquals("MATCH (n:`Restaurant`) WHERE n.`score` IS NULL WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)", statement);
+
+		Filter isNotNull = new Filter("score", ComparisonOperator.IS_NULL, null);
+		isNotNull.setNegated(true);
+
+		statement = queryStatements.findByType("Restaurant", new Filters().add(isNotNull), 3).getStatement();
+		assertEquals("MATCH (n:`Restaurant`) WHERE NOT(n.`score` IS NULL ) WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)", statement);
 	}
 
 	/**
@@ -203,6 +218,18 @@ public class NodeQueryStatementsTest {
 
 	/**
 	 * @throws Exception
+	 * @see DATAGRAPH-904
+	 */
+	@Test
+	public void testFindByPropertyGreaterThanEqual() throws Exception {
+		Filter parameter = new Filter("diameter", 60);
+		parameter.setComparisonOperator(ComparisonOperator.GREATER_THAN_EQUAL);
+		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` >= { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement());
+	}
+
+	/**
+	 * @throws Exception
 	 * @see DATAGRAPH-629
 	 */
 	@Test
@@ -210,6 +237,20 @@ public class NodeQueryStatementsTest {
 		Filter parameter = new Filter("diameter", 60);
 		parameter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` < { `diameter_0` } " +
+						"WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid",
+						new Filters().add(parameter), 4).getStatement());
+	}
+
+	/**
+	 * @throws Exception
+	 * @see DATAGRAPH-904
+	 */
+	@Test
+	public void testFindByPropertyLessThanEqual() throws Exception {
+		Filter parameter = new Filter("diameter", 60);
+		parameter.setComparisonOperator(ComparisonOperator.LESS_THAN_EQUAL);
+		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` <= { `diameter_0` } " +
 						"WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid",
 						new Filters().add(parameter), 4).getStatement());
@@ -303,7 +344,25 @@ public class NodeQueryStatementsTest {
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
 		planetParam.setRelationshipDirection("OUTGOING");
-		assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement());
+		assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Planet`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement());
+	}
+
+	/**
+	 * @see DATAGRAPH-904
+	 */
+	@Test
+	public void testFindByNestedPropertySameEntityType() {
+		Filter filter = new Filter();
+		filter.setPropertyName("name");
+		filter.getFunction().setValue("Vesta");
+		filter.setComparisonOperator(ComparisonOperator.EQUALS);
+		filter.setNestedPropertyName("collidesWith");
+		filter.setNestedEntityTypeLabel("Asteroid");
+		filter.setRelationshipType("COLLIDES");
+		filter.setRelationshipDirection("OUTGOING");
+		assertEquals("MATCH (n:`Asteroid`) MATCH (m0:`Asteroid`) WHERE m0.`name` = { `collidesWith_name_0` } MATCH (n)-[:`COLLIDES`]->(m0) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(filter), 1).getStatement());
 	}
 
 	/**

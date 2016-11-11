@@ -65,8 +65,8 @@ public class CountStatementsTest {
 	@Test
 	public void testCountEdgesWithTypeAndFilters() throws Exception {
 		CypherQuery query = statements.countEdges("INFLUENCE", new Filters().add("score", -12.2));
-		assertEquals("MATCH (n)-[r:`INFLUENCE`]->(m) WHERE r.`score` = { `score` }  RETURN COUNT(r)", query.getStatement());
-		assertEquals("{score=-12.2}", query.getParameters().toString());
+		assertEquals("MATCH (n)-[r:`INFLUENCE`]->(m) WHERE r.`score` = { `score_0` }  RETURN COUNT(r)", query.getStatement());
+		assertEquals("{score_0=-12.2}", query.getParameters().toString());
 	}
 
 	@Test

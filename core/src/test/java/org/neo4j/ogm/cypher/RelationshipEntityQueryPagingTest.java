@@ -48,7 +48,7 @@ public class RelationshipEntityQueryPagingTest {
 
     @Test
     public void testFindByProperty() throws Exception {
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance` }  WITH r,startnode(r) AS n, endnode(r) AS m SKIP 0 LIMIT 4 MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(new Filter("distance", 60.2)), 1).setPagination(new Pagination(0, 4)).getStatement());
+        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` }  WITH r,startnode(r) AS n, endnode(r) AS m SKIP 0 LIMIT 4 MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(new Filter("distance", 60.2)), 1).setPagination(new Pagination(0, 4)).getStatement());
     }
 
 }

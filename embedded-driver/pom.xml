@@ -33,7 +33,11 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j</artifactId>
+            <!--
+            <scope>provided</scope>
+            -->
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -48,19 +52,28 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-cluster</artifactId>
+            <!--
             <version>${neo4j}</version>
+            <scope>provided</scope>
+            -->
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ha</artifactId>
+            <!--
             <version>${neo4j}</version>
+            <scope>provided</scope>
+            -->
         </dependency>
 
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-enterprise</artifactId>
+            <!--
             <version>${neo4j}</version>
+            <scope>provided</scope>
+            -->
         </dependency>
 
     </dependencies>

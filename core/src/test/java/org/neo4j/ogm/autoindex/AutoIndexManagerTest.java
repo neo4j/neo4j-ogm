@@ -21,7 +21,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Mark Angrish
  */
-public class IndexManagerTest extends MultiDriverTestClass {
+public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 	private MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
 

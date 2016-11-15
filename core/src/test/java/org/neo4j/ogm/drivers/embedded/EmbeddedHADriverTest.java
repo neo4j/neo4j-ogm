@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
-import java.io.File;
-import java.net.URI;
-
-import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -35,9 +31,8 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
 	@BeforeClass
 	public static void configure() throws Exception {
-		// force-delete any prior version of this database
 		Components.configure("embedded.ha.driver.properties");
-		FileUtils.forceDelete(new File(new URI(Components.getConfiguration().driverConfiguration().getURI())));
+		deleteExistingEmbeddedDatabase();
 		System.out.println("Embedded HA: " + Components.neo4jVersion());
 	}
 

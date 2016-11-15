@@ -16,7 +16,7 @@ package org.neo4j.ogm.config;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.neo4j.ogm.index.AutoIndexMode;
+import org.neo4j.ogm.autoindex.AutoIndexMode;
 
 /**
  * @author vince

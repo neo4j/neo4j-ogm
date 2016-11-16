@@ -33,6 +33,7 @@ public class NodeQueryBuilder {
 	private List<MatchClause> pathClauses;
 	private Map<String, Object> parameters;
 	private int matchClauseId = 0;
+	private boolean built = false;
 
 	public NodeQueryBuilder(String principleLabel) {
 		this.principleClause = new PrincipleNodeMatchClause(principleLabel);
@@ -41,21 +42,29 @@ public class NodeQueryBuilder {
 		this.parameters = new HashMap<>();
 	}
 
+	/**
+	 * Builds a FilteredQuery, given a set of filters.
+	 * @param filters
+	 * @return
+	 */
 	public FilteredQuery build(Iterable<Filter> filters) {
-		int i = 0;
-		for (Filter filter : filters) {
-			if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-				throw new MissingOperatorException("BooleanOperator missing for filter with property name "
-						+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
+		if (!built) {
+			int i = 0;
+			for (Filter filter : filters) {
+				if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+					throw new MissingOperatorException("BooleanOperator missing for filter with property name "
+							+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
+				}
+				if (filter.isNested()) {
+					appendNestedFilter(filter);
+				} else {
+					//If the filter is not nested, it belongs to the node we're returning
+					principleClause().append(filter);
+				}
+				parameters.putAll(filter.parameters());
+				i++;
 			}
-			if (filter.isNested()) {
-				appendNestedFilter(filter);
-			} else {
-				//If the filter is not nested, it belongs to the node we're returning
-				principleClause().append(filter);
-			}
-			parameters.putAll(filter.parameters());
-			i++;
+			built = true;
 		}
 		return new FilteredQuery(toCypher(), parameters);
 	}

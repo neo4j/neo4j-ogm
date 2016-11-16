@@ -499,7 +499,10 @@ public class Neo4jSession implements Session {
         if (metaData.isRelationshipEntity(type.getName())) {
             return new RelationshipQueryStatements();
         }
-        return new NodeQueryStatements();
+        else {
+            final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
+            return new NodeQueryStatements(fieldInfo != null ? fieldInfo.getName(): null);
+        }
     }
 
     public String entityType(String name) {

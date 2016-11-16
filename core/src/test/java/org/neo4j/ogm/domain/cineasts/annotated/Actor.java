@@ -14,6 +14,7 @@
 package org.neo4j.ogm.domain.cineasts.annotated;
 
 import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
@@ -23,12 +24,14 @@ import java.util.Set;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
+@NodeEntity
 public class Actor {
 
     private Long id;
 
     @Index
     private String name;
+
     private Set<Movie> filmography;
 
     @Relationship(type = "ACTS_IN", direction = "OUTGOING")

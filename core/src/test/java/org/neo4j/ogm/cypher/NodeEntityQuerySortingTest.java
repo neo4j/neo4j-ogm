@@ -26,7 +26,7 @@ import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
  */
 public class NodeEntityQuerySortingTest {
 
-    private final NodeQueryStatements query = new NodeQueryStatements();
+    private final NodeQueryStatements query = new NodeQueryStatements(null);
 
     private SortOrder sortOrder;
     private Filters filters;

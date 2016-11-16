@@ -14,7 +14,9 @@
 package org.neo4j.ogm.domain.cineasts.annotated;
 
 
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -25,23 +27,27 @@ import java.util.Set;
 /**
  * @author Vince Bickers
  */
+@NodeEntity
 public class User {
 
+    @GraphId
     Long id;
 
-    @Index(unique = true)
+    @Index(unique = true, primary = true)
     String login;
+
     String name;
+
     String password;
 
     @Relationship(type = "RATED")
     Set<Rating> ratings;
 
-
     Set<User> friends;
 
     @Convert(SecurityRoleConverter.class)
     SecurityRole[] securityRoles;
+
     @Convert(TitleConverter.class)
     List<Title> titles;
 

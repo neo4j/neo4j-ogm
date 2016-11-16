@@ -50,4 +50,6 @@ public @interface Index {
 	 * false.
 	 */
 	boolean unique() default false;
+
+	boolean primary() default false;
 }

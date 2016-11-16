@@ -36,7 +36,7 @@ public class ParameterisedStatementsTest {
     public void testStatement() throws Exception {
 
         List<Statement> statements = new ArrayList<>();
-        statements.add(new NodeQueryStatements().findOne(123L, 1));
+        statements.add(new NodeQueryStatements(null).findOne(123L, 1));
 
         String cypher = mapper.writeValueAsString(new Statements(statements));
 

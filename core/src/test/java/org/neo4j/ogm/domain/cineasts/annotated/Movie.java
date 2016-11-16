@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -25,12 +26,14 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
  * @author Michal Bachman
  * @author Vince Bickers
  */
+@NodeEntity
 public class Movie {
 
     Long id;
 
     @Index
     String title;
+
     int year;
 
     @Relationship(type = "ACTS_IN", direction = "INCOMING")

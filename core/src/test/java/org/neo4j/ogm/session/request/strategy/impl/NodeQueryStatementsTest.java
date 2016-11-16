@@ -33,6 +33,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Jasper Blues
  */
 public class NodeQueryStatementsTest {
 
@@ -213,7 +214,8 @@ public class NodeQueryStatementsTest {
 	public void testFindByPropertyGreaterThan() throws Exception {
 		Filter parameter = new Filter("diameter", 60);
 		parameter.setComparisonOperator(ComparisonOperator.GREATER_THAN);
-		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement());
+		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement());
 	}
 
 	/**

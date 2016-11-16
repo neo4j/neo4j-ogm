@@ -14,11 +14,16 @@ package org.neo4j.ogm.drivers;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -28,6 +33,7 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -45,6 +51,16 @@ public abstract class AbstractDriverTestSuite {
 
     public abstract void setUpTest();
     public abstract void tearDownTest();
+
+	protected static void deleteExistingEmbeddedDatabase() {
+		try {
+			FileUtils.forceDelete(new File(new URI(Components.getConfiguration().driverConfiguration().getURI())));
+		} catch (IOException ioe) {
+			// ignore - nothing to delete
+		} catch (URISyntaxException use) {
+			throw new RuntimeException(use); // invalid file URI
+		}
+	}
 
     @Before
     public void init() {

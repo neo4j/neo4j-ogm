@@ -13,11 +13,7 @@
 
 package org.neo4j.ogm.compiler.emitters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Node;
@@ -29,16 +25,16 @@ import org.neo4j.ogm.model.Property;
  */
 public class NewNodeEmitter implements CypherEmitter {
 
-	Set<Node> newNodes;
+    Set<Node> newNodes;
 
-	public NewNodeEmitter(Set<Node> newNodes) {
-		this.newNodes = newNodes;
-	}
+    public NewNodeEmitter(Set<Node> newNodes) {
+        this.newNodes = newNodes;
+    }
 
-	@Override
-	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
-		if (newNodes != null && newNodes.size() > 0) {
-			Node firstNode = newNodes.iterator().next();
+    @Override
+    public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
+        if (newNodes != null && newNodes.size() > 0) {
+            Node firstNode = newNodes.iterator().next();
 
             queryBuilder.append("UNWIND {rows} as row ");
 
@@ -48,25 +44,34 @@ public class NewNodeEmitter implements CypherEmitter {
                 queryBuilder.append("CREATE (n");
             }
 
-			for (String label : firstNode.getLabels()) {
-				queryBuilder.append(":`").append(label).append("`");
-			}
-			queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
-			List<Map> rows = new ArrayList<>();
-			for (Node node : newNodes) {
-				Map<String, Object> rowMap = new HashMap<>();
-				rowMap.put("nodeRef", node.getId());
-				rowMap.put("type", "node");
-				Map<String, Object> props = new HashMap<>();
-				for (Property property : node.getPropertyList()) {
-					if (property.getValue() != null) {
-						props.put((String) property.getKey(), property.getValue());
-					}
-				}
-				rowMap.put("props", props);
-				rows.add(rowMap);
-			}
-			parameters.put("rows", rows);
-		}
-	}
+            for (String label : firstNode.getLabels()) {
+                queryBuilder.append(":`").append(label).append("`");
+            }
+
+            if (firstNode.getPrimaryIndex() != null) {
+                queryBuilder.append("{")
+                        .append(firstNode.getPrimaryIndex())
+                        .append(": row.props.")
+                        .append(firstNode.getPrimaryIndex())
+                        .append("}");
+            }
+
+            queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
+            List<Map> rows = new ArrayList<>();
+            for (Node node : newNodes) {
+                Map<String, Object> rowMap = new HashMap<>();
+                rowMap.put("nodeRef", node.getId());
+                rowMap.put("type", "node");
+                Map<String, Object> props = new HashMap<>();
+                for (Property property : node.getPropertyList()) {
+                    if (property.getValue() != null) {
+                        props.put((String) property.getKey(), property.getValue());
+                    }
+                }
+                rowMap.put("props", props);
+                rows.add(rowMap);
+            }
+            parameters.put("rows", rows);
+        }
+    }
 }

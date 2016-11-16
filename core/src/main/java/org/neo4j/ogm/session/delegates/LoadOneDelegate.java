@@ -54,18 +54,9 @@ public class LoadOneDelegate implements Capability.LoadOne {
     private <T, U> T lookup(Class<T> type, U id) {
         Object ref;
         ClassInfo typeInfo = session.metaData().classInfo(type.getName());
-        final FieldInfo primaryIndexField = typeInfo.primaryIndexField();
 
         if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-
-            if (primaryIndexField != null) {
-                ref = session.context().getNodeEntity(id);
-            }
-            else {
-                // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
-                // But we know this will always be Long.
-                ref = session.context().getNodeEntity((Long)id);
-            }
+            ref = session.context().getNodeEntity(id);
         } else {
             // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
             // But we know this will always be Long.

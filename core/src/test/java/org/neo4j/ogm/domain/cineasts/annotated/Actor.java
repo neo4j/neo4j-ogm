@@ -13,12 +13,16 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Vince Bickers
@@ -27,7 +31,12 @@ import java.util.Set;
 @NodeEntity
 public class Actor {
 
+    @GraphId
     private Long id;
+
+    @Convert(UuidStringConverter.class)
+    @Index(unique = true, primary = true)
+    private UUID uuid;
 
     @Index
     private String name;
@@ -47,6 +56,7 @@ public class Actor {
     }
 
     public Actor(String name) {
+        this.uuid = UUID.randomUUID();
         this.name = name;
     }
 
@@ -118,6 +128,10 @@ public class Actor {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     @Override

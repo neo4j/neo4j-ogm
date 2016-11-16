@@ -100,12 +100,11 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         assertEquals(2, film.getRatings().size());   //Fail, it has just one rating, luannes
 
         //Verify that luanne's rating is saved
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "luanne"));
-        User foundLuanne = users.iterator().next();
+        User foundLuanne = session.load(User.class, "luanne");
         assertEquals(1, foundLuanne.getRatings().size());
 
         //Verify that Michals rating still exists
-        users = session.loadAll(User.class, new Filter("name", "Michal"));
+        Collection<User> users = session.loadAll(User.class, new Filter("name", "Michal"));
         User foundMichal = users.iterator().next();
         assertEquals(1, foundMichal.getRatings().size()); //Fail, Michals rating is gone
     }
@@ -633,7 +632,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         session.save(actor);
 
         session.clear();
-        Actor loadedActor = session.load(Actor.class, actor.getId());
+        Actor loadedActor = session.load(Actor.class, actor.getUuid());
 
         assertEquals(26, loadedActor.getRoles().size());
 
@@ -653,7 +652,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         session.save(actor);
 
         session.clear();
-        Actor loadedActor = session.load(Actor.class, actor.getId());
+        Actor loadedActor = session.load(Actor.class, actor.getUuid());
 
         assertEquals(1, loadedActor.getRoles().size());
 
@@ -663,7 +662,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         session.save(actor);
 
         session.clear();
-        loadedActor = session.load(Actor.class, actor.getId());
+        loadedActor = session.load(Actor.class, actor.getUuid());
 
         assertEquals(1, loadedActor.getRoles().size());
     }

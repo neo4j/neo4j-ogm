@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
-import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -124,9 +123,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setSecurityRoles(new SecurityRole[]{SecurityRole.USER});
         session.save(user);
 
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "daniela"));
-        assertEquals(1, users.size());
-        User daniela = users.iterator().next();
+        User daniela = session.load(User.class, "daniela");
+        assertNotNull(daniela);
         assertEquals("Daniela", daniela.getName());
         assertEquals(1, daniela.getSecurityRoles().length);
         assertEquals(SecurityRole.USER, daniela.getSecurityRoles()[0]);
@@ -159,9 +157,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setName("Aki Kaurism\u00E4ki");
         user.setPassword("aki");
         session.save(user);
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "aki"));
-        assertEquals(1, users.size());
-        User aki = users.iterator().next();
+        User aki = session.load(User.class, "aki");
+        assertNotNull(aki);
         try {
             assertArrayEquals("Aki Kaurism\u00E4ki".getBytes("UTF-8"), aki.getName().getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {

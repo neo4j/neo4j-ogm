@@ -93,8 +93,8 @@ public interface Capability {
     interface LoadOne {
 
         // load a single object of Class type, with id id
-        <T> T load(Class<T> type, Long id);
-        <T> T load(Class<T> type, Long id, int depth);
+        <T, U> T load(Class<T> type, U id);
+        <T, U> T load(Class<T> type, U id, int depth);
     }
 
     interface Save {

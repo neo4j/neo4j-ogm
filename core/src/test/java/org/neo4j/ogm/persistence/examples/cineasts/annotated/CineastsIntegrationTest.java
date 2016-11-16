@@ -141,9 +141,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setTitles(Arrays.asList(Title.MR));
         session.save(user);
 
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "vince"));
-        assertEquals(1, users.size());
-        User vince = users.iterator().next();
+        User vince = session.load(User.class, "vince");
+        assertNotNull(vince);
         assertEquals("Vince", vince.getName());
         assertEquals(1, vince.getTitles().size());
         assertEquals(Title.MR, vince.getTitles().get(0));

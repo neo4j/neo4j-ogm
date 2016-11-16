@@ -39,6 +39,4 @@ public interface NodeBuilder {
     NodeBuilder removeLabels(Collection<String> labels);
 
     Node node();
-
-    NodeBuilder setPrimaryIndex(String primaryIndexField);
 }

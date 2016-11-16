@@ -15,6 +15,7 @@ package org.neo4j.ogm.session.delegates;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -35,12 +36,12 @@ public class LoadOneDelegate implements Capability.LoadOne {
     }
 
     @Override
-    public <T> T load(Class<T> type, Long id) {
+    public <T, U> T load(Class<T> type, U id) {
         return load(type, id, 1);
     }
 
     @Override
-    public <T> T load(Class<T> type, Long id, int depth) {
+    public <T, U> T load(Class<T> type, U id, int depth) {
         QueryStatements queryStatements = session.queryStatementsFor(type);
         PagingAndSortingQuery qry = queryStatements.findOne(id,depth);
 
@@ -50,13 +51,25 @@ public class LoadOneDelegate implements Capability.LoadOne {
         }
     }
 
-    private <T> T lookup(Class<T> type, Long id) {
+    private <T, U> T lookup(Class<T> type, U id) {
         Object ref;
         ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+        final FieldInfo primaryIndexField = typeInfo.primaryIndexField();
+
         if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-            ref = session.context().getNodeEntity(id);
+
+            if (primaryIndexField != null) {
+                ref = session.context().getNodeEntity(id);
+            }
+            else {
+                // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
+                // But we know this will always be Long.
+                ref = session.context().getNodeEntity((Long)id);
+            }
         } else {
-            ref = session.context().getRelationshipEntity(id);
+            // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
+            // But we know this will always be Long.
+            ref = session.context().getRelationshipEntity((Long)id);
         }
         try {
             return type.cast(ref);

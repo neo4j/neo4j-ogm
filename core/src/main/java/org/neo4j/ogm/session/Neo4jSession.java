@@ -139,12 +139,12 @@ public class Neo4jSession implements Session {
      *----------------------------------------------------------------------------------------------------------
      */
     @Override
-    public <T> T load(Class<T> type, Long id) {
+    public <T, U> T load(Class<T> type, U id) {
         return loadOneHandler.load(type, id);
     }
 
     @Override
-    public <T> T load(Class<T> type, Long id, int depth) {
+    public <T, U> T load(Class<T> type, U id, int depth) {
         return loadOneHandler.load(type, id, depth);
     }
 

@@ -41,9 +41,11 @@ public class MappingContext {
      */
     private final TypeRegister typeRegister;
 
-    private final EntityRegister nodeEntityRegister;
+    private final EntityRegister<Long> nodeEntityRegister;
 
-    private final EntityRegister relationshipEntityRegister;
+    private final EntityRegister<Object> primaryIndexNodeRegister;
+
+    private final EntityRegister<Long> relationshipEntityRegister;
 
     private final Set<MappedRelationship> relationshipRegister;
 
@@ -58,25 +60,46 @@ public class MappingContext {
         this.metaData = metaData;
         this.objectMemo = new EntityMemo(metaData);
         this.typeRegister = new TypeRegister();
-        this.nodeEntityRegister = new EntityRegister();
-        this.relationshipEntityRegister = new EntityRegister();
+        this.nodeEntityRegister = new EntityRegister<>();
+        this.primaryIndexNodeRegister = new EntityRegister<>();
+        this.relationshipEntityRegister = new EntityRegister<>();
         // NOTE: The use of CopyOnWriteArraySet here is to prevent ConcurrentModificationException from occurring when
         // the purge() method is called.
         this.relationshipRegister = new CopyOnWriteArraySet<>();
         this.labelHistoryRegister = new LabelHistoryRegister();
     }
 
-    public Object getNodeEntity(Long id) {
-        return nodeEntityRegister.get(id);
+    public Object getNodeEntity(Object id) {
+
+        Object result = null;
+
+        if (id instanceof Long) {
+            result =  nodeEntityRegister.get((Long)id);
+        }
+
+        if (result == null) {
+            result = primaryIndexNodeRegister.get(id);
+        }
+
+        return result;
     }
 
-    public Object addNodeEntity(Object entity, Long id) {
-        if (nodeEntityRegister.add(id, entity)) {
-            entity = nodeEntityRegister.get(id);
+    public Object addNodeEntity(Object entity, Object id) {
+
+        if (nodeEntityRegister.add((Long)id, entity)) {
+            entity = nodeEntityRegister.get((Long)id);
             addType(entity.getClass(), entity, id);
             remember(entity);
             collectLabelHistory(entity);
+            final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
+            final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField();
+            if (primaryIndexField != null) {
+                final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
+                primaryIndexNodeRegister.add(primaryIndexValue, entity);
+            }
         }
+
+
         return entity;
     }
 
@@ -93,14 +116,26 @@ public class MappingContext {
      * @param entity the object to deregister
      * @param id the id of the object in Neo4j
      */
-    public void removeNodeEntity(Object entity, Long id) {
+    public void removeNodeEntity(Object entity, Object id) {
         removeType(entity.getClass(), id);
-        nodeEntityRegister.remove(id);
+
+        if (id instanceof Long) {
+            nodeEntityRegister.remove((Long)id);
+        }
+        else {
+            primaryIndexNodeRegister.remove(id);
+        }
+
         deregisterDependentRelationshipEntity(entity);
     }
 
-    public void replaceNodeEntity(Object entity, Long id) {
-        nodeEntityRegister.remove(id);
+    public void replaceNodeEntity(Object entity, Object id) {
+        if (id instanceof Long) {
+            nodeEntityRegister.remove((Long)id);
+        }
+        else {
+            primaryIndexNodeRegister.remove(id);
+        }
         addNodeEntity(entity, id);
     }
 
@@ -142,6 +177,7 @@ public class MappingContext {
         objectMemo.clear();
         relationshipRegister.clear();
         nodeEntityRegister.clear();
+        primaryIndexNodeRegister.clear();
         typeRegister.clear();
         relationshipEntityRegister.clear();
         labelHistoryRegister.clear();
@@ -191,8 +227,8 @@ public class MappingContext {
     /*
      * purges all information about a node entity with this id
      */
-    public boolean detachNodeEntity(Long id) {
-        Object objectToDetach = nodeEntityRegister.get(id);
+    public boolean detachNodeEntity(Object id) {
+        Object objectToDetach = getNodeEntity(id);
         if (objectToDetach != null) {
             removeEntity(objectToDetach);
             return true;
@@ -363,11 +399,11 @@ public class MappingContext {
         }
     }
 
-    private void addType(Class type, Object entity, Long id) {
+    private void addType(Class type, Object entity, Object id) {
         typeRegister.add(metaData, type, entity, id);
     }
 
-    private void removeType(Class type, Long id) {
+    private void removeType(Class type, Object id) {
         typeRegister.remove(metaData, type, id);
     }
 

@@ -310,7 +310,7 @@ public class FieldInfo {
         return typeParameterDescriptor;
     }
 
-    public Class convertedType() {
+    public Class<?> convertedType() {
         if (hasPropertyConverter() || hasCompositeConverter()) {
             Class converterClass = hasPropertyConverter() ?
                     getPropertyConverter().getClass() : getCompositeConverter().getClass();

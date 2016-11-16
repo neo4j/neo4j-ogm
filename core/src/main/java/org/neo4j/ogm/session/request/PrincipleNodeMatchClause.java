@@ -30,7 +30,7 @@ public class PrincipleNodeMatchClause implements MatchClause {
 		this.label = label;
 
 		clause = new StringBuilder();
-		clause.append(String.format("MATCH (%s:`%s`) ", "n", this.label));
+		clause.append(String.format("MATCH (n:`%s`) ", this.label));
 	}
 
 	@Override

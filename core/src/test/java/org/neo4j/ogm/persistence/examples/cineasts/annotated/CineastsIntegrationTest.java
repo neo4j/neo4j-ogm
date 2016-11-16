@@ -214,6 +214,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
         User user = new User();
+        user.setLogin("joker");
         URL[] urls = new URL[3];
         urls[0] = new URL("http://www.apple.com");
         urls[1] = new URL("http://www.google.com");

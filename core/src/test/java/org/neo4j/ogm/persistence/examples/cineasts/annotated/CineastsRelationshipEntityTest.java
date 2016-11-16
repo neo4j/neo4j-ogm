@@ -64,6 +64,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);
@@ -190,6 +191,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User vince = new User();
         vince.setName("Vince");
+        vince.setLogin("bickerv");
 
         Set<Rating> ratings = new HashSet<>();
         Rating awesome = new Rating();
@@ -284,6 +286,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User critic = new User();
         critic.setName("Gary");
+        critic.setLogin("gman");
         Movie film = new Movie();
         film.setTitle("Fast and Furious XVII");
         Rating filmRating = new Rating();
@@ -341,6 +344,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User adam = new User();
         adam.setName("Adam");
+        adam.setLogin("adamg");
 
         Rating good = new Rating();
         good.setUser(adam);
@@ -470,6 +474,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User adam = new User();
         adam.setName("Adam");
+        adam.setLogin("adamg");
 
         Rating good = new Rating();
         good.setUser(adam);
@@ -716,6 +721,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);
@@ -754,7 +760,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User michal = new User();
         michal.setName("Michal");
-
+        michal.setLogin("bachmania");
         Rating awesome = new Rating();
         awesome.setMovie(movie);
         awesome.setUser(michal);
@@ -802,6 +808,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);

@@ -84,15 +84,15 @@ public class MappingContext {
         return result;
     }
 
-    public Object addNodeEntity(Object entity, Object id) {
+    public Object addNodeEntity(Object entity, Long id) {
 
-        if (nodeEntityRegister.add((Long)id, entity)) {
-            entity = nodeEntityRegister.get((Long)id);
+        if (nodeEntityRegister.add(id, entity)) {
+            entity = nodeEntityRegister.get(id);
             addType(entity.getClass(), entity, id);
             remember(entity);
             collectLabelHistory(entity);
             final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
-            final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField();
+            final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
             if (primaryIndexField != null) {
                 final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
                 primaryIndexNodeRegister.add(primaryIndexValue, entity);
@@ -116,25 +116,26 @@ public class MappingContext {
      * @param entity the object to deregister
      * @param id the id of the object in Neo4j
      */
-    public void removeNodeEntity(Object entity, Object id) {
+    public void removeNodeEntity(Object entity, Long id) {
         removeType(entity.getClass(), id);
-
-        if (id instanceof Long) {
-            nodeEntityRegister.remove((Long)id);
-        }
-        else {
-            primaryIndexNodeRegister.remove(id);
+        nodeEntityRegister.remove(id);
+        final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
+        final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
+        if (primaryIndexField != null) {
+            final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
+            primaryIndexNodeRegister.remove(primaryIndexValue);
         }
 
         deregisterDependentRelationshipEntity(entity);
     }
 
-    public void replaceNodeEntity(Object entity, Object id) {
-        if (id instanceof Long) {
-            nodeEntityRegister.remove((Long)id);
-        }
-        else {
-            primaryIndexNodeRegister.remove(id);
+    public void replaceNodeEntity(Object entity, Long id) {
+        nodeEntityRegister.remove(id);
+        final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
+        final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
+        if (primaryIndexField != null) {
+            final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
+            primaryIndexNodeRegister.remove(primaryIndexValue);
         }
         addNodeEntity(entity, id);
     }

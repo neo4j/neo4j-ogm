@@ -199,10 +199,10 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(new Actor("Keanu Reeves"));
         Actor carrie = new Actor("Carrie-Ann Moss");
         session.save(carrie);
-        session.save(new Actor("Laurence Fishburne"));
+        session.save(new Actor("Laurence Fishbourne"));
 
-        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE ID(a)={param} RETURN a",
-                Collections.<String, Object>singletonMap("param", carrie.getId()));
+        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.uuid={param} RETURN a",
+                Collections.<String, Object>singletonMap("param", carrie.getUuid()));
         assertNotNull("The entity wasn't loaded", loadedActor);
         assertEquals("Carrie-Ann Moss", loadedActor.getName());
     }

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,7 +114,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 			// do we want to start a HA instance or a community instance?
 			String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
             if (haPropertiesFileName != null) {
-			 	setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName).getPath());
+			 	setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName));
 			}
 			else {
 				setGraphDatabase(file);
@@ -124,8 +125,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         }
     }
 
-    private void setHAGraphDatabase(File file, String propertiesFilePath) {
-		graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromFile(propertiesFilePath).newGraphDatabase();
+    private void setHAGraphDatabase(File file, URL propertiesFileURL) {
+		graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
     }
 
     private void setGraphDatabase(File file) {

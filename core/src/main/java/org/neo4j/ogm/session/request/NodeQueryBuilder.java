@@ -32,39 +32,39 @@ public class NodeQueryBuilder {
 	private List<MatchClause> nestedClauses;
 	private List<MatchClause> pathClauses;
 	private Map<String, Object> parameters;
-	private int matchClauseId = 0;
-	private boolean built = false;
+	private int matchClauseId;
 
 	public NodeQueryBuilder(String principalLabel) {
 		this.principalClause = new PrincipalNodeMatchClause(principalLabel);
 		this.nestedClauses = new ArrayList<>();
 		this.pathClauses = new ArrayList<>();
 		this.parameters = new HashMap<>();
+		this.matchClauseId = 0;
 	}
 
 	/**
-	 * Builds a FilteredQuery, given a set of filters.
+	 * Builds a FilteredQuery, given a set of filters. This method should only be called once.
+	 * To produce a FilteredQuery for another set of Filters, a new instance of NodeQueryBuilder
+	 * should be instantiated. 
+	 *
 	 * @param filters
 	 * @return
 	 */
 	public FilteredQuery build(Iterable<Filter> filters) {
-		if (!built) {
-			int i = 0;
-			for (Filter filter : filters) {
-				if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-					throw new MissingOperatorException("BooleanOperator missing for filter with property name "
-							+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
-				}
-				if (filter.isNested()) {
-					appendNestedFilter(filter);
-				} else {
-					//If the filter is not nested, it belongs to the node we're returning
-					principalClause().append(filter);
-				}
-				parameters.putAll(filter.parameters());
-				i++;
+		int i = 0;
+		for (Filter filter : filters) {
+			if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+				throw new MissingOperatorException("BooleanOperator missing for filter with property name "
+						+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
 			}
-			built = true;
+			if (filter.isNested()) {
+				appendNestedFilter(filter);
+			} else {
+				//If the filter is not nested, it belongs to the node we're returning
+				principalClause().append(filter);
+			}
+			parameters.putAll(filter.parameters());
+			i++;
 		}
 		return new FilteredQuery(toCypher(), parameters);
 	}

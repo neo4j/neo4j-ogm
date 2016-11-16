@@ -19,7 +19,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.exception.MissingOperatorException;
-import org.neo4j.ogm.utils.FilterUtils;
 
 /**
  * All statements that take a {@link org.neo4j.ogm.cypher.Filters} parameter delegate the generation of the appropriate
@@ -38,7 +37,7 @@ public class FilteredQueryBuilder {
 	 * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
 	 */
 	public static FilteredQuery buildNodeQuery(String nodeLabel, Iterable<Filter> filterList) {
-		return new NodeQueryBuilder(nodeLabel).build(FilterUtils.toList(filterList));
+		return new NodeQueryBuilder(nodeLabel).build(filterList);
 	}
 
 	/**

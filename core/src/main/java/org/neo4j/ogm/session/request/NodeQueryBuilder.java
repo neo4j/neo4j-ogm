@@ -41,10 +41,10 @@ public class NodeQueryBuilder {
 		this.parameters = new HashMap<>();
 	}
 
-	public FilteredQuery build(List<Filter> filters) {
-
+	public FilteredQuery build(Iterable<Filter> filters) {
+		int i = 0;
 		for (Filter filter : filters) {
-			if (filters.indexOf(filter) != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+			if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
 				throw new MissingOperatorException("BooleanOperator missing for filter with property name "
 						+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
 			}
@@ -69,6 +69,7 @@ public class NodeQueryBuilder {
 				principleClause().append(filter);
 			}
 			parameters.putAll(filter.parameters());
+			i++;
 		}
 		return new FilteredQuery(toCypher(), parameters);
 	}

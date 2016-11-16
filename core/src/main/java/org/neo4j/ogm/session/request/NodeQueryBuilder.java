@@ -49,21 +49,7 @@ public class NodeQueryBuilder {
 						+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
 			}
 			if (filter.isNested()) {
-				if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
-					throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");
-				}
-				if (filter.isNestedRelationshipEntity()) {
-					add(new RelationshipPropertyMatchClause(matchClauseId).append(filter));
-				} else {
-					MatchClause clause = relatedNodeClauseFor(filter.getNestedEntityTypeLabel());
-					if (clause == null) {
-						clause = new RelatedNodePropertyMatchClause(filter.getNestedEntityTypeLabel(), matchClauseId);
-						add(clause);
-						add(new PathMatchClause(matchClauseId).append(filter));
-					}
-					clause.append(filter);
-				}
-				matchClauseId++;
+				appendNestedFilter(filter);
 			} else {
 				//If the filter is not nested, it belongs to the node we're returning
 				principleClause().append(filter);
@@ -96,6 +82,24 @@ public class NodeQueryBuilder {
 			}
 		}
 		return null;
+	}
+
+	private void appendNestedFilter(Filter filter) {
+		if (filter.getBooleanOperator().equals(BooleanOperator.OR)) {
+			throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");
+		}
+		if (filter.isNestedRelationshipEntity()) {
+			add(new RelationshipPropertyMatchClause(matchClauseId).append(filter));
+		} else {
+			MatchClause clause = relatedNodeClauseFor(filter.getNestedEntityTypeLabel());
+			if (clause == null) {
+				clause = new RelatedNodePropertyMatchClause(filter.getNestedEntityTypeLabel(), matchClauseId);
+				add(clause);
+				add(new PathMatchClause(matchClauseId).append(filter));
+			}
+			clause.append(filter);
+		}
+		matchClauseId++;
 	}
 
 	private StringBuilder toCypher() {

@@ -58,9 +58,9 @@ class AutoIndex {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		AutoIndex index = (AutoIndex) o;
+		AutoIndex autoIndex = (AutoIndex) o;
 
-		return description != null ? description.equals(index.description) : index.description == null;
+		return description != null ? description.equals(autoIndex.description) : autoIndex.description == null;
 	}
 
 	@Override

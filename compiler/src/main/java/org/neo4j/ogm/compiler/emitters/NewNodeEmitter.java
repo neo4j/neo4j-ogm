@@ -25,6 +25,7 @@ import org.neo4j.ogm.model.Property;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class NewNodeEmitter implements CypherEmitter {
 
@@ -39,8 +40,14 @@ public class NewNodeEmitter implements CypherEmitter {
 		if (newNodes != null && newNodes.size() > 0) {
 			Node firstNode = newNodes.iterator().next();
 
-			queryBuilder.append("UNWIND {rows} as row ")
-					.append("CREATE (n");
+            queryBuilder.append("UNWIND {rows} as row ");
+
+            if (firstNode.getPrimaryIndex() != null) {
+                queryBuilder.append("MERGE (n");
+            } else {
+                queryBuilder.append("CREATE (n");
+            }
+
 			for (String label : firstNode.getLabels()) {
 				queryBuilder.append(":`").append(label).append("`");
 			}

@@ -26,6 +26,7 @@ import org.neo4j.ogm.response.model.PropertyModel;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class DefaultNodeBuilder implements NodeBuilder {
 
@@ -87,5 +88,11 @@ public class DefaultNodeBuilder implements NodeBuilder {
     @Override
     public Node node() {
         return node;
+    }
+
+    @Override
+    public NodeBuilder setPrimaryIndex(String primaryIndexField) {
+        node.setPrimaryIndex(primaryIndexField);
+        return this;
     }
 }

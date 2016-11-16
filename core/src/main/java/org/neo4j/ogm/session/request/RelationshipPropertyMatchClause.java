@@ -23,26 +23,36 @@ import org.neo4j.ogm.cypher.Filter;
 public class RelationshipPropertyMatchClause implements MatchClause {
 
 	private int index;
+	private String relationshipType;
 	private StringBuilder clause;
 
-	public RelationshipPropertyMatchClause(int index) {
+	public RelationshipPropertyMatchClause(int index, String relationshipType) {
 		this.index = index;
-		clause = new StringBuilder("MATCH (n)");
+		this.relationshipType = relationshipType;
 	}
 
 	@Override
 	public MatchClause append(Filter filter) {
-		if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
-			clause.append("<");
+		if (clause == null) {
+			clause = new StringBuilder("MATCH (n)");
+			if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
+				clause.append("<");
+			}
+//			String relationshipIdentifier = filter.isNestedRelationshipEntity() ? relationshipIdentifier() : "";
+			clause.append(String.format("-[%s:`%s`]-", relationshipIdentifier(), this.relationshipType));
+			if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+				clause.append(">");
+			}
+			clause.append(String.format("(%s) ", nodeIdentifier()));
 		}
-		clause.append(String.format("-[%s:`%s`]-", filter.isNestedRelationshipEntity() ? "r" : "", filter.getRelationshipType()));
-		if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
-			clause.append(">");
-		}
-		clause.append(String.format("(%s) ", nodeIdentifier()));
+
 		//TODO this implies support for querying by one relationship entity only
-		clause.append(filter.toCypher("r", clause.indexOf(" WHERE ") == -1));
+		clause.append(filter.toCypher(relationshipIdentifier(), clause.indexOf(" WHERE ") == -1));
 		return this;
+	}
+
+	public String getRelationshipType() {
+		return relationshipType;
 	}
 
 	@Override
@@ -52,5 +62,9 @@ public class RelationshipPropertyMatchClause implements MatchClause {
 
 	private String nodeIdentifier() {
 		return "m" + this.index;
+	}
+
+	private String relationshipIdentifier() {
+		return "r" + this.index;
 	}
 }

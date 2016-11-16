@@ -498,8 +498,45 @@ public class NodeQueryStatementsTest {
 		planetParam.setRelationshipDirection("OUTGOING");
 		planetParam.setNestedRelationshipEntity(true);
 
-		assertEquals("MATCH (n:`Asteroid`) MATCH (n)-[r:`COLLIDES`]->(m0) WHERE r.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement());
+		assertEquals("MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) " +
+						"WHERE r0.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } " +
+						"WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(planetParam), 1).getStatement());
 	}
+
+	/**
+	 * @see OGM-279
+	 */
+	@Test
+	public void testFindByMultipleNestedREProperty() {
+		Filter planetParam = new Filter();
+		planetParam.setPropertyName("totalDestructionProbability");
+		planetParam.setPropertyValue("20");
+		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+		planetParam.setNestedPropertyName("collision");
+		planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
+		planetParam.setNestedRelationshipEntity(true);
+		planetParam.setRelationshipType("COLLIDES"); //assume COLLIDES is the RE type
+		planetParam.setRelationshipDirection("OUTGOING");
+		planetParam.setNestedRelationshipEntity(true);
+
+		Filter satelliteParam = new Filter();
+		satelliteParam.setBooleanOperator(BooleanOperator.AND);
+		satelliteParam.setPropertyName("signalStrength");
+		satelliteParam.setPropertyValue("400");
+		satelliteParam.setComparisonOperator(ComparisonOperator.GREATER_THAN_EQUAL);
+		satelliteParam.setNestedPropertyName("monitoringSatellites");
+		satelliteParam.setNestedEntityTypeLabel("Satellite"); //Collision is an RE
+		satelliteParam.setNestedRelationshipEntity(true);
+		satelliteParam.setRelationshipType("MONITORED_BY"); //assume COLLIDES is the RE type
+		satelliteParam.setRelationshipDirection("INCOMING");
+		satelliteParam.setNestedRelationshipEntity(true);
+
+		assertEquals("MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) WHERE r0.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } " +
+						"MATCH (n)<-[r1:`MONITORED_BY`]-(m1) WHERE r1.`signalStrength` >= { `monitoringSatellites_signalStrength_1` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
+				queryStatements.findByType("Asteroid", new Filters().add(planetParam).add(satelliteParam), 1).getStatement());
+	}
+
 
 	/**
 	 * @see DATAGRAPH-632
@@ -527,8 +564,8 @@ public class NodeQueryStatementsTest {
 		moonParam.setRelationshipDirection("INCOMING");
 		moonParam.setBooleanOperator(BooleanOperator.AND);
 
-		assertEquals("MATCH (n:`Asteroid`) MATCH (n)-[r:`COLLIDES`]->(m0) " +
-						"WHERE r.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } " +
+		assertEquals("MATCH (n:`Asteroid`) MATCH (n)-[r0:`COLLIDES`]->(m0) " +
+						"WHERE r0.`totalDestructionProbability` = { `collision_totalDestructionProbability_0` } " +
 						"MATCH (m1:`Moon`) WHERE m1.`name` = { `moon_name_1` } MATCH (n)<-[:`ORBITS`]-(m1) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid", new Filters().add(planetParam, moonParam), 1).getStatement());
 	}

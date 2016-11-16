@@ -65,7 +65,12 @@ public class NodeQueryBuilder {
 			throw new UnsupportedOperationException("OR is not supported for nested properties on an entity");
 		}
 		if (filter.isNestedRelationshipEntity()) {
-			nestedClauses.add(new RelationshipPropertyMatchClause(matchClauseId).append(filter));
+			MatchClause clause = relationshipPropertyClauseFor(filter.getRelationshipType());
+			if (clause == null) {
+				clause = new RelationshipPropertyMatchClause(matchClauseId, filter.getRelationshipType());
+				nestedClauses.add(clause);
+			}
+			clause.append(filter);
 		} else {
 			MatchClause clause = relatedNodeClauseFor(filter.getNestedEntityTypeLabel());
 			if (clause == null) {
@@ -94,10 +99,22 @@ public class NodeQueryBuilder {
 		return null;
 	}
 
-	private StringBuilder toCypher() {
-		StringBuilder stringBuilder = new StringBuilder();
 
-		stringBuilder.append(principleClause.toCypher());
+	private RelationshipPropertyMatchClause relationshipPropertyClauseFor(String relationshipType) {
+		for (MatchClause clause : nestedClauses) {
+			if (clause instanceof RelationshipPropertyMatchClause) {
+				RelationshipPropertyMatchClause relPropClause = (RelationshipPropertyMatchClause) clause;
+				if (relPropClause.getRelationshipType().equals(relationshipType)) {
+					return relPropClause;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	private StringBuilder toCypher() {
+		StringBuilder stringBuilder = new StringBuilder(principleClause.toCypher());
 
 		for (MatchClause matchClause : nestedClauses) {
 			stringBuilder.append(matchClause.toCypher());
@@ -109,5 +126,4 @@ public class NodeQueryBuilder {
 
 		return stringBuilder;
 	}
-
 }

@@ -20,13 +20,13 @@ import org.neo4j.ogm.cypher.Filter;
 /**
  * @author Jasper Blues
  */
-public class PrincipleNodeMatchClause implements MatchClause {
+public class PrincipalNodeMatchClause implements MatchClause {
 
 	private String label;
 
 	private StringBuilder clause;
 
-	public PrincipleNodeMatchClause(String label) {
+	public PrincipalNodeMatchClause(String label) {
 		this.label = label;
 
 		clause = new StringBuilder();

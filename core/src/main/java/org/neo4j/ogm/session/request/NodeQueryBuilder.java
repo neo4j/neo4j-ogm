@@ -28,15 +28,15 @@ import org.neo4j.ogm.exception.MissingOperatorException;
  */
 public class NodeQueryBuilder {
 
-	private PrincipleNodeMatchClause principleClause;
+	private PrincipalNodeMatchClause principalClause;
 	private List<MatchClause> nestedClauses;
 	private List<MatchClause> pathClauses;
 	private Map<String, Object> parameters;
 	private int matchClauseId = 0;
 	private boolean built = false;
 
-	public NodeQueryBuilder(String principleLabel) {
-		this.principleClause = new PrincipleNodeMatchClause(principleLabel);
+	public NodeQueryBuilder(String principalLabel) {
+		this.principalClause = new PrincipalNodeMatchClause(principalLabel);
 		this.nestedClauses = new ArrayList<>();
 		this.pathClauses = new ArrayList<>();
 		this.parameters = new HashMap<>();
@@ -59,7 +59,7 @@ public class NodeQueryBuilder {
 					appendNestedFilter(filter);
 				} else {
 					//If the filter is not nested, it belongs to the node we're returning
-					principleClause().append(filter);
+					principalClause().append(filter);
 				}
 				parameters.putAll(filter.parameters());
 				i++;
@@ -92,8 +92,8 @@ public class NodeQueryBuilder {
 		matchClauseId++;
 	}
 
-	private PrincipleNodeMatchClause principleClause() {
-		return principleClause;
+	private PrincipalNodeMatchClause principalClause() {
+		return principalClause;
 	}
 
 	private RelatedNodePropertyMatchClause relatedNodeClauseFor(String label) {
@@ -123,7 +123,7 @@ public class NodeQueryBuilder {
 
 
 	private StringBuilder toCypher() {
-		StringBuilder stringBuilder = new StringBuilder(principleClause.toCypher());
+		StringBuilder stringBuilder = new StringBuilder(principalClause.toCypher());
 
 		for (MatchClause matchClause : nestedClauses) {
 			stringBuilder.append(matchClause.toCypher());

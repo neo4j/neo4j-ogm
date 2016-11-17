@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class Actor {
 

@@ -5,7 +5,7 @@ import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
- * Created by markangrish on 17/11/2016.
+ * @author Mark Angrish
  */
 @NodeEntity
 public class Invoice {

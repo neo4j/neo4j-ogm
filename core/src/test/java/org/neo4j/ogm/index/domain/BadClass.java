@@ -4,7 +4,7 @@ import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
 
 /**
- * Created by markangrish on 17/11/2016.
+ * @author Mark Angrish
  */
 public class BadClass {
 

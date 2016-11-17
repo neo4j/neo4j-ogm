@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 @Ignore
 public class RelationshipEntityTest {

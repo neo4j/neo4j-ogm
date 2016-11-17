@@ -31,6 +31,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class ParameterisedStatementTest {
 

@@ -1,7 +1,9 @@
 package org.neo4j.ogm.session;
 
 /**
- * Created by markangrish on 17/11/2016.
+ * Top level Exception for Neo4j OGM.
+ *
+ * @author Mark Angrish
  */
 public class Neo4jException extends RuntimeException {
 

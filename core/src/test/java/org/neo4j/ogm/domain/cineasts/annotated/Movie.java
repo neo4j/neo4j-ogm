@@ -27,6 +27,7 @@ import org.neo4j.ogm.typeconversion.UuidStringConverter;
 /**
  * @author Michal Bachman
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 @NodeEntity
 public class Movie {

@@ -45,6 +45,7 @@ import org.neo4j.ogm.testutil.TestUtils;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 

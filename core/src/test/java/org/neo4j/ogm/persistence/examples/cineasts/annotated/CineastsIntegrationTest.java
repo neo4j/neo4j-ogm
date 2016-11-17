@@ -45,6 +45,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  *
  * @author Michal Bachman
  * @author Adam George
+ * @author Mark Angrish
  */
 public class CineastsIntegrationTest extends MultiDriverTestClass {
 

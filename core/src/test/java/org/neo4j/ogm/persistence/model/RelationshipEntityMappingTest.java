@@ -31,6 +31,7 @@ import java.io.IOException;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 

@@ -27,6 +27,7 @@ import java.util.UUID;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 @NodeEntity
 public class Actor {

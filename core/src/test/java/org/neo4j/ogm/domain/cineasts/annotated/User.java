@@ -28,6 +28,7 @@ import java.util.UUID;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 @NodeEntity
 public class User {

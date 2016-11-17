@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class EntityGraphMapper implements EntityMapper {
 

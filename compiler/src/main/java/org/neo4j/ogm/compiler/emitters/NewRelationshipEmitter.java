@@ -13,81 +13,83 @@
 
 package org.neo4j.ogm.compiler.emitters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
  */
 public class NewRelationshipEmitter implements CypherEmitter {
 
-	private Set<Edge> edges;
+    private Set<Edge> edges;
 
-	public NewRelationshipEmitter(Set<Edge> edges) {
-		this.edges = edges;
-	}
+    public NewRelationshipEmitter(Set<Edge> edges) {
+        this.edges = edges;
+    }
 
-	@Override
-	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
-		boolean hasProperties = false;
-		if (edges != null && edges.size() > 0) {
-			Edge firstEdge = edges.iterator().next();
-			String relType = firstEdge.getType();
-			if (firstEdge.getPropertyList().size() > 0) {
-				hasProperties = true;
-			}
+    @Override
+    public Pair<String, Map<String, Object>> emit() {
 
-			queryBuilder.append("UNWIND {rows} as row ")
-					.append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
-					.append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
-					.append("MERGE (startNode)-[rel:`").append(relType).append("`");
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
 
-			if (hasProperties) {
-				boolean firstProperty = true;
-				queryBuilder.append("{ ");
-				Set<String> sortedProperties = new TreeSet<>();
-				for (Property property : firstEdge.getPropertyList()) {
-					sortedProperties.add("`" + property.getKey() + "`: row.props." + property.getKey());
-				}
+        boolean hasProperties = false;
+        if (edges != null && edges.size() > 0) {
+            Edge firstEdge = edges.iterator().next();
+            String relType = firstEdge.getType();
+            if (firstEdge.getPropertyList().size() > 0) {
+                hasProperties = true;
+            }
 
-				for (String propertyString : sortedProperties) {
-					if (!firstProperty) {
-						queryBuilder.append(", ");
-					}
-					queryBuilder.append(propertyString);
-					firstProperty = false;
-				}
-				queryBuilder.append("}");
-			}
+            queryBuilder.append("UNWIND {rows} as row ")
+                    .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
+                    .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
+                    .append("MERGE (startNode)-[rel:`").append(relType).append("`");
 
-			queryBuilder.append("]->(endNode) ")
-					.append("RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+            if (hasProperties) {
+                boolean firstProperty = true;
+                queryBuilder.append("{ ");
+                Set<String> sortedProperties = new TreeSet<>();
+                for (Property property : firstEdge.getPropertyList()) {
+                    sortedProperties.add("`" + property.getKey() + "`: row.props." + property.getKey());
+                }
 
-			List<Map> rows = new ArrayList<>();
-			for (Edge edge : edges) {
-				Map<String, Object> rowMap = new HashMap<>();
-				rowMap.put("startNodeId", edge.getStartNode());
-				rowMap.put("endNodeId", edge.getEndNode());
-				rowMap.put("relRef", edge.getId());
-				rowMap.put("type", "rel");
-				if (hasProperties) {
-					Map<String, Object> props = new HashMap<>();
-					for (Property property : edge.getPropertyList()) {
-						props.put((String) property.getKey(), property.getValue());
-					}
-					rowMap.put("props", props);
-				}
-				rows.add(rowMap);
-			}
-			parameters.put("rows", rows);
-		}
-	}
+                for (String propertyString : sortedProperties) {
+                    if (!firstProperty) {
+                        queryBuilder.append(", ");
+                    }
+                    queryBuilder.append(propertyString);
+                    firstProperty = false;
+                }
+                queryBuilder.append("}");
+            }
+
+            queryBuilder.append("]->(endNode) ")
+                    .append("RETURN row.relRef as ref, ID(rel) as id, row.type as type");
+
+            List<Map> rows = new ArrayList<>();
+            for (Edge edge : edges) {
+                Map<String, Object> rowMap = new HashMap<>();
+                rowMap.put("startNodeId", edge.getStartNode());
+                rowMap.put("endNodeId", edge.getEndNode());
+                rowMap.put("relRef", edge.getId());
+                rowMap.put("type", "rel");
+                if (hasProperties) {
+                    Map<String, Object> props = new HashMap<>();
+                    for (Property property : edge.getPropertyList()) {
+                        props.put((String) property.getKey(), property.getValue());
+                    }
+                    rowMap.put("props", props);
+                }
+                rows.add(rowMap);
+            }
+            parameters.put("rows", rows);
+        }
+
+        return Pair.of(queryBuilder.toString(), parameters);
+    }
 }

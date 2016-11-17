@@ -416,7 +416,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User adam = new User();
         adam.setName("Adam");
-
+        adam.setLogin("adamg");
         Rating good = new Rating();
         good.setUser(adam);
         good.setMovie(goblet);
@@ -591,6 +591,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);

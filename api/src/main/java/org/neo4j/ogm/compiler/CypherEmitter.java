@@ -15,17 +15,18 @@ package org.neo4j.ogm.compiler;
 
 import java.util.Map;
 
+import org.neo4j.ogm.utils.Pair;
+
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public interface CypherEmitter {
 
     /**
-     * Emits one or more Cypher clauses.
+     * Emits one or more Cypher clauses and their parameters.
      *
-     * @param queryBuilder The {@code StringBuilder} to which the Cypher should be appended
-     * @param parameters A {@link Map} to which Cypher parameter values may optionally be added as the query is built up
+     * @return A Pair tuple containing the Cypher query (first) and parameters (second).
      */
-
-    void emit(StringBuilder queryBuilder, Map<String, Object> parameters);
+    Pair<String, Map<String, Object>> emit();
 }

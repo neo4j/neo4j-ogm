@@ -17,37 +17,45 @@ import java.util.*;
 
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Edge;
+import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class DeletedRelationshipEmitter implements CypherEmitter {
 
-	private Set<Edge> deletedEdges;
+    private Set<Edge> deletedEdges;
 
-	public DeletedRelationshipEmitter(Set<Edge> deletedEdges) {
-		this.deletedEdges = deletedEdges;
-	}
+    public DeletedRelationshipEmitter(Set<Edge> deletedEdges) {
+        this.deletedEdges = deletedEdges;
+    }
 
-	@Override
-	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
-		if (deletedEdges != null && deletedEdges.size() > 0) {
-			Edge firstEdge = deletedEdges.iterator().next();
 
-			queryBuilder.append("UNWIND {rows} as row ")
-					.append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
-					.append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
-					.append("MATCH (startNode)-[rel:`").append(firstEdge.getType()).append("`]->(endNode) ")
-					.append("DELETE rel");
+    @Override
+    public Pair<String, Map<String, Object>> emit() {
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
 
-			List<Map> rows = new ArrayList<>();
-			for (Edge edge : deletedEdges) {
-				Map<String, Object> rowMap = new HashMap<>();
-				rowMap.put("startNodeId", edge.getStartNode());
-				rowMap.put("endNodeId", edge.getEndNode());
-				rows.add(rowMap);
-			}
-			parameters.put("rows", rows);
-		}
-	}
+        if (deletedEdges != null && deletedEdges.size() > 0) {
+            Edge firstEdge = deletedEdges.iterator().next();
+
+            queryBuilder.append("UNWIND {rows} as row ")
+                    .append("MATCH (startNode) WHERE ID(startNode) = row.startNodeId ")
+                    .append("MATCH (endNode) WHERE ID(endNode) = row.endNodeId ")
+                    .append("MATCH (startNode)-[rel:`").append(firstEdge.getType()).append("`]->(endNode) ")
+                    .append("DELETE rel");
+
+            List<Map> rows = new ArrayList<>();
+            for (Edge edge : deletedEdges) {
+                Map<String, Object> rowMap = new HashMap<>();
+                rowMap.put("startNodeId", edge.getStartNode());
+                rowMap.put("endNodeId", edge.getEndNode());
+                rows.add(rowMap);
+            }
+            parameters.put("rows", rows);
+        }
+
+        return Pair.of(queryBuilder.toString(), parameters);
+    }
 }

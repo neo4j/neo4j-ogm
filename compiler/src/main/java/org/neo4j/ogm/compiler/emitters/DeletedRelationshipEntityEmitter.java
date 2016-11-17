@@ -17,34 +17,40 @@ import java.util.*;
 
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Edge;
+import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
  */
 public class DeletedRelationshipEntityEmitter implements CypherEmitter {
 
-	private Set<Edge> deletedEdges;
+    private Set<Edge> deletedEdges;
 
-	public DeletedRelationshipEntityEmitter(Set<Edge> deletedEdges) {
-		this.deletedEdges = deletedEdges;
-	}
+    public DeletedRelationshipEntityEmitter(Set<Edge> deletedEdges) {
+        this.deletedEdges = deletedEdges;
+    }
 
-	@Override
-	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
-		if (deletedEdges != null && deletedEdges.size() > 0) {
+    @Override
+    public Pair<String, Map<String, Object>> emit() {
 
-			queryBuilder.append("START r=rel({relIds}) DELETE r");
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
 
-			List<Long> relIds = new ArrayList<>(deletedEdges.size());
-			List<Map> rows = new ArrayList<>();
-			for (Edge edge : deletedEdges) {
-				Map<String, Object> rowMap = new HashMap<>();
-				rowMap.put("relId", edge.getId());
-				rows.add(rowMap);
-				relIds.add(edge.getId());
-			}
-			parameters.put("rows", rows);
-			parameters.put("relIds", relIds);
-		}
-	}
+        if (deletedEdges != null && deletedEdges.size() > 0) {
+
+            queryBuilder.append("START r=rel({relIds}) DELETE r");
+
+            List<Long> relIds = new ArrayList<>(deletedEdges.size());
+            List<Map> rows = new ArrayList<>();
+            for (Edge edge : deletedEdges) {
+                Map<String, Object> rowMap = new HashMap<>();
+                rowMap.put("relId", edge.getId());
+                rows.add(rowMap);
+                relIds.add(edge.getId());
+            }
+            parameters.put("rows", rows);
+            parameters.put("relIds", relIds);
+        }
+        return Pair.of(queryBuilder.toString(), parameters);
+    }
 }

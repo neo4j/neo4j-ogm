@@ -13,49 +13,51 @@
 
 package org.neo4j.ogm.compiler.emitters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
  */
 public class ExistingRelationshipEmitter implements CypherEmitter {
 
-	Set<Edge> edges;
+    Set<Edge> edges;
 
-	public ExistingRelationshipEmitter(Set<Edge> edges) {
-		this.edges = edges;
-	}
+    public ExistingRelationshipEmitter(Set<Edge> edges) {
+        this.edges = edges;
+    }
 
-	@Override
-	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
-		if (edges.size() > 0) {
-			//queryBuilder.append("START r=rels({relIds}) SET r += ({rows}[toString(id(r))]).props"); //TODO 2.3+
-			queryBuilder.append("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) ");
-			queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
-			List<Long> relIds = new ArrayList<>(edges.size());
-			List<Map> rows = new ArrayList<>();
-			for (Edge edge : edges) {
-				Map<String, Object> rowMap = new HashMap<>();
-				rowMap.put("relId", edge.getId());
-				Map<String, Object> props = new HashMap<>();
-				for (Property property : edge.getPropertyList()) {
-					props.put((String) property.getKey(), property.getValue());
-				}
-				rowMap.put("props", props);
-				rows.add(rowMap);
-				relIds.add(edge.getId());
-			}
-			parameters.put("rows", rows);
-			parameters.put("relIds", relIds);
-			parameters.put("type", "rel");
-		}
-	}
+
+    @Override
+    public Pair<String, Map<String, Object>> emit() {
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
+
+        if (edges.size() > 0) {
+            //queryBuilder.append("START r=rels({relIds}) SET r += ({rows}[toString(id(r))]).props"); //TODO 2.3+
+            queryBuilder.append("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) ");
+            queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
+            List<Long> relIds = new ArrayList<>(edges.size());
+            List<Map> rows = new ArrayList<>();
+            for (Edge edge : edges) {
+                Map<String, Object> rowMap = new HashMap<>();
+                rowMap.put("relId", edge.getId());
+                Map<String, Object> props = new HashMap<>();
+                for (Property property : edge.getPropertyList()) {
+                    props.put((String) property.getKey(), property.getValue());
+                }
+                rowMap.put("props", props);
+                rows.add(rowMap);
+                relIds.add(edge.getId());
+            }
+            parameters.put("rows", rows);
+            parameters.put("relIds", relIds);
+            parameters.put("type", "rel");
+        }
+        return Pair.of(queryBuilder.toString(), parameters);
+    }
 }

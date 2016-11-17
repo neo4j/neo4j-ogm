@@ -18,6 +18,7 @@ import java.util.*;
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
@@ -32,7 +33,11 @@ public class NewNodeEmitter implements CypherEmitter {
     }
 
     @Override
-    public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
+    public Pair<String, Map<String, Object>> emit() {
+
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
+
         if (newNodes != null && newNodes.size() > 0) {
             Node firstNode = newNodes.iterator().next();
 
@@ -73,5 +78,7 @@ public class NewNodeEmitter implements CypherEmitter {
             }
             parameters.put("rows", rows);
         }
+
+        return Pair.of(queryBuilder.toString(), parameters);
     }
 }

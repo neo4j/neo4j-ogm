@@ -13,6 +13,8 @@
 package org.neo4j.ogm.autoindex;
 
 /**
+ * Denotes the types of auto indexing that can be done by the OGM at startup.
+ *
  * @author Mark Angrish
  */
 public enum AutoIndexMode {

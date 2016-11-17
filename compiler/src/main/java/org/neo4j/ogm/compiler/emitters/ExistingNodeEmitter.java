@@ -22,9 +22,11 @@ import java.util.Set;
 import org.neo4j.ogm.compiler.CypherEmitter;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class ExistingNodeEmitter implements CypherEmitter {
 
@@ -35,7 +37,11 @@ public class ExistingNodeEmitter implements CypherEmitter {
     }
 
     @Override
-    public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
+    public Pair<String, Map<String, Object>> emit() {
+
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
+
         if (existingNodes != null && existingNodes.size() > 0) {
             Node firstNode = existingNodes.iterator().next();
 
@@ -69,5 +75,7 @@ public class ExistingNodeEmitter implements CypherEmitter {
             }
             parameters.put("rows", rows);
         }
+
+        return Pair.of(queryBuilder.toString(), parameters);
     }
 }

@@ -23,6 +23,7 @@ import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 import org.neo4j.ogm.response.model.RelationshipModel;
+import org.neo4j.ogm.utils.Pair;
 
 import java.util.*;
 
@@ -100,10 +101,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 		List<Statement> statements = new ArrayList<>(newNodesByLabels.size());
 		for (Set<Node> nodeModels : newNodesByLabels.values()) {
 			NewNodeEmitter newNodeEmitter = new NewNodeEmitter(nodeModels);
-			final Map<String, Object> parameters = new HashMap<>();
-			final StringBuilder query = new StringBuilder();
-			newNodeEmitter.emit(query, parameters);
-			statements.add(statementFactory.statement(query.toString(), parameters));
+			Pair<String, Map<String, Object>> emittedCypher =  newNodeEmitter.emit();
+			statements.add(statementFactory.statement(emittedCypher.first, emittedCypher.second));
 		}
 
 		return statements;
@@ -149,10 +148,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 			//For each set of unique property keys
 			for (Set<Edge> edges : edgesByProperties.values()) {
 				NewRelationshipEmitter newRelationshipEmitter = new NewRelationshipEmitter(edges);
-				final Map<String, Object> parameters = new HashMap<>();
-				final StringBuilder query = new StringBuilder();
-				newRelationshipEmitter.emit(query, parameters);
-				statements.add(statementFactory.statement(query.toString(), parameters));
+				Pair<String, Map<String, Object>> emittedCypher =  newRelationshipEmitter.emit();
+				statements.add(statementFactory.statement(emittedCypher.first, emittedCypher.second));
 			}
 		}
 
@@ -167,10 +164,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 		List<Statement> statements = new ArrayList<>(existingNodesByLabels.size());
 		for (Set<Node> nodeModels : existingNodesByLabels.values()) {
 			ExistingNodeEmitter existingNodeEmitter = new ExistingNodeEmitter(nodeModels);
-			final Map<String, Object> parameters = new HashMap<>();
-			final StringBuilder query = new StringBuilder();
-			existingNodeEmitter.emit(query, parameters);
-			statements.add(statementFactory.statement(query.toString(), parameters));
+			Pair<String, Map<String, Object>> emittedCypher =  existingNodeEmitter.emit();
+			statements.add(statementFactory.statement(emittedCypher.first, emittedCypher.second));
 		}
 
 		return statements;
@@ -185,11 +180,9 @@ public class MultiStatementCypherCompiler implements Compiler {
 			for (RelationshipBuilder relBuilder : existingRelationshipBuilders) {
 				relationships.add(relBuilder.edge());
 			}
-			final Map<String, Object> parameters = new HashMap<>();
-			final StringBuilder query = new StringBuilder();
 			ExistingRelationshipEmitter existingRelationshipEmitter = new ExistingRelationshipEmitter(relationships);
-			existingRelationshipEmitter.emit(query, parameters);
-			statements.add(statementFactory.statement(query.toString(), parameters));
+			Pair<String, Map<String, Object>> emittedCypher =  existingRelationshipEmitter.emit();
+			statements.add(statementFactory.statement(emittedCypher.first, emittedCypher.second));
 		}
 		return statements;
 	}
@@ -203,10 +196,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 
 		for (Set<Edge> edges : deletedRelsByType.values()) {
 			DeletedRelationshipEmitter deletedRelationshipEmitter = new DeletedRelationshipEmitter(edges);
-			final Map<String, Object> parameters = new HashMap<>();
-			final StringBuilder query = new StringBuilder();
-			deletedRelationshipEmitter.emit(query, parameters);
-			statements.add(statementFactory.statement(query.toString(), parameters));
+			Pair<String, Map<String, Object>> emittedCypher =  deletedRelationshipEmitter.emit();
+			statements.add(statementFactory.statement(emittedCypher.first, emittedCypher.second));
 		}
 		return statements;
 	}
@@ -223,10 +214,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 
 		for (Set<Edge> edges : deletedRelsByType.values()) {
 			DeletedRelationshipEntityEmitter deletedRelationshipEmitter = new DeletedRelationshipEntityEmitter(edges);
-			final Map<String, Object> parameters = new HashMap<>();
-			final StringBuilder query = new StringBuilder();
-			deletedRelationshipEmitter.emit(query, parameters);
-			statements.add(statementFactory.statement(query.toString(), parameters));
+			Pair<String, Map<String, Object>> emittedCypher =  deletedRelationshipEmitter.emit();
+			statements.add(statementFactory.statement(emittedCypher.first, emittedCypher.second));
 		}
 		return statements;
 	}

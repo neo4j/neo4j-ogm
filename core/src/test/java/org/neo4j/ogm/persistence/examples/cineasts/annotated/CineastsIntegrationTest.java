@@ -250,8 +250,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {
-        Movie movie = new Movie();
-        movie.setTitle("Zootopia");
+        Movie movie = new Movie("Zootopia", 2016);
         movie.setImdbUrl(new URL("http://www.imdb.com/title/tt2948356/"));
         session.save(movie);
 
@@ -259,12 +258,12 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         movie.setImdbUrl(null);
         session.save(movie);
 
-        movie = session.load(Movie.class, movie.getId());
+        movie = session.load(Movie.class, movie.getUuid());
         assertNull(movie.getTitle());
         assertNull(movie.getImdbUrl());
 
         session.clear();
-        movie = session.load(Movie.class, movie.getId());
+        movie = session.load(Movie.class, movie.getUuid());
         assertNull(movie.getTitle());
         assertNull(movie.getImdbUrl());
     }

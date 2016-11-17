@@ -51,9 +51,7 @@ public class RelationshipEntityTest {
      */
     @Test
     public void testThatRelationshipEntityIsLoadedWhenWhenTypeIsNotDefined() {
-        Movie hp = new Movie();
-        hp.setTitle("Goblet of Fire");
-        hp.setYear(2005);
+        Movie hp = new Movie("Goblet of Fire", 2005);
 
         Actor daniel = new Actor("Daniel Radcliffe");
         daniel.nominatedFor(hp, "Saturn Award", 2005);

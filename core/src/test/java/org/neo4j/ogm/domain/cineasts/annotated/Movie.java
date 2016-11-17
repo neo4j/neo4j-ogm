@@ -16,11 +16,13 @@ package org.neo4j.ogm.domain.cineasts.annotated;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 /**
  * @author Michal Bachman
@@ -30,6 +32,10 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 public class Movie {
 
     Long id;
+
+    @Convert(UuidStringConverter.class)
+    @Index(unique = true, primary = true)
+    private UUID uuid;
 
     @Index
     String title;
@@ -46,6 +52,15 @@ public class Movie {
 
     @Convert(URLConverter.class)
     URL imdbUrl;
+
+    public Movie() {
+    }
+
+    public Movie(String title, int year) {
+        this.uuid = UUID.randomUUID();
+        this.title = title;
+        this.year = year;
+    }
 
     public Long getId() {
         return id;
@@ -124,5 +139,9 @@ public class Movie {
     @Override
     public int hashCode() {
         return title != null ? title.hashCode() : 0;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 }

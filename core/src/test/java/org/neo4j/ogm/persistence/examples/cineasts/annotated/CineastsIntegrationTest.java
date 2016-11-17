@@ -234,7 +234,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(user);
 
         // Test that arrays with and without custom converters are saved and loaded correctly when their content is updated
-        user = session.load(User.class, user.getUuid());
+        user = session.load(User.class, user.getLogin());
         assertEquals(3, user.getUrls().length);
         assertEquals("http://www.graphaware.com", user.getUrls()[0].toString());
         assertEquals("http://www.google.com", user.getUrls()[1].toString());

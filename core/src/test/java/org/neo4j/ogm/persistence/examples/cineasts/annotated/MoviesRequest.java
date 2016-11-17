@@ -18,6 +18,7 @@ import org.neo4j.ogm.drivers.StubHttpDriver;
 
 /**
  * @author Michal Bachman
+ * @author Mark Angrish
  */
 public class MoviesRequest extends StubHttpDriver {
 

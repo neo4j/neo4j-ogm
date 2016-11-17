@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class UserTest {
 

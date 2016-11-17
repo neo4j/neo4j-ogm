@@ -28,6 +28,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1294,8 +1295,12 @@ public class ClassInfo {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(indexAnnotation);
                 if (annotationInfo != null && annotationInfo.get("primary") != null && annotationInfo.get("primary").equals("true")) {
-                    primaryIndexField = fieldInfo;
-                    return fieldInfo;
+
+                    if (primaryIndexField == null) {
+                        primaryIndexField = fieldInfo;
+                    } else {
+                        throw new Neo4jException("Each class may only define one primary index.");
+                    }
                 }
             }
         }

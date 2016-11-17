@@ -12,7 +12,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
- * Created by markangrish on 17/11/2016.
+ * @author Mark Angrish
  */
 public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 

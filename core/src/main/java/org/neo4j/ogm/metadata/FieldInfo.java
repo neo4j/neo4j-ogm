@@ -28,6 +28,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class FieldInfo {
 

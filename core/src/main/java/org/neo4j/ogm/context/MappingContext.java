@@ -33,6 +33,7 @@ import org.neo4j.ogm.metadata.FieldInfo;
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class MappingContext {
 

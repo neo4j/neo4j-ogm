@@ -19,7 +19,6 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.FilteredQuery;
 import org.neo4j.ogm.session.request.FilteredQueryBuilder;
@@ -28,6 +27,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class NodeQueryStatements implements QueryStatements {
 

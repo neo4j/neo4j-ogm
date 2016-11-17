@@ -19,7 +19,7 @@ import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowDataStatement;
 
 /**
- * Represents an Index in Neo4j.
+ * Represents an Index that can be auto generated in Neo4j.
  *
  * @author Mark Angrish
  */

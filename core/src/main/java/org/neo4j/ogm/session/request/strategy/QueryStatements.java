@@ -22,6 +22,7 @@ import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public interface QueryStatements {
 

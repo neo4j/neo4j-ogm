@@ -21,6 +21,7 @@ import org.neo4j.ogm.utils.Pair;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class DeletedRelationshipEntityEmitter implements CypherEmitter {
 

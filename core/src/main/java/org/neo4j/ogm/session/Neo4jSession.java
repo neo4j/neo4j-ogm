@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mihai Raulea
+ * @author Mark Angrish
  */
 public class Neo4jSession implements Session {
 

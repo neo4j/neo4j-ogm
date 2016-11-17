@@ -20,6 +20,7 @@ import java.util.Map;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class AnnotationInfo {
 

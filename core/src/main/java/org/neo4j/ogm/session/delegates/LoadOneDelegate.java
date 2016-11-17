@@ -15,7 +15,6 @@ package org.neo4j.ogm.session.delegates;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -26,6 +25,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class LoadOneDelegate implements Capability.LoadOne {
 

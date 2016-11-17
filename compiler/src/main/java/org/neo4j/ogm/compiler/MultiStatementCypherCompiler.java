@@ -31,6 +31,7 @@ import java.util.*;
  * Cypher compiler that produces multiple statements that can be executed together or split over a transaction.
  *
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class MultiStatementCypherCompiler implements Compiler {
 

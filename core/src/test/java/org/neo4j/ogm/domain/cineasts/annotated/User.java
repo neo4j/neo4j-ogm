@@ -183,4 +183,7 @@ public class User {
         return "User:" + name;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
 }

@@ -214,8 +214,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
-        User user = new User();
-        user.setLogin("joker");
+        User user = new User("joker", "Joker", "password");
         URL[] urls = new URL[3];
         urls[0] = new URL("http://www.apple.com");
         urls[1] = new URL("http://www.google.com");
@@ -235,7 +234,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(user);
 
         // Test that arrays with and without custom converters are saved and loaded correctly when their content is updated
-        user = session.load(User.class, user.getId());
+        user = session.load(User.class, user.getUuid());
         assertEquals(3, user.getUrls().length);
         assertEquals("http://www.graphaware.com", user.getUrls()[0].toString());
         assertEquals("http://www.google.com", user.getUrls()[1].toString());

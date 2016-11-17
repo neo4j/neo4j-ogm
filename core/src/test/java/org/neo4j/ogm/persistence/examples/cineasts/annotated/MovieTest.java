@@ -36,7 +36,7 @@ public class MovieTest {
         Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
         session.setDriver(movieRequest);
 
-        Movie movie = session.load(Movie.class, 15L, 1);
+        Movie movie = session.load(Movie.class, "38ebe777-bc85-4810-8217-096f29a361f1", 1);
 
         assertEquals("Pulp Fiction", movie.getTitle());
         assertNotNull(movie.getRatings());

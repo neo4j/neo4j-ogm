@@ -49,6 +49,12 @@ public class SessionFactory {
 		this.indexManager.build();
     }
 
+    public SessionFactory(Class... classes) {
+        this.metaData = new MetaData(classes);
+        this.indexManager = new IndexManager(this.metaData, Components.driver());
+        this.indexManager.build();
+    }
+
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
      * object packages, and also sets the configuration to be used.
@@ -67,6 +73,13 @@ public class SessionFactory {
         this.metaData = new MetaData(packages);
 		this.indexManager = new IndexManager(this.metaData, Components.driver());
 		this.indexManager.build();
+    }
+
+    public SessionFactory(Configuration configuration, Class... classes) {
+        Components.configure(configuration);
+        this.metaData = new MetaData(classes);
+        this.indexManager = new IndexManager(this.metaData, Components.driver());
+        this.indexManager.build();
     }
 
     /**

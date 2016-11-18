@@ -19,12 +19,12 @@ import org.neo4j.ogm.request.Statement;
  * @author Vince Bickers
  * @author Mark Angrish
  */
-public interface CypherEmitter {
+public interface CypherStatementBuilder {
 
     /**
-     * Emits one or more Cypher clauses and their parameters.
+     * Builds one or more Cypher clauses and their parameters.
      *
      * @return A fully constructed cypher statement.
      */
-    Statement emit();
+    Statement build();
 }

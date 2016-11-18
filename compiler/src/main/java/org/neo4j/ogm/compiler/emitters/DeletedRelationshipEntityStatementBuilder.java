@@ -15,7 +15,7 @@ package org.neo4j.ogm.compiler.emitters;
 
 import java.util.*;
 
-import org.neo4j.ogm.compiler.CypherEmitter;
+import org.neo4j.ogm.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
@@ -24,19 +24,19 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class DeletedRelationshipEntityEmitter implements CypherEmitter {
+public class DeletedRelationshipEntityStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
     private final Set<Edge> deletedEdges;
 
-    public DeletedRelationshipEntityEmitter(Set<Edge> deletedEdges, StatementFactory statementFactory) {
+    public DeletedRelationshipEntityStatementBuilder(Set<Edge> deletedEdges, StatementFactory statementFactory) {
         this.deletedEdges = deletedEdges;
         this.statementFactory = statementFactory;
     }
 
     @Override
-    public Statement emit() {
+    public Statement build() {
 
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();

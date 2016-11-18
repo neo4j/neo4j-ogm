@@ -15,7 +15,7 @@ package org.neo4j.ogm.compiler.emitters;
 
 import java.util.*;
 
-import org.neo4j.ogm.compiler.CypherEmitter;
+import org.neo4j.ogm.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
@@ -25,19 +25,19 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class NewRelationshipEmitter implements CypherEmitter {
+public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
     private final Set<Edge> edges;
 
-    public NewRelationshipEmitter(Set<Edge> edges, StatementFactory statementFactory) {
+    public NewRelationshipStatementBuilder(Set<Edge> edges, StatementFactory statementFactory) {
         this.edges = edges;
         this.statementFactory = statementFactory;
     }
 
     @Override
-    public Statement emit() {
+    public Statement build() {
 
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();

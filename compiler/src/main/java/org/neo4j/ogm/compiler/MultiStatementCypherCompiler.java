@@ -109,8 +109,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         Map<String, Set<Node>> newNodesByLabels = groupNodesByLabel(newNodeBuilders);
         List<Statement> statements = new ArrayList<>(newNodesByLabels.size());
         for (Set<Node> nodeModels : newNodesByLabels.values()) {
-            NewNodeEmitter newNodeEmitter = new NewNodeEmitter(nodeModels, statementFactory);
-            statements.add(newNodeEmitter.emit());
+            NewNodeStatementBuilder newNodeEmitter = new NewNodeStatementBuilder(nodeModels, statementFactory);
+            statements.add(newNodeEmitter.build());
         }
 
         return statements;
@@ -153,8 +153,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         for (Map<Set<String>, Set<Edge>> edgesByProperties : relsByTypeAndProps.values()) {
             //For each set of unique property keys
             for (Set<Edge> edges : edgesByProperties.values()) {
-                NewRelationshipEmitter newRelationshipEmitter = new NewRelationshipEmitter(edges, statementFactory);
-                statements.add(newRelationshipEmitter.emit());
+                NewRelationshipStatementBuilder newRelationshipEmitter = new NewRelationshipStatementBuilder(edges, statementFactory);
+                statements.add(newRelationshipEmitter.build());
             }
         }
 
@@ -168,8 +168,8 @@ public class MultiStatementCypherCompiler implements Compiler {
 
         List<Statement> statements = new ArrayList<>(existingNodesByLabels.size());
         for (Set<Node> nodeModels : existingNodesByLabels.values()) {
-            ExistingNodeEmitter existingNodeEmitter = new ExistingNodeEmitter(nodeModels, statementFactory);
-            statements.add(existingNodeEmitter.emit());
+            ExistingNodeStatementBuilder existingNodeEmitter = new ExistingNodeStatementBuilder(nodeModels, statementFactory);
+            statements.add(existingNodeEmitter.build());
         }
 
         return statements;
@@ -184,8 +184,8 @@ public class MultiStatementCypherCompiler implements Compiler {
             for (RelationshipBuilder relBuilder : existingRelationshipBuilders) {
                 relationships.add(relBuilder.edge());
             }
-            ExistingRelationshipEmitter existingRelationshipEmitter = new ExistingRelationshipEmitter(relationships, statementFactory);
-            statements.add(existingRelationshipEmitter.emit());
+            ExistingRelationshipStatementBuilder existingRelationshipEmitter = new ExistingRelationshipStatementBuilder(relationships, statementFactory);
+            statements.add(existingRelationshipEmitter.build());
         }
         return statements;
     }
@@ -198,8 +198,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         List<Statement> statements = new ArrayList<>();
 
         for (Set<Edge> edges : deletedRelsByType.values()) {
-            DeletedRelationshipEmitter deletedRelationshipEmitter = new DeletedRelationshipEmitter(edges, statementFactory);
-            statements.add(deletedRelationshipEmitter.emit());
+            DeletedRelationshipStatementBuilder deletedRelationshipEmitter = new DeletedRelationshipStatementBuilder(edges, statementFactory);
+            statements.add(deletedRelationshipEmitter.build());
         }
         return statements;
     }
@@ -214,8 +214,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         List<Statement> statements = new ArrayList<>();
 
         for (Set<Edge> edges : deletedRelsByType.values()) {
-            DeletedRelationshipEntityEmitter deletedRelationshipEmitter = new DeletedRelationshipEntityEmitter(edges, statementFactory);
-            statements.add(deletedRelationshipEmitter.emit());
+            DeletedRelationshipEntityStatementBuilder deletedRelationshipEmitter = new DeletedRelationshipEntityStatementBuilder(edges, statementFactory);
+            statements.add(deletedRelationshipEmitter.build());
         }
         return statements;
     }

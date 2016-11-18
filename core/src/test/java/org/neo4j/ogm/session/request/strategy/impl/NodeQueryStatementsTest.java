@@ -37,7 +37,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  */
 public class NodeQueryStatementsTest {
 
-	private final QueryStatements queryStatements = new NodeQueryStatements(null);
+	private final QueryStatements queryStatements = new NodeQueryStatements();
 
 	@Test
 	public void testFindOne() throws Exception {

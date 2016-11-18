@@ -36,7 +36,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 public class ParameterisedStatementTest {
 
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
-    private NodeQueryStatements nodeQueryStatements = new NodeQueryStatements(null);
+    private NodeQueryStatements nodeQueryStatements = new NodeQueryStatements();
     private Statement statement;
 
     @Test

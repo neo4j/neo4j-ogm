@@ -25,7 +25,7 @@ import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
  */
 public class NodeEntityQueryPagingTest {
 
-    private final NodeQueryStatements query = new NodeQueryStatements(null);
+    private final NodeQueryStatements query = new NodeQueryStatements();
 
     @Test
     public void testFindAll() {

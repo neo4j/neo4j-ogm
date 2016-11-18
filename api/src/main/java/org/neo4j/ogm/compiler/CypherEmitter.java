@@ -13,9 +13,7 @@
 
 package org.neo4j.ogm.compiler;
 
-import java.util.Map;
-
-import org.neo4j.ogm.utils.Pair;
+import org.neo4j.ogm.request.Statement;
 
 /**
  * @author Vince Bickers
@@ -26,7 +24,7 @@ public interface CypherEmitter {
     /**
      * Emits one or more Cypher clauses and their parameters.
      *
-     * @return A Pair tuple containing the Cypher query (first) and parameters (second).
+     * @return A fully constructed cypher statement.
      */
-    Pair<String, Map<String, Object>> emit();
+    Statement emit();
 }

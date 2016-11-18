@@ -14,7 +14,6 @@ import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.pizza.Pizza;
-import org.neo4j.ogm.index.domain.BadClass;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 
@@ -29,7 +28,7 @@ public class MergeWithPrimaryIndexTests {
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.index.domain", "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.pizza");
+        mappingMetadata = new MetaData("org.neo4j.ogm.index.domain.valid", "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.pizza");
         mappingContext = new MappingContext(mappingMetadata);
     }
 
@@ -66,9 +65,7 @@ public class MergeWithPrimaryIndexTests {
 
     @Test(expected = Neo4jException.class)
     public void exceptionRaisedWhenMoreThanOnePrimaryIndexDefinedInSameClass() {
-        BadClass invoice = new BadClass(223L, "Company", 100000L);
-        assertNull(invoice.getId());
-        mapAndCompile(invoice);
+        new MetaData("org.neo4j.ogm.index.domain.invalid");
     }
 
 

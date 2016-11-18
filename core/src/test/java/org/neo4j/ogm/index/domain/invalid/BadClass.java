@@ -1,4 +1,4 @@
-package org.neo4j.ogm.index.domain;
+package org.neo4j.ogm.index.domain.invalid;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;

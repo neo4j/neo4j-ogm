@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
-import org.neo4j.ogm.index.domain.Invoice;
+import org.neo4j.ogm.index.domain.valid.Invoice;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -72,7 +72,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesPrimaryIndexWhenPresentEvenIfTypeIsLong() {
 
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.index.domain");
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.index.domain.valid");
         final Session session = sessionFactory.openSession();
 
         Invoice invoice = new Invoice(223L, "Company", 100000L);

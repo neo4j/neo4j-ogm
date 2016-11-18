@@ -85,6 +85,7 @@ public class ClassInfo {
     private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
+    private boolean primaryIndexFieldChecked = false;
 
     // todo move this to a factory class
     public ClassInfo(InputStream inputStream) throws IOException {
@@ -118,6 +119,7 @@ public class ClassInfo {
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
         new ClassValidator(this).validate();
+        primaryIndexField = primaryIndexField();
     }
 
     /**
@@ -1289,7 +1291,7 @@ public class ClassInfo {
 
 
     public FieldInfo primaryIndexField() {
-        if (primaryIndexField == null) {
+        if (!primaryIndexFieldChecked && primaryIndexField == null) {
             final String indexAnnotation = Index.class.getCanonicalName();
 
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
@@ -1303,6 +1305,7 @@ public class ClassInfo {
                     }
                 }
             }
+            primaryIndexFieldChecked = true;
         }
 
         return primaryIndexField;

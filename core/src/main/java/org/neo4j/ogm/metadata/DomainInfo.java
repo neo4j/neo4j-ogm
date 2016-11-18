@@ -309,22 +309,13 @@ public class DomainInfo implements ClassFileProcessor {
         interfaceNameToClassInfo.clear();
 
         for (Class clazz : classes) {
-            InputStream inputStream = null;
-            try {
-                // This can be done as all OGM managed classes must have different "simple names"'s.
-                final URL resource = clazz.getResource(clazz.getSimpleName() + ".class");
-                inputStream = resource.openStream();
+            // This can be done as all OGM managed classes must have different "simple names"'s.
+            final URL resource = clazz.getResource(clazz.getSimpleName() + ".class");
+
+            try (InputStream inputStream = resource.openStream()) {
                 process(inputStream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            } finally {
-                try {
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("Could not close input stream.");
-                }
             }
         }
     }

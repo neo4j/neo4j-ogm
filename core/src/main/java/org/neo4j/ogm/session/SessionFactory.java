@@ -16,8 +16,8 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.service.Components;
 import org.neo4j.ogm.index.IndexManager;
+import org.neo4j.ogm.service.Components;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -29,7 +29,7 @@ import org.neo4j.ogm.index.IndexManager;
 public class SessionFactory {
 
     private final MetaData metaData;
-	private final IndexManager indexManager;
+    private final IndexManager indexManager;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -39,16 +39,26 @@ public class SessionFactory {
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
      * </p>
-	 * Indexes will also be checked or built if configured.
+     * Indexes will also be checked or built if configured.
      *
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);
-		this.indexManager = new IndexManager(this.metaData, Components.driver());
-		this.indexManager.build();
+        this.indexManager = new IndexManager(this.metaData, Components.driver());
+        this.indexManager.build();
     }
 
+    /**
+     * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
+     * object classes.
+     * <p>
+     * This will only load the classes explicitly listed. No other classes will be loaded.
+     * </p>
+     * Indexes will also be checked or built if configured.
+     *
+     * @param classes The classes to load as domain objects
+     */
     public SessionFactory(Class... classes) {
         this.metaData = new MetaData(classes);
         this.indexManager = new IndexManager(this.metaData, Components.driver());
@@ -63,18 +73,29 @@ public class SessionFactory {
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
      * and you can also specify fully-qualified class names if you want to cherry pick particular classes.
      * </p>
-	 * Indexes will also be checked or built if configured.
+     * Indexes will also be checked or built if configured.
      *
      * @param configuration The configuration to use
-     * @param packages      The packages to scan for domain objects
+     * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
         Components.configure(configuration);
         this.metaData = new MetaData(packages);
-		this.indexManager = new IndexManager(this.metaData, Components.driver());
-		this.indexManager.build();
+        this.indexManager = new IndexManager(this.metaData, Components.driver());
+        this.indexManager.build();
     }
 
+    /**
+     * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
+     * object classes, and also sets the configuration to be used.
+     * <p>
+     * This will only load the classes explicitly listed. No other classes will be loaded.
+     * </p>
+     * Indexes will also be checked or built if configured.
+     *
+     * @param configuration The configuration to use
+     * @param classes The classes to load as domain objects
+     */
     public SessionFactory(Configuration configuration, Class... classes) {
         Components.configure(configuration);
         this.metaData = new MetaData(classes);

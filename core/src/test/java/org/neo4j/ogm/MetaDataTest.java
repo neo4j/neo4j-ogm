@@ -13,16 +13,15 @@
 
 package org.neo4j.ogm;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.domain.cineasts.partial.Movie;
 import org.neo4j.ogm.domain.cineasts.partial.Role;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.ClassInfo;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -76,7 +75,6 @@ public class MetaDataTest {
     public void testCannotResolveInconsistentClassHierarchies() {
         metaData.resolve("Login", "Topic");
     }
-
 
 
     @Test
@@ -154,7 +152,4 @@ public class MetaDataTest {
     public void testNonMemberAndMemberTaxa() {
         assertEquals("org.neo4j.ogm.domain.forum.SilverMembership", metaData.resolve("Silver", "Pewter", "Tin").name());
     }
-
-
-
 }

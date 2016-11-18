@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class UserTest {
 
@@ -36,7 +37,7 @@ public class UserTest {
         Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
         session.setDriver(userRequest);
 
-        User user = session.load(User.class, 15L, 1);
+        User user = session.load(User.class, "luanne", 1);
 
         assertEquals("luanne", user.getLogin());
         assertNotNull(user.getSecurityRoles());

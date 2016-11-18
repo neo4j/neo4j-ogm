@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
-import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -46,6 +45,7 @@ import org.neo4j.ogm.testutil.TestUtils;
  *
  * @author Michal Bachman
  * @author Adam George
+ * @author Mark Angrish
  */
 public class CineastsIntegrationTest extends MultiDriverTestClass {
 
@@ -124,9 +124,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setSecurityRoles(new SecurityRole[]{SecurityRole.USER});
         session.save(user);
 
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "daniela"));
-        assertEquals(1, users.size());
-        User daniela = users.iterator().next();
+        User daniela = session.load(User.class, "daniela");
+        assertNotNull(daniela);
         assertEquals("Daniela", daniela.getName());
         assertEquals(1, daniela.getSecurityRoles().length);
         assertEquals(SecurityRole.USER, daniela.getSecurityRoles()[0]);
@@ -141,9 +140,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setTitles(Arrays.asList(Title.MR));
         session.save(user);
 
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "vince"));
-        assertEquals(1, users.size());
-        User vince = users.iterator().next();
+        User vince = session.load(User.class, "vince");
+        assertNotNull(vince);
         assertEquals("Vince", vince.getName());
         assertEquals(1, vince.getTitles().size());
         assertEquals(Title.MR, vince.getTitles().get(0));
@@ -160,9 +158,8 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         user.setName("Aki Kaurism\u00E4ki");
         user.setPassword("aki");
         session.save(user);
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "aki"));
-        assertEquals(1, users.size());
-        User aki = users.iterator().next();
+        User aki = session.load(User.class, "aki");
+        assertNotNull(aki);
         try {
             assertArrayEquals("Aki Kaurism\u00E4ki".getBytes("UTF-8"), aki.getName().getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -203,10 +200,10 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(new Actor("Keanu Reeves"));
         Actor carrie = new Actor("Carrie-Ann Moss");
         session.save(carrie);
-        session.save(new Actor("Laurence Fishburne"));
+        session.save(new Actor("Laurence Fishbourne"));
 
-        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE ID(a)={param} RETURN a",
-                Collections.<String, Object>singletonMap("param", carrie.getId()));
+        Actor loadedActor = session.queryForObject(Actor.class, "MATCH (a:Actor) WHERE a.uuid={param} RETURN a",
+                Collections.<String, Object>singletonMap("param", carrie.getUuid()));
         assertNotNull("The entity wasn't loaded", loadedActor);
         assertEquals("Carrie-Ann Moss", loadedActor.getName());
     }
@@ -217,7 +214,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
-        User user = new User();
+        User user = new User("joker", "Joker", "password");
         URL[] urls = new URL[3];
         urls[0] = new URL("http://www.apple.com");
         urls[1] = new URL("http://www.google.com");
@@ -237,7 +234,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         session.save(user);
 
         // Test that arrays with and without custom converters are saved and loaded correctly when their content is updated
-        user = session.load(User.class, user.getId());
+        user = session.load(User.class, user.getLogin());
         assertEquals(3, user.getUrls().length);
         assertEquals("http://www.graphaware.com", user.getUrls()[0].toString());
         assertEquals("http://www.google.com", user.getUrls()[1].toString());
@@ -253,8 +250,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {
-        Movie movie = new Movie();
-        movie.setTitle("Zootopia");
+        Movie movie = new Movie("Zootopia", 2016);
         movie.setImdbUrl(new URL("http://www.imdb.com/title/tt2948356/"));
         session.save(movie);
 
@@ -262,12 +258,12 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         movie.setImdbUrl(null);
         session.save(movie);
 
-        movie = session.load(Movie.class, movie.getId());
+        movie = session.load(Movie.class, movie.getUuid());
         assertNull(movie.getTitle());
         assertNull(movie.getImdbUrl());
 
         session.clear();
-        movie = session.load(Movie.class, movie.getId());
+        movie = session.load(Movie.class, movie.getUuid());
         assertNull(movie.getTitle());
         assertNull(movie.getImdbUrl());
     }

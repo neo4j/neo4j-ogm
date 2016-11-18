@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class Actor {
 
@@ -59,6 +60,10 @@ public class Actor {
 
     public Long getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 }
 

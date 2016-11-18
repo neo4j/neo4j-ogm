@@ -29,7 +29,7 @@ import org.neo4j.ogm.MetaData;
  */
 public class TypeRegister {
 
-    private final Map<Class<?>, Map<Long, Object>> register = new HashMap<>();
+    private final Map<Class<?>, Map<Object, Object>> register = new HashMap<>();
 
     /**
      * Finds the map associated with an entity's class and removes the entity's id from the map (if found)
@@ -38,9 +38,9 @@ public class TypeRegister {
      * @param type the class of the entity to be removed
      * @param id the id of the entity to be removed
      */
-    public void remove(MetaData metaData, Class type, Long id) {
+    public void remove(MetaData metaData, Class type, Object id) {
 
-        Map<Long, Object> entities = register.get(type);
+        Map<Object, Object> entities = register.get(type);
 
         if (entities != null) {
             if (type.getSuperclass() != null && metaData != null && metaData.classInfo(type.getSuperclass().getName()) != null && !type.getSuperclass().getName().equals("java.lang.Object")) {
@@ -56,7 +56,7 @@ public class TypeRegister {
      * @param type the class whose map entries we want to return
      * @return the map's entries
      */
-    public Map<Long, Object> get(Class<?> type) {
+    public Map<Object, Object> get(Class<?> type) {
         return Collections.unmodifiableMap(objectMap(type));
     }
 
@@ -75,7 +75,7 @@ public class TypeRegister {
      * @param entity the entity to be added
      * @param id the id of the entity to be added
      */
-    public void add(MetaData metaData, Class type, Object entity, Long id) {
+    public void add(MetaData metaData, Class type, Object entity, Object id) {
         objectMap(type).put(id, entity);
         if (type.getSuperclass() != null
                 && metaData != null
@@ -102,8 +102,8 @@ public class TypeRegister {
         register.keySet().remove(type);
     }
 
-    private Map<Long, Object> objectMap(Class<?> type) {
-        Map<Long, Object> objectMap = register.get(type);
+    private Map<Object, Object> objectMap(Class<?> type) {
+        Map<Object, Object> objectMap = register.get(type);
         if (objectMap == null) {
             objectMap = new HashMap<>();
             register.put(type, objectMap);

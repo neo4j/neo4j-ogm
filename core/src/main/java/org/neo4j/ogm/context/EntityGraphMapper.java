@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class EntityGraphMapper implements EntityMapper {
 
@@ -282,13 +283,14 @@ public class EntityGraphMapper implements EntityMapper {
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         NodeBuilder nodeBuilder;
+        final String primaryIndex = classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().getName() : null;
         if (id == null) {
             Long entityIdRef = EntityUtils.identity(entity, metaData);
-            nodeBuilder = compiler.newNode(entityIdRef).addLabels(labels);
+            nodeBuilder = compiler.newNode(entityIdRef).addLabels(labels).setPrimaryIndex(primaryIndex);
             context.registerNewObject(entityIdRef, entity);
         } else {
             nodeBuilder = compiler.existingNode(Long.valueOf(id.toString()));
-            nodeBuilder.addLabels(labels);
+            nodeBuilder.addLabels(labels).setPrimaryIndex(primaryIndex);
             removePreviousLabelsIfRequired((Long) id, classInfo, nodeBuilder);
         }
         Long identity = EntityUtils.identity(entity, metaData);

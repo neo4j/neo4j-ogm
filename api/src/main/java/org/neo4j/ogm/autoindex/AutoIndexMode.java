@@ -10,9 +10,11 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.index;
+package org.neo4j.ogm.autoindex;
 
 /**
+ * Denotes the types of auto indexing that can be done by the OGM at startup.
+ *
  * @author Mark Angrish
  */
 public enum AutoIndexMode {

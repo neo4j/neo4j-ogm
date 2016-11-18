@@ -10,7 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.index;
+package org.neo4j.ogm.autoindex;
 
 import java.util.Collections;
 import java.util.Map;
@@ -19,11 +19,11 @@ import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowDataStatement;
 
 /**
- * Represents an Index in Neo4j.
+ * Represents an Index that can be auto generated in Neo4j.
  *
  * @author Mark Angrish
  */
-class Index {
+class AutoIndex {
 
 	private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
 
@@ -32,7 +32,7 @@ class Index {
 	 */
 	private final String description;
 
-	public Index(String label, String property, boolean unique) {
+	public AutoIndex(String label, String property, boolean unique) {
 
 		if (unique) {
 			this.description = "CONSTRAINT ON ( " + label.toLowerCase() + ":" + label + " ) ASSERT " + label.toLowerCase() + "." + property + " IS UNIQUE";
@@ -58,9 +58,9 @@ class Index {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Index index = (Index) o;
+		AutoIndex autoIndex = (AutoIndex) o;
 
-		return description != null ? description.equals(index.description) : index.description == null;
+		return description != null ? description.equals(autoIndex.description) : autoIndex.description == null;
 	}
 
 	@Override

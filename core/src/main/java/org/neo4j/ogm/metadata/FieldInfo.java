@@ -28,6 +28,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class FieldInfo {
 
@@ -310,7 +311,7 @@ public class FieldInfo {
         return typeParameterDescriptor;
     }
 
-    public Class convertedType() {
+    public Class<?> convertedType() {
         if (hasPropertyConverter() || hasCompositeConverter()) {
             Class converterClass = hasPropertyConverter() ?
                     getPropertyConverter().getClass() : getCompositeConverter().getClass();

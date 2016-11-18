@@ -22,6 +22,7 @@ import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public interface QueryStatements {
 
@@ -31,7 +32,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
-    PagingAndSortingQuery findOne(Long id, int depth);
+    PagingAndSortingQuery findOne(Object id, int depth);
 
     /**
      * construct a query to fetch all objects

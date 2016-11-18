@@ -1,4 +1,4 @@
-package org.neo4j.ogm.index;
+package org.neo4j.ogm.autoindex;
 
 /**
  * Exception representing missing indexes and/or constraints.

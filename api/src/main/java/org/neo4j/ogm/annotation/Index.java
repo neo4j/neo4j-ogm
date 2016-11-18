@@ -19,13 +19,20 @@ import java.lang.annotation.Target;
 
 /**
  * Fields and properties marked with this annotation will notify the OGM that they
- * should be used as part of an index.
+ * should be used as part of an index and/or for use during lookups and merging.
+ *
+ * Fields marked with <code>unique=false</code> and <code>primary=true</code> will be ignored.
+ *
+ * Only one index per class hierarchy may be marked as <code>primary</code>.
+ *
+ * If index auto generation is turned on then classes containing <code>@Index</code>
+ * will be used. Indexes will always be generated with the containing class's label and
+ * the annotated property's name.
+ *
  * Index generation behaviour can be defined in <code>ogm.properties</code> by
  * defining a property called: <code>indexes.auto</code> and providing
  * a value of:
  * <ul>
- * <li><code>create-drop</code>: create constraints and indexes on startup and
- * then destroy them on shutdown. This is an excellent option for developers.</li>
  * <li><code>assert</code>: drop all indexes and constraints then create
  * constraints and indexes on startup. No indexes or constraints will be dropped on
  * shutdown.</li>
@@ -41,8 +48,7 @@ import java.lang.annotation.Target;
  * @author Mark Angrish
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.FIELD, ElementType.TYPE,
-		ElementType.METHOD})
+@Target(value = ElementType.FIELD)
 public @interface Index {
 
 	/**
@@ -50,4 +56,9 @@ public @interface Index {
 	 * false.
 	 */
 	boolean unique() default false;
+
+	/**
+	 * Indicates this constraint (unique index) should be used as the key for merges and loading by id.
+	 */
+	boolean primary() default false;
 }

@@ -27,21 +27,37 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class NodeQueryStatements implements QueryStatements {
 
+    private String primaryIndex;
+
+    public NodeQueryStatements() {
+        // do nothing...
+    }
+
+    public NodeQueryStatements(String primaryIndex) {
+        this.primaryIndex = primaryIndex;
+    }
+
     @Override
-    public PagingAndSortingQuery findOne(Long id, int depth) {
+    public PagingAndSortingQuery findOne(Object id, int depth) {
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
-            return InfiniteDepthReadStrategy.findOne(id);
+            return InfiniteDepthReadStrategy.findOne(id, primaryIndex);
         }
         if (max > 0) {
-            String qry = String.format("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+            String qry;
+            if (primaryIndex != null) {
+                qry = String.format("MATCH (n) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+            } else {
+                qry = String.format("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+            }
             return new DefaultGraphModelRequest(qry, Utils.map("id", id));
         } else {
-            return DepthZeroReadStrategy.findOne(id);
+            return DepthZeroReadStrategy.findOne(id, primaryIndex);
         }
     }
 
@@ -53,7 +69,7 @@ public class NodeQueryStatements implements QueryStatements {
             return InfiniteDepthReadStrategy.findAll(ids);
         }
         if (max > 0) {
-            String qry=String.format("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+            String qry = String.format("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             return DepthZeroReadStrategy.findAll(ids);
@@ -68,7 +84,7 @@ public class NodeQueryStatements implements QueryStatements {
             return InfiniteDepthReadStrategy.findAllByLabel(label, ids);
         }
         if (max > 0) {
-            String qry=String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+            String qry = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             return DepthZeroReadStrategy.findAllByLabel(label, ids);
@@ -121,7 +137,10 @@ public class NodeQueryStatements implements QueryStatements {
 
     private static class DepthZeroReadStrategy {
 
-        public static DefaultGraphModelRequest findOne(Long id) {
+        public static DefaultGraphModelRequest findOne(Object id, String primaryIndex) {
+            if (primaryIndex != null) {
+                return new DefaultGraphModelRequest("MATCH (n) WHERE n." + primaryIndex + " = { id } RETURN n", Utils.map("id", id));
+            }
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) = { id } RETURN n", Utils.map("id", id));
         }
 
@@ -130,7 +149,7 @@ public class NodeQueryStatements implements QueryStatements {
         }
 
         public static DefaultGraphModelRequest findAllByLabel(String label, Collection<Long> ids) {
-            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } RETURN n",label), Utils.map("ids", ids));
+            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } RETURN n", label), Utils.map("ids", ids));
         }
 
 
@@ -143,12 +162,14 @@ public class NodeQueryStatements implements QueryStatements {
             query.setReturnClause("RETURN n");
             return new DefaultGraphModelRequest(query.statement(), query.parameters());
         }
-
     }
 
     private static class InfiniteDepthReadStrategy {
 
-        public static DefaultGraphModelRequest findOne(Long id) {
+        public static DefaultGraphModelRequest findOne(Object id, String primaryIndex) {
+            if (primaryIndex != null) {
+                return new DefaultGraphModelRequest("MATCH (n) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", Utils.map("id", id));
+            }
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", Utils.map("id", id));
         }
 
@@ -157,7 +178,7 @@ public class NodeQueryStatements implements QueryStatements {
         }
 
         public static DefaultGraphModelRequest findAllByLabel(String label, Collection<Long> ids) {
-            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p",label), Utils.map("ids", ids));
+            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map("ids", ids));
         }
 
         public static DefaultGraphModelRequest findByLabel(String label) {
@@ -169,6 +190,5 @@ public class NodeQueryStatements implements QueryStatements {
             query.setReturnClause(" WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
             return new DefaultGraphRowListModelRequest(query.statement(), query.parameters());
         }
-
     }
 }

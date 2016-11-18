@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler.emitters;
+package org.neo4j.ogm.compiler.builders.statement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,23 +19,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.compiler.CypherEmitter;
+import org.neo4j.ogm.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
+import org.neo4j.ogm.request.Statement;
+import org.neo4j.ogm.request.StatementFactory;
 
 /**
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
-public class ExistingNodeEmitter implements CypherEmitter {
+public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
 
-    private Set<Node> existingNodes;
+    private final StatementFactory statementFactory;
 
-    public ExistingNodeEmitter(Set<Node> existingNodes) {
+    private final Set<Node> existingNodes;
+
+    public ExistingNodeStatementBuilder(Set<Node> existingNodes, StatementFactory statementFactory) {
         this.existingNodes = existingNodes;
+        this.statementFactory = statementFactory;
     }
 
     @Override
-    public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
+    public Statement build() {
+
+        final Map<String, Object> parameters = new HashMap<>();
+        final StringBuilder queryBuilder = new StringBuilder();
+
         if (existingNodes != null && existingNodes.size() > 0) {
             Node firstNode = existingNodes.iterator().next();
 
@@ -69,5 +79,7 @@ public class ExistingNodeEmitter implements CypherEmitter {
             }
             parameters.put("rows", rows);
         }
+
+        return statementFactory.statement(queryBuilder.toString(), parameters);
     }
 }

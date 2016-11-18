@@ -19,8 +19,9 @@ import java.util.Map;
  * Constructs Statements of a particular type.
  *
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
-public interface StatementFactory<T> {
+public interface StatementFactory {
 
 	Statement statement(String statement, Map<String, Object> parameters);
 }

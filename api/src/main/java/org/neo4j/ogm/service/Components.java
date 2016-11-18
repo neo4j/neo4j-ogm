@@ -21,7 +21,7 @@ import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.index.AutoIndexMode;
+import org.neo4j.ogm.autoindex.AutoIndexMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

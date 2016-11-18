@@ -16,7 +16,8 @@ package org.neo4j.ogm.model;
 import java.util.List;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public interface Node {
 
@@ -27,4 +28,6 @@ public interface Node {
     Long getId();
 
     List<Property<String, Object>> getPropertyList();
+
+    String getPrimaryIndex();
 }

@@ -26,24 +26,22 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.session.Neo4jException;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Maintains object to graph mapping details at the class (type) level
- * <p>
  * The ClassInfo object is used to maintain mappings from Java Types-&gt;Neo4j Labels
  * thereby allowing the correct labels to be applied to new nodes when they
  * are persisted.
- * <p>
  * The ClassInfo object also maintains a map of FieldInfo and MethodInfo objects
  * that maintain the appropriate information for mapping Java class attributes to Neo4j
  * node properties / paths (node)-[:relationship]-&gt;(node), via field or method
  * accessors respectively.
- * <p>
  * Given a type hierarchy, the ClassInfo object guarantees that for any type in that
  * hierarchy, the labels associated with that type will include the labels for
  * all its superclass and interface types as well. This is to avoid the need to iterate
@@ -51,6 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class ClassInfo {
 
@@ -83,8 +82,10 @@ public class ClassInfo {
     private volatile Map<String, FieldInfo> propertyFields;
     private volatile Map<String, FieldInfo> indexFields;
     private volatile FieldInfo identityField = null;
+    private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
+    private boolean primaryIndexFieldChecked = false;
 
     // todo move this to a factory class
     public ClassInfo(InputStream inputStream) throws IOException {
@@ -118,12 +119,13 @@ public class ClassInfo {
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
         new ClassValidator(this).validate();
+        primaryIndexField = primaryIndexField();
     }
 
     /**
      * This class was referenced as a superclass of the given subclass.
      *
-     * @param name     the name of the class
+     * @param name the name of the class
      * @param subclass {@link ClassInfo} of the subclass
      */
     public ClassInfo(String name, ClassInfo subclass) {
@@ -447,7 +449,6 @@ public class ClassInfo {
     }
 
 
-
     /**
      * Finds the property field with a specific field name from the ClassInfo's property fields
      *
@@ -505,9 +506,9 @@ public class ClassInfo {
     /**
      * Finds the relationship field with a specific name and direction from the ClassInfo's relationship fields
      *
-     * @param relationshipName      the relationshipName of the field to find
+     * @param relationshipName the relationshipName of the field to find
      * @param relationshipDirection the direction of the relationship
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return A FieldInfo object describing the required relationship field, or null if it doesn't exist.
      */
     public FieldInfo relationshipField(String relationshipName, String relationshipDirection, boolean strict) {
@@ -526,9 +527,9 @@ public class ClassInfo {
     /**
      * Finds all relationship fields with a specific name and direction from the ClassInfo's relationship fields
      *
-     * @param relationshipName      the relationshipName of the field to find
+     * @param relationshipName the relationshipName of the field to find
      * @param relationshipDirection the direction of the relationship
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return Set of  FieldInfo objects describing the required relationship field, or empty set if it doesn't exist.
      */
     public Set<FieldInfo> candidateRelationshipFields(String relationshipName, String relationshipDirection, boolean strict) {
@@ -726,9 +727,9 @@ public class ClassInfo {
     /**
      * Finds the relationship getter with a specific name and direction from the specified ClassInfo's relationship getters
      *
-     * @param relationshipName      the relationshipName of the getter to find
+     * @param relationshipName the relationshipName of the getter to find
      * @param relationshipDirection the relationship direction
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
      * @return A MethodInfo object describing the required relationship getter, or null if it doesn't exist.
      */
     public MethodInfo relationshipGetter(String relationshipName, String relationshipDirection, boolean strict) {
@@ -762,9 +763,9 @@ public class ClassInfo {
     /**
      * Finds the relationship setter with a specific name and direction from the specified ClassInfo's relationship setters.
      *
-     * @param relationshipName      the relationshipName of the setter to find
+     * @param relationshipName the relationshipName of the setter to find
      * @param relationshipDirection the relationship direction
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
      * @return A MethodInfo object describing the required relationship setter, or null if it doesn't exist.
      */
     public MethodInfo relationshipSetter(String relationshipName, String relationshipDirection, boolean strict) {
@@ -783,9 +784,9 @@ public class ClassInfo {
     /**
      * Finds all relationship setters with a specific name and direction from the specified ClassInfo's relationship setters.
      *
-     * @param relationshipName      the relationshipName of the setter to find
+     * @param relationshipName the relationshipName of the setter to find
      * @param relationshipDirection the relationship direction
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
      * @return A Set of MethodInfo object describing the required relationship setter, or empty set if it doesn't exist.
      */
     public Set<MethodInfo> candidateRelationshipSetters(String relationshipName, String relationshipDirection, boolean strict) {
@@ -855,7 +856,6 @@ public class ClassInfo {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     /**
@@ -981,8 +981,7 @@ public class ClassInfo {
                 String fieldType = fieldInfo.getTypeDescriptor();
                 if (fieldInfo.isArray() && (fieldType.equals(arrayOfTypeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
                     fieldInfos.add(fieldInfo);
-                }
-                else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
+                } else if (fieldInfo.isIterable() && (fieldType.equals(typeSignature) || fieldInfo.isParameterisedTypeOf(iteratedType))) {
                     fieldInfos.add(fieldInfo);
                 }
             }
@@ -998,10 +997,10 @@ public class ClassInfo {
      * Finds all fields whose type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
      * where X is the generic parameter type of the Array or Iterable and the relationship type backing this iterable is "relationshipType"
      *
-     * @param iteratedType          the type of iterable
-     * @param relationshipType      the relationship type
+     * @param iteratedType the type of iterable
+     * @param relationshipType the relationship type
      * @param relationshipDirection the relationship direction
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from FieldInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<FieldInfo> findIterableFields(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
@@ -1046,8 +1045,7 @@ public class ClassInfo {
                 String methodType = methodInfo.getTypeDescriptor();
                 if (methodInfo.isArray() && (methodType.equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
                     methodInfos.add(methodInfo);
-                }
-                else if (methodInfo.isIterable() && (methodType.equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
+                } else if (methodInfo.isIterable() && (methodType.equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
                     methodInfos.add(methodInfo);
                 }
             }
@@ -1064,10 +1062,10 @@ public class ClassInfo {
      * where X is the generic parameter type of the Array or Iterable and the relationship type this setter is annotated with is "relationshipType"
      * and the relationship direction matches "relationshipDirection"
      *
-     * @param iteratedType          the type of iterable
-     * @param relationshipType      the relationship type
+     * @param iteratedType the type of iterable
+     * @param relationshipType the relationship type
      * @param relationshipDirection the relationship direction
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<MethodInfo> findIterableSetters(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
@@ -1104,8 +1102,7 @@ public class ClassInfo {
                 String methodType = methodInfo.getTypeDescriptor();
                 if (methodInfo.isArray() && methodType.equals(arrayOfTypeSignature)) {
                     methodInfos.add(methodInfo);
-                }
-                else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
+                } else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
                     methodInfos.add(methodInfo);
                 }
             }
@@ -1114,8 +1111,7 @@ public class ClassInfo {
                 String methodType = methodInfo.getTypeDescriptor();
                 if (methodInfo.isArray() && methodType.equals(arrayOfTypeSignature)) {
                     methodInfos.add(methodInfo);
-                }
-                else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
+                } else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
                     methodInfos.add(methodInfo);
                 }
             }
@@ -1131,10 +1127,10 @@ public class ClassInfo {
      * where X is the generic parameter type of the Array or Iterable and the relationship type this getter is annotated with is "relationshipType"
      * and the direction of the relationship is "relationshipDirection"
      *
-     * @param iteratedType          the type of iterable
-     * @param relationshipType      the relationship type
+     * @param iteratedType the type of iterable
+     * @param relationshipType the relationship type
      * @param relationshipDirection the relationshipDirection
-     * @param strict                if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
+     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
      * @return {@link List} of {@link MethodInfo}, never <code>null</code>
      */
     public List<MethodInfo> findIterableGetters(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
@@ -1182,7 +1178,6 @@ public class ClassInfo {
         }
 
         return found;
-
     }
 
     public Class<?> getType(String typeParameterDescriptor) {
@@ -1211,7 +1206,7 @@ public class ClassInfo {
      * 3. Look for a setter with name derived from the relationship type for the given direction
      * 4. Look for a field with name derived from the relationship type for the given direction
      *
-     * @param relationshipType      the relationship type
+     * @param relationshipType the relationship type
      * @param relationshipDirection the relationship direction
      * @return class of the type parameter descriptor or null if it could not be determined
      */
@@ -1244,60 +1239,76 @@ public class ClassInfo {
             LOGGER.debug("Could not get {} class type for relationshipType {} and relationshipDirection {} ", className, relationshipType, relationshipDirection);
         }
         return null;
-	}
-
-	/**
-	 * @return If this class contains any fields/properties annotated with @Index.
-	 */
-	public boolean containsIndexes() {
-		return !getIndexFields().isEmpty();
     }
 
-	/**
-	 * @return The <code>FieldInfo</code>s representing the Indexed fields in this class.
-	 */
-	public Collection<FieldInfo> getIndexFields() {
-		if (indexFields == null) {
-			try {
-				lock.lock();
-				if (indexFields == null) {
-					indexFields = addIndexes();
-				}
-			} finally {
-				lock.unlock();
-			}
-		}
-		return indexFields.values();
-	}
+    /**
+     * @return If this class contains any fields/properties annotated with @Index.
+     */
+    public boolean containsIndexes() {
+        return !getIndexFields().isEmpty();
+    }
 
-	private Map<String, FieldInfo> addIndexes() {
-		Map<String, FieldInfo> indexes = new HashMap<>();
+    /**
+     * @return The <code>FieldInfo</code>s representing the Indexed fields in this class.
+     */
+    public Collection<FieldInfo> getIndexFields() {
+        if (indexFields == null) {
+            indexFields = addIndexes();
+        }
+        return indexFields.values();
+    }
 
-		// No way to get declared fields from current byte code impl. Using reflection instead.
-		List<Field> declaredFields;
-		try {
-			declaredFields = Arrays.asList(Class.forName(className).getDeclaredFields());
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+    private Map<String, FieldInfo> addIndexes() {
+        Map<String, FieldInfo> indexes = new HashMap<>();
 
-		for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+        // No way to get declared fields from current byte code impl. Using reflection instead.
+        Field[] declaredFields;
+        try {
+            declaredFields = Class.forName(className).getDeclaredFields();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Could not reflectively read declared fields", e);
+        }
 
-			if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(Index.class.getCanonicalName())) {
-				indexes.put(fieldInfo.property(), fieldInfo);
-			}
-		}
-		return indexes;
-	}
+        final String indexAnnotation = Index.class.getCanonicalName();
 
-	private boolean isDeclaredField(List<Field> declaredFields, String name) {
+        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+            if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(indexAnnotation)) {
+                indexes.put(fieldInfo.property(), fieldInfo);
+            }
+        }
+        return indexes;
+    }
 
-		for (Field field : declaredFields) {
-			if (field.getName().equals(name)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private static boolean isDeclaredField(Field[] declaredFields, String name) {
+
+        for (Field field : declaredFields) {
+            if (field.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public FieldInfo primaryIndexField() {
+        if (!primaryIndexFieldChecked && primaryIndexField == null) {
+            final String indexAnnotation = Index.class.getCanonicalName();
+
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(indexAnnotation);
+                if (annotationInfo != null && annotationInfo.get("primary") != null && annotationInfo.get("primary").equals("true")) {
+
+                    if (primaryIndexField == null) {
+                        primaryIndexField = fieldInfo;
+                    } else {
+                        throw new Neo4jException("Each class may only define one primary index.");
+                    }
+                }
+            }
+            primaryIndexFieldChecked = true;
+        }
+
+        return primaryIndexField;
+    }
 }
 

@@ -31,6 +31,7 @@ import java.io.IOException;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 
@@ -50,26 +51,22 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 
 	@Test
 	public void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
-		Movie hp = new Movie();
-		hp.setTitle("Goblet of Fire");
-		hp.setYear(2005);
+		Movie hp = new Movie("Goblet of Fire", 2005);
 
 		Actor daniel = new Actor("Daniel Radcliffe");
 		daniel.playedIn(hp, "Harry Potter");
 		session.save(daniel);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
+		GraphTestUtils.assertSameGraph(getDatabase(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
 	}
 
 	@Test
 	public void testThatRelationshipEntityNameIsUsedAsRelationshipTypeWhenTypeIsNotDefined() {
-		Movie hp = new Movie();
-		hp.setTitle("Goblet of Fire");
-		hp.setYear(2005);
+		Movie hp = new Movie("Goblet of Fire", 2005);
 
 		Actor daniel = new Actor("Daniel Radcliffe");
 		daniel.nominatedFor(hp, "Saturn Award", 2005);
 		session.save(daniel);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (m:Movie {title : 'Goblet of Fire',year:2005 } ) create (a:Actor {name:'Daniel Radcliffe'}) create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
+		GraphTestUtils.assertSameGraph(getDatabase(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
 	}
 
 	@Test

@@ -15,9 +15,9 @@ package org.neo4j.ogm.compiler;
 
 import java.util.*;
 
-import org.neo4j.ogm.compiler.builders.DefaultNodeBuilder;
-import org.neo4j.ogm.compiler.builders.DefaultRelationshipBuilder;
-import org.neo4j.ogm.compiler.emitters.*;
+import org.neo4j.ogm.compiler.builders.node.DefaultNodeBuilder;
+import org.neo4j.ogm.compiler.builders.node.DefaultRelationshipBuilder;
+import org.neo4j.ogm.compiler.builders.statement.*;
 import org.neo4j.ogm.exception.UnknownStatementTypeException;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
@@ -105,12 +105,12 @@ public class MultiStatementCypherCompiler implements Compiler {
     }
 
     public List<Statement> createNodesStatements() {
-		assertStatementFactoryExists();
+        assertStatementFactoryExists();
         Map<String, Set<Node>> newNodesByLabels = groupNodesByLabel(newNodeBuilders);
         List<Statement> statements = new ArrayList<>(newNodesByLabels.size());
         for (Set<Node> nodeModels : newNodesByLabels.values()) {
-            NewNodeStatementBuilder newNodeEmitter = new NewNodeStatementBuilder(nodeModels, statementFactory);
-            statements.add(newNodeEmitter.build());
+            NewNodeStatementBuilder newNodeBuilder = new NewNodeStatementBuilder(nodeModels, statementFactory);
+            statements.add(newNodeBuilder.build());
         }
 
         return statements;
@@ -118,7 +118,7 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     @Override
     public List<Statement> createRelationshipsStatements() {
-		assertStatementFactoryExists();
+        assertStatementFactoryExists();
         //Group relationships by type and non-null properties
         //key: relationship type, value: Map where key=Set<Property strings>, value: Set of edges with those properties
         Map<String, Map<Set<String>, Set<Edge>>> relsByTypeAndProps = new HashMap<>();
@@ -153,8 +153,8 @@ public class MultiStatementCypherCompiler implements Compiler {
         for (Map<Set<String>, Set<Edge>> edgesByProperties : relsByTypeAndProps.values()) {
             //For each set of unique property keys
             for (Set<Edge> edges : edgesByProperties.values()) {
-                NewRelationshipStatementBuilder newRelationshipEmitter = new NewRelationshipStatementBuilder(edges, statementFactory);
-                statements.add(newRelationshipEmitter.build());
+                NewRelationshipStatementBuilder newRelationshipBuilder = new NewRelationshipStatementBuilder(edges, statementFactory);
+                statements.add(newRelationshipBuilder.build());
             }
         }
 
@@ -163,13 +163,13 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     @Override
     public List<Statement> updateNodesStatements() {
-		assertStatementFactoryExists();
+        assertStatementFactoryExists();
         Map<String, Set<Node>> existingNodesByLabels = groupNodesByLabel(existingNodeBuilders);
 
         List<Statement> statements = new ArrayList<>(existingNodesByLabels.size());
         for (Set<Node> nodeModels : existingNodesByLabels.values()) {
-            ExistingNodeStatementBuilder existingNodeEmitter = new ExistingNodeStatementBuilder(nodeModels, statementFactory);
-            statements.add(existingNodeEmitter.build());
+            ExistingNodeStatementBuilder existingNodeBuilder = new ExistingNodeStatementBuilder(nodeModels, statementFactory);
+            statements.add(existingNodeBuilder.build());
         }
 
         return statements;
@@ -177,29 +177,29 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     @Override
     public List<Statement> updateRelationshipStatements() {
-		assertStatementFactoryExists();
+        assertStatementFactoryExists();
         Set<Edge> relationships = new HashSet<>(existingRelationshipBuilders.size());
         List<Statement> statements = new ArrayList<>(existingRelationshipBuilders.size());
         if (existingRelationshipBuilders.size() > 0) {
             for (RelationshipBuilder relBuilder : existingRelationshipBuilders) {
                 relationships.add(relBuilder.edge());
             }
-            ExistingRelationshipStatementBuilder existingRelationshipEmitter = new ExistingRelationshipStatementBuilder(relationships, statementFactory);
-            statements.add(existingRelationshipEmitter.build());
+            ExistingRelationshipStatementBuilder existingRelationshipBuilder = new ExistingRelationshipStatementBuilder(relationships, statementFactory);
+            statements.add(existingRelationshipBuilder.build());
         }
         return statements;
     }
 
     @Override
     public List<Statement> deleteRelationshipStatements() {
-		assertStatementFactoryExists();
+        assertStatementFactoryExists();
         //Group relationships by type
         Map<String, Set<Edge>> deletedRelsByType = groupRelationshipsByType(deletedRelationshipBuilders);
         List<Statement> statements = new ArrayList<>();
 
         for (Set<Edge> edges : deletedRelsByType.values()) {
-            DeletedRelationshipStatementBuilder deletedRelationshipEmitter = new DeletedRelationshipStatementBuilder(edges, statementFactory);
-            statements.add(deletedRelationshipEmitter.build());
+            DeletedRelationshipStatementBuilder deletedRelationshipBuilder = new DeletedRelationshipStatementBuilder(edges, statementFactory);
+            statements.add(deletedRelationshipBuilder.build());
         }
         return statements;
     }
@@ -207,15 +207,15 @@ public class MultiStatementCypherCompiler implements Compiler {
 
     @Override
     public List<Statement> deleteRelationshipEntityStatements() {
-		assertStatementFactoryExists();
+        assertStatementFactoryExists();
         //Group relationships by type
         Map<String, Set<Edge>> deletedRelsByType = groupRelationshipsByType(deletedRelationshipEntityBuilders);
 
         List<Statement> statements = new ArrayList<>();
 
         for (Set<Edge> edges : deletedRelsByType.values()) {
-            DeletedRelationshipEntityStatementBuilder deletedRelationshipEmitter = new DeletedRelationshipEntityStatementBuilder(edges, statementFactory);
-            statements.add(deletedRelationshipEmitter.build());
+            DeletedRelationshipEntityStatementBuilder deletedRelationshipBuilder = new DeletedRelationshipEntityStatementBuilder(edges, statementFactory);
+            statements.add(deletedRelationshipBuilder.build());
         }
         return statements;
     }
@@ -242,7 +242,7 @@ public class MultiStatementCypherCompiler implements Compiler {
     public boolean hasStatementsDependentOnNewNodes() {
         for (RelationshipBuilder builder : newRelationshipBuilders) {
             Edge edge = builder.edge();
-            //TODO the null check is a carry forward from the old emitters. We want to prevent this rel builder getting created or remove it
+            //TODO the null check is a carry forward from the old cypher builders. We want to prevent this rel builder getting created or remove it
             if ((edge.getStartNode() != null && edge.getStartNode() < 0)
                     || (edge.getEndNode() != null && edge.getEndNode() < 0)) {
                 return true;
@@ -251,10 +251,10 @@ public class MultiStatementCypherCompiler implements Compiler {
         return false;
     }
 
-	@Override
-	public void useStatementFactory(StatementFactory statementFactory) {
-		this.statementFactory = statementFactory;
-	}
+    @Override
+    public void useStatementFactory(StatementFactory statementFactory) {
+        this.statementFactory = statementFactory;
+    }
 
     private boolean unmap(RelationshipBuilder relationshipBuilder) {
         boolean unmapped = false;
@@ -280,11 +280,11 @@ public class MultiStatementCypherCompiler implements Compiler {
         return unmapped;
     }
 
-	private void assertStatementFactoryExists() {
-		if (statementFactory == null) {
-			throw new UnknownStatementTypeException("Unknown statement type- statementFactory must be specified!");
-		}
-	}
+    private void assertStatementFactoryExists() {
+        if (statementFactory == null) {
+            throw new UnknownStatementTypeException("Unknown statement type- statementFactory must be specified!");
+        }
+    }
 
     private Map<String, Set<Node>> groupNodesByLabel(List<NodeBuilder> nodeBuilders) {
         Map<String, Set<Node>> nodesByLabels = new HashMap<>();

@@ -11,13 +11,9 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler.emitters;
+package org.neo4j.ogm.compiler.builders.statement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Node;
@@ -29,14 +25,14 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
+public class NewNodeStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
-    private final Set<Node> existingNodes;
+    private final Set<Node> newNodes;
 
-    public ExistingNodeStatementBuilder(Set<Node> existingNodes, StatementFactory statementFactory) {
-        this.existingNodes = existingNodes;
+    public NewNodeStatementBuilder(Set<Node> newNodes, StatementFactory statementFactory) {
+        this.newNodes = newNodes;
         this.statementFactory = statementFactory;
     }
 
@@ -46,33 +42,40 @@ public class ExistingNodeStatementBuilder implements CypherStatementBuilder {
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
-        if (existingNodes != null && existingNodes.size() > 0) {
-            Node firstNode = existingNodes.iterator().next();
+        if (newNodes != null && newNodes.size() > 0) {
+            Node firstNode = newNodes.iterator().next();
 
-            queryBuilder.append("UNWIND {rows} as row ")
-                    .append("MATCH (n) WHERE ID(n)=row.nodeId ");
+            queryBuilder.append("UNWIND {rows} as row ");
 
-            String[] removedLabels = firstNode.getRemovedLabels();
-            if (removedLabels != null && removedLabels.length > 0) {
-                for (String label : removedLabels) {
-                    queryBuilder.append(String.format(" REMOVE n:`%s` ", label));
-                }
+            if (firstNode.getPrimaryIndex() != null) {
+                queryBuilder.append("MERGE (n");
+            } else {
+                queryBuilder.append("CREATE (n");
             }
 
-            queryBuilder.append("SET n");
             for (String label : firstNode.getLabels()) {
                 queryBuilder.append(":`").append(label).append("`");
             }
 
-            queryBuilder.append(" SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type");
+            if (firstNode.getPrimaryIndex() != null) {
+                queryBuilder.append("{")
+                        .append(firstNode.getPrimaryIndex())
+                        .append(": row.props.")
+                        .append(firstNode.getPrimaryIndex())
+                        .append("}");
+            }
+
+            queryBuilder.append(") SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type");
             List<Map> rows = new ArrayList<>();
-            for (Node node : existingNodes) {
+            for (Node node : newNodes) {
                 Map<String, Object> rowMap = new HashMap<>();
-                rowMap.put("nodeId", node.getId());
+                rowMap.put("nodeRef", node.getId());
                 rowMap.put("type", "node");
                 Map<String, Object> props = new HashMap<>();
                 for (Property property : node.getPropertyList()) {
-                    props.put((String) property.getKey(), property.getValue());
+                    if (property.getValue() != null) {
+                        props.put((String) property.getKey(), property.getValue());
+                    }
                 }
                 rowMap.put("props", props);
                 rows.add(rowMap);

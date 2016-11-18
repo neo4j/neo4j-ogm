@@ -22,6 +22,7 @@ import org.neo4j.ogm.model.Node;
  * Builds a node to be persisted in the database.
  *
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public interface NodeBuilder {
 
@@ -38,4 +39,6 @@ public interface NodeBuilder {
     NodeBuilder removeLabels(Collection<String> labels);
 
     Node node();
+
+    NodeBuilder setPrimaryIndex(String primaryIndexField);
 }

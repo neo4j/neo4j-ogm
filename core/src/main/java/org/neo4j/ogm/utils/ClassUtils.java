@@ -15,13 +15,9 @@ package org.neo4j.ogm.utils;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.service.ResourceService;
 
@@ -167,7 +163,7 @@ public abstract class ClassUtils {
         Set<File> pathFiles = new HashSet<>();
         for(String classPath : classPaths) {
             try {
-                Enumeration<URL> resources = ClassUtils.class.getClassLoader().getResources(classPath.replace(".","/"));
+				Enumeration<URL> resources = ClassLoaderResolver.resolve().getResources(classPath.replace(".","/"));
                 while(resources.hasMoreElements()) {
                     URL url = resources.nextElement();
                     pathFiles.add( ResourceService.resolve( url ));

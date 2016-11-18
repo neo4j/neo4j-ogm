@@ -29,6 +29,7 @@ public class Knows {
 
     @StartNode
     private Actor firstActor;
+
     @EndNode
     private Actor secondActor;
 

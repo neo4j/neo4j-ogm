@@ -14,34 +14,47 @@
 package org.neo4j.ogm.domain.cineasts.annotated;
 
 
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
+@NodeEntity
 public class User {
 
+    @GraphId
     Long id;
 
+    @Convert(UuidStringConverter.class)
     @Index(unique = true)
+    private UUID uuid;
+
+    @Index(unique = true, primary = true)
     String login;
+
     String name;
+
     String password;
 
     @Relationship(type = "RATED")
     Set<Rating> ratings;
 
-
     Set<User> friends;
 
     @Convert(SecurityRoleConverter.class)
     SecurityRole[] securityRoles;
+
     @Convert(TitleConverter.class)
     List<Title> titles;
 
@@ -55,6 +68,16 @@ public class User {
     }
 
     void befriend(User user) {
+    }
+
+    public User() {
+    }
+
+    public User(String login, String name, String password) {
+        this.uuid = UUID.randomUUID();
+        this.login = login;
+        this.name = name;
+        this.password = password;
     }
 
     public Long getId() {
@@ -160,4 +183,7 @@ public class User {
         return "User:" + name;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
 }

@@ -31,15 +31,17 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class ParameterisedStatementTest {
 
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
+    private NodeQueryStatements nodeQueryStatements = new NodeQueryStatements();
     private Statement statement;
 
     @Test
     public void testFindOne() throws Exception {
-        statement = new NodeQueryStatements().findOne(123L, 1);
+        statement = nodeQueryStatements.findOne(123L, 1);
         assertEquals("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{\"id\":123}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -47,14 +49,14 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindAllWithIds() throws Exception {
         List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
-        statement = new NodeQueryStatements().findAll(ids, 1);
+        statement = nodeQueryStatements.findAll(ids, 1);
         assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void testFindByLabel() throws Exception {
-        statement = new NodeQueryStatements().findByType("NODE", 1);
+        statement = nodeQueryStatements.findByType("NODE", 1);
         assertEquals("MATCH (n:`NODE`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -71,14 +73,14 @@ public class ParameterisedStatementTest {
 
     @Test
     public void findAll() throws Exception {
-        statement = new NodeQueryStatements().findAll();
+        statement = nodeQueryStatements.findAll();
         assertEquals("MATCH p=()-->() RETURN p", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyStringValue() throws Exception {
-        statement = new NodeQueryStatements().findByType("Asteroid", new Filters().add(new Filter("ref", "45 Eugenia")), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("ref", "45 Eugenia")), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`ref` = { `ref_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"ref_0\":\"45 Eugenia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -87,35 +89,35 @@ public class ParameterisedStatementTest {
     public void findByPropertyWildcardLike() throws JsonProcessingException {
         Filter filter = new Filter("ref", "*nia");
         filter.setComparisonOperator(ComparisonOperator.LIKE);
-        statement = new NodeQueryStatements().findByType("Asteroid", new Filters().add(filter), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(filter), 1);
         assertEquals("{\"ref_0\":\"(?i).*nia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
 
 
     @Test
     public void findByPropertyIntegralValue() throws Exception {
-        statement = new NodeQueryStatements().findByType("Asteroid", new Filters().add(new Filter("index", 77)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("index", 77)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`index` = { `index_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"index_0\":77}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyStandardForm() throws Exception {
-        statement = new NodeQueryStatements().findByType("Asteroid", new Filters().add(new Filter("diameter", 6.02E1)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", 6.02E1)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter_0\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyDecimal() throws Exception {
-        statement = new NodeQueryStatements().findByType("Asteroid", new Filters().add(new Filter("diameter", 60.2)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", 60.2)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter_0\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyEmbeddedDelimiter() throws Exception {
-        statement = new NodeQueryStatements().findByType("Cookbooks", new Filters().add(new Filter("title", "Mrs Beeton's Household Recipes")), 1);
+        statement = nodeQueryStatements.findByType("Cookbooks", new Filters().add(new Filter("title", "Mrs Beeton's Household Recipes")), 1);
         assertEquals("MATCH (n:`Cookbooks`) WHERE n.`title` = { `title_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"title_0\":\"Mrs Beeton's Household Recipes\"}", mapper.writeValueAsString(statement.getParameters()));
     }

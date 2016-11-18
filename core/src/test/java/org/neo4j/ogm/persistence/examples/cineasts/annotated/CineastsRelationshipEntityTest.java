@@ -45,6 +45,7 @@ import org.neo4j.ogm.testutil.TestUtils;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
@@ -58,12 +59,12 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
     @Test
     public void shouldSaveMultipleRatingsFromDifferentUsersForSameMovie() {
-        Movie movie = new Movie();
-        movie.setTitle("Pulp Fiction");
+        Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);
@@ -100,12 +101,11 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         assertEquals(2, film.getRatings().size());   //Fail, it has just one rating, luannes
 
         //Verify that luanne's rating is saved
-        Collection<User> users = session.loadAll(User.class, new Filter("login", "luanne"));
-        User foundLuanne = users.iterator().next();
+        User foundLuanne = session.load(User.class, "luanne");
         assertEquals(1, foundLuanne.getRatings().size());
 
         //Verify that Michals rating still exists
-        users = session.loadAll(User.class, new Filter("name", "Michal"));
+        Collection<User> users = session.loadAll(User.class, new Filter("name", "Michal"));
         User foundMichal = users.iterator().next();
         assertEquals(1, foundMichal.getRatings().size()); //Fail, Michals rating is gone
     }
@@ -186,11 +186,11 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldBeAbleToModifyRating() {
-        Movie movie = new Movie();
-        movie.setTitle("Harry Potter and the Philosophers Stone");
+        Movie movie = new Movie("Harry Potter and the Philosophers Stone", 2003);
 
         User vince = new User();
         vince.setName("Vince");
+        vince.setLogin("bickerv");
 
         Set<Rating> ratings = new HashSet<>();
         Rating awesome = new Rating();
@@ -285,8 +285,8 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         User critic = new User();
         critic.setName("Gary");
-        Movie film = new Movie();
-        film.setTitle("Fast and Furious XVII");
+        critic.setLogin("gman");
+        Movie film = new Movie("Fast and Furious XVII", 2015);
         Rating filmRating = new Rating();
         filmRating.setUser(critic);
         critic.setRatings(Collections.singleton(filmRating));
@@ -332,16 +332,15 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
 
-        Movie goblet = new Movie();
-        goblet.setTitle("Harry Potter and the Goblet of Fire");
+        Movie goblet = new Movie("Harry Potter and the Goblet of Fire", 2006);
         session.save(goblet);
 
-        Movie phoenix = new Movie();
-        phoenix.setTitle("Harry Potter and the Order of the Phoenix");
+        Movie phoenix = new Movie("Harry Potter and the Order of the Phoenix", 2009);
         session.save(phoenix);
 
         User adam = new User();
         adam.setName("Adam");
+        adam.setLogin("adamg");
 
         Rating good = new Rating();
         good.setUser(adam);
@@ -402,18 +401,15 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         Set<Rating> gobletRatings = new HashSet<>();
         Set<Rating> phoenixRatings = new HashSet<>();
 
-
-        Movie goblet = new Movie();
-        goblet.setTitle("Harry Potter and the Goblet of Fire");
+        Movie goblet = new Movie("Harry Potter and the Goblet of Fire", 2006);
         session.save(goblet);
 
-        Movie phoenix = new Movie();
-        phoenix.setTitle("Harry Potter and the Order of the Phoenix");
+        Movie phoenix = new Movie("Harry Potter and the Order of the Phoenix", 2009);
         session.save(phoenix);
 
         User adam = new User();
         adam.setName("Adam");
-
+        adam.setLogin("adamg");
         Rating good = new Rating();
         good.setUser(adam);
         good.setMovie(goblet);
@@ -461,16 +457,15 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         Set<Rating> phoenixRatings = new HashSet<>();
 
 
-        Movie goblet = new Movie();
-        goblet.setTitle("Harry Potter and the Goblet of Fire");
+        Movie goblet = new Movie("Harry Potter and the Goblet of Fire", 2006);
         session.save(goblet);
 
-        Movie phoenix = new Movie();
-        phoenix.setTitle("Harry Potter and the Order of the Phoenix");
+        Movie phoenix = new Movie("Harry Potter and the Order of the Phoenix", 2009);
         session.save(phoenix);
 
         User adam = new User();
         adam.setName("Adam");
+        adam.setLogin("adamg");
 
         Rating good = new Rating();
         good.setUser(adam);
@@ -579,14 +574,14 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
     @Test
     public void shouldHydrateTheEndNodeOfAnRECorrectly() {
         //TODO add some more end node hydration tests
-        Movie movie = new Movie();
-        movie.setTitle("Pulp Fiction");
+        Movie movie = new Movie("Pulp Fiction", 1994);
         Actor actor = new Actor("John Travolta");
         actor.playedIn(movie, "Vincent");
         session.save(movie);
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);
@@ -618,22 +613,19 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
     @Test
     public void shouldSaveMultipleRoleRelationshipsBetweenTheSameTwoObjects() {
 
-        Movie movie3 = new Movie();
-        movie3.setTitle("The big John Travolta Party");
-
-
+        Movie movie = new Movie("The big John Travolta Party", 2016);
         Actor actor = new Actor("John Travolta");
 
         for (int i = 65; i <= 90; i++) {
             String role = new String(new char[]{(char) i});
-            actor.playedIn(movie3, role);
+            actor.playedIn(movie, role);
         }
 
         assertEquals(26, actor.getRoles().size());
         session.save(actor);
 
         session.clear();
-        Actor loadedActor = session.load(Actor.class, actor.getId());
+        Actor loadedActor = session.load(Actor.class, actor.getUuid());
 
         assertEquals(26, loadedActor.getRoles().size());
 
@@ -642,9 +634,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
     @Test
     public void shouldSaveSingleRoleRelationshipBetweenTheSameTwoObjects() {
 
-        Movie movie = new Movie();
-        movie.setTitle("The big John Travolta Party");
-
+        Movie movie = new Movie("The big John Travolta Party", 2016);
 
         Actor actor = new Actor("John Travolta");
         actor.playedIn(movie, "He danced mostly");
@@ -653,7 +643,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         session.save(actor);
 
         session.clear();
-        Actor loadedActor = session.load(Actor.class, actor.getId());
+        Actor loadedActor = session.load(Actor.class, actor.getUuid());
 
         assertEquals(1, loadedActor.getRoles().size());
 
@@ -663,7 +653,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
         session.save(actor);
 
         session.clear();
-        loadedActor = session.load(Actor.class, actor.getId());
+        loadedActor = session.load(Actor.class, actor.getUuid());
 
         assertEquals(1, loadedActor.getRoles().size());
     }
@@ -689,12 +679,9 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldLoadFilmsByTitleUsingCaseInsensitiveWildcardBasedLikeExpression() {
-        Movie firstFilm = new Movie();
-        firstFilm.setTitle("Dirty Harry");
-        Movie secondFilm = new Movie();
-        secondFilm.setTitle("Harry Potter and the Order of the Phoenix");
-        Movie thirdFilm = new Movie();
-        thirdFilm.setTitle("Delhi Belly");
+        Movie firstFilm = new Movie("Dirty Harry", 1977);
+        Movie secondFilm = new Movie("Harry Potter and the Order of the Phoenix", 2009);
+        Movie thirdFilm = new Movie("Delhi Belly", 2012);
 
         session.save(firstFilm);
         session.save(secondFilm);
@@ -711,12 +698,12 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
     @Test
     public void shouldLoadASingleRating() {
-        Movie movie = new Movie();
-        movie.setTitle("Pulp Fiction");
+        Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);
@@ -749,13 +736,12 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
     @Test
     public void shouldSortRatings() {
-        Movie movie = new Movie();
-        movie.setTitle("Pulp Fiction");
+        Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
         User michal = new User();
         michal.setName("Michal");
-
+        michal.setLogin("bachmania");
         Rating awesome = new Rating();
         awesome.setMovie(movie);
         awesome.setUser(michal);
@@ -797,12 +783,12 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldBeAbleToSetREPropertiesToNull() throws MalformedURLException {
-        Movie movie = new Movie();
-        movie.setTitle("Pulp Fiction");
+        Movie movie = new Movie("Pulp Fiction", 1994);
         session.save(movie);
 
         User michal = new User();
         michal.setName("Michal");
+        michal.setLogin("bachmania");
 
         Rating awesome = new Rating();
         awesome.setMovie(movie);
@@ -827,7 +813,7 @@ public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
         //make sure there's still just one rating
         session.clear();
-        movie  = session.load(Movie.class, movie.getId());
+        movie  = session.load(Movie.class, movie.getUuid());
         assertEquals(1, movie.getRatings().size());
         assertNull(movie.getRatings().iterator().next().getComment());
     }

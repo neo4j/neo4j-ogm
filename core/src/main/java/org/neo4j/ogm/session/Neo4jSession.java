@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mihai Raulea
+ * @author Mark Angrish
  */
 public class Neo4jSession implements Session {
 
@@ -139,12 +140,12 @@ public class Neo4jSession implements Session {
      *----------------------------------------------------------------------------------------------------------
      */
     @Override
-    public <T> T load(Class<T> type, Long id) {
+    public <T, U> T load(Class<T> type, U id) {
         return loadOneHandler.load(type, id);
     }
 
     @Override
-    public <T> T load(Class<T> type, Long id, int depth) {
+    public <T, U> T load(Class<T> type, U id, int depth) {
         return loadOneHandler.load(type, id, depth);
     }
 
@@ -499,7 +500,10 @@ public class Neo4jSession implements Session {
         if (metaData.isRelationshipEntity(type.getName())) {
             return new RelationshipQueryStatements();
         }
-        return new NodeQueryStatements();
+        else {
+            final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
+            return new NodeQueryStatements(fieldInfo != null ? fieldInfo.getName(): null);
+        }
     }
 
     public String entityType(String name) {

@@ -47,7 +47,7 @@ public class RelationshipQueryStatements implements QueryStatements {
             "RETURN DISTINCT p";
 
     @Override
-    public PagingAndSortingQuery findOne(Long id, int depth) {
+    public PagingAndSortingQuery findOne(Object id, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {

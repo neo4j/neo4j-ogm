@@ -22,6 +22,7 @@ import java.util.Map;
 
 /**
  * @author Michal Bachman
+ * @author Mark Angrish
  */
 public class NodeModel implements Node {
 
@@ -29,10 +30,20 @@ public class NodeModel implements Node {
     private String[] labels;
     private String[] removedLabels;
     private List<Property<String, Object>> properties = new ArrayList<>();
+    private String primaryIndex;
 
     @Override
     public List<Property<String, Object>> getPropertyList() {
         return properties;
+    }
+
+    @Override
+    public String getPrimaryIndex() {
+        return primaryIndex;
+    }
+
+    public void setPrimaryIndex(String primaryIndex) {
+        this.primaryIndex = primaryIndex;
     }
 
     public void setProperties(Map<String, Object> properties) {

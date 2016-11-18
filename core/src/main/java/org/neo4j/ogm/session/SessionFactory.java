@@ -16,8 +16,8 @@ package org.neo4j.ogm.session;
 
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.index.IndexManager;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.autoindex.AutoIndexManager;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -29,7 +29,7 @@ import org.neo4j.ogm.service.Components;
 public class SessionFactory {
 
     private final MetaData metaData;
-    private final IndexManager indexManager;
+	private final AutoIndexManager autoIndexManager;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -45,8 +45,8 @@ public class SessionFactory {
      */
     public SessionFactory(String... packages) {
         this.metaData = new MetaData(packages);
-        this.indexManager = new IndexManager(this.metaData, Components.driver());
-        this.indexManager.build();
+		this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
+		this.autoIndexManager.build();
     }
 
     /**
@@ -61,8 +61,8 @@ public class SessionFactory {
      */
     public SessionFactory(Class... classes) {
         this.metaData = new MetaData(classes);
-        this.indexManager = new IndexManager(this.metaData, Components.driver());
-        this.indexManager.build();
+        this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
+        this.autoIndexManager.build();
     }
 
     /**
@@ -81,8 +81,8 @@ public class SessionFactory {
     public SessionFactory(Configuration configuration, String... packages) {
         Components.configure(configuration);
         this.metaData = new MetaData(packages);
-        this.indexManager = new IndexManager(this.metaData, Components.driver());
-        this.indexManager.build();
+        this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
+        this.autoIndexManager.build();
     }
 
     /**
@@ -99,8 +99,8 @@ public class SessionFactory {
     public SessionFactory(Configuration configuration, Class... classes) {
         Components.configure(configuration);
         this.metaData = new MetaData(classes);
-        this.indexManager = new IndexManager(this.metaData, Components.driver());
-        this.indexManager.build();
+        this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
+        this.autoIndexManager.build();
     }
 
     /**

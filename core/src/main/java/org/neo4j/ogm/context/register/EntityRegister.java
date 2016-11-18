@@ -24,17 +24,17 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Mark Angrish
  */
-public class EntityRegister {
+public class EntityRegister<T> {
 
     private final Logger LOGGER = LoggerFactory.getLogger(EntityRegister.class);
 
-    private final Map<Long, Object> register = new HashMap<>();
+    private final Map<T, Object> register = new HashMap<>();
 
-    public Object get(Long id) {
+    public Object get(T id) {
         return register.get(id);
     }
 
-    public boolean add(Long id, Object entity) {
+    public boolean add(T id, Object entity) {
         final Object existing = register.get(id);
 
         if (existing != null) {
@@ -47,12 +47,12 @@ public class EntityRegister {
         return true;
     }
 
-    public boolean contains(Long id) {
+    public boolean contains(T id) {
         return register.containsKey(id);
     }
 
 
-    public void remove(Long id) {
+    public void remove(T id) {
         LOGGER.debug("Removed object with id {}", id);
         register.remove(id);
     }
@@ -62,7 +62,7 @@ public class EntityRegister {
         register.clear();
     }
 
-    public Iterator<Long> iterator() {
+    public Iterator<T> iterator() {
         return register.keySet().iterator();
     }
 }

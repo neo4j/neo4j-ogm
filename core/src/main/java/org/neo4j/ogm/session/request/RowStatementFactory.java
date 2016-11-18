@@ -20,7 +20,7 @@ import org.neo4j.ogm.request.StatementFactory;
 /**
  * @author Luanne Misquitta
  */
-public class RowStatementFactory implements StatementFactory<RowDataStatement> {
+public class RowStatementFactory implements StatementFactory {
 
 	@Override
 	public RowDataStatement statement(String statement, Map<String, Object> parameters) {

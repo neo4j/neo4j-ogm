@@ -14,7 +14,7 @@ package org.neo4j.ogm.config;
 
 import java.util.Arrays;
 
-import org.neo4j.ogm.index.AutoIndexMode;
+import org.neo4j.ogm.autoindex.AutoIndexMode;
 
 /**
  * Represents the configuration for Auto Index.

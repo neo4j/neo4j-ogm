@@ -12,14 +12,15 @@
  */
 package org.neo4j.ogm.metadata.scanner;
 
-import org.neo4j.ogm.scanner.ClassPathScanner;
-
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.neo4j.ogm.classloader.ClassLoaderResolver;
+import org.neo4j.ogm.scanner.ClassPathScanner;
 
 /**
  * For the purpose of testing classpath scanning within jars and to bypass the classload mechanism in tests.
@@ -31,17 +32,15 @@ public class FileClassPathScanner extends ClassPathScanner {
     @Override
     protected Set<File> getUniqueClasspathElements(List<String> classPaths) {
         Set<File> jars = new HashSet<>();
-        URL concert = FileClassPathScanner.class.getClassLoader().getResource("concert.jar");
-        URL radio = FileClassPathScanner.class.getClassLoader().getResource("radio.jar");
-        URL event = FileClassPathScanner.class.getClassLoader().getResource("event.jar");
+		ClassLoader classLoader = ClassLoaderResolver.resolve();
+        URL concert = classLoader.getResource("concert.jar");
+        URL radio = classLoader.getResource("radio.jar");
+        URL event = classLoader.getResource("event.jar");
 
         try {
             addFile(concert, jars);
             addFile(radio, jars);
             addFile(event, jars);
-            /*jars.add(new File(concert.toURI()));
-			jars.add(new File(radio.toURI()));
-			jars.add(new File(event.toURI()));*/
         } catch (URISyntaxException e) {
             throw new RuntimeException("Failed to read test jars", e);
         }

@@ -47,6 +47,7 @@ import org.neo4j.ogm.utils.ClassUtils;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Jasper Blues
  */
 public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
 
@@ -196,7 +197,7 @@ public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
      * @return a count of objects that matched the query
      */
     private Long count(CypherQuery query, boolean isRelationshipEntity) {
-        String resultKey = isRelationshipEntity ? "COUNT(r)" : "COUNT(n)";
+        String resultKey = isRelationshipEntity ? "COUNT(r0)" : "COUNT(n)";
         Result result = session.query(query.getStatement(), query.getParameters(), true); // count queries are read only
         Map<String, Object> resultMap = result.iterator().next();
         return Long.parseLong(resultMap.get(resultKey).toString());

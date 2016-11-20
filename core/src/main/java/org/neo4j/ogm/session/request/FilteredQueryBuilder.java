@@ -113,10 +113,10 @@ public class FilteredQueryBuilder {
 	}
 
 	private static void createRelationSubquery(String type, Map<String, Object> properties, List<Filter> relationshipFilters, StringBuilder query) {
-		query.append(String.format("MATCH (n)-[r:`%s`]->(m) ", type));
+		query.append(String.format("MATCH (n)-[r0:`%s`]->(m) ", type));
 		if (relationshipFilters.size() > 0) {
 			query.append("WHERE ");
-			appendFilters(relationshipFilters, "r", query, properties);
+			appendFilters(relationshipFilters, "r0", query, properties);
 		}
 	}
 

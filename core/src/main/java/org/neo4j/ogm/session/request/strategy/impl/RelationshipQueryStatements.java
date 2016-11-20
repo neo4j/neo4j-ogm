@@ -30,16 +30,16 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  */
 public class RelationshipQueryStatements implements QueryStatements {
 
-    private static final String MATCH_WITH_ID = "MATCH ()-[r]-() WHERE ID(r)={id} ";
-    private static final String MATCH_WITH_IDS = "MATCH ()-[r]-() WHERE ID(r) IN {ids} ";
-    private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r:`%s`]-() WHERE ID(r) IN {ids} ";
-    private static final String MATCH_PATHS_WITH_REL_ID = " WITH r,startnode(r) AS n, endnode(r) AS m " +
-            "MATCH p1 = (n)-[*%d..%d]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m " +
-            "MATCH p2 = (m)-[*%d..%d]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-            "WITH ID(r) AS rId,startPaths + endPaths  AS paths " +
+    private static final String MATCH_WITH_ID = "MATCH ()-[r0]-() WHERE ID(r0)={id} ";
+    private static final String MATCH_WITH_IDS = "MATCH ()-[r0]-() WHERE ID(r0) IN {ids} ";
+    private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r0:`%s`]-() WHERE ID(r0) IN {ids} ";
+    private static final String MATCH_PATHS_WITH_REL_ID = " WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+            "MATCH p1 = (n)-[*%d..%d]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+            "MATCH p2 = (m)-[*%d..%d]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+            "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
             "UNWIND paths AS p " +
             "RETURN DISTINCT p, rId";
-    private static final String MATCH_PATHS = " WITH STARTNODE(r) AS n, ENDNODE(r) AS m " +
+    private static final String MATCH_PATHS = " WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m " +
             "MATCH p1 = (n)-[*%d..%d]-() WITH COLLECT(DISTINCT p1) AS startPaths, m " +
             "MATCH p2 = (m)-[*%d..%d]-() WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
             "WITH startPaths + endPaths AS paths " +
@@ -91,7 +91,7 @@ public class RelationshipQueryStatements implements QueryStatements {
     public PagingAndSortingQuery findByType(String type, int depth) {
         int max = max(depth);
         if (max > 0) {
-           String qry = String.format("MATCH ()-[r:`%s`]-() " + MATCH_PATHS_WITH_REL_ID, type, 0, max, 0, max);
+           String qry = String.format("MATCH ()-[r0:`%s`]-() " + MATCH_PATHS_WITH_REL_ID, type, 0, max, 0, max);
             return new DefaultGraphModelRequest(qry, Utils.map());
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");

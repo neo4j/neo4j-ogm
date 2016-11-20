@@ -76,7 +76,7 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
 
         private final CountDownLatch latch;
         private final String query;
-        private final SessionFactory sessionFactory = new SessionFactory();
+        private final SessionFactory sessionFactory = new SessionFactory("");
 
         public QueryRunner(CountDownLatch latch, String query) {
             this.query = query;

@@ -13,13 +13,15 @@
 
 package org.neo4j.ogm;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.domain.cineasts.partial.Actor;
+import org.neo4j.ogm.domain.cineasts.partial.Movie;
+import org.neo4j.ogm.domain.cineasts.partial.Role;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.ClassInfo;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -31,6 +33,12 @@ public class MetaDataTest {
     @Before
     public void setUp() {
         metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
+    }
+
+    @Test
+    public void metaDataLoadsWhenClassesAreUsed() {
+        MetaData classBasedMetaData = new MetaData(Actor.class, Movie.class, Role.class);
+        assertEquals("org.neo4j.ogm.domain.cineasts.partial.Actor", classBasedMetaData.classInfo("Actor").name());
     }
 
     /**
@@ -50,10 +58,6 @@ public class MetaDataTest {
         assertEquals("org.neo4j.ogm.domain.forum.BronzeMembership", metaData.classInfo("Bronze").name());
     }
 
-
-
-
-
     @Test
     public void testCanResolveRelationshipEntityFromRelationshipType() {
         ClassInfo classInfo = metaData.resolve("MEMBER_OF");
@@ -71,7 +75,6 @@ public class MetaDataTest {
     public void testCannotResolveInconsistentClassHierarchies() {
         metaData.resolve("Login", "Topic");
     }
-
 
 
     @Test
@@ -149,7 +152,4 @@ public class MetaDataTest {
     public void testNonMemberAndMemberTaxa() {
         assertEquals("org.neo4j.ogm.domain.forum.SilverMembership", metaData.resolve("Silver", "Pewter", "Tin").name());
     }
-
-
-
 }

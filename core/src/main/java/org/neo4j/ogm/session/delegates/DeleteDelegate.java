@@ -190,7 +190,7 @@ public class DeleteDelegate implements Capability.Delete {
      * @return a {@link List} of object ids that were deleted
      */
     private List<Long> list(CypherQuery query, boolean isRelationshipEntity) {
-        String resultKey = isRelationshipEntity ? "ID(r)" : "ID(n)";
+        String resultKey = isRelationshipEntity ? "ID(r0)" : "ID(n)";
         Result result = session.query(query.getStatement(), query.getParameters());
         List<Long> ids = new ArrayList();
         for (Map<String, Object> resultEntry : result) {

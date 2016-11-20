@@ -29,6 +29,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Jasper Blues
  */
 public class RelationshipQueryStatementsTest {
 
@@ -36,12 +37,22 @@ public class RelationshipQueryStatementsTest {
 
     @Test
     public void testFindOne() throws Exception {
-        assertEquals("MATCH ()-[r]-() WHERE ID(r)={id}  WITH STARTNODE(r) AS n, ENDNODE(r) AS m MATCH p1 = (n)-[*0..2]-() WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() WITH startPaths, COLLECT(DISTINCT p2) AS endPaths WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p", query.findOne(0L, 2).getStatement());
+        assertEquals("MATCH ()-[r0]-() WHERE ID(r0)={id}  " +
+                "WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+                "WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+                "WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p",
+                query.findOne(0L, 2).getStatement());
     }
 
     @Test
     public void testFindAllCollection() throws Exception {
-        assertEquals("MATCH ()-[r]-() WHERE ID(r) IN {ids}  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
+        assertEquals("MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+                "MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+                "MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
     }
 
     @Test
@@ -51,7 +62,11 @@ public class RelationshipQueryStatementsTest {
 
     @Test
     public void testFindByLabel() throws Exception {
-        assertEquals("MATCH ()-[r:`ORBITS`]-()  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..3]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..3]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", 3).getStatement());
+        assertEquals("MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+                "MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+                "MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p " +
+                "RETURN DISTINCT p, rId", query.findByType("ORBITS", 3).getStatement());
     }
 
     /**
@@ -60,12 +75,24 @@ public class RelationshipQueryStatementsTest {
      */
     @Test
     public void testFindAllByTypeCollection() throws Exception {
-        assertEquals("MATCH ()-[r:`ORBITS`]-() WHERE ID(r) IN {ids}  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*1..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findAllByType("ORBITS", Arrays.asList(1L, 2L, 3L), 1).getStatement());
+        assertEquals("MATCH ()-[r0:`ORBITS`]-() WHERE ID(r0) IN {ids}  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*1..1]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findAllByType("ORBITS", Arrays.asList(1L, 2L, 3L), 1).getStatement());
     }
 
     @Test
     public void testFindByProperty() throws Exception {
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(new Filter("distance", 60.2)), 4).getStatement());
+        assertEquals("MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(new Filter("distance", 60.2)), 4).getStatement());
     }
 
     @Test(expected = InvalidDepthException.class)
@@ -122,7 +149,13 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("OUTGOING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
-        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name_0` } MATCH (n)-[r:`ORBITS`]->(m)  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement());
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name_0` } " +
+                "MATCH (n)-[r0:`ORBITS`]->(m)  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+                "MATCH p1 = (n)-[*0..4]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+                "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement());
     }
 
     /**
@@ -139,7 +172,12 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setRelationshipType("ORBITS");
         planetFilter.setRelationshipDirection("INCOMING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
-        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name_0` } MATCH (n)-[r:`ORBITS`]->(m)  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement());
+        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name_0` } MATCH (n)-[r0:`ORBITS`]->(m)  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+                "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(planetFilter), 4).getStatement());
     }
 
     /**
@@ -167,7 +205,12 @@ public class RelationshipQueryStatementsTest {
         planetMoonsFilter.setBooleanOperator(BooleanOperator.AND);
         planetMoonsFilter.setComparisonOperator(ComparisonOperator.EQUALS);
 
-        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name_0` } AND n.`moons` = { `moons_moons_1` } MATCH (n)-[r:`ORBITS`]->(m)  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name_0` } AND n.`moons` = { `moons_moons_1` } " +
+                        "MATCH (n)-[r0:`ORBITS`]->(m)  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+                        "MATCH p1 = (n)-[*0..4]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+                        "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                        "WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+                        "UNWIND paths AS p RETURN DISTINCT p, rId",
                 query.findByType("ORBITS", new Filters().add(planetNameFilter, planetMoonsFilter), 4).getStatement());
     }
 
@@ -196,7 +239,12 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setRelationshipDirection("INCOMING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
 
-        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name_0` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour_1` } MATCH (n)-[r:`ORBITS`]->(m)  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(moonFilter, planetFilter), 4).getStatement());
+        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name_0` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour_1` } " +
+                "MATCH (n)-[r0:`ORBITS`]->(m)  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+                "MATCH p1 = (n)-[*0..4]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+                "MATCH p2 = (m)-[*0..4]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(moonFilter, planetFilter), 4).getStatement());
     }
 
     /**
@@ -208,7 +256,12 @@ public class RelationshipQueryStatementsTest {
         Filter distance = new Filter("distance", 60.2);
         Filter time = new Filter("time", 3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` } AND r.`time` = { `time_1` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
+        assertEquals("MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` } AND r0.`time` = { `time_1` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
     }
 
     /**
@@ -220,7 +273,12 @@ public class RelationshipQueryStatementsTest {
         Filter distance = new Filter("distance", 60.2);
         Filter time = new Filter("time", 3600);
         time.setBooleanOperator(BooleanOperator.OR);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` } OR r.`time` = { `time_1` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
+        assertEquals("MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` } OR r0.`time` = { `time_1` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
     }
 
     /**
@@ -233,7 +291,12 @@ public class RelationshipQueryStatementsTest {
         distance.setComparisonOperator(ComparisonOperator.LESS_THAN);
         Filter time = new Filter("time", 3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` < { `distance_0` } AND r.`time` = { `time_1` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
+        assertEquals("MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` < { `distance_0` } AND r0.`time` = { `time_1` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
     }
 
     /**
@@ -246,7 +309,12 @@ public class RelationshipQueryStatementsTest {
         Filter time = new Filter("time", 3600);
         time.setBooleanOperator(BooleanOperator.OR);
         time.setComparisonOperator(ComparisonOperator.GREATER_THAN);
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` } OR r.`time` > { `time_1` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
+        assertEquals("MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` } OR r0.`time` > { `time_1` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(distance, time), 4).getStatement());
     }
 
     /**
@@ -265,7 +333,13 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         Filter time = new Filter("time", 3600);
         time.setBooleanOperator(BooleanOperator.AND);
-        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name_0` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time_1` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement());
+        assertEquals("MATCH (n:`Planet`) WHERE n.`name` = { `world_name_0` } " +
+                "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`time` = { `time_1` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement());
     }
 
 
@@ -284,7 +358,13 @@ public class RelationshipQueryStatementsTest {
         planetFilter.setRelationshipDirection("INCOMING");
         planetFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         Filter time = new Filter("time", 3600);
-        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name_0` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time_1` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement());
+        assertEquals("MATCH (m:`Planet`) WHERE m.`name` = { `world_name_0` } " +
+                "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`time` = { `time_1` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
+                query.findByType("ORBITS", new Filters().add(planetFilter, time), 4).getStatement());
     }
 
 
@@ -316,7 +396,12 @@ public class RelationshipQueryStatementsTest {
         Filter time = new Filter("time", 3600);
         time.setBooleanOperator(BooleanOperator.AND);
 
-        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name_0` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour_1` } MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`time` = { `time_2` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..4]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(moonFilter, planetFilter, time), 4).getStatement());
+        assertEquals("MATCH (n:`Moon`) WHERE n.`name` = { `world_name_0` } MATCH (m:`Planet`) WHERE m.`colour` = { `colour_colour_1` } " +
+                "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`time` = { `time_2` }  " +
+                "WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..4]-() " +
+                "WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..4]-() " +
+                "WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+                "UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", new Filters().add(moonFilter, planetFilter, time), 4).getStatement());
     }
 
     /**

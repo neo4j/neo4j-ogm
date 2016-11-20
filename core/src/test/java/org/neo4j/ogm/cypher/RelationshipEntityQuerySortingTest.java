@@ -27,48 +27,69 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
  */
 public class RelationshipEntityQuerySortingTest {
 
-    private final QueryStatements query = new RelationshipQueryStatements();
-    private SortOrder sortOrder;
-    private Filters filters;
+	private final QueryStatements query = new RelationshipQueryStatements();
+	private SortOrder sortOrder;
+	private Filters filters;
 
-    @Before
-    public void setUp() {
-        sortOrder = new SortOrder();
-        filters = new Filters();
-    }
+	@Before
+	public void setUp() {
+		sortOrder = new SortOrder();
+		filters = new Filters();
+	}
 
-    @Test
-    public void testFindAllCollection() throws Exception {
-        sortOrder.add("distance");
-        assertEquals("MATCH ()-[r]-() WHERE ID(r) IN {ids}  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.distance " +
-                "MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m " +
-                "MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId", query.findAll(Arrays.asList(1L, 2L, 3L), 1).setSortOrder(sortOrder).getStatement());
-    }
+	@Test
+	public void testFindAllCollection() throws Exception {
+		sortOrder.add("distance");
+		String statement = query.findAll(Arrays.asList(1L, 2L, 3L), 1).setSortOrder(sortOrder).getStatement();
+		String expected = "MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  WITH r0,startnode(r0) AS n, endnode(r0) AS m ORDER BY r0.distance " +
+				"MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+				"MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+				"UNWIND paths AS p RETURN DISTINCT p, rId";
+		assertEquals(expected, statement);
+	}
 
-    @Test
-    public void testFindByLabel() throws Exception {
-        sortOrder.add("distance");
-        assertEquals("MATCH ()-[r:`ORBITS`]-()  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.distance MATCH p1 = (n)-[*0..3]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..3]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
-    }
+	@Test
+	public void testFindByLabel() throws Exception {
+		sortOrder.add("distance");
+		String statement = query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement();
+		String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+				"ORDER BY r0.distance MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+				"MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId";
+		assertEquals(expected, statement);
+	}
 
-    @Test
-    public void testFindByProperty() throws Exception {
-        filters.add("distance", 60.2);
-        sortOrder.add("aphelion");
-        assertEquals("MATCH (n)-[r:`ORBITS`]->(m) WHERE r.`distance` = { `distance_0` }  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.aphelion MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
-    }
+	@Test
+	public void testFindByProperty() throws Exception {
+		filters.add("distance", 60.2);
+		sortOrder.add("aphelion");
+		String expected = "MATCH (n)-[r0:`ORBITS`]->(m) WHERE r0.`distance` = { `distance_0` }  " +
+				"WITH r0,startnode(r0) AS n, endnode(r0) AS m ORDER BY r0.aphelion " +
+				"MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+				"MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+				"WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId";
+		assertEquals(expected, query.findByType("ORBITS", filters, 1).setSortOrder(sortOrder).getStatement());
+	}
 
-    @Test
-    public void testMultipleSortOrders() {
-        sortOrder.add(SortOrder.Direction.DESC, "distance", "aphelion");
-        assertEquals("MATCH ()-[r:`ORBITS`]-()  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.distance DESC,r.aphelion DESC MATCH p1 = (n)-[*0..3]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..3]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
-    }
+	@Test
+	public void testMultipleSortOrders() {
+		sortOrder.add(SortOrder.Direction.DESC, "distance", "aphelion");
+		String statement = query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement();
+		String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, " +
+				"endnode(r0) AS m ORDER BY r0.distance DESC,r0.aphelion DESC " +
+				"MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+				"MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+				"WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId";
+		assertEquals(expected, statement);
+	}
 
-    @Test
-    public void testDifferentSortDirections() {
-        sortOrder.add(SortOrder.Direction.DESC, "type").add("name");
-        assertEquals("MATCH ()-[r:`ORBITS`]-()  WITH r,startnode(r) AS n, endnode(r) AS m ORDER BY r.type DESC,r.name MATCH p1 = (n)-[*0..3]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..3]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement());
-    }
-
+	@Test
+	public void testDifferentSortDirections() {
+		sortOrder.add(SortOrder.Direction.DESC, "type").add("name");
+		String statement = query.findByType("ORBITS", 3).setSortOrder(sortOrder).getStatement();
+		String expected = "MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
+				"ORDER BY r0.type DESC,r0.name MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
+				"MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
+				"UNWIND paths AS p RETURN DISTINCT p, rId";
+		assertEquals(expected, statement);
+	}
 }

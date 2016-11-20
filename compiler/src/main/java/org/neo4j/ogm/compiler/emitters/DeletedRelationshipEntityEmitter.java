@@ -33,7 +33,7 @@ public class DeletedRelationshipEntityEmitter implements CypherEmitter {
 	public void emit(StringBuilder queryBuilder, Map<String, Object> parameters) {
 		if (deletedEdges != null && deletedEdges.size() > 0) {
 
-			queryBuilder.append("START r=rel({relIds}) DELETE r");
+			queryBuilder.append("START r0=rel({relIds}) DELETE r0");
 
 			List<Long> relIds = new ArrayList<>(deletedEdges.size());
 			List<Map> rows = new ArrayList<>();

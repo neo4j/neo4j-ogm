@@ -14,7 +14,9 @@
 package org.neo4j.ogm.context;
 
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -88,57 +90,88 @@ public class EntityGraphMapper implements EntityMapper {
 
         logger.debug("context initialised with {} relationships", mappingContext.getRelationships().size());
 
-        // if the object is a RelationshipEntity, persist it by persisting both the start node and the end node
-        // and then ensure the relationship between the two is created or updated as necessary
-        if (isRelationshipEntity(entity)) {
-
-            ClassInfo reInfo = metaData.classInfo(entity);
-
-            Object startNode = EntityAccessManager.getStartNodeReader(reInfo).read(entity);
-            if (startNode == null) {
-                throw new RuntimeException("@StartNode of relationship entity may not be null");
+        if (entity.getClass().isArray() || Iterable.class.isAssignableFrom(entity.getClass())) {
+            Collection<Object> objects;
+            if (entity.getClass().isArray()) {
+                int length = Array.getLength(entity);
+                objects = new ArrayList<>(length);
+                for (int i = 0; i < length; i++) {
+                    Object arrayElement = Array.get(entity, i);
+                    objects.add(arrayElement);
+                }
+            } else {
+                // objects = (Collection<Object>) entity;
+            	objects = new ArrayList<Object>();
+            	Iterator<Object> iter = ((Iterable) entity).iterator();
+            	for(; iter.hasNext(); ) {
+            		Object obj = iter.next();
+            		objects.add(obj);
+            	}
             }
-
-            Object endNode = EntityAccessManager.getEndNodeReader(reInfo).read(entity);
-            if (endNode == null) {
-                throw new RuntimeException("@EndNode of relationship entity may not be null");
+            
+            for(Object object : objects) {
+            	mapRelationshipEntityOrEntity(object, horizon, compiler);
             }
-
-            // map both sides as far as the specified horizon
-            NodeBuilder startNodeBuilder = mapEntity(startNode, horizon, compiler);
-            NodeBuilder endNodeBuilder = mapEntity(endNode, horizon, compiler);
-
-            // create or update the relationship if its not already been visited in the current compile context
-            if (!compiler.context().visitedRelationshipEntity(EntityUtils.identity(entity, metaData))) {
-
-                AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.CLASS);
-                String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
-                DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, Relationship.OUTGOING);
-
-                RelationshipBuilder relationshipBuilder = getRelationshipBuilder(compiler, entity, directedRelationship, false);
-
-                // 2. create or update the actual relationship (edge) in the graph
-                updateRelationshipEntity(compiler.context(), entity, relationshipBuilder, reInfo);
-
-                ClassInfo targetInfo = metaData.classInfo(endNode);
-                ClassInfo startInfo = metaData.classInfo(startNode);
-
-                Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).readProperty(startNode);
-                Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).readProperty(endNode);
-
-                RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
-
-                // 2. update the fact of the relationship in the compile context
-                updateRelationship(compiler.context(), startNodeBuilder, endNodeBuilder, relationshipBuilder, relNodes);
-            }
-        } else { // not an RE, simply map the entity
-            mapEntity(entity, horizon, compiler);
+        } else {
+        	mapRelationshipEntityOrEntity(entity, horizon, compiler);
         }
 
         deleteObsoleteRelationships(compiler);
 
         return compiler.context();
     }
+
+	private void mapRelationshipEntityOrEntity(Object entity, int horizon, Compiler compiler) {
+		if (isRelationshipEntity(entity)) {
+        	// if the object is a RelationshipEntity, persist it by persisting both the start node and the end node
+        	// and then ensure the relationship between the two is created or updated as necessary
+            mapRelationshipEntity(entity, horizon, compiler);
+        } else { // not an RE, simply map the entity
+            mapEntity(entity, horizon, compiler);
+        }
+	}
+
+	private void mapRelationshipEntity(Object entity, int horizon, Compiler compiler) {
+		ClassInfo reInfo = metaData.classInfo(entity);
+
+		Object startNode = EntityAccessManager.getStartNodeReader(reInfo).read(entity);
+		if (startNode == null) {
+		    throw new RuntimeException("@StartNode of relationship entity may not be null");
+		}
+
+		Object endNode = EntityAccessManager.getEndNodeReader(reInfo).read(entity);
+		if (endNode == null) {
+		    throw new RuntimeException("@EndNode of relationship entity may not be null");
+		}
+
+		// map both sides as far as the specified horizon
+		NodeBuilder startNodeBuilder = mapEntity(startNode, horizon, compiler);
+		NodeBuilder endNodeBuilder = mapEntity(endNode, horizon, compiler);
+
+		// create or update the relationship if its not already been visited in the current compile context
+		if (!compiler.context().visitedRelationshipEntity(EntityUtils.identity(entity, metaData))) {
+
+		    AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+		    String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
+		    DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, Relationship.OUTGOING);
+
+		    RelationshipBuilder relationshipBuilder = getRelationshipBuilder(compiler, entity, directedRelationship, false);
+
+		    // 2. create or update the actual relationship (edge) in the graph
+		    updateRelationshipEntity(compiler.context(), entity, relationshipBuilder, reInfo);
+
+		    ClassInfo targetInfo = metaData.classInfo(endNode);
+		    ClassInfo startInfo = metaData.classInfo(startNode);
+
+		    Long srcIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(startInfo).readProperty(startNode);
+		    Long tgtIdentity = (Long) EntityAccessManager.getIdentityPropertyReader(targetInfo).readProperty(endNode);
+
+		    RelationshipNodes relNodes = new RelationshipNodes(srcIdentity, tgtIdentity, startNode.getClass(), endNode.getClass());
+
+		    // 2. update the fact of the relationship in the compile context
+		    updateRelationship(compiler.context(), startNodeBuilder, endNodeBuilder, relationshipBuilder, relNodes);
+		}
+	}
 
 
     /**

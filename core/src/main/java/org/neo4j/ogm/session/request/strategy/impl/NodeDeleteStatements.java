@@ -30,61 +30,61 @@ public class NodeDeleteStatements implements DeleteStatements {
     @Override
     
     public CypherQuery delete(Long id) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("id", id));
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map("id", id));
     }
 
     @Override
     public CypherQuery delete(Collection<Long> ids) {
-        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map("ids", ids));
+        return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map("ids", ids));
     }
 
     @Override
     public CypherQuery deleteAll() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map());
     }
 
     @Override
     public CypherQuery deleteAllAndCount() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN COUNT(n)", Utils.map());
     }
 
     @Override
     public CypherQuery deleteAllAndList() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)", Utils.map());
     }
 
     @Override
     public CypherQuery delete(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n", label), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", label), Utils.map());
     }
 
     @Override
     public CypherQuery deleteAndCount(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)", label), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN COUNT(n)", label), Utils.map());
     }
 
     @Override
     public CypherQuery deleteAndList(String label) {
-        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)", label), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (n:`%s`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)", label), Utils.map());
     }
 
     @Override
     public CypherQuery delete(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
-        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n");
+        query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery deleteAndCount(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
-        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN COUNT(n)");
+        query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery deleteAndList(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
-        query.setReturnClause(" OPTIONAL MATCH (n)-[r]-() DELETE r, n RETURN ID(n)");
+        query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());    }
 }

@@ -29,6 +29,7 @@ import org.neo4j.ogm.session.request.strategy.AggregateStatements;
  *
  * @author Adam George
  * @author Vince Bickers
+ * @author Jasper Blues
  */
 public class CountStatements implements AggregateStatements {
 
@@ -61,23 +62,23 @@ public class CountStatements implements AggregateStatements {
 
     @Override
     public CypherQuery countEdges() {
-        return new DefaultRowModelRequest("MATCH (n)-[r]->() RETURN COUNT(r)", Utils.map());
+        return new DefaultRowModelRequest("MATCH (n)-[r0]->() RETURN COUNT(r0)", Utils.map());
     }
 
     @Override
     public CypherQuery countEdges(String type) {
-        return new DefaultRowModelRequest(String.format("MATCH (n)-[r:`%s`]->() RETURN COUNT(r)", type), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (n)-[r0:`%s`]->() RETURN COUNT(r0)", type), Utils.map());
     }
 
     @Override
     public CypherQuery countEdges(String type, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
-        query.setReturnClause(" RETURN COUNT(r)");
+        query.setReturnClause(" RETURN COUNT(r0)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 
     @Override
     public CypherQuery countEdges(String startLabel, String type, String endLabel) {
-        return new DefaultRowModelRequest(String.format("MATCH (:`%s`)-[r:`%s`]->(:`%s`) RETURN COUNT(r)", startLabel, type, endLabel), Utils.map());
+        return new DefaultRowModelRequest(String.format("MATCH (:`%s`)-[r0:`%s`]->(:`%s`) RETURN COUNT(r0)", startLabel, type, endLabel), Utils.map());
     }
 }

@@ -32,6 +32,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Jasper Blues
  */
 public class ParameterisedStatementTest {
 
@@ -67,7 +68,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByTypeWithIllegalCharacter() throws Exception {
         statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", 1);
-        assertEquals("MATCH ()-[r:`HAS-ALBUM`]-()  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
+        assertEquals("MATCH ()-[r0:`HAS-ALBUM`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -125,7 +126,7 @@ public class ParameterisedStatementTest {
     @Test
     public void delete() throws Exception {
         statement = new NodeDeleteStatements().delete(123L);
-        assertEquals("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
+        assertEquals("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statement.getStatement());
         assertEquals("{\"id\":123}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -133,21 +134,21 @@ public class ParameterisedStatementTest {
     public void deleteAll() throws Exception {
         List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         statement = new NodeDeleteStatements().delete(ids);
-        assertEquals("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
+        assertEquals("MATCH (n) WHERE ID(n) in { ids } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void deleteAllByLabel() throws Exception {
         statement = new NodeDeleteStatements().delete("NODE");
-        assertEquals("MATCH (n:`NODE`) OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
+        assertEquals("MATCH (n:`NODE`) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void purge() throws Exception {
         statement = new NodeDeleteStatements().deleteAll();
-        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r, n", statement.getStatement());
+        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -157,7 +158,7 @@ public class ParameterisedStatementTest {
     @Test
     public void deleteRel() throws Exception {
         statement = new RelationshipDeleteStatements().delete(123L);
-        assertEquals("MATCH (n)-[r]->() WHERE ID(r) = { id } DELETE r", statement.getStatement());
+        assertEquals("MATCH (n)-[r0]->() WHERE ID(r0) = { id } DELETE r0", statement.getStatement());
         assertEquals("{\"id\":123}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -168,7 +169,7 @@ public class ParameterisedStatementTest {
     public void deleteAllRels() throws Exception {
         List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
         statement = new RelationshipDeleteStatements().delete(ids);
-        assertEquals("MATCH (n)-[r]->() WHERE ID(r) IN { ids } DELETE r", statement.getStatement());
+        assertEquals("MATCH (n)-[r0]->() WHERE ID(r0) IN { ids } DELETE r0", statement.getStatement());
         assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -178,7 +179,7 @@ public class ParameterisedStatementTest {
     @Test
     public void deleteAllRelsByType() throws Exception {
         statement = new RelationshipDeleteStatements().delete("REL");
-        assertEquals("MATCH (n)-[r:`REL`]-() DELETE r", statement.getStatement());
+        assertEquals("MATCH (n)-[r0:`REL`]-() DELETE r0", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 
@@ -189,7 +190,7 @@ public class ParameterisedStatementTest {
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
         statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", "none")), 1);
-        assertEquals("MATCH (n)-[r:`HAS-ALBUM`]->(m) WHERE r.`fake-property` = { `fake-property_0` }  WITH r,startnode(r) AS n, endnode(r) AS m MATCH p1 = (n)-[*0..1]-() WITH r, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
+        assertEquals("MATCH (n)-[r0:`HAS-ALBUM`]->(m) WHERE r0.`fake-property` = { `fake-property_0` }  WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
         assertEquals("{\"fake-property_0\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
 
     }

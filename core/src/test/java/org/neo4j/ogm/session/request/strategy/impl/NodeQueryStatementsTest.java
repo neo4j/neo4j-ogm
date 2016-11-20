@@ -538,6 +538,8 @@ public class NodeQueryStatementsTest {
 	}
 
 
+
+
 	/**
 	 * @see DATAGRAPH-632
 	 */

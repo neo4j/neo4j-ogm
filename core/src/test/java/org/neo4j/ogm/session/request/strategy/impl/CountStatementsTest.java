@@ -23,7 +23,8 @@ import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Jasper Blues
  */
 public class CountStatementsTest {
 
@@ -54,24 +55,24 @@ public class CountStatementsTest {
 
 	@Test
 	public void testCountEdges() throws Exception {
-		assertEquals("MATCH (n)-[r]->() RETURN COUNT(r)", statements.countEdges().getStatement());
+		assertEquals("MATCH (n)-[r0]->() RETURN COUNT(r0)", statements.countEdges().getStatement());
 	}
 
 	@Test
 	public void testCountEdgesWithType() throws Exception {
-		assertEquals("MATCH (n)-[r:`IN_CONSTITUENCY`]->() RETURN COUNT(r)", statements.countEdges("IN_CONSTITUENCY").getStatement());
+		assertEquals("MATCH (n)-[r0:`IN_CONSTITUENCY`]->() RETURN COUNT(r0)", statements.countEdges("IN_CONSTITUENCY").getStatement());
 	}
 
 	@Test
 	public void testCountEdgesWithTypeAndFilters() throws Exception {
 		CypherQuery query = statements.countEdges("INFLUENCE", new Filters().add("score", -12.2));
-		assertEquals("MATCH (n)-[r:`INFLUENCE`]->(m) WHERE r.`score` = { `score_0` }  RETURN COUNT(r)", query.getStatement());
+		assertEquals("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  RETURN COUNT(r0)", query.getStatement());
 		assertEquals("{score_0=-12.2}", query.getParameters().toString());
 	}
 
 	@Test
 	public void testCountEdgesWithSpecificPath() throws Exception {
-		assertEquals("MATCH (:`StartNode`)-[r:`TYPE`]->(:`EndNode`) RETURN COUNT(r)", statements.countEdges("StartNode", "TYPE", "EndNode").getStatement());
+		assertEquals("MATCH (:`StartNode`)-[r0:`TYPE`]->(:`EndNode`) RETURN COUNT(r0)", statements.countEdges("StartNode", "TYPE", "EndNode").getStatement());
 
 	}
 

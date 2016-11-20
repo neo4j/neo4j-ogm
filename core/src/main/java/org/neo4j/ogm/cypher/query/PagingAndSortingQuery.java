@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * @author Vince Bickers
  */
-public abstract class PagingAndSortingQuery extends CypherQuery implements PagingAndSorting {
+public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorting {
 
     private Pagination paging;
     private SortOrder sortOrder = new SortOrder();
@@ -47,10 +47,10 @@ public abstract class PagingAndSortingQuery extends CypherQuery implements Pagin
                 int nextClauseIndex = stmt.indexOf(" MATCH", withIndex);
                 String withClause = stmt.substring(withIndex, nextClauseIndex);
                 String newWithClause = withClause;
-                if (stmt.contains(")-[r")) {
-                    sorting = sorting.replace("$", "r");
-                    if (!withClause.contains(",r") && (!withClause.contains("r,"))) {
-                        newWithClause = newWithClause + ",r";
+                if (stmt.contains(")-[r0")) {
+                    sorting = sorting.replace("$", "r0");
+                    if (!withClause.contains(",r0") && (!withClause.contains("r0,"))) {
+                        newWithClause = newWithClause + ",r0";
                     }
                 } else {
                     sorting = sorting.replace("$", "n");
@@ -64,8 +64,8 @@ public abstract class PagingAndSortingQuery extends CypherQuery implements Pagin
                 if (stmt.startsWith("MATCH p=(")) {
                     String withClause = "WITH p";
                     if (stmt.contains(")-[r")) {
-                        withClause = withClause + ",r";
-                        sorting = sorting.replace("$", "r");
+                        withClause = withClause + ",r0";
+                        sorting = sorting.replace("$", "r0");
                     } else {
                         sorting = sorting.replace("$", "n");
                     }
@@ -83,6 +83,7 @@ public abstract class PagingAndSortingQuery extends CypherQuery implements Pagin
         return stmt;
 
     }
+
     @Override
     public PagingAndSortingQuery setPagination(Pagination paging) {
         this.paging = paging;

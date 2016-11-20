@@ -210,7 +210,7 @@ public class DeleteDelegate implements Capability.Delete {
      * @return a count of objects that were deleted
      */
     private Long count(CypherQuery query, boolean isRelationshipEntity) {
-        String resultKey = isRelationshipEntity ? "ID(r)" : "ID(n)";
+        String resultKey = isRelationshipEntity ? "ID(r0)" : "ID(n)";
         Result result = session.query(query.getStatement(), query.getParameters());
         long count = 0;
         for (Map<String, Object> resultEntry : result) {

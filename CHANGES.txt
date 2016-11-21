@@ -1,3 +1,19 @@
+2.1.0-M01
+--------------
+o Added support for spatial queries, composite attribute converters and Filter functions.
+o Scala compatibility - support for @Labels without get/set. Fixes #236.
+o Fixes failure to set Credentials when using Bolt protocol in URI. Fixes #235.
+o Enable ClassPathScanner to scan embedded WAR/JAR files (Spring Boot, Tomcat, etc).
+o Fix defects when mapping to and from fields and methods that use Generics. Fixes #186.
+o Support for Indexes and Constraints. Fixes #243.
+o Fix issue where calling session.save() after updating graph properties and relationships in one transaction did not save properties. Fixes #261.
+o Enable support for High Availability in Embedded driver. Fixes #142.
+o Don't ship neo dependencies with the OGM (#278).
+o Additional comparison operators for Filters.
+o Support querying by multiple relationship entities. Fixes #280.
+o Added ability to load a sessionFactory without classpath scanning.
+
+
 2.0.5
 --------------
 o Support scanning web archives for domain classes. Fixes #211.

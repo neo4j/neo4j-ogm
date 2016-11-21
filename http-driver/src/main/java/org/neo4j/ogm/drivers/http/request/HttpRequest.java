@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.drivers.http.request;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,11 +50,6 @@ import org.neo4j.ogm.response.EmptyResponse;
 import org.neo4j.ogm.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -220,7 +219,7 @@ public class HttpRequest implements Request {
                 throw new HttpRequestException(request, re);
             }
 
-            catch (UnknownHostException uhe) {
+            catch (ClientProtocolException uhe) {
                 throw new ConnectionException(request.getURI().toString(), uhe);
             }
 

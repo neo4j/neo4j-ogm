@@ -11,39 +11,35 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.cineasts.partial;
+package org.neo4j.ogm.domain.cineasts.minimum;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 /**
  * @author Vince Bickers
  */
-public class Movie {
+@RelationshipEntity(type = "ACTS_IN")
+public class Role {
 
     Long id;
-    String name;
+    String played;
 
-    @Relationship(type = "ACTS_IN", direction = "INCOMING")
-    Set<Role> roles = new HashSet<>();
+    @StartNode
+	Actor actor;
 
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
-    Set<Rating> ratings;
+    @EndNode
+	Movie movie;
 
-    public Movie() {
+    public Role() {
     }
 
-    public Movie(String name) {
-        this.name = name;
+    public Role(String character, Actor actor, Movie movie) {
+        played = character;
+        this.actor = actor;
+        this.movie = movie;
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public Object getTitle() {
-        return name;
-    }
 }

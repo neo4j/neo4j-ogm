@@ -11,9 +11,12 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.cineasts.partial;
+package org.neo4j.ogm.domain.cineasts.minimum;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -26,12 +29,8 @@ public class Actor {
     public Long id;
     String name;
 
-    @Relationship(type = "ACTS_IN", direction = "OUTGOING")
-    private List<Role> roles;
-
-
-    @Relationship(type = "KNOWS", direction = "OUTGOING")
-    public Set<Knows> knows = new HashSet<>();
+    @Relationship(type = "ACTS_IN")
+    List<Role> roles = new ArrayList<>();
 
     public Actor() {
     }

@@ -26,9 +26,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.domain.cineasts.annotated.Knows;
-import org.neo4j.ogm.domain.cineasts.annotated.Rating;
-import org.neo4j.ogm.domain.cineasts.annotated.Role;
+import org.neo4j.ogm.domain.cineasts.partial.Knows;
+import org.neo4j.ogm.domain.cineasts.partial.Rating;
+import org.neo4j.ogm.domain.cineasts.partial.Role;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.activity.Activity;
@@ -44,7 +44,7 @@ public class ClassInfoTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.partial");
     }
 
     /**

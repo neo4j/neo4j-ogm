@@ -13,37 +13,31 @@
 
 package org.neo4j.ogm.domain.cineasts.partial;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.EndNode;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 /**
- * @author Vince Bickers
+ * @author Michal Bachman
  */
-public class Movie {
+@RelationshipEntity(type = "NOMINATION")
+public class Nomination {
 
     Long id;
+    @EndNode
+	Movie movie;
+    @StartNode
+    Actor actor;
     String name;
+    int year;
 
-    @Relationship(type = "ACTS_IN", direction = "INCOMING")
-    Set<Role> roles = new HashSet<>();
-
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
-    Set<Rating> ratings;
-
-    public Movie() {
+    public Nomination() {
     }
 
-    public Movie(String name) {
+    public Nomination(Movie movie, Actor actor, String name, int year) {
+        this.movie = movie;
+        this.actor = actor;
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Object getTitle() {
-        return name;
+        this.year = year;
     }
 }

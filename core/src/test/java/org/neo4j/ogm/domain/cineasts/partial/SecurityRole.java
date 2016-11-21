@@ -13,37 +13,10 @@
 
 package org.neo4j.ogm.domain.cineasts.partial;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.neo4j.ogm.annotation.Relationship;
-
 /**
- * @author Vince Bickers
+ * @author Luanne Misquitta
  */
-public class Movie {
-
-    Long id;
-    String name;
-
-    @Relationship(type = "ACTS_IN", direction = "INCOMING")
-    Set<Role> roles = new HashSet<>();
-
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
-    Set<Rating> ratings;
-
-    public Movie() {
-    }
-
-    public Movie(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Object getTitle() {
-        return name;
-    }
+public enum SecurityRole {
+    USER,
+    ADMIN
 }

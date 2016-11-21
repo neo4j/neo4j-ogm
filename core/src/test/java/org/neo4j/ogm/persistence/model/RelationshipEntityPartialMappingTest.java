@@ -16,8 +16,8 @@ package org.neo4j.ogm.persistence.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.domain.cineasts.partial.Actor;
-import org.neo4j.ogm.domain.cineasts.partial.Movie;
+import org.neo4j.ogm.domain.cineasts.minimum.Actor;
+import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
-	private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.partial");
+	private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.minimum");
 
 	private Session session;
 

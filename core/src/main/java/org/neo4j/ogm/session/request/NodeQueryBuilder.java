@@ -14,10 +14,7 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -29,42 +26,41 @@ import org.neo4j.ogm.exception.MissingOperatorException;
 public class NodeQueryBuilder {
 
 	private PrincipalNodeMatchClause principalClause;
+	private Iterable<Filter> filters;
 	private List<MatchClause> nestedClauses;
 	private List<MatchClause> pathClauses;
 	private Map<String, Object> parameters;
 	private int matchClauseId;
+	private boolean built = false;
 
-	public NodeQueryBuilder(String principalLabel) {
+	public NodeQueryBuilder(String principalLabel, Iterable<Filter> filters) {
 		this.principalClause = new PrincipalNodeMatchClause(principalLabel);
+		this.filters = filters;
 		this.nestedClauses = new ArrayList<>();
 		this.pathClauses = new ArrayList<>();
 		this.parameters = new HashMap<>();
 		this.matchClauseId = 0;
+		this.built = false;
 	}
 
-	/**
-	 * Builds a FilteredQuery, given a set of filters. This method should only be called once.
-	 * To produce a FilteredQuery for another set of Filters, a new instance of NodeQueryBuilder
-	 * should be instantiated. 
-	 *
-	 * @param filters
-	 * @return
-	 */
-	public FilteredQuery build(Iterable<Filter> filters) {
-		int i = 0;
-		for (Filter filter : filters) {
-			if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
-				throw new MissingOperatorException("BooleanOperator missing for filter with property name "
-						+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
+	public FilteredQuery build() {
+		if (!built) {
+			int i = 0;
+			for (Filter filter : filters) {
+				if (i != 0 && filter.getBooleanOperator().equals(BooleanOperator.NONE)) {
+					throw new MissingOperatorException("BooleanOperator missing for filter with property name "
+							+ filter.getPropertyName() + ". Only the first filter may not specify the BooleanOperator.");
+				}
+				if (filter.isNested()) {
+					appendNestedFilter(filter);
+				} else {
+					//If the filter is not nested, it belongs to the node we're returning
+					principalClause().append(filter);
+				}
+				parameters.putAll(filter.parameters());
+				i++;
 			}
-			if (filter.isNested()) {
-				appendNestedFilter(filter);
-			} else {
-				//If the filter is not nested, it belongs to the node we're returning
-				principalClause().append(filter);
-			}
-			parameters.putAll(filter.parameters());
-			i++;
+			built = true;
 		}
 		return new FilteredQuery(toCypher(), parameters);
 	}

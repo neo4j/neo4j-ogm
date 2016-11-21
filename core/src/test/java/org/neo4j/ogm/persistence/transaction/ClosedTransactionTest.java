@@ -35,7 +35,7 @@ import org.neo4j.ogm.transaction.Transaction;
 public class ClosedTransactionTest extends MultiDriverTestClass {
 
 
-	private final SessionFactory sessionFactory = new SessionFactory(new String[0]);
+	private final SessionFactory sessionFactory = new SessionFactory("");
 	private final Session session = sessionFactory.openSession();
 	private final DefaultTransactionManager transactionManager = new DefaultTransactionManager(session);
 

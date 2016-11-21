@@ -37,7 +37,7 @@ public class FilteredQueryBuilder {
 	 * @return a {@link FilteredQuery} whose statement() method contains the appropriate Cypher
 	 */
 	public static FilteredQuery buildNodeQuery(String nodeLabel, Iterable<Filter> filterList) {
-		return new NodeQueryBuilder(nodeLabel).build(filterList);
+		return new NodeQueryBuilder(nodeLabel, filterList).build();
 	}
 
 	/**

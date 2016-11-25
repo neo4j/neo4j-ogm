@@ -234,6 +234,10 @@ Configuration configuration = new Configuration()
 
 As you can see to use an impermanent data store, you just omit the URI attribute.
 
+[NOTE]
+As of 2.1.0 the Neo4j OGM embedded driver no longer ships with the neo4j kernal.  Users are expected to provide this dependency through their
+dependency management system.
+
 
 ==== Configuring the Embedded Driver in an Unmanaged Extension
 

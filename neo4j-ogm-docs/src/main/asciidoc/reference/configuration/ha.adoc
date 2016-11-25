@@ -1,5 +1,5 @@
 [[reference-configuration-ha]]
-= Configuring Neo4j OGM for HA
+= Configuring Neo4j OGM for High Availability (HA)
 
 
 [[reference-configuration-transactions]]
@@ -34,7 +34,7 @@ The Drivers have been updated to transmit additional information about the trans
 
 - The HttpDriver implementation sets a Http Header "X-WRITE" to "1" for READ_WRITE transactions (the default) or to "0" for READ_ONLY ones.
 
-- The Embedded Driver can support READ_ONLY, but this only makes sense in an HA environment. As there is no support for HA Embedded in the OGM at the moment, the implementation is currently on hold.
+- The Embedded Driver can support both READ_ONLY and READ_WRITE (as of version `2.1.0`).
 
 - The native Bolt Driver currently has no support for READ_ONLY transactions or READ_ONLY sessions, so the implementation of this in the OGM is also on hold until this capability becomes available.
 

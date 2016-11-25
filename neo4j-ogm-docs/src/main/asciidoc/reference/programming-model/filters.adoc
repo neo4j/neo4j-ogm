@@ -16,6 +16,7 @@ Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("
 
 == Chaining Filters
 
-The foobar, the foobar.
+[NOTE]
+Coming soon.
 
 

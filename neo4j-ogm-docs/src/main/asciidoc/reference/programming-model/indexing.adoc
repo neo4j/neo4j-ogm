@@ -1,41 +1,61 @@
 [[reference_programming-model_indexing]]
 = Indexing
 
-Indexing is used in Neo4j to quickly find nodes and relationships from which to start graph operations. 
+Indexing is used in Neo4j to quickly find nodes and relationships from which to start graph operations.
 Indexes are also employed to ensure uniqueness of elements with certain labels and properties.
 
 [NOTE]
 ====
 Please note that the lucene-based manual indexes are deprecated with Neo4j 2.0.
-The default index is now based on labels and schema indexes and the related old APIs have been deprecated as well. 
+The default index is now based on labels and schema indexes and the related old APIs have been deprecated as well.
 The "legacy" index framework should only be used for fulltext and spatial indexes which are not currently supported via schema-based indexes.
 ====
 
-== Index Management in Neo4j OGM
+Previous version of the OGM have restricted developers to only be able to find unique Objects the internal Neo4j ID.
+This can be a problem for users when running Neo4j across restarts as this can result in key duplication.
+In order to support querying for unique objects via business or synthetic (e.g. UUID) properties, the OGM can now
+enforce uniqueness constraints on certain properties for to make lookups easier.  On top of this, many users have the
+use case of wanting to save their objects via this same property and in effect have the OGM run the `MERGE`
+operation using the same property to identify the object.
 
-Index creation and management is outside the scope of this document.
-Please see the Neo4j documention on indexes for for information:  http://neo4j.com/docs/stable/query-schema-index.html
 
-== Index queries in Neo4jTemplate
+== Indexes and Constraints
+Indexes and unique constraints based on labels and properties are supported as of version `2.1.0`.
+Any property field annotated with `@Index` will use have an appropriate schema index created. For `@Index(unique=true)` a constraint is created.
 
-Schema indexes are automatically used by Neo4j's Cypher engine, so using the annotated or derived repository finders or the query methods in `Neo4jTemplate` will use them out of the box.
+== Index Creation
 
-== Neo4j auto indexes
+By default, automatic indexing on startup is `off`.
 
-Neo4j allows to configure (legacy) http://neo4j.com/docs/stable/auto-indexing.html[auto-indexing] for certain properties on nodes and relationships.
-It is possible to use the specific index names `node_auto_index` and `relationship_auto_index` when querying indexes in Spring Data Neo4j either with the query methods in template and repositories or via Cypher.
+If you would like the OGM to manage your schema creation there are several ways to go about it.
 
-== Full-text indexes
+Only classes marked with `@Index` will be used. Indexes will always be generated with the containing class's label and the annotated property's name.
+Index generation behaviour can be defined in `ogm.properties` by defining a property called: `indexes.auto` and providing a value of:
 
-Previous versions of Spring Data Neo4j offered support for full-text queries using the manual index facilities.
-However, as of SDN 4 milestone 1 at least, this is no longer supported.
-To create fulltext entries for an entity you can add the updated nodes within `AfterSaveEvents` to a remote fulltext-index via Neo4j's REST API.
-Fulltext query support is still available via Cypher queries and will be fully addressed by a future Neo4j version.
+- *assert*: drop all indexes and constraints then create constraints and indexes on startup. No indexes or constraints will be dropped on shutdown.
+- *validate*: confirm that the required indexes and constraints defined already exist on startup otherwise abort startup
+- *dump*: will generate a file in the current directory with the cypher commands to create indexes and constraints. Before doing this it will run the same behaviour as validate.
+- *none*: do not generate any constraints or indexes *[default]*
 
-== Spatial indexes
 
-Previous versions of Spring Data Neo4j offered support for spatial queries using the `neo4j-spatial` library.
-However, as of SDN 4 milestone 1 at least, this is no longer supported.
-To create spatial entries for an entity you can add the updated nodes within `AfterSaveEvents` to a remote fulltext-index via Neo4j's REST API.
-Spatial query support is still available via Cypher queries and will be fully addressed by a future Neo4j version.
+== Primary Constraints
 
+The OGM can now be used to look up or merge entities based on a unique constraint. This unique constraint is known as a _primary_ constraint.
+It can be enabled through the index annotation like so: `Index(unique=true, primary=true)`.
+
+[NOTE]
+Fields marked with `unique=false, primary=true` together will be ignored.
+
+Improvements have also been made to `Session` to allow you to load a particular object via this primary constraint.
+
+`T Session.load(Class<T>, U id)`, where `T` is the highest class in a class hierarchy and
+a primary constraint of type `U` is defined on a field in that same class.
+
+[NOTE]
+There may only be one `primary=true` index per Class hierarchy.
+
+=== Merging
+
+When an object is created via a call to `Session.save(Object)` a check is made to see if that object's class has a primary
+constraint associated with it. If it does that constraint will always as part of a Cypher `MERGE` operation, otherwise a regular
+`CREATE` will be used.

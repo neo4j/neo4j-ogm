@@ -28,3 +28,4 @@ include::sorting-paging.adoc[leveloffset=+1]
 
 include::events.adoc[leveloffset=+1]
 
+include::indexing.adoc[leveloffset=+1]

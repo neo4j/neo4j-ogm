@@ -329,7 +329,7 @@
         <profile>
             <id>2.3</id>
             <properties>
-                <neo4j>2.3.7</neo4j>
+                <neo4j>2.3.8</neo4j>
             </properties>
             <build>
                 <plugins>

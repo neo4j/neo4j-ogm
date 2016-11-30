@@ -14,6 +14,7 @@
 package org.neo4j.ogm.session.request.strategy;
 
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filters;
@@ -24,7 +25,7 @@ import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public interface QueryStatements {
+public interface QueryStatements<ID extends Serializable> {
 
     /**
      * construct a query to fetch a single object with the specified id
@@ -32,7 +33,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
-    PagingAndSortingQuery findOne(Object id, int depth);
+    PagingAndSortingQuery findOne(ID id, int depth);
 
     /**
      * construct a query to fetch all objects
@@ -46,7 +47,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
-    PagingAndSortingQuery findAll(Collection<Long> ids, int depth);
+    PagingAndSortingQuery findAll(Collection<ID> ids, int depth);
 
     /**
      * construct a query to fetch all objects with the specified ids
@@ -55,7 +56,7 @@ public interface QueryStatements {
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
      */
-    PagingAndSortingQuery findAllByType(String type, Collection<Long> ids, int depth);
+    PagingAndSortingQuery findAllByType(String type, Collection<ID> ids, int depth);
 
     /**
      * construct queries to fetch all objects with the specified label or relationship type

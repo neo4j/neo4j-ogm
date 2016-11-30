@@ -25,6 +25,7 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
         String entityType = session.entityType(type.getName());
         QueryStatements queryStatements = session.queryStatementsFor(type);
@@ -58,53 +59,54 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids) {
         return loadAll(type, ids, new SortOrder(), null, 1);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, int depth) {
         return loadAll(type, ids, new SortOrder(), null, depth);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder) {
         return loadAll(type, ids, sortOrder, null, 1);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, int depth) {
         return loadAll(type, ids, sortOrder, null, depth);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, Pagination paging) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging) {
         return loadAll(type, ids, new SortOrder(), paging, 1);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, Pagination paging, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging, int depth) {
         return loadAll(type, ids, new SortOrder(), paging, depth);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination) {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }
 
-    private <T> Collection<T> lookup(Class<T> type, Collection<Long> ids) {
+    private <T, ID extends Serializable> Collection<T> lookup(Class<T> type, Collection<ID> ids) {
 
         Set<T> results = new HashSet<>();
         ClassInfo typeInfo = session.metaData().classInfo(type.getName());
 
-        for (Long id : ids) {
+        for (ID id : ids) {
 
             Object ref;
 
             if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
                 ref = session.context().getNodeEntity(id);
             } else {
-                ref = session.context().getRelationshipEntity(id);
+                // will always be long for a relationship entity.
+                ref = session.context().getRelationshipEntity((Long) id);
             }
             try {
                 results.add(type.cast(ref));

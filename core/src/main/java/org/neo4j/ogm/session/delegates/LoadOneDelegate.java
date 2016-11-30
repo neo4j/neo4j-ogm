@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import java.io.Serializable;
+
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -38,12 +40,12 @@ public class LoadOneDelegate implements Capability.LoadOne {
     }
 
     @Override
-    public <T, U> T load(Class<T> type, U id) {
+    public <T, ID extends Serializable> T load(Class<T> type, ID id) {
         return load(type, id, 1);
     }
 
     @Override
-    public <T, U> T load(Class<T> type, U id, int depth) {
+    public <T, ID extends Serializable> T load(Class<T> type, ID id, int depth) {
 
         final FieldInfo primaryIndexField = session.metaData().classInfo(type.getName()).primaryIndexField();
         if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {

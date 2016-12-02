@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filters;
@@ -28,7 +29,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 /**
  * @author Luanne Misquitta
  */
-public class RelationshipQueryStatements implements QueryStatements {
+public class RelationshipQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
     private static final String MATCH_WITH_ID = "MATCH ()-[r0]-() WHERE ID(r0)={id} ";
     private static final String MATCH_WITH_IDS = "MATCH ()-[r0]-() WHERE ID(r0) IN {ids} ";
@@ -47,7 +48,7 @@ public class RelationshipQueryStatements implements QueryStatements {
             "RETURN DISTINCT p";
 
     @Override
-    public PagingAndSortingQuery findOne(Object id, int depth) {
+    public PagingAndSortingQuery findOne(ID id, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
@@ -59,7 +60,7 @@ public class RelationshipQueryStatements implements QueryStatements {
     }
 
     @Override
-    public PagingAndSortingQuery findAll(Collection<Long> ids, int depth) {
+    public PagingAndSortingQuery findAll(Collection<ID> ids, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
@@ -71,7 +72,7 @@ public class RelationshipQueryStatements implements QueryStatements {
     }
 
     @Override
-    public PagingAndSortingQuery findAllByType(String type, Collection<Long> ids, int depth) {
+    public PagingAndSortingQuery findAllByType(String type, Collection<ID> ids, int depth) {
         int max = max(depth);
         int min = min(max);
         if (max > 0) {

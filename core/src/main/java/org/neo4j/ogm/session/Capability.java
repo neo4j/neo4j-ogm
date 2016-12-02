@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.session;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -33,14 +34,14 @@ public interface Capability {
     interface LoadByIds  {
 
         // load objects of Class type with ids ...
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, int depth);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, int depth);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, Pagination paging);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, Pagination paging, int depth);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination);
-        <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination, int depth);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, int depth);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, int depth);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging, int depth);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination);
+        <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth);
 
     }
 
@@ -93,8 +94,8 @@ public interface Capability {
 
     interface LoadOne {
 
-        <T, U> T load(Class<T> type, U id);
-        <T, U> T load(Class<T> type, U id, int depth);
+        <T, ID extends Serializable> T load(Class<T> type, ID id);
+        <T, ID extends Serializable> T load(Class<T> type, ID id, int depth);
     }
 
     interface Save {

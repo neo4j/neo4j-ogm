@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.neo4j.ogm.cypher.Filters;
@@ -29,7 +30,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class NodeQueryStatements implements QueryStatements {
+public class NodeQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
     private String primaryIndex;
 
@@ -42,7 +43,7 @@ public class NodeQueryStatements implements QueryStatements {
     }
 
     @Override
-    public PagingAndSortingQuery findOne(Object id, int depth) {
+    public PagingAndSortingQuery findOne(ID id, int depth) {
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
@@ -62,7 +63,7 @@ public class NodeQueryStatements implements QueryStatements {
     }
 
     @Override
-    public PagingAndSortingQuery findAll(Collection<Long> ids, int depth) {
+    public PagingAndSortingQuery findAll(Collection<ID> ids, int depth) {
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
@@ -77,7 +78,7 @@ public class NodeQueryStatements implements QueryStatements {
     }
 
     @Override
-    public PagingAndSortingQuery findAllByType(String label, Collection<Long> ids, int depth) {
+    public PagingAndSortingQuery findAllByType(String label, Collection<ID> ids, int depth) {
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
@@ -137,18 +138,18 @@ public class NodeQueryStatements implements QueryStatements {
 
     private static class DepthZeroReadStrategy {
 
-        public static DefaultGraphModelRequest findOne(Object id, String primaryIndex) {
+        public static <ID extends Serializable> DefaultGraphModelRequest findOne(ID id, String primaryIndex) {
             if (primaryIndex != null) {
                 return new DefaultGraphModelRequest("MATCH (n) WHERE n." + primaryIndex + " = { id } RETURN n", Utils.map("id", id));
             }
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) = { id } RETURN n", Utils.map("id", id));
         }
 
-        public static DefaultGraphModelRequest findAll(Collection<Long> ids) {
+        public static <ID extends Serializable> DefaultGraphModelRequest findAll(Collection<ID> ids) {
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) IN { ids } RETURN n", Utils.map("ids", ids));
         }
 
-        public static DefaultGraphModelRequest findAllByLabel(String label, Collection<Long> ids) {
+        public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids) {
             return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } RETURN n", label), Utils.map("ids", ids));
         }
 
@@ -166,26 +167,26 @@ public class NodeQueryStatements implements QueryStatements {
 
     private static class InfiniteDepthReadStrategy {
 
-        public static DefaultGraphModelRequest findOne(Object id, String primaryIndex) {
+        public static <ID extends Serializable> DefaultGraphModelRequest findOne(ID id, String primaryIndex) {
             if (primaryIndex != null) {
                 return new DefaultGraphModelRequest("MATCH (n) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", Utils.map("id", id));
             }
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", Utils.map("id", id));
         }
 
-        public static DefaultGraphModelRequest findAll(Collection<Long> ids) {
+        public static <ID extends Serializable> DefaultGraphModelRequest findAll(Collection<ID> ids) {
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", Utils.map("ids", ids));
         }
 
-        public static DefaultGraphModelRequest findAllByLabel(String label, Collection<Long> ids) {
+        public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids) {
             return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map("ids", ids));
         }
 
-        public static DefaultGraphModelRequest findByLabel(String label) {
+        public static  DefaultGraphModelRequest findByLabel(String label) {
             return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map());
         }
 
-        public static DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
+        public static  DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
             FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, parameters);
             query.setReturnClause(" WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
             return new DefaultGraphRowListModelRequest(query.statement(), query.parameters());

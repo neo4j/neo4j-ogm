@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.session;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -140,12 +141,12 @@ public class Neo4jSession implements Session {
      *----------------------------------------------------------------------------------------------------------
      */
     @Override
-    public <T, U> T load(Class<T> type, U id) {
+    public <T, ID extends Serializable> T load(Class<T> type, ID id) {
         return loadOneHandler.load(type, id);
     }
 
     @Override
-    public <T, U> T load(Class<T> type, U id, int depth) {
+    public <T, ID extends Serializable> T load(Class<T> type, ID id, int depth) {
         return loadOneHandler.load(type, id, depth);
     }
 
@@ -281,42 +282,42 @@ public class Neo4jSession implements Session {
      *----------------------------------------------------------------------------------------------------------
      */
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids) {
         return loadByIdsHandler.loadAll(type, ids);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, int depth) {
         return loadByIdsHandler.loadAll(type, ids, depth);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, int depth) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, depth);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, Pagination paging) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging) {
         return loadByIdsHandler.loadAll(type, ids, paging);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, Pagination paging, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging, int depth) {
         return loadByIdsHandler.loadAll(type, ids, paging, depth);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, pagination);
     }
 
     @Override
-    public <T> Collection<T> loadAll(Class<T> type, Collection<Long> ids, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
         return loadByIdsHandler.loadAll(type, ids, sortOrder, pagination, depth);
     }
 
@@ -496,13 +497,13 @@ public class Neo4jSession implements Session {
     //
     // These helper methods for the delegates are deliberately NOT defined on the Session interface
     //
-    public QueryStatements queryStatementsFor(Class type) {
+    public <T, ID extends Serializable> QueryStatements<ID> queryStatementsFor(Class<T> type) {
         if (metaData.isRelationshipEntity(type.getName())) {
-            return new RelationshipQueryStatements();
+            return new RelationshipQueryStatements<>();
         }
         else {
             final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
-            return new NodeQueryStatements(fieldInfo != null ? fieldInfo.getName(): null);
+            return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.getName(): null);
         }
     }
 

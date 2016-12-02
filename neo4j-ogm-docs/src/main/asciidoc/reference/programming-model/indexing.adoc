@@ -14,7 +14,7 @@ The "legacy" index framework should only be used for fulltext and spatial indexe
 Previous version of the OGM have restricted developers to only be able to find unique Objects the internal Neo4j ID.
 This can be a problem for users when running Neo4j across restarts as this can result in key duplication.
 In order to support querying for unique objects via business or synthetic (e.g. UUID) properties, the OGM can now
-enforce uniqueness constraints on certain properties for to make lookups easier.  On top of this, many users have the
+enforce uniqueness constraints on certain properties to make lookups easier.  On top of this, many users have the
 use case of wanting to save their objects via this same property and in effect have the OGM run the `MERGE`
 operation using the same property to identify the object.
 

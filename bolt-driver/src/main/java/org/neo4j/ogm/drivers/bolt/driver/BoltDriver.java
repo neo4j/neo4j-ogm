@@ -73,7 +73,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
 	@Override
 	public Transaction newTransaction(Transaction.Type type) {
-		Session session = newSession(); //A bolt session can have at most one transaction running at a time
+		Session session = newSession(type); //A bolt session can have at most one transaction running at a time
 		return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);	}
 
 	@Override
@@ -93,10 +93,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		return new BoltRequest(transactionManager);
 	}
 
-	private Session newSession() {
+	private Session newSession(Transaction.Type type) {
 		Session boltSession;
 		try {
-			boltSession = boltDriver.session();
+			boltSession = boltDriver.session(type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ: AccessMode.WRITE);
 		} catch (ClientException ce) {
 			throw new ConnectionException("Error connecting to graph database using Bolt: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
 		} catch (Exception e) {

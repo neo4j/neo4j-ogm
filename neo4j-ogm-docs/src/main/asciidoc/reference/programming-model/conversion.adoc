@@ -9,8 +9,7 @@ The object-graph mapping framework provides support for default and bespoke type
 Neo4j OGM will automatically perform the following type conversions:
 
 * `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-* `java.math.BigInteger` to a String property
-* `java.math.BigDecimal` to a String property
+* Any object that extends `java.lang.Number` to a String property
 * binary data (as byte[] or Byte[]) to base-64 String as Cypher does not support byte arrays
 * `java.lang.Enum` types using the enum's `name()` method and `Enum.valueOf()`
 

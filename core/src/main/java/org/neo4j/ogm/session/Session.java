@@ -22,6 +22,7 @@ import org.neo4j.ogm.session.event.Observer;
  * @see SessionFactory
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public interface Session extends
         Observer,
@@ -34,4 +35,20 @@ public interface Session extends
         Capability.Transactions,
         Capability.ExecuteQueries,
         Capability.GraphId {
+
+	/**
+	 * Retrieves the last bookmark used in this session when used in a Neo4j Causal Cluster.
+	 *
+	 * This bookmark can be used to ensure the cluster is consistent before performing a read/write.
+	 *
+	 * @return The last used bookmark String on this session.
+	 */
+	String getLastBookmark();
+
+	/**
+	 * Sets the bookmark to use on this session. Useful when resuming a user session with a causal cluster.
+	 *
+	 * @param bookmark The last used bookmark String that this session should start from.
+	 */
+	void lastBookmark(String bookmark);
 }

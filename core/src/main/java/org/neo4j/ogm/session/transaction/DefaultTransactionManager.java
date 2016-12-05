@@ -16,6 +16,7 @@ package org.neo4j.ogm.session.transaction;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.Neo4jBoltSession;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
@@ -70,7 +71,13 @@ public class DefaultTransactionManager implements TransactionManager {
      */
     public Transaction openTransaction(Transaction.Type type) {
         if (TRANSACTION_THREAD_LOCAL.get() == null) {
-            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type));
+
+            String bookmark = null;
+            if (session instanceof Neo4jBoltSession) {
+                bookmark = ((Neo4jBoltSession)session).getLastBookmark();
+            }
+
+            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, bookmark));
         } else {
             ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend(type);
         }
@@ -156,6 +163,14 @@ public class DefaultTransactionManager implements TransactionManager {
             }
         }
         return false;
+    }
+
+    @Override
+    public void bookmark(String bookmark) {
+        if (session instanceof Neo4jBoltSession) {
+            ((Neo4jBoltSession)session).lastBookmark(bookmark);
+        }
+
     }
 
     // this is for testing purposes only

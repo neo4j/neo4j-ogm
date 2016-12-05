@@ -120,6 +120,9 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
+        if (Components.driver().getConfiguration().getDriverClassName().equals("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")) {
+            return new Neo4jBoltSession(metaData, Components.driver());
+        }
         return new Neo4jSession(metaData, Components.driver());
     }
 

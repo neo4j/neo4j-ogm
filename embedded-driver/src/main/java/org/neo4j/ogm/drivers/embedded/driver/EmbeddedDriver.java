@@ -134,12 +134,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction() {   // return a new, or join an existing transaction
-        return newTransaction(Transaction.Type.READ_WRITE);
-    }
-
-    @Override
-    public Transaction newTransaction(Transaction.Type type) {
+    public Transaction newTransaction(Transaction.Type type, String bookmark) {
         return new EmbeddedTransaction(transactionManager, nativeTransaction(), type);
     }
 

@@ -73,4 +73,5 @@ public interface TransactionManager {
 
     boolean canRollback();
 
+    void bookmark(String bookmark);
 }

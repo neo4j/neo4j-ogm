@@ -26,9 +26,7 @@ public interface Driver extends AutoCloseable, LoadableService {
 
     void configure(DriverConfiguration config);
 
-    Transaction newTransaction();
-
-    Transaction newTransaction(Transaction.Type type);
+    Transaction newTransaction(Transaction.Type type, String bookmark);
 
     void close();
 

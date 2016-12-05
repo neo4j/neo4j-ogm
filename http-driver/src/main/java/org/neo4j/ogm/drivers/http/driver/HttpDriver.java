@@ -83,12 +83,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
     }
 
     @Override
-    public Transaction newTransaction() {
-        return newTransaction(Transaction.Type.READ_WRITE);
-    }
-
-    @Override
-    public Transaction newTransaction(Transaction.Type type) {
+    public Transaction newTransaction(Transaction.Type type, String bookmark) {
         return new HttpTransaction(transactionManager, this, newTransactionUrl(), type);
     }
 

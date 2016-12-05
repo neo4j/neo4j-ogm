@@ -46,14 +46,14 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
 	@Test(expected = TransactionManagerException.class)
 	public void shouldFailCommitFreeTransactionInManagedContext() {
-		try (Transaction tx = Components.driver().newTransaction()) {
+		try (Transaction tx = Components.driver().newTransaction(Transaction.Type.READ_WRITE, null)) {
 			transactionManager.commit(tx);
 		}
 	}
 
 	@Test(expected = TransactionManagerException.class)
 	public void shouldFailRollbackFreeTransactionInManagedContext() {
-		try (Transaction tx = Components.driver().newTransaction()) {
+		try (Transaction tx = Components.driver().newTransaction(Transaction.Type.READ_WRITE, null)) {
 			transactionManager.rollback(tx);
 		}
 	}

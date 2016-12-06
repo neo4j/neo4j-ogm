@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
@@ -42,174 +43,177 @@ import org.slf4j.LoggerFactory;
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
-    private GraphDatabaseService graphDatabaseService;
-    private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
+	private GraphDatabaseService graphDatabaseService;
+	private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
 
-    // required for service loader mechanism
-    public EmbeddedDriver() {
-    }
+	// required for service loader mechanism
+	public EmbeddedDriver() {
+	}
 
-    /**
-     * Configure a new embedded driver according to the supplied driver configuration
-     *
-     * @param driverConfiguration the {@link DriverConfiguration} to use
-     */
-    public EmbeddedDriver(DriverConfiguration driverConfiguration) {
-        configure(driverConfiguration);
-    }
+	/**
+	 * Configure a new embedded driver according to the supplied driver configuration
+	 *
+	 * @param driverConfiguration the {@link DriverConfiguration} to use
+	 */
+	public EmbeddedDriver(DriverConfiguration driverConfiguration) {
+		configure(driverConfiguration);
+	}
 
-    /**
-     * This constructor allows the user to pass in an existing
-     * Graph database service, e.g. if user code is running as an extension inside
-     * an existing Neo4j server
-     *
-     * @param graphDatabaseService the embedded database instance
-     */
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        close();
-        this.graphDatabaseService = graphDatabaseService;
-        registerShutdownHook();
-    }
+	/**
+	 * This constructor allows the user to pass in an existing
+	 * Graph database service, e.g. if user code is running as an extension inside
+	 * an existing Neo4j server
+	 *
+	 * @param graphDatabaseService the embedded database instance
+	 */
+	public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+		close();
+		this.graphDatabaseService = graphDatabaseService;
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				close();
+			}
+		});
+	}
 
-    /**
-     * Registers a shutdown hook for the Neo4j instance so that it
-     * shuts down nicely when the VM exits (even if you "Ctrl-C" the
-     * running application).
-     */
-    private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                close();
-            }
-        });
-    }
+	@Override
+	public synchronized void configure(DriverConfiguration config) {
 
-    @Override
-    public synchronized void configure(DriverConfiguration config) {
+		close();  // force any existing graph database to shutdown
 
-        close();  // force any existing graph database to shutdown
+		super.configure(config);
 
-        super.configure(config);
+		try {
+			String fileStoreUri = config.getURI();
 
-        try {
-            String fileStoreUri = config.getURI();
+			// if no URI is set, create a temporary folder for the graph db
+			// that will persist only for the duration of the JVM
+			// This is effectively what the ImpermanentDatabase does.
+			if (fileStoreUri == null) {
+				fileStoreUri = createTemporaryFileStore();
+			} else {
+				createPermanentFileStore(fileStoreUri);
+			}
 
-            // if no URI is set, create a temporary folder for the graph db
-            // that will persist only for the duration of the JVM
-            // This is effectively what the ImpermanentDatabase does.
-            if (fileStoreUri == null) {
-                fileStoreUri = createTemporaryFileStore();
-            } else {
-                createPermanentFileStore(fileStoreUri);
-            }
-
-            File file = new File(new URI(fileStoreUri));
-            if (!file.exists()) {
-                throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
-            }
-
-            registerShutdownHook();
+			File file = new File(new URI(fileStoreUri));
+			if (!file.exists()) {
+				throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
+			}
 
 			// do we want to start a HA instance or a community instance?
 			String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
-            if (haPropertiesFileName != null) {
-			 	setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName));
-			}
-			else {
+			if (haPropertiesFileName != null) {
+				setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName));
+			} else {
 				setGraphDatabase(file);
 			}
+		} catch (Exception e) {
+			throw new ConnectionException("Error connecting to embedded graph", e);
+		}
+	}
 
-        } catch (Exception e) {
-            throw new ConnectionException("Error connecting to embedded graph", e);
-        }
-    }
-
-    private void setHAGraphDatabase(File file, URL propertiesFileURL) {
+	private void setHAGraphDatabase(File file, URL propertiesFileURL) {
 		graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
-    }
+	}
 
-    private void setGraphDatabase(File file) {
+	private void setGraphDatabase(File file) {
 		graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
-    }
+	}
 
-    @Override
-    public Transaction newTransaction() {   // return a new, or join an existing transaction
-        return newTransaction(Transaction.Type.READ_WRITE);
-    }
+	@Override
+	public Transaction newTransaction() {   // return a new, or join an existing transaction
+		return newTransaction(Transaction.Type.READ_WRITE);
+	}
 
-    @Override
-    public Transaction newTransaction(Transaction.Type type) {
-        return new EmbeddedTransaction(transactionManager, nativeTransaction(), type);
-    }
+	@Override
+	public Transaction newTransaction(Transaction.Type type) {
+		return new EmbeddedTransaction(transactionManager, nativeTransaction(), type);
+	}
 
-    @Override
-    public synchronized void close() {
+	@Override
+	public synchronized void close() {
 
-        if (graphDatabaseService != null) {
-            logger.info("Shutting down Embedded driver {} ", graphDatabaseService);
-            graphDatabaseService.shutdown();
-            graphDatabaseService = null;
-        }
-    }
+		if (graphDatabaseService != null) {
+			logger.info("Shutting down Embedded driver {} ", graphDatabaseService);
+			graphDatabaseService.shutdown();
+			graphDatabaseService = null;
+		}
+	}
 
-    public GraphDatabaseService getGraphDatabaseService() {
-        return graphDatabaseService;
-    }
+	public GraphDatabaseService getGraphDatabaseService() {
+		return graphDatabaseService;
+	}
 
-    @Override
-    public Request request() {
-        return new EmbeddedRequest(graphDatabaseService, transactionManager);
-    }
+	@Override
+	public Request request() {
+		return new EmbeddedRequest(graphDatabaseService, transactionManager);
+	}
 
-    private org.neo4j.graphdb.Transaction nativeTransaction() {
+	private org.neo4j.graphdb.Transaction nativeTransaction() {
 
-        org.neo4j.graphdb.Transaction nativeTransaction;
+		org.neo4j.graphdb.Transaction nativeTransaction;
 
-        Transaction tx = transactionManager.getCurrentTransaction();
-        if (tx != null) {
-            logger.debug("Using current transaction: {}", tx);
-            nativeTransaction = ((EmbeddedTransaction) tx).getNativeTransaction();
-        } else {
-            logger.debug("No current transaction, starting a new one");
-            nativeTransaction = graphDatabaseService.beginTx();
-        }
-        logger.debug("Native transaction: {}", nativeTransaction);
-        return nativeTransaction;
-    }
+		Transaction tx = transactionManager.getCurrentTransaction();
+		if (tx != null) {
+			logger.debug("Using current transaction: {}", tx);
+			nativeTransaction = ((EmbeddedTransaction) tx).getNativeTransaction();
+		} else {
+			logger.debug("No current transaction, starting a new one");
+			nativeTransaction = graphDatabaseService.beginTx();
+		}
+		logger.debug("Native transaction: {}", nativeTransaction);
+		return nativeTransaction;
+	}
 
-    private String createTemporaryFileStore() {
+	private String createTemporaryFileStore() {
 
-        try {
+		try {
 
-            Path path = Files.createTempDirectory("neo4j.db");
-            File f = path.toFile();
-            f.deleteOnExit();
-            URI uri = f.toURI();
-            String fileStoreUri = uri.toString();
-            logger.warn("Creating temporary file store: " + fileStoreUri);
-            return fileStoreUri;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+			Path path = Files.createTempDirectory("neo4j.db");
+			final File f = path.toFile();
+			URI uri = f.toURI();
+			final String fileStoreUri = uri.toString();
+			logger.warn("Creating temporary file store: " + fileStoreUri);
 
-    private void createPermanentFileStore(String strPath) {
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					close();
+					try {
+						logger.warn("Deleting temporary file store: " + fileStoreUri);
+						FileUtils.deleteDirectory(f);
+					} catch (IOException e) {
+						throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
+					}
+				}
+			});
 
-        try {
-            URI uri = new URI(strPath);
-            File file = new File(uri);
-            if (!file.exists()) {
-                Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
-                logger.warn("Creating new permanent file store: " + graphDir.toString());
-            }
-        }
-        catch (FileAlreadyExistsException e) {
-            logger.warn("Using existing permanent file store: " + strPath);
-        }
-        catch (IOException | URISyntaxException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
+			return fileStoreUri;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
+	private void createPermanentFileStore(String strPath) {
+
+		try {
+			URI uri = new URI(strPath);
+			File file = new File(uri);
+			if (!file.exists()) {
+				Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
+				logger.warn("Creating new permanent file store: " + graphDir.toString());
+			}
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					close();
+				}
+			});
+		} catch (FileAlreadyExistsException e) {
+			logger.warn("Using existing permanent file store: " + strPath);
+		} catch (IOException | URISyntaxException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
 }

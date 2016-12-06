@@ -68,7 +68,7 @@ public class DefaultTransactionManager implements TransactionManager {
 	 */
 	public Transaction openTransaction(Transaction.Type type) {
 		if (TRANSACTION_THREAD_LOCAL.get() == null) {
-			TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, session.getLastBookmark()));
+			TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, session != null ? session.getLastBookmark(): null));
 		} else {
 			((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend(type);
 		}
@@ -154,7 +154,9 @@ public class DefaultTransactionManager implements TransactionManager {
 
 	@Override
 	public void bookmark(String bookmark) {
-		session.lastBookmark(bookmark);
+		if (session != null) {
+			session.lastBookmark(bookmark);
+		}
 	}
 
 	// this is for testing purposes only

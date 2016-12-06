@@ -30,8 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class BoltDriver extends AbstractConfigurableDriver {
 

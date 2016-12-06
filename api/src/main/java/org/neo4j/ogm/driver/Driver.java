@@ -20,7 +20,8 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public interface Driver extends AutoCloseable, LoadableService {
 

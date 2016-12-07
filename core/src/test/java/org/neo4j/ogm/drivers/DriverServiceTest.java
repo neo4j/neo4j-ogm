@@ -16,17 +16,12 @@ package org.neo4j.ogm.drivers;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.service.DriverService;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -35,24 +30,10 @@ import static org.junit.Assert.assertNotNull;
  */
 public class DriverServiceTest {
 
-    public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
+    @Rule
+    public final TemporaryFolder tmpNeo4JDB = new TemporaryFolder();
+
     private DriverConfiguration driverConfiguration = new Configuration().driverConfiguration();
-
-    @BeforeClass
-    public static void createEmbeddedStore() throws IOException {
-        try {
-            Files.createDirectory(Paths.get(TMP_NEO4J_DB));
-        } catch(FileAlreadyExistsException e){
-            // the directory already exists.
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @AfterClass
-    public static void deleteEmbeddedStore() throws IOException {
-        deleteDirectory(new File(TMP_NEO4J_DB));
-    }
 
     @Test
     public void shouldLoadHttpDriver() {
@@ -69,7 +50,7 @@ public class DriverServiceTest {
     public void shouldLoadEmbeddedDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 
-        String uri = "file://" + TMP_NEO4J_DB;
+        String uri = tmpNeo4JDB.getRoot().toURI().toString();
 
         driverConfiguration.setURI(uri);
 
@@ -85,17 +66,6 @@ public class DriverServiceTest {
         Driver driver = DriverService.load(driverConfiguration);
         assertNotNull(driver);
         driver.close();
-    }
-
-    static void deleteDirectory(File dir) throws IOException {
-        if (dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
-                deleteDirectory(file);
-            }
-        }
-        if (!dir.delete()) {
-            throw new RuntimeException("Failed to delete file: " + dir);
-        }
     }
 
 

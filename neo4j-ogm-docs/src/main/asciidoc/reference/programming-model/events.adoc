@@ -75,13 +75,16 @@ Although the `Event` interface allows you to retrieve the event type, in most ca
 
 == Registering an EventListener
 
-Your code must register one or more EventListeners with the `Session`
+There are two way to register an event listener:
+
+- on an individual `Session`
+- across multiple sessions by using a `SessionFactory`
 
 In this example we register an anonymous EventListener to inject a UUID onto new objects before they're saved
 
 [source, java]
 ----
-EventListener eventListener session.register(new EventListener() {
+class AddUuidPreSaveEventListener implements EventListener {
 
     void onPreSave(Event event) {
         DomainEntity entity = (DomainEntity) event.getObject():
@@ -94,9 +97,22 @@ EventListener eventListener session.register(new EventListener() {
     void onPreDelete(Event event) {
     }
     void onPostDelete(Event event) {
-    }
+}
 
-});
+EventListener eventListener = new AddUuidPreSaveEventListener();
+
+// register it on an individual session
+session.register(eventListener);
+
+// remove it.
+session.dispose(eventListener);
+
+// register it across multiple sessions
+sessionFactory.register(eventListener);
+
+// remove it.
+sessionFactory.deregister(eventListener);
+
 ----
 
 [NOTE]
@@ -144,6 +160,8 @@ The process of collecting persistence events prior to dispatching them to any Ev
 Consequently, the OGM is configured to suppress the event collection phase if there are no EventListeners registered with the Session.
 Using `dispose()` when you're finished with an EventListener is good practice!
 ====
+
+To remove an event listener across multiple sessions use the `degresiter` method on the `SessionFactory`.
 
 
 == Connected objects

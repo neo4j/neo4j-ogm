@@ -1,6 +1,14 @@
 2.1.0
 --------------
-o Added event listener management on SessionFactory.
+o Support for Neo4j 3.1 Causal Clustering.
+o Support for Neo4j Bolt Driver 1.1.0.
+o Add SessionFactory method to register/deregister event listeners (#297). Closes #296.
+o Embedded driver temporary file store is now automatically deleted (#293). Fixes #288.
+o All method signatures using an ID in Session now use generics to support non Long types.
+o Prevent DriverExceptionTest hanging under Java 7. See #258.
+o Support for lookup & merge via primary index. (#281)
+o Interim fix to PagingAndSortingQuery
+
 
 2.1.0-M01
 --------------

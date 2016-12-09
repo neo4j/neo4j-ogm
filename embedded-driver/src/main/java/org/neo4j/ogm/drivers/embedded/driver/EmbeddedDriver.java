@@ -59,23 +59,23 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         configure(driverConfiguration);
     }
 
-	/**
-	 * This constructor allows the user to pass in an existing
-	 * Graph database service, e.g. if user code is running as an extension inside
-	 * an existing Neo4j server
-	 *
-	 * @param graphDatabaseService the embedded database instance
-	 */
-	public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-		close();
-		this.graphDatabaseService = graphDatabaseService;
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				close();
-			}
-		});
-	}
+    /**
+     * This constructor allows the user to pass in an existing
+     * Graph database service, e.g. if user code is running as an extension inside
+     * an existing Neo4j server
+     *
+     * @param graphDatabaseService the embedded database instance
+     */
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        close();
+        this.graphDatabaseService = graphDatabaseService;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                close();
+            }
+        });
+    }
 
     @Override
     public synchronized void configure(DriverConfiguration config) {
@@ -101,28 +101,24 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 throw new RuntimeException("Could not create/open filestore: " + fileStoreUri);
             }
 
-            registerShutdownHook();
-
-			// do we want to start a HA instance or a community instance?
-			String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
+            // do we want to start a HA instance or a community instance?
+            String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
             if (haPropertiesFileName != null) {
-			 	setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName));
-			}
-			else {
-				setGraphDatabase(file);
-			}
-
+                setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName));
+            } else {
+                setGraphDatabase(file);
+            }
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to embedded graph", e);
         }
     }
 
     private void setHAGraphDatabase(File file, URL propertiesFileURL) {
-		graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
+        graphDatabaseService = new HighlyAvailableGraphDatabaseFactory().newEmbeddedDatabaseBuilder(file).loadPropertiesFromURL(propertiesFileURL).newGraphDatabase();
     }
 
     private void setGraphDatabase(File file) {
-		graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
+        graphDatabaseService = new GraphDatabaseFactory().newEmbeddedDatabase(file);
     }
 
     @Override
@@ -169,50 +165,50 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
         try {
 
-			Path path = Files.createTempDirectory("neo4j.db");
-			final File f = path.toFile();
-			URI uri = f.toURI();
-			final String fileStoreUri = uri.toString();
-			logger.warn("Creating temporary file store: " + fileStoreUri);
+            Path path = Files.createTempDirectory("neo4j.db");
+            final File f = path.toFile();
+            URI uri = f.toURI();
+            final String fileStoreUri = uri.toString();
+            logger.warn("Creating temporary file store: " + fileStoreUri);
 
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					close();
-					try {
-						logger.warn("Deleting temporary file store: " + fileStoreUri);
-						FileUtils.deleteDirectory(f);
-					} catch (IOException e) {
-						throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
-					}
-				}
-			});
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    close();
+                    try {
+                        logger.warn("Deleting temporary file store: " + fileStoreUri);
+                        FileUtils.deleteDirectory(f);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
+                    }
+                }
+            });
 
-			return fileStoreUri;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+            return fileStoreUri;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void createPermanentFileStore(String strPath) {
 
-		try {
-			URI uri = new URI(strPath);
-			File file = new File(uri);
-			if (!file.exists()) {
-				Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
-				logger.warn("Creating new permanent file store: " + graphDir.toString());
-			}
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					close();
-				}
-			});
-		} catch (FileAlreadyExistsException e) {
-			logger.warn("Using existing permanent file store: " + strPath);
-		} catch (IOException | URISyntaxException ioe) {
-			throw new RuntimeException(ioe);
-		}
-	}
+        try {
+            URI uri = new URI(strPath);
+            File file = new File(uri);
+            if (!file.exists()) {
+                Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
+                logger.warn("Creating new permanent file store: " + graphDir.toString());
+            }
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    close();
+                }
+            });
+        } catch (FileAlreadyExistsException e) {
+            logger.warn("Using existing permanent file store: " + strPath);
+        } catch (IOException | URISyntaxException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
 }

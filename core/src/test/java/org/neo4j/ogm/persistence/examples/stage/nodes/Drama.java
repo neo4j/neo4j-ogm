@@ -12,5 +12,4 @@ public class Drama extends BaseNode {
     public Drama(String title) {
         super(title);
     }
-
 }

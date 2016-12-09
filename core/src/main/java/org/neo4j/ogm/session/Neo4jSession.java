@@ -626,7 +626,7 @@ public class Neo4jSession implements Session {
     }
 
     @Override
-    public void lastBookmark(String bookmark) {
+    public void withBookmark(String bookmark) {
         this.bookmark = bookmark;
     }
 }

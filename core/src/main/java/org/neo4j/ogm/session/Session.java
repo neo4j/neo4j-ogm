@@ -50,5 +50,5 @@ public interface Session extends
 	 *
 	 * @param bookmark The last used bookmark String that this session should start from.
 	 */
-	void lastBookmark(String bookmark);
+	void withBookmark(String bookmark);
 }

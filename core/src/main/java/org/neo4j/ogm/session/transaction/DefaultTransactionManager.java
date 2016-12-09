@@ -155,7 +155,7 @@ public class DefaultTransactionManager implements TransactionManager {
 	@Override
 	public void bookmark(String bookmark) {
 		if (session != null) {
-			session.lastBookmark(bookmark);
+			session.withBookmark(bookmark);
 		}
 	}
 

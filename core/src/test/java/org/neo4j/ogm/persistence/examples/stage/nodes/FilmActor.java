@@ -11,18 +11,18 @@ import org.neo4j.ogm.persistence.examples.stage.edges.PlayedInMovie;
 
 @NodeEntity
 public class FilmActor extends BaseNode {
-    public FilmActor(){
+
+    public FilmActor() {
         super();
     }
-    public FilmActor(String title){
+
+    public FilmActor(String title) {
         super(title);
     }
 
-    @Relationship(type="PLAYED_IN")
+    @Relationship(type = "PLAYED_IN")
     public Set<PlayedInMovie> movies = new HashSet<>();
 
     @Relationship(type = "LAST_APPEARENCE")
     public LastMovie lastMovie;
-
-
 }

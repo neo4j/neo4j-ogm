@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.drivers.bolt.driver;
 
+import java.io.File;
+import java.net.URI;
+
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
@@ -26,17 +29,16 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.net.URI;
-
 /**
- * @author vince
+ * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Mark Angrish
  */
 public class BoltDriver extends AbstractConfigurableDriver {
 
-	private Driver boltDriver;
 	private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
+
+	private Driver boltDriver;
 
 	// required for service loader mechanism
 	public BoltDriver() {
@@ -67,14 +69,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 	}
 
 	@Override
-	public Transaction newTransaction() {
-		return newTransaction(Transaction.Type.READ_WRITE);
+	public Transaction newTransaction(Transaction.Type type, String bookmark) {
+		Session session = newSession(type); //A bolt session can have at most one transaction running at a time
+		return new BoltTransaction(transactionManager, nativeTransaction(session, bookmark), session, type);
 	}
-
-	@Override
-	public Transaction newTransaction(Transaction.Type type) {
-		Session session = newSession(); //A bolt session can have at most one transaction running at a time
-		return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);	}
 
 	@Override
 	public synchronized void close() {
@@ -93,10 +91,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		return new BoltRequest(transactionManager);
 	}
 
-	private Session newSession() {
+	private Session newSession(Transaction.Type type) {
 		Session boltSession;
 		try {
-			boltSession = boltDriver.session();
+			boltSession = boltDriver.session(type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE);
 		} catch (ClientException ce) {
 			throw new ConnectionException("Error connecting to graph database using Bolt: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
 		} catch (Exception e) {
@@ -105,7 +103,7 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		return boltSession;
 	}
 
-	private org.neo4j.driver.v1.Transaction nativeTransaction(Session session) {
+	private org.neo4j.driver.v1.Transaction nativeTransaction(Session session, String bookmark) {
 
 		org.neo4j.driver.v1.Transaction nativeTransaction;
 
@@ -114,8 +112,13 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			LOGGER.debug("Using current transaction: {}", tx);
 			nativeTransaction = ((BoltTransaction) tx).nativeBoltTransaction();
 		} else {
-			LOGGER.debug("No current transaction, starting a new one");
-			nativeTransaction = session.beginTransaction();
+			if (bookmark != null) {
+				LOGGER.debug("No current transaction, starting a new one with bookmark [{}]", bookmark);
+				nativeTransaction = session.beginTransaction(bookmark);
+			} else {
+				LOGGER.debug("No current transaction, starting a new one");
+				nativeTransaction = session.beginTransaction();
+			}
 		}
 		LOGGER.debug("Native transaction: {}", nativeTransaction);
 		return nativeTransaction;

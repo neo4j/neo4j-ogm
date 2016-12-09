@@ -20,15 +20,14 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public interface Driver extends AutoCloseable, LoadableService {
 
     void configure(DriverConfiguration config);
 
-    Transaction newTransaction();
-
-    Transaction newTransaction(Transaction.Type type);
+    Transaction newTransaction(Transaction.Type type, String bookmark);
 
     void close();
 

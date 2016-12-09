@@ -10,13 +10,18 @@ import org.neo4j.ogm.persistence.examples.stage.edges.PlayedInDrama;
 
 @NodeEntity
 public class StageActor extends BaseNode {
-    public StageActor() { super(); }
-    public StageActor(String title) { super(title); }
 
-    @Relationship(type="PLAYED_IN")
+    public StageActor() {
+        super();
+    }
+
+    public StageActor(String title) {
+        super(title);
+    }
+
+    @Relationship(type = "PLAYED_IN")
     public Set<PlayedInDrama> dramas = new HashSet<>();
 
     @Relationship(type = "LAST_APPEARENCE")
     public LastDrama lastDrama;
-
 }

@@ -37,141 +37,141 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public abstract class EventTestBaseClass extends MultiDriverTestClass {
 
-	protected Session session;
-	protected Document a;
-	protected Document b;
-	protected Document c;
-	protected Document d;
-	protected Document e;
-	protected Folder folder;
+    protected Session session;
+    protected Document a;
+    protected Document b;
+    protected Document c;
+    protected Document d;
+    protected Document e;
+    protected Folder folder;
 
-	protected Actor jim, bruce, lee, stan;
-	protected Knows knowsJB;
-	protected Knows knowsLS;
-	protected Knows knowsJL;
+    protected Actor jim, bruce, lee, stan;
+    protected Knows knowsJB;
+    protected Knows knowsLS;
+    protected Knows knowsJL;
 
-	protected TestEventListener eventListener = new TestEventListener();
+    protected TestEventListener eventListener = new TestEventListener();
 
-	@Before
-	public void init() throws IOException {
+    @Before
+    public void init() throws IOException {
 
-		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
-		sessionFactory.register(eventListener);
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory.register(eventListener);
 
-		session = sessionFactory.openSession();
-		session.purgeDatabase();
+        session = sessionFactory.openSession();
+        session.purgeDatabase();
 
-		a = new Document();
-		a.setName("a");
+        a = new Document();
+        a.setName("a");
 
-		b = new Document();
-		b.setName("b");
+        b = new Document();
+        b.setName("b");
 
-		c = new Document();
-		c.setName("c");
+        c = new Document();
+        c.setName("c");
 
-		d = new Document();
-		d.setName("d");
+        d = new Document();
+        d.setName("d");
 
-		e = new Document();
-		e.setName("e");
+        e = new Document();
+        e.setName("e");
 
-		folder = new Folder();
-		folder.setName("folder");
+        folder = new Folder();
+        folder.setName("folder");
 
-		folder.getDocuments().add(a);
-		folder.getDocuments().add(b);
-		folder.getDocuments().add(c);
+        folder.getDocuments().add(a);
+        folder.getDocuments().add(b);
+        folder.getDocuments().add(c);
 
-		a.setFolder(folder);
-		b.setFolder(folder);
-		c.setFolder(folder);
+        a.setFolder(folder);
+        b.setFolder(folder);
+        c.setFolder(folder);
 
-		session.save(d);
+        session.save(d);
 
-		session.save(e);
+        session.save(e);
 
-		session.save(folder);
+        session.save(folder);
 
-		jim = new Actor("Jim");
-		bruce = new Actor("Bruce");
-		lee = new Actor("Lee");
-		stan = new Actor("Stan");
+        jim = new Actor("Jim");
+        bruce = new Actor("Bruce");
+        lee = new Actor("Lee");
+        stan = new Actor("Stan");
 
-		knowsJB = new Knows();
-		knowsJB.setFirstActor(jim);
-		knowsJB.setSecondActor(bruce);
-		knowsJB.setSince(new Date());
+        knowsJB = new Knows();
+        knowsJB.setFirstActor(jim);
+        knowsJB.setSecondActor(bruce);
+        knowsJB.setSince(new Date());
 
-		jim.getKnows().add(knowsJB);
+        jim.getKnows().add(knowsJB);
 
-		knowsJL = new Knows();
-		knowsJL.setFirstActor(jim);
-		knowsJL.setSecondActor(lee);
-		knowsJL.setSince(new Date());
+        knowsJL = new Knows();
+        knowsJL.setFirstActor(jim);
+        knowsJL.setSecondActor(lee);
+        knowsJL.setSince(new Date());
 
-		jim.getKnows().add(knowsJL);
+        jim.getKnows().add(knowsJL);
 
-		knowsLS = new Knows();
-		knowsLS.setFirstActor(lee);
-		knowsLS.setSecondActor(stan);
-		knowsLS.setSince(new Date());
+        knowsLS = new Knows();
+        knowsLS.setFirstActor(lee);
+        knowsLS.setSecondActor(stan);
+        knowsLS.setSince(new Date());
 
-		lee.getKnows().add(knowsLS);
-		session.save(jim);
+        lee.getKnows().add(knowsLS);
+        session.save(jim);
 
-		eventListener.clear();
-	}
+        eventListener.clear();
+    }
 
-	class TestEventListener implements EventListener {
+    class TestEventListener implements EventListener {
 
-		public List<Event> eventsCaptured;
+        public List<Event> eventsCaptured;
 
-		public TestEventListener() {
-			eventsCaptured = new ArrayList<>();
-		}
+        public TestEventListener() {
+            eventsCaptured = new ArrayList<>();
+        }
 
-		@Override
-		public void onPreSave(Event event) {
-			eventsCaptured.add(event);
-		}
+        @Override
+        public void onPreSave(Event event) {
+            eventsCaptured.add(event);
+        }
 
-		@Override
-		public void onPostSave(Event event) {
-			eventsCaptured.add(event);
-		}
+        @Override
+        public void onPostSave(Event event) {
+            eventsCaptured.add(event);
+        }
 
-		@Override
-		public void onPreDelete(Event event) {
-			eventsCaptured.add(event);
-		}
+        @Override
+        public void onPreDelete(Event event) {
+            eventsCaptured.add(event);
+        }
 
-		@Override
-		public void onPostDelete(Event event) {
-			eventsCaptured.add(event);
-		}
+        @Override
+        public void onPostDelete(Event event) {
+            eventsCaptured.add(event);
+        }
 
-		public boolean captured(Object o, Event.TYPE lifecycle) {
-			Event event = new PersistenceEvent(o, lifecycle);
-			for (Event captured : eventsCaptured) {
-				if (captured.toString().equals(event.toString())) {
-					return true;
-				}
-			}
-			return false;
-		}
+        public boolean captured(Object o, Event.TYPE lifecycle) {
+            Event event = new PersistenceEvent(o, lifecycle);
+            for (Event captured : eventsCaptured) {
+                if (captured.toString().equals(event.toString())) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-		public int count() {
-			return eventsCaptured.size();
-		}
+        public int count() {
+            return eventsCaptured.size();
+        }
 
-		public void clear() {
-			eventsCaptured.clear();
-		}
-	}
+        public void clear() {
+            eventsCaptured.clear();
+        }
+    }
 
-	@After
-	public void clean() throws IOException {
-		session.purgeDatabase();
-	}
+    @After
+    public void clean() throws IOException {
+        session.purgeDatabase();
+    }
 }

@@ -14,7 +14,8 @@
 package org.neo4j.ogm.transaction;
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public interface TransactionManager {
 
@@ -73,4 +74,5 @@ public interface TransactionManager {
 
     boolean canRollback();
 
+    void bookmark(String bookmark);
 }

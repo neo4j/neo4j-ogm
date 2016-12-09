@@ -14,10 +14,14 @@
 package org.neo4j.ogm.session;
 
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.session.event.EventListener;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -30,6 +34,17 @@ public class SessionFactory {
 
 	private final MetaData metaData;
 	private final AutoIndexManager autoIndexManager;
+	private final List<EventListener> eventListeners;
+
+	private SessionFactory(Configuration configuration, MetaData metaData) {
+		if (configuration != null) {
+			Components.configure(configuration);
+		}
+		this.metaData = metaData;
+		this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
+		this.autoIndexManager.build();
+		this.eventListeners = new CopyOnWriteArrayList<>();
+	}
 
 	/**
 	 * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -44,9 +59,7 @@ public class SessionFactory {
 	 * @param packages The packages to scan for domain objects
 	 */
 	public SessionFactory(String... packages) {
-		this.metaData = new MetaData(packages);
-		this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
-		this.autoIndexManager.build();
+		this(null, new MetaData(packages));
 	}
 
 	/**
@@ -60,9 +73,7 @@ public class SessionFactory {
 	 * @param classes The classes to load as domain objects
 	 */
 	public SessionFactory(Class... classes) {
-		this.metaData = new MetaData(classes);
-		this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
-		this.autoIndexManager.build();
+		this(null, new MetaData(classes));
 	}
 
 	/**
@@ -79,10 +90,7 @@ public class SessionFactory {
 	 * @param packages The packages to scan for domain objects
 	 */
 	public SessionFactory(Configuration configuration, String... packages) {
-		Components.configure(configuration);
-		this.metaData = new MetaData(packages);
-		this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
-		this.autoIndexManager.build();
+		this(configuration, new MetaData(packages));
 	}
 
 	/**
@@ -97,10 +105,7 @@ public class SessionFactory {
 	 * @param classes The classes to load as domain objects
 	 */
 	public SessionFactory(Configuration configuration, Class... classes) {
-		Components.configure(configuration);
-		this.metaData = new MetaData(classes);
-		this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
-		this.autoIndexManager.build();
+		this(configuration, new MetaData(classes));
 	}
 
 	/**
@@ -120,7 +125,25 @@ public class SessionFactory {
 	 * @return A new {@link Session}
 	 */
 	public Session openSession() {
-		return new Neo4jSession(metaData, Components.driver());
+		return new Neo4jSession(metaData, Components.driver(), eventListeners);
+	}
+
+	/**
+	 * Asynchronously registers the specified listener on all <code>Session</code> events generated from <code>this SessionFactory</code>.
+	 *
+	 * @param eventListener The event listener to register.
+	 */
+	public void register(EventListener eventListener) {
+		eventListeners.add(eventListener);
+	}
+
+	/**
+	 * Asynchronously removes the the specified listener from <code>this SessionFactory</code>.
+	 *
+	 * @param eventListener The event listener to deregister.
+	 */
+	public void deregister(EventListener eventListener) {
+		eventListeners.remove(eventListener);
 	}
 
 	public void close() {

@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
@@ -58,32 +59,23 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
         configure(driverConfiguration);
     }
 
-    /**
-     * This constructor allows the user to pass in an existing
-     * Graph database service, e.g. if user code is running as an extension inside
-     * an existing Neo4j server
-     *
-     * @param graphDatabaseService the embedded database instance
-     */
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        close();
-        this.graphDatabaseService = graphDatabaseService;
-        registerShutdownHook();
-    }
-
-    /**
-     * Registers a shutdown hook for the Neo4j instance so that it
-     * shuts down nicely when the VM exits (even if you "Ctrl-C" the
-     * running application).
-     */
-    private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                close();
-            }
-        });
-    }
+	/**
+	 * This constructor allows the user to pass in an existing
+	 * Graph database service, e.g. if user code is running as an extension inside
+	 * an existing Neo4j server
+	 *
+	 * @param graphDatabaseService the embedded database instance
+	 */
+	public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+		close();
+		this.graphDatabaseService = graphDatabaseService;
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				close();
+			}
+		});
+	}
 
     @Override
     public synchronized void configure(DriverConfiguration config) {
@@ -177,34 +169,50 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
 
         try {
 
-            Path path = Files.createTempDirectory("neo4j.db");
-            File f = path.toFile();
-            f.deleteOnExit();
-            URI uri = f.toURI();
-            String fileStoreUri = uri.toString();
-            logger.warn("Creating temporary file store: " + fileStoreUri);
-            return fileStoreUri;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+			Path path = Files.createTempDirectory("neo4j.db");
+			final File f = path.toFile();
+			URI uri = f.toURI();
+			final String fileStoreUri = uri.toString();
+			logger.warn("Creating temporary file store: " + fileStoreUri);
+
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					close();
+					try {
+						logger.warn("Deleting temporary file store: " + fileStoreUri);
+						FileUtils.deleteDirectory(f);
+					} catch (IOException e) {
+						throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
+					}
+				}
+			});
+
+			return fileStoreUri;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
     private void createPermanentFileStore(String strPath) {
 
-        try {
-            URI uri = new URI(strPath);
-            File file = new File(uri);
-            if (!file.exists()) {
-                Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
-                logger.warn("Creating new permanent file store: " + graphDir.toString());
-            }
-        }
-        catch (FileAlreadyExistsException e) {
-            logger.warn("Using existing permanent file store: " + strPath);
-        }
-        catch (IOException | URISyntaxException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
-
+		try {
+			URI uri = new URI(strPath);
+			File file = new File(uri);
+			if (!file.exists()) {
+				Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
+				logger.warn("Creating new permanent file store: " + graphDir.toString());
+			}
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					close();
+				}
+			});
+		} catch (FileAlreadyExistsException e) {
+			logger.warn("Using existing permanent file store: " + strPath);
+		} catch (IOException | URISyntaxException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
 }

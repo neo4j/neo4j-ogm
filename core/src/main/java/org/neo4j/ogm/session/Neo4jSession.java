@@ -86,6 +86,11 @@ public class Neo4jSession implements Session {
 		this.txManager = new DefaultTransactionManager(this, driver);
 	}
 
+	public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners) {
+		this(metaData, driver);
+		registeredEventListeners.addAll(eventListeners);
+	}
+
 	@Override
 	public EventListener register(EventListener eventListener) {
 		registeredEventListeners.add(eventListener);

@@ -48,6 +48,7 @@ public class HttpTransaction extends AbstractTransaction {
         try {
             if (transactionManager.canRollback()) {
                 HttpDelete request = new HttpDelete(url);
+                request.setHeader(new BasicHeader("X-WRITE", driver.readOnly() ? "0" : "1"));
                 driver.executeHttpRequest(request);
             }
         }
@@ -66,6 +67,7 @@ public class HttpTransaction extends AbstractTransaction {
             if (transactionManager.canCommit()) {
                 HttpPost request = new HttpPost(url + "/commit");
                 request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
+                request.setHeader(new BasicHeader("X-WRITE", driver.readOnly() ? "0" : "1"));
                 driver.executeHttpRequest(request);
             }
         }

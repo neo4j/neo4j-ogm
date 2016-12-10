@@ -165,7 +165,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
         return autoCommitUrl();
     }
 
-    private boolean readOnly()  {
+    public boolean readOnly()  {
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {

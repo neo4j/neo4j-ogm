@@ -12,12 +12,15 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.cypher.query.SortOrder;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.neo4j.ogm.context.GraphEntityMapper;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -25,13 +28,9 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class LoadByIdsDelegate implements Capability.LoadByIds {
 
@@ -53,8 +52,12 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setPagination(pagination);
 
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-            new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-            return lookup(type, ids);
+            Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            Set<T> results = new LinkedHashSet<>();
+            for (T entity : mapped) {
+                results.add(entity);
+            }
+            return results;
         }
     }
 
@@ -93,27 +96,4 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }
 
-    private <T, ID extends Serializable> Collection<T> lookup(Class<T> type, Collection<ID> ids) {
-
-        Set<T> results = new HashSet<>();
-        ClassInfo typeInfo = session.metaData().classInfo(type.getName());
-
-        for (ID id : ids) {
-
-            Object ref;
-
-            if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-                ref = session.context().getNodeEntity(id);
-            } else {
-                // will always be long for a relationship entity.
-                ref = session.context().getRelationshipEntity((Long) id);
-            }
-            try {
-                results.add(type.cast(ref));
-            } catch (ClassCastException cce) {
-                // do nothing, the object is not loadable in the domain;
-            }
-        }
-        return results;
-    }
 }

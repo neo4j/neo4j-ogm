@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.cypher;
 
-import org.neo4j.ogm.cypher.function.FilterFunction;
-import org.neo4j.ogm.cypher.function.PropertyComparison;
-
-import java.util.Map;
-
 /**
  * A parameter along with filter information to be added to a query.
  *
@@ -93,17 +88,12 @@ public class Filter {
      */
     private boolean nestedRelationshipEntity;
 
-    private FilterFunction function;
+	public Filter() {
+	}
 
     public Filter(String propertyName, Object propertyValue) {
         this.propertyName = propertyName;
-        this.function = new PropertyComparison(propertyValue, this);
-    }
-
-    public Filter(FilterFunction function) {
-
-        this.function = function;
-        this.function.setFilter(this);
+		this.propertyValue = propertyValue;
     }
 
     public String getRelationshipDirection() {
@@ -122,20 +112,12 @@ public class Filter {
         this.propertyName = propertyName;
     }
 
-    /**
-     * @deprecated use {@link FilterFunction#getValue()} instead.
-     */
-    @Deprecated
     public Object getPropertyValue() {
-        return this.function.getValue();
+		return propertyValue;
     }
 
-    /**
-     * @deprecated use {@link FilterFunction#setValue(Object)} ()} instead.
-     */
-    @Deprecated
     public void setPropertyValue(Object propertyValue) {
-        this.function.setValue(propertyValue);
+		this.propertyValue = propertyValue;
     }
 
     /**
@@ -245,55 +227,7 @@ public class Filter {
      * @return The transformed property value
      */
     public Object getTransformedPropertyValue() {
-        return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.function.getValue());
+       return this.comparisonOperator.getPropertyValueTransformer().transformPropertyValue(this.propertyValue);
     }
 
-    public FilterFunction getFunction() {
-        return function;
-    }
-
-    public void setFunction(FilterFunction function) {
-        assert function != null;
-        this.function = function;
-        this.function.setFilter(this);
-    }
-
-    /**
-     * @param nodeIdentifier
-     * @param addWhereClause
-     * @return The filter state as a CYPHER fragment.
-     */
-    public String toCypher(String nodeIdentifier, boolean addWhereClause) {
-        String fragment = this.function.expression(nodeIdentifier);
-        String suffix = isNegated() ? negate(fragment) : fragment;
-        return cypherPrefix(addWhereClause) + suffix;
-    }
-
-    public Map<String, Object> parameters() { return function.parameters(); }
-
-    public String uniquePropertyName() {
-        String uniquePropertyName = getPropertyName();
-        if (isNested()) {
-            //Nested entities may have the same property name, so we make them unique by qualifying them with the
-            // nested property name on the owning entity
-            uniquePropertyName = getNestedPropertyName() + "_" + getPropertyName();
-        }
-        return uniquePropertyName;
-    }
-
-    private String cypherPrefix(boolean addWhereClause) {
-        StringBuilder cypher = new StringBuilder();
-        if (addWhereClause) {
-            cypher.append("WHERE ");
-        } else {
-            if (!getBooleanOperator().equals(BooleanOperator.NONE)) {
-                cypher.append(getBooleanOperator().getValue()).append(" ");
-            }
-        }
-        return cypher.toString();
-    }
-
-    private String negate(String expression) {
-        return String.format("NOT(%s) ", expression);
-    }
 }

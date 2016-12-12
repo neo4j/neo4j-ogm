@@ -1,3 +1,14 @@
+2.0.6
+--------------
+o Support for Neo4j Bolt Driver 1.0.6
+o Scala compatibility - support for @Labels without get/set. Fixes #236.
+o Fixes failure to set Credentials when using Bolt protocol in URI. Fixes #235.
+o Enable ClassPathScanner to scan embedded WAR/JAR files (Spring Boot, Tomcat, etc).
+o Fix defects when mapping to and from fields and methods that use Generics. Fixes #186.
+o Fix issue where calling session.save() after updating graph properties and relationships in one transaction did not save properties. Fixes #261.
+o Fix X-WRITE headers not being sent to correct node in HA HTTP.
+o Upgrade dependency to Neo4j 3.0.7
+
 2.0.5
 --------------
 o Support scanning web archives for domain classes. Fixes #211.

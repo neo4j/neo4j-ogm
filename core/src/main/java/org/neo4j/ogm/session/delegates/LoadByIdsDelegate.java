@@ -21,6 +21,10 @@ import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.entity.io.FieldReader;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -55,7 +59,9 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
             Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
             Set<T> results = new LinkedHashSet<>();
             for (T entity : mapped) {
-                results.add(entity);
+                if (includeMappedEntity(ids, entity)) {
+                    results.add(entity);
+                }
             }
             return results;
         }
@@ -96,4 +102,18 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }
 
+    private <T, ID extends Serializable> boolean includeMappedEntity(Collection<ID> ids, T mapped) {
+
+        final ClassInfo classInfo = session.metaData().classInfo(mapped);
+        final FieldInfo primaryIndexField = classInfo.primaryIndexField();
+
+        if (primaryIndexField != null) {
+            final Object primaryIndexValue = new FieldReader(classInfo, primaryIndexField).read(mapped);
+            if (ids.contains(primaryIndexValue)) {
+                return true;
+            }
+        }
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(mapped);
+        return ids.contains(id);
+    }
 }

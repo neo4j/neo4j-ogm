@@ -20,9 +20,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -659,6 +661,43 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertEquals(0, ledZeppelin.getAlbums().size());
     }
 
+    /**
+     * @see Issue 302
+     */
+    @Test
+    public void shouldMaintainSortOrderWhenLoadingByIds() {
+        Artist led = new Artist("Led Zeppelin");
+        session.save(led);
+        Artist bonJovi = new Artist("Bon Jovi");
+        session.save(bonJovi);
+
+        List<Long> ids = Arrays.asList(beatlesId, led.getId(), bonJovi.getId());
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(SortOrder.Direction.ASC, "name");
+        Iterable<Artist> artists = session.loadAll(Artist.class, ids, sortOrder);
+        assertNotNull(artists);
+        List<String> artistNames = new ArrayList<>();
+        for (Artist artist : artists) {
+            artistNames.add(artist.getName());
+        }
+        assertEquals("Bon Jovi", artistNames.get(0));
+        assertEquals("Led Zeppelin", artistNames.get(1));
+        assertEquals("The Beatles", artistNames.get(2));
+
+
+        sortOrder = new SortOrder();
+        sortOrder.add(SortOrder.Direction.DESC, "name");
+        artists = session.loadAll(Artist.class, ids, sortOrder);
+        assertNotNull(artists);
+        artistNames = new ArrayList<>();
+        for (Artist artist : artists) {
+            artistNames.add(artist.getName());
+        }
+        assertEquals("The Beatles", artistNames.get(0));
+        assertEquals("Led Zeppelin", artistNames.get(1));
+        assertEquals("Bon Jovi", artistNames.get(2));
+
+    }
 
 
 }

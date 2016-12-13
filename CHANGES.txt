@@ -1,3 +1,8 @@
+2.0.7-SNAPSHOT
+--------------
+o Fixes issue where session.loadAll would sort by ids instead of by the sort order specified. Fixes #302.
+
+
 2.0.6
 --------------
 o Support for Neo4j Bolt Driver 1.0.6

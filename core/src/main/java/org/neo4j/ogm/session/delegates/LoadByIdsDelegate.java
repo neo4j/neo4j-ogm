@@ -12,11 +12,15 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.annotation.RelationshipEntity;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.AbstractRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
@@ -25,12 +29,9 @@ import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author Vince Bickers
+ * @author Luanne Misquitta
  */
 public class LoadByIdsDelegate implements Capability.LoadByIds {
 
@@ -52,8 +53,14 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
                 .setPagination(pagination);
 
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-            new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-            return lookup(type, ids);
+            Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            Set<T> results = new LinkedHashSet<>();
+            for (T entity : mapped) {
+                if (includeMappedEntity(ids, entity)) {
+                    results.add(entity);
+                }
+            }
+            return results;
         }
     }
 
@@ -92,26 +99,11 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }
 
-    private <T> Collection<T> lookup(Class<T> type, Collection<Long> ids) {
+    private <T>  boolean includeMappedEntity(Collection<Long> ids, T mapped) {
 
-        Set<T> results = new HashSet<>();
-        ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+        final ClassInfo classInfo = session.metaData().classInfo(mapped);
 
-        for (Long id : ids) {
-
-            Object ref;
-
-            if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
-                ref = session.context().getNodeEntity(id);
-            } else {
-                ref = session.context().getRelationshipEntity(id);
-            }
-            try {
-                results.add(type.cast(ref));
-            } catch (ClassCastException cce) {
-                // do nothing, the object is not loadable in the domain;
-            }
-        }
-        return results;
+        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).read(mapped);
+        return ids.contains(id);
     }
 }

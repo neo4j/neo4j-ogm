@@ -20,23 +20,51 @@ operation using the same property to identify the object.
 
 
 == Indexes and Constraints
-Indexes and unique constraints based on labels and properties are supported as of version `2.1.0`.
+Indexes and unique constraints based on labels and properties are supported as of version `2.1.0` with the `@Index` annotation.
 Any property field annotated with `@Index` will use have an appropriate schema index created. For `@Index(unique=true)` a constraint is created.
+
+You may add as many indexes or constraints as you like to your class.  If you annotate a field in a class that is part of an inheritance hierarchy then the index or constraint will only be added to that class's label.
+
 
 == Index Creation
 
-By default, automatic indexing on startup is `off`.
+By default index management is set to `None`.
 
 If you would like the OGM to manage your schema creation there are several ways to go about it.
 
 Only classes marked with `@Index` will be used. Indexes will always be generated with the containing class's label and the annotated property's name.
 Index generation behaviour can be defined in `ogm.properties` by defining a property called: `indexes.auto` and providing a value of:
 
-- *assert*: drop all indexes and constraints then create constraints and indexes on startup. No indexes or constraints will be dropped on shutdown.
-- *validate*: confirm that the required indexes and constraints defined already exist on startup otherwise abort startup
-- *dump*: will generate a file in the current directory with the cypher commands to create indexes and constraints. Before doing this it will run the same behaviour as validate.
-- *none*: do not generate any constraints or indexes *[default]*
+Below is a table of all options available for configuring Auto-Indexing.
 
+|===
+|Option|Description|Properties Example|Java Example
+
+| *none (default)*
+| Nothing is done with index and constraint annotations.
+| -
+| -
+
+| *validate*
+| Make sure the connected database has all indexes and constraints in place before starting up
+| indexes.auto=validate
+| config.autoIndexConfiguration().setAutoIndex("validate");
+
+| *assert*
+| Drops all constraints and indexes on startup then builds indexes based on whatever is represented in OGM by `@Index`. Handy during development
+| indexes.auto=assert
+| config.autoIndexConfiguration().setAutoIndex("assert");
+
+| *dump*
+| Dumps the generated constraints and indexes to a file. Good for setting up environments. none: Default. Simply marks the field as using an index.
+| indexes.auto=dump
+  indexes.auto.dump.dir=<a directory>
+  indexes.auto.dump.filename=<a filename>
+| config.autoIndexConfiguration().setAutoIndex("dump");
+  config.autoIndexConfiguration().setDumpDir("XXX");
+  config.autoIndexConfiguration().setDumpFilename("XXX");
+
+|===
 
 == Primary Constraints
 

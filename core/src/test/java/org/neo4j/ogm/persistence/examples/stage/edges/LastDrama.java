@@ -4,7 +4,7 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.persistence.examples.stage.nodes.Drama;
 import org.neo4j.ogm.persistence.examples.stage.nodes.StageActor;
 
-@RelationshipEntity(type = "LAST_APPEARENCE")
+@RelationshipEntity(type = "LAST_APPEARANCE")
 public class LastDrama extends BaseEdge<StageActor, Drama> {
 
     public LastDrama() {

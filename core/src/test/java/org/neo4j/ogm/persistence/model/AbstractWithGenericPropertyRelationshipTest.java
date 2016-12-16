@@ -18,26 +18,18 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
- * Issue #54, #66, #186 & Zendesk ticket XXX
- *
- * TODO: The problem here is that FieldInfo will not resolve the correct type for @RelationshipEntity's that have
- * parameterised types.
- *
- * The required behaviour is to delay binding any parameterised field types till a concrete class is defined in a
- * subtype (that is: not define a fieldInfo at the level the parameterised type appears, but remember it and define it
- * when subclasses that define the concrete type appear). At the moment is processes breadth first so it encounters the
- * parameterised type field and binds it to the generic superclass.
+ * Issue #54, ##66, #186 & #298 (Zendesk ticket XXX)
  *
  * @author Mihai Raulea
  * @author Mark Angrish
+ * @author Vince Bickers
  */
-@Ignore
+
 public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTestClass {
 
 	private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.persistence.model", "org.neo4j.ogm.persistence.examples.stage");
 
 	private Session session;
-
 
 	@Before
 	public void init() throws IOException {
@@ -65,8 +57,14 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
 		Assert.assertNotNull(reloadedActor.lastDrama);
 	}
 
+	/**
+	 * TODO:
+	 * This test is unclear to me in what it is expecting from the domain class setup. However, it should be possible
+	 * in theory to query by a generic type. Requires further investigation.
+	 */
+	@Ignore
 	@Test
-	public void testSave() {
+	public void testQueryByGenericRelationshipType() {
 		SomeNode<Integer> someNode = new SomeNode<>();
 		session.save(someNode);
 
@@ -85,7 +83,7 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
 
 		// we can not query by abstract class
 		Collection<L> relationship = session.loadAll(L.class);
-		Assert.assertEquals(relationship.size(), 1);
+		Assert.assertEquals(1, relationship.size());
 	}
 
 	@Test

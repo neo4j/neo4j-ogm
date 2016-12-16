@@ -22,6 +22,6 @@ public class StageActor extends BaseNode {
     @Relationship(type = "PLAYED_IN")
     public Set<PlayedInDrama> dramas = new HashSet<>();
 
-    @Relationship(type = "LAST_APPEARENCE")
+    @Relationship(type = "LAST_APPEARANCE")
     public LastDrama lastDrama;
 }

@@ -23,6 +23,6 @@ public class FilmActor extends BaseNode {
     @Relationship(type = "PLAYED_IN")
     public Set<PlayedInMovie> movies = new HashSet<>();
 
-    @Relationship(type = "LAST_APPEARENCE")
+    @Relationship(type = "LAST_APPEARANCE")
     public LastMovie lastMovie;
 }

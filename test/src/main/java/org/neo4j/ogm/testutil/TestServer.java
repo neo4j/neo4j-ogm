@@ -147,15 +147,14 @@ public class TestServer {
      */
     public synchronized void shutdown() {
 
-        System.out.println("******************************************************************************");
-        System.out.println("* Stopping in memory test server on: " + url());
-        System.out.println("******************************************************************************");
         if (database != null && database.isAvailable(100)) {
+			System.out.println("******************************************************************************");
+			System.out.println("* Stopping in memory test server on: " + url());
+			System.out.println("******************************************************************************");
             database.shutdown();
-            database = null;
+			database = null;
         }
         controls.close();
-
     }
 
     /**

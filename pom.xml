@@ -39,20 +39,29 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <commonslang>3.4</commonslang>
         <commonscodec>1.10</commonscodec>
+        <commonsio>2.4</commonsio>
+        <commonscollections>4.1</commonscollections>
         <jackson>2.7.1</jackson>
         <httpclient>4.5.2</httpclient>
         <junit>4.12</junit>
         <slf4j>1.7.21</slf4j>
         <logback>1.1.7</logback>
-        <mockito>2.1.0-RC.2</mockito>
+        <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
-        <neo4j>3.0.7</neo4j>
+        <neo4j>3.1.0</neo4j>
         <bolt>1.1.0</bolt>
         <ogm.properties>ogm-http.properties</ogm.properties>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
+            <!--Compile and Runtime Dependencies -->
+            <dependency>
+                <groupId>org.neo4j.driver</groupId>
+                <artifactId>neo4j-java-driver</artifactId>
+                <version>${bolt}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -85,17 +94,25 @@
             </dependency>
 
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit}</version>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commonsio}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.neo4j</groupId>
-                <artifactId>neo4j</artifactId>
-                <version>${neo4j}</version>
-                <!--<scope>test</scope>-->
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commonscollections}</version>
             </dependency>
+
+            <!--Testing  Dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit}</version>
+                <scope>test</scope>
+            </dependency>
+
 
             <dependency>
                 <groupId>org.neo4j.test</groupId>
@@ -105,23 +122,17 @@
             </dependency>
 
             <dependency>
-                <groupId>org.neo4j.driver</groupId>
-                <artifactId>neo4j-java-driver</artifactId>
-                <version>${bolt}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback}</version>
-                <!--<scope>test</scope>-->
+                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>${logback}</version>
-                <!--<scope>test</scope>-->
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -131,26 +142,33 @@
                 <scope>test</scope>
             </dependency>
 
-            <!-- test dependencies for High Availability -->
+            <!-- Embedded Driver Dependencies -->
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j</artifactId>
+                <version>${neo4j}</version>
+                <scope>provided</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-cluster</artifactId>
                 <version>${neo4j}</version>
-                <!--<scope>provided</scope>-->
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-ha</artifactId>
                 <version>${neo4j}</version>
-                <!--<scope>provided</scope>-->
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-enterprise</artifactId>
                 <version>${neo4j}</version>
-                <!--<scope>provided</scope>-->
+                <scope>provided</scope>
             </dependency>
 
         </dependencies>
@@ -366,6 +384,36 @@
             <id>3.0</id>
             <properties>
                 <neo4j>3.0.7</neo4j>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.18.1</version>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <configuration>
+                                    <forkMode>once</forkMode>
+                                    <includes>
+                                        <include>**/*.java</include>
+                                    </includes>
+                                    <systemPropertyVariables>
+                                        <ogm.properties>${ogm.properties}</ogm.properties>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>3.1</id>
+            <properties>
+                <neo4j>3.1.0</neo4j>
             </properties>
             <build>
                 <plugins>

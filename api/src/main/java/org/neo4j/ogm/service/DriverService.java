@@ -26,11 +26,12 @@ import java.util.ServiceLoader;
 /**
  * This class is responsible for loading a Driver using the Service Loader mechanism
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class DriverService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DriverService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DriverService.class);
 
     private static Driver load(String className) {
 
@@ -40,15 +41,20 @@ public class DriverService {
             try {
                 Driver driver = iterator.next();
                 if (driver.getClass().getName().equals(className)) {
-                    logger.debug("Using driver: {}", className);
+                    LOGGER.info("Using: [{}]", className);
                     return driver;
                 }
             } catch (ServiceConfigurationError sce) {
-                logger.warn("{}, reason: {}", sce.getLocalizedMessage(), sce.getCause());
+                if (sce.getCause() != null) {
+                    throw new ServiceNotFoundException("Could not load driver: " + className + ".", sce);
+                }
+                else {
+                    LOGGER.debug("Error loading driver: {}", sce.getLocalizedMessage());
+                }
             }
         }
 
-        throw new ServiceNotFoundException(className);
+        throw new ServiceNotFoundException("Could not load driver: " + className + ".");
 
     }
 

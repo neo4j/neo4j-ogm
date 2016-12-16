@@ -14,11 +14,16 @@
 package org.neo4j.ogm.exception;
 
 /**
- * @author vince
+ * @author Vice Bickers
+ * @author Mark Angrish
  */
 public class ServiceNotFoundException extends RuntimeException {
 
-    public ServiceNotFoundException(String s) {
-        super(s);
+    public ServiceNotFoundException(String message) {
+        super(message);
+    }
+
+    public ServiceNotFoundException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

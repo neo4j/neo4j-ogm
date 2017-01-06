@@ -283,7 +283,7 @@ public class EntityGraphMapper implements EntityMapper {
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         NodeBuilder nodeBuilder;
-        final String primaryIndex = classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().getName() : null;
+        final String primaryIndex = classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
         if (id == null) {
             Long entityIdRef = EntityUtils.identity(entity, metaData);
             nodeBuilder = compiler.newNode(entityIdRef).addLabels(labels).setPrimaryIndex(primaryIndex);

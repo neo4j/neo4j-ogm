@@ -1273,7 +1273,12 @@ public class ClassInfo {
 
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(indexAnnotation)) {
-                indexes.put(fieldInfo.property(), fieldInfo);
+
+                String propertyValue = fieldInfo.property();
+                if (fieldInfo.hasAnnotation(Property.class.getCanonicalName())) {
+                    propertyValue = fieldInfo.property();
+                }
+                indexes.put(propertyValue, fieldInfo);
             }
         }
         return indexes;

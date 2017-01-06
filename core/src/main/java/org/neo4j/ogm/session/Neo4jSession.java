@@ -507,7 +507,7 @@ public class Neo4jSession implements Session {
             return new RelationshipQueryStatements<>();
         } else {
             final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
-            return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.getName() : null);
+            return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.property() : null);
         }
     }
 

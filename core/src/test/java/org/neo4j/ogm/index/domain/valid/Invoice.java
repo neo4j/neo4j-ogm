@@ -3,6 +3,7 @@ package org.neo4j.ogm.index.domain.valid;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
 
 /**
  * @author Mark Angrish
@@ -14,9 +15,11 @@ public class Invoice {
     private Long id;
 
     @Index(unique = true, primary = true)
+    @Property(name="invoice_number")
     private Long number;
 
     @Index
+    @Property(name="company_id")
     private String company;
 
     private Long amountInCents;

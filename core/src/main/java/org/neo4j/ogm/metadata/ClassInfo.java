@@ -1264,7 +1264,7 @@ public class ClassInfo {
         // No way to get declared fields from current byte code impl. Using reflection instead.
         Field[] declaredFields;
         try {
-            declaredFields = Class.forName(className).getDeclaredFields();
+            declaredFields = MetaDataClassLoader.loadClass(className).getDeclaredFields();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Could not reflectively read declared fields", e);
         }

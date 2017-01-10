@@ -1,160 +1,148 @@
 [[reference-configuration]]
 = Configuration
 
+== Configuration method
 
-[[reference-ogm2x-configuration]]
-== OGM Configuration
+There are two ways to supply configuration to the OGM:
 
-In previous versions, you could only connect to the database over HTTP.
+- using a `Properties` file; and
+- programmatically.
 
+=== Using ogm.properties
+Unless you supply an explicit `Configuration` object to the `SessionFactory` (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the root of the classpath.
 
-You must declare the driver(s) you want to use in your pom.
-See the dependencies section for more information.
-
-There are two basic ways to supply this configuration information: via a single properties file, or programmatically.
-
-
-=== Properties file Configuration
-
-Unless you supply an explicit Configuration object to the SessionFactory (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the classpath.
 If you want to configure the OGM using a properties file, but with a _different_ filename, you must set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
 
 
-=== Java Configuration
+=== Programmatically using Java
 
-In some cases you won't want to, or will not be able to provide configuration information using a properties file.
-In this case you can configure the OGM programmatically instead.
+In cases where you are not be able to provide configuration via a properties file you can  configure the OGM programmatically instead.
 
-The Configuration object provides a fluent API to set various configuration options.
-
-The following sections describe how to configure the OGM driver using either a properties file or via Java Configuration.
+The `Configuration` object provides a fluent API to set various configuration options. This object then needs to be supplied to the
+`SessionFactory` constructor in order to be configured.
 
 
-=== Driver Configuration
+== Driver Configuration
+
+=== HTTP Driver
 
 
-==== Configuring the HTTP Driver
+.Basic HTTP Driver Configuration
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
 
-The HTTP Driver connects to and communicates with a Neo4j server via HTTP.
-If your application is running in client-server mode, you must use either the HTTP or Bolt driver.
-
-.ogm.properties
+a|
 [source, properties]
 ----
 driver=org.neo4j.ogm.drivers.http.driver.HttpDriver
 URI=http://user:password@localhost:7474
 ----
 
-.Java Configuration
+a|
 [source, java]
 ----
 Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-             .setURI("http://user:password@localhost:7474")
-
-// having created a new configuration object, we pass it as the first argument to a SessionFactory instance
-new SessionFactory(configuration, packages...);
+        .driverConfiguration()
+        .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+        .setURI("http://user:password@localhost:7474")
 ----
+|======================
 
-_Note: Please see the section below describing the different ways you can pass credentials to the HTTP Driver_
 
-==== Configuring the Bolt Driver
+=== Bolt Driver
 
-The Bolt Driver connects to and communicates with a Neo4j server via the binary Bolt protocol.
-If your application is running in client-server mode, you must use either the HTTP or Bolt driver.
 
-.ogm.properties
+Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with bolt://neo4j:password@localhost:1234
+
+.Basic Bolt Driver Configuration
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
 [source, properties]
 ----
-#Driver, required
 driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
-
-#URI of the Neo4j database, required. If no port is specified, the default port 7687 is used. Otherwise, a port can be specified with bolt://neo4j:password@localhost:1234
 URI=bolt://neo4j:password@localhost
-
-#Connection pool size (the maximum number of sessions per URL), optional, defaults to 50
+#Connection pool size (the maximum number of
+#sessions per URL), optional, defaults to 50
 connection.pool.size=150
-
-#Encryption level (TLS), optional, defaults to REQUIRED. Valid values are NONE,REQUIRED
-encryption.level=NONE
-
-#Trust strategy, optional, not used if not specified. Valid values are TRUST_ON_FIRST_USE,TRUST_SIGNED_CERTIFICATES
-trust.strategy=TRUST_ON_FIRST_USE
-
-#Trust certificate file, required if trust.strategy is specified
-trust.certificate.file=/tmp/cert
 ----
 
-.Java Configuration
+a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
-                configuration.driverConfiguration()
-                .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-                .setURI("bolt://neo4j:password@localhost")
-                .setEncryptionLevel("NONE")
-                .setTrustStrategy("TRUST_ON_FIRST_USE")
-                .setTrustCertFile("/tmp/cert");
-
-
-// having created a new configuration object, we pass it as the first argument to a SessionFactory instance
-
-new SessionFactory(configuration, packages...);
+        configuration.driverConfiguration()
+        .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+        .setURI("bolt://neo4j:password@localhost")
 ----
+|======================
 
-_Note: Please see the section below describing the different ways you can pass credentials to the HTTP/Bolt Drivers_
+
+=== Embedded Driver
 
 
-==== Configuring the Embedded Driver
-
-The Embedded Driver connects directly to the Neo4j database engine.
-There is no server involved, therefore no network overhead between your application code and the database.
 You should use the Embedded driver if you don't want to use a client-server model, or if your application is running as a Neo4j Unmanaged Extension.
 You can specify a permanent data store location to provide durability of your data after your application shuts down, or you can use an impermanent data store, which will only exist while your application is running.
 
-.ogm.properties (permanent data store)
+[NOTE]
+As of 2.1.0 the Neo4j OGM embedded driver no longer ships with the Neo4j kernel.  Users are expected to provide this dependency through their
+dependency management system. See <<reference-setup, Getting Started>> for more details.
+
+.Permanent Data Store Embedded Driver Configuration
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
 [source, properties]
 ----
 driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 URI=file:///var/tmp/neo4j.db
 ----
 
-.ogm.properties (impermanent data store)
+a|
+[source, java]
+----
+Configuration configuration = new Configuration()
+             .driverConfiguration()
+             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
+             .setURI("file:///var/tmp/neo4j.db");
+----
+|======================
+
+To use an impermanent data store which will be deleted on shutdown of the JVM, you just omit the URI attribute.
+
+
+.Impermanent Data Store Embedded Driver Configuration
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
 [source, properties]
 ----
 driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 ----
 
-.Java Configuration (permanent data store)
+a|
 [source, java]
 ----
 Configuration configuration = new Configuration()
              .driverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-             .setURI("file://home/bilbo");
+             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 ----
-
-.Java Configuration (impermanent data store)
-[source, java]
-----
-Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-----
-
-As you can see to use an impermanent data store, you just omit the URI attribute.
-
-[NOTE]
-As of 2.1.0 the Neo4j OGM embedded driver no longer ships with the Neo4j kernel.  Users are expected to provide this dependency through their
-dependency management system.
+|======================
 
 
-==== Configuring the Embedded Driver in an Unmanaged Extension
+
+==== Embedded Driver in an Unmanaged Extension
 
 When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up the Driver configuration slightly differently.
 In this situation, an existing `GraphDatabaseService` will already be available via a `@Context` annotation, and you must configure the Components framework to enable the OGM to use the provided instance.
-Note your application should typically do this only once.
+Note your application should typically do this only once before the call to set up a `Configuration` object.
 
 [source, java]
 ----
@@ -162,11 +150,15 @@ Note your application should typically do this only once.
 ----
 
 
-==== Credentials
+=== Credentials
 
 If you are using the HTTP or Bolt Driver you have a number of different ways to supply credentials to the Driver Configuration.
 
-.ogm.properties:
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
 [source, properties]
 ----
 # embedded
@@ -177,7 +169,7 @@ username="user"
 password="password"
 ----
 
-.Java Configuration
+a|
 [source, java]
 ----
 // embedded
@@ -196,87 +188,78 @@ Configuration configuration = new Configuration()
              .driverConfiguration()
              .setCredentials(credentials);
 ----
+|======================
 
 _Note: Currently only Basic Authentication is supported by Neo4j, so the only Credentials implementation supplied by the OGM is `UsernameAndPasswordCredentials`_
 
-== Transport Layer Security
+=== Transport Layer Security (TLS/SSL)
 
-The Bolt and Http drivers allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka SSL) and require the installation of a signed certificate on the server.
+The Bolt and Http drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka SSL) and require the installation of a signed certificate on the server.
 
 In certain situations (e.g. some cloud environments) it may not be possible to install a signed certificate even though you still want to use an encrypted connection.
 
 To support this, both drivers have configuration settings allowing you to bypass certificate checking, although they differ in their implementation.
 
-.ogm.properties (bolt):
+[NOTE]
+Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
+
+==== Bolt
+.ogm.properties
 [source, properties]
 ----
+#Encryption level (TLS), optional, defaults to REQUIRED. Valid values are NONE,REQUIRED
 encryption.level=REQUIRED
+
+#Trust strategy, optional, not used if not specified. Valid values are TRUST_ON_FIRST_USE,TRUST_SIGNED_CERTIFICATES
 trust.strategy=TRUST_ON_FIRST_USE
+
+#Trust certificate file, required if trust.strategy is specified
 trust.certificate.file=/tmp/cert
 ----
 
-TRUST_ON_FIRST_USE means that the Bolt Driver will trust the first connection to a host to be safe and intentional. On subsequent connections, the driver will verify that the host is the same as on that first connection.
+.Java Configuration
+[source, java]
+----
+Configuration configuration = new Configuration();
+        configuration.driverConfiguration()
+        ...
+        .setEncryptionLevel("REQUIRED")
+        .setTrustStrategy("TRUST_ON_FIRST_USE")
+        .setTrustCertFile("/tmp/cert");
 
-.ogm.properties (http):
+----
+
+`TRUST_ON_FIRST_USE` means that the Bolt Driver will trust the first connection to a host to be safe and intentional. On subsequent connections, the driver will verify that the host is the same as on that first connection.
+
+==== HTTP
+
+.ogm.properties
 [source, properties]
 ----
 trust.strategy = ACCEPT_UNSIGNED
 ----
 
-The ACCEPT_UNSIGNED strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
+.Java Configuration
+[source, java]
+----
+Configuration configuration = new Configuration();
+        configuration.driverConfiguration()
+        ...
+        .setTrustStrategy("ACCEPT_UNSIGNED")
 
-[NOTE]
-====
-Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
-====
+----
+
+The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
 
 
-==== Logging
+
+
+
+
+
+
+== Logging
 
 In production, you can set the log level in exactly the same way, but the file should be called *logback.xml*, not *logback-test.xml*.
 Please see the link:http://logback.qos.ch/manual/[Logback manual] for further details.
-
-== Session Configuration
-
-In order to interact with mapped entities and the Neo4j graph, your application will require a `Session`, which is provided by the `SessionFactory`.
-
-
-=== SessionFactory
-
-The `SessionFactory` is needed by OGM to create instances of `org.neo4j.ogm.session.Session` as required.
-This also sets up the object-graph mapping metadata when constructed, which is then used across all `Session` objects that it creates.
-The packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
-Multiple packages may be provided as well.
-If you would rather just pass in specific classes you can also do that via an overloaded constructor.
-The SessionFactory must also be configured.
-There are two ways this can be done.
-Please see the section below on Configuration for further details.
-
-.Multiple packages
-[source, java]
-----
-SessionFactory sessionFactory = new SessionFactory("first.package.domain", "second.package.domain",...);
-----
-
-Note that the `SessionFactory` should typically be set up once during life of your application.
-
-
-=== Session
-
-A `Session` is used to drive the object-graph mapping framework.
-It keeps track of the changes that have been made to entities and their relationships.
-The reason it does this is so that only entities and relationships that have changed get persisted on save, which is particularly efficient when working with large graphs.
-Once an entity is tracked by the session, reloading this entity within the scope of the same session will result in the session cache returning the previously loaded entity.
-However, the subgraph in the session will expand if the entity or its related entities retrieve additional relationships from the graph.
-
-If you want to fetch fresh data from the graph, then this can be achieved by using a new session or clearing the current sessions context using `org.neo4j.ogm.session.Session.clear()`.
-
-The lifetime of the `Session` can be managed in code.
-For example, associated with single _fetch-update-save_ cycle or unit of work.
-
-If your application relies on long-running sessions then you may not see changes made from other users and find yourself working with outdated objects.
-On the other hand, if your sessions have too narrow a scope then your save operations can be unnecessarily expensive, as updates will be made to all objects if the session isn't aware of the those that were originally loaded.
-
-There's therefore a trade off between the two approaches.
-In general, the scope of a `Session` should correspond to a "unit of work" in your application.
 

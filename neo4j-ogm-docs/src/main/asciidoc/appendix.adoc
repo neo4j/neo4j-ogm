@@ -1,0 +1,39 @@
+
+= Appendix A: Design considerations
+
+The OGM attempts to minimise the Cypher payload when persisting your objects to the graph.
+This is important for two reasons.
+Firstly in client-server mode, every network interaction involves an overhead (both bandwidth but more so latency) which impacts the response times of your application.
+Secondly, requests containing redundant operations (such as updating an object which hasn't changed) are unnecessary, and have similar impacts.
+We have approached this problem in a number of ways:
+
+
+[[reference-variable-depth-persistence]]
+=== Variable-depth persistence
+
+You can now tailor your persistence requests according to the characteristics of the portions of your graph you want to work with.
+This means you can choose to make deeper or shallower fetches based on fine tuning the types and amounts of data you want to transfer based on your individual constraints.
+
+If you know that you aren't going to need an object's related objects, you can choose not to fetch them by specifying the fetch-depth as 0.
+Alternatively if you know that you will always want to a person's complete set of friends-of-friends, you can set the depth to 2.
+
+
+[[reference-smart-object-mapping]]
+=== Smart object-mapping
+
+Neo4j OGM introduces smart object-mapping.
+This means that all other things being equal, it is possible to reliably detect which nodes and relationships needs to be changed in the database, and which don't.
+
+Knowing what needs to be changed means we don't need to flood Neo4j with requests to update objects that don't require changing, or create relationships that already exist.
+We can minimise the amount of data we send across the wire as a result, which results in a faster network interaction, and fewer CPU cycles consumed on the server.
+
+
+[[reference-user-definable-session-lifetime]]
+=== User-definable Session lifetime
+
+Supporting the smart object-mapping capability is the `Session` whose lifetime can be managed in code.
+For example, associated with single _fetch-update-save_ cycle or unit of work.
+
+The advantage of longer-running sessions is that you will be able to make more efficient requests to the database at the expense of the additional memory associated with the session.
+The advantage of shorter sessions is they impose almost no overhead on memory, but will result in less efficient requests to Neo4j when storing and retrieving data.
+

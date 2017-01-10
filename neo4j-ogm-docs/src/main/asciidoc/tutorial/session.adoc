@@ -9,7 +9,7 @@ The smart object mapping capability is provided by the `Session` object.  A `Ses
 
 We're going to set up the `SessionFactory` just once and have it produce as many sessions as required.
 
-[source, java]
+[source, groovy]
 ----
 public class Neo4jSessionFactory {
 
@@ -45,17 +45,17 @@ For the purpose of this demo application, we'll use short lived sessions - a new
 
 Our university application will use the following operations
 
-[source, java]
+[source, groovy]
 ----
-public interface Service<T> {
+interface Service<T> {
 
-    Iterable<T> findAll();
+    Iterable<T> findAll()
 
-    T find(Long id);
+    T find(Long id)
 
-    void delete(Long id);
+    void delete(Long id)
 
-    T createOrUpdate(T object);
+    T createOrUpdate(T object)
 
 }
 ----
@@ -63,36 +63,36 @@ public interface Service<T> {
 These CRUD interactions with the graph are all handled by the `Session`.
 Let's write a `GenericService` to deal with common `Session` operations.
 
-[source, java]
+[source, groovy]
 ----
-public abstract class GenericService<T> implements Service<T> {
+abstract class GenericService<T> implements Service<T> {
 
-    private static final int DEPTH_LIST = 0;
-    private static final int DEPTH_ENTITY = 1;
-    private Session session = Neo4jSessionFactory.getInstance().getNeo4jSession();
+    private static final int DEPTH_LIST = 0
+    private static final int DEPTH_ENTITY = 1
+    protected Session session = Neo4jSessionFactory.getInstance().getNeo4jSession()
 
     @Override
-    public Iterable<T> findAll() {
-        return session.loadAll(getEntityType(), DEPTH_LIST);
+    Iterable<T> findAll() {
+        return session.loadAll(getEntityType(), DEPTH_LIST)
     }
 
     @Override
-    public T find(Long id) {
-        return session.load(getEntityType(), id, DEPTH_ENTITY);
+    T find(Long id) {
+        return session.load(getEntityType(), id, DEPTH_ENTITY)
     }
 
     @Override
-    public void delete(Long id) {
-        session.delete(session.load(getEntityType(), id));
+    void delete(Long id) {
+        session.delete(session.load(getEntityType(), id))
     }
 
     @Override
-    public T createOrUpdate(T entity) {
-        session.save(entity, DEPTH_ENTITY);
-        return find(((Entity) entity).getId());
+    T createOrUpdate(T entity) {
+        session.save(entity, DEPTH_ENTITY)
+        return find(entity.id)
     }
 
-    public abstract Class<T> getEntityType();
+    abstract Class<T> getEntityType()
 }
 ----
 
@@ -121,7 +121,7 @@ Popular Study Buddies is a report that lists the most popular peer study groups.
 This requires a custom Cypher query.
 It is easy to supply a Cypher query to the `query` method available on the `Session`.
 
-[source, java]
+[source, groovy]
 ----
 class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements StudyBuddyService {
 

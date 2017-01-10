@@ -18,42 +18,42 @@ Let's go ahead and annotate all our node entities in the code we wrote earlier.
 
 Note that we're overriding the default label for a `Course` with `Class`
 
-[source, java]
+[source, groovy]
 ----
 @NodeEntity
-public class Department {
-    private String name;
-    private Set<Subject> subjects;
+class Department {
+    String name;
+    Set<Subject> subjects;
 }
 
 @NodeEntity
-public class Subject {
-    private String name;
-    private Department department;
-    private Set<Teacher> teachers;
-    private Set<Course> courses;
+class Subject {
+    String name;
+    Department department;
+    Set<Teacher> teachers;
+    Set<Course> courses;
 }
 
 @NodeEntity
-public class Teacher {
-    private String name;
-    private Set<Course> courses;
-    private Set<Subject> subjects;
+class Teacher {
+    String name;
+    Set<Course> courses;
+    Set<Subject> subjects;
 }
 
 @NodeEntity(label="Class")
-public class Course {
-    private String name;
-    private Subject subject;
-    private Teacher teacher;
-    private Set<Enrollment> enrollments;
+class Course {
+    String name;
+    Subject subject;
+    Teacher teacher;
+    Set<Enrollment> enrollments;
 }
 
 @NodeEntity
-public class Student {
-    private String name;
-    private Set<Enrollment> enrollments;
-    private Set<StudyBuddy> studyBuddies;
+class Student {
+    String name;
+    Set<Enrollment> enrollments;
+    Set<StudyBuddy> studyBuddies;
 }
 ----
 
@@ -69,64 +69,64 @@ By default, the direction is assumed to be `OUTGOING` and the type is the UPPER_
 
 We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later by not being dependent on the field name. Again, we are going to modify the code we saw in the last section:
 
-[source, java]
+[source, groovy]
 ----
 @NodeEntity
-public class Department {
-    private String name;
+class Department {
+    String name;
 
     @Relationship(type = "CURRICULUM")
-    private Set<Subject> subjects;
+    Set<Subject> subjects;
 }
 
 @NodeEntity
-public class Subject {
-    private String name;
+class Subject {
+    String name;
 
     @Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
-    private Department department;
+    Department department;
 
     @Relationship(type = "TAUGHT_BY")
-    private Set<Teacher> teachers;
+    Set<Teacher> teachers;
 
     @Relationship(type = "SUBJECT_TAUGHT", direction = "INCOMING")
-    private Set<Course> courses;
+    Set<Course> courses;
 }
 
 @NodeEntity
-public class Teacher {
-    private String name;
+class Teacher {
+    String name;
 
      @Relationship(type="TEACHES_CLASS")
-     private Set<Course> courses;
+     Set<Course> courses;
 
      @Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
-     private Set<Subject> subjects;
+     Set<Subject> subjects;
 }
 
 @NodeEntity(label="Class")
-public class Course {
-    private String name;
+class Course {
+    String name;
 
      @Relationship(type= "SUBJECT_TAUGHT")
-     private Subject subject;
+     Subject subject;
 
      @Relationship(type= "TEACHES_CLASS", direction=Relationship.INCOMING)
-     private Teacher teacher;
+     Teacher teacher;
 
      @Relationship(type= "ENROLLED", direction=Relationship.INCOMING)
-     private Set<Enrollment> enrollments = new HashSet<>();
+     Set<Enrollment> enrollments = new HashSet<>();
 }
 
 @NodeEntity
-public class Student {
-    private String name;
+class Student {
+    String name;
 
     @Relationship(type = "ENROLLED")
-    private Set<Enrollment> enrollments;
+    Set<Enrollment> enrollments;
 
     @Relationship(type = "BUDDY", direction = Relationship.INCOMING)
-    private Set<StudyBuddy> studyBuddies;
+    Set<StudyBuddy> studyBuddies;
 }
 ----
 
@@ -146,18 +146,18 @@ In this case, the type of relationship is `ENROLLED` as specified in both the `S
 
 We are also going to indicate to the OGM the start and end node of this relationship.
 
-[source, java]
+[source, groovy]
 ----
 @RelationshipEntity(type = "ENROLLED")
-public class Enrollment {
+class Enrollment {
 
     @StartNode
-    private Student student;
+    Student student;
 
     @EndNode
-    private Course course;
+    Course course;
 
-    private Date enrolledDate;
+    Date enrolledDate;
 
 }
 ----
@@ -183,9 +183,10 @@ Since every entity requires an id, we're going to create an `Entity` superclass.
 This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
 
 If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the Graph Id. See <<reference-graphid-annotation, Node Entities>> for more information.
-[source, java]
+
+[source, groovy]
 ----
-public abstract class Entity {
+abstract class Entity {
 
     private Long id;
 
@@ -197,16 +198,16 @@ public abstract class Entity {
 
 Our entities will now extend this class, for example
 
-[source, java]
+[source, groovy]
 ----
 @NodeEntity
-public class Department extends Entity {
-    private String name;
+class Department extends Entity {
+    String name;
 
     @Relationship(type = "CURRICULUM")
-    private Set<Subject> subjects;
+    Set<Subject> subjects;
 
-    public Department() {
+    Department() {
 
     }
 }
@@ -227,21 +228,23 @@ How do we handle the `enrolledDate` since `Date` is not a valid data type?
 Luckily for us, OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
 We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by the OGM when persisting and loading from the graph.
 
-[source, java]
+[source, groovy]
 ----
 @RelationshipEntity(type = "ENROLLED")
-public class Enrollment {
+class Enrollment {
 
-    private Long id;
+    Long id;
 
     @StartNode
-    private Student student;
+    Student student;
 
     @EndNode
-    private Course course;
+    Course course;
 
     @DateLong
-    private Date enrolledDate;
+    Date enrolledDate;
 
+    Enrollment() {
+    }
 }
 ----

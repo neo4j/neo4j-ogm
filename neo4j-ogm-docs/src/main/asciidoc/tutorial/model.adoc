@@ -12,45 +12,45 @@ Here's what we came up with.
 
 image::model.png[Graph model, 770, 370]
 
-When we translate this model to Java, it ends up being pretty straightforward:
+When we translate this model to Groovy, it ends up being pretty straightforward:
 
-[source, java]
+[source, groovy]
 ----
-public class Department {
-    private String name;
-    private Set<Subject> subjects;
+class Department {
+    String name;
+    Set<Subject> subjects;
 }
 
-public class Subject {
-    private String name;
-    private Department department;
-    private Set<Teacher> teachers;
-    private Set<Course> courses;
+class Subject {
+    String name;
+    Department department;
+    Set<Teacher> teachers;
+    Set<Course> courses;
 }
 
-public class Teacher {
-    private String name;
-    private Set<Course> courses;
-    private Set<Subject> subjects;
+class Teacher {
+    String name;
+    Set<Course> courses;
+    Set<Subject> subjects;
 }
 
-public class Course {
-    private String name;
-    private Subject subject;
-    private Teacher teacher;
-    private Set<Enrollment> enrollments;
+class Course {
+    String name;
+    Subject subject;
+    Teacher teacher;
+    Set<Enrollment> enrollments;
 }
 
-public class Student {
-    private String name;
-    private Set<Enrollment> enrollments;
-    private Set<StudyBuddy> studyBuddies;
+class Student {
+    String name;
+    Set<Enrollment> enrollments;
+    Set<StudyBuddy> studyBuddies;
 }
 
-public class Enrollment {
-    private Student student;
-    private Course course;
-    private Date enrolledDate;
+class Enrollment {
+    Student student;
+    Course course;
+    Date enrolledDate;
 }
 ----
 

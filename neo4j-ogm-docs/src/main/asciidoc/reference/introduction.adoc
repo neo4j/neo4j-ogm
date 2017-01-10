@@ -3,9 +3,9 @@
 
 Neo4j OGM is a fast object-graph mapping library for Neo4j, optimised for server-based installations utilising Cypher.
 
-It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects.
+It aims to simplify development with the Neo4j graph database and like JPA, it uses annotations on simple POJO domain objects to do so.
 
-Focused on performance, the OGM introduces a number of innovations, including:
+With a focus on performance, the OGM introduces a number of innovations, including:
 
 - non-reflection based classpath scanning for much faster startup times;
 - variable-depth persistence to allow you to fine-tune requests according to the characteristics of your graph;

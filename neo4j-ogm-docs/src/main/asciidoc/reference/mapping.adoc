@@ -1,5 +1,5 @@
 [[reference-programming-model_mapping]]
-= Under the bonnet
+= Mapping Domain Objects
 
 
 == Metadata collection
@@ -15,7 +15,7 @@ In order to omit a class from being metadata-mapped you should annotate it with 
 == The Session object
 
 `org.neo4j.ogm.session.Session` is a key component of the framework.
-The Session provides methods to load, save or delete object graphs from the database and also provides transaction support.  
+The Session provides methods to load, save or delete object graphs from the database and also provides transaction support.
 
 
 == Explicit save

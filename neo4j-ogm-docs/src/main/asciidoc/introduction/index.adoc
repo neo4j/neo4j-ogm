@@ -104,12 +104,3 @@ RETURN count(*), co_actor.name ORDER BY count(*) DESC, co_actor.name LIMIT 20
 MATCH (:User {login:'micha'})-[:FRIEND]-()-[r:RATED]->(movie)
 RETURN movie.title, avg(r.stars), count(*) ORDER BY avg(r.stars) DESC, count(*) DESC
 ----
-
-
-[[introduction-indexing]]
-== Indexing
-
-Neo4j's schema indexes are used automatically by Cypher when set up in your database.
-Neo4j OGM does not provide facilities for handling that setup out of the box.
-This is a seeding, migration or maintenance effort handled by the group responsible for the database maintenance.
-

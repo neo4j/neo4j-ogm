@@ -92,6 +92,31 @@ While this will map successfully to the database, it's important to understand t
 Renaming any of these fields will cause parts of the graph to map incorrectly, hence the recommendation to use annotations.
 
 
+[[runtime-managed-labels]]
+=== Runtime managed labels
+
+As stated above, the label applied to a node is the contents of the `@NodeEntity` label property, or if not specified, it will default to the simple class name of the entity.
+Sometimes it might be necessary to add and remove additional labels to a node at _runtime_.
+We can do this using the `@Labels` annotation.
+Let's provide a facility for adding additional labels to the `Student` entity:
+
+[source, java]
+----
+@NodeEntity
+public class Student {
+
+    @Labels
+    private List<String> labels = new ArrayList<>();
+
+}
+----
+
+Now, upon save, the node's labels will correspond to the entity's class hierarchy _plus_ whatever the contents of the backing field are.
+We can use one `@Labels` field per class hierarchy - it should be exposed or hidden from sub-classes as appropriate.
+
+
+
+
 [[reference-graphid-annotation]]
 == @GraphId: Neo4j id field
 

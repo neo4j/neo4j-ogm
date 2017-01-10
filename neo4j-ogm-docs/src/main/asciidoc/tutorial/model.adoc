@@ -1,18 +1,18 @@
 [[tutorial-model]]
-= Domain model
+= Building the domain model
 
 Before we get to any code, we want to whiteboard our graph model.
 
-Our College will contain Departments, each of which offer various subjects taught by a teacher.
-Students enroll for courses or classes that teach a subject.
+Our College will contain `departments`, each of which offer various `subjects` taught by a `teacher`.
+`Students` `enroll` for `courses` or `classes` that teach a `subject`.
 
-We're also going to model a Study Buddy which represents a group of students that get together to help one another study for a class.
+We're also going to model a `study buddy` which represents a group of `students` that get together to help one another study for a `class`.
 
 Here's what we came up with.
 
 image::model.png[Graph model, 770, 370]
 
-In Java, this is straightforward:
+When we translate this model to Java, it ends up being pretty straightforward:
 
 [source, java]
 ----
@@ -54,6 +54,10 @@ public class Enrollment {
 }
 ----
 
-Note that when a student enrolls for a course, we're going to keep track of the enrollment date.
-In the graph, this will be stored as a property on the ENROLLED relationship between a student and a course.
-This kind of rich relationship is managed by the class `Enrollment` and is known as a relationship entity.
+When a student enrolls for a course, we're also going to keep track of the enrollment date.
+
+In the model, this will be stored as a property on the `ENROLLED` relationship between a student and a course.
+This kind of rich relationship is managed by the class `Enrollment` and is known as a ***relationship entity***.
+
+The important thing to take away here is that the OGM supports Neo4j's philosophy of whiteboard friendly domain models.  By focusing
+on the model the code almost writes itself.

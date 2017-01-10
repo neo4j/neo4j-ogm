@@ -1,16 +1,17 @@
 [[tutorial-introduction]]
 = Introduction
 
-Neo4j OGM University is a demo application for the Neo4j OGM library.
+Neo4j OGM University is a demo application for the Neo4j OGM library that allows you to manage the Departments, Teaching Staff, Subjects, Students and Classes of a fictitious educational institution: Hilly Fields Technical College.
 
-It is a fully functioning web-application built using the following components
+It is a fully functioning web-application built using the following components:
 
-* Spring Boot
+* Groovy
+* Ratpack
 * Neo4j OGM
-* Angular.js
-* Twitter Bootstrap UI
+* AngularJS
+* Bootstrap
 
-The application's domain is a fictitious educational institution - Hilly Fields Technical College.
+The application's architecture involves a RESTful server interfacing with a rich single page application that is designed to
+show off the performance and capabilities of the OGM.
 
-It leverages the power of Spring Boot and in particular the new Neo4j Object Graph mapping technology to provide a RESTful interface with which the web client interacts.
-The application is entirely stateless; every interaction involves a call to a Neo4j server, hopefully demonstrating the speed of the technology, even over the wire.
+The complete source code for the application is available on https://github.com/neo4j-examples/neo4j-ogm-university[Github].

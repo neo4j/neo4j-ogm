@@ -1,0 +1,16 @@
+[[reference-configuration]]
+= Configuration
+
+
+
+[[reference-driver-implementations]]
+== Multiple driver implementations
+
+As of 2.0, the OGM provides support for connecting to Neo4j using different drivers.
+The following drivers are available.
+
+- Http driver
+- Embedded driver
+- Bolt driver
+
+Please see the <<reference-setup>> for more details about how to configure the OGM to use the driver you require.

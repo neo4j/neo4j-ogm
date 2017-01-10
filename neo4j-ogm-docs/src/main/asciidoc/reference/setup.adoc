@@ -1,10 +1,25 @@
 [[reference-setup]]
-= Setup
+= Getting Started
 
 Neo4j OGM dramatically simplifies development, but some setup is required.
 For building the application, your build automation tool needs to be configured to include the Neo4j OGM dependencies and after the build setup is complete, the application needs to be configured to make use of Neo4j OGM.
 
 Neo4j OGM projects can be built using Maven, Gradle or Ant/Ivy.
+
+[[reference-compatibility]]
+== Compatibility
+
+The following table lists compatibility of the OGM with different versions of Neo4j.
+
+[width="40%",frame="topbot",options="header,footer"]
+|======================
+|Neo4j-OGM Version |Neo4j Version
+|2.1.0+            |2.3.x, 3.0.x, 3.1.x
+|2.0.2+            |2.3.x, 3.0.x
+|2.0.1             |2.2.x, 2.3.x
+|1.1.5             |2.1.x, 2.2.x, 2.3.x
+|======================
+
 
 
 [[references-ogm-dependencies]]

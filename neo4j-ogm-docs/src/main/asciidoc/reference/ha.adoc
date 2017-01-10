@@ -1,5 +1,5 @@
 [[reference-configuration-ha]]
-= Configuring Neo4j OGM for High Availability (HA)
+= High Availability (HA) Support
 
 [NOTE]
 The clustering features are available in Neo4j Enterprise Edition.

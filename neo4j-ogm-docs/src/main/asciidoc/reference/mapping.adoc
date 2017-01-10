@@ -1,5 +1,5 @@
 [[reference-programming-model_mapping]]
-= Mapping Domain Objects
+= Under the hood
 
 
 == Metadata collection

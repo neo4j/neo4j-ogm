@@ -1,5 +1,5 @@
 [[reference-programming-model-annotations]]
-= Defining node entities
+= Annotating Entities
 
 Node entities are declared using the `@org.neo4j.ogm.annotation.NodeEntity` annotation.
 Relationship entities use the `@org.neo4j.ogm.annotation.RelationshipEntity` annotation.

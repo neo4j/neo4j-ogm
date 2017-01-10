@@ -5,8 +5,8 @@
 
 There are two ways to supply configuration to the OGM:
 
-- using a `Properties` file; and
-- programmatically.
+- using an `ogm.properties` file; and
+- programmatically using Java.
 
 === Using ogm.properties
 Unless you supply an explicit `Configuration` object to the `SessionFactory` (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the root of the classpath.
@@ -53,7 +53,10 @@ Configuration configuration = new Configuration()
 === Bolt Driver
 
 
-Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with bolt://neo4j:password@localhost:1234
+Note that for the `URI`, if no port is specified, the default Bolt port of `7687` is used. Otherwise, a port can be specified with `bolt://neo4j:password@localhost:1234`
+
+Also, the bolt driver allows you to define a connection pool size, which refers to the maximum number of sessions per URL.
+This property is optional and defaults to `50`
 
 .Basic Bolt Driver Configuration
 [%autowidth.spread,frame="topbot",options="header"]
@@ -65,8 +68,6 @@ a|
 ----
 driver=org.neo4j.ogm.drivers.bolt.driver.BoltDriver
 URI=bolt://neo4j:password@localhost
-#Connection pool size (the maximum number of
-#sessions per URL), optional, defaults to 50
 connection.pool.size=150
 ----
 
@@ -77,6 +78,7 @@ Configuration configuration = new Configuration();
         configuration.driverConfiguration()
         .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
         .setURI("bolt://neo4j:password@localhost")
+        .setConnectionPoolSize(150)
 ----
 |======================
 
@@ -252,14 +254,8 @@ Configuration configuration = new Configuration();
 The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
 
 
-
-
-
-
-
-
 == Logging
 
-In production, you can set the log level in exactly the same way, but the file should be called *logback.xml*, not *logback-test.xml*.
+Neo4j OGM uses SLF4J to log statements. In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.
 Please see the link:http://logback.qos.ch/manual/[Logback manual] for further details.
 

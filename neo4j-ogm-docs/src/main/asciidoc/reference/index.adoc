@@ -13,25 +13,28 @@ include::setup.adoc[leveloffset=+1]
 
 include::configuration.adoc[leveloffset=+1]
 
-include::mapping.adoc[leveloffset=+1]
-
-include::typerepresentationstrategy.adoc[leveloffset=+1]
-
-include::simple_mapping.adoc[leveloffset=+1]
-
 include::node-entities.adoc[leveloffset=+1]
 
 include::relationships.adoc[leveloffset=+1]
 
+include::indexing.adoc[leveloffset=+1]
+
+include::simple_mapping.adoc[leveloffset=+1]
+
+include::mapping.adoc[leveloffset=+1]
+
+//include::typerepresentationstrategy.adoc[leveloffset=+1]
+
+include::session-factory.adoc[leveloffset=+1]
+
 include::session.adoc[leveloffset=+1]
+
+include::attachdetach.adoc[leveloffset=+1]
 
 include::sorting-paging.adoc[leveloffset=+1]
 
-include::indexing.adoc[leveloffset=+1]
-
 include::transactions.adoc[leveloffset=+1]
 
-include::attachdetach.adoc[leveloffset=+1]
 
 include::filters.adoc[leveloffset=+1]
 

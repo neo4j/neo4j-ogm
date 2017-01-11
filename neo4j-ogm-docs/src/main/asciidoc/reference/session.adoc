@@ -1,5 +1,5 @@
 [[reference-programming-model-session]]
-= Session
+= Using the OGM Session
 
 The `Session` provides the core functionality to persist objects to the graph and load them in a variety of ways.
 
@@ -11,7 +11,7 @@ The reason it does this is so that only entities and relationships that have cha
 Once an entity is tracked by the session, reloading this entity within the scope of the same session will result in the session cache returning the previously loaded entity.
 However, the subgraph in the session will expand if the entity or its related entities retrieve additional relationships from the graph.
 
-If you want to fetch fresh data from the graph, then this can be achieved by using a new session or clearing the current sessions context using `org.neo4j.ogm.session.Session.clear()`.
+If you want to fetch fresh data from the graph, then this can be achieved by using a new session or clearing the current sessions context using `Session.clear()`.
 
 The lifetime of the `Session` can be managed in code.
 For example, associated with single _fetch-update-save_ cycle or unit of work.
@@ -50,12 +50,19 @@ For most purposes, though, Cypher will be performant and expressive enough to pe
 `Session` allows to `save`, `load`, `loadAll` and `delete` entities with transaction handling and exception translation managed for you.
 The eagerness with which objects are retrieved is controlled by specifying the 'depth' argument to any of the load methods.
 
+[[reference-cypher]]
+== Cypher
+
+Cypher is Neo4j's powerful query language.
+It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
+This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+
 
 == Cypher queries
 
 The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.
-Cypher queries that return tabular results should be passed into the `query` method which returns an `org.neo4j.ogm.model.Result`.
-This consists of `org.neo4j.ogm.model.QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
+Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.
+This consists of `QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
 The keys in each `Map` correspond to the names listed in the return clause of the executed Cypher query.
 
 `queryForObject` specifically queries for entities and as such, queries supplied to this method must return nodes and not individual properties.
@@ -70,10 +77,132 @@ Modifications made to the graph via Cypher queries directly will not be reflecte
 ====
 
 
+[[reference-programming-model-lifecycle-persistence]]
+== Persisting entities
 
-[[reference-cypher]]
-== Cypher
+Entity persistence is performed through the `save()` method on the underlying `Session` object.
 
-Cypher is Neo4j's powerful query language.
-It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
-This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+Under the bonnet, the implementation of `Session` has access to the `MappingContext` that keeps track of the data that has been loaded from Neo4j during the lifetime of the session.
+Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.
+The differences are used to construct a Cypher query that persists the deltas to Neo4j before repopulating it's state based on the response from the database server.
+
+.Persisting entities
+====
+[source, java]
+----
+@NodeEntity
+public class Person {
+   private String name;
+   public Person(String name) {
+      this.name = name;
+   }
+}
+
+// Store Michael in the database.
+Person p = new Person("Michael");
+session.save(p);
+----
+====
+
+
+[[reference-programming-model-detached-relating]]
+=== Save depth
+
+As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, where depth dictates the number of related entities to save starting from the given entity.
+The default depth, -1, will persist properties of the specified entity as well as every modified entity in the object graph reachable from it.
+A depth of 0 will persist only the properties of the specified entity to the database.
+
+Specifying the save depth is handy when it comes to dealing with complex collections, that could potentially be very expensive to load.
+
+.Relationship save cascading
+====
+[source, java]
+----
+@NodeEntity
+class Movie {
+    String title;
+    Actor topActor;
+    public void setTopActor(Actor actor) {
+        topActor = actor;
+    }
+}
+
+@NodeEntity
+class Actor {
+    String name;
+}
+
+Movie movie = new Movie("Polar Express");
+Actor actor = new Actor("Tom Hanks");
+
+movie.setTopActor(actor);
+----
+====
+
+Neither the actor nor the movie has been assigned a node in the graph.
+If we were to call `session.save(movie)`, then the OGM would first create a node for the movie.
+It would then note that there is a relationship to an actor, so it would save the actor in a cascading fashion.
+Once the actor has been persisted, it will create the relationship from the movie to the actor.
+All of this will be done atomically in one transaction.
+
+The important thing to note here is that if `session.save(actor)` is called instead, then only the actor will be persisted.
+The reason for this is that the actor entity knows nothing about the movie entity - it is the movie entity that has the reference to the actor.
+Also note that this behaviour is not dependent on any configured relationship direction on the annotations.
+It is a matter of Java references and is not related to the data model in the database.
+
+In the following example, the actor and the movie are both managed entities, having both been previously persisted to the graph:
+
+.Cascade for modified fields
+====
+[source,java]
+----
+actor.setBirthyear(1956);
+session.save(movie);
+----
+====
+
+[NOTE]
+====
+In this case, even though the movie has a reference to the actor, the property change on the actor *will be* persisted by the call to `save(movie)`.
+The reason for this is, as mentioned above, that cascading will be done for fields that have been modified and reachable from the root object being saved.
+====
+
+
+[[reference-programming-model-sorting-and-paging]]
+== Sorting and paging
+
+Neo4j OGM supports Sorting and Paging of results when using the Session object.
+The Session object methods take independent arguments for Sorting and Pagination
+
+.Paging
+[source, java]
+----
+Iterable<World> worlds = session.loadAll(World.class,
+                                        new Pagination(pageNumber,itemsPerPage), depth)
+----
+
+.Sorting
+[source, java]
+----
+Iterable<World> worlds = session.loadAll(World.class,
+                                        new SortOrder().add("name"), depth)
+----
+
+.Sort in descending order
+[source, java]
+----
+Iterable<World> worlds = session.loadAll(World.class,
+                                        new SortOrder().add(SortOrder.Direction.DESC,"name"))
+----
+
+.Sorting with paging
+[source, java]
+----
+Iterable<World> worlds = session.loadAll(World.class,
+                                        new SortOrder().add("name"), new Pagination(pageNumber,itemsPerPage))
+----
+
+[NOTE]
+====
+Neo4j OGM does not yet support sorting and paging on custom queries.
+====

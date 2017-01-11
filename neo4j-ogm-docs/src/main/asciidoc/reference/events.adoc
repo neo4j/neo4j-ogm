@@ -35,7 +35,7 @@ The Events mechanism introduces two new interfaces, `Event` and `EventListener`.
 
 *The Event interface*
 
-The `Event` interface is implemented by `org.neo4j.ogm.session.event.PersistenceEvent`.
+The `Event` interface is implemented by `PersistenceEvent`.
 Whenever an application wishes to handle an event it will be given an instance of `Event`, which exposes the following methods:
 
 [source, java]
@@ -128,7 +128,7 @@ It’s usually a good idea to separate these concerns into different objects wit
 The `EventListener` above is fine, but we've had to create three methods for events we don't intend to handle.
 It would be preferable if we didn't have to do this each time we needed an `EventListener`.
 
-The `org.neo4j.ogm.session.event.EventListenerAdapter` is an abstract class providing a no-op implementation of the `EventListener` interface.
+The `EventListenerAdapter` is an abstract class providing a no-op implementation of the `EventListener` interface.
 If you don't need to handle all the different types of persistence event you can create a subclass of `EventListenerAdapter` instead and override just the methods for the event types you're interested in.
 
 For example:

@@ -1,11 +1,10 @@
-[[tutorial-annotations]]
+[[tutorial:annotations]]
 = Annotating the domain model
 
 Much like Hibernate or JPA, the OGM allows you to annotate your POJOs in order to map them to nodes, relationships and properties in the graph.
 
 
-
-[[nodes-properties-labels]]
+[[tutorial:annotations:nodes]]
 == Node Entities
 
 POJOs annotated with `@NodeEntity` will be represented as nodes in the graph.
@@ -58,7 +57,7 @@ class Student {
 ----
 
 
-[[relationships]]
+[[tutorial:annotations:relationships]]
 == Relationships
 
 Next up, the relationships between the nodes.
@@ -131,7 +130,7 @@ class Student {
 ----
 
 
-[[relationship-entities]]
+[[tutorial:annotations:relationship-entities]]
 == Relationship Entities
 
 Sometimes something isn't quite a Node entity.
@@ -163,7 +162,7 @@ class Enrollment {
 ----
 
 
-[[graphid]]
+[[tutorial:annotations:graphid]]
 == Identifiers
 
 Every node and relationship persisted to the graph must have an ID. The OGM uses this to identify and re-connect the entity to the graph in memory.
@@ -211,6 +210,7 @@ class Department extends Entity {
 }
 ----
 
+[[tutorial:annotations:noarg-constructor]]
 == No Arg Constructor
 
 We are almost there!
@@ -218,7 +218,7 @@ We are almost there!
 The OGM also also requires a public no-args constructor to be able to construct objects from all our annotated entities. we'll make sure all our entities have one.
 
 
-[[converters]]
+[[tutorial:annotations:converters]]
 == Converters
 
 Neo4j supports `Numeric`, `String`, `boolean` and arrays of these as property values.

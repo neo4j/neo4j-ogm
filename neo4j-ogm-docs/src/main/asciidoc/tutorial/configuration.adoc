@@ -1,4 +1,4 @@
-[[tutorial-configuration]]
+[[tutorial:configuration]]
 = Configuring the OGM
 
 Neo4j OGM 2.x supports several drivers:
@@ -9,6 +9,7 @@ Neo4j OGM 2.x supports several drivers:
 
 Our sample application will use the Bolt driver.
 
+[[tutorial:configuration:gradle]]
 == Setting up with Gradle
 
 The demo application uses https://gradle.org/[Gradle] as a build system.
@@ -24,6 +25,7 @@ runtime "org.neo4j:neo4j-ogm-bolt-driver:{version}"
 
 Refer to <<reference-setup>> for more information on dependencies.
 
+[[tutorial:configuration:driver]]
 == Specifying the driver to the OGM
 
 Since the OGM works against both remote and embedded servers, we'll need to configure it to use the appropriate driver.

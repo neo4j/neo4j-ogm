@@ -1,6 +1,0 @@
-[[reference-programming-model]]
-= Programming model
-
-This chapter covers the fundamentals of the programming model behind Neo4j OGM.
-It discusses the mapping mode, the annotations provided by the OGM and how to use them.
-

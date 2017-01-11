@@ -1,4 +1,4 @@
-[[tutorial-model]]
+[[tutorial:model]]
 = Building the domain model
 
 Before we get to any code, we want to whiteboard our graph model.

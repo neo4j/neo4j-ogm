@@ -1,13 +1,12 @@
 [[reference-session-factory]]
-= Session Factory
-
+= Connecting to the Graph
 
 In order to interact with mapped entities and the Neo4j graph, your application will require a `Session`, which is provided by the `SessionFactory`.
 
 
 === SessionFactory
 
-The `SessionFactory` is needed by OGM to create instances of `org.neo4j.ogm.session.Session` as required.
+The `SessionFactory` is needed by OGM to create instances of `Session` as required.
 This also sets up the object-graph mapping metadata when constructed, which is then used across all `Session` objects that it creates.
 The packages to scan for domain object metadata should be provided to the `SessionFactory` constructor.
 Multiple packages may be provided as well.

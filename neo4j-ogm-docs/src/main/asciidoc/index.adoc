@@ -1,4 +1,4 @@
-= Neo4j OGM - An Object Graph Mapping Library for Neo4j
+= Neo4j OGM - Object Graph Mapping Library for Neo4j
 :toc:
 :toc-placement!:
 :revnumber: {version}
@@ -17,3 +17,9 @@ include::tutorial/index.adoc[leveloffset=+1]
 
 include::reference/index.adoc[leveloffset=+1]
 
+
+[[appendix]]
+= Appendix
+
+:numbered!:
+include::appendix.adoc[]

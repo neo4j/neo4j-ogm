@@ -143,7 +143,7 @@ class StudyBuddyServiceImpl extends GenericService<StudyBuddy> implements StudyB
 }
 ----
 
-The `query` provided by the `Session` can return a domain object, a collection of them, or a special wrapped object called a `org.neo4j.ogm.model.Result`.
+The `query` provided by the `Session` can return a domain object, a collection of them, or a special wrapped object called a `Result`.
 
 
 

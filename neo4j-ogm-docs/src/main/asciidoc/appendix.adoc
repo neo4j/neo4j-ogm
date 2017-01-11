@@ -1,5 +1,5 @@
-[[appendix]]
-= Appendix A: Design considerations
+[[appendix:design-considerations]]
+= Design considerations
 
 The OGM attempts to minimise the Cypher payload when persisting your objects to the graph.
 This is important for two reasons.
@@ -8,7 +8,7 @@ Secondly, requests containing redundant operations (such as updating an object w
 We have approached this problem in a number of ways:
 
 
-[[appendix:variable-depth-persistence]]
+[[appendix:design-considerations:variable-depth-persistence]]
 === Variable-depth persistence
 
 You can now tailor your persistence requests according to the characteristics of the portions of your graph you want to work with.
@@ -18,7 +18,7 @@ If you know that you aren't going to need an object's related objects, you can c
 Alternatively if you know that you will always want to a person's complete set of friends-of-friends, you can set the depth to 2.
 
 
-[[appendix:smart-object-mapping]]
+[[appendix:design-considerations:smart-object-mapping]]
 === Smart object-mapping
 
 Neo4j OGM introduces smart object-mapping.
@@ -28,7 +28,7 @@ Knowing what needs to be changed means we don't need to flood Neo4j with request
 We can minimise the amount of data we send across the wire as a result, which results in a faster network interaction, and fewer CPU cycles consumed on the server.
 
 
-[[appendix:user-definable-session-lifetime]]
+[[appendix:design-considerations:user-definable-session-lifetime]]
 === User-definable Session lifetime
 
 Supporting the smart object-mapping capability is the `Session` whose lifetime can be managed in code.

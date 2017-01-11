@@ -208,7 +208,7 @@ Neo4j OGM does not yet support sorting and paging on custom queries.
 ====
 
 [[reference:transactions]]
-= Transactions
+== Transactions
 
 Neo4j is a transactional database, only allowing operations to be performed within transaction boundaries.
 

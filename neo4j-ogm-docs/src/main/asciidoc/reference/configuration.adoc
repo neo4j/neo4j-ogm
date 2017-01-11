@@ -211,7 +211,12 @@ Both these strategies leave you vulnerable to a MITM attack. You should probably
 
 [[reference:configuration:driver:security:bolt]]
 ==== Bolt
-.ogm.properties
+
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
 [source, properties]
 ----
 #Encryption level (TLS), optional, defaults to REQUIRED. Valid values are NONE,REQUIRED
@@ -224,7 +229,7 @@ trust.strategy=TRUST_ON_FIRST_USE
 trust.certificate.file=/tmp/cert
 ----
 
-.Java Configuration
+a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
@@ -233,29 +238,35 @@ Configuration configuration = new Configuration();
         .setEncryptionLevel("REQUIRED")
         .setTrustStrategy("TRUST_ON_FIRST_USE")
         .setTrustCertFile("/tmp/cert");
-
 ----
+|======================
+
 
 `TRUST_ON_FIRST_USE` means that the Bolt Driver will trust the first connection to a host to be safe and intentional. On subsequent connections, the driver will verify that the host is the same as on that first connection.
 
 [[reference:configuration:driver:bolt]]
 ==== HTTP
 
-.ogm.properties
+[%autowidth.spread,frame="topbot",options="header"]
+|======================
+|ogm.properties   | Java Configuration
+
+a|
 [source, properties]
 ----
 trust.strategy = ACCEPT_UNSIGNED
 ----
 
-.Java Configuration
+a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
         configuration.driverConfiguration()
         ...
         .setTrustStrategy("ACCEPT_UNSIGNED")
-
 ----
+|======================
+
 
 The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
 

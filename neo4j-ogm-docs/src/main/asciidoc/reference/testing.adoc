@@ -1,4 +1,4 @@
-[[reference-testing]]
+[[reference:testing]]
 = Testing
 
 In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
@@ -9,7 +9,7 @@ However it is incompatible with the Driver interfaces in 2.0, as it always requi
 The recommended approach is to configure an Embedded Driver for testing as described above, although you can still use an in-process HTTP server if you wish (see below).
 Please note that if you're just using the Embedded Driver for your tests you do not need to include any additional test jars in your pom.
 
-
+[[reference:testing:log-levels]]
 == Log levels
 
 When running unit tests, it can be useful to see what the OGM is doing, and in particular to see the Cypher requests being transferred between your application and the database.
@@ -42,7 +42,7 @@ To change the OGM log level, create a file *logback-test.xml* in your test resou
 </configuration>
 ----
 
-
+[[reference:testing:in-process-server]]
 == Using an in-process server for testing
 
 If you want don't want to use the Embedded Driver to run your tests, it is still possible to create an in-process HTTP server instead.

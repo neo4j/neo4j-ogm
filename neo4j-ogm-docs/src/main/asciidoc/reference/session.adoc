@@ -1,4 +1,4 @@
-[[reference-programming-model-session]]
+[[reference:session]]
 = Using the OGM Session
 
 The `Session` provides the core functionality to persist objects to the graph and load them in a variety of ways.
@@ -206,3 +206,35 @@ Iterable<World> worlds = session.loadAll(World.class,
 ====
 Neo4j OGM does not yet support sorting and paging on custom queries.
 ====
+
+[[reference:transactions]]
+= Transactions
+
+Neo4j is a transactional database, only allowing operations to be performed within transaction boundaries.
+
+Transactions can be managed explicitly by calling the `beginTransaction()` method on the `Session` followed by a `commit()` or `rollback()` as required.
+
+.Transaction management
+[source, java]
+----
+Transaction tx = session.beginTransaction();
+Person person = session.load(Person.class,personId);
+Concert concert= session.load(Concert.class,concertId);
+Hotel hotel = session.load(Hotel.class,hotelId);
+
+try {
+    buyConcertTicket(person,concert);
+    bookHotel(person, hotel);
+    tx.commit();
+}
+catch (SoldOutException e) {
+    tx.rollback();
+}
+tx.close();
+----
+
+
+In the example above, the transaction is committed only when both a concert ticket and hotel room is available, otherwise, neither booking is made.
+
+If you do not manage a transaction in this manner, auto commit transactions are provided implicitly for `Session` methods such as `save`, `load`, `delete`, `execute` and so on.
+

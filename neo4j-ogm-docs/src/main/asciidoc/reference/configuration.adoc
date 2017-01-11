@@ -1,6 +1,7 @@
-[[reference-configuration]]
+[[reference:configuration]]
 = Configuration
 
+[[reference:configuration:method]]
 == Configuration method
 
 There are two ways to supply configuration to the OGM:
@@ -8,12 +9,13 @@ There are two ways to supply configuration to the OGM:
 - using an `ogm.properties` file; and
 - programmatically using Java.
 
+[[reference:configuration:method:properties]]
 === Using ogm.properties
 Unless you supply an explicit `Configuration` object to the `SessionFactory` (see below), the OGM will attempt to auto-configure itself using a file called `ogm.properties`, which it expects to find on the root of the classpath.
 
 If you want to configure the OGM using a properties file, but with a _different_ filename, you must set a System property or Environment variable called 'ogm.properties' pointing to the alternative configuration file you want to use.
 
-
+[[reference:configuration:method:java]]
 === Programmatically using Java
 
 In cases where you are not be able to provide configuration via a properties file you can  configure the OGM programmatically instead.
@@ -21,9 +23,10 @@ In cases where you are not be able to provide configuration via a properties fil
 The `Configuration` object provides a fluent API to set various configuration options. This object then needs to be supplied to the
 `SessionFactory` constructor in order to be configured.
 
-
+[[reference:configuration:driver]]
 == Driver Configuration
 
+[[reference:configuration:driver:http]]
 === HTTP Driver
 
 
@@ -49,7 +52,7 @@ Configuration configuration = new Configuration()
 ----
 |======================
 
-
+[[reference:configuration:driver:bolt]]
 === Bolt Driver
 
 
@@ -82,7 +85,7 @@ Configuration configuration = new Configuration();
 ----
 |======================
 
-
+[[reference:configuration:driver:embedded]]
 === Embedded Driver
 
 
@@ -91,7 +94,7 @@ You can specify a permanent data store location to provide durability of your da
 
 [NOTE]
 As of 2.1.0 the Neo4j OGM embedded driver no longer ships with the Neo4j kernel.  Users are expected to provide this dependency through their
-dependency management system. See <<reference-setup, Getting Started>> for more details.
+dependency management system. See <<reference:getting-started, Getting Started>> for more details.
 
 .Permanent Data Store Embedded Driver Configuration
 [%autowidth.spread,frame="topbot",options="header"]
@@ -139,7 +142,7 @@ Configuration configuration = new Configuration()
 |======================
 
 
-
+[[reference:configuration:driver:embedded:unmanaged]]
 ==== Embedded Driver in an Unmanaged Extension
 
 When your application is running as unmanaged extension inside the Neo4j server itself, you will need to set up the Driver configuration slightly differently.
@@ -151,7 +154,7 @@ Note your application should typically do this only once before the call to set 
     Components.setDriver(new EmbeddedDriver(graphDatabaseService));
 ----
 
-
+[[reference:configuration:driver:credentials]]
 === Credentials
 
 If you are using the HTTP or Bolt Driver you have a number of different ways to supply credentials to the Driver Configuration.
@@ -194,6 +197,7 @@ Configuration configuration = new Configuration()
 
 _Note: Currently only Basic Authentication is supported by Neo4j, so the only Credentials implementation supplied by the OGM is `UsernameAndPasswordCredentials`_
 
+[[reference:configuration:driver:tsl]]
 === Transport Layer Security (TLS/SSL)
 
 The Bolt and Http drivers also allow you to connect to Neo4j over a secure channel. These rely on Transport Layer Security (aka SSL) and require the installation of a signed certificate on the server.
@@ -205,6 +209,7 @@ To support this, both drivers have configuration settings allowing you to bypass
 [NOTE]
 Both these strategies leave you vulnerable to a MITM attack. You should probably not use them unless your servers are behind a secure firewall.
 
+[[reference:configuration:driver:security:bolt]]
 ==== Bolt
 .ogm.properties
 [source, properties]
@@ -233,6 +238,7 @@ Configuration configuration = new Configuration();
 
 `TRUST_ON_FIRST_USE` means that the Bolt Driver will trust the first connection to a host to be safe and intentional. On subsequent connections, the driver will verify that the host is the same as on that first connection.
 
+[[reference:configuration:driver:bolt]]
 ==== HTTP
 
 .ogm.properties
@@ -253,7 +259,7 @@ Configuration configuration = new Configuration();
 
 The `ACCEPT_UNSIGNED` strategy permits the Http Driver to accept Neo4j's default `snakeoil.cert` (and any other) unsigned certificate when connecting over HTTPS.
 
-
+[[reference:configuration:logging]]
 == Logging
 
 Neo4j OGM uses SLF4J to log statements. In production, you can set the log level in a file called *logback.xml* to be found at the root of the classpath.

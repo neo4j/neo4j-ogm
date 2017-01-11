@@ -23,7 +23,7 @@ compile "org.neo4j:neo4j-ogm-core:{version}"
 runtime "org.neo4j:neo4j-ogm-bolt-driver:{version}"
 ----
 
-Refer to <<reference-setup>> for more information on dependencies.
+Refer to <<reference:getting-started:dependency-management, Dependency Management>> for more information on dependencies.
 
 [[tutorial:configuration:driver]]
 == Specifying the driver to the OGM

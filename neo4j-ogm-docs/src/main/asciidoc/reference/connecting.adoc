@@ -1,9 +1,9 @@
-[[reference-session-factory]]
+[[reference:connecting]]
 = Connecting to the Graph
 
 In order to interact with mapped entities and the Neo4j graph, your application will require a `Session`, which is provided by the `SessionFactory`.
 
-
+[[reference:connecting:session-factory]]
 === SessionFactory
 
 The `SessionFactory` is needed by OGM to create instances of `Session` as required.

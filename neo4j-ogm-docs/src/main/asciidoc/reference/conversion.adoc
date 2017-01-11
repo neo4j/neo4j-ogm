@@ -1,9 +1,9 @@
-[[reference-programming-model-conversion]]
+[[reference:type-conversion]]
 = Type Conversion
 
 The object-graph mapping framework provides support for default and bespoke type conversions, which allow you to configure how certain data types are mapped to nodes or relationships in Neo4j.
 
-[[reference-programming-model-conversion-built-in]]
+[[reference:type-conversion:built-in]]
 == Built-in type conversions
 
 Neo4j OGM will automatically perform the following type conversions:
@@ -46,7 +46,7 @@ public class MyEntity {
 Collections of primitive or convertible values are also automatically mapped by converting them to arrays of their type or strings respectively.
 
 
-[[reference-programming-model-conversion-custom]]
+[[reference:type-conversion:custom]]
 == Custom Type Conversion
 
 In order to define bespoke type conversions for particular members, you can annotate a field or method with `@Convert`.

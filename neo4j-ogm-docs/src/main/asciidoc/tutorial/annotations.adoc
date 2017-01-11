@@ -179,7 +179,7 @@ If you want to name your `Long` type something else (e.g. `graphId`) then that f
 Since every entity requires an id, we're going to create an `Entity` superclass.
 This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
 
-If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the Graph Id. See <<reference-graphid-annotation, Node Entities>> for more information.
+If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the Graph Id. See <<reference:annotating-entities:graph-id, Node Entities>> for more information.
 
 [source, groovy]
 ----

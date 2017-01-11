@@ -1,4 +1,4 @@
-[[tutorial-introduction]]
+[[tutorial:introduction]]
 = Introduction
 
 Neo4j OGM University is a demo application for the Neo4j OGM library that allows you to manage the Departments, Teaching Staff, Subjects, Students and Classes of a fictitious educational institution: Hilly Fields Technical College.

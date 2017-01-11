@@ -3,6 +3,7 @@
 
 The `Session` provides the core functionality to persist objects to the graph and load them in a variety of ways.
 
+[[reference:session:configuration]]
 == Session Configuration
 
 A `Session` is used to drive the object-graph mapping framework.
@@ -22,9 +23,7 @@ On the other hand, if your sessions have too narrow a scope then your save opera
 There's therefore a trade off between the two approaches.
 In general, the scope of a `Session` should correspond to a "unit of work" in your application.
 
-
-
-
+[[reference:session:basic-operations]]
 == Basic operations
 
 Basic operations are limited to CRUD operations on entities and executing arbitrary Cypher queries; more low-level manipulation of the graph database is not possible.
@@ -44,41 +43,12 @@ Of course, there are pros and cons to both of these approaches, but these are la
 In general, for low-level, very high-performance operations like complex graph traversals you'll get the best performance by writing a server-side extension.
 For most purposes, though, Cypher will be performant and expressive enough to perform the operations that you need.
 
-
-== Entity persistence
+[[reference:session:persisting-entities]]
+== Persisting entities
 
 `Session` allows to `save`, `load`, `loadAll` and `delete` entities with transaction handling and exception translation managed for you.
 The eagerness with which objects are retrieved is controlled by specifying the 'depth' argument to any of the load methods.
 
-[[reference-cypher]]
-== Cypher
-
-Cypher is Neo4j's powerful query language.
-It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
-This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
-
-
-== Cypher queries
-
-The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.
-Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.
-This consists of `QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
-The keys in each `Map` correspond to the names listed in the return clause of the executed Cypher query.
-
-`queryForObject` specifically queries for entities and as such, queries supplied to this method must return nodes and not individual properties.
-//For the query methods that retrieve mapped objects, the recommended query format is to return a path, which should ensure that known types get mapped correctly and joined together with relationships as appropriate.
-[NOTE]
-====
-In the current version, custom queries do not support paging, sorting or a custom depth.
-In addition, it does not support mapping a path to domain entities, as such, a path should not be returned from a Cypher query.
-Instead, return nodes and relationships to have them mapped to domain entities.
-
-Modifications made to the graph via Cypher queries directly will not be reflected in your domain objects within the session.
-====
-
-
-[[reference-programming-model-lifecycle-persistence]]
-== Persisting entities
 
 Entity persistence is performed through the `save()` method on the underlying `Session` object.
 
@@ -105,7 +75,7 @@ session.save(p);
 ====
 
 
-[[reference-programming-model-detached-relating]]
+[[reference:session:persisting-entities:save-depth]]
 === Save depth
 
 As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, where depth dictates the number of related entities to save starting from the given entity.
@@ -168,7 +138,7 @@ The reason for this is, as mentioned above, that cascading will be done for fiel
 ====
 
 
-[[reference-programming-model-sorting-and-paging]]
+[[reference:session:sorting-and-paging]]
 == Sorting and paging
 
 Neo4j OGM supports Sorting and Paging of results when using the Session object.
@@ -207,7 +177,7 @@ Iterable<World> worlds = session.loadAll(World.class,
 Neo4j OGM does not yet support sorting and paging on custom queries.
 ====
 
-[[reference:transactions]]
+[[reference:session:transactions]]
 == Transactions
 
 Neo4j is a transactional database, only allowing operations to be performed within transaction boundaries.
@@ -237,4 +207,32 @@ tx.close();
 In the example above, the transaction is committed only when both a concert ticket and hotel room is available, otherwise, neither booking is made.
 
 If you do not manage a transaction in this manner, auto commit transactions are provided implicitly for `Session` methods such as `save`, `load`, `delete`, `execute` and so on.
+
+
+
+[[reference:session:cypher-queries]]
+== Cypher queries
+
+Cypher is Neo4j's powerful query language.
+It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
+This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+
+
+The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.
+Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.
+This consists of `QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
+The keys in each `Map` correspond to the names listed in the return clause of the executed Cypher query.
+
+`queryForObject` specifically queries for entities and as such, queries supplied to this method must return nodes and not individual properties.
+//For the query methods that retrieve mapped objects, the recommended query format is to return a path, which should ensure that known types get mapped correctly and joined together with relationships as appropriate.
+[NOTE]
+====
+In the current version, custom queries do not support paging, sorting or a custom depth.
+In addition, it does not support mapping a path to domain entities, as such, a path should not be returned from a Cypher query.
+Instead, return nodes and relationships to have them mapped to domain entities.
+
+Modifications made to the graph via Cypher queries directly will not be reflected in your domain objects within the session.
+====
+
+
 

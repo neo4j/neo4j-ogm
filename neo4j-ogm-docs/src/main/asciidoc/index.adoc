@@ -11,14 +11,9 @@ for such copies and further provided that each copy contains this Copyright Noti
 
 toc::[]
 
-include::introduction.adoc[leveloffset=+1]
+include::introduction/index.adoc[leveloffset=+1]
 
 include::tutorial/index.adoc[leveloffset=+1]
 
 include::reference/index.adoc[leveloffset=+1]
 
-:numbered!:
-:leveloffset: +1
-include::appendix/design-considerations.adoc[]
-include::appendix/faq.adoc[]
-:leveloffset: -1

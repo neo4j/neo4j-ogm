@@ -1,19 +1,24 @@
-= Neo4j OGM - An Object Graph Mapping Library for Neo4j
+= Neo4j OGM - Object Graph Mapping Library for Neo4j
 :toc:
 :toc-placement!:
 :revnumber: {version}
 :revdate: {localdate}
 
-(C) 2010-2016 Neo Technology
+(C) 2010-2017 Neo Technology
 
 NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee
 for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
 
 toc::[]
 
-include::introduction/index.adoc[leveloffset=+1]
+include::introduction.adoc[leveloffset=+1]
 
 include::tutorial/index.adoc[leveloffset=+1]
 
 include::reference/index.adoc[leveloffset=+1]
 
+:numbered!:
+:leveloffset: +1
+include::appendix/design-considerations.adoc[]
+include::appendix/faq.adoc[]
+:leveloffset: -1

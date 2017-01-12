@@ -1,248 +1,189 @@
-[[tutorial-annotations]]
-= Annotations
+[[tutorial:annotations]]
+= Annotating the domain model
 
-Neo4j OGM supports mapping annotated and non-annotated objects models.
-It’s possible to save any POJO with the exception of a Relationship Entity without annotations to the graph.
-The framework will then apply conventions to decide what to do.
-
-== Maven dependency
-
-Before we can use the library, we need to add a dependency.
-
-.Maven dependencies for Neo4j OGM 2.x
-[source,xml]
-----
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-core</artifactId>
-    <version>{version}</version>
-</dependency>
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm-http-driver</artifactId>
-    <version>{version}</version>
-</dependency>
-----
-
-.Gradle dependencies for Neo4j OGM 2.x
-[source,groovy]
-----
-compile "org.neo4j:neo4j-ogm-core:{version}"
-compile "org.neo4j:neo4j-ogm-http-driver:{version}"
-----
-
-Refer to <<reference-setup>> for more information on dependencies.
-
-Note that the dependencies for Neo4j OGM 1.x differ -
-
-.Maven dependencies for Neo4j OGM 1.x
-[source,xml]
-----
-<dependency>
-    <groupId>org.neo4j</groupId>
-    <artifactId>neo4j-ogm</artifactId>
-    <version>{version}</version>
-</dependency>
-----
-
-.Gradle dependencies for Neo4j OGM 1.x
-[source,groovy]
-----
-compile "org.neo4j:neo4j-ogm:{version}"
-----
+Much like Hibernate or JPA, the OGM allows you to annotate your POJOs in order to map them to nodes, relationships and properties in the graph.
 
 
-[[nodes-properties-labels]]
-== Nodes, properties & labels
+[[tutorial:annotations:nodes]]
+== Node Entities
 
 POJOs annotated with `@NodeEntity` will be represented as nodes in the graph.
+
 The label assigned to this node can be specified via the `label` property on the annotation; if not specified, it will default to the simple class name of the entity.
 Each parent class in addition also contributes a label to the entity (with the exception of `java.lang.Object`).
 This is useful when we want to retrieve collections of super types.
 
-Let's go ahead and annotate all our node entities.
+Let's go ahead and annotate all our node entities in the code we wrote earlier.
+
 Note that we're overriding the default label for a `Course` with `Class`
 
-[source, java]
+[source, groovy]
 ----
 @NodeEntity
-public class Department {
-    private String name;
-    private Set<Subject> subjects;
+class Department {
+    String name;
+    Set<Subject> subjects;
 }
 
 @NodeEntity
-public class Subject {
-    private String name;
-    private Department department;
-    private Set<Teacher> teachers;
-    private Set<Course> courses;
+class Subject {
+    String name;
+    Department department;
+    Set<Teacher> teachers;
+    Set<Course> courses;
 }
 
 @NodeEntity
-public class Teacher {
-    private String name;
-    private Set<Course> courses;
-    private Set<Subject> subjects;
+class Teacher {
+    String name;
+    Set<Course> courses;
+    Set<Subject> subjects;
 }
 
 @NodeEntity(label="Class")
-public class Course {
-    private String name;
-    private Subject subject;
-    private Teacher teacher;
-    private Set<Enrollment> enrollments;
+class Course {
+    String name;
+    Subject subject;
+    Teacher teacher;
+    Set<Enrollment> enrollments;
 }
 
 @NodeEntity
-public class Student {
-    private String name;
-    private Set<Enrollment> enrollments;
-    private Set<StudyBuddy> studyBuddies;
+class Student {
+    String name;
+    Set<Enrollment> enrollments;
+    Set<StudyBuddy> studyBuddies;
 }
 ----
 
 
-[[runtime-managed-labels]]
-=== Runtime managed labels
-
-As stated above, the label applied to a node is the contents of the `@NodeEntity` label property, or if not specified, it will default to the simple class name of the entity.
-Sometimes it might be necessary to add and remove additional labels to a node at _runtime_.
-We can do this using the `@Labels` annotation.
-Let's provide a facility for adding additional labels to the `Student` entity:
-
-[source, java]
-----
-@NodeEntity
-public class Student {
-
-    @Labels
-    private List<String> labels = new ArrayList<>();
-
-}
-----
-
-Now, upon save, the node's labels will correspond to the entity's class hierarchy _plus_ whatever the contents of the backing field are.
-We can use one `@Labels` field per class hierarchy - it should be exposed or hidden from sub-classes as appropriate.
-
-
-[[relationships]]
+[[tutorial:annotations:relationships]]
 == Relationships
 
 Next up, the relationships between the nodes.
+
 Every field in an entity that references another entity is backed by a relationship in the graph.
 The `@Relationship` annotation allows you to specify both the type of the relationship and the direction.
 By default, the direction is assumed to be `OUTGOING` and the type is the UPPER_SNAKE_CASE field name.
-We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later by not being dependent on the field name.
 
-[source, java]
+We're going to be specific about the relationship type to avoid using the default and also make it easier to refactor classes later by not being dependent on the field name. Again, we are going to modify the code we saw in the last section:
+
+[source, groovy]
 ----
 @NodeEntity
-public class Department {
-    private String name;
+class Department {
+    String name;
 
     @Relationship(type = "CURRICULUM")
-    private Set<Subject> subjects;
+    Set<Subject> subjects;
 }
 
 @NodeEntity
-public class Subject {
-    private String name;
+class Subject {
+    String name;
 
     @Relationship(type="CURRICULUM", direction = Relationship.INCOMING)
-    private Department department;
+    Department department;
 
     @Relationship(type = "TAUGHT_BY")
-    private Set<Teacher> teachers;
+    Set<Teacher> teachers;
 
     @Relationship(type = "SUBJECT_TAUGHT", direction = "INCOMING")
-    private Set<Course> courses;
+    Set<Course> courses;
 }
 
 @NodeEntity
-public class Teacher {
-    private String name;
+class Teacher {
+    String name;
 
      @Relationship(type="TEACHES_CLASS")
-     private Set<Course> courses;
+     Set<Course> courses;
 
      @Relationship(type="TAUGHT_BY", direction = Relationship.INCOMING)
-     private Set<Subject> subjects;
+     Set<Subject> subjects;
 }
 
 @NodeEntity(label="Class")
-public class Course {
-    private String name;
+class Course {
+    String name;
 
      @Relationship(type= "SUBJECT_TAUGHT")
-     private Subject subject;
+     Subject subject;
 
      @Relationship(type= "TEACHES_CLASS", direction=Relationship.INCOMING)
-     private Teacher teacher;
+     Teacher teacher;
 
      @Relationship(type= "ENROLLED", direction=Relationship.INCOMING)
-     private Set<Enrollment> enrollments = new HashSet<>();
+     Set<Enrollment> enrollments = new HashSet<>();
 }
 
 @NodeEntity
-public class Student {
-    private String name;
+class Student {
+    String name;
 
     @Relationship(type = "ENROLLED")
-    private Set<Enrollment> enrollments;
+    Set<Enrollment> enrollments;
 
     @Relationship(type = "BUDDY", direction = Relationship.INCOMING)
-    private Set<StudyBuddy> studyBuddies;
+    Set<StudyBuddy> studyBuddies;
 }
 ----
 
 
-[[relationship-entities]]
-== Relationship entities
+[[tutorial:annotations:relationship-entities]]
+== Relationship Entities
 
-We have one more entity, and that is the `Enrollment`.
+Sometimes something isn't quite a Node entity.
+
+In this demo the only remaining class to annotate is `Enrollment`.
 As discussed earlier, this is a relationship entity since it manages the underlying `ENROLLED` relation between a student and course.
 It isn't a simple relation because it has a relationship property called `enrolledDate`.
 
 A relationship entity must be annotated with `@RelationshipEntity` and also the type of relationship.
 In this case, the type of relationship is `ENROLLED` as specified in both the `Student` and `Course` entities.
+
+
 We are also going to indicate to the OGM the start and end node of this relationship.
 
-[source, java]
+[source, groovy]
 ----
 @RelationshipEntity(type = "ENROLLED")
-public class Enrollment {
-
-    private Long id;
+class Enrollment {
 
     @StartNode
-    private Student student;
+    Student student;
 
     @EndNode
-    private Course course;
+    Course course;
 
-    private Date enrolledDate;
+    Date enrolledDate;
 
 }
 ----
 
 
-[[graphid]]
-== @GraphId
+[[tutorial:annotations:graphid]]
+== Identifiers
 
-Every node and relationship persisted to the graph has an id.
-Neo4j OGM uses this to identify and re-connect the entity to the graph.
-Specifying a Long id field is required.
-If such a field exists on the entity, then Neo4j OGM will use it automatically.
-Otherwise, a Long field must be annotated with `@GraphId`.
+Every node and relationship persisted to the graph must have an ID. The OGM uses this to identify and re-connect the entity to the graph in memory.
+
+At the moment all OGM Node and Relationship Entities ***must*** define an ID of type `Long`.  This ID corresponds to the ID generated by the
+Neo4j database when a node or relationship is first saved.
+
+[WARNING]
+***Do not*** rely on this ID for long running applications. Neo4j will reuse deleted node ID's. It is recommended users come up with their own
+unique identifier for their domain objects (or use a UUID).
+
+If you want to name your `Long` type something else (e.g. `graphId`) then that field must be annotated with `@GraphId`.
 
 Since every entity requires an id, we're going to create an `Entity` superclass.
 This is an abstract class, so you'll see that the nodes do not inherit an `Entity` label, which is exactly what we want.
 
-If you plan on implementing `hashCode` and `equals` make sure *it does not* make sure of the Graph Id. See <<reference-graphid-annotation, Node Entities>> for more information.
-[source, java]
+If you plan on implementing `hashCode` and `equals` make sure *it does not* make use of the Graph Id. See <<reference:annotating-entities:graph-id, Node Entities>> for more information.
+
+[source, groovy]
 ----
-public abstract class Entity {
+abstract class Entity {
 
     private Long id;
 
@@ -254,47 +195,56 @@ public abstract class Entity {
 
 Our entities will now extend this class, for example
 
-[source, java]
+[source, groovy]
 ----
 @NodeEntity
-public class Department extends Entity {
-    private String name;
+class Department extends Entity {
+    String name;
 
     @Relationship(type = "CURRICULUM")
-    private Set<Subject> subjects;
+    Set<Subject> subjects;
 
-    public Department() {
+    Department() {
 
     }
 }
 ----
 
-The OGM also requires an public no-args constructor to be able to construct objects, we'll make sure all our entities have one.
+[[tutorial:annotations:noarg-constructor]]
+== No Arg Constructor
+
+We are almost there!
+
+The OGM also also requires a public no-args constructor to be able to construct objects from all our annotated entities. we'll make sure all our entities have one.
 
 
-[[converters]]
+[[tutorial:annotations:converters]]
 == Converters
 
-Neo4j supports numerics, Strings, booleans and arrays of these as property values.
-How do we handle the `enrolledDate` since `Date` is not a valid data type?
-Luckily for us, Neo4j OGM provides many converters out of the box, one of which is a Date to Long converter.
-We simply annotate the field with `@DateLong` and the conversion of the Date to it's Long representation and back is handled by the OGM when persisting and loading from the graph.
+Neo4j supports `Numeric`, `String`, `boolean` and arrays of these as property values.
 
-[source, java]
+How do we handle the `enrolledDate` since `Date` is not a valid data type?
+
+Luckily for us, OGM provides many converters out of the box, one of which is a `Date` to `Long` converter.
+We simply annotate the field with `@DateLong` and the conversion of the `Date` to it's `Long` representation and back is handled by the OGM when persisting and loading from the graph.
+
+[source, groovy]
 ----
 @RelationshipEntity(type = "ENROLLED")
-public class Enrollment {
+class Enrollment {
 
-    private Long id;
+    Long id;
 
     @StartNode
-    private Student student;
+    Student student;
 
     @EndNode
-    private Course course;
+    Course course;
 
     @DateLong
-    private Date enrolledDate;
+    Date enrolledDate;
 
+    Enrollment() {
+    }
 }
 ----

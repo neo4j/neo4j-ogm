@@ -1,4 +1,4 @@
-[[tutorial-conclusion]]
+[[tutorial:conclusion]]
 = Conclusion
 
 With not much effort, we've built all the services that tie together this application. All that is required is adding controllers and building the UI.

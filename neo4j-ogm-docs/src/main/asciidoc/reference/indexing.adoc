@@ -1,4 +1,4 @@
-[[reference_programming-model_indexing]]
+[[reference:indexing]]
 = Indexing
 
 Indexing is used in Neo4j to quickly find nodes and relationships from which to start graph operations.
@@ -18,14 +18,14 @@ enforce uniqueness constraints on certain properties to make lookups easier.  On
 use case of wanting to save their objects via this same property and in effect have the OGM run the `MERGE`
 operation using the same property to identify the object.
 
-
+[[reference:indexing:indexes-and-constraints]]
 == Indexes and Constraints
 Indexes and unique constraints based on labels and properties are supported as of version `2.1.0` with the `@Index` annotation.
 Any property field annotated with `@Index` will use have an appropriate schema index created. For `@Index(unique=true)` a constraint is created.
 
 You may add as many indexes or constraints as you like to your class.  If you annotate a field in a class that is part of an inheritance hierarchy then the index or constraint will only be added to that class's label.
 
-
+[[reference:indexing:creation]]
 == Index Creation
 
 By default index management is set to `None`.
@@ -66,6 +66,7 @@ Below is a table of all options available for configuring Auto-Indexing.
 
 |===
 
+[[reference:indexing:primary-constraints]]
 == Primary Constraints
 
 The OGM can now be used to look up or merge entities based on a unique constraint. This unique constraint is known as a _primary_ constraint.
@@ -82,6 +83,7 @@ a primary constraint of type `U` is defined on a field in that same class.
 [NOTE]
 There may only be one `primary=true` index per Class hierarchy.
 
+[[reference:indexing:primary-constraints:merging]]
 === Merging
 
 When an object is created via a call to `Session.save(Object)` a check is made to see if that object's class has a primary

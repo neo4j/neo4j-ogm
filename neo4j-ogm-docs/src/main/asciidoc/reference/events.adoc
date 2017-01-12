@@ -1,9 +1,9 @@
-[[reference-programming-model-events]]
+[[reference:events]]
 = Events
 
 As of version 2.0.4, Neo4j OGM supports persistence events.
 
-
+[[reference:events:types]]
 == Event types
 
 There are four types of events:
@@ -28,14 +28,14 @@ Events will only fire when one of the `session.save()` or `session.delete()` met
 Directly executing Cypher queries against the database using `session.query()` will not trigger any events.
 ====
 
-
+[[reference:events:interfaces]]
 == Interfaces
 
 The Events mechanism introduces two new interfaces, `Event` and `EventListener`.
 
 *The Event interface*
 
-The `Event` interface is implemented by `org.neo4j.ogm.session.event.PersistenceEvent`.
+The `Event` interface is implemented by `PersistenceEvent`.
 Whenever an application wishes to handle an event it will be given an instance of `Event`, which exposes the following methods:
 
 [source, java]
@@ -72,7 +72,7 @@ public interface EventListener {
 Although the `Event` interface allows you to retrieve the event type, in most cases, your code won't need it because the `EventListener` provides methods to capture each type of event explicitly.
 ====
 
-
+[[reference:events:registering]]
 == Registering an EventListener
 
 There are two way to register an event listener:
@@ -122,13 +122,13 @@ For example, our business logic might require us to add a UUID to a new object, 
 It’s usually a good idea to separate these concerns into different objects with specific responsibilities, rather than having one single object try to do everything.
 ====
 
-
+[[reference:events:listener-adapter]]
 == Using the EventListenerAdapter
 
 The `EventListener` above is fine, but we've had to create three methods for events we don't intend to handle.
 It would be preferable if we didn't have to do this each time we needed an `EventListener`.
 
-The `org.neo4j.ogm.session.event.EventListenerAdapter` is an abstract class providing a no-op implementation of the `EventListener` interface.
+The `EventListenerAdapter` is an abstract class providing a no-op implementation of the `EventListener` interface.
 If you don't need to handle all the different types of persistence event you can create a subclass of `EventListenerAdapter` instead and override just the methods for the event types you're interested in.
 
 For example:
@@ -146,7 +146,7 @@ class PreSaveEventListener extends EventListenerAdaper {
 }
 ----
 
-
+[[reference:events:disposing-listener]]
 == Disposing of an EventListener
 
 Something to bear in mind is that once an `EventListener` has been registered it will continue to respond to any and all persistence events.
@@ -163,7 +163,7 @@ Using `dispose()` when you're finished with an EventListener is good practice!
 
 To remove an event listener across multiple sessions use the `degresiter` method on the `SessionFactory`.
 
-
+[[reference:events:connected-objects]]
 == Connected objects
 
 As mentioned previously, events are not only fired for the top-level objects being saved but for all their connected objects as well.
@@ -192,7 +192,7 @@ b.setName("B");
 session.save(a);
 ----
 
-
+[[reference:events:events-and-types]]
 == Events and types
 
 When we delete a Type, all the nodes with a label corresponding to that Type are deleted in the graph.
@@ -207,7 +207,7 @@ Instead, `_DELETE` events will be raised for the Type:
     session.delete(Document.class);
 ----
 
-
+[[reference:events:events-and-collections]]
 == Events and collections
 
 When saving or deleting a collection of objects, separate events are fired for each object in the collection, rather than for the collection itself.
@@ -226,7 +226,7 @@ Document b = new Document("b");
 session.save(Arrays.asList(a, b));
 ----
 
-
+[[reference:events:events-ordering]]
 == Event ordering
 
 Events are partially ordered.
@@ -246,7 +246,7 @@ Document b = new Document("b");
 session.save(Arrays.asList(a, b));
 ----
 
-
+[[reference:events:relationship]]
 == Relationship events
 
 The previous examples show how events fire when the underlying *node* representing an entity is updated or deleted in the graph.
@@ -279,7 +279,7 @@ In this example, the folder is still holding a reference to the Document, even t
 As always, your code must take care of domain model synchronisation.
 ====
 
-
+[[reference:events:uniqueness]]
 == Event uniqueness
 
 The event mechanism guarantees to not fire more than one event of the same type for an object in a save or delete request.
@@ -293,11 +293,3 @@ The event mechanism guarantees to not fire more than one event of the same type 
  folder.setName("newFolder");
  session.save(folder);
 ----
-
-
-////
-== Integration with Spring Data Neo4j
-
-The OGM events mechanism has been designed to integrate easily with Spring Data Neo4j. Please refer to the Spring Data Neo4j documentation for details of how to integrate OGM Events with the SDN event mechanism.
-////
-

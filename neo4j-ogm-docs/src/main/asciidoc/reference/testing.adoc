@@ -1,0 +1,105 @@
+[[reference:testing]]
+= Testing
+
+In 2.0, the `Neo4jIntegrationTestRule` class has been removed from the test-jar.
+
+In previous versions this class provided access to an underlying `GraphDatabaseService` instance, allowing you to independently verify your code was working correctly.
+However it is incompatible with the Driver interfaces in 2.0, as it always requires you to connect using HTTP.
+
+The recommended approach is to configure an Embedded Driver for testing as described above, although you can still use an in-process HTTP server if you wish (see below).
+Please note that if you're just using the Embedded Driver for your tests you do not need to include any additional test jars in your pom.
+
+[[reference:testing:log-levels]]
+== Log levels
+
+When running unit tests, it can be useful to see what the OGM is doing, and in particular to see the Cypher requests being transferred between your application and the database.
+The OGM uses `slf4j` along with `Logback` as its logging framework and by default the log level for all the OGM components is set to WARN, which does not include any Cypher output.
+To change the OGM log level, create a file *logback-test.xml* in your test resources folder, configured as shown below:
+
+.logback-test.xml
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %5p %40.40c:%4L - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+      ~ Set the required log level for the OGM components here.
+      ~ To just see Cypher statements set the level to "info"
+      ~ For finer-grained diagnostics, set the level to "debug".
+    -->
+    <logger name="org.neo4j.ogm" level="info" />
+
+    <root level="warn">
+        <appender-ref ref="console" />
+    </root>
+
+</configuration>
+----
+
+[[reference:testing:in-process-server]]
+== Using an in-process server for testing
+
+If you want don't want to use the Embedded Driver to run your tests, it is still possible to create an in-process HTTP server instead.
+Just like the Embedded Driver, a TestServer exposes a GraphDatabaseService instance which you can use in your tests.
+You should always close the server when you're done with it.
+
+You'll first need to add the OGM test dependency to your pom:
+
+[source, xml, subs="attributes, specialcharacters"]
+----
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-test</artifactId>
+    <version>{version}</version>
+    <scope>test</scope>
+</dependency>
+----
+
+Next, create a TestServer instance:
+
+[source, java]
+----
+testServer = new TestServer.Builder()
+                .enableAuthentication(true)    // defaults to false
+                .transactionTimeoutSeconds(10) // defaults to 30 seconds
+                .port(2222)                    // defaults to a random non-privileged port
+                .build();
+----
+
+A TestServer is backed by an impermanent database store, and configures the OGM to use an HttpDriver.
+The driver authenticates automatically if you have requested an authenticating server so you don't have to do provide additional credentials.
+
+.Example test class using an in-process HTTP server
+[source, java]
+----
+private static TestServer testServer;
+
+@BeforeClass
+public static setupTestServer() {
+    testServer = new TestServer.Builder().build();
+}
+
+@AfterClass
+public static teardownTestServer() {
+    testServer.close();
+}
+
+@Test
+public void shouldCreateUser() {
+
+    session.save(new User("Bilbo Baggins"));
+
+    GraphDatabaseService db = testServer.getGraphDatabaseService();
+    try (Transaction tx = db.beginTx()) {
+        Result r = db.execute("MATCH (u:User {name: 'Bilbo Baggins'}) RETURN u");
+        assertTrue(r.hasNext());
+        tx.success();
+    }
+}
+----

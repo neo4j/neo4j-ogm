@@ -6,16 +6,17 @@
 
 Consult the version table to determine which version of the OGM to use with a particular version of Neo4j and related technologies.
 
-[width="80%",frame="topbot",options="header,footer"]
+[frame="topbot",options="header,footer"]
 |======================
-|Neo4j-OGM Version   |Neo4j Version       | Compatible with Spring Data Neo4j Version
-|2.1.0+              |2.3.x, 3.0.x, 3.1.x | 4.2.x
-|2.0.2+              |2.3.x, 3.0.x        | 4.1.2 - 4.1.6+
-|2.0.1^*^            |2.2.x, 2.3.x        | 4.1.0 - 4.1.1
-|1.1.5^*^            |2.1.x, 2.2.x, 2.3.x | 4.0.x
+|Neo4j-OGM Version   |Neo4j Version       | Bolt Version^#^ | Spring Data Neo4j Version Compatibility
+|2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+          | 4.2.0+
+|2.0.2+              |2.3.x, 3.0.x        | 1.0.0+          | 4.1.2 - 4.1.6+
+|2.0.1^*^            |2.2.x, 2.3.x        | 1.0.0-RC1       | 4.1.0 - 4.1.1
+|1.1.5^*^            |2.1.x, 2.2.x, 2.3.x | N/A             | 4.0.0+
 |======================
 
-^*^ __These versions are no longer actively developed or supported.__
+^*^ __These versions are no longer actively developed or supported.__ +
+^#^ __Not applicable to Embedded and HTTP drivers__
 
 [[reference:getting-started:dependency-management]]
 == Dependency Management

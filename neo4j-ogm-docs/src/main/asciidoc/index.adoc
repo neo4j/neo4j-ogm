@@ -18,8 +18,5 @@ include::tutorial/index.adoc[leveloffset=+1]
 include::reference/index.adoc[leveloffset=+1]
 
 
-[[appendix]]
-= Appendix
-
 :numbered!:
-include::appendix.adoc[]
+include::appendix.adoc[leveloffset=+1]

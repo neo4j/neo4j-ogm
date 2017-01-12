@@ -1,3 +1,10 @@
+<!-- GUIDELINES -->
+<!-- Please note that GitHub issues are only meant for bug reports/feature requests. -->
+<!-- If you have questions on how to use the Neo4j OGM, please ask on -->
+<!-- StackOverflow: http://stackoverflow.com/questions/tagged/neo4j-ogm instead of creating -->
+<!-- an issue here. -->
+
+
 <!--- Provide a general summary of the issue in the Title above -->
 
 ## Expected Behavior
@@ -15,7 +22,7 @@
 ## Steps to Reproduce (for bugs)
 <!--- Provide a link to a live example, or an unambiguous set of steps to -->
 <!--- reproduce this bug. Include code to reproduce, if relevant -->
-
+<!-- Additionally, include (as appropriate) log-files, stacktraces, and other debug output. -->
 1. ...
 2. ...
 3. ...
@@ -27,9 +34,9 @@
 
 ## Your Environment
 <!--- Include as many relevant details about the environment you experienced the bug in -->
-* OGM Version used:
-* Java Version used:
-* Neo4J Version used:
-* Bolt Driver Version used (if applicable):
-* Operating System and Version:
-* Link to your project:
+- OGM Version used:
+- Java Version used:
+- Neo4J Version used:
+- Bolt Driver Version used (if applicable):
+- Operating System and Version:
+- Link to your project:

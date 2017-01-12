@@ -14,10 +14,3 @@ In the example below, we're return a collection containing any satellites that a
 ----
 Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", true));
 ----
-
-//== Chaining Filters
-//
-//[NOTE]
-//Coming soon.
-
-

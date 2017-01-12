@@ -31,5 +31,3 @@ include::testing.adoc[leveloffset=+1]
 
 include::ha.adoc[leveloffset=+1]
 
-//include::mapping.adoc[leveloffset=+1]
-

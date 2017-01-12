@@ -56,6 +56,9 @@ Under the bonnet, the implementation of `Session` has access to the `MappingCont
 Upon invocation of `save()` with an entity, it checks the given object graph for changes compared with the data that was loaded from the database.
 The differences are used to construct a Cypher query that persists the deltas to Neo4j before repopulating it's state based on the response from the database server.
 
+The OGM doesn't automatically commit when a transaction closes, so an explicit call to `save(...)` is required in order to persist changes to the database.
+
+
 .Persisting entities
 ====
 [source, java]
@@ -80,6 +83,10 @@ session.save(p);
 
 As mentioned previously, `save(entity)` is overloaded as `save(entity, depth)`, where depth dictates the number of related entities to save starting from the given entity.
 The default depth, -1, will persist properties of the specified entity as well as every modified entity in the object graph reachable from it.
+This means that *all affected* objects in the entity model that are reachable from the root object being persisted will be modified in the graph.
+This is the recommended approach because it means you can persist all your changes in one request.
+The OGM is able to detect which objects and relationships require changing, so you won't flood Neo4j with a bunch of objects that don't require modification.
+You can change the persistence depth to any value, but you should not make it less than the value used to load the corresponding data or you run the risk of not having changes you expect to be made actually being persisted in the graph.
 A depth of 0 will persist only the properties of the specified entity to the database.
 
 Specifying the save depth is handy when it comes to dealing with complex collections, that could potentially be very expensive to load.
@@ -138,8 +145,102 @@ The reason for this is, as mentioned above, that cascading will be done for fiel
 ====
 
 
-[[reference:session:sorting-and-paging]]
-== Sorting and paging
+In the example below, `session.save(user,1)` will persist all modified objects reachable from `user` up to one level deep.
+This includes `posts` and `groups` but not entities related to them, namely `author`, `comments`, `members` or `location`.
+A persistence depth of 0 i.e. `session.save(user,0)` will save only the properties on the user, ignoring any related entities.
+In this case, `fullName` is persisted but not friends, posts or groups.
+
+
+.Persistence Depth
+[source, java]
+----
+public class User  {
+
+   private Long id;
+   private String fullName;
+   private List<Post> posts;
+   private List<Group> groups;
+
+}
+
+public class Post {
+
+   private Long id;
+   private String name;
+   private String content;
+   private User author;
+   private List<Comment> comments;
+
+}
+
+public class Group {
+
+   private Long id;
+   private String name;
+   private List<User> members;
+   private Location location;
+
+}
+----
+
+[[reference:session:loading-entities]]
+== Loading Entities
+
+Entities can be loaded from the OGM through the use of the `session.loadXXX()` methods or via `session.query()`/`session.queryForObject()` which will
+accept your own Cypher queries (See section below on cypher queries).
+
+Neo4j OGM includes the concept of persistence horizon (depth).
+On any individual request, the persistence horizon indicates how many relationships should be traversed in the graph when loading or saving data.
+A horizon of zero means that only the root object's properties will be loaded or saved, a horizon of 1 will include the root object and all its immediate neighbours, and so on.
+This attribute is enabled via a `depth` argument available on all session methods, but the OGM chooses sensible defaults so that you don't have to specify the depth attribute unless you want change the default values.
+
+[[reference:session:loading-entities:load-depth]]
+=== Load depth
+
+By default, loading an instance will map that object's simple properties and its immediately-related objects (i.e. depth = 1).
+This helps to avoid accidentally loading the entire graph into memory, but allows a single request to fetch not only the object of immediate interest, but also its closest neighbours, which are likely also to be of interest.
+This strategy attempts to strike a balance between loading too much of the graph into memory and having to make repeated requests for data.
+
+If parts of your graph structure are deep and not broad (for example a linked-list), you can increase the load horizon for those nodes accordingly.
+Finally, if your graph will fit into memory, and you'd like to load it all in one go, you can set the depth to -1.
+
+On the other hand when fetching structures which are potentially very "bushy" (e.g. lists of things that themselves have many relationships), you may want to set the load horizon to 0 (depth = 0) to avoid loading thousands of objects most of which you won't actually inspect.
+
+[NOTE]
+====
+When loading entities with a custom depth less than the one used previously to load the entity within the session, existing relationships will not be flushed from the session; only new entities and relationships are added.
+This means that reloading entities will always result in retaining related objects loaded at the highest depth within the session for those entities.
+If it is required to load entities with a lower depth than previously requested, this must be done on a new session, or after clearing your current session with `Session.clear()`.
+====
+
+
+[[reference:session:loading-entities:cypher-queries]]
+=== Cypher queries
+
+Cypher is Neo4j's powerful query language.
+It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
+This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
+
+
+The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.
+Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.
+This consists of `QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
+The keys in each `Map` correspond to the names listed in the return clause of the executed Cypher query.
+
+`queryForObject` specifically queries for entities and as such, queries supplied to this method must return nodes and not individual properties.
+//For the query methods that retrieve mapped objects, the recommended query format is to return a path, which should ensure that known types get mapped correctly and joined together with relationships as appropriate.
+[NOTE]
+====
+In the current version, custom queries do not support paging, sorting or a custom depth.
+In addition, it does not support mapping a path to domain entities, as such, a path should not be returned from a Cypher query.
+Instead, return nodes and relationships to have them mapped to domain entities.
+
+Modifications made to the graph via Cypher queries directly will not be reflected in your domain objects within the session.
+====
+
+
+[[reference:session:loading-entities:sorting-and-paging]]
+=== Sorting and paging
 
 Neo4j OGM supports Sorting and Paging of results when using the Session object.
 The Session object methods take independent arguments for Sorting and Pagination
@@ -207,32 +308,6 @@ tx.close();
 In the example above, the transaction is committed only when both a concert ticket and hotel room is available, otherwise, neither booking is made.
 
 If you do not manage a transaction in this manner, auto commit transactions are provided implicitly for `Session` methods such as `save`, `load`, `delete`, `execute` and so on.
-
-
-
-[[reference:session:cypher-queries]]
-== Cypher queries
-
-Cypher is Neo4j's powerful query language.
-It is understood by all the different drivers in the OGM which means that your application code should run identically, whichever driver you choose to use.
-This makes application development much easier: you can use the Embedded Driver for your integration tests, and then plug in the Http Driver or the Bolt Driver when deploying your code into a production client-server environment.
-
-
-The `Session` also allows execution of arbitrary Cypher queries via its `query`, `queryForObject` and `queryForObjects` methods.
-Cypher queries that return tabular results should be passed into the `query` method which returns an `Result`.
-This consists of `QueryStatistics` representing statistics of modifying cypher statements if applicable, and an `Iterable<Map<String,Object>>` containing the raw data, which can be either used as-is or converted into a richer type if needed.
-The keys in each `Map` correspond to the names listed in the return clause of the executed Cypher query.
-
-`queryForObject` specifically queries for entities and as such, queries supplied to this method must return nodes and not individual properties.
-//For the query methods that retrieve mapped objects, the recommended query format is to return a path, which should ensure that known types get mapped correctly and joined together with relationships as appropriate.
-[NOTE]
-====
-In the current version, custom queries do not support paging, sorting or a custom depth.
-In addition, it does not support mapping a path to domain entities, as such, a path should not be returned from a Cypher query.
-Instead, return nodes and relationships to have them mapped to domain entities.
-
-Modifications made to the graph via Cypher queries directly will not be reflected in your domain objects within the session.
-====
 
 
 

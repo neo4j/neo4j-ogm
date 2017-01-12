@@ -13,11 +13,11 @@ include::setup.adoc[leveloffset=+1]
 
 include::configuration.adoc[leveloffset=+1]
 
-include::connecting.adoc[leveloffset=+1]
-
 include::annotations.adoc[leveloffset=+1]
 
 include::indexing.adoc[leveloffset=+1]
+
+include::connecting.adoc[leveloffset=+1]
 
 include::session.adoc[leveloffset=+1]
 

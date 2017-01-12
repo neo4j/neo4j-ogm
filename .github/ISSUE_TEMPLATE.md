@@ -1,9 +1,9 @@
-<!-- GUIDELINES -->
-<!-- Please note that GitHub issues are only meant for bug reports/feature requests. -->
-<!-- If you have questions on how to use the Neo4j OGM, please ask on -->
-<!-- StackOverflow: http://stackoverflow.com/questions/tagged/neo4j-ogm instead of creating -->
-<!-- an issue here. -->
-
+<!-- ================================================================================ -->
+<!-- Please note that GitHub issues are only meant for bug reports/feature requests.  -->
+<!-- If you have questions on how to use the Neo4j OGM, please ask on                 -->
+<!-- StackOverflow: http://stackoverflow.com/questions/tagged/neo4j-ogm instead of    -->
+<!-- creating an issue here.                                                          -->
+<!-- ================================================================================ -->
 
 <!--- Provide a general summary of the issue in the Title above -->
 

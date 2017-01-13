@@ -1,6 +1,16 @@
-2.1.1-SNAPSHOT
+2.1.1
 --------------
 o Fixes issue where session.loadAll would sort by ids instead of by the sort order specified. Fixes #302.
+o Completely updated documentation.
+o Fix for @Index not working properly with @Property. Resolves #312.
+o ClassInfo.addIndexes() now uses MetaDataClassLoader.loadClass() to fix issue in Play 2.5. Resolves #314.
+o Made Index validation comparison ignore whitespace.
+o Bump Neo4j version to 3.0.8.
+o Ensure polymorphic relationship entity references can be correctly resolved at runtime. Fixes #298.
+o Fix issue where no neo4j dependencies causes embedded driver to silently fail.
+o Removed requirement for embedded driver to always download neo4j dependencies.
+o Session.loadAll() sorts by SortOrder specified instead of by Ids. Fixes #302.
+o Fix commit/rollback X-WRITE headers not being sent to correct node in HTTP Driver.
 
 2.1.0
 --------------

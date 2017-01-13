@@ -1,3 +1,7 @@
+2.1.2
+--------------
+
+
 2.1.1
 --------------
 o Fixes issue where session.loadAll would sort by ids instead of by the sort order specified. Fixes #302.

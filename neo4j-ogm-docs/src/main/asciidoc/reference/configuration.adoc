@@ -219,10 +219,12 @@ Both these strategies leave you vulnerable to a MITM attack. You should probably
 a|
 [source, properties]
 ----
-#Encryption level (TLS), optional, defaults to REQUIRED. Valid values are NONE,REQUIRED
+#Encryption level (TLS), optional, defaults to REQUIRED.
+#Valid values are NONE,REQUIRED
 encryption.level=REQUIRED
 
-#Trust strategy, optional, not used if not specified. Valid values are TRUST_ON_FIRST_USE,TRUST_SIGNED_CERTIFICATES
+#Trust strategy, optional, not used if not specified.
+#Valid values are TRUST_ON_FIRST_USE,TRUST_SIGNED_CERTIFICATES
 trust.strategy=TRUST_ON_FIRST_USE
 
 #Trust certificate file, required if trust.strategy is specified

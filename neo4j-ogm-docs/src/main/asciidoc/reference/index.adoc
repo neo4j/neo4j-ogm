@@ -9,7 +9,7 @@ It covers the programming model, APIs, concepts, annotations and technical detai
 
 include::introduction.adoc[leveloffset=+1]
 
-include::setup.adoc[leveloffset=+1]
+include::getting-started.adoc[leveloffset=+1]
 
 include::configuration.adoc[leveloffset=+1]
 

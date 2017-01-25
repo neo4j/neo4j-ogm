@@ -8,11 +8,11 @@ Consult the version table to determine which version of the OGM to use with a pa
 
 [frame="topbot",options="header"]
 |======================
-|Neo4j-OGM Version   |Neo4j Version       | Bolt Version^#^ | Spring Data Neo4j Version Compatibility
-|2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+          | 4.2.0+
-|2.0.2+              |2.3.x, 3.0.x        | 1.0.0+          | 4.1.2 - 4.1.6+
-|2.0.1^*^            |2.2.x, 2.3.x        | 1.0.0-RC1       | 4.1.0 - 4.1.1
-|1.1.5^*^            |2.1.x, 2.2.x, 2.3.x | N/A             | 4.0.0+
+|Neo4j-OGM Version   |Neo4j Version       | Bolt Version^#^ | Spring Data Neo4j Version | Spring Boot Version
+|2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+          | 4.2.0+                    | 1.5.0+
+|2.0.2+              |2.3.x, 3.0.x        | 1.0.0+          | 4.1.2 - 4.1.6+            | 1.4.x
+|2.0.1^*^            |2.2.x, 2.3.x        | 1.0.0-RC1       | 4.1.0 - 4.1.1             | 1.4.x
+|1.1.5^*^            |2.1.x, 2.2.x, 2.3.x | N/A             | 4.0.0+                    | 1.4.x
 |======================
 
 ^*^ __These versions are no longer actively developed or supported.__ +

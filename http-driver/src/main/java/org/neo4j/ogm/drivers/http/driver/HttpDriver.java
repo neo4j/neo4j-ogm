@@ -84,7 +84,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
     @Override
     public Transaction newTransaction(Transaction.Type type, String bookmark) {
-        return new HttpTransaction(transactionManager, this, newTransactionUrl(), type);
+        return new HttpTransaction(transactionManager, this, newTransactionUrl(type), type);
     }
 
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
@@ -111,13 +111,13 @@ public final class HttpDriver extends AbstractConfigurableDriver
         }
     }
 
-    private String newTransactionUrl() {
+    private String newTransactionUrl(Transaction.Type type) {
 
         String url = transactionEndpoint(driverConfig.getURI());
         LOGGER.debug( "Thread: {}, POST {}", Thread.currentThread().getId(), url );
 
         HttpPost request = new HttpPost(url);
-        request.setHeader("X-WRITE", readOnly() ? "0" : "1");
+        request.setHeader("X-WRITE", type == Transaction.Type.READ_ONLY ? "0" : "1");
 
         try (CloseableHttpResponse response = executeHttpRequest(request)) {
             Header location = response.getHeaders("Location")[0];

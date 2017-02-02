@@ -1,5 +1,6 @@
 2.1.2
 --------------
+o Fixes issue where the X-Write header is wrong on read-only transactions first request. Fixes #323.
 
 
 2.1.1

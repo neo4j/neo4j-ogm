@@ -13,6 +13,13 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
@@ -21,12 +28,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -259,6 +260,40 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
     }
 
 
+    /**
+     * @see DATAGRAPH-944
+     */
+    @Test
+    public void shouldReloadCompleteRelationshipWhenStartAndEndNodesDontDeclareTheRelationshipExplicitly() {
+
+        Vertex from = new Vertex();
+        Vertex to = new Vertex();
+        from.name = "from";
+        to.name = "to";
+
+        Arc link = new Arc();
+        link.from = from;
+        link.to = to;
+        link.created = System.currentTimeMillis();
+
+        session.save(link);
+
+        session.clear();
+
+        Assert.assertNotNull(link.id);
+        Arc reloaded = session.queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Utils.map());
+
+
+        Assert.assertNotNull(reloaded);
+        Assert.assertNotNull(reloaded.from);
+        Assert.assertNotNull(reloaded.to);
+
+        Assert.assertEquals(link.id, reloaded.id);
+        Assert.assertEquals(from.id, reloaded.from.id);
+        Assert.assertEquals(to.id, reloaded.to.id);
+
+    }
+
     @NodeEntity(label = "U")
     public static class U {
 
@@ -313,5 +348,25 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         public M(String title) {
             this.title = title;
         }
+    }
+
+    @NodeEntity(label = "Vertex")
+    public static class Vertex {
+        Long id;
+        String name;
+    }
+
+    @RelationshipEntity(type = "Arc")
+    public static class Arc {
+
+        Long id;
+        Long created;
+
+        @StartNode
+        Vertex from;
+
+        @EndNode
+        Vertex to;
+
     }
 }

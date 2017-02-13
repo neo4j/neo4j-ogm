@@ -63,14 +63,13 @@ public class EntityAccessManager {
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
 
-
-
-    /** Used internally to hide differences in object construction from strategy algorithm. */
-    private interface AccessorFactory<T> {
-        T makeMethodAccessor(MethodInfo methodInfo);
-        T makeFieldAccessor(FieldInfo fieldInfo);
-    }
-
+    /**
+     * Returns a PropertyWriter for a property declared by a ClassInfo
+     *
+     * @param classInfo A ClassInfo declaring the property
+     * @param propertyName the property name of the property in the graph
+     * @return A PropertyWriter, or none if not found
+     */
     public static EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         if(!propertyWriterCache.containsKey(classInfo)) {
             propertyWriterCache.put(classInfo,new HashMap<String, EntityAccess>());
@@ -81,6 +80,7 @@ public class EntityAccessManager {
         }
 
         MethodInfo setterInfo = classInfo.propertySetter(propertyName);
+
         EntityAccess propertyWriter = determinePropertyAccessor(classInfo, propertyName, setterInfo, new AccessorFactory<EntityAccess>() {
             @Override
             public EntityAccess makeMethodAccessor(MethodInfo methodInfo) {
@@ -92,11 +92,20 @@ public class EntityAccessManager {
                 return new FieldWriter(classInfo, fieldInfo);
             }
         });
+
         propertyWriterCache.get(classInfo).put(propertyName, propertyWriter);
         return propertyWriter;
     }
 
+    /**
+     * Returns a PropertyReader for the property of an object in the graph
+     *
+     * @param classInfo A ClassInfo declaring the property
+     * @param propertyName the property name of the property in the graph
+     * @return A PropertyReader, or none if not found
+     */
     public static PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
+
         if(!propertyReaderCache.containsKey(classInfo)) {
             propertyReaderCache.put(classInfo, new HashMap<String, PropertyReader>());
         }
@@ -105,6 +114,7 @@ public class EntityAccessManager {
         }
 
         MethodInfo getterInfo = classInfo.propertyGetter(propertyName);
+
         PropertyReader propertyReader =  determinePropertyAccessor(classInfo, propertyName, getterInfo, new AccessorFactory<PropertyReader>() {
             @Override
             public PropertyReader makeMethodAccessor(MethodInfo methodInfo) {
@@ -116,216 +126,241 @@ public class EntityAccessManager {
                 return new FieldReader(classInfo, fieldInfo);
             }
         });
+
         propertyReaderCache.get(classInfo).put(propertyName, propertyReader);
         return propertyReader;
     }
 
-    private static <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, MethodInfo accessorMethodInfo,
-                                            AccessorFactory<T> factory) {
-        if (accessorMethodInfo != null) {
-            if (!accessorMethodInfo.hasAnnotation(Property.CLASS)) {
-                // if there's an annotated field then we should prefer that over the non-annotated method
-                FieldInfo fieldInfo = classInfo.propertyField(propertyName);
-                if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                    return factory.makeFieldAccessor(fieldInfo);
-                }
-            }
-            return factory.makeMethodAccessor(accessorMethodInfo);
-        }
-
-        // fall back to the field if method cannot be found
-        FieldInfo labelField = classInfo.labelFieldOrNull();
-        if (labelField != null && labelField.getName().equals(propertyName)) {
-            return factory.makeFieldAccessor(labelField);
-        }
-        FieldInfo fieldInfo = classInfo.propertyField(propertyName);
-        if (fieldInfo != null) {
-            return factory.makeFieldAccessor(fieldInfo);
-        }
-        return null;
+    /**
+     * Returns a RelationalWriter for a scalar value represented as a relationship in the graph (i.e. not a primitive property)
+     *
+     * @param classInfo the ClassInfo (or a superclass thereof) declaring the relationship
+     * @param relationshipType the name of the relationship as it is in the graph
+     * @param relationshipDirection the direction of the relationship as it is in the graph
+     * @param scalarValue an Object whose class the relationship is defined for
+     * @return a valid RelationalWriter or null if none is found
+     */
+    public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
+        return getRelationalWriter(classInfo, relationshipType, relationshipDirection, scalarValue.getClass());
     }
 
-    public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
+    /**
+     * Returns a RelationalWriter for a scalar type on a ClassInfo that is not a primitive graph property
+     *
+     * @param classInfo the ClassInfo (or a superclass thereof) declaring the relationship
+     * @param relationshipType the name of the relationship as it is in the graph
+     * @param relationshipDirection the direction of the relationship as it is in the graph
+     * @param objectType the class the relationship is defined for
+     * @return a valid RelationalWriter or null if none is found
+     */
+    public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Class<?> objectType) {
+
         if (!relationalWriterCache.containsKey(classInfo)) {
             relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
         }
-        DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType, relationshipDirection, scalarValue.getClass());
+
+        DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType, relationshipDirection, objectType);
         if (relationalWriterCache.get(classInfo).containsKey(directedRelationship)) {
             return relationalWriterCache.get(classInfo).get(directedRelationship);
         }
-        // 1st, try to find a scalar method which is explicitly annotated with the relationship type and direction
-        for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, STRICT_MODE)) {
-            if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
 
-                if (methodInfo.isTypeOf(scalarValue.getClass()) ||
-                        methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                        methodInfo.isArrayOf(scalarValue.getClass())) {
-                    MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
-                    return methodWriter;
-                }
-            }
-        }
+        ClassInfo lookupClassInfo = classInfo;
 
-        // 2nd, try to find a scalar or vector field explicitly annotated as the neo4j relationship type and direction
-        for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, STRICT_MODE)) {
-            if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
-                        fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                        fieldInfo.isArrayOf(scalarValue.getClass())) {
-                    FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
-                    return fieldWriter;
-                }
-            }
-        }
-
-        //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
-        //If it's outgoing, then proceed to find other matches
-        if (!relationshipDirection.equals(Relationship.INCOMING)) {
-            // 3rd, try to find a scalar method annotated with the relationship type and direction, allowing for implied relationships
-            for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, INFERRED_MODE)) {
+        while (classInfo != null) {
+            // 1st, try to find a scalar method which is explicitly annotated with the relationship type and direction
+            for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, STRICT_MODE)) {
                 if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
 
-                    if (methodInfo.isTypeOf(scalarValue.getClass()) ||
-                            methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                            methodInfo.isArrayOf(scalarValue.getClass())) {
-                        MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                        relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
+                    if (methodInfo.isTypeOf(objectType) ||
+                            methodInfo.isParameterisedTypeOf(objectType) ||
+                            methodInfo.isArrayOf(objectType)) {
+                        MethodWriter methodWriter = new MethodWriter(lookupClassInfo, methodInfo);
+                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, methodWriter);
                         return methodWriter;
                     }
                 }
             }
 
-            // 4th, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
-            for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+            // 2nd, try to find a scalar or vector field explicitly annotated as the neo4j relationship type and direction
+            for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, STRICT_MODE)) {
                 if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                    if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
-                            fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                            fieldInfo.isArrayOf(scalarValue.getClass())) {
-                        FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-                        relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
+                    if (fieldInfo.isTypeOf(objectType) ||
+                            fieldInfo.isParameterisedTypeOf(objectType) ||
+                            fieldInfo.isArrayOf(objectType)) {
+                        FieldWriter fieldWriter = new FieldWriter(lookupClassInfo, fieldInfo);
+                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldWriter);
                         return fieldWriter;
                     }
                 }
             }
 
-            // 5th, try to find a "setXYZ" method where XYZ is derived from the relationship type
-            for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, INFERRED_MODE)) {
-                if (methodInfo != null) {
-                    if (methodInfo.isTypeOf(scalarValue.getClass()) ||
-                            methodInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                            methodInfo.isArrayOf(scalarValue.getClass())) {
-                        MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                        relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
+            //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
+            //If it's outgoing, then proceed to find other matches
+            if (!relationshipDirection.equals(Relationship.INCOMING)) {
+                // 3rd, try to find a scalar method annotated with the relationship type and direction, allowing for implied relationships
+                for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, INFERRED_MODE)) {
+                    if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
+
+                        if (methodInfo.isTypeOf(objectType) ||
+                                methodInfo.isParameterisedTypeOf(objectType) ||
+                                methodInfo.isArrayOf(objectType)) {
+                            MethodWriter methodWriter = new MethodWriter(lookupClassInfo, methodInfo);
+                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, methodWriter);
+                            return methodWriter;
+                        }
+                    }
+                }
+
+                // 4th, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
+                for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+                    if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+                        if (fieldInfo.isTypeOf(objectType) ||
+                                fieldInfo.isParameterisedTypeOf(objectType) ||
+                                fieldInfo.isArrayOf(objectType)) {
+                            FieldWriter fieldWriter = new FieldWriter(lookupClassInfo, fieldInfo);
+                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldWriter);
+                            return fieldWriter;
+                        }
+                    }
+                }
+
+                // 5th, try to find a "setXYZ" method where XYZ is derived from the relationship type
+                for (MethodInfo methodInfo : classInfo.candidateRelationshipSetters(relationshipType, relationshipDirection, INFERRED_MODE)) {
+                    if (methodInfo != null) {
+                        if (methodInfo.isTypeOf(objectType) ||
+                                methodInfo.isParameterisedTypeOf(objectType) ||
+                                methodInfo.isArrayOf(objectType)) {
+                            MethodWriter methodWriter = new MethodWriter(lookupClassInfo, methodInfo);
+                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, methodWriter);
+                            return methodWriter;
+                        }
+                    }
+                }
+
+                // 6th, try to find a "XYZ" field name where XYZ is derived from the relationship type
+                for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+                    if (fieldInfo != null) {
+                        if (fieldInfo.isTypeOf(objectType) ||
+                                fieldInfo.isParameterisedTypeOf(objectType) ||
+                                fieldInfo.isArrayOf(objectType)) {
+                            FieldWriter fieldWriter = new FieldWriter(lookupClassInfo, fieldInfo);
+                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldWriter);
+                            return fieldWriter;
+                        }
+                    }
+                }
+
+                // 7th, try to find a unique setter method that takes the parameter
+                List<MethodInfo> methodInfos = classInfo.findSetters(objectType);
+                if (methodInfos.size() == 1) {
+                    MethodInfo candidateMethodInfo = methodInfos.iterator().next();
+                    if (!candidateMethodInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
+                        MethodWriter methodWriter = new MethodWriter(lookupClassInfo, candidateMethodInfo);
+                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, methodWriter);
                         return methodWriter;
                     }
                 }
-            }
 
-            // 6th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-            for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
-                if (fieldInfo != null) {
-                    if (fieldInfo.isTypeOf(scalarValue.getClass()) ||
-                            fieldInfo.isParameterisedTypeOf(scalarValue.getClass()) ||
-                            fieldInfo.isArrayOf(scalarValue.getClass())) {
-                        FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-                        relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
+                // 8th, try to find a unique field that has the same type as the parameter
+                List<FieldInfo> fieldInfos = classInfo.findFields(objectType);
+                if (fieldInfos.size() == 1) {
+                    FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
+                    if (!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
+                        FieldWriter fieldWriter = new FieldWriter(lookupClassInfo, candidateFieldInfo);
+                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldWriter);
                         return fieldWriter;
                     }
                 }
             }
-
-            // 7th, try to find a unique setter method that takes the parameter
-            List<MethodInfo> methodInfos = classInfo.findSetters(scalarValue.getClass());
-            if (methodInfos.size() == 1) {
-                MethodInfo candidateMethodInfo = methodInfos.iterator().next();
-                if (!candidateMethodInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
-                    MethodWriter methodWriter = new MethodWriter(classInfo, candidateMethodInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, methodWriter);
-                    return methodWriter;
-                }
-            }
-
-            // 8th, try to find a unique field that has the same type as the parameter
-            List<FieldInfo> fieldInfos = classInfo.findFields(scalarValue.getClass());
-            if (fieldInfos.size() == 1) {
-                FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
-                if (!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
-                    FieldWriter fieldWriter = new FieldWriter(classInfo, candidateFieldInfo);
-                    relationalWriterCache.get(classInfo).put(directedRelationship, fieldWriter);
-                    return fieldWriter;
-                }
-            }
+            // walk up the object hierarchy
+            classInfo = classInfo.directSuperclass();
         }
-        relationalWriterCache.get(classInfo).put(directedRelationship, null);
+        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, null);
         return null;
     }
 
+    /**
+     * Returns a RelationalReader for a scalar type definition on a ClassInfo that is not a primitive graph property
+     * @param classInfo A ClassInfo declaring the type definition
+     * @param relationshipType The name of the relationship in the graph
+     * @param relationshipDirection The direction of the relationship in the graph
+     * @return A RelationalReader or null if none exists
+     */
     public static RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
+
         if(!relationalReaderCache.containsKey(classInfo)) {
             relationalReaderCache.put(classInfo, new HashMap<DirectedRelationship, RelationalReader>());
         }
+
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
         if(relationalReaderCache.get(classInfo).containsKey(directedRelationship)) {
             return relationalReaderCache.get(classInfo).get(directedRelationship);
         }
 
-        // 1st, try to find a method explicitly annotated with the relationship type and direction.
-        MethodInfo methodInfo = classInfo.relationshipGetter(relationshipType, relationshipDirection, STRICT_MODE);
-        if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
-            MethodReader methodReader = new MethodReader(classInfo, methodInfo);
-            relationalReaderCache.get(classInfo).put(directedRelationship, methodReader);
-            return methodReader;
-        }
+        ClassInfo lookupClassInfo = classInfo;
 
-        // 2nd, try to find a field explicitly annotated with the neo4j relationship type and direction
-        FieldInfo fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
-        if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-            FieldReader fieldReader =  new FieldReader(classInfo, fieldInfo);
-            relationalReaderCache.get(classInfo).put(directedRelationship, fieldReader);
-            return fieldReader;
-        }
-
-        //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
-        //If it's outgoing, then proceed to find other matches
-        if(!relationshipDirection.equals(Relationship.INCOMING)) {
-
-            // 3rd, try to find a method  annotated with the relationship type and direction, allowing for implied relationships
-            methodInfo = classInfo.relationshipGetter(relationshipType, relationshipDirection, INFERRED_MODE);
+        while (classInfo != null) {
+            // 1st, try to find a method explicitly annotated with the relationship type and direction.
+            MethodInfo methodInfo = classInfo.relationshipGetter(relationshipType, relationshipDirection, STRICT_MODE);
             if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
-                MethodReader methodReader = new MethodReader(classInfo, methodInfo);
-                relationalReaderCache.get(classInfo).put(directedRelationship, methodReader);
+                MethodReader methodReader = new MethodReader(lookupClassInfo, methodInfo);
+                relationalReaderCache.get(lookupClassInfo).put(directedRelationship, methodReader);
                 return methodReader;
             }
 
-            // 4th, try to find a field  annotated with the neo4j relationship type and direction, allowing for implied relationships
-            fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
+            // 2nd, try to find a field explicitly annotated with the neo4j relationship type and direction
+            FieldInfo fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                FieldReader fieldReader = new FieldReader(classInfo, fieldInfo);
-                relationalReaderCache.get(classInfo).put(directedRelationship, fieldReader);
+                FieldReader fieldReader = new FieldReader(lookupClassInfo, fieldInfo);
+                relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldReader);
                 return fieldReader;
             }
 
+            //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
+            //If it's outgoing, then proceed to find other matches
+            if (!relationshipDirection.equals(Relationship.INCOMING)) {
 
-            // 5th, try to find a "getXYZ" method where XYZ is derived from the given relationship type
-            if (methodInfo != null) {
-                MethodReader methodReader =  new MethodReader(classInfo, methodInfo);
-                relationalReaderCache.get(classInfo).put(directedRelationship, methodReader);
-                return methodReader;
-            }
+                // 3rd, try to find a method  annotated with the relationship type and direction, allowing for implied relationships
+                methodInfo = classInfo.relationshipGetter(relationshipType, relationshipDirection, INFERRED_MODE);
+                if (methodInfo != null && !methodInfo.getAnnotations().isEmpty()) {
+                    MethodReader methodReader = new MethodReader(lookupClassInfo, methodInfo);
+                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, methodReader);
+                    return methodReader;
+                }
 
-            // 6th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-            if (fieldInfo != null) {
-                FieldReader fieldReader =  new FieldReader(classInfo, fieldInfo);
-                relationalReaderCache.get(classInfo).put(directedRelationship, fieldReader);
-                return fieldReader;
+                // 4th, try to find a field  annotated with the neo4j relationship type and direction, allowing for implied relationships
+                fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
+                if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+                    FieldReader fieldReader = new FieldReader(lookupClassInfo, fieldInfo);
+                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldReader);
+                    return fieldReader;
+                }
+
+                // 5th, try to find a "getXYZ" method where XYZ is derived from the given relationship type
+                if (methodInfo != null) {
+                    MethodReader methodReader = new MethodReader(lookupClassInfo, methodInfo);
+                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, methodReader);
+                    return methodReader;
+                }
+
+                // 6th, try to find a "XYZ" field name where XYZ is derived from the relationship type
+                if (fieldInfo != null) {
+                    FieldReader fieldReader = new FieldReader(classInfo, fieldInfo);
+                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldReader);
+                    return fieldReader;
+                }
             }
+            classInfo = classInfo.directSuperclass();
         }
-        relationalReaderCache.get(classInfo).put(directedRelationship, null);
+        relationalReaderCache.get(lookupClassInfo).put(directedRelationship, null);
         return null;
     }
 
+    /**
+     * Returns all the PropertyReader instances for this ClassInfo
+     * @param classInfo The ClassInfo whose PropertyReaders we want
+     * @return a Collection of PropertyReader instances which will be empty if no primitive properties are defined by the ClassInfo
+     */
     public static Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
         // do we care about "implicit" fields?  i.e., setX/getX with no matching X field
         if(propertyReaders.containsKey(classInfo)) {
@@ -346,6 +381,11 @@ public class EntityAccessManager {
         return readers;
     }
 
+    /**
+     * Returns all the RelationalReader instances for this ClassInfo
+     * @param classInfo The ClassInfo whose RelationalReaders we want
+     * @return a Collection of RelationalReader instances which will be empty if no relationships are defined by the ClassInfo
+     */
     public static Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
         if(relationalReaders.containsKey(classInfo)) {
             return relationalReaders.get(classInfo);
@@ -366,12 +406,15 @@ public class EntityAccessManager {
         return readers;
     }
 
-    private static String inferGetterName(FieldInfo fieldInfo) {
-        StringBuilder getterNameBuilder = new StringBuilder(fieldInfo.getName());
-        getterNameBuilder.setCharAt(0, Character.toUpperCase(fieldInfo.getName().charAt(0)));
-        return getterNameBuilder.insert(0, "get").toString();
-    }
-
+    /**
+     * Returns an RelationalWriter for an iterable of a non-primitive scalar type defined by a ClassInfo
+     *
+     * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
+     * @param relationshipType the name of the relationship as it is in the graph
+     * @param relationshipDirection the direction of the relationship as it is in the graph
+     * @param parameterType the type that will be iterated over
+     * @return a valid RelationalWriter or null if none is found
+     */
     public static RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if(!iterableWriterCache.containsKey(classInfo)) {
             iterableWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
@@ -381,46 +424,59 @@ public class EntityAccessManager {
             return iterableWriterCache.get(classInfo).get(directedRelationshipForType);
         }
 
-        //1st find a method annotated with type and direction
-        MethodInfo methodInfo = getIterableSetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
-        if (methodInfo != null) {
-            MethodWriter methodWriter =  new MethodWriter(classInfo, methodInfo);
-            cacheIterableMethodWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, methodInfo, methodWriter);
-            return methodWriter;
-        }
+        ClassInfo lookupClassInfo = classInfo;
 
-        //2nd find a field annotated with type and direction
-        FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
-        if (fieldInfo != null) {
-            FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-            cacheIterableFieldWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldWriter);
-            return fieldWriter;
-        }
-
-        //If relationshipDirection=INCOMING, we should have found an annotated field already
-
-        if(!relationshipDirection.equals(Relationship.INCOMING)) {
-            //3rd find a method with implied type and direction
-            methodInfo = getIterableSetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+        while (classInfo != null) {
+            //1st find a method annotated with type and direction
+            MethodInfo methodInfo = getIterableSetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
             if (methodInfo != null) {
-                MethodWriter methodWriter = new MethodWriter(classInfo, methodInfo);
-                cacheIterableMethodWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, methodInfo, methodWriter);
+                MethodWriter methodWriter = new MethodWriter(lookupClassInfo, methodInfo);
+                cacheIterableMethodWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, methodInfo, methodWriter);
                 return methodWriter;
             }
 
-            //4th find a field with implied type and direction
-            fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+            //2nd find a field annotated with type and direction
+            FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null) {
-                FieldWriter fieldWriter = new FieldWriter(classInfo, fieldInfo);
-                cacheIterableFieldWriter(classInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldWriter);
+                FieldWriter fieldWriter = new FieldWriter(lookupClassInfo, fieldInfo);
+                cacheIterableFieldWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldWriter);
                 return fieldWriter;
             }
+
+            //If relationshipDirection=INCOMING, we should have found an annotated field already
+
+            if (!relationshipDirection.equals(Relationship.INCOMING)) {
+                //3rd find a method with implied type and direction
+                methodInfo = getIterableSetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+                if (methodInfo != null) {
+                    MethodWriter methodWriter = new MethodWriter(lookupClassInfo, methodInfo);
+                    cacheIterableMethodWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, methodInfo, methodWriter);
+                    return methodWriter;
+                }
+
+                //4th find a field with implied type and direction
+                fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+                if (fieldInfo != null) {
+                    FieldWriter fieldWriter = new FieldWriter(lookupClassInfo, fieldInfo);
+                    cacheIterableFieldWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldWriter);
+                    return fieldWriter;
+                }
+            }
+            classInfo = classInfo.directSuperclass();
         }
-        iterableWriterCache.get(classInfo).put(directedRelationshipForType, null);
+        iterableWriterCache.get(lookupClassInfo).put(directedRelationshipForType, null);
         return null;
     }
 
-
+    /**
+     * Returns a RelationalReader for an iterable of a non-primitive scalar type defined by a ClassInfo
+     *
+     * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
+     * @param relationshipType the name of the relationship as it is in the graph
+     * @param relationshipDirection the direction of the relationship as it is in the graph
+     * @param parameterType the type that will be iterated over
+     * @return a valid RelationalReader or null if none is found
+     */
     public static RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if(!iterableReaderCache.containsKey(classInfo)) {
             iterableReaderCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalReader>());
@@ -430,45 +486,56 @@ public class EntityAccessManager {
             return iterableReaderCache.get(classInfo).get(directedRelationshipForType);
         }
 
-        //1st find a method annotated with type and direction
-        MethodInfo methodInfo = getIterableGetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
-        if (methodInfo != null) {
-            MethodReader methodReader =  new MethodReader(classInfo, methodInfo);
-            iterableReaderCache.get(classInfo).put(directedRelationshipForType, methodReader);
-            return methodReader;
-        }
+        ClassInfo lookupClassInfo = classInfo;
 
-        //2nd find a field annotated with type and direction
-        FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
-        if (fieldInfo != null) {
-            FieldReader fieldReader = new FieldReader(classInfo, fieldInfo);
-            iterableReaderCache.get(classInfo).put(directedRelationshipForType, fieldReader);
-            return fieldReader;
-        }
+        while (classInfo != null) {
 
-        //If relationshipDirection=INCOMING, we should have found an annotated field already
-
-        if(!relationshipDirection.equals(Relationship.INCOMING)) {
-            //3rd find a method with implied type and direction
-            methodInfo = getIterableGetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+            //1st find a method annotated with type and direction
+            MethodInfo methodInfo = getIterableGetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
             if (methodInfo != null) {
-                MethodReader methodReader = new MethodReader(classInfo, methodInfo);
-                iterableReaderCache.get(classInfo).put(directedRelationshipForType, methodReader);
+                MethodReader methodReader = new MethodReader(lookupClassInfo, methodInfo);
+                iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, methodReader);
                 return methodReader;
             }
 
-            //4th find a field with implied type and direction
-            fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+            //2nd find a field annotated with type and direction
+            FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null) {
-                FieldReader fieldReader = new FieldReader(classInfo, fieldInfo);
-                iterableReaderCache.get(classInfo).put(directedRelationshipForType, fieldReader);
+                FieldReader fieldReader = new FieldReader(lookupClassInfo, fieldInfo);
+                iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldReader);
                 return fieldReader;
             }
+
+            //If relationshipDirection=INCOMING, we should have found an annotated field already
+
+            if (!relationshipDirection.equals(Relationship.INCOMING)) {
+                //3rd find a method with implied type and direction
+                methodInfo = getIterableGetterMethodInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+                if (methodInfo != null) {
+                    MethodReader methodReader = new MethodReader(lookupClassInfo, methodInfo);
+                    iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, methodReader);
+                    return methodReader;
+                }
+
+                //4th find a field with implied type and direction
+                fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
+                if (fieldInfo != null) {
+                    FieldReader fieldReader = new FieldReader(lookupClassInfo, fieldInfo);
+                    iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldReader);
+                    return fieldReader;
+                }
+            }
+            classInfo = classInfo.directSuperclass();
         }
-        iterableReaderCache.get(classInfo).put(directedRelationshipForType, null);
+        iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, null);
         return null;
     }
 
+    /**
+     * Return the PropertyReader for a ClassInfo's identity property
+     * @param classInfo The ClassInfo declaring the identity property
+     * @return A PropertyReader, or null if not found
+     */
     public static PropertyReader getIdentityPropertyReader(ClassInfo classInfo) {
         PropertyReader propertyReader = identityPropertyReaderCache.get(classInfo);
         if (propertyReader != null) {
@@ -479,6 +546,12 @@ public class EntityAccessManager {
         return propertyReader;
     }
 
+    /**
+     * Return a RelationalReader for the EndNode of a RelationshipEntity
+     * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
+     * @return a RelationalReader for the field annotated as the EndNode, or none if not found
+     */
+    // TODO extend for methods
     public static RelationalReader getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(EndNode.CLASS) != null) {
@@ -489,6 +562,12 @@ public class EntityAccessManager {
         return null;
     }
 
+    /**
+     * Return a RelationalReader for the StartNode of a RelationshipEntity
+     * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
+     * @return a RelationalReader for the field annotated as the StartNode, or none if not found
+     */
+    // TODO: extend for methods
     public static RelationalReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(StartNode.CLASS) != null) {
@@ -499,7 +578,9 @@ public class EntityAccessManager {
         return null;
     }
 
-    public static RelationalWriter getRelationalEntityWriter(ClassInfo classInfo, Class entityAnnotation) {
+    @Deprecated
+    // TODO replace with getStartNodeWriter() and getEndNodeWriter()
+    public static RelationalWriter getStartOrEndNodeWriter(ClassInfo classInfo, Class entityAnnotation) {
         if (entityAnnotation.getName() == null) {
             throw new RuntimeException(entityAnnotation.getSimpleName() + " is not defined on " + classInfo.name());
         }
@@ -539,6 +620,10 @@ public class EntityAccessManager {
         return null;
     }
 
+    /* ---------------
+     * private methods
+     * ===============*/
+    // todo: lookup via classinfo hierarchy
     private static MethodInfo getIterableSetterMethodInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
         List<MethodInfo> methodInfos = classInfo.findIterableSetters(parameterType, relationshipType, relationshipDirection, strict);
         if (methodInfos.size() == 0) {
@@ -575,6 +660,7 @@ public class EntityAccessManager {
         return null;
     }
 
+    // TODO: lookup via classinfo hierarchy
     private static MethodInfo getIterableGetterMethodInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
         List<MethodInfo> methodInfos = classInfo.findIterableGetters(parameterType, relationshipType, relationshipDirection, strict);
         if(methodInfos.size() == 0) {
@@ -609,6 +695,7 @@ public class EntityAccessManager {
         return null;
     }
 
+    // TODO: lookup via classinfo hierarchy
     private static FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {
         List<FieldInfo> fieldInfos = classInfo.findIterableFields(parameterType, relationshipType, relationshipDirection, strict);
         if(fieldInfos.size() == 0) {
@@ -659,5 +746,44 @@ public class EntityAccessManager {
         }
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, methodWriter);
     }
+
+    // TODO: enable lookup via classinfo hierarchy
+    private static <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, MethodInfo accessorMethodInfo,
+                                                   AccessorFactory<T> factory) {
+        if (accessorMethodInfo != null) {
+            if (!accessorMethodInfo.hasAnnotation(Property.CLASS)) {
+                // if there's an annotated field then we should prefer that over the non-annotated method
+                FieldInfo fieldInfo = classInfo.propertyField(propertyName);
+                if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
+                    return factory.makeFieldAccessor(fieldInfo);
+                }
+            }
+            return factory.makeMethodAccessor(accessorMethodInfo);
+        }
+
+        // fall back to the field if method cannot be found
+        FieldInfo labelField = classInfo.labelFieldOrNull();
+        if (labelField != null && labelField.getName().equals(propertyName)) {
+            return factory.makeFieldAccessor(labelField);
+        }
+        FieldInfo fieldInfo = classInfo.propertyField(propertyName);
+        if (fieldInfo != null) {
+            return factory.makeFieldAccessor(fieldInfo);
+        }
+        return null;
+    }
+
+    private static String inferGetterName(FieldInfo fieldInfo) {
+        StringBuilder getterNameBuilder = new StringBuilder(fieldInfo.getName());
+        getterNameBuilder.setCharAt(0, Character.toUpperCase(fieldInfo.getName().charAt(0)));
+        return getterNameBuilder.insert(0, "get").toString();
+    }
+
+    /** Used internally to hide differences in object construction from strategy algorithm. */
+    private interface AccessorFactory<T> {
+        T makeMethodAccessor(MethodInfo methodInfo);
+        T makeFieldAccessor(FieldInfo fieldInfo);
+    }
+
 
 }

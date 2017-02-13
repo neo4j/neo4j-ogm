@@ -15,6 +15,7 @@ package org.neo4j.ogm.context;
 
 
 import static org.neo4j.ogm.annotation.Relationship.*;
+import static org.neo4j.ogm.entity.io.EntityAccessManager.*;
 
 import java.util.*;
 
@@ -27,7 +28,6 @@ import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
@@ -238,7 +238,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         String edgeLabel = edge.getType();
         ClassInfo sourceInfo = metadata.classInfo(source);
 
-        RelationalWriter writer = EntityAccessManager.getRelationalWriter(sourceInfo, edgeLabel, relationshipDirection, parameter);
+        RelationalWriter writer = getRelationalWriter(sourceInfo, edgeLabel, relationshipDirection, parameter);
         if (writer != null && writer.forScalar()) {
             writer.write(source, parameter);
             return true;
@@ -289,7 +289,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (!oneToOne) {
             oneToMany.add(edge);
         } else {
-            RelationalWriter writer = EntityAccessManager.getRelationalWriter(metadata.classInfo(source), edge.getType(), OUTGOING, target);
+            RelationalWriter writer = getRelationalWriter(metadata.classInfo(source), edge.getType(), OUTGOING, target);
             mappingContext.addRelationship(new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor())));
         }
     }
@@ -307,7 +307,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         // If the source has a writer for an outgoing relationship for the rel entity, then write the rel entity on the source if it's a scalar writer
         ClassInfo sourceInfo = metadata.classInfo(source);
-        RelationalWriter writer = EntityAccessManager.getRelationalWriter(sourceInfo, edge.getType(), OUTGOING, relationshipEntity);
+        RelationalWriter writer = getRelationalWriter(sourceInfo, edge.getType(), OUTGOING, relationshipEntity);
         if (writer == null) {
             logger.debug("No writer for {}", target);
         } else {
@@ -321,7 +321,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         //If the target has a writer for an incoming relationship for the rel entity, then write the rel entity on the target if it's a scalar writer
         ClassInfo targetInfo = metadata.classInfo(target);
-        writer = EntityAccessManager.getRelationalWriter(targetInfo, edge.getType(), Relationship.INCOMING, relationshipEntity);
+        writer = getRelationalWriter(targetInfo, edge.getType(), Relationship.INCOMING, relationshipEntity);
 
         if (writer == null) {
             logger.debug("No writer for {}", target);
@@ -349,14 +349,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         // set the start and end entities
         ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
 
-        RelationalWriter startNodeWriter = EntityAccessManager.getRelationalEntityWriter(relEntityInfo, StartNode.class);
+        RelationalWriter startNodeWriter = EntityAccessManager.getStartOrEndNodeWriter(relEntityInfo, StartNode.class);
         if (startNodeWriter != null) {
             startNodeWriter.write(relationshipEntity, startEntity);
         } else {
             throw new RuntimeException("Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
         }
 
-        RelationalWriter endNodeWriter = EntityAccessManager.getRelationalEntityWriter(relEntityInfo, EndNode.class);
+        RelationalWriter endNodeWriter = EntityAccessManager.getStartOrEndNodeWriter(relEntityInfo, EndNode.class);
         if (endNodeWriter != null) {
             endNodeWriter.write(relationshipEntity, endEntity);
         } else {
@@ -438,7 +438,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             if (!registeredEdges.contains(edge)) {
                 Object source = mappingContext.getNodeEntity(edge.getStartNode());
                 Object target = mappingContext.getNodeEntity(edge.getEndNode());
-                RelationalWriter writer = EntityAccessManager.getRelationalWriter(metadata.classInfo(source), edge.getType(), OUTGOING, target);
+                RelationalWriter writer = getRelationalWriter(metadata.classInfo(source), edge.getType(), OUTGOING, target);
                 // ensures its tracked in the domain
                 if (writer != null) {
                     MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor()));
@@ -507,7 +507,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 		Object source = mappingContext.getNodeEntity(edge.getStartNode());
 		Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
-        for (ClassInfo classInfo : metadata.classInfoByLabelOrType(edge.getType())) {
+        Set<ClassInfo> classInfos = metadata.classInfoByLabelOrType(edge.getType());
+
+        for (ClassInfo classInfo : classInfos) {
 
 			// both source and target must be declared as START and END nodes respectively
 			if (!nodeTypeMatches(classInfo, source, StartNode.CLASS)) {
@@ -518,8 +520,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				continue;
 			}
 
-			// either the source OR the target (or one of their superclasses) must declare the relationship
-			// back to the relationshipEntityClass
+			// if the source OR the target (or one of their superclasses) declares the relationship
+			// back to the relationshipEntityClass, we've found a match
 			Class relationshipEntityClass = classInfo.getUnderlyingClass();
 			if (declaresRelationshipTo(relationshipEntityClass, source.getClass(), edge.getType(), OUTGOING)) {
 				return classInfo;
@@ -529,6 +531,24 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 				return classInfo;
 			}
 
+        }
+        // we've made our best efforts to find the correct RE. If we've failed it means
+        // that either a matching RE doesn't exist, or its start and end nodes don't declare a reference
+        // to the RE. If we can find a single properly-formed matching RE for this edge we'll assume it is
+        // the right one, otherwise ... give up
+        if (classInfos.size() == 1) {
+            ClassInfo classInfo = classInfos.iterator().next();
+            if (nodeTypeMatches(classInfo, source, StartNode.CLASS) && nodeTypeMatches(classInfo, target, EndNode.CLASS)) {
+                return classInfo;
+            }
+        } else {
+            if (classInfos.size() == 0) {
+                // not necessarily a problem, we mey be fetching edges we don't want to hydrate
+                logger.debug("Unable to find a matching @RelationshipEntity for {}", edge.toString());
+            } else {
+                // almost definitely a user bug
+                logger.error("Found more than one matching @RelationshipEntity for {} but cannot tell which one to use", edge.toString());
+            }
         }
         return null;
     }
@@ -561,35 +581,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	 * @return true if 'by' declares the specified relationship on 'to', false otherwise
 	 */
 	private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, String relationshipDirection) {
-		while (by != Object.class) {
-			ClassInfo classInfo = metadata.classInfo(by.getName());
-			MethodInfo methodInfo = classInfo.relationshipSetter(relationshipName, relationshipDirection, true);
-			if (methodInfo != null) {
-				if (methodInfo.isTypeOf(to)) {
-					return true;
-				}
-				if (methodInfo.isParameterisedTypeOf(to)) {
-					return true;
-				}
-				if (methodInfo.isArrayOf(to)) {
-					return true;
-				}
-			}
-			for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipName, relationshipDirection, true)) {
-				if (fieldInfo.isTypeOf(to)) {
-					return true;
-				}
-				if (fieldInfo.isParameterisedTypeOf(to)) {
-					return true;
-				}
-				if (fieldInfo.isArrayOf(to)) {
-					return true;
-				}
-
-			}
-			return declaresRelationshipTo(to, by.getSuperclass(), relationshipName, relationshipDirection);
-		}
-		return false;
+        return EntityAccessManager.getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) == null ? false : true;
 	}
 
 	/**

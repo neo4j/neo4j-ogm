@@ -15,7 +15,9 @@ package org.neo4j.ogm.session.request;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.compiler.CompileContext;
@@ -310,20 +312,36 @@ public class RequestExecutor {
 	 * @param relRefMappings mapping of relationship reference used in the compile context and the relationship id from the database
 	 */
 	private void updateRelationships(CompileContext context, Neo4jSession session, List<ReferenceMapping> relRefMappings) {
+		final Map<Long, TransientRelationship> registeredTransientRelationshipIndex = buildRegisteredTransientRelationshipIndex(context);
 		for (ReferenceMapping referenceMapping : relRefMappings) {
-			for (Object obj : context.registry()) {
-				if (obj instanceof TransientRelationship) {
-					TransientRelationship transientRelationship = (TransientRelationship) obj;
-					if (referenceMapping.ref.equals(transientRelationship.getRef())) {
-						MappedRelationship mappedRelationship = new MappedRelationship(context.getId(transientRelationship.getSrc()), transientRelationship.getRel(), context.getId(transientRelationship.getTgt()), transientRelationship.getSrcClass(), transientRelationship.getTgtClass());
-						if (session.context().getRelationshipEntity(referenceMapping.id) != null) {
-							mappedRelationship.setRelationshipId(referenceMapping.id);
-						}
-						session.context().addRelationship(mappedRelationship);
-					}
+			if (registeredTransientRelationshipIndex.containsKey(referenceMapping.ref)) {
+				TransientRelationship transientRelationship = registeredTransientRelationshipIndex.get(referenceMapping.ref);
+				MappedRelationship mappedRelationship = new MappedRelationship(context.getId(transientRelationship.getSrc()), transientRelationship.getRel(), context.getId(transientRelationship.getTgt()), transientRelationship.getSrcClass(), transientRelationship.getTgtClass());
+				if (session.context().getRelationshipEntity(referenceMapping.id) != null) {
+					mappedRelationship.setRelationshipId(referenceMapping.id);
 				}
+				session.context().addRelationship(mappedRelationship);
 			}
 		}
+	}
+	
+	/**
+	 * Append {@link TransientRelationship} of {@link CompileContext} to an index.
+	 * 
+	 * @param context the compile context
+	 * @return an index of {@link TransientRelationship} 
+	 */
+	private Map<Long, TransientRelationship> buildRegisteredTransientRelationshipIndex(CompileContext context) {
+		final Map<Long, TransientRelationship> transientRelationshipIndex = new HashMap<>();
+		
+		for (Object obj : context.registry()) {
+			if(TransientRelationship.class.isAssignableFrom(obj.getClass())) {
+				TransientRelationship transientRelationship = (TransientRelationship) obj;
+				transientRelationshipIndex.put(transientRelationship.getRef(), transientRelationship);
+			}
+		}
+		
+		return transientRelationshipIndex;
 	}
 
 	/**

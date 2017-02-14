@@ -18,7 +18,6 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.autoindex.AutoIndexMode;
@@ -107,16 +106,6 @@ public class Components {
     }
 
     /**
-     *
-     * Returns a new instance of the compiler
-     *
-     * @return an instance of the {@link Compiler} to be used by the OGM
-     */
-    public synchronized static Compiler compiler() {
-        return getCompiler();
-    }
-
-    /**
      * The OGM Components can be auto-configured from a properties file, "ogm.properties", or
      * a similar configuration file, specified by a system property or environment variable called "ogm.properties".
      *
@@ -156,18 +145,6 @@ public class Components {
             autoConfigure();
         }
         setDriver (DriverService.load(configuration.driverConfiguration()));
-    }
-
-    /**
-     * Obtains the Cypher compiler to be used by the OGM
-     *
-     * @return an instance of {@link Compiler}
-     */
-    private static Compiler getCompiler() {
-        if (configuration.compilerConfiguration().getCompilerClassName() == null) {
-            autoConfigure();
-        }
-        return CompilerService.load(configuration.compilerConfiguration());
     }
 
     /**

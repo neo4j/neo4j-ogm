@@ -34,11 +34,6 @@ public class ComponentsTest
     }
 
     @Test
-    public void shouldGetCompiler() {
-        assertNotNull(Components.compiler());
-    }
-
-    @Test
     public void shouldCustomiseHttpDriverClient() {
 
         if (Components.driver() instanceof HttpDriver) {

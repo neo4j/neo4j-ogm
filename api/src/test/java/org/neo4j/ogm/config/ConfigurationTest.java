@@ -28,7 +28,6 @@ public class ConfigurationTest {
 
         Configuration configuration = new Configuration();
 
-        configuration.compilerConfiguration().setCompilerClassName("compiler");
         configuration.autoIndexConfiguration().setAutoIndex("assert");
         configuration.autoIndexConfiguration().setDumpDir("dir");
         configuration.autoIndexConfiguration().setDumpFilename("filename");
@@ -40,7 +39,6 @@ public class ConfigurationTest {
         configuration.driverConfiguration().setTrustStrategy("TRUST_SIGNED_CERTIFICATES");
         configuration.driverConfiguration().setTrustCertFile("/tmp/cert");
 
-        assertEquals("compiler", configuration.compilerConfiguration().getCompilerClassName());
         assertEquals(AutoIndexMode.ASSERT, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("dir", configuration.autoIndexConfiguration().getDumpDir());
         assertEquals("filename", configuration.autoIndexConfiguration().getDumpFilename());
@@ -64,7 +62,6 @@ public class ConfigurationTest {
     public void shouldConfigureFromSimplePropertiesFile() {
         Configuration configuration = new Configuration("ogm-simple.properties");
 
-        assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
         assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
@@ -76,7 +73,6 @@ public class ConfigurationTest {
 
         Configuration configuration = new Configuration("ogm-namespace.properties");
 
-        assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
         assertEquals(AutoIndexMode.DUMP, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("hello", configuration.autoIndexConfiguration().getDumpDir());
         assertEquals("generated-indexes2.cql", configuration.autoIndexConfiguration().getDumpFilename());
@@ -95,7 +91,6 @@ public class ConfigurationTest {
 
         Configuration configuration = new Configuration("application.properties");
 
-        assertEquals("org.neo4j.ogm.compiler.MultiStatementCypherCompiler", configuration.compilerConfiguration().getCompilerClassName());
         assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());

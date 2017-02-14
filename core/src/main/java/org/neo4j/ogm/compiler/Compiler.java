@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
-import org.neo4j.ogm.service.LoadableService;
 
 /**
  * Defines a simple API for building up Cypher queries programmatically.
@@ -25,7 +24,7 @@ import org.neo4j.ogm.service.LoadableService;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public interface Compiler extends LoadableService {
+public interface Compiler {
 
     /**
      * Returns {@link NodeBuilder} that represents a new node to be created in the database.

@@ -21,70 +21,61 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 
 /**
  * @author Vince Bickers
  */
-public class LoadByInstancesDelegate implements Capability.LoadByInstances {
+public class LoadByInstancesDelegate {
 
-    private final Neo4jSession session;
+	private final Neo4jSession session;
 
-    public LoadByInstancesDelegate(Neo4jSession session) {
-        this.session = session;
-    }
+	public LoadByInstancesDelegate(Neo4jSession session) {
+		this.session = session;
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination, int depth) {
+	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination, int depth) {
 
-        if (objects == null || objects.isEmpty()) {
-            return objects;
-        }
+		if (objects == null || objects.isEmpty()) {
+			return objects;
+		}
 
-        Set<Long> ids = new HashSet<>();
-        Class type = objects.iterator().next().getClass();
-        ClassInfo classInfo = session.metaData().classInfo(type.getName());
-        Field identityField = classInfo.getField(classInfo.identityField());
+		Set<Long> ids = new HashSet<>();
+		Class type = objects.iterator().next().getClass();
+		ClassInfo classInfo = session.metaData().classInfo(type.getName());
+		Field identityField = classInfo.getField(classInfo.identityField());
 
-        for (Object o: objects) {
-            ids.add((Long) FieldWriter.read(identityField, o));
-        }
-        return session.loadAll(type, ids, sortOrder, pagination, depth);
-    }
+		for (Object o : objects) {
+			ids.add((Long) FieldWriter.read(identityField, o));
+		}
+		return session.loadAll(type, ids, sortOrder, pagination, depth);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects) {
-        return loadAll(objects, new SortOrder(), null, 1);
-    }
+	public <T> Collection<T> loadAll(Collection<T> objects) {
+		return loadAll(objects, new SortOrder(), null, 1);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, int depth) {
-        return loadAll(objects, new SortOrder(), null, depth);
-    }
+	public <T> Collection<T> loadAll(Collection<T> objects, int depth) {
+		return loadAll(objects, new SortOrder(), null, depth);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder) {
-        return loadAll(objects, sortOrder, null, 1);
-    }
+	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder) {
+		return loadAll(objects, sortOrder, null, 1);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, int depth) {
-        return loadAll(objects, sortOrder, null, depth);
-    }
+	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, int depth) {
+		return loadAll(objects, sortOrder, null, depth);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination) {
-        return loadAll(objects, new SortOrder(), pagination, 1);
-    }
+	public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination) {
+		return loadAll(objects, new SortOrder(), pagination, 1);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination, int depth) {
-        return loadAll(objects, new SortOrder(), pagination, depth);
-    }
+	public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination, int depth) {
+		return loadAll(objects, new SortOrder(), pagination, depth);
+	}
 
-    @Override
-    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination) {
-        return loadAll(objects, sortOrder, pagination, 1);    }
-
+	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination) {
+		return loadAll(objects, sortOrder, pagination, 1);
+	}
 }

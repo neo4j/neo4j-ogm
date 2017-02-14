@@ -38,7 +38,6 @@ import org.neo4j.ogm.request.RestModelRequest;
 import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.QueryResultModel;
-import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.session.request.strategy.impl.CountStatements;
@@ -49,178 +48,169 @@ import org.neo4j.ogm.utils.ClassUtils;
  * @author Luanne Misquitta
  * @author Jasper Blues
  */
-public class ExecuteQueriesDelegate implements Capability.ExecuteQueries {
+public class ExecuteQueriesDelegate {
 
-    private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
+	private static final Pattern WRITE_CYPHER_KEYWORDS = Pattern.compile("\\b(CREATE|MERGE|SET|DELETE|REMOVE|DROP)\\b");
 
-    private final Neo4jSession session;
+	private final Neo4jSession session;
 
-    public ExecuteQueriesDelegate(Neo4jSession neo4jSession) {
-        this.session = neo4jSession;
-    }
+	public ExecuteQueriesDelegate(Neo4jSession neo4jSession) {
+		this.session = neo4jSession;
+	}
 
-    @Override
-    public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
-        Iterable<T> results = query(type, cypher, parameters);
+	public <T> T queryForObject(Class<T> type, String cypher, Map<String, ?> parameters) {
+		Iterable<T> results = query(type, cypher, parameters);
 
-        int resultSize = Utils.size(results);
+		int resultSize = Utils.size(results);
 
-        if (resultSize < 1) {
-            return null;
-        }
+		if (resultSize < 1) {
+			return null;
+		}
 
-        if (resultSize > 1) {
-            throw new RuntimeException("Result not of expected size. Expected 1 row but found " + resultSize);
-        }
+		if (resultSize > 1) {
+			throw new RuntimeException("Result not of expected size. Expected 1 row but found " + resultSize);
+		}
 
-        return results.iterator().next();
-    }
+		return results.iterator().next();
+	}
 
-    @Override
-    public Result query(String cypher, Map<String, ?> parameters) {
-        return query(cypher, parameters, isReadOnly(cypher));
-    }
+	public Result query(String cypher, Map<String, ?> parameters) {
+		return query(cypher, parameters, isReadOnly(cypher));
+	}
 
-    @Override
-    public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
-        validateQuery(cypher, parameters, false); //we'll allow modifying statements
-        if (type == null || type.equals(Void.class)) {
-            throw new RuntimeException("Supplied type must not be null or void.");
-        }
-        return executeAndMap(type, cypher, parameters, new EntityRowModelMapper());
-    }
+	public <T> Iterable<T> query(Class<T> type, String cypher, Map<String, ?> parameters) {
+		validateQuery(cypher, parameters, false); //we'll allow modifying statements
+		if (type == null || type.equals(Void.class)) {
+			throw new RuntimeException("Supplied type must not be null or void.");
+		}
+		return executeAndMap(type, cypher, parameters, new EntityRowModelMapper());
+	}
 
-    @Override
-    public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
+	public Result query(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
-        validateQuery(cypher, parameters, readOnly);
+		validateQuery(cypher, parameters, readOnly);
 
-        RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
-        ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()), session.metaData());
+		RestModelRequest request = new DefaultRestModelRequest(cypher, parameters);
+		ResponseMapper mapper = new RestModelMapper(new GraphEntityMapper(session.metaData(), session.context()), session.metaData());
 
-        try (Response<RestModel> response = session.requestHandler().execute(request)) {
-            Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
-            RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
+		try (Response<RestModel> response = session.requestHandler().execute(request)) {
+			Iterable<RestStatisticsModel> mappedModel = mapper.map(null, response);
+			RestStatisticsModel restStatisticsModel = mappedModel.iterator().next();
 
-            if (readOnly) {
-                return new QueryResultModel(restStatisticsModel.getResult(), null);
-            } else {
-                return new QueryResultModel(restStatisticsModel.getResult(), restStatisticsModel.getStatistics());
-            }
-        }
-    }
+			if (readOnly) {
+				return new QueryResultModel(restStatisticsModel.getResult(), null);
+			} else {
+				return new QueryResultModel(restStatisticsModel.getResult(), restStatisticsModel.getStatistics());
+			}
+		}
+	}
 
-    private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, ResponseMapper mapper) {
+	private <T> Iterable<T> executeAndMap(Class<T> type, String cypher, Map<String, ?> parameters, ResponseMapper mapper) {
 
-        if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
-            GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
-            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
-                return new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-            }
-        } else {
-            RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
-            try (Response<RowModel> response = session.requestHandler().execute(request)) {
-                return mapper.map(type, response);
-            }
-        }
-    }
+		if (type != null && session.metaData().classInfo(type.getSimpleName()) != null) {
+			GraphModelRequest request = new DefaultGraphModelRequest(cypher, parameters);
+			try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+				return new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+			}
+		} else {
+			RowModelRequest request = new DefaultRowModelRequest(cypher, parameters);
+			try (Response<RowModel> response = session.requestHandler().execute(request)) {
+				return mapper.map(type, response);
+			}
+		}
+	}
 
-    @Override
-    public long countEntitiesOfType(Class<?> entity) {
+	public long countEntitiesOfType(Class<?> entity) {
 
-        ClassInfo classInfo = session.metaData().classInfo(entity.getName());
-        if (classInfo == null) {
-            return 0;
-        }
+		ClassInfo classInfo = session.metaData().classInfo(entity.getName());
+		if (classInfo == null) {
+			return 0;
+		}
 
-        CypherQuery countStatement;
-        if (classInfo.isRelationshipEntity()) {
+		CypherQuery countStatement;
+		if (classInfo.isRelationshipEntity()) {
 
-            ClassInfo startNodeInfo = null;
-            ClassInfo endNodeInfo   = null;
+			ClassInfo startNodeInfo = null;
+			ClassInfo endNodeInfo = null;
 
-            for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
-                if (fieldInfo.hasAnnotation(StartNode.CLASS)) {
-                    startNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
-                }
-                else if (fieldInfo.hasAnnotation(EndNode.CLASS)) {
-                    endNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
-                }
-                if (endNodeInfo != null && startNodeInfo != null) {
-                    break;
-                }
-            }
+			for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
+				if (fieldInfo.hasAnnotation(StartNode.CLASS)) {
+					startNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+				} else if (fieldInfo.hasAnnotation(EndNode.CLASS)) {
+					endNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
+				}
+				if (endNodeInfo != null && startNodeInfo != null) {
+					break;
+				}
+			}
 
-            String start = startNodeInfo.neo4jName();
-            String end = endNodeInfo.neo4jName();
-            String type = classInfo.neo4jName();
-            countStatement = new CountStatements().countEdges(start, type, end);
-        } else {
-            Collection<String> labels = classInfo.staticLabels();
-            countStatement = new CountStatements().countNodes(labels);
-        }
-        try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
-            RowModel queryResult = response.next();
-            return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
-        }
-    }
+			String start = startNodeInfo.neo4jName();
+			String end = endNodeInfo.neo4jName();
+			String type = classInfo.neo4jName();
+			countStatement = new CountStatements().countEdges(start, type, end);
+		} else {
+			Collection<String> labels = classInfo.staticLabels();
+			countStatement = new CountStatements().countNodes(labels);
+		}
+		try (Response<RowModel> response = session.requestHandler().execute((RowModelRequest) countStatement)) {
+			RowModel queryResult = response.next();
+			return queryResult == null ? 0 : ((Number) queryResult.getValues()[0]).longValue();
+		}
+	}
 
-    @Override
-    public long count(Class<?> clazz, Iterable<Filter> filters) {
+	public long count(Class<?> clazz, Iterable<Filter> filters) {
 
-        ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
+		ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
 
-        if (classInfo != null) {
+		if (classInfo != null) {
 
-            session.resolvePropertyAnnotations(clazz, filters);
+			session.resolvePropertyAnnotations(clazz, filters);
 
-            CypherQuery query;
+			CypherQuery query;
 
-            if (classInfo.isRelationshipEntity()) {
-                query = new CountStatements().countEdges(classInfo.neo4jName(), filters);
-            } else {
-                query = new CountStatements().countNodes(classInfo.neo4jName(), filters);
-            }
-            return count(query, classInfo.isRelationshipEntity());
-        }
+			if (classInfo.isRelationshipEntity()) {
+				query = new CountStatements().countEdges(classInfo.neo4jName(), filters);
+			} else {
+				query = new CountStatements().countNodes(classInfo.neo4jName(), filters);
+			}
+			return count(query, classInfo.isRelationshipEntity());
+		}
 
-        throw new RuntimeException(clazz.getName() + " is not a persistable class");
+		throw new RuntimeException(clazz.getName() + " is not a persistable class");
+	}
 
-    }
+	/**
+	 * Executes a count query in which objects of a specific type will be counted according to some filter criteria,
+	 * and returns a count of matched objects to the caller.
+	 *
+	 * @param query the CypherQuery that will count objects according to some filter criteria
+	 * @param isRelationshipEntity whether the objects being counted are relationship entities
+	 * @return a count of objects that matched the query
+	 */
+	private Long count(CypherQuery query, boolean isRelationshipEntity) {
+		String resultKey = isRelationshipEntity ? "COUNT(r0)" : "COUNT(n)";
+		Result result = session.query(query.getStatement(), query.getParameters(), true); // count queries are read only
+		Map<String, Object> resultMap = result.iterator().next();
+		return Long.parseLong(resultMap.get(resultKey).toString());
+	}
 
-    /**
-     * Executes a count query in which objects of a specific type will be counted according to some filter criteria,
-     * and returns a count of matched objects to the caller.
-     *
-     * @param query the CypherQuery that will count objects according to some filter criteria
-     * @param isRelationshipEntity whether the objects being counted are relationship entities
-     * @return a count of objects that matched the query
-     */
-    private Long count(CypherQuery query, boolean isRelationshipEntity) {
-        String resultKey = isRelationshipEntity ? "COUNT(r0)" : "COUNT(n)";
-        Result result = session.query(query.getStatement(), query.getParameters(), true); // count queries are read only
-        Map<String, Object> resultMap = result.iterator().next();
-        return Long.parseLong(resultMap.get(resultKey).toString());
-    }
+	private boolean isReadOnly(String cypher) {
+		Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
+		return !matcher.find();
+	}
 
-    private boolean isReadOnly(String cypher) {
-        Matcher matcher = WRITE_CYPHER_KEYWORDS.matcher(cypher.toUpperCase());
-        return !matcher.find();
-    }
+	private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
 
-    private void validateQuery(String cypher, Map<String, ?> parameters, boolean readOnly) {
+		if (readOnly && !isReadOnly(cypher)) {
+			throw new RuntimeException("Cypher query must not modify the graph if readOnly=true");
+		}
 
-        if (readOnly && !isReadOnly(cypher)) {
-            throw new RuntimeException("Cypher query must not modify the graph if readOnly=true");
-        }
+		if (StringUtils.isEmpty(cypher)) {
+			throw new RuntimeException("Supplied cypher statement must not be null or empty.");
+		}
 
-        if (StringUtils.isEmpty(cypher)) {
-            throw new RuntimeException("Supplied cypher statement must not be null or empty.");
-        }
-
-        if (parameters == null) {
-            throw new RuntimeException("Supplied Parameters cannot be null.");
-        }
-    }
-
+		if (parameters == null) {
+			throw new RuntimeException("Supplied Parameters cannot be null.");
+		}
+	}
 }

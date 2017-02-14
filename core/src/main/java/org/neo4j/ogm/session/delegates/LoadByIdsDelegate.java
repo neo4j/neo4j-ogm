@@ -28,7 +28,6 @@ import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 
@@ -36,7 +35,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class LoadByIdsDelegate implements Capability.LoadByIds {
+public class LoadByIdsDelegate {
 
 
     private final Neo4jSession session;
@@ -45,7 +44,6 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         this.session = session;
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
         String entityType = session.entityType(type.getName());
@@ -67,37 +65,30 @@ public class LoadByIdsDelegate implements Capability.LoadByIds {
         }
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids) {
         return loadAll(type, ids, new SortOrder(), null, 1);
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, int depth) {
         return loadAll(type, ids, new SortOrder(), null, depth);
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder) {
         return loadAll(type, ids, sortOrder, null, 1);
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, int depth) {
         return loadAll(type, ids, sortOrder, null, depth);
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging) {
         return loadAll(type, ids, new SortOrder(), paging, 1);
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, Pagination paging, int depth) {
         return loadAll(type, ids, new SortOrder(), paging, depth);
     }
 
-    @Override
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination) {
         return loadAll(type, ids, sortOrder, pagination, 1);
     }

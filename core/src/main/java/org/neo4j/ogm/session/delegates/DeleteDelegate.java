@@ -25,7 +25,6 @@ import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PersistenceEvent;
@@ -36,7 +35,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
 /**
  * @author Vince Bickers
  */
-public class DeleteDelegate implements Capability.Delete {
+public class DeleteDelegate  {
 
     private final Neo4jSession session;
 
@@ -69,7 +68,6 @@ public class DeleteDelegate implements Capability.Delete {
         }
     }
 
-    @Override
     public <T> void delete(T object) {
         if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             deleteAll(object);
@@ -137,7 +135,6 @@ public class DeleteDelegate implements Capability.Delete {
 
     }
 
-    @Override
     public <T> void deleteAll(Class<T> type) {
         ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
@@ -155,7 +152,6 @@ public class DeleteDelegate implements Capability.Delete {
         }
     }
 
-    @Override
     public <T> Object delete(Class<T> clazz, Iterable<Filter> filters, boolean listResults) {
 
         ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
@@ -258,7 +254,6 @@ public class DeleteDelegate implements Capability.Delete {
         }
     }
 
-    @Override
     public void purgeDatabase() {
         Statement stmt = new NodeDeleteStatements().deleteAll();
         RowModelRequest query = new DefaultRowModelRequest(stmt.getStatement(), stmt.getParameters());
@@ -267,7 +262,6 @@ public class DeleteDelegate implements Capability.Delete {
     }
 
 
-    @Override
     public void clear() {
         session.context().clear();
     }

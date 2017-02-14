@@ -12,57 +12,49 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import org.neo4j.ogm.transaction.Transaction;
-import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.GraphCallback;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author Vince Bickers
  */
-public class TransactionsDelegate implements Capability.Transactions {
+public class TransactionsDelegate {
 
-    private final Neo4jSession session;
+	private final Neo4jSession session;
 
-    public TransactionsDelegate(Neo4jSession neo4jSession) {
-        this.session = neo4jSession;
-    }
+	public TransactionsDelegate(Neo4jSession neo4jSession) {
+		this.session = neo4jSession;
+	}
 
-    @Override
-    public Transaction beginTransaction() {
-        session.debug("beginTransaction()");
-        session.debug("Neo4jSession identity: " + this);
+	public Transaction beginTransaction() {
+		session.debug("beginTransaction()");
+		session.debug("Neo4jSession identity: " + this);
 
-        Transaction tx = session.transactionManager().openTransaction();
+		Transaction tx = session.transactionManager().openTransaction();
 
-        session.debug("Transaction, tx id: " + tx);
-        return tx;
-    }
+		session.debug("Transaction, tx id: " + tx);
+		return tx;
+	}
 
-    @Override
-    public Transaction beginTransaction(Transaction.Type type) {
+	public Transaction beginTransaction(Transaction.Type type) {
 
-        session.debug("beginTransaction()");
-        session.debug("Neo4jSession identity: " + this);
+		session.debug("beginTransaction()");
+		session.debug("Neo4jSession identity: " + this);
 
-        Transaction tx = session.transactionManager().openTransaction(type);
+		Transaction tx = session.transactionManager().openTransaction(type);
 
-        session.debug("Transaction, tx id: " + tx);
-        return tx;
+		session.debug("Transaction, tx id: " + tx);
+		return tx;
+	}
 
-    }
-
-    @Override
-    @Deprecated
-    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-        return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
-    }
+	@Deprecated
+	public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+		return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
+	}
 
 
-    @Override
-    public Transaction getTransaction() {
-        return session.transactionManager().getCurrentTransaction();
-    }
-
-
+	public Transaction getTransaction() {
+		return session.transactionManager().getCurrentTransaction();
+	}
 }

@@ -286,8 +286,7 @@ public class FieldInfo {
     }
 
     public boolean isLabelField() {
-        return this.getAnnotations().get(Labels.CLASS) != null ||
-                this.getAnnotations().get(org.neo4j.ogm.annotations.Labels.CLASS) != null;
+        return this.getAnnotations().get(Labels.CLASS) != null;
     }
 
     public boolean isArray() {

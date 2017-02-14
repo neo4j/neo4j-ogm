@@ -21,7 +21,7 @@
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm</artifactId>
     <packaging>pom</packaging>
-    <version>2.1.2-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
 
     <modules>
         <module>api</module>
@@ -35,8 +35,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <commonslang>3.4</commonslang>
         <commonscodec>1.10</commonscodec>
         <commonsio>2.4</commonsio>
@@ -50,7 +50,7 @@
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.1.1</neo4j>
         <bolt>1.1.0</bolt>
-        <ogm.properties>ogm-http.properties</ogm.properties>
+        <ogm.properties>ogm-bolt.properties</ogm.properties>
     </properties>
 
     <dependencyManagement>
@@ -307,78 +307,6 @@
     </build>
 
     <profiles>
-
-        <profile>
-            <id>2.2</id>
-            <properties>
-                <neo4j>2.2.10</neo4j>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.18.1</version>
-                        <executions>
-                            <execution>
-                                <id>default-test</id>
-                                <configuration>
-                                    <forkMode>once</forkMode>
-                                    <includes>
-                                        <include>**/*.java</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>**/defects/**</exclude>
-                                        <exclude>**/BoltDriverTest.java</exclude>
-                                    </excludes>
-                                    <systemPropertyVariables>
-                                        <ogm.properties>${ogm.properties}</ogm.properties>
-                                    </systemPropertyVariables>
-
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-
-        </profile>
-
-        <profile>
-            <id>2.3</id>
-            <properties>
-                <neo4j>2.3.9</neo4j>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.18.1</version>
-                        <executions>
-                            <execution>
-                                <id>default-test</id>
-                                <configuration>
-                                    <forkMode>once</forkMode>
-                                    <includes>
-                                        <include>**/*.java</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>**/defects/**</exclude>
-                                        <exclude>**/BoltDriverTest.java</exclude>
-                                    </excludes>
-                                    <systemPropertyVariables>
-                                        <ogm.properties>${ogm.properties}</ogm.properties>
-                                    </systemPropertyVariables>
-
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-
-        </profile>
 
         <profile>
             <id>3.0</id>

@@ -116,9 +116,9 @@ The connection to Neo4j handled by a driver layer, which can use the binary prot
 [[introduction:requirements]]
 == Requirements
 
-Neo4j OGM 2.1.x at minimum, requires:
+Neo4j OGM 3.0.x at minimum, requires:
 
-* JDK Version 7 and above.
+* JDK Version 8 and above.
 * Neo4j Database 2.3.x / 3.0.x / 3.1.x and above.
 
 

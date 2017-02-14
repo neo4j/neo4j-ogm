@@ -182,11 +182,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 if (driverConfig.getTrustStrategy() != null) {
 
                     if (driverConfig.getTrustStrategy().equals("ACCEPT_UNSIGNED")) {
-                        sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-                            public boolean isTrusted(X509Certificate[] arg0, String arg1) {
-                                return true;
-                            }
-                        }).build();
+                        sslContext = new SSLContextBuilder().loadTrustMaterial(null, (arg0, arg1) -> true).build();
 
                         LOGGER.warn("Certificate validation has been disabled");
                     }

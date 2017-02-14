@@ -83,7 +83,7 @@ public final class GraphTestUtils {
 
     private static Set<Map<Long, Long>> buildNodeMappingPermutations(Map<Long, Long[]> sameNodesMap, GraphDatabaseService otherDatabase) {
         Set<Map<Long, Long>> result = new HashSet<>();
-        result.add(new HashMap<Long, Long>());
+        result.add(new HashMap<>());
 
         for (Map.Entry<Long, Long[]> entry : sameNodesMap.entrySet()) {
 

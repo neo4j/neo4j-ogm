@@ -210,7 +210,7 @@ public class ClassInfo {
      * any, never <code>null</code>
      */
     public Collection<String> staticLabels() {
-        return collectLabels(new ArrayList<String>());
+        return collectLabels(new ArrayList<>());
     }
 
     public String neo4jName() {

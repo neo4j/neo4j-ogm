@@ -20,7 +20,6 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * A parameter along with filter information to be added to a query.
@@ -314,7 +313,7 @@ public class Filter {
      * Used by Filters to assign an index, so that unique parameter names are ensured when filters are used in a
      * collection. Should not be called directly.
      *
-     * @param index
+     * @param index The index
      */
     void setIndex(int index) {
         this.index = index;

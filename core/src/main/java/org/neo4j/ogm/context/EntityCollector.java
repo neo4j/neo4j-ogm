@@ -42,16 +42,10 @@ class EntityCollector {
      * @param relationshipDirection The relationship direction
      */
     public void recordTypeRelationship(Long owningEntityId, Object collectibleElement, String relationshipType, String relationshipDirection) {
-        if (this.relationshipCollectibles.get(owningEntityId) == null) {
-            this.relationshipCollectibles.put(owningEntityId, new HashMap<DirectedRelationship, Map<Class, Set<Object>>>());
-        }
+        this.relationshipCollectibles.computeIfAbsent(owningEntityId, k -> new HashMap<>());
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
-        if (this.relationshipCollectibles.get(owningEntityId).get(directedRelationship) == null) {
-            this.relationshipCollectibles.get(owningEntityId).put(directedRelationship, new HashMap<Class, Set<Object>>());
-        }
-        if (this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()) == null) {
-            this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).put(collectibleElement.getClass(), new HashSet<>());
-        }
+        this.relationshipCollectibles.get(owningEntityId).computeIfAbsent(directedRelationship, k -> new HashMap<>());
+        this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).computeIfAbsent(collectibleElement.getClass(), k -> new HashSet<>());
         this.relationshipCollectibles.get(owningEntityId).get(directedRelationship).get(collectibleElement.getClass()).add(collectibleElement);
     }
 

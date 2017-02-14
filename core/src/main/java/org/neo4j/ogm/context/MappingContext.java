@@ -366,9 +366,7 @@ public class MappingContext {
                     // remove the object from the node register
                     nodeEntityRegister.remove(id);
                     // remove all relationship mappings to/from this object
-                    Iterator<MappedRelationship> mappedRelationshipIterator = relationshipRegister.iterator();
-                    while (mappedRelationshipIterator.hasNext()) {
-                        MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
+                    for (MappedRelationship mappedRelationship : relationshipRegister) {
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
 
                             // first purge any RE mappings (if its a RE)

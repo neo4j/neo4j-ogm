@@ -88,7 +88,7 @@ class ConstantPool {
     }
 
     public Boolean readBoolean(int entry) {
-        return (Integer) pool[entry] == 1 ? true : false;
+        return (Integer) pool[entry] == 1;
     }
 
     public Byte readByte(int entry) {

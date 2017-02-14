@@ -276,12 +276,7 @@ public class DomainInfo implements ClassFileProcessor {
 
         if (className != null) {
 
-            ClassInfo thisClassInfo = classNameToClassInfo.get(className);
-
-            if (thisClassInfo == null) {
-                thisClassInfo = classInfo;
-                classNameToClassInfo.put(className, thisClassInfo);
-            }
+            ClassInfo thisClassInfo = classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
 
             if (!thisClassInfo.hydrated()) {
 

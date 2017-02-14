@@ -33,13 +33,8 @@ public class LabelHistoryRegister {
 
     public LabelHistory get(Long identity) {
 
-        LabelHistory labelHistory = register.get(identity);
+		LabelHistory labelHistory = register.computeIfAbsent(identity, k -> new LabelHistory());
 
-        if (labelHistory == null) {
-            labelHistory = new LabelHistory();
-            register.put(identity, labelHistory);
-        }
-
-        return labelHistory;
+		return labelHistory;
     }
 }

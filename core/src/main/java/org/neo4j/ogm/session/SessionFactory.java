@@ -33,7 +33,6 @@ import org.neo4j.ogm.session.event.EventListener;
 public class SessionFactory {
 
     private final MetaData metaData;
-    private final AutoIndexManager autoIndexManager;
     private final List<EventListener> eventListeners;
 
     private SessionFactory(Configuration configuration, MetaData metaData) {
@@ -41,8 +40,8 @@ public class SessionFactory {
             Components.configure(configuration);
         }
         this.metaData = metaData;
-        this.autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
-        this.autoIndexManager.build();
+        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, Components.driver());
+        autoIndexManager.build();
         this.eventListeners = new CopyOnWriteArrayList<>();
     }
 

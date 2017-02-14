@@ -127,7 +127,7 @@ public class MultiStatementCypherCompiler implements Compiler {
                 continue; //TODO this is a carry forward from the old emitters. We want to prevent this rel builder getting created or remove it
             }
             if (!relsByTypeAndProps.containsKey(relationshipBuilder.type())) {
-                relsByTypeAndProps.put(relationshipBuilder.type(), new HashMap<Set<String>, Set<Edge>>());
+                relsByTypeAndProps.put(relationshipBuilder.type(), new HashMap<>());
             }
             RelationshipModel edge = (RelationshipModel) relationshipBuilder.edge();
             Set<String> nonNullPropertyKeys = new HashSet<>();
@@ -141,7 +141,7 @@ public class MultiStatementCypherCompiler implements Compiler {
                 }
             }
             if (!relsByTypeAndProps.get(relationshipBuilder.type()).containsKey(nonNullPropertyKeys)) {
-                relsByTypeAndProps.get(relationshipBuilder.type()).put(nonNullPropertyKeys, new HashSet<Edge>());
+                relsByTypeAndProps.get(relationshipBuilder.type()).put(nonNullPropertyKeys, new HashSet<>());
             }
             edge.setStartNode(context.getId(edge.getStartNode()));
             edge.setEndNode(context.getId(edge.getEndNode()));
@@ -292,7 +292,7 @@ public class MultiStatementCypherCompiler implements Compiler {
             //String joinedLabels = String.join(",", nodeBuilder.addedLabels());
             String joinedLabels = join(nodeBuilder.addedLabels());
             if (!nodesByLabels.containsKey(joinedLabels)) {
-                nodesByLabels.put(joinedLabels, new HashSet<Node>());
+                nodesByLabels.put(joinedLabels, new HashSet<>());
             }
             nodesByLabels.get(joinedLabels).add(nodeBuilder.node());
         }
@@ -303,7 +303,7 @@ public class MultiStatementCypherCompiler implements Compiler {
         Map<String, Set<Edge>> relsByType = new HashMap<>();
         for (RelationshipBuilder relationshipBuilder : relationshipBuilders) {
             if (!relsByType.containsKey(relationshipBuilder.type())) {
-                relsByType.put(relationshipBuilder.type(), new HashSet<Edge>());
+                relsByType.put(relationshipBuilder.type(), new HashSet<>());
             }
             //Replace the node ids
             RelationshipModel edge = (RelationshipModel) relationshipBuilder.edge();

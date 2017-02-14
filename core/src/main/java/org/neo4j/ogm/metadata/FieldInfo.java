@@ -152,13 +152,12 @@ public class FieldInfo {
     }
 
     public boolean persistableAsProperty() {
-        boolean simple = primitives.contains(descriptor)
+
+        return primitives.contains(descriptor)
                 || (autoboxers.contains(descriptor) && typeParameterDescriptor == null)
                 || (typeParameterDescriptor != null && autoboxers.contains(typeParameterDescriptor))
                 || propertyConverter != null
                 || compositeConverter != null;
-
-        return simple;
     }
 
     public AttributeConverter getPropertyConverter() {

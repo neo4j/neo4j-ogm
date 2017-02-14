@@ -69,12 +69,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
         close();
         this.graphDatabaseService = graphDatabaseService;
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                close();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> close()));
     }
 
     @Override
@@ -171,18 +166,15 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             final String fileStoreUri = uri.toString();
             logger.warn("Creating temporary file store: " + fileStoreUri);
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    close();
-                    try {
-                        logger.warn("Deleting temporary file store: " + fileStoreUri);
-                        FileUtils.deleteDirectory(f);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
-                    }
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				close();
+				try {
+					logger.warn("Deleting temporary file store: " + fileStoreUri);
+					FileUtils.deleteDirectory(f);
+				} catch (IOException e) {
+					throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
+				}
+			}));
 
             return fileStoreUri;
         } catch (Exception e) {
@@ -199,12 +191,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                 Path graphDir = Files.createDirectories(Paths.get(uri.getRawPath()));
                 logger.warn("Creating new permanent file store: " + graphDir.toString());
             }
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    close();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> close()));
         } catch (FileAlreadyExistsException e) {
             logger.warn("Using existing permanent file store: " + strPath);
         } catch (IOException | URISyntaxException ioe) {

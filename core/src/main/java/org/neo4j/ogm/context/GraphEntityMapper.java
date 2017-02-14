@@ -581,7 +581,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	 * @return true if 'by' declares the specified relationship on 'to', false otherwise
 	 */
 	private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, String relationshipDirection) {
-        return EntityAccessManager.getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) == null ? false : true;
+        return EntityAccessManager.getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) != null;
 	}
 
 	/**

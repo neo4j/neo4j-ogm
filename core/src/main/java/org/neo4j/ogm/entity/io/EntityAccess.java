@@ -122,20 +122,16 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             return result;
         }
         int resultSize = collection.size();
-        if (hydrated != null) {
-            resultSize += hydrated.size();
-        }
+        resultSize += hydrated.size();
         Collection<Object> result = new LinkedHashSet<>(resultSize);
 
-        if (hydrated != null && hydrated.size() > collection.size()) {
+        if (hydrated.size() > collection.size()) {
             result.addAll(hydrated);
             addToCollection(collection, result, elementType);
         }
         else {
             addToCollection(collection, result, elementType);
-            if (hydrated!=null) {
-                addToCollection(hydrated, result, elementType);
-            }
+            addToCollection(hydrated, result, elementType);
         }
         return result;
     }

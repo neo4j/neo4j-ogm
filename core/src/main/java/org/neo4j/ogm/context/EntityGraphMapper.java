@@ -146,11 +146,9 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private void deleteObsoleteRelationships(Compiler compiler) {
         CompileContext context = compiler.context();
-        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
 
-        while (mappedRelationshipIterator.hasNext()) {
+        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
 
-            MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
             // if we cannot remove this relationship from the compile context, it
             // means the user has deleted the relationship
             if (!context.removeRegisteredRelationship(mappedRelationship)) {

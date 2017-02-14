@@ -16,7 +16,6 @@ package org.neo4j.ogm.cypher.function;
 
 import static org.neo4j.ogm.cypher.ComparisonOperator.*;
 
-import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 
 import java.util.HashMap;

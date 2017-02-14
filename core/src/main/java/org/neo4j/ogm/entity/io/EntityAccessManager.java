@@ -72,7 +72,7 @@ public class EntityAccessManager {
      */
     public static EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         if(!propertyWriterCache.containsKey(classInfo)) {
-            propertyWriterCache.put(classInfo,new HashMap<String, EntityAccess>());
+            propertyWriterCache.put(classInfo, new HashMap<>());
         }
         Map<String, EntityAccess> entityAccessMap = propertyWriterCache.get(classInfo);
         if(entityAccessMap.containsKey(propertyName)) {
@@ -107,7 +107,7 @@ public class EntityAccessManager {
     public static PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
 
         if(!propertyReaderCache.containsKey(classInfo)) {
-            propertyReaderCache.put(classInfo, new HashMap<String, PropertyReader>());
+            propertyReaderCache.put(classInfo, new HashMap<>());
         }
         if(propertyReaderCache.get(classInfo).containsKey(propertyName)) {
             return propertyReaderCache.get(classInfo).get(propertyName);
@@ -156,7 +156,7 @@ public class EntityAccessManager {
     public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Class<?> objectType) {
 
         if (!relationalWriterCache.containsKey(classInfo)) {
-            relationalWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
+            relationalWriterCache.put(classInfo, new HashMap<>());
         }
 
         DirectedRelationshipForType directedRelationship = new DirectedRelationshipForType(relationshipType, relationshipDirection, objectType);
@@ -289,7 +289,7 @@ public class EntityAccessManager {
     public static RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
 
         if(!relationalReaderCache.containsKey(classInfo)) {
-            relationalReaderCache.put(classInfo, new HashMap<DirectedRelationship, RelationalReader>());
+            relationalReaderCache.put(classInfo, new HashMap<>());
         }
 
         DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType,relationshipDirection);
@@ -417,7 +417,7 @@ public class EntityAccessManager {
      */
     public static RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if(!iterableWriterCache.containsKey(classInfo)) {
-            iterableWriterCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalWriter>());
+            iterableWriterCache.put(classInfo, new HashMap<>());
         }
         DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, parameterType);
         if(iterableWriterCache.get(classInfo).containsKey(directedRelationshipForType)) {
@@ -479,7 +479,7 @@ public class EntityAccessManager {
      */
     public static RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if(!iterableReaderCache.containsKey(classInfo)) {
-            iterableReaderCache.put(classInfo, new HashMap<DirectedRelationshipForType, RelationalReader>());
+            iterableReaderCache.put(classInfo, new HashMap<>());
         }
         DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(relationshipType,relationshipDirection, parameterType);
         if(iterableReaderCache.get(classInfo).containsKey(directedRelationshipForType)) {
@@ -585,9 +585,7 @@ public class EntityAccessManager {
             throw new RuntimeException(entityAnnotation.getSimpleName() + " is not defined on " + classInfo.name());
         }
 
-        if (relationshipEntityWriterCache.get(classInfo) == null) {
-            relationshipEntityWriterCache.put(classInfo, new HashMap<Class, RelationalWriter>());
-        }
+        relationshipEntityWriterCache.computeIfAbsent(classInfo, k -> new HashMap<>());
         if (relationshipEntityWriterCache.get(classInfo).containsKey(entityAnnotation)) {
             return relationshipEntityWriterCache.get(classInfo).get(entityAnnotation);
         }

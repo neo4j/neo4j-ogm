@@ -49,7 +49,8 @@ public class SaveDelegate implements Capability.Save {
 
         SaveEventDelegate eventsDelegate = new SaveEventDelegate(session);
 
-        if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
+        EntityGraphMapper entityGraphMapper = new EntityGraphMapper(session.metaData(), session.context());
+		if (object.getClass().isArray() || Iterable.class.isAssignableFrom(object.getClass())) {
             Collection<T> objects;
             if (object.getClass().isArray()) {
                 int length = Array.getLength(object);
@@ -61,14 +62,24 @@ public class SaveDelegate implements Capability.Save {
             } else {
                 objects = (Collection<T>) object;
             }
-            List<CompileContext> contexts = new ArrayList<>();
+//            List<CompileContext> contexts = new ArrayList<>();
+//            for (Object element : objects) {
+//                if (session.eventsEnabled()) {
+//                    eventsDelegate.preSave(object);
+//                }
+//                contexts.add(entityGraphMapper.map(element, depth));
+//            }
+            
+            
             for (Object element : objects) {
                 if (session.eventsEnabled()) {
                     eventsDelegate.preSave(object);
                 }
-                contexts.add(new EntityGraphMapper(session.metaData(), session.context()).map(element, depth));
             }
-            requestExecutor.executeSave(contexts);
+            
+            CompileContext context = entityGraphMapper.map(objects, depth);
+            requestExecutor.executeSave(context);
+            
             if (session.eventsEnabled()) {
                 eventsDelegate.postSave();
             }
@@ -80,7 +91,7 @@ public class SaveDelegate implements Capability.Save {
                     eventsDelegate.preSave(object);
                 }
 
-                CompileContext context = new EntityGraphMapper(session.metaData(), session.context()).map(object, depth);
+                CompileContext context = entityGraphMapper.map(object, depth);
 
                 requestExecutor.executeSave(context);
 

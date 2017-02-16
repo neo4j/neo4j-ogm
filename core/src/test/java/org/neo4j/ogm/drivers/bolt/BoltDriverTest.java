@@ -18,7 +18,7 @@ import static org.junit.Assume.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.testutil.TestServer;
 
 

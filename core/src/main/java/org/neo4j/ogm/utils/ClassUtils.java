@@ -19,13 +19,19 @@ import java.util.*;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.service.ResourceService;
+import org.neo4j.ogm.classloader.ResourceResolver;
+import org.neo4j.ogm.exception.ServiceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
 public abstract class ClassUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger( ClassUtils.class );
+
 
     private static Map<String, Class<?>> descriptorTypeMappings = new HashMap<>();
 
@@ -166,13 +172,32 @@ public abstract class ClassUtils {
 				Enumeration<URL> resources = ClassLoaderResolver.resolve().getResources(classPath.replace(".","/"));
                 while(resources.hasMoreElements()) {
                     URL url = resources.nextElement();
-                    pathFiles.add( ResourceService.resolve( url ));
+                    pathFiles.add( resolve( url ));
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
         return pathFiles;
+    }
+
+
+    public static File resolve( URL url ) throws Exception {
+
+        ServiceLoader< ResourceResolver > serviceLoader = ServiceLoader.load( ResourceResolver.class );
+
+        for (ResourceResolver resourceResolver : serviceLoader) {
+            try {
+                File file = resourceResolver.resolve(url);
+                if (file != null) {
+                    return file;
+                }
+            } catch (ServiceConfigurationError sce) {
+                logger.warn("{}, reason: {}", sce.getLocalizedMessage(), sce.getCause());
+            }
+        }
+
+        throw new ServiceNotFoundException("Resource: " + url.toExternalForm());
     }
 
 }

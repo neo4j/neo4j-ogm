@@ -11,16 +11,13 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.drivers;
+package org.neo4j.ogm.config;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.*;
-import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.service.DriverService;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +57,7 @@ public class DriverServiceTest {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         driverConfiguration.setURI("http://neo4j:password@localhost:7474");
 
-        Driver driver = DriverService.load(driverConfiguration);
+        Driver driver = Components.loadDriver(driverConfiguration);
         assertNotNull(driver);
         driver.close();
     }
@@ -73,7 +70,7 @@ public class DriverServiceTest {
 
         driverConfiguration.setURI(uri);
 
-        Driver driver = DriverService.load(driverConfiguration);
+        Driver driver = Components.loadDriver(driverConfiguration);
         assertNotNull(driver);
         driver.close();
     }
@@ -82,7 +79,7 @@ public class DriverServiceTest {
     public void loadLoadBoltDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
         driverConfiguration.setURI("bolt://neo4j:password@localhost");
-        Driver driver = DriverService.load(driverConfiguration);
+        Driver driver = Components.loadDriver(driverConfiguration);
         assertNotNull(driver);
         driver.close();
     }
@@ -125,7 +122,7 @@ public class DriverServiceTest {
         DriverConfiguration driverConfiguration = new DriverConfiguration(new Configuration());
         driverConfiguration.setURI("https://neo4j:password@localhost:7473");
 
-        try (HttpDriver driver = (HttpDriver) DriverService.load(driverConfiguration)) {
+        try (HttpDriver driver = (HttpDriver) Components.loadDriver(driverConfiguration)) {
             driver.executeHttpRequest(request);
             Assert.fail("Should have thrown security exception");
         } catch (Exception e) {
@@ -136,7 +133,7 @@ public class DriverServiceTest {
         // now set the config to ignore SSL handshaking and try again;
         driverConfiguration.setTrustStrategy("ACCEPT_UNSIGNED");
 
-        try (HttpDriver driver = (HttpDriver) DriverService.load(driverConfiguration)) {
+        try (HttpDriver driver = (HttpDriver) Components.loadDriver(driverConfiguration)) {
             driver.executeHttpRequest(request);
         } catch (Exception e) {
             e.printStackTrace();

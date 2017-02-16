@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.service;
+package org.neo4j.ogm.config;
 
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -19,8 +19,8 @@ import java.util.Properties;
 
 import org.neo4j.ogm.autoindex.AutoIndexMode;
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +135,29 @@ public class Components {
 		if (configuration.driverConfiguration().getDriverClassName() == null) {
 			autoConfigure();
 		}
-		setDriver(DriverService.load(configuration.driverConfiguration()));
+		setDriver(loadDriver(configuration.driverConfiguration()));
+	}
+
+	/**
+	 * Loads and initialises a Driver using the specified DriverConfiguration
+	 *
+	 * @param configuration an instance of {@link DriverConfiguration} with which to configure the driver
+	 * @return the named {@link Driver} if found, otherwise throws a ServiceNotFoundException
+	 */
+	static Driver loadDriver(DriverConfiguration configuration) {
+		String driverClassName = configuration.getDriverClassName();
+		logger.info("Loading driver: [{}]", driverClassName);
+
+		try {
+			final Class<?> driverClass = Class.forName(driverClassName);
+			Driver driver = (Driver) driverClass.newInstance();
+			driver.configure(configuration);
+			return driver;
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+			logger.error("Error loading driver. Is the driver defined on the classpath?: {}", e);
+		}
+
+		throw new ServiceNotFoundException("Could not load driver: " + driverClassName + ".");
 	}
 
 	/**

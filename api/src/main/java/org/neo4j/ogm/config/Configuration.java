@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.service.Components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

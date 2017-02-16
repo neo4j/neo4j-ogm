@@ -14,9 +14,8 @@
 package org.neo4j.ogm.drivers;
 
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.request.HttpRequestException;
 import org.neo4j.ogm.exception.ConnectionException;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 

@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.event.EventListener;
 
 /**

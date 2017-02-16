@@ -15,7 +15,7 @@ package org.neo4j.ogm.session.transaction;
 
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.TransactionManagerException;
-import org.neo4j.ogm.service.Components;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;

@@ -48,21 +48,21 @@ Below is a table of all options available for configuring Auto-Indexing.
 | *validate*
 | Make sure the connected database has all indexes and constraints in place before starting up
 | indexes.auto=validate
-| config.autoIndexConfiguration().setAutoIndex("validate");
+| config.setAutoIndex("validate");
 
 | *assert*
 | Drops all constraints and indexes on startup then builds indexes based on whatever is represented in OGM by `@Index`. Handy during development
 | indexes.auto=assert
-| config.autoIndexConfiguration().setAutoIndex("assert");
+| config.setAutoIndex("assert");
 
 | *dump*
 | Dumps the generated constraints and indexes to a file. Good for setting up environments. none: Default. Simply marks the field as using an index.
 | indexes.auto=dump
   indexes.auto.dump.dir=<a directory>
   indexes.auto.dump.filename=<a filename>
-| config.autoIndexConfiguration().setAutoIndex("dump");
-  config.autoIndexConfiguration().setDumpDir("XXX");
-  config.autoIndexConfiguration().setDumpFilename("XXX");
+| config.setAutoIndex("dump");
+  config.setDumpDir("XXX");
+  config.setDumpFilename("XXX");
 
 |===
 

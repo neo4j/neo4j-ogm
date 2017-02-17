@@ -46,7 +46,6 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration()
-        .driverConfiguration()
         .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
         .setURI("http://user:password@localhost:7474")
 ----
@@ -78,7 +77,7 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
-        configuration.driverConfiguration()
+        configuration
         .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
         .setURI("bolt://neo4j:password@localhost")
         .setConnectionPoolSize(150)
@@ -115,7 +114,6 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration()
-             .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
              .setURI("file:///var/tmp/neo4j.db");
 ----
@@ -139,7 +137,6 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration()
-             .driverConfiguration()
              .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 ----
 |======================
@@ -182,18 +179,15 @@ a|
 ----
 // embedded
 Configuration configuration = new Configuration()
-             .driverConfiguration()
              .setURI("bolt://user:password@localhost");
 
 // separately as plain text
 Configuration configuration = new Configuration()
-             .driverConfiguration()
              .setCredentials("user", "password);
 
 // using a Credentials object
 Credentials credentials = new UsernameAndPasswordCredentials("user", "password");
 Configuration configuration = new Configuration()
-             .driverConfiguration()
              .setCredentials(credentials);
 ----
 |======================
@@ -238,7 +232,7 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
-        configuration.driverConfiguration()
+        configuration
         ...
         .setEncryptionLevel("REQUIRED")
         .setTrustStrategy("TRUST_ON_FIRST_USE")
@@ -266,8 +260,7 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
-        configuration.driverConfiguration()
-        ...
+        configuration
         .setTrustStrategy("ACCEPT_UNSIGNED")
 ----
 |======================

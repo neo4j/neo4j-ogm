@@ -33,7 +33,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.neo4j.ogm.authentication.Credentials;
+import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
 import org.neo4j.ogm.drivers.http.response.RestModelResponse;

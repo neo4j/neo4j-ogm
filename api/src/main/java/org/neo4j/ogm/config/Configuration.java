@@ -17,9 +17,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 
-import org.neo4j.ogm.authentication.Credentials;
-import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
-import org.neo4j.ogm.autoindex.AutoIndexMode;
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

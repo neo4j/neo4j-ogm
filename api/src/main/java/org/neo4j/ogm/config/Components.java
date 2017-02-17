@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.neo4j.ogm.autoindex.AutoIndexMode;
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ServiceNotFoundException;

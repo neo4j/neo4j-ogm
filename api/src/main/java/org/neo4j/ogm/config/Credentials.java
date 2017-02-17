@@ -11,21 +11,10 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.authentication;
+package org.neo4j.ogm.config;
 
-/**
- * @author Vince Bickers
- */
-public class AuthTokenCredentials implements Credentials<String> {
+public interface Credentials<T> {
 
-    private final String token;
+    T credentials();
 
-    public AuthTokenCredentials(String token) {
-        this.token = token;
-    }
-
-    @Override
-    public String credentials() {
-        return token;
-    }
 }

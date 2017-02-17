@@ -16,8 +16,8 @@ package org.neo4j.ogm.drivers;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.neo4j.ogm.authentication.Credentials;
-import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
+import org.neo4j.ogm.config.Credentials;
+import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.Configuration;
 
 /**

@@ -16,7 +16,6 @@ package org.neo4j.ogm.driver;
 import java.net.URI;
 
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
@@ -44,19 +43,19 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
-    protected DriverConfiguration driverConfig;
+    protected Configuration configuration;
     protected TransactionManager transactionManager;
 
     @Override
-    public void configure(DriverConfiguration config) {
-        this.driverConfig = config;
+    public void configure(Configuration config) {
+        this.configuration = config;
         setCredentials();
     }
 
     @Override
-    public DriverConfiguration getConfiguration() {
-        assert(driverConfig != null);
-        return driverConfig;
+    public Configuration getConfiguration() {
+        assert(configuration != null);
+        return configuration;
     }
 
     @Override
@@ -66,13 +65,13 @@ public abstract class AbstractConfigurableDriver implements Driver {
     }
 
     private void setCredentials() {
-        if (driverConfig.getCredentials() == null && driverConfig.getURI() != null) {
+        if (configuration.getCredentials() == null && configuration.getURI() != null) {
             try {
-                URI uri = new URI(driverConfig.getURI());
+                URI uri = new URI(configuration.getURI());
                 String authInfo = uri.getUserInfo();
                 if (authInfo != null) {
                     String[] parts = uri.getUserInfo().split(":");
-                    driverConfig.setCredentials(parts[0], parts[1]);
+                    configuration.setCredentials(parts[0], parts[1]);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

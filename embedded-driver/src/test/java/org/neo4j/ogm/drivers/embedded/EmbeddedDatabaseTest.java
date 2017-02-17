@@ -34,7 +34,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.config.Components;
 
@@ -45,19 +44,18 @@ import org.neo4j.ogm.config.Components;
 public class EmbeddedDatabaseTest {
 
     private static Configuration configuration = new Configuration();
-    private static DriverConfiguration driverConfiguration = new DriverConfiguration(configuration);
 
     @BeforeClass
     public static void setUp() {
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+        configuration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
         Components.configure(configuration);
     }
 
     @Test
     public void shouldCreateImpermanentInstanceWhenNoURI() {
 
-        try (EmbeddedDriver driver = new EmbeddedDriver(driverConfiguration)) {
-            assertNull(driverConfiguration.getURI());
+        try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
+            assertNull(configuration.getURI());
             assertNotNull(driver.getGraphDatabaseService());
         }
 
@@ -65,7 +63,7 @@ public class EmbeddedDatabaseTest {
 
     @Test
     public  void shouldWriteAndRead() {
-        try (EmbeddedDriver driver = new EmbeddedDriver(driverConfiguration)) {
+        try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
 
             GraphDatabaseService databaseService = driver.getGraphDatabaseService();
 
@@ -82,8 +80,8 @@ public class EmbeddedDatabaseTest {
     public void shouldBeAbleToHaveMultipleInstances() {
 
         try (
-            EmbeddedDriver driver1 = new EmbeddedDriver(driverConfiguration);
-            EmbeddedDriver driver2 = new EmbeddedDriver(driverConfiguration)) {
+            EmbeddedDriver driver1 = new EmbeddedDriver(configuration);
+            EmbeddedDriver driver2 = new EmbeddedDriver(configuration)) {
 
             assertNotNull(driver1.getGraphDatabaseService());
             assertNotNull(driver2.getGraphDatabaseService());
@@ -99,8 +97,8 @@ public class EmbeddedDatabaseTest {
     @Test
     public void impermanentInstancesShouldNotShareTheSameDatabase() {
 
-        try (EmbeddedDriver driver1 = new EmbeddedDriver(driverConfiguration);
-             EmbeddedDriver driver2 = new EmbeddedDriver(driverConfiguration)
+        try (EmbeddedDriver driver1 = new EmbeddedDriver(configuration);
+             EmbeddedDriver driver2 = new EmbeddedDriver(configuration)
         ) {
             GraphDatabaseService db1 = driver1.getGraphDatabaseService();
             GraphDatabaseService db2 = driver2.getGraphDatabaseService();
@@ -138,14 +136,14 @@ public class EmbeddedDatabaseTest {
             deleteDirectory(path);
         }
 
-        driverConfiguration.setURI("file://" + EMBEDDED_DIR);
-        try (EmbeddedDriver driver = new EmbeddedDriver(driverConfiguration)) {
-            assertEquals("file://" + EMBEDDED_DIR, driverConfiguration.getURI());
+        configuration.setURI("file://" + EMBEDDED_DIR);
+        try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
+            assertEquals("file://" + EMBEDDED_DIR, configuration.getURI());
             assertNotNull(driver.getGraphDatabaseService());
             assertTrue(Files.exists(path));
         }
         deleteDirectory(path);
-        driverConfiguration.setURI(null);
+        configuration.setURI(null);
     }
 
     private void deleteDirectory(Path path) {

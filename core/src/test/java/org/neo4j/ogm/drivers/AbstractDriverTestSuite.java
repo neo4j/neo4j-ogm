@@ -28,12 +28,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
@@ -41,8 +41,7 @@ import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * @author vince
- *
- * Do not rename this class to end with *Test, or certain test packages might try to execute it.
+ *         Do not rename this class to end with *Test, or certain test packages might try to execute it.
  */
 public abstract class AbstractDriverTestSuite {
 
@@ -50,17 +49,18 @@ public abstract class AbstractDriverTestSuite {
     private Session session;
 
     public abstract void setUpTest();
+
     public abstract void tearDownTest();
 
-	protected static void deleteExistingEmbeddedDatabase() {
-		try {
-			FileUtils.forceDelete(new File(new URI(Components.getConfiguration().driverConfiguration().getURI())));
-		} catch (IOException ioe) {
-			// ignore - nothing to delete
-		} catch (URISyntaxException use) {
-			throw new RuntimeException(use); // invalid file URI
-		}
-	}
+    protected static void deleteExistingEmbeddedDatabase() {
+        try {
+            FileUtils.forceDelete(new File(new URI(Components.getConfiguration().getURI())));
+        } catch (IOException ioe) {
+            // ignore - nothing to delete
+        } catch (URISyntaxException use) {
+            throw new RuntimeException(use); // invalid file URI
+        }
+    }
 
     @Before
     public void init() {
@@ -272,21 +272,19 @@ public abstract class AbstractDriverTestSuite {
         assertEquals(0, session.loadAll(User.class).size());
     }
 
-	/**
+    /**
      * @see issue 119
      */
     @Test
     public void shouldWrapUnderlyingException() {
         session.save(new User("Bilbo Baggins"));
         try {
-           session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Utils.map());
-           fail("Expected a CypherException but got none");
-        }
-        catch (CypherException ce) {
+            session.query(User.class, "MATCH(u:User) WHERE u.name ~ '.*Baggins' RETURN u", Utils.map());
+            fail("Expected a CypherException but got none");
+        } catch (CypherException ce) {
             assertTrue(ce.getCode().contains("Neo.ClientError.Statement"));
             assertTrue(ce.getDescription().contains("Invalid input"));
         }
-
     }
 
     private void doExtendedCommitRollbackCommit() throws TransactionException {
@@ -368,6 +366,4 @@ public abstract class AbstractDriverTestSuite {
             tx.rollback();
         }
     }
-
-
 }

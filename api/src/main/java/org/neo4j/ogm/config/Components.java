@@ -42,222 +42,222 @@ import org.slf4j.LoggerFactory;
  */
 public class Components {
 
-	private Components() {
-	}
+    private Components() {
+    }
 
-	private static final Logger logger = LoggerFactory.getLogger(Components.class);
+    private static final Logger logger = LoggerFactory.getLogger(Components.class);
 
-	private static Configuration configuration = new Configuration();
-	private static Driver driver;
+    private static Configuration configuration = new Configuration();
+    private static Driver driver;
 
-	/**
-	 * Configure the OGM from a pre-built Configuration class
-	 *
-	 * @param configuration The configuration to use
-	 */
-	public static void configure(Configuration configuration) {
-		// new configuration object, or update of current one?
-		if (Components.configuration != configuration) {
-			destroy();
-			Components.configuration = configuration;
-		} else {
-			// same config - but have we switched drivers?
-			if (driver != null && !driver.getClass().getCanonicalName().equals(configuration.driverConfiguration().getDriverClassName())) {
-				driver.close();
-				driver = null;
-			}
-		}
-	}
+    /**
+     * Configure the OGM from a pre-built Configuration class
+     *
+     * @param configuration The configuration to use
+     */
+    public static void configure(Configuration configuration) {
+        // new configuration object, or update of current one?
+        if (Components.configuration != configuration) {
+            destroy();
+            Components.configuration = configuration;
+        } else {
+            // same config - but have we switched drivers?
+            if (driver != null && !driver.getClass().getCanonicalName().equals(configuration.getDriverClassName())) {
+                driver.close();
+                driver = null;
+            }
+        }
+    }
 
-	/**
-	 * Configure the OGM from the specified config file
-	 *
-	 * @param configurationFileName The config file to use
-	 */
-	public static void configure(String configurationFileName) {
-		try (InputStream is = toInputStream(configurationFileName)) {
-			configure(is);
-		} catch (Exception e) {
-			logger.warn("Could not configure OGM from {}", configurationFileName);
-		}
-	}
+    /**
+     * Configure the OGM from the specified config file
+     *
+     * @param configurationFileName The config file to use
+     */
+    public static void configure(String configurationFileName) {
+        try (InputStream is = toInputStream(configurationFileName)) {
+            configure(is);
+        } catch (Exception e) {
+            logger.warn("Could not configure OGM from {}", configurationFileName);
+        }
+    }
 
-	/**
-	 * Returns the current OGM {@link Driver}
-	 * Normally only one instance of the driver exists for the lifetime of the application
-	 * You cannot use this method to find out if a driver is initialised because it will attempt to
-	 * initialise the driver if it is not.
-	 *
-	 * @return an instance of the {@link Driver} to be used by the OGM
-	 */
-	public synchronized static Driver driver() {
-		if (driver == null) {
-			loadDriver();
-		}
-		return driver;
-	}
+    /**
+     * Returns the current OGM {@link Driver}
+     * Normally only one instance of the driver exists for the lifetime of the application
+     * You cannot use this method to find out if a driver is initialised because it will attempt to
+     * initialise the driver if it is not.
+     *
+     * @return an instance of the {@link Driver} to be used by the OGM
+     */
+    public synchronized static Driver driver() {
+        if (driver == null) {
+            loadDriver();
+        }
+        return driver;
+    }
 
-	/**
-	 * The OGM Components can be auto-configured from a properties file, "ogm.properties", or
-	 * a similar configuration file, specified by a system property or environment variable called "ogm.properties".
-	 * If an auto-configure properties file is not available by any of these means, the Components class should be configured
-	 * by passing in a Configuration object to the configure method, or an explicit configuration file name
-	 */
-	public synchronized static void autoConfigure() {
-		try (InputStream is = configurationFile()) {
-			configure(is);
-		} catch (Exception e) {
-			logger.warn("Could not autoconfigure the OGM");
-		}
-	}
+    /**
+     * The OGM Components can be auto-configured from a properties file, "ogm.properties", or
+     * a similar configuration file, specified by a system property or environment variable called "ogm.properties".
+     * If an auto-configure properties file is not available by any of these means, the Components class should be configured
+     * by passing in a Configuration object to the configure method, or an explicit configuration file name
+     */
+    public synchronized static void autoConfigure() {
+        try (InputStream is = configurationFile()) {
+            configure(is);
+        } catch (Exception e) {
+            logger.warn("Could not autoconfigure the OGM");
+        }
+    }
 
-	/**
-	 * Creates a {@link Configuration} from an InputStream
-	 *
-	 * @param is an InputStream
-	 * @throws Exception if error occurs.
-	 */
-	private static void configure(InputStream is) throws Exception {
-		destroy();
-		Properties properties = new Properties();
-		properties.load(is);
-		Enumeration propertyNames = properties.propertyNames();
-		while (propertyNames.hasMoreElements()) {
-			String propertyName = (String) propertyNames.nextElement();
-			configuration.set(propertyName, properties.getProperty(propertyName));
-		}
-	}
+    /**
+     * Creates a {@link Configuration} from an InputStream
+     *
+     * @param is an InputStream
+     * @throws Exception if error occurs.
+     */
+    private static void configure(InputStream is) throws Exception {
+        destroy();
+        Properties properties = new Properties();
+        properties.load(is);
+        Enumeration propertyNames = properties.propertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = (String) propertyNames.nextElement();
+            configuration.set(propertyName, properties.getProperty(propertyName));
+        }
+    }
 
-	/**
-	 * Loads the configured Neo4j {@link Driver} and stores it on this class
-	 */
-	private static void loadDriver() {
-		if (configuration.driverConfiguration().getDriverClassName() == null) {
-			autoConfigure();
-		}
-		setDriver(loadDriver(configuration.driverConfiguration()));
-	}
+    /**
+     * Loads the configured Neo4j {@link Driver} and stores it on this class
+     */
+    private static void loadDriver() {
+        if (configuration.getDriverClassName() == null) {
+            autoConfigure();
+        }
+        setDriver(loadDriver(configuration));
+    }
 
-	/**
-	 * Loads and initialises a Driver using the specified DriverConfiguration
-	 *
-	 * @param configuration an instance of {@link DriverConfiguration} with which to configure the driver
-	 * @return the named {@link Driver} if found, otherwise throws a ServiceNotFoundException
-	 */
-	static Driver loadDriver(DriverConfiguration configuration) {
-		String driverClassName = configuration.getDriverClassName();
-		logger.info("Loading driver: [{}]", driverClassName);
+    /**
+     * Loads and initialises a Driver using the specified DriverConfiguration
+     *
+     * @param configuration an instance of {@link Configuration} with which to configure the driver
+     * @return the named {@link Driver} if found, otherwise throws a ServiceNotFoundException
+     */
+    static Driver loadDriver(Configuration configuration) {
+        String driverClassName = configuration.getDriverClassName();
+        logger.info("Loading driver: [{}]", driverClassName);
 
-		try {
-			final Class<?> driverClass = Class.forName(driverClassName);
-			Driver driver = (Driver) driverClass.newInstance();
-			driver.configure(configuration);
-			return driver;
-		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-			logger.error("Error loading driver. Is the driver defined on the classpath?: {}", e);
-		}
+        try {
+            final Class<?> driverClass = Class.forName(driverClassName);
+            Driver driver = (Driver) driverClass.newInstance();
+            driver.configure(configuration);
+            return driver;
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            logger.error("Error loading driver. Is the driver defined on the classpath?: {}", e);
+        }
 
-		throw new ServiceNotFoundException("Could not load driver: " + driverClassName + ".");
-	}
+        throw new ServiceNotFoundException("Could not load driver: " + driverClassName + ".");
+    }
 
-	/**
-	 * Tries to locate the default configuration file resource and return it as an InputStream
-	 *
-	 * @return An InputStream resource corresponding to the default configuration file, if it exists.
-	 */
-	private static InputStream configurationFile() {
-		String configFileName;
-		configFileName = System.getenv("ogm.properties");
+    /**
+     * Tries to locate the default configuration file resource and return it as an InputStream
+     *
+     * @return An InputStream resource corresponding to the default configuration file, if it exists.
+     */
+    private static InputStream configurationFile() {
+        String configFileName;
+        configFileName = System.getenv("ogm.properties");
 
-		if (configFileName == null) {
-			configFileName = System.getProperty("ogm.properties");
-			if (configFileName == null) {
-				return toInputStream("ogm.properties");
-			}
-		}
+        if (configFileName == null) {
+            configFileName = System.getProperty("ogm.properties");
+            if (configFileName == null) {
+                return toInputStream("ogm.properties");
+            }
+        }
 
-		return toInputStream(configFileName);
-	}
+        return toInputStream(configFileName);
+    }
 
-	/**
-	 * Fetches a configuration file resource as an InputStream
-	 *
-	 * @param name the configuration file resource name
-	 * @return the file resource as an InputStream
-	 */
-	private static InputStream toInputStream(String name) {
-		logger.debug("Trying to configure from {} ", name);
-		return ClassLoaderResolver.resolve().getResourceAsStream(name);
-	}
+    /**
+     * Fetches a configuration file resource as an InputStream
+     *
+     * @param name the configuration file resource name
+     * @return the file resource as an InputStream
+     */
+    private static InputStream toInputStream(String name) {
+        logger.debug("Trying to configure from {} ", name);
+        return ClassLoaderResolver.resolve().getResourceAsStream(name);
+    }
 
-	/**
-	 * Sets a new {@link Driver} to be used by the OGM.
-	 * If a different driver is in use, it will be closed first. In addition, the {@link Configuration} is updated
-	 * to reflect the correct classname for the new driver.
-	 *
-	 * @param driver an instance of {@link Driver} to be used by the OGM.
-	 */
-	public static void setDriver(Driver driver) {
+    /**
+     * Sets a new {@link Driver} to be used by the OGM.
+     * If a different driver is in use, it will be closed first. In addition, the {@link Configuration} is updated
+     * to reflect the correct classname for the new driver.
+     *
+     * @param driver an instance of {@link Driver} to be used by the OGM.
+     */
+    public static void setDriver(Driver driver) {
 
-		logger.debug("Setting driver to: {}", driver.getClass().getName());
+        logger.debug("Setting driver to: {}", driver.getClass().getName());
 
-		if (Components.driver != null && Components.driver != driver) {
-			Components.driver.close();
-			Components.getConfiguration().driverConfiguration().setDriverClassName(driver.getClass().getCanonicalName());
-		}
+        if (Components.driver != null && Components.driver != driver) {
+            Components.driver.close();
+            Components.getConfiguration().setDriverClassName(driver.getClass().getCanonicalName());
+        }
 
-		Components.driver = driver;
-	}
+        Components.driver = driver;
+    }
 
-	/**
-	 * Gets the neo4j.version from the current configuration
-	 *
-	 * @return the major.minor part of the neo4.version property string, as a double, or 9.9 if not configured
-	 */
-	public static double neo4jVersion() {
-		String neo4jVersion = (String) configuration.get("neo4j.version");
-		if (neo4jVersion != null) {
-			try {
-				String[] versionElements = neo4jVersion.split("\\.");
-				if (versionElements.length < 2) {
-					throw new NumberFormatException();
-				}
-				return new Double(versionElements[0] + "." + versionElements[1]);
-			} catch (NumberFormatException nfe) {
-				logger.warn("Configuration property 'neo4j.version' is not in the correct form: expected something like '2.3', but got '{}' instead", neo4jVersion);
-			}
-		}
-		return 9.9; // unknown version
-	}
+    /**
+     * Gets the neo4j.version from the current configuration
+     *
+     * @return the major.minor part of the neo4.version property string, as a double, or 9.9 if not configured
+     */
+    public static double neo4jVersion() {
+        String neo4jVersion = (String) configuration.get("neo4j.version");
+        if (neo4jVersion != null) {
+            try {
+                String[] versionElements = neo4jVersion.split("\\.");
+                if (versionElements.length < 2) {
+                    throw new NumberFormatException();
+                }
+                return new Double(versionElements[0] + "." + versionElements[1]);
+            } catch (NumberFormatException nfe) {
+                logger.warn("Configuration property 'neo4j.version' is not in the correct form: expected something like '2.3', but got '{}' instead", neo4jVersion);
+            }
+        }
+        return 9.9; // unknown version
+    }
 
-	/**
-	 * Releases any current driver resources and clears the current configuration
-	 */
-	public synchronized static void destroy() {
+    /**
+     * Releases any current driver resources and clears the current configuration
+     */
+    public synchronized static void destroy() {
 
-		if (driver != null) {
-			driver.close();
-			driver = null;
-		}
-		configuration.clear();
-	}
+        if (driver != null) {
+            driver.close();
+            driver = null;
+        }
+        configuration.clear();
+    }
 
-	/**
-	 * Return the {@link AutoIndexMode} from the AutoIndexConfiguration
-	 *
-	 * @return the configured autoIndexMode or AutoIndexMode.NONE if not configured
-	 */
-	public static AutoIndexMode autoIndexMode() {
-		return configuration.autoIndexConfiguration().getAutoIndex();
-	}
+    /**
+     * Return the {@link AutoIndexMode} from the AutoIndexConfiguration
+     *
+     * @return the configured autoIndexMode or AutoIndexMode.NONE if not configured
+     */
+    public static AutoIndexMode autoIndexMode() {
+        return configuration.getAutoIndex();
+    }
 
-	/**
-	 * There is a single configuration object, which should never be null, associated with the Components class
-	 * You can update this configuration in-situ, or you can replace the configuration with another.
-	 *
-	 * @return the current Configuration object
-	 */
-	public static Configuration getConfiguration() {
-		return configuration;
-	}
+    /**
+     * There is a single configuration object, which should never be null, associated with the Components class
+     * You can update this configuration in-situ, or you can replace the configuration with another.
+     *
+     * @return the current Configuration object
+     */
+    public static Configuration getConfiguration() {
+        return configuration;
+    }
 }

@@ -27,7 +27,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.http.request.HttpRequest;
@@ -42,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 
 /**
  * @author vince
@@ -76,9 +74,9 @@ public final class HttpDriver extends AbstractConfigurableDriver
     public Request request() {
         Transaction tx = transactionManager.getCurrentTransaction();
         if (tx == null) {
-            return new HttpRequest(httpClient(), requestUrl(), driverConfig.getCredentials());
+            return new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials());
         } else {
-            return new HttpRequest(httpClient(), requestUrl(), driverConfig.getCredentials(), tx.isReadOnly());
+            return new HttpRequest(httpClient(), requestUrl(), configuration.getCredentials(), tx.isReadOnly());
         }
     }
 
@@ -89,7 +87,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
 
-        try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, driverConfig.getCredentials())) {
+        try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, configuration.getCredentials())) {
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
                 String responseText;
@@ -113,7 +111,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
     private String newTransactionUrl(Transaction.Type type) {
 
-        String url = transactionEndpoint(driverConfig.getURI());
+        String url = transactionEndpoint(configuration.getURI());
         LOGGER.debug( "Thread: {}, POST {}", Thread.currentThread().getId(), url );
 
         HttpPost request = new HttpPost(url);
@@ -129,7 +127,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
     }
 
     private String autoCommitUrl() {
-        return transactionEndpoint(driverConfig.getURI()).concat("/commit");
+        return transactionEndpoint(configuration.getURI()).concat("/commit");
     }
 
     private String transactionEndpoint(String server) {
@@ -179,9 +177,9 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
                 SSLContext sslContext = SSLContext.getDefault();
 
-                if (driverConfig.getTrustStrategy() != null) {
+                if (configuration.getTrustStrategy() != null) {
 
-                    if (driverConfig.getTrustStrategy().equals("ACCEPT_UNSIGNED")) {
+                    if (configuration.getTrustStrategy().equals("ACCEPT_UNSIGNED")) {
                         sslContext = new SSLContextBuilder().loadTrustMaterial(null, (arg0, arg1) -> true).build();
 
                         LOGGER.warn("Certificate validation has been disabled");
@@ -202,7 +200,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 // allows multi-threaded use
                 PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
 
-                Integer connectionPoolSize = driverConfig.getConnectionPoolSize();
+                Integer connectionPoolSize = configuration.getConnectionPoolSize();
 
                 connectionManager.setMaxTotal(connectionPoolSize);
                 connectionManager.setDefaultMaxPerRoute(connectionPoolSize);

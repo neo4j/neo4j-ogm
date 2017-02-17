@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.neo4j.ogm.authentication.Credentials;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.config.DriverConfiguration;
 
 /**
  * @author vince
@@ -29,19 +28,19 @@ public class DriverConfigurationTest {
 
     @Test
     public void shouldLoadHttpDriverConfigFromPropertiesFile() {
-        DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("http.driver.properties"));
+        Configuration driverConfig = new Configuration("http.driver.properties");
         assertEquals("http://neo4j:password@localhost:7474", driverConfig.getURI());
     }
 
     @Test
     public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
-        DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("embedded.driver.properties"));
+        Configuration driverConfig = new Configuration("embedded.driver.properties");
         assertEquals("file:///var/tmp/neo4j.db", driverConfig.getURI());
     }
 
     @Test
     public void shouldLoadBoltDriverConfigFromPropertiesFile() {
-        DriverConfiguration driverConfig = new DriverConfiguration(new Configuration("bolt.driver.properties"));
+        Configuration driverConfig = new Configuration("bolt.driver.properties");
         assertEquals("bolt://neo4j:password@localhost", driverConfig.getURI());
         assertEquals(Integer.valueOf(150), driverConfig.getConnectionPoolSize());
         assertEquals("NONE", driverConfig.getEncryptionLevel());
@@ -54,8 +53,8 @@ public class DriverConfigurationTest {
         String username = "neo4j";
         String password = "password";
         Configuration dbConfig = new Configuration();
-        dbConfig.driverConfiguration().setURI("bolt://" + username + ":" + password + "@localhost");
-        Credentials credentials = dbConfig.driverConfiguration().getCredentials();
+        dbConfig.setURI("bolt://" + username + ":" + password + "@localhost");
+        Credentials credentials = dbConfig.getCredentials();
         UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
         assertNotNull(basic);
         assertEquals(username, basic.getUsername());
@@ -63,17 +62,16 @@ public class DriverConfigurationTest {
     }
 
     @Test
-	public void shouldLoadEmbeddedHaPropertiesFromRawConfiguration() {
-		Configuration config = new Configuration("neo4j-ha.properties");
-		assertEquals("1", config.get("ha.server_id"));
-		assertEquals("localhost:5001", config.get("ha.initial_hosts"));
-		assertEquals("true", config.get("ha.allow_init_cluster"));
-	}
+    public void shouldLoadEmbeddedHaPropertiesFromRawConfiguration() {
+        Configuration config = new Configuration("neo4j-ha.properties");
+        assertEquals("1", config.get("ha.server_id"));
+        assertEquals("localhost:5001", config.get("ha.initial_hosts"));
+        assertEquals("true", config.get("ha.allow_init_cluster"));
+    }
 
-	@Test
-	public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
-		DriverConfiguration config = new DriverConfiguration(new Configuration("embedded.ha.driver.properties"));
-		assertEquals("neo4j-ha.properties", config.getNeo4jHaPropertiesFile());
-	}
-
+    @Test
+    public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
+        Configuration config = new Configuration("embedded.ha.driver.properties");
+        assertEquals("neo4j-ha.properties", config.getNeo4jHaPropertiesFile());
+    }
 }

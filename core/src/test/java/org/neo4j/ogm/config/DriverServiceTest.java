@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
 public class DriverServiceTest {
 
     public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
-    private DriverConfiguration driverConfiguration = new Configuration().driverConfiguration();
+    private Configuration driverConfiguration = new Configuration();
 
     @BeforeClass
     public static void createEmbeddedStore() throws IOException {
@@ -119,10 +119,10 @@ public class DriverServiceTest {
 
 
         // note that the default driver class is set from the URI if a driver class has not yet been configured
-        DriverConfiguration driverConfiguration = new DriverConfiguration(new Configuration());
-        driverConfiguration.setURI("https://neo4j:password@localhost:7473");
+        Configuration configuration = new Configuration();
+        configuration.setURI("https://neo4j:password@localhost:7473");
 
-        try (HttpDriver driver = (HttpDriver) Components.loadDriver(driverConfiguration)) {
+        try (HttpDriver driver = (HttpDriver) Components.loadDriver(configuration)) {
             driver.executeHttpRequest(request);
             Assert.fail("Should have thrown security exception");
         } catch (Exception e) {
@@ -131,9 +131,9 @@ public class DriverServiceTest {
 
 
         // now set the config to ignore SSL handshaking and try again;
-        driverConfiguration.setTrustStrategy("ACCEPT_UNSIGNED");
+        configuration.setTrustStrategy("ACCEPT_UNSIGNED");
 
-        try (HttpDriver driver = (HttpDriver) Components.loadDriver(driverConfiguration)) {
+        try (HttpDriver driver = (HttpDriver) Components.loadDriver(configuration)) {
             driver.executeHttpRequest(request);
         } catch (Exception e) {
             e.printStackTrace();

@@ -108,8 +108,8 @@ public class AutoIndexManager {
             sb.append(index.getCreateStatement().getStatement()).append(newLine);
         }
 
-        File file = new File(Components.getConfiguration().autoIndexConfiguration().getDumpDir(),
-                Components.getConfiguration().autoIndexConfiguration().getDumpFilename());
+        File file = new File(Components.getConfiguration().getDumpDir(),
+                Components.getConfiguration().getDumpFilename());
         FileWriter writer = null;
 
         LOGGER.debug("Dumping Indexes to: [{}]", file.toString());

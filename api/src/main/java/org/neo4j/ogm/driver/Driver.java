@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.driver;
 
-import org.neo4j.ogm.config.DriverConfiguration;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
@@ -24,7 +24,7 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public interface Driver extends AutoCloseable {
 
-    void configure(DriverConfiguration config);
+    void configure(Configuration config);
 
     Transaction newTransaction(Transaction.Type type, String bookmark);
 
@@ -34,5 +34,5 @@ public interface Driver extends AutoCloseable {
 
     void setTransactionManager(TransactionManager tx);
 
-    DriverConfiguration getConfiguration();
+    Configuration getConfiguration();
 }

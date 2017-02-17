@@ -28,7 +28,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.ogm.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.config.DriverConfiguration;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
@@ -53,10 +53,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     /**
      * Configure a new embedded driver according to the supplied driver configuration
      *
-     * @param driverConfiguration the {@link DriverConfiguration} to use
+     * @param configuration the {@link Configuration} to use
      */
-    public EmbeddedDriver(DriverConfiguration driverConfiguration) {
-        configure(driverConfiguration);
+    public EmbeddedDriver(Configuration configuration) {
+        configure(configuration);
     }
 
     /**
@@ -73,7 +73,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public synchronized void configure(DriverConfiguration config) {
+    public synchronized void configure(Configuration config) {
 
         close();  // force any existing graph database to shutdown
 
@@ -167,14 +167,14 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             logger.warn("Creating temporary file store: " + fileStoreUri);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				close();
-				try {
-					logger.warn("Deleting temporary file store: " + fileStoreUri);
-					FileUtils.deleteDirectory(f);
-				} catch (IOException e) {
-					throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
-				}
-			}));
+                close();
+                try {
+                    logger.warn("Deleting temporary file store: " + fileStoreUri);
+                    FileUtils.deleteDirectory(f);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
+                }
+            }));
 
             return fileStoreUri;
         } catch (Exception e) {

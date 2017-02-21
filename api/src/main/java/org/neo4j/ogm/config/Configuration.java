@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.config;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
@@ -27,29 +28,24 @@ import org.slf4j.LoggerFactory;
  *
  * @author vince
  */
-public class Configuration implements AutoCloseable {
+public class Configuration {
 
     private final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
-    public static final String[] DRIVER = {"neo4j.ogm.driver", "spring.data.neo4j.driver", "driver"};
-    public static final String[] CREDENTIALS = {"neo4j.ogm.credentials", "spring.data.neo4j.credentials", "credentials"};
-    public static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
-    public static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
-    public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
-    public static final String[] CONNECTION_POOL_SIZE = {"connection.pool.size"};
-    public static final String[] ENCRYPTION_LEVEL = {"encryption.level"};
-    public static final String[] TRUST_STRATEGY = {"trust.strategy"};
-    public static final String[] TRUST_CERT_FILE = {"trust.certificate.file"};
-    public static final String[] AUTO_INDEX = {"neo4j.ogm.indexes.auto", "indexes.auto"};
-    public static final String[] GENERATED_INDEXES_OUTPUT_DIR = {"neo4j.ogm.indexes.auto.dump.dir", "indexes.auto.dump.dir"};
-    public static final String[] GENERATED_INDEXES_OUTPUT_FILENAME = {"neo4j.ogm.indexes.auto.dump.filename", "indexes.auto.dump.filename"};
-    public static final String[] NEO4J_HA_PROPERTIES_FILE = {"neo4j.ha.properties.file"};
-
-    // defaults
-    private static final int CONNECTION_POOL_SIZE_DEFAULT = 50;
-    private static final AutoIndexMode DEFAULT_AUTO_INDEX_VALUE = AutoIndexMode.NONE;
-    private static final String DEFAULT_GENERATED_INDEXES_FILENAME = "generated_indexes.cql";
-    private static final String DEFAULT_GENERATED_INDEXES_DIR = ".";
+    private static final String[] DRIVER = {"neo4j.ogm.driver", "spring.data.neo4j.driver", "driver"};
+    private static final String[] CREDENTIALS = {"neo4j.ogm.credentials", "spring.data.neo4j.credentials", "credentials"};
+    private static final String[] URI = {"neo4j.ogm.URI", "spring.data.neo4j.URI", "URI"};
+    private static final String[] USERNAME = {"neo4j.ogm.username", "spring.data.neo4j.username", "username"};
+    private static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
+    private static final String[] CONNECTION_POOL_SIZE = {"connection.pool.size"};
+    private static final String[] ENCRYPTION_LEVEL = {"encryption.level"};
+    private static final String[] TRUST_STRATEGY = {"trust.strategy"};
+    private static final String[] TRUST_CERT_FILE = {"trust.certificate.file"};
+    private static final String[] AUTO_INDEX = {"neo4j.ogm.indexes.auto", "indexes.auto"};
+    private static final String[] GENERATED_INDEXES_OUTPUT_DIR = {"neo4j.ogm.indexes.auto.dump.dir", "indexes.auto.dump.dir"};
+    private static final String[] GENERATED_INDEXES_OUTPUT_FILENAME = {"neo4j.ogm.indexes.auto.dump.filename", "indexes.auto.dump.filename"};
+    private static final String[] NEO4J_HA_PROPERTIES_FILE = {"neo4j.ha.properties.file"};
+    private static final String[] NEO4J_VERSION = {"neo4j.version"};
 
     private final Map<String, Object> config = new HashMap<>();
 
@@ -58,18 +54,14 @@ public class Configuration implements AutoCloseable {
     }
 
     public Configuration(String propertiesFilename) {
-        configure(propertiesFilename);
+        try (InputStream is = ClassLoaderResolver.resolve().getResourceAsStream(propertiesFilename)) {
+            configure(is);
+        } catch (Exception e) {
+            logger.warn("Could not load {}", propertiesFilename);
+        }
     }
 
-    public void set(String key, Object value) {
-        config.put(key, value);
-    }
-
-    public Object get(String key) {
-        return config.get(key);
-    }
-
-    public Object get(String... keys) {
+    private Object get(String... keys) {
         for (String key : keys) {
             Object obj = config.get(key);
             if (obj != null) {
@@ -79,20 +71,14 @@ public class Configuration implements AutoCloseable {
         return null;
     }
 
-    private void configure(String propertiesFileName) {
+    public void configure(InputStream is) throws IOException {
+        Properties properties = new Properties();
+        properties.load(is);
+        Enumeration propertyNames = properties.propertyNames();
 
-        try (InputStream is = ClassLoaderResolver.resolve().getResourceAsStream(propertiesFileName)) {
-
-            Properties properties = new Properties();
-            properties.load(is);
-            Enumeration propertyNames = properties.propertyNames();
-
-            while (propertyNames.hasMoreElements()) {
-                String propertyName = (String) propertyNames.nextElement();
-                config.put(propertyName, properties.getProperty(propertyName));
-            }
-        } catch (Exception e) {
-            logger.warn("Could not load {}", propertiesFileName);
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = (String) propertyNames.nextElement();
+            config.put(propertyName, properties.getProperty(propertyName));
         }
     }
 
@@ -118,52 +104,44 @@ public class Configuration implements AutoCloseable {
         config.clear();
     }
 
-    public void close() {
-        Components.destroy();
-    }
-
-
-    // AUTO INDEX CONFIG
-    // =================
-
     public Configuration setAutoIndex(String value) {
 
         if (AutoIndexMode.fromString(value) == null) {
             throw new RuntimeException("Invalid index value: " + value + ". Value must be one of: " + Arrays.toString(AutoIndexMode.values()));
         }
 
-        set(AUTO_INDEX[0], value);
+        config.put(AUTO_INDEX[0], value);
         return this;
     }
 
     public AutoIndexMode getAutoIndex() {
         if (get(AUTO_INDEX) == null) {
-            return DEFAULT_AUTO_INDEX_VALUE;
+            return AutoIndexMode.NONE;
         }
         return AutoIndexMode.fromString((String) get(AUTO_INDEX));
     }
 
 
     public Configuration setDumpDir(String dumpDir) {
-        set(GENERATED_INDEXES_OUTPUT_DIR[0], dumpDir);
+        config.put(GENERATED_INDEXES_OUTPUT_DIR[0], dumpDir);
         return this;
     }
 
     public String getDumpDir() {
         if (get(GENERATED_INDEXES_OUTPUT_DIR) == null) {
-            return DEFAULT_GENERATED_INDEXES_DIR;
+            return ".";
         }
         return (String) get(GENERATED_INDEXES_OUTPUT_DIR);
     }
 
     public Configuration setDumpFilename(String dumpFilename) {
-        set(GENERATED_INDEXES_OUTPUT_FILENAME[0], dumpFilename);
+        config.put(GENERATED_INDEXES_OUTPUT_FILENAME[0], dumpFilename);
         return this;
     }
 
     public String getDumpFilename() {
         if (get(GENERATED_INDEXES_OUTPUT_FILENAME) == null) {
-            return DEFAULT_GENERATED_INDEXES_FILENAME;
+            return "generated_indexes.cql";
         }
         return (String) get(GENERATED_INDEXES_OUTPUT_FILENAME);
     }
@@ -173,12 +151,12 @@ public class Configuration implements AutoCloseable {
 
 
     public Configuration setDriverClassName(String driverClassName) {
-        set(DRIVER[0], driverClassName);
+        config.put(DRIVER[0], driverClassName);
         return this;
     }
 
     public Configuration setURI(String uri) {
-        set(URI[0], uri);
+        config.put(URI[0], uri);
         try { // if this URI is a genuine resource, see if it has an embedded user-info and set credentials accordingly
             java.net.URI url = new URI(uri);
             String userInfo = url.getUserInfo();
@@ -196,32 +174,32 @@ public class Configuration implements AutoCloseable {
     }
 
     public Configuration setCredentials(Credentials credentials) {
-        set(CREDENTIALS[0], credentials);
+        config.put(CREDENTIALS[0], credentials);
         return this;
     }
 
     public Configuration setCredentials(String username, String password) {
-        set(CREDENTIALS[0], new UsernamePasswordCredentials(username, password));
+        config.put(CREDENTIALS[0], new UsernamePasswordCredentials(username, password));
         return this;
     }
 
     public Configuration setConnectionPoolSize(Integer sessionPoolSize) {
-        set(CONNECTION_POOL_SIZE[0], sessionPoolSize.toString());
+        config.put(CONNECTION_POOL_SIZE[0], sessionPoolSize.toString());
         return this;
     }
 
     public Configuration setEncryptionLevel(String encryptionLevel) {
-        set(ENCRYPTION_LEVEL[0], encryptionLevel);
+        config.put(ENCRYPTION_LEVEL[0], encryptionLevel);
         return this;
     }
 
     public Configuration setTrustStrategy(String trustStrategy) {
-        set(TRUST_STRATEGY[0], trustStrategy);
+        config.put(TRUST_STRATEGY[0], trustStrategy);
         return this;
     }
 
     public Configuration setTrustCertFile(String trustCertFile) {
-        set(TRUST_CERT_FILE[0], trustCertFile);
+        config.put(TRUST_CERT_FILE[0], trustCertFile);
         return this;
     }
 
@@ -262,7 +240,7 @@ public class Configuration implements AutoCloseable {
         if (get(CONNECTION_POOL_SIZE) != null) {
             return Integer.valueOf((String)get(CONNECTION_POOL_SIZE));
         }
-        return CONNECTION_POOL_SIZE_DEFAULT;
+        return 50;
     }
 
     public String getEncryptionLevel() {
@@ -306,5 +284,9 @@ public class Configuration implements AutoCloseable {
                 setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
                 break;
         }
+    }
+
+    public String getNeo4jVersion() {
+        return  (String) get(NEO4J_VERSION);
     }
 }

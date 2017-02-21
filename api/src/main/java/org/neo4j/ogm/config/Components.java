@@ -118,13 +118,7 @@ public class Components {
      */
     private static void configure(InputStream is) throws Exception {
         destroy();
-        Properties properties = new Properties();
-        properties.load(is);
-        Enumeration propertyNames = properties.propertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = (String) propertyNames.nextElement();
-            configuration.set(propertyName, properties.getProperty(propertyName));
-        }
+        configuration.configure(is);
     }
 
     /**
@@ -214,7 +208,7 @@ public class Components {
      * @return the major.minor part of the neo4.version property string, as a double, or 9.9 if not configured
      */
     public static double neo4jVersion() {
-        String neo4jVersion = (String) configuration.get("neo4j.version");
+        String neo4jVersion = configuration.getNeo4jVersion();
         if (neo4jVersion != null) {
             try {
                 String[] versionElements = neo4jVersion.split("\\.");

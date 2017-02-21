@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
@@ -59,14 +60,6 @@ public class DriverConfigurationTest {
         assertNotNull(basic);
         assertEquals(username, basic.getUsername());
         assertEquals(password, basic.getPassword());
-    }
-
-    @Test
-    public void shouldLoadEmbeddedHaPropertiesFromRawConfiguration() {
-        Configuration config = new Configuration("neo4j-ha.properties");
-        assertEquals("1", config.get("ha.server_id"));
-        assertEquals("localhost:5001", config.get("ha.initial_hosts"));
-        assertEquals("true", config.get("ha.allow_init_cluster"));
     }
 
     @Test

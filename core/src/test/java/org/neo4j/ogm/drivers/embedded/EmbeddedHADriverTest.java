@@ -33,7 +33,6 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 	public static void configure() throws Exception {
 		Components.configure("embedded.ha.driver.properties");
 		deleteExistingEmbeddedDatabase();
-		System.out.println("Embedded HA: " + Components.neo4jVersion());
 	}
 
 	@AfterClass

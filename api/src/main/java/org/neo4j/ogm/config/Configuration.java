@@ -41,7 +41,6 @@ public class Configuration {
     private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
     private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
     private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
-    private static final String NEO4J_VERSION = "neo4j.version";
 
     private final Properties properties;
     private Credentials credentials;
@@ -115,10 +114,6 @@ public class Configuration {
 
     public String getNeo4jHaPropertiesFile() {
         return properties.getProperty(NEO4J_HA_PROPERTIES_FILE);
-    }
-
-    public String getNeo4jVersion() {
-        return properties.getProperty(NEO4J_VERSION);
     }
 
     public Credentials getCredentials() {

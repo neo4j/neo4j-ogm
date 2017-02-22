@@ -33,7 +33,6 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
     public static void configure() throws Exception {
 		Components.configure("embedded.driver.properties");
 		deleteExistingEmbeddedDatabase();
-		System.out.println("Embedded: " + Components.neo4jVersion());
     }
 
 

@@ -30,7 +30,6 @@ public class HttpDriverTest extends AbstractDriverTestSuite {
     @BeforeClass
     public static void configure() {
         Components.configure("ogm-http.properties");
-        System.out.println("Http: " + Components.neo4jVersion());
         testServer = new TestServer.Builder().build();
     }
 

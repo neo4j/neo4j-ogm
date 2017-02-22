@@ -29,11 +29,6 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 	private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (login:Login) ASSERT login.userName IS UNIQUE";
 
 
-	@Before
-	public void beforeMethod() {
-		assumeTrue(Components.neo4jVersion() >= 3.0);
-	}
-
 	@After
 	public void cleanUp() {
 		Components.getConfiguration().setAutoIndex("none");

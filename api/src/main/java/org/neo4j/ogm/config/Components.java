@@ -158,27 +158,6 @@ public class Components {
     }
 
     /**
-     * Gets the neo4j.version from the current configuration
-     *
-     * @return the major.minor part of the neo4.version property string, as a double, or 9.9 if not configured
-     */
-    public static double neo4jVersion() {
-        String neo4jVersion = configuration.getNeo4jVersion();
-        if (neo4jVersion != null) {
-            try {
-                String[] versionElements = neo4jVersion.split("\\.");
-                if (versionElements.length < 2) {
-                    throw new NumberFormatException();
-                }
-                return new Double(versionElements[0] + "." + versionElements[1]);
-            } catch (NumberFormatException nfe) {
-                logger.warn("Configuration property 'neo4j.version' is not in the correct form: expected something like '2.3', but got '{}' instead", neo4jVersion);
-            }
-        }
-        return 9.9; // unknown version
-    }
-
-    /**
      * Releases any current driver resources and clears the current configuration
      */
     public synchronized static void destroy() {

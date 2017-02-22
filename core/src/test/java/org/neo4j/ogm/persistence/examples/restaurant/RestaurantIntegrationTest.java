@@ -51,7 +51,6 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldSaveRestaurantWithCompositeLocationConverter() {
-        Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
                 new Location(37.61649, -122.38681), 94128);
@@ -63,7 +62,6 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldQueryByDistance() {
-        Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
                 new Location(37.61649, -122.38681), 94128);
@@ -81,7 +79,6 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldQueryByDistanceUsingFilter() {
-        Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
                 new Location(37.61649, -122.38681), 94128);
@@ -97,7 +94,6 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void saveAndRetrieveRestaurantWithLocation() {
-        Assume.assumeTrue(Components.neo4jVersion() >= 3);
 
         Restaurant restaurant = new Restaurant("San Francisco International Airport (SFO)",
                 new Location(37.61649, -122.38681), 94128);

@@ -191,9 +191,6 @@ public class AutoIndexManager {
     }
 
     private DefaultRequest buildProcedures() {
-        if (Components.neo4jVersion() < 3.0) {
-            throw new Neo4jVersionException("This configuration of auto indexing requires Neo4j version 3.0 or higher.");
-        }
         List<Statement> procedures = new ArrayList<>();
 
         procedures.add(new RowDataStatement("CALL db.constraints()", EMPTY_MAP));

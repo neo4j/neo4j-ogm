@@ -13,11 +13,6 @@
 
 package org.neo4j.ogm.config;
 
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Properties;
-
-import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
@@ -100,7 +95,15 @@ public class Components {
      * by passing in a Configuration object to the configure method, or an explicit configuration file name
      */
     public synchronized static void autoConfigure() {
-        configuration = new Configuration(new ClasspathConfigurationSource(configurationFile()));
+        String configFileName = System.getenv("ogm.properties");
+
+        if (configFileName == null) {
+            configFileName = System.getProperty("ogm.properties");
+            if (configFileName == null) {
+                configFileName = "ogm.properties";
+            }
+        }
+        configure(configFileName);
     }
 
     /**
@@ -133,25 +136,6 @@ public class Components {
         }
 
         throw new ServiceNotFoundException("Could not load driver: " + driverClassName + ".");
-    }
-
-    /**
-     * Tries to locate the default configuration file resource and return it as an InputStream
-     *
-     * @return An InputStream resource corresponding to the default configuration file, if it exists.
-     */
-    private static String configurationFile() {
-        String configFileName;
-        configFileName = System.getenv("ogm.properties");
-
-        if (configFileName == null) {
-            configFileName = System.getProperty("ogm.properties");
-            if (configFileName == null) {
-                return "ogm.properties";
-            }
-        }
-
-        return configFileName;
     }
 
     /**

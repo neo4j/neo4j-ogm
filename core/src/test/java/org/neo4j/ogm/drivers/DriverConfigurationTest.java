@@ -31,7 +31,7 @@ public class DriverConfigurationTest {
     @Test
     public void shouldLoadHttpDriverConfigFromPropertiesFile() {
         Configuration driverConfig = new Configuration(new ClasspathConfigurationSource("http.driver.properties"));
-        assertEquals("http://neo4j:password@localhost:7474", driverConfig.getURI());
+        assertEquals("http://localhost:7474", driverConfig.getURI());
     }
 
     @Test
@@ -43,7 +43,7 @@ public class DriverConfigurationTest {
     @Test
     public void shouldLoadBoltDriverConfigFromPropertiesFile() {
         Configuration driverConfig = new Configuration(new ClasspathConfigurationSource("bolt.driver.properties"));
-        assertEquals("bolt://neo4j:password@localhost", driverConfig.getURI());
+        assertEquals("bolt://localhost", driverConfig.getURI());
         assertEquals(Integer.valueOf(150), driverConfig.getConnectionPoolSize());
         assertEquals("NONE", driverConfig.getEncryptionLevel());
         assertEquals("TRUST_ON_FIRST_USE", driverConfig.getTrustStrategy());

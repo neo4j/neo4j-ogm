@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.exception.CypherException;
-import org.neo4j.ogm.json.ObjectMapperFactory;
+import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.model.QueryStatistics;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.slf4j.Logger;

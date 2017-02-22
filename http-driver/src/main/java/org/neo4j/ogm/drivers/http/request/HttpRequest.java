@@ -40,7 +40,7 @@ import org.neo4j.ogm.drivers.http.response.RestModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowModelResponse;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.ResultProcessingException;
-import org.neo4j.ogm.json.ObjectMapperFactory;
+import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;

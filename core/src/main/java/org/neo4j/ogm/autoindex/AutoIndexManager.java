@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;

@@ -16,7 +16,7 @@ package org.neo4j.ogm.drivers.bolt.response;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.summary.SummaryCounters;
-import org.neo4j.ogm.json.ObjectMapperFactory;
+import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.response.model.QueryStatisticsModel;
 import org.neo4j.ogm.result.adapter.ResultAdapter;
 

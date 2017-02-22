@@ -14,7 +14,7 @@
 package org.neo4j.ogm.config;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class Configuration {
     private static final String TRUST_STRATEGY = "trust.strategy";
     private static final String TRUST_CERT_FILE = "trust.certificate.file";
     private static final String AUTO_INDEX = "indexes.auto";
-    private static final String GENERATED_INDEXES_OUTPUT_DIR =  "indexes.auto.dump.dir";
+    private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
     private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
     private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
     private static final String NEO4J_VERSION = "neo4j.version";
@@ -52,6 +52,17 @@ public class Configuration {
 
     public Configuration(ConfigurationSource configurationSource) {
         properties = configurationSource.properties();
+        try {
+            java.net.URI url = new URI(properties.getProperty(URI));
+            String userInfo = url.getUserInfo();
+            if (userInfo != null) {
+                String[] userPass = userInfo.split(":");
+                setCredentials(userPass[0], userPass[1]);
+                properties.setProperty(URI, url.toString().replace(url.getUserInfo() + "@", ""));
+            }
+        } catch (Exception e) {
+            // do nothing here. user not obliged to supply a URL, or to pass in credentials
+        }
     }
 
     public void clear() {
@@ -76,6 +87,14 @@ public class Configuration {
 
     public String getDriverClassName() {
         return properties.getProperty(DRIVER);
+    }
+
+    public String getUsername() {
+        return properties.getProperty(USERNAME);
+    }
+
+    public String getPassword() {
+        return properties.getProperty(PASSWORD);
     }
 
     public Integer getConnectionPoolSize() {
@@ -109,11 +128,6 @@ public class Configuration {
     // SETTERS - TODO: Move to builder.
 
     public Configuration setAutoIndex(String value) {
-
-        if (AutoIndexMode.fromString(value) == null) {
-            throw new RuntimeException("Invalid index value: " + value + ". Value must be one of: " + Arrays.toString(AutoIndexMode.values()));
-        }
-
         properties.put(AUTO_INDEX, value);
         return this;
     }
@@ -134,6 +148,10 @@ public class Configuration {
     }
 
     public Configuration setURI(String uri) {
+        if (uri == null) {
+            properties.remove(URI);
+            return this;
+        }
         properties.put(URI, uri);
         try { // if this URI is a genuine resource, see if it has an embedded user-info and set credentials accordingly
             java.net.URI url = new URI(uri);

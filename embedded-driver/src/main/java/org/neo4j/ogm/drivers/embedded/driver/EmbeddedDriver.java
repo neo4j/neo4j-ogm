@@ -27,7 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
-import org.neo4j.ogm.classloader.ClassLoaderResolver;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.embedded.request.EmbeddedRequest;
@@ -99,7 +98,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
             // do we want to start a HA instance or a community instance?
             String haPropertiesFileName = config.getNeo4jHaPropertiesFile();
             if (haPropertiesFileName != null) {
-                setHAGraphDatabase(file, ClassLoaderResolver.resolve().getResource(haPropertiesFileName));
+                setHAGraphDatabase(file, Thread.currentThread().getContextClassLoader().getResource(haPropertiesFileName));
             } else {
                 setGraphDatabase(file);
             }

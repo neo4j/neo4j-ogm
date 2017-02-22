@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.Configuration;
@@ -29,19 +30,19 @@ public class DriverConfigurationTest {
 
     @Test
     public void shouldLoadHttpDriverConfigFromPropertiesFile() {
-        Configuration driverConfig = new Configuration("http.driver.properties");
+        Configuration driverConfig = new Configuration(new ClasspathConfigurationSource("http.driver.properties"));
         assertEquals("http://neo4j:password@localhost:7474", driverConfig.getURI());
     }
 
     @Test
     public void shouldLoadEmbeddedDriverConfigFromPropertiesFile() {
-        Configuration driverConfig = new Configuration("embedded.driver.properties");
+        Configuration driverConfig = new Configuration(new ClasspathConfigurationSource("embedded.driver.properties"));
         assertEquals("file:///var/tmp/neo4j.db", driverConfig.getURI());
     }
 
     @Test
     public void shouldLoadBoltDriverConfigFromPropertiesFile() {
-        Configuration driverConfig = new Configuration("bolt.driver.properties");
+        Configuration driverConfig = new Configuration(new ClasspathConfigurationSource("bolt.driver.properties"));
         assertEquals("bolt://neo4j:password@localhost", driverConfig.getURI());
         assertEquals(Integer.valueOf(150), driverConfig.getConnectionPoolSize());
         assertEquals("NONE", driverConfig.getEncryptionLevel());
@@ -64,7 +65,7 @@ public class DriverConfigurationTest {
 
     @Test
     public void shouldGetNeo4jHaPropertiesFileFromDriverConfiguration() {
-        Configuration config = new Configuration("embedded.ha.driver.properties");
+        Configuration config = new Configuration(new ClasspathConfigurationSource("embedded.ha.driver.properties"));
         assertEquals("neo4j-ha.properties", config.getNeo4jHaPropertiesFile());
     }
 }

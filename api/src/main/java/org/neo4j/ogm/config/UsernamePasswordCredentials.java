@@ -25,6 +25,9 @@ public class UsernamePasswordCredentials implements Credentials<String> {
     private final String password;
 
     public UsernamePasswordCredentials(String userName, String password) {
+        if (userName == null || password == null) {
+            throw new IllegalArgumentException("username or password cannot be null");
+        }
         this.credentials = Base64.encodeBase64String(userName.concat(":").concat(password).getBytes());
         this.username = userName;
         this.password = password;

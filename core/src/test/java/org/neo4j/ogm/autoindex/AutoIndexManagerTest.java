@@ -45,7 +45,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 		Configuration configuration = Components.getConfiguration();
 		configuration.setAutoIndex("validate");
 		Components.configure(configuration);
-		assertEquals(AutoIndexMode.VALIDATE, Components.autoIndexMode());
+		assertEquals(AutoIndexMode.VALIDATE.getName(), Components.getConfiguration().getAutoIndex());
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 		Components.getConfiguration().setAutoIndex("validate");
 		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-		assertEquals(AutoIndexMode.VALIDATE, Components.autoIndexMode());
+		assertEquals(AutoIndexMode.VALIDATE.getName(), Components.getConfiguration().getAutoIndex());
 		assertEquals(1, indexManager.getIndexes().size());
 		indexManager.build();
 
@@ -72,7 +72,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 	public void testIndexesAreFailValidation() {
 		Components.getConfiguration().setAutoIndex("validate");
 		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-		assertEquals(AutoIndexMode.VALIDATE, Components.autoIndexMode());
+		assertEquals(AutoIndexMode.VALIDATE.getName(), Components.getConfiguration().getAutoIndex());
 		indexManager.build();
 	}
 
@@ -89,7 +89,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 		try {
 			AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-			assertEquals(AutoIndexMode.DUMP, Components.autoIndexMode());
+			assertEquals(AutoIndexMode.DUMP.getName(), Components.getConfiguration().getAutoIndex());
 			assertEquals(1, indexManager.getIndexes().size());
 			indexManager.build();
 			assertTrue(file.exists());
@@ -113,7 +113,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 		Components.getConfiguration().setAutoIndex("assert");
 
 		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-		assertEquals(AutoIndexMode.ASSERT, Components.autoIndexMode());
+		assertEquals(AutoIndexMode.ASSERT.getName(), Components.getConfiguration().getAutoIndex());
 		assertEquals(1, indexManager.getIndexes().size());
 		indexManager.build();
 

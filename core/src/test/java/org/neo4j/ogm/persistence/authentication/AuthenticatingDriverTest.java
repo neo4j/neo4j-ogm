@@ -45,7 +45,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testUnauthorizedDriver() {
 
-        Components.driver().getConfiguration().setCredentials(null);
+        Components.driver().getConfiguration().setCredentials("", "");
         session = new SessionFactory("dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
@@ -58,7 +58,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
                 while (!(cause instanceof HttpResponseException)) {
                     cause = cause.getCause();
                 }
-                assertTrue(cause.getMessage().startsWith("No auth"));
+                assertTrue(cause.getMessage().startsWith("Invalid username or password"));
             }
         }
     }

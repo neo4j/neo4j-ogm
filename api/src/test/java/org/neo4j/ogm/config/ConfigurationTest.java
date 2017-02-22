@@ -59,7 +59,7 @@ public class ConfigurationTest {
 
     @Test
     public void shouldConfigureFromSimplePropertiesFile() {
-        Configuration configuration = new Configuration("ogm-simple.properties");
+        Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-simple.properties"));
 
         assertEquals(AutoIndexMode.NONE, configuration.getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
@@ -70,7 +70,7 @@ public class ConfigurationTest {
     @Test
     public void shouldConfigureFromNameSpacePropertiesFile() {
 
-        Configuration configuration = new Configuration("ogm-namespace.properties");
+        Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-namespace.properties"));
 
         assertEquals(AutoIndexMode.DUMP, configuration.getAutoIndex());
         assertEquals("hello", configuration.getDumpDir());
@@ -88,7 +88,7 @@ public class ConfigurationTest {
     @Test
     public void shouldConfigureFromSpringBootPropertiesFile() {
 
-        Configuration configuration = new Configuration("application.properties");
+        Configuration configuration = new Configuration(new ClasspathConfigurationSource("application.properties"));
 
         assertEquals(AutoIndexMode.NONE, configuration.getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());

@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpRequest implements Request {
 
-    private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
-    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRequest.class);
+    private static final ObjectMapper OBJECT_MAPPER = ObjectMapperFactory.objectMapper();
 
     private final String url;
     private final CloseableHttpClient httpClient;
@@ -130,14 +130,14 @@ public class HttpRequest implements Request {
     }
 
 
-    // we use the mapper to create the request string from the statement.
+    // we use the OBJECT_MAPPER to create the request string from the statement.
     // this driver is the only one that needs to do this, because the request format
     // is different for each type of request - GraphModelRequest/RowModelRequest, etc
     private String cypherRequest(Statement statement) {
         List<Statement> statementList = new ArrayList<>();
         statementList.add(statement);
         try {
-            return mapper.writeValueAsString(new Statements(statementList));
+            return OBJECT_MAPPER.writeValueAsString(new Statements(statementList));
         } catch (JsonProcessingException jpe) {
             throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(), jpe);
         }
@@ -145,7 +145,7 @@ public class HttpRequest implements Request {
 
     private String cypherRequest(Statements statements) {
         try {
-            return mapper.writeValueAsString(statements);
+            return OBJECT_MAPPER.writeValueAsString(statements);
         } catch (JsonProcessingException jpe) {
             throw new ResultProcessingException("Could not create JSON due to " + jpe.getLocalizedMessage(), jpe);
         }
@@ -162,14 +162,14 @@ public class HttpRequest implements Request {
         request.setEntity(new StringEntity(cypher, "UTF-8"));
         request.setHeader("X-WRITE", readOnly ? "0" : "1");
 
-        logger.info("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
+        LOGGER.info("Thread: {}, url: {}, request: {}", Thread.currentThread().getId(), url, cypher);
 
         return execute(httpClient, request, credentials);
     }
 
     public static CloseableHttpResponse execute(CloseableHttpClient httpClient, HttpRequestBase request, Credentials credentials) throws HttpRequestException {
 
-        logger.debug("Thread: {}, request: {}", Thread.currentThread().getId(), request);
+        LOGGER.debug("Thread: {}, request: {}", Thread.currentThread().getId(), request);
 
 
         CloseableHttpResponse response;
@@ -197,7 +197,7 @@ public class HttpRequest implements Request {
                     String responseText = statusLine.getReasonPhrase();
                     if (responseEntity != null) {
                         responseText = parseError(EntityUtils.toString(responseEntity));
-                        logger.warn("Thread: {}, response: {}", Thread.currentThread().getId(), responseText);
+                        LOGGER.warn("Thread: {}, response: {}", Thread.currentThread().getId(), responseText);
                     }
                     throw new HttpResponseException(statusLine.getStatusCode(), responseText);
                 }
@@ -211,7 +211,7 @@ public class HttpRequest implements Request {
 
             // if we didn't get a response at all, try again
             catch (NoHttpResponseException nhre) {
-                logger.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
+                LOGGER.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
                 retryStrategy.errorOccured();
             }
 
@@ -231,7 +231,7 @@ public class HttpRequest implements Request {
             // log the problem, close any connection held by the request
             // and then rethrow the exception to the caller.
             catch (Exception exception) {
-                logger.warn("Thread: {}, exception: {}", Thread.currentThread().getId(), exception.getCause().getLocalizedMessage());
+                LOGGER.warn("Thread: {}, exception: {}", Thread.currentThread().getId(), exception.getCause().getLocalizedMessage());
                 request.releaseConnection();
                 throw exception;
             }

@@ -74,11 +74,8 @@ public class Components {
      * @param configurationFileName The config file to use
      */
     public static void configure(String configurationFileName) {
-        try (InputStream is = toInputStream(configurationFileName)) {
-            configure(is);
-        } catch (Exception e) {
-            logger.warn("Could not configure OGM from {}", configurationFileName);
-        }
+        destroy();
+        configuration = new Configuration(new ClasspathConfigurationSource(configurationFileName));
     }
 
     /**
@@ -103,22 +100,7 @@ public class Components {
      * by passing in a Configuration object to the configure method, or an explicit configuration file name
      */
     public synchronized static void autoConfigure() {
-        try (InputStream is = configurationFile()) {
-            configure(is);
-        } catch (Exception e) {
-            logger.warn("Could not autoconfigure the OGM");
-        }
-    }
-
-    /**
-     * Creates a {@link Configuration} from an InputStream
-     *
-     * @param is an InputStream
-     * @throws Exception if error occurs.
-     */
-    private static void configure(InputStream is) throws Exception {
-        destroy();
-        configuration.configure(is);
+        configuration = new Configuration(new ClasspathConfigurationSource(configurationFile()));
     }
 
     /**
@@ -158,29 +140,18 @@ public class Components {
      *
      * @return An InputStream resource corresponding to the default configuration file, if it exists.
      */
-    private static InputStream configurationFile() {
+    private static String configurationFile() {
         String configFileName;
         configFileName = System.getenv("ogm.properties");
 
         if (configFileName == null) {
             configFileName = System.getProperty("ogm.properties");
             if (configFileName == null) {
-                return toInputStream("ogm.properties");
+                return "ogm.properties";
             }
         }
 
-        return toInputStream(configFileName);
-    }
-
-    /**
-     * Fetches a configuration file resource as an InputStream
-     *
-     * @param name the configuration file resource name
-     * @return the file resource as an InputStream
-     */
-    private static InputStream toInputStream(String name) {
-        logger.debug("Trying to configure from {} ", name);
-        return ClassLoaderResolver.resolve().getResourceAsStream(name);
+        return configFileName;
     }
 
     /**
@@ -233,15 +204,6 @@ public class Components {
             driver = null;
         }
         configuration.clear();
-    }
-
-    /**
-     * Return the {@link AutoIndexMode} from the AutoIndexConfiguration
-     *
-     * @return the configured autoIndexMode or AutoIndexMode.NONE if not configured
-     */
-    public static AutoIndexMode autoIndexMode() {
-        return configuration.getAutoIndex();
     }
 
     /**

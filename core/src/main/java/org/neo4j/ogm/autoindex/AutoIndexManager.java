@@ -55,7 +55,7 @@ public class AutoIndexManager {
     public AutoIndexManager(MetaData metaData, Driver driver) {
 
         this.driver = initialiseDriver(driver);
-        this.mode = Components.autoIndexMode();
+        this.mode = AutoIndexMode.fromString(Components.getConfiguration().getAutoIndex());
         this.indexes = initialiseIndexMetadata(metaData);
     }
 

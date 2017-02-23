@@ -51,12 +51,10 @@ public class Member extends Login {
         this.renewalDate = renewalDate;
     }
 
-    @Relationship(type = "HAS_ACTIVITY")
     public Iterable<Activity> getActivityList() {
         return activityList;
     }
 
-    @Relationship(type = "HAS_ACTIVITY")
     public void setActivityList(Iterable<Activity> activityList) {
         this.activityList = activityList;
     }

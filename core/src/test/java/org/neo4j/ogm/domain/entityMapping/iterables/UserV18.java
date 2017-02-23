@@ -24,17 +24,16 @@ import java.util.Set;
  */
 public class UserV18 {
 
+    @Relationship(direction = "OUTGOING")
     private Set<UserV18> knows;
 
     public UserV18() {
     }
 
-    @Relationship(direction = "OUTGOING")
     public Set<UserV18> getKnows() {
         return knows;
     }
 
-    @Relationship(direction = "OUTGOING")
     public void setKnows(Set<UserV18> friend) {
         this.knows = friend;
     }

@@ -31,7 +31,6 @@ import java.lang.annotation.*;
 @Inherited
 public @interface NodeEntity {
 
-    String CLASS = "org.neo4j.ogm.annotation.NodeEntity";
     String LABEL = "label";
 
     String label() default "";

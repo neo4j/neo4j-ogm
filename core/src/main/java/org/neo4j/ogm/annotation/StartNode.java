@@ -28,7 +28,6 @@ import java.lang.annotation.Target;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD,ElementType.METHOD})
+@Target(ElementType.FIELD)
 public @interface StartNode {
-    String CLASS = "org.neo4j.ogm.annotation.StartNode";
 }

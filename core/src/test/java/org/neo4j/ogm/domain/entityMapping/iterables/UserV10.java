@@ -25,28 +25,27 @@ import java.util.Set;
  */
 public class UserV10 extends Entity {
 
+    @Relationship(type = "LIKES")
     private Set<UserV10> likes;
+
+    @Relationship(type = "LIKES", direction = "INCOMING")
     private Set<UserV10> likedBy;
 
     public UserV10() {
     }
 
-    @Relationship(type = "LIKES")
     public Set<UserV10> getLikes() {
         return likes;
     }
 
-    @Relationship(type = "LIKES")
     public void setLikes(Set<UserV10> likes) {
         this.likes = likes;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public Set<UserV10> getLikedBy() {
         return likedBy;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public void setLikedBy(Set<UserV10> likedBy) {
         this.likedBy = likedBy;
     }

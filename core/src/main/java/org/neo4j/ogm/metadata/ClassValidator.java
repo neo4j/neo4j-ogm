@@ -14,6 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.PostLoad;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -30,7 +31,6 @@ public class ClassValidator {
     public void validate() throws MappingException {
         validateRelationshipEntity();
         validateFields();
-        validateMethods();
     }
 
     private void validateRelationshipEntity() throws MappingException {
@@ -42,27 +42,10 @@ public class ClassValidator {
 
     private void validateFields() throws MappingException {
         for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
-            if (fieldInfo.hasAnnotation(Property.CLASS) && fieldInfo.hasCompositeConverter()) {
+            if (fieldInfo.hasAnnotation(Property.class) && fieldInfo.hasCompositeConverter()) {
                 throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
                         classInfo.name(), fieldInfo.getName()));
             }
         }
     }
-
-    private void validateMethods() {
-        for (MethodInfo methodInfo : classInfo.propertyGettersAndSetters()) {
-            if (methodInfo.hasAnnotation(Labels.CLASS)) {
-                throw new MappingException(String.format("'%s' has the @Labels annotation applied to method '%s'. " +
-                                "The @Labels annotation can only be applied to a field.",
-                        classInfo.name(), methodInfo.getName()));
-            }
-            //TODO: Support and remove this restriction
-            if (methodInfo.hasAnnotation(Convert.CLASS)) {
-                throw new MappingException(String.format("'%s' has the @Convert annotation applied to method '%s'. " +
-                                "The @Convert annotation can only be applied to a field.",
-                        classInfo.name(), methodInfo.getName()));
-            }
-        }
-    }
-
 }

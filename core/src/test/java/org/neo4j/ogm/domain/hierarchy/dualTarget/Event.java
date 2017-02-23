@@ -39,22 +39,18 @@ public class Event extends BaseNode{
 		super(name);
 	}
 
-	@Relationship(type = "CREATOR", direction = "INCOMING")
 	public Member getCreator() {
 		return creator;
 	}
 
-	@Relationship(type = "CREATOR", direction = "INCOMING")
 	public void setCreator(Member creator) {
 		this.creator = creator;
 	}
 
-	@Relationship(type = "TAGGED_WITH", direction = "OUTGOING")
 	public Set<Tag> getTags() {
 		return tags;
 	}
 
-	@Relationship(type = "TAGGED_WITH", direction = "OUTGOING")
 	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
 	}

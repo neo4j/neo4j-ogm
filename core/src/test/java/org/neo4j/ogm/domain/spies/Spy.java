@@ -62,12 +62,10 @@ public class Spy {
         this.spiesOn = spiesOn;
     }
 
-    @Relationship(type = "SPY", direction = Relationship.INCOMING)
     public Target getSpiedOnBy() {
         return spiedOnBy;
     }
 
-    @Relationship(type = "SPY", direction = Relationship.INCOMING)
     public void setSpiedOnBy(Target spiedOnBy) {
         this.spiedOnBy = spiedOnBy;
     }

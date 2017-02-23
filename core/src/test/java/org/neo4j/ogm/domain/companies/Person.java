@@ -53,22 +53,18 @@ public class Person {
         this.id = id;
     }
 
-    @Relationship(type = "EMPLOYEE", direction = "OUTGOING")
     public Company getEmployer() {
         return employer;
     }
 
-    @Relationship(type = "EMPLOYEE", direction = "OUTGOING")
     public void setEmployer(Company employer) {
         this.employer = employer;
     }
 
-    @Relationship(type = "OWNER", direction = "OUTGOING")
     public Set<Company> getOwns() {
         return owns;
     }
 
-    @Relationship(type = "OWNER", direction = "OUTGOING")
     public void setOwns(Set<Company> owns) {
         this.owns = owns;
     }

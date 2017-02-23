@@ -81,7 +81,7 @@ public class FieldReader implements RelationalReader, PropertyReader {
     public String relationshipDirection() {
         ObjectAnnotations annotations = fieldInfo.getAnnotations();
         if (annotations != null) {
-            AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+            AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
             if (relationshipAnnotation != null) {
                 return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
             }

@@ -27,9 +27,7 @@ import java.lang.annotation.Target;
  * @author Michal Bachman
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD,ElementType.METHOD})
+@Target(ElementType.FIELD)
 public @interface EndNode {
-
-    String CLASS = "org.neo4j.ogm.annotation.EndNode";
 
 }

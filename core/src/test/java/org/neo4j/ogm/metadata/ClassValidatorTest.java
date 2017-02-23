@@ -26,45 +26,6 @@ import static org.junit.Assert.*;
 
 public class ClassValidatorTest {
 
-    /**
-     * @see issue #159
-     */
-    @Test
-    public void throwsExceptionWhenLabelAnnotationOnMethods() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.method");
-            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters' has the @Labels annotation applied to"));
-        }
-    }
-
-    /**
-     * @see issue #159
-     */
-    @Test
-    public void throwsExceptionWhenLabelAnnotationWithRelationshipEntity() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.labels.relationship");
-            metaData.classInfo(LabelsAnnotationOnGettersAndSetters.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertEquals("'org.neo4j.ogm.invalid.labels.relationship.LabelsAnnotationRelationshipEntity' is a relationship entity. The @Labels annotation can't be applied to relationship entities.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void throwsExceptionWhenConvertAnnotationOnMethods() {
-        try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.convert.diner");
-            metaData.classInfo(InvalidDiner.class.getSimpleName());
-            fail("Should have thrown exception.");
-        } catch (MappingException e) {
-            assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.convert.diner.InvalidDiner' has the @Convert annotation applied to method 'setLocation'"));
-        }
-    }
-
     @Test
     public void throwsExceptionWhenPropertyAndConvertTogether() {
         try {
@@ -75,6 +36,4 @@ public class ClassValidatorTest {
             assertTrue(e.getMessage().startsWith("'org.neo4j.ogm.invalid.convert.props.PropertyAndConvertTogether' has both @Convert and @Property annotations applied to the field 'location'"));
         }
     }
-
-
 }

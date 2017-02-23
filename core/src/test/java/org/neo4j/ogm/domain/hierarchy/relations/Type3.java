@@ -30,22 +30,18 @@ public class Type3 extends BaseEntity{
 	private Set<Type3> type3In = new HashSet<>();
 
 
-	@Relationship(type = "TYPE_TO", direction = "OUTGOING")
 	public Set<Type3> getType3Out() {
 		return type3Out;
 	}
 
-	@Relationship(type = "TYPE_TO", direction = "OUTGOING")
 	public void setType3Out(Set<Type3> type3Out) {
 		this.type3Out = type3Out;
 	}
 
-	@Relationship(type = "TYPE_TO", direction = "INCOMING")
 	public Set<Type3> getType3In() {
 		return type3In;
 	}
 
-	@Relationship(type = "TYPE_TO", direction = "INCOMING")
 	public void setType3In(Set<Type3> type3In) {
 		this.type3In = type3In;
 	}

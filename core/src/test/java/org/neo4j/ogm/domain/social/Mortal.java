@@ -46,12 +46,10 @@ public class Mortal {
         this.name = name;
     }
 
-    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
     public Set<Mortal> getKnownBy() {
         return knownBy;
     }
 
-    @Relationship(type = "KNOWN_BY", direction = "INCOMING")
     public void setKnownBy(Set<Mortal> knownBy) {
         this.knownBy = knownBy;
     }

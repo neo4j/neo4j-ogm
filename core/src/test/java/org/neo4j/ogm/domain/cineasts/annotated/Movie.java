@@ -91,12 +91,10 @@ public class Movie {
         return roles;
     }
 
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
     public Set<Rating> getRatings() {
         return ratings;
     }
 
-    @Relationship(type = "RATED", direction = Relationship.INCOMING)
     public void setRatings(Set<Rating> ratings) {
         this.ratings = ratings;
     }

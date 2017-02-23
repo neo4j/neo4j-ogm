@@ -74,8 +74,6 @@ public class ClassInfo {
     private AnnotationsInfo annotationsInfo = new AnnotationsInfo();
     private InterfacesInfo interfacesInfo = new InterfacesInfo();
     private ClassInfo directSuperclass;
-    private Map<Class, List<MethodInfo>> iterableGettersForType = new HashMap<>();
-    private Map<Class, List<MethodInfo>> iterableSettersForType = new HashMap<>();
     private Map<Class, List<FieldInfo>> iterableFieldsForType = new HashMap<>();
     private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
     private volatile Set<FieldInfo> fieldInfos;
@@ -116,7 +114,7 @@ public class ClassInfo {
         }
         interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
         fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
-        methodsInfo = new MethodsInfo(dataInputStream, constantPool);
+        methodsInfo = new MethodsInfo(className, dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
         new ClassValidator(this).validate();
         primaryIndexField = primaryIndexField();
@@ -218,12 +216,12 @@ public class ClassInfo {
             try {
                 lock.lock();
                 if (neo4jName == null) {
-                    AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.CLASS);
+                    AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.class);
                     if (annotationInfo != null) {
                         neo4jName = annotationInfo.get(NodeEntity.LABEL, simpleName());
                         return neo4jName;
                     }
-                    annotationInfo = annotationsInfo.get(RelationshipEntity.CLASS);
+                    annotationInfo = annotationsInfo.get(RelationshipEntity.class);
                     if (annotationInfo != null) {
                         neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
                         return neo4jName;
@@ -238,7 +236,7 @@ public class ClassInfo {
     }
 
     private Collection<String> collectLabels(Collection<String> labelNames) {
-        if (!isAbstract || annotationsInfo.get(NodeEntity.CLASS) != null) {
+        if (!isAbstract || annotationsInfo.get(NodeEntity.class) != null) {
             labelNames.add(neo4jName());
         }
         if (directSuperclass != null && !"java.lang.Object".equals(directSuperclass.className)) {
@@ -322,7 +320,7 @@ public class ClassInfo {
             lock.lock();
             if (identityField == null) {
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.CLASS);
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.class);
                     if (annotationInfo != null) {
                         if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
                             identityField = fieldInfo;
@@ -381,7 +379,7 @@ public class ClassInfo {
 
     public boolean isRelationshipEntity() {
         for (AnnotationInfo info : annotations()) {
-            if (info.getName().equals(RelationshipEntity.CLASS)) {
+            if (info.getName().equals(RelationshipEntity.class.getCanonicalName())) {
                 return true;
             }
         }
@@ -403,7 +401,7 @@ public class ClassInfo {
                     fieldInfos = new HashSet<>();
                     for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                         if (fieldInfo != identityField && !fieldInfo.isLabelField()) {
-                            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.CLASS);
+                            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
                             if (annotationInfo == null) {
                                 if (fieldInfo.persistableAsProperty()) {
                                     fieldInfos.add(fieldInfo);
@@ -475,7 +473,7 @@ public class ClassInfo {
         Set<FieldInfo> fieldInfos = new HashSet<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo != identityField) {
-                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.CLASS);
+                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Relationship.class);
                 if (annotationInfo == null) {
                     if (!fieldInfo.persistableAsProperty()) {
                         fieldInfos.add(fieldInfo);
@@ -561,281 +559,6 @@ public class ClassInfo {
         return null;
     }
 
-    /**
-     * The identity getter is any getter annotated with @NodeId returning a Long, or if none exists, a getter
-     * returning Long called 'getId'
-     *
-     * @return A FieldInfo object representing the identity field or null if it doesn't exist
-     */
-    public MethodInfo identityGetter() {
-        for (MethodInfo methodInfo : methodsInfo().getters()) {
-            AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
-            if (annotationInfo != null) {
-                if (methodInfo.getTypeDescriptor().equals("()Ljava/lang/Long;")) {
-                    return methodInfo;
-                }
-            }
-        }
-        MethodInfo methodInfo = methodsInfo().get("getId");
-        if (methodInfo != null) {
-            if (methodInfo.getTypeDescriptor().equals("()Ljava/lang/Long;")) {
-                return methodInfo;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * The identity setter is any setter annotated with @NodeId taking a Long parameter, or if none exists, a setter
-     * called 'setId' taking a Long parameter
-     *
-     * @return A FieldInfo object representing the identity field or null if it doesn't exist
-     */
-    public MethodInfo identitySetter() {
-        for (MethodInfo methodInfo : methodsInfo().setters()) {
-            AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(GraphId.CLASS);
-            if (annotationInfo != null) {
-                if (methodInfo.getTypeDescriptor().equals("(Ljava/lang/Long;)V")) {
-                    return methodInfo;
-                }
-            }
-        }
-        MethodInfo methodInfo = methodsInfo().get("setId");
-        if (methodInfo != null) {
-            if (methodInfo.getTypeDescriptor().equals("(Ljava/lang/Long;)V")) {
-                return methodInfo;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * A property getter is any getter annotated with @Property, or any getter whose return type can be mapped to a
-     * node property. The identity getter is not a property getter.
-     *
-     * @return A Collection of MethodInfo objects describing the classInfo's property getters
-     */
-    public Collection<MethodInfo> propertyGetters() {
-        MethodInfo identityGetter = identityGetter();
-        Set<MethodInfo> propertyGetters = new HashSet<>();
-        for (MethodInfo methodInfo : methodsInfo().getters()) {
-            if (!methodInfo.isEquallyNamed(identityGetter)) {
-                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
-                if (annotationInfo == null) {
-                    if (methodInfo.isSimpleGetter()) {
-                        propertyGetters.add(methodInfo);
-                    }
-                } else {
-                    propertyGetters.add(methodInfo);
-                }
-            }
-        }
-        return propertyGetters;
-    }
-
-    /**
-     * A property setter is any setter annotated with @Property, or any setter whose parameter type can be mapped to a
-     * node property. The identity setter is not a property setter.
-     *
-     * @return A Collection of MethodInfo objects describing the classInfo's property setters
-     */
-    public Collection<MethodInfo> propertySetters() {
-        MethodInfo identitySetter = identitySetter();
-        Set<MethodInfo> propertySetters = new HashSet<>();
-        for (MethodInfo methodInfo : methodsInfo().setters()) {
-            if (!methodInfo.isEquallyNamed(identitySetter)) {
-                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Property.CLASS);
-                if (annotationInfo == null) {
-                    if (methodInfo.isSimpleSetter()) {
-                        propertySetters.add(methodInfo);
-                    }
-                } else {
-                    propertySetters.add(methodInfo);
-                }
-            }
-        }
-        return propertySetters;
-    }
-
-    public Collection<MethodInfo> propertyGettersAndSetters() {
-        return CollectionUtils.union(propertyGetters(), propertySetters());
-    }
-
-    /**
-     * A relationship getter is any getter annotated with @Relationship, or any getter whose return type cannot be mapped to a
-     * node property. The identity getter is not a property getter.
-     *
-     * @return A Collection of MethodInfo objects describing the classInfo's property getters
-     */
-    public Collection<MethodInfo> relationshipGetters() {
-        MethodInfo identityGetter = identityGetter();
-        Set<MethodInfo> relationshipGetters = new HashSet<>();
-        for (MethodInfo methodInfo : methodsInfo().getters()) {
-            if (identityGetter == null || !methodInfo.getName().equals(identityGetter.getName())) {
-                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
-                if (annotationInfo == null) {
-                    if (!methodInfo.isSimpleGetter()) {
-                        relationshipGetters.add(methodInfo);
-                    }
-                } else {
-                    relationshipGetters.add(methodInfo);
-                }
-            }
-        }
-        return relationshipGetters;
-    }
-
-    /**
-     * A relationship setter is any setter annotated with @Relationship, or any setter whose parameter type cannot be mapped to a
-     * node property. The identity setter is not a property getter.
-     *
-     * @return A Collection of MethodInfo objects describing the classInfo's property getters
-     */
-    public Collection<MethodInfo> relationshipSetters() {
-        MethodInfo identitySetter = identitySetter();
-        Set<MethodInfo> relationshipSetters = new HashSet<>();
-        for (MethodInfo methodInfo : methodsInfo().setters()) {
-            if (identitySetter == null || !methodInfo.getName().equals(identitySetter.getName())) {
-                AnnotationInfo annotationInfo = methodInfo.getAnnotations().get(Relationship.CLASS);
-                if (annotationInfo == null) {
-                    if (!methodInfo.isSimpleSetter()) {
-                        relationshipSetters.add(methodInfo);
-                    }
-                } else {
-                    relationshipSetters.add(methodInfo);
-                }
-            }
-        }
-        return relationshipSetters;
-    }
-
-    /**
-     * Finds the relationship getter with a specific name from the specified ClassInfo's relationship getters
-     *
-     * @param relationshipName the relationshipName of the getter to find
-     * @return A MethodInfo object describing the required relationship getter, or null if it doesn't exist.
-     */
-    public MethodInfo relationshipGetter(String relationshipName) {
-        for (MethodInfo methodInfo : relationshipGetters()) {
-            if (methodInfo.relationship().equalsIgnoreCase(relationshipName)) {
-                return methodInfo;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds the relationship getter with a specific name and direction from the specified ClassInfo's relationship getters
-     *
-     * @param relationshipName the relationshipName of the getter to find
-     * @param relationshipDirection the relationship direction
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
-     * @return A MethodInfo object describing the required relationship getter, or null if it doesn't exist.
-     */
-    public MethodInfo relationshipGetter(String relationshipName, String relationshipDirection, boolean strict) {
-        for (MethodInfo methodInfo : relationshipGetters()) {
-            String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
-            if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
-                    return methodInfo;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds the relationship setter with a specific name from the specified ClassInfo's relationship setters
-     *
-     * @param relationshipName the relationshipName of the setter to find
-     * @return A MethodInfo object describing the required relationship setter, or null if it doesn't exist.
-     */
-    public MethodInfo relationshipSetter(String relationshipName) {
-        for (MethodInfo methodInfo : relationshipSetters()) {
-            if (methodInfo.relationship().equalsIgnoreCase(relationshipName)) {
-                return methodInfo;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds the relationship setter with a specific name and direction from the specified ClassInfo's relationship setters.
-     *
-     * @param relationshipName the relationshipName of the setter to find
-     * @param relationshipDirection the relationship direction
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
-     * @return A MethodInfo object describing the required relationship setter, or null if it doesn't exist.
-     */
-    public MethodInfo relationshipSetter(String relationshipName, String relationshipDirection, boolean strict) {
-        for (MethodInfo methodInfo : relationshipSetters()) {
-            String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
-            if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
-                    return methodInfo;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds all relationship setters with a specific name and direction from the specified ClassInfo's relationship setters.
-     *
-     * @param relationshipName the relationshipName of the setter to find
-     * @param relationshipDirection the relationship direction
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
-     * @return A Set of MethodInfo object describing the required relationship setter, or empty set if it doesn't exist.
-     */
-    public Set<MethodInfo> candidateRelationshipSetters(String relationshipName, String relationshipDirection, boolean strict) {
-        Set<MethodInfo> candidateSetters = new HashSet<>();
-        for (MethodInfo methodInfo : relationshipSetters()) {
-            String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
-            if (relationshipName.equalsIgnoreCase(relationship)) {
-                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
-                    candidateSetters.add(methodInfo);
-                }
-            }
-        }
-        return candidateSetters;
-    }
-
-    /**
-     * Finds the property setter with a specific name from the specified ClassInfo's property setters
-     *
-     * @param propertyName the propertyName of the setter to find
-     * @return A MethodInfo object describing the required property setter, or null if it doesn't exist.
-     */
-    public MethodInfo propertySetter(String propertyName) {
-        for (MethodInfo methodInfo : propertySetters()) {
-            String match = methodInfo.property();
-            if (match.equalsIgnoreCase(propertyName) || match.equalsIgnoreCase("set" + propertyName)) {
-                return methodInfo;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds the property getter with a specific name from the specified ClassInfo's property getters
-     *
-     * @param propertyName the propertyName of the getter to find
-     * @return A MethodInfo object describing the required property getter, or null if it doesn't exist.
-     */
-    public MethodInfo propertyGetter(String propertyName) {
-        for (MethodInfo methodInfo : propertyGetters()) {
-            String match = methodInfo.property();
-            if (match.equalsIgnoreCase(propertyName) || match.equalsIgnoreCase("get" + propertyName)) {
-                return methodInfo;
-            }
-        }
-        return null;
-    }
-
-
     public Field getField(FieldInfo fieldInfo) {
         Field field = fieldInfoFields.get(fieldInfo);
         if (field != null) {
@@ -865,47 +588,7 @@ public class ClassInfo {
      * @return a Method
      */
     public Method getMethod(MethodInfo methodInfo) {
-        return methodInfo.getMethod(name());
-    }
-
-    /**
-     * Find all setter MethodInfos for the specified ClassInfo whose parameter type matches the supplied class
-     *
-     * @param parameterType The setter parameter type to look for.
-     * @return A {@link List} of {@link MethodInfo} objects that accept the given parameter type, never <code>null</code>
-     */
-    public List<MethodInfo> findSetters(Class<?> parameterType) {
-        String setterSignature = "(L" + parameterType.getName().replace(".", "/") + ";)V";
-        List<MethodInfo> methodInfos = new ArrayList<>();
-        for (MethodInfo methodInfo : methodsInfo().methods()) {
-            // TODO: don't admit non-javaBean style setters
-            if (methodInfo.isSetter()) {
-                if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-        }
-        return methodInfos;
-    }
-
-    /**
-     * Find all getter MethodInfos for the specified ClassInfo whose return type matches the supplied class
-     *
-     * @param returnType The getter return type to look for.
-     * @return A {@link List} of {@link MethodInfo} objects that return the given type, never <code>null</code>
-     */
-    public List<MethodInfo> findGetters(Class<?> returnType) {
-        String setterSignature = "()L" + returnType.getName().replace(".", "/") + ";";
-        List<MethodInfo> methodInfos = new ArrayList<>();
-        for (MethodInfo methodInfo : methodsInfo().methods()) {
-            // TODO: don't admit non-javaBean style getters
-            if (methodInfo.isGetter()) {
-                if (methodInfo.getTypeDescriptor().equals(setterSignature)) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-        }
-        return methodInfos;
+        return methodInfo.getMethod();
     }
 
     /**
@@ -1017,139 +700,8 @@ public class ClassInfo {
         return fieldInfos;
     }
 
-
-    /**
-     * Finds all setter methods whose parameter signature is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
-     * where X is the generic parameter type of the Array or Iterable
-     *
-     * @param iteratedType the type of iterable
-     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
-     */
-    public List<MethodInfo> findIterableSetters(Class iteratedType) {
-        if (iterableSettersForType.containsKey(iteratedType)) {
-            return iterableSettersForType.get(iteratedType);
-        }
-        List<MethodInfo> methodInfos = new ArrayList<>();
-        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
-        String arrayOfTypeSignature = "([" + typeSignature + ")V";
-        try {
-            for (MethodInfo methodInfo : propertySetters()) {
-                String methodType = methodInfo.getTypeDescriptor();
-                if (methodInfo.isArray() && (methodType.equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
-                    methodInfos.add(methodInfo);
-                } else if (methodInfo.isIterable() && (methodType.equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-            for (MethodInfo methodInfo : relationshipSetters()) {
-                String methodType = methodInfo.getTypeDescriptor();
-                if (methodInfo.isArray() && (methodType.equals(arrayOfTypeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
-                    methodInfos.add(methodInfo);
-                } else if (methodInfo.isIterable() && (methodType.equals(typeSignature) || methodInfo.isParameterisedTypeOf(iteratedType))) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-            iterableSettersForType.put(iteratedType, methodInfos);
-            return methodInfos;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
-     * Finds all setter methods whose parameter signature is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
-     * where X is the generic parameter type of the Array or Iterable and the relationship type this setter is annotated with is "relationshipType"
-     * and the relationship direction matches "relationshipDirection"
-     *
-     * @param iteratedType the type of iterable
-     * @param relationshipType the relationship type
-     * @param relationshipDirection the relationship direction
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
-     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
-     */
-    public List<MethodInfo> findIterableSetters(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
-        List<MethodInfo> methodInfos = new ArrayList<>();
-        for (MethodInfo methodInfo : findIterableSetters(iteratedType)) {
-            String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
-            if (relationshipType.equals(relationship)) {
-                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-        }
-        return methodInfos;
-    }
-
-
-    /**
-     * Finds all getter methods whose parameterised return type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
-     * where X is the generic parameter type of the Array or Iterable
-     *
-     * @param iteratedType the type of iterable
-     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
-     */
-    public List<MethodInfo> findIterableGetters(Class iteratedType) {
-        if (iterableGettersForType.containsKey(iteratedType)) {
-            return iterableGettersForType.get(iteratedType);
-        }
-        List<MethodInfo> methodInfos = new ArrayList<>();
-        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
-        String arrayOfTypeSignature = "()[" + typeSignature;
-        try {
-            for (MethodInfo methodInfo : propertyGetters()) {
-                String methodType = methodInfo.getTypeDescriptor();
-                if (methodInfo.isArray() && methodType.equals(arrayOfTypeSignature)) {
-                    methodInfos.add(methodInfo);
-                } else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-
-            for (MethodInfo methodInfo : relationshipGetters()) {
-                String methodType = methodInfo.getTypeDescriptor();
-                if (methodInfo.isArray() && methodType.equals(arrayOfTypeSignature)) {
-                    methodInfos.add(methodInfo);
-                } else if (methodInfo.isIterable() && methodType.equals(typeSignature)) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-            iterableGettersForType.put(iteratedType, methodInfos);
-            return methodInfos;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Finds all getter methods whose parameterised return type is equivalent to Array&lt;X&gt; or assignable from Iterable&lt;X&gt;
-     * where X is the generic parameter type of the Array or Iterable and the relationship type this getter is annotated with is "relationshipType"
-     * and the direction of the relationship is "relationshipDirection"
-     *
-     * @param iteratedType the type of iterable
-     * @param relationshipType the relationship type
-     * @param relationshipDirection the relationshipDirection
-     * @param strict if true, does not infer relationship type but looks for it in the @Relationship annotation. Null if missing. If false, infers relationship type from MethodInfo
-     * @return {@link List} of {@link MethodInfo}, never <code>null</code>
-     */
-    public List<MethodInfo> findIterableGetters(Class iteratedType, String relationshipType, String relationshipDirection, boolean strict) {
-        List<MethodInfo> methodInfos = new ArrayList<>();
-        for (MethodInfo methodInfo : findIterableGetters(iteratedType)) {
-            String relationship = strict ? methodInfo.relationshipTypeAnnotation() : methodInfo.relationship();
-
-            if (relationshipType.equals(relationship)) {
-                if (((methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING) || methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.UNDIRECTED)) && relationshipDirection.equals(Relationship.INCOMING))
-                        || (relationshipDirection.equals(Relationship.OUTGOING) && !(methodInfo.relationshipDirection(Relationship.OUTGOING).equals(Relationship.INCOMING)))) {
-                    methodInfos.add(methodInfo);
-                }
-            }
-        }
-        return methodInfos;
-    }
-
     public boolean isTransient() {
-        return annotationsInfo.get(Transient.CLASS) != null;
+        return annotationsInfo.get(Transient.class) != null;
     }
 
     public boolean isAbstract() {
@@ -1215,21 +767,12 @@ public class ClassInfo {
         final boolean INFERRED_MODE = false; //inferred mode for matching methods and fields, will infer the relationship type from the getter/setter/property
 
         try {
-            MethodInfo methodInfo = relationshipSetter(relationshipType, relationshipDirection, STRICT_MODE);
-            if (methodInfo != null && methodInfo.getTypeDescriptor() != null) {
-                return ClassUtils.getType(methodInfo.getTypeDescriptor());
-            }
-
             FieldInfo fieldInfo = relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
                 return ClassUtils.getType(fieldInfo.getTypeDescriptor());
             }
 
             if (!relationshipDirection.equals(Relationship.INCOMING)) { //we always expect an annotation for INCOMING
-                methodInfo = relationshipSetter(relationshipType, relationshipDirection, INFERRED_MODE);
-                if (methodInfo != null && methodInfo.getTypeDescriptor() != null) {
-                    return ClassUtils.getType(methodInfo.getTypeDescriptor());
-                }
                 fieldInfo = relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null && fieldInfo.getTypeDescriptor() != null) {
                     return ClassUtils.getType(fieldInfo.getTypeDescriptor());
@@ -1314,6 +857,15 @@ public class ClassInfo {
         }
 
         return primaryIndexField;
+    }
+
+    public MethodInfo postLoadMethodOrNull() {
+        for (MethodInfo methodInfo : methodsInfo().methods()) {
+            if (methodInfo.hasAnnotation(PostLoad.class.getCanonicalName())) {
+                return methodInfo;
+            }
+        }
+        return null;
     }
 }
 

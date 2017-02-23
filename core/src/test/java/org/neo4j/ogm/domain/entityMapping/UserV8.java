@@ -25,12 +25,10 @@ public class UserV8 extends Entity {
     @Relationship(type = "KNOWS", direction = "INCOMING")
     private UserV8 knows;
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public UserV8 getKnows() {
         return knows;
     }
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public void setKnows(UserV8 knows) {
         this.knows = knows;
     }

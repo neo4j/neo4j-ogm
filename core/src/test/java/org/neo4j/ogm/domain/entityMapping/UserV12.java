@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV12 extends Entity {
 
+    @Relationship(type = "LIKES")
     private UserV12 friend;
 
     @Relationship(type = "LIKES", direction = "INCOMING")
@@ -30,22 +31,18 @@ public class UserV12 extends Entity {
     public UserV12() {
     }
 
-    @Relationship(type = "LIKES")
     public UserV12 getFriend() {
         return friend;
     }
 
-    @Relationship(type = "LIKES")
     public void setFriend(UserV12 friend) {
         this.friend = friend;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public UserV12 getFriendOf() {
         return friendOf;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public void setFriendOf(UserV12 friendOf) {
         this.friendOf = friendOf;
     }

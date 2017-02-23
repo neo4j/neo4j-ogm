@@ -16,6 +16,9 @@ package org.neo4j.ogm.domain.education;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.PostLoad;
+import org.neo4j.ogm.annotation.Relationship;
+
 /**
  * @author Vince Bickers
  */
@@ -41,6 +44,13 @@ public class School extends DomainObject {
                 teacher.setSchool(this);
                 this.teachers.add(teacher);
             }
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        for (Teacher teacher : teachers) {
+            teacher.setSchool(this);
         }
     }
 

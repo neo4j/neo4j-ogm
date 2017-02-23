@@ -25,14 +25,13 @@ import java.util.Set;
  */
 public class UserV16 extends Entity {
 
+    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
     private Set<UserV16> knows;
 
-    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
     public Set<UserV16> getKnows() {
         return knows;
     }
 
-    @Relationship(type = "KNOWS", direction = "UNDIRECTED")
     public void setKnows(Set<UserV16> knows) {
         this.knows = knows;
     }

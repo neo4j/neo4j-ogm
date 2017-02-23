@@ -22,29 +22,27 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV22 {
 
+    @Relationship(type = "KNOWS")
     UserV22 user;
 
+    @Relationship(type = "KNOWS")
     PlainUser plainUser;
 
     public UserV22() {
     }
 
-    @Relationship(type = "KNOWS")
     public UserV22 getUser() {
         return user;
     }
 
-    @Relationship(type = "KNOWS")
     public void setUser(UserV22 user) {
         this.user = user;
     }
 
-    @Relationship(type = "KNOWS")
     public PlainUser getPlainUser() {
         return plainUser;
     }
 
-    @Relationship(type = "KNOWS")
     public void setPlainUser(PlainUser plainUser) {
         this.plainUser = plainUser;
     }

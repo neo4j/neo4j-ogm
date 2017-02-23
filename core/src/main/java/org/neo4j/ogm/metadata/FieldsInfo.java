@@ -62,7 +62,7 @@ public class FieldsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            if ((accessFlags & (STATIC_FIELD | FINAL_FIELD | TRANSIENT_FIELD)) == 0 && objectAnnotations.get(Transient.CLASS) == null) {
+            if ((accessFlags & (STATIC_FIELD | FINAL_FIELD | TRANSIENT_FIELD)) == 0 && objectAnnotations.get(Transient.class) == null) {
                 fields.put(fieldName, new FieldInfo(fieldName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }

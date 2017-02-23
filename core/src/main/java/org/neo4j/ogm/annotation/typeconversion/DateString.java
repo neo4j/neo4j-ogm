@@ -19,11 +19,10 @@ import java.lang.annotation.*;
  * @author Vince Bickers
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target(ElementType.FIELD)
 @Inherited
 public @interface DateString {
 
-    String CLASS = "org.neo4j.ogm.annotation.typeconversion.DateString";
     String FORMAT = "value";
 
     String ISO_8601 ="yyyy-MM-dd'T'HH:mm:ss.SSSXXX";

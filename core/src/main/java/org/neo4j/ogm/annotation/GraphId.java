@@ -18,21 +18,16 @@ import java.lang.annotation.*;
 /**
  * Identifies the field in the domain entity which is to be
  * mapped to the id property of its backing node in the graph.
- *
  * This annotation is not needed if the domain entity has a Long
  * field called id.
  *
  * @author Vince Bickers
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target(ElementType.FIELD)
 @Inherited
 public @interface GraphId {
 
-    String CLASS = "org.neo4j.ogm.annotation.GraphId";
-    String NAME = "name";
-
     String name() default "";
-
 }
 

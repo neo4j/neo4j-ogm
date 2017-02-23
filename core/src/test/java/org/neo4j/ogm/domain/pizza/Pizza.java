@@ -80,32 +80,26 @@ public class Pizza {
         this.name = name;
     }
 
-    @Relationship(type = "FOR", direction = "INCOMING")
     public Crust getCrust() {
         return crust;
     }
 
-    @Relationship(type = "FOR", direction = "INCOMING")
     public void setCrust(Crust crust) {
         this.crust = crust;
     }
 
-    @Relationship(type = "FOR", direction = "INCOMING")
     public List<Topping> getToppings() {
         return toppings;
     }
 
-    @Relationship(type = "FOR", direction = "INCOMING")
     public void setToppings(List<Topping> toppings) {
         this.toppings = toppings;
     }
 
-    @Relationship(type = "FOR", direction = "INCOMING")
     public PizzaSauce getPizzaSauce() {
         return pizzaSauce;
     }
 
-    @Relationship(type = "FOR", direction = "INCOMING")
     public void setPizzaSauce(PizzaSauce pizzaSauce) {
         this.pizzaSauce = pizzaSauce;
         this.pizzaSauce.setPizza(this);

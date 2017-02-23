@@ -48,7 +48,7 @@ public class FieldWriter extends EntityAccess {
         try {
             field.setAccessible(true);
             return field.get(instance);
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -59,8 +59,7 @@ public class FieldWriter extends EntityAccess {
         if (fieldInfo.hasPropertyConverter()) {
             value = fieldInfo.getPropertyConverter().toEntityAttribute(value);
             FieldWriter.write(field, instance, value);
-        }
-        else {
+        } else {
             if (fieldInfo.isScalar()) {
                 String descriptor = fieldInfo.getTypeDescriptor();
                 value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);

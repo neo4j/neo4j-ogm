@@ -22,28 +22,27 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV10 extends Entity {
 
+    @Relationship(type = "LIKES")
     private UserV10 likes;
+
+    @Relationship(type = "LIKES", direction = "INCOMING")
     private UserV10 likedBy;
 
     public UserV10() {
     }
 
-    @Relationship(type = "LIKES")
     public UserV10 getLikes() {
         return likes;
     }
 
-    @Relationship(type = "LIKES")
     public void setLikes(UserV10 likes) {
         this.likes = likes;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public UserV10 getLikedBy() {
         return likedBy;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public void setLikedBy(UserV10 likedBy) {
         this.likedBy = likedBy;
     }

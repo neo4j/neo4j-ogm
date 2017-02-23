@@ -22,17 +22,16 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 public class UserV5 extends Entity {
 
+    @Relationship(type = "KNOWS")
     private UserV5 friend;
 
     public UserV5() {
     }
 
-    @Relationship(type = "KNOWS")
     public UserV5 getFriend() {
         return friend;
     }
 
-    @Relationship(type = "KNOWS")
     public void setFriend(UserV5 friend) {
         this.friend = friend;
     }

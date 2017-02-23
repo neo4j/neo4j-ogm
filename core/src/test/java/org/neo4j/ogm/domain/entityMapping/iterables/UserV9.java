@@ -42,14 +42,10 @@ public class UserV9 extends Entity {
         this.likes = likes;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
-    //We MUST annotate the getter if present and the relationship direction is incoming
     public Set<UserV9> getLikedBy() {
         return likedBy;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
-    //We MUST annotate the setter if present and the relationship direction is incoming
     public void setLikedBy(Set<UserV9> likedBy) {
         this.likedBy = likedBy;
     }

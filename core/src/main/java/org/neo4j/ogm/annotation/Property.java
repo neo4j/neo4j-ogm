@@ -18,21 +18,18 @@ import java.lang.annotation.*;
 /**
  * Establishes the mapping between a domain entity attribute
  * and a node or relationship property in the graph.
- *
  * This annotation is not needed if the mapping can be
  * derived by the OGM, according to the following
  * heuristics:
- *
- *      an accessor method
+ * an accessor method
  *
  * @author Vince Bickers
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target(ElementType.FIELD)
 @Inherited
 public @interface Property {
 
-    String CLASS = "org.neo4j.ogm.annotation.Property";
     String NAME = "name";
 
     String name() default "";

@@ -112,7 +112,7 @@ public class FieldInfo {
     public String property() {
         if (persistableAsProperty()) {
             if (annotations != null) {
-                AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
+                AnnotationInfo propertyAnnotation = annotations.get(Property.class);
                 if (propertyAnnotation != null) {
                     return propertyAnnotation.get(Property.NAME, getName());
                 }
@@ -125,7 +125,7 @@ public class FieldInfo {
     public String relationship() {
         if (!persistableAsProperty()) {
             if (annotations != null) {
-                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
                 }
@@ -138,7 +138,7 @@ public class FieldInfo {
     public String relationshipTypeAnnotation() {
         if (!persistableAsProperty()) {
             if (annotations != null) {
-                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, null);
                 }
@@ -190,7 +190,7 @@ public class FieldInfo {
 
     public String relationshipDirection(String defaultDirection) {
         if (relationship() != null) {
-            AnnotationInfo annotationInfo = getAnnotations().get(Relationship.CLASS);
+            AnnotationInfo annotationInfo = getAnnotations().get(Relationship.class);
             if (annotationInfo == null) {
                 return defaultDirection;
             }
@@ -285,7 +285,7 @@ public class FieldInfo {
     }
 
     public boolean isLabelField() {
-        return this.getAnnotations().get(Labels.CLASS) != null;
+        return this.getAnnotations().get(Labels.class) != null;
     }
 
     public boolean isArray() {
@@ -294,6 +294,10 @@ public class FieldInfo {
 
     public boolean hasAnnotation(String annotationName) {
         return getAnnotations().get(annotationName) != null;
+    }
+
+    public boolean hasAnnotation(Class<?> annotationNameClass) {
+        return getAnnotations().get(annotationNameClass.getCanonicalName()) != null;
     }
 
     /**

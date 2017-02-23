@@ -78,6 +78,7 @@ public class MethodInfo {
                     "([Ljava/lang/String;)V";
 
 
+    private final String className;
     private final String name;
     private final String descriptor;
     private final ObjectAnnotations annotations;
@@ -104,7 +105,8 @@ public class MethodInfo {
      *                                expresses its generic type, or <code>null</code> if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public MethodInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public MethodInfo(String className, String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+        this.className = className;
         this.name = name;
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
@@ -157,7 +159,7 @@ public class MethodInfo {
     public String property() {
         if (isSimpleSetter() || isSimpleGetter()) {
             if (annotations != null) {
-                AnnotationInfo propertyAnnotation = annotations.get(Property.CLASS);
+                AnnotationInfo propertyAnnotation = annotations.get(Property.class);
                 if (propertyAnnotation != null) {
                     return propertyAnnotation.get(Property.NAME, getName());
                 }
@@ -175,7 +177,7 @@ public class MethodInfo {
     public String relationship() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
             if (annotations != null) {
-                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, RelationshipUtils.inferRelationshipType(getName()));
                 }
@@ -188,7 +190,7 @@ public class MethodInfo {
     public String relationshipTypeAnnotation() {
         if (!isSimpleSetter() && !isSimpleGetter()) {
             if (annotations != null) {
-                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
+                AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
                 if (relationshipAnnotation != null) {
                     return relationshipAnnotation.get(Relationship.TYPE, null);
                 }
@@ -203,14 +205,6 @@ public class MethodInfo {
 
     public boolean isEquallyNamed(MethodInfo other) {
         return other != null && getName().equals(other.getName());
-    }
-
-    public boolean isGetter() {
-        return getName().startsWith("get") && descriptor.startsWith("()");
-    }
-
-    public boolean isSetter() {
-        return getName().startsWith("set") && descriptor.endsWith(")V");
     }
 
     public boolean isSimpleGetter() {
@@ -267,31 +261,13 @@ public class MethodInfo {
 
     public String relationshipDirection(String defaultDirection) {
         if (relationship() != null) {
-            AnnotationInfo annotationInfo = getAnnotations().get(Relationship.CLASS);
+            AnnotationInfo annotationInfo = getAnnotations().get(Relationship.class);
             if (annotationInfo == null) {
                 return defaultDirection;
             }
             return annotationInfo.get(Relationship.DIRECTION, defaultDirection);
         }
         throw new RuntimeException("relationship direction call invalid");
-    }
-
-    public boolean isTypeOf(Class<?> type) {
-        while (type != null) {
-            String typeSignature = "(L" + type.getName().replace(".", "/") + ";)V";
-            if (descriptor != null && descriptor.equals(typeSignature)) {
-                return true;
-            }
-            // #issue 42: check interfaces when types are defined using generics as interface extensions
-            for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = "L" + iface.getName().replace(".", "/") + ";";
-                if (descriptor != null && descriptor.equals(typeSignature)) {
-                    return true;
-                }
-            }
-            type = type.getSuperclass();
-        }
-        return false;
     }
 
     public boolean isParameterisedTypeOf(Class<?> type) {
@@ -304,24 +280,6 @@ public class MethodInfo {
             for (Class<?> iface : type.getInterfaces()) {
                 typeSignature = "L" + iface.getName().replace(".", "/") + ";";
                 if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
-                    return true;
-                }
-            }
-            type = type.getSuperclass();
-        }
-        return false;
-    }
-
-    public boolean isArrayOf(Class<?> type) {
-        while (type != null) {
-            String typeSignature = "([L" + type.getName().replace(".", "/") + ";)V";
-            if (descriptor != null && descriptor.equals(typeSignature)) {
-                return true;
-            }
-            // #issue 42: check interfaces when types are defined using generics as interface extensions
-            for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = "([L" + iface.getName().replace(".", "/") + ";)V";
-                if (descriptor != null && descriptor.equals(typeSignature)) {
                     return true;
                 }
             }
@@ -367,6 +325,10 @@ public class MethodInfo {
         return getAnnotations().get(annotationName) != null;
     }
 
+    public boolean hasAnnotation(Class<?> annotationNameClass) {
+        return getAnnotations().get(annotationNameClass.getCanonicalName()) != null;
+    }
+
     public boolean isArray() {
         return descriptor.startsWith("()[") || descriptor.startsWith("([");
     }
@@ -389,21 +351,13 @@ public class MethodInfo {
      *
      * The expectation here is that only java bean getter and setter methods will be called
      *
-     * @param className The class declaring this method. TODO: methodInfo should know this?
      * @return a Method, if it exists on the corresponding class.
      */
-    public Method getMethod(String className) {
+    public Method getMethod() {
         try {
-            if (isSetter()) {
-                return MetaDataClassLoader.loadClass(className).getMethod(name, ClassUtils.getType(descriptor));
-            }
-            if (isGetter()) {
-                return MetaDataClassLoader.loadClass(className).getMethod(name);
-            }
+            return MetaDataClassLoader.loadClass(className).getMethod(name);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        throw new RuntimeException("Only JavaBean-style getter and setter methods can be invoked");
     }
 }

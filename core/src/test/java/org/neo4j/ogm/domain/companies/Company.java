@@ -39,22 +39,18 @@ public class Company {
         this.name = name;
     }
 
-    @Relationship(type = "OWNER", direction = "INCOMING")
     public Set<Person> getOwners() {
         return owners;
     }
 
-    @Relationship(type = "OWNER", direction = "INCOMING")
     public void setOwners(Set<Person> owners) {
         this.owners = owners;
     }
 
-    @Relationship(type = "EMPLOYEE", direction = "INCOMING")
     public Set<Person> getEmployees() {
         return employees;
     }
 
-    @Relationship(type = "EMPLOYEE", direction = "INCOMING")
     public void setEmployees(Set<Person> employees) {
         this.employees = employees;
     }

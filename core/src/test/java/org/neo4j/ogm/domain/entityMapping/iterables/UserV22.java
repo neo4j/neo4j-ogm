@@ -25,29 +25,27 @@ import java.util.List;
  */
 public class UserV22 {
 
+    @Relationship(type = "KNOWS")
     public List<PlainUser> plainUsers;
 
+    @Relationship(type = "KNOWS")
     public UserV22 user;
 
     public UserV22() {
     }
 
-    @Relationship(type = "KNOWS")
     public List<PlainUser> getPlainUsers() {
         return plainUsers;
     }
 
-    @Relationship(type = "KNOWS")
     public void setPlainUsers(List<PlainUser> plainUsers) {
         this.plainUsers = plainUsers;
     }
 
-    @Relationship(type = "KNOWS")
     public UserV22 getUser() {
         return user;
     }
 
-    @Relationship(type = "KNOWS")
     public void setUser(UserV22 user) {
         this.user = user;
     }

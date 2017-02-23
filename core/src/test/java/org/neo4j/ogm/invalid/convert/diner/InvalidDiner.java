@@ -29,6 +29,8 @@ public class InvalidDiner {
     private Long id;
     private String firstName;
     private String lastName;
+
+    @Convert(LocationConverter.class)
     private Location location;
 
     public InvalidDiner() {
@@ -60,7 +62,6 @@ public class InvalidDiner {
         return location;
     }
 
-    @Convert(LocationConverter.class)
     public void setLocation(Location location) {
         this.location = location;
     }

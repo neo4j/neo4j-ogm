@@ -36,25 +36,6 @@ public class MetaDataTest {
         metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
-    //@org.junit.Ignore("I do think we should implement this, but it's not really possible without loading classes")
-    @Test
-    public void testResolutionOfRelationshipTypeFromMethodInfo() {
-        ClassInfo classInfo = metaData.resolve("Forum");
-        assertNotNull("The resolved class info shouldn't be null", classInfo);
-        assertEquals("org.neo4j.ogm.domain.forum.Forum", classInfo.name());
-
-        final String relationshipType = "HAS_TOPIC";
-
-        // test getters
-        MethodInfo relationshipEntityGetter = classInfo.relationshipGetter(relationshipType);
-        assertNotNull(relationshipEntityGetter);
-        assertEquals(relationshipType, relationshipEntityGetter.relationship());
-
-        // test setters
-        MethodInfo relationshipEntitySetter = classInfo.relationshipSetter(relationshipType);
-        assertNotNull(relationshipEntitySetter);
-        assertEquals(relationshipType, relationshipEntitySetter.relationship());
-    }
 
     @Test
     public void testThatJavaDotLangDotEnumIsAnEnum() {

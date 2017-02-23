@@ -54,7 +54,6 @@ public class DataView  {
 		return sharedWith;
 	}
 
-	@Relationship(type= "SHARED_WITH", direction = Relationship.OUTGOING)
 	public void setSharedWith(List<Thing> sharedWith) {
 		this.sharedWith = sharedWith;
 	}

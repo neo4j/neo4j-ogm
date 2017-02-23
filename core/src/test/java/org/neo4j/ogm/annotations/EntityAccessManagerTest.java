@@ -37,18 +37,14 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.Topic;
-import org.neo4j.ogm.domain.forum.activity.Activity;
 import org.neo4j.ogm.domain.forum.activity.Comment;
 import org.neo4j.ogm.domain.forum.activity.Post;
-import org.neo4j.ogm.domain.satellites.Location;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
 import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.EntityAccess;
 import org.neo4j.ogm.entity.io.FieldReader;
 import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.MethodReader;
-import org.neo4j.ogm.entity.io.MethodWriter;
 import org.neo4j.ogm.entity.io.PropertyReader;
 import org.neo4j.ogm.entity.io.RelationalReader;
 import org.neo4j.ogm.entity.io.RelationalWriter;
@@ -72,18 +68,6 @@ public class EntityAccessManagerTest {
         );
     }
 
-    @Test
-    public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenFindingPropertyToSet() {
-        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
-
-        EntityAccess objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testAnnoProp");
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-
-        DummyDomainObject domainObject = new DummyDomainObject();
-        objectAccess.write(domainObject, "Arbitrary Value");
-        assertEquals("Arbitrary Value", domainObject.fullyAnnotatedProperty);
-        assertTrue("The accessor method wasn't used to set the value", domainObject.fullyAnnotatedPropertyAccessorWasCalled);
-    }
 
     @Test
     public void shouldPreferAnnotatedFieldToPlainMethodWhenFindingPropertyToSet() {
@@ -112,20 +96,6 @@ public class EntityAccessManagerTest {
         assertEquals(String.class, objectAccess.type());
         objectAccess.write(domainObject, "TEST");
         assertEquals("TEST", domainObject.propertyMethodsIgnored);
-    }
-
-
-    @Test
-    public void shouldReturnAccessorMethodInPreferenceToFieldIfNoAnnotationsArePresent() {
-        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
-
-        EntityAccess objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "nonAnnotatedTestProperty");
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-
-        DummyDomainObject domainObject = new DummyDomainObject();
-        objectAccess.write(domainObject, 8.14);
-        assertEquals(8.14, domainObject.nonAnnotatedTestProperty, 0.0);
-        assertTrue("The setter method wasn't called to write the value", domainObject.nonAnnotatedTestPropertyAccessorWasCalled);
     }
 
     @Test
@@ -171,19 +141,6 @@ public class EntityAccessManagerTest {
         assertNull("A compatible object accessor shouldn't have been found", objectAccess);
     }
 
-    @Test
-    public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenSettingRelationshipObject() {
-        // 1st, try to find a method annotated with the relationship type.
-        ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
-        List<? extends Activity> parameter = Arrays.asList(new Comment());
-
-        RelationalWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "HAS_ACTIVITY", Relationship.OUTGOING, new Comment());
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodWriter);
-        Member member = new Member();
-        objectAccess.write(member, parameter);
-        assertEquals(member.getActivityList(), parameter);
-    }
 
     @Test
     public void shouldPreferAnnotatedFieldToPlainSetterMatchingRelationshipTypeWhenSettingRelationshipObject() {
@@ -206,21 +163,6 @@ public class EntityAccessManagerTest {
         assertEquals(domainObject.registeredMember, otherMember);
     }
 
-    @Test
-    public void shouldPreferSetterBasedOnRelationshipTypeToFieldInObjectWithoutAnnotations() {
-        // 3rd, try to find a "setXYZ" method where XYZ is derived from the relationship type
-        ClassInfo classInfo = this.domainInfo.getClass(Satellite.class.getName());
-
-        Location satelliteLocation = new Location();
-        satelliteLocation.setName("Outer Space");
-
-        RelationalWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "LOCATION", Relationship.OUTGOING, satelliteLocation);
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the setter", objectAccess instanceof MethodWriter);
-        Satellite satellite = new Satellite();
-        objectAccess.write(satellite, satelliteLocation);
-        assertEquals(satellite.getLocation(), satelliteLocation);
-    }
 
     @Test
     public void shouldPreferFieldBasedOnRelationshipTypeToPlainSetterWithMatchingParameterType() {
@@ -238,20 +180,6 @@ public class EntityAccessManagerTest {
     }
 
     @Test
-    public void shouldDefaultToFindingSetterThatMatchesTheParameterTypeIfRelationshipTypeCannotBeMatched() {
-        // 5th, try to find a single setter that takes the parameter
-        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
-        Topic favouriteTopic = new Topic();
-
-        RelationalWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "DOES_NOT_MATCH", Relationship.OUTGOING, favouriteTopic);
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        DummyDomainObject domainObject = new DummyDomainObject();
-        objectAccess.write(domainObject, favouriteTopic);
-        assertEquals(domainObject.favouriteTopic, favouriteTopic);
-        assertTrue("The access should be via the setter method", domainObject.topicAccessorWasCalled);
-    }
-
-    @Test
     public void shouldDefaultToFieldThatMatchesTheParameterTypeIfRelationshipTypeCannotBeMatchedAndNoSetterExists() {
         // 6th, try to find a field that shares the same type as the parameter
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
@@ -264,18 +192,6 @@ public class EntityAccessManagerTest {
         assertEquals(domainObject.postWithoutAccessorMethods, forumPost);
     }
 
-    @Test
-    public void shouldPreferAnnotatedMethodToAnnotatedFieldWhenReadingFromAnObject() {
-        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
-
-        DummyDomainObject domainObject = new DummyDomainObject();
-        domainObject.fullyAnnotatedProperty = "test text";
-
-        PropertyReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "testAnnoProp");
-        assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertEquals(domainObject.fullyAnnotatedProperty, objectAccess.readProperty(domainObject));
-        assertTrue("The accessor method wasn't used to get the value", domainObject.fullyAnnotatedPropertyAccessorWasCalled);
-    }
 
     @Test
     public void shouldPreferAnnotatedFieldToPlainGetterWhenReadingFromAnObject() {
@@ -322,19 +238,6 @@ public class EntityAccessManagerTest {
     }
 
     @Test
-    public void shouldPreferAnnotatedMethodToAnnotatedFieldMatchingRelationshipTypeWhenReadingRelationshipObject() {
-        ClassInfo classInfo = this.domainInfo.getClass(Member.class.getName());
-        Member member = new Member();
-        member.setActivityList(Arrays.<Activity>asList(new Comment()));
-
-        RelationalReader reader = EntityAccessManager.getRelationalReader(classInfo, "HAS_ACTIVITY", Relationship.OUTGOING);
-        assertNotNull("The resultant object reader shouldn't be null", reader);
-        assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertSame(member.getActivityList(), reader.read(member));
-        assertEquals("HAS_ACTIVITY", reader.relationshipType());
-    }
-
-    @Test
     public void shouldPreferAnnotatedFieldToPlainGetterMethodMatchingRelationshipType() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
@@ -352,22 +255,6 @@ public class EntityAccessManagerTest {
         assertSame(domainObject.registeredMember, reader.read(domainObject));
         assertEquals("REGISTERED", reader.relationshipType());
 
-    }
-
-    @Test
-    public void shouldPreferGetterBasedOnRelationshipTypeToFieldInObjectWithoutAnnotations() {
-        ClassInfo classInfo = this.domainInfo.getClass(Satellite.class.getName());
-
-        Satellite satellite = new Satellite();
-        Location satelliteLocation = new Location();
-        satelliteLocation.setName("Outer Space");
-        satellite.setLocation(satelliteLocation);
-
-        RelationalReader reader = EntityAccessManager.getRelationalReader(classInfo, "LOCATION", Relationship.OUTGOING);
-        assertNotNull("The resultant object accessor shouldn't be null", reader);
-        assertTrue("The access mechanism should be via the getter", reader instanceof MethodReader);
-        assertSame(satellite.getLocation(), reader.read(satellite));
-        assertEquals("LOCATION", reader.relationshipType());
     }
 
     @Test
@@ -414,7 +301,7 @@ public class EntityAccessManagerTest {
         assertEquals("An unexpected number of accessors was returned", 7, relationalAccessors.size());
 
         Map<String, Class<? extends RelationalReader>> expectedRelationalReaders = new HashMap<>();
-        expectedRelationalReaders.put("COMMENT", MethodReader.class);
+        expectedRelationalReaders.put("COMMENT", FieldReader.class);
         expectedRelationalReaders.put("FAVOURITE_TOPIC", FieldReader.class);
         expectedRelationalReaders.put("CONTAINS", FieldReader.class);
         expectedRelationalReaders.put("POST_WITHOUT_ACCESSOR_METHODS", FieldReader.class);
@@ -515,6 +402,8 @@ public class EntityAccessManagerTest {
         Topic favouriteTopic;
         boolean topicAccessorWasCalled;
         Post postWithoutAccessorMethods;
+
+        @Relationship(type = "COMMENT")
         Comment readOnlyComment;
         // interestingly, if I extend DomainObject then the inherited ID field isn't found within a nested class
         @SuppressWarnings("unused")
@@ -546,13 +435,11 @@ public class EntityAccessManagerTest {
             this.nonAnnotatedTestProperty = value;
         }
 
-        @Property(name = "testAnnoProp")
         public String getFullyAnnotatedProperty() {
             this.fullyAnnotatedPropertyAccessorWasCalled = true;
             return fullyAnnotatedProperty;
         }
 
-        @Property(name = "testAnnoProp")
         public void setFullyAnnotatedProperty(String fullyAnnotatedProperty) {
             this.fullyAnnotatedPropertyAccessorWasCalled = true;
             this.fullyAnnotatedProperty = fullyAnnotatedProperty;
@@ -584,7 +471,6 @@ public class EntityAccessManagerTest {
             this.favouriteTopic = favouriteTopic;
         }
 
-        @Relationship(type = "COMMENT")
         public Comment getReadOnlyComment() {
             return this.readOnlyComment;
         }

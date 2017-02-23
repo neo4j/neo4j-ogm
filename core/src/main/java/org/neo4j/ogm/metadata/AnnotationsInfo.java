@@ -59,6 +59,10 @@ public class AnnotationsInfo {
         return classAnnotations.get(annotationName);
     }
 
+    public AnnotationInfo get(Class<?> annotationNameClass) {
+        return classAnnotations.get(annotationNameClass.getCanonicalName());
+    }
+
     void add(AnnotationInfo annotationInfo) {
         classAnnotations.put(annotationInfo.getName(), annotationInfo);
     }

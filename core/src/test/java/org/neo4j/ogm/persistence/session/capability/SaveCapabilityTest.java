@@ -169,8 +169,6 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
 
     @Test
     public void shouldCountRelationshipEntities() {
-
-
         Album greatestHits = new Album("Greatest Hits");
 
         Studio chessRecordsStudios = new Studio("Chess Records");
@@ -186,9 +184,5 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
         session.save(recording2);
 
         assertEquals(2, session.countEntitiesOfType(Recording.class));
-
-
-
     }
-
 }

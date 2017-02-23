@@ -261,7 +261,7 @@ public class MetaData {
 
     public boolean isRelationshipEntity(String className) {
         ClassInfo classInfo = classInfo(className);
-        return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+        return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.class);
     }
 
     private ClassInfo findSingleImplementor(String taxon) {
@@ -279,7 +279,7 @@ public class MetaData {
     public String entityType(String name) {
         ClassInfo classInfo = classInfo(name);
         if(isRelationshipEntity(classInfo.name())) {
-            AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+            AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
             return annotation.get(RelationshipEntity.TYPE, classInfo.name());
         }
         return classInfo.neo4jName();

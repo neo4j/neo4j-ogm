@@ -44,12 +44,10 @@ public class Tag extends Entity {
     }
 
 
-    @Relationship(type = "HAS", direction = Relationship.INCOMING)
     public Set<Entity> getEntities() {
         return entities;
     }
 
-    @Relationship(type = "HAS", direction = Relationship.INCOMING)
     public void setEntities(Set<Entity> entities) {
         this.entities = entities;
     }

@@ -45,12 +45,10 @@ public abstract class BaseEntity {
 		this.outgoing = outgoing;
 	}
 
-	@Relationship(type = "RELATED_TO", direction = "INCOMING")
 	public List<BaseEntity> getIncoming() {
 		return incoming;
 	}
 
-	@Relationship(type = "RELATED_TO", direction = "INCOMING")
 	public void setIncoming(List<BaseEntity> incoming) {
 		this.incoming = incoming;
 	}

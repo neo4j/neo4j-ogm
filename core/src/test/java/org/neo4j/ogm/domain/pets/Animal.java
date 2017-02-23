@@ -49,12 +49,10 @@ public class Animal {
         this.name = name;
     }
 
-    @Relationship(type = "HAS_PET", direction = "INCOMING")
     public Kid getOwner() {
         return owner;
     }
 
-    @Relationship(type = "HAS_PET", direction = "INCOMING")
     public void setOwner(Kid owner) {
         this.owner = owner;
     }

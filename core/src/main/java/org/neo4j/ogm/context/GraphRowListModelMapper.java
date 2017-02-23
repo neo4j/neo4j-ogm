@@ -64,7 +64,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
             }
         }
 
-        if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+        if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
             for(Long resultEntityId : resultEntityIds) {
                 result.add((T) mappingContext.getNodeEntity(resultEntityId));
             }

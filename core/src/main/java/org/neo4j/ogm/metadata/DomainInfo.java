@@ -211,9 +211,6 @@ public class DomainInfo implements ClassFileProcessor {
                         continue;
                     }
                 }
-                if (registerConverters) {
-                    registerDefaultMethodConverters(classInfo, methodInfo);
-                }
             }
         }
     }
@@ -369,60 +366,6 @@ public class DomainInfo implements ClassFileProcessor {
         return annotationNameToClassInfo.get(annotation);
     }
 
-    private void registerDefaultMethodConverters(ClassInfo classInfo, MethodInfo methodInfo) {
-        if (!methodInfo.hasPropertyConverter() && !methodInfo.hasCompositeConverter() && (methodInfo.isGetter() || methodInfo.isSetter())) {
-            if (methodInfo.getTypeDescriptor().contains(dateSignature)) {
-                setDateMethodConverter(methodInfo);
-            } else if (methodInfo.getTypeDescriptor().contains(bigIntegerSignature)) {
-                setBigIntegerMethodConverter(methodInfo);
-            } else if (methodInfo.getTypeDescriptor().contains(bigDecimalSignature)) {
-                setBigDecimalMethodConverter(methodInfo);
-            } else if (methodInfo.getTypeDescriptor().contains(byteArraySignature)) {
-                methodInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (methodInfo.getTypeDescriptor().contains(byteArrayWrapperSignature)) {
-                methodInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
-            } else {
-                // could do 'if annotated @Convert but no converter set then proxy one' but not sure if that's worthwhile
-                // FIXME: this won't really work unless I infer the source and target types from the descriptor here
-                // well, I can't infer the thing that gets put in the graph until the moment it's given, can I!?
-                // so this has to be done at real-time for reading from the graph, convert what you get
-                // then, writing back to the graph, we just return whatever
-                // the caveat, therefore, is that when writing to the graph you could get anything back!
-                // ... and to look up the correct converter from Spring you always need the target type :(
-                if (methodInfo.getAnnotations().get(Convert.CLASS) != null) {
-                    // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                    Class<?> entityAttributeType = ClassUtils.getType(methodInfo.getTypeDescriptor());
-                    String graphTypeDescriptor = methodInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
-                    if (graphTypeDescriptor == null) {
-                        throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
-                                + " on " + classInfo.name() + '.' + methodInfo.getName()
-                                + " but no target graph property type or specific AttributeConverter have been specified.");
-                    }
-                    methodInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
-                }
-                Class methodType = ClassUtils.getType(methodInfo.getTypeDescriptor());
-                if (methodType != null) {
-
-                    boolean enumConverterSet = false;
-                    for (Class enumClass : enumTypes) {
-                        if (methodType.equals(enumClass) || (methodType.isArray() && methodType.getComponentType().equals(enumClass))) {
-                            setEnumMethodConverter(methodInfo, enumClass);
-                            enumConverterSet = true;
-                            break;
-                        }
-                    }
-                    if (!enumConverterSet) {
-                        if (methodType.isEnum()) {
-                            LOGGER.debug("Setting default enum converter for unscanned class " + classInfo.name() + ", method: " + methodInfo.getName());
-                            setEnumMethodConverter(methodInfo, methodType);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
         if (methodInfo.isArray()) {
             methodInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
@@ -478,10 +421,10 @@ public class DomainInfo implements ClassFileProcessor {
             } else if (fieldInfo.getTypeDescriptor().contains(byteArrayWrapperSignature)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
-                if (fieldInfo.getAnnotations().get(Convert.CLASS) != null) {
+                if (fieldInfo.getAnnotations().get(Convert.class) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
                     Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
-                    String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.CLASS).get(Convert.GRAPH_TYPE, null);
+                    String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
                         throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
                                 + " on " + classInfo.name() + '.' + fieldInfo.getName()

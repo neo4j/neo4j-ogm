@@ -54,12 +54,10 @@ public class SocialUser {
         this.following = following;
     }
 
-    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
     public Set<SocialUser> getFollowers() {
         return followers;
     }
 
-    @Relationship(type = "IS_FOLLOWED_BY", direction = Relationship.INCOMING)
     public void setFollowers(Set<SocialUser> followers) {
         this.followers = followers;
     }

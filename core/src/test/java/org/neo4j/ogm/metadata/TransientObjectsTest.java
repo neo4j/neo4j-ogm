@@ -52,14 +52,6 @@ public class TransientObjectsTest {
         assertNull(classInfo);
     }
 
-
-    @Test
-    public void testMethodAnnotatedTransientIsExcludedFromMetaData() {
-        ClassInfo classInfo = metaData.classInfo("PersistableClass");
-        MethodInfo methodInfo = classInfo.propertyGetter("transientObject");
-        assertNull(methodInfo);
-    }
-
     @Test
     public void testFieldAnnotatedTransientIsExcludedFromMetaData() {
         ClassInfo classInfo = metaData.classInfo("PersistableClass");
@@ -67,24 +59,6 @@ public class TransientObjectsTest {
         assertNull(fieldInfo);
     }
 
-    @Test
-    public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipMethods() {
-        ClassInfo classInfo = metaData.classInfo("PersistableClass");
-        MethodInfo methodInfo = classInfo.relationshipGetter("TRANSIENT_SINGLE_CLASS");
-        assertNull(methodInfo);
-        methodInfo = classInfo.relationshipSetter("TRANSIENT_SINGLE_CLASS");
-        assertNull(methodInfo);
-        for (MethodInfo method : classInfo.relationshipGetters()) {
-            if (method.getName().equals("getTransientSingleClass")) {
-                fail("getTransientSingleClass should not be returned in relationshipGetters");
-            }
-        }
-        for (MethodInfo method : classInfo.relationshipSetters()) {
-            if (method.getName().equals("setTransientSingleClass")) {
-                fail("getTransientSingleClass should not be returned in relationshipSetters");
-            }
-        }
-    }
 
     @Test
     public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipFields() {
@@ -102,6 +76,8 @@ public class TransientObjectsTest {
     public class PersistableClass {
 
         private Long id;
+
+        @Transient
         private transient String transientObject;
 
         @Transient
@@ -109,7 +85,6 @@ public class TransientObjectsTest {
 
         public TransientSingleClass transientSingleClassField;
 
-        @Transient
         public String getTransientObject() {
             return transientObject;
         }

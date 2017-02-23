@@ -37,7 +37,9 @@ public class Satellite extends DomainObject {
     @Property(name = "satellite")
     private String name;
 
+    @Property(name = "launch_date")
     private String launched;
+
     @Property(name = "manned")
     private String manned;
 
@@ -51,17 +53,14 @@ public class Satellite extends DomainObject {
         return name;
     }
 
-    @Property(name = "satellite")
     public void setName(String name) {
         this.name = name;
     }
 
-    @Property(name = "launch_date")
     public String getLaunched() {
         return launched;
     }
 
-    @Property(name = "launch_date")
     public void setLaunched(String launched) {
         this.launched = launched;
     }

@@ -62,7 +62,7 @@ public class LoadOneDelegate {
 		Object ref;
 		ClassInfo typeInfo = session.metaData().classInfo(type.getName());
 
-		if (typeInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+		if (typeInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
 			ref = session.context().getNodeEntity(id);
 		} else {
 			// Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.

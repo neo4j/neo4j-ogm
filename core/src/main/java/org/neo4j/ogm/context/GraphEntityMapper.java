@@ -17,6 +17,8 @@ package org.neo4j.ogm.context;
 import static org.neo4j.ogm.annotation.Relationship.*;
 import static org.neo4j.ogm.entity.io.EntityAccessManager.*;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import org.neo4j.ogm.MetaData;
@@ -28,6 +30,7 @@ import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
@@ -134,6 +137,27 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         try {
             mapNodes(graphModel, nodeIds);
             mapRelationships(graphModel, edgeIds);
+
+            Set<Long> seenNodeIds = new HashSet<>();
+            for (Long nodeId: nodeIds) {
+                if (!seenNodeIds.contains(nodeId)) {
+                    Object entity = mappingContext.getNodeEntity(nodeId);
+                    executePostLoad(entity);
+                    seenNodeIds.add(nodeId);
+                }
+            }
+
+            Set<Long> seenEdgeIds = new HashSet<>();
+            for (Long edgeId: edgeIds) {
+                if (!seenEdgeIds.contains(edgeId)) {
+                    Object entity = mappingContext.getRelationshipEntity(edgeId);
+                    if (entity != null) {
+                        executePostLoad(entity);
+                    }
+                    seenNodeIds.add(edgeId);
+                }
+            }
+
         } catch (Exception e) {
             throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }
@@ -156,6 +180,19 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 } catch (BaseClassNotFoundException e) {
                     logger.debug(e.getMessage());
                 }
+            }
+        }
+    }
+
+    private void executePostLoad(Object instance) {
+        ClassInfo classInfo = metadata.classInfo(instance);
+        MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
+        if (postLoadMethod != null) {
+            final Method method = postLoadMethod.getMethod();
+            try {
+                method.invoke(instance);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                logger.error("Failed to execute post load method", e);
             }
         }
     }
@@ -512,11 +549,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         for (ClassInfo classInfo : classInfos) {
 
 			// both source and target must be declared as START and END nodes respectively
-			if (!nodeTypeMatches(classInfo, source, StartNode.CLASS)) {
+			if (!nodeTypeMatches(classInfo, source, StartNode.class)) {
 				continue;
 			}
 
-			if (!nodeTypeMatches(classInfo, target, EndNode.CLASS)) {
+			if (!nodeTypeMatches(classInfo, target, EndNode.class)) {
 				continue;
 			}
 
@@ -538,7 +575,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         // the right one, otherwise ... give up
         if (classInfos.size() == 1) {
             ClassInfo classInfo = classInfos.iterator().next();
-            if (nodeTypeMatches(classInfo, source, StartNode.CLASS) && nodeTypeMatches(classInfo, target, EndNode.CLASS)) {
+            if (nodeTypeMatches(classInfo, source, StartNode.class) && nodeTypeMatches(classInfo, target, EndNode.class)) {
                 return classInfo;
             }
         } else {
@@ -589,11 +626,11 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      *
      * @param classInfo the ClassInfo
      * @param node the node object
-     * @param annotation the annotation to match
+     * @param annotationClass the annotation to match
      * @return true if the class of the node matches field annotated
      */
-    private boolean nodeTypeMatches(ClassInfo classInfo, Object node, String annotation) {
-        List<FieldInfo> fields = classInfo.findFields(annotation);
+    private boolean nodeTypeMatches(ClassInfo classInfo, Object node, Class<?> annotationClass) {
+        List<FieldInfo> fields = classInfo.findFields(annotationClass.getCanonicalName());
         if (fields.size() == 1) {
             FieldInfo field = fields.get(0);
             if (field.isTypeOf(node.getClass())) {

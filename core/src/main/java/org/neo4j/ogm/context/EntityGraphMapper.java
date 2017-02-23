@@ -108,7 +108,7 @@ public class EntityGraphMapper implements EntityMapper {
             // create or update the relationship if its not already been visited in the current compile context
             if (!compiler.context().visitedRelationshipEntity(EntityUtils.identity(entity, metaData))) {
 
-                AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+                AnnotationInfo annotationInfo = reInfo.annotationsInfo().get(RelationshipEntity.class);
                 String relationshipType = annotationInfo.get(RelationshipEntity.TYPE, null);
                 DirectedRelationship directedRelationship = new DirectedRelationship(relationshipType, Relationship.OUTGOING);
 
@@ -619,7 +619,7 @@ public class EntityGraphMapper implements EntityMapper {
         Long reIdentity = EntityUtils.identity(relationshipEntity, metaData);
         context.visitRelationshipEntity(reIdentity);
 
-        AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+        AnnotationInfo annotation = relEntityClassInfo.annotationsInfo().get(RelationshipEntity.class);
         if (relationshipBuilder.type() == null) {
             relationshipBuilder.setType(annotation.get(RelationshipEntity.TYPE, relEntityClassInfo.name()));
         }
@@ -858,7 +858,7 @@ public class EntityGraphMapper implements EntityMapper {
      */
     private boolean isRelationshipEntity(Object potentialRelationshipEntity) {
         ClassInfo classInfo = metaData.classInfo(potentialRelationshipEntity);
-        return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.CLASS);
+        return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.class);
     }
 
     /**

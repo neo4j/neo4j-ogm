@@ -31,22 +31,18 @@ public class Tag extends BaseNode {
 	@Relationship(type = "TAGGED_WITH", direction = "INCOMING")
 	Set<Event> events = new HashSet<>();
 
-	@Relationship(type = "CREATOR", direction = "INCOMING")
 	public Member getCreator() {
 		return creator;
 	}
 
-	@Relationship(type = "CREATOR", direction = "INCOMING")
 	public void setCreator(Member creator) {
 		this.creator = creator;
 	}
 
-	@Relationship(type = "TAGGED_WITH", direction = "INCOMING")
 	public Set<Event> getEvents() {
 		return events;
 	}
 
-	@Relationship(type = "TAGGED_WITH", direction = "INCOMING")
 	public void setEvents(Set<Event> events) {
 		this.events = events;
 	}

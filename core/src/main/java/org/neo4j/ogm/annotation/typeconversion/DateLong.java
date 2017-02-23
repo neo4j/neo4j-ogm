@@ -19,9 +19,8 @@ import java.lang.annotation.*;
  * @author Vince Bickers
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target(ElementType.FIELD)
 @Inherited
 public @interface DateLong {
-    String CLASS = "org.neo4j.ogm.annotation.typeconversion.DateLong";
 }
 

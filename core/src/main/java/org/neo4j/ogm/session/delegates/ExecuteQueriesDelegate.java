@@ -134,9 +134,9 @@ public class ExecuteQueriesDelegate {
 			ClassInfo endNodeInfo = null;
 
 			for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
-				if (fieldInfo.hasAnnotation(StartNode.CLASS)) {
+				if (fieldInfo.hasAnnotation(StartNode.class)) {
 					startNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
-				} else if (fieldInfo.hasAnnotation(EndNode.CLASS)) {
+				} else if (fieldInfo.hasAnnotation(EndNode.class)) {
 					endNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
 				}
 				if (endNodeInfo != null && startNodeInfo != null) {

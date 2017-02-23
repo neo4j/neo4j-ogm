@@ -34,22 +34,18 @@ public class UserV23 {
     public UserV23() {
     }
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public PlainUser getPlainUsers() {
         return plainUsers;
     }
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public void setPlainUsers(PlainUser plainUsers) {
         this.plainUsers = plainUsers;
     }
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public List<UserV23> getUser() {
         return user;
     }
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public void setUser(List<UserV23> user) {
         this.user = user;
     }

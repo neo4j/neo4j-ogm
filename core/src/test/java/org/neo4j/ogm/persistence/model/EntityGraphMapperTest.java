@@ -39,6 +39,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.transaction.Transaction;
 
 import java.util.*;
 
@@ -85,7 +86,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.purgeDatabase();
     }
 
-    private static GraphDatabaseService getDatabase() {
+    private static synchronized GraphDatabaseService getDatabase() {
         return getGraphDatabaseService();
     }
 
@@ -352,7 +353,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         session.save(hillsRoad);
 
         GraphTestUtils.assertSameGraph(getDatabase(),
-                "CREATE (w:Teacher {name:'Mr White'}), (t:Teacher {name:'Miss Jones'}), (s:School:DomainObject), (s)-[:TEACHERS]->(t), (t)-[:SCHOOL]->(s)");
+                "CREATE (w:Teacher {name:'Mr White'}), (j:Teacher {name:'Miss Jones'}), (s:School:DomainObject), (s)-[:TEACHERS]->(j), (j)-[:SCHOOL]->(s)");
     }
 
 

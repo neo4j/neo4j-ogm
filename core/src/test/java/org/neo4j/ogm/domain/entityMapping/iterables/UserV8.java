@@ -28,12 +28,10 @@ public class UserV8 extends Entity {
     @Relationship(type = "KNOWS", direction = "INCOMING")
     private Set<UserV8> knows;
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public Set<UserV8> getKnows() {
         return knows;
     }
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
     public void setKnows(Set<UserV8> knows) {
         this.knows = knows;
     }

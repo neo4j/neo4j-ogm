@@ -26,11 +26,10 @@ import java.lang.annotation.*;
  * @author Adam George
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target(ElementType.FIELD)
 @Inherited
 public @interface Convert {
 
-    String CLASS = "org.neo4j.ogm.annotation.typeconversion.Convert";
     String CONVERTER = "value";
     String GRAPH_TYPE = "graphPropertyType";
 

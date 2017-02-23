@@ -33,7 +33,7 @@ public class MethodsInfo {
 
     MethodsInfo() {}
 
-    public MethodsInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
+    public MethodsInfo(String className, DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
         // get the method information for this class
         int methodCount = dataInputStream.readUnsignedShort();
         for (int i = 0; i < methodCount; i++) {
@@ -62,8 +62,8 @@ public class MethodsInfo {
                     dataInputStream.skipBytes(attributeLength);
                 }
             }
-            if (!methodName.equals("<init>") && !methodName.equals("<clinit>") && objectAnnotations.get(Transient.CLASS) == null) {
-                addMethod(new MethodInfo(methodName, descriptor, typeParameterDescriptor, objectAnnotations));
+            if (!methodName.equals("<init>") && !methodName.equals("<clinit>") && objectAnnotations.get(Transient.class) == null) {
+                addMethod(new MethodInfo(className, methodName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }
     }
@@ -100,12 +100,5 @@ public class MethodsInfo {
     private void addMethod(MethodInfo methodInfo) {
         String methodName = methodInfo.getName();
         methods.put(methodName, methodInfo);
-        if (methodInfo.isGetter()) {
-            getters.put(methodName, methodInfo);
-        }
-        else if (methodInfo.isSetter()) {
-            setters.put(methodName, methodInfo);
-        }
     }
-
 }

@@ -31,6 +31,7 @@ public class Artist {
     @Relationship(type = "HAS-ALBUM")
     private Set<Album> albums = new HashSet<>();
 
+    @Relationship(type = "GUEST_ALBUM")
     private Set<Album> guestAlbums = new HashSet<>();
 
     public Artist() {
@@ -59,12 +60,10 @@ public class Artist {
         this.name = name;
     }
 
-    @Relationship(type = "GUEST_ALBUM")
     public Set<Album> getGuestAlbums() {
         return guestAlbums;
     }
 
-    @Relationship(type = "GUEST_ALBUM")
     public void setGuestAlbums(Set<Album> guestAlbums) {
         this.guestAlbums = guestAlbums;
         for (Album album : guestAlbums) {

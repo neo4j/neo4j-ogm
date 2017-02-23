@@ -53,7 +53,6 @@ public class DataViewOwned extends AbstractNamedOwnedObject{
 		return sharedWith;
 	}
 
-	@Relationship(type= "SHARED_WITH", direction = Relationship.OUTGOING)
 	public void setSharedWith(List<ThingOwned> sharedWith) {
 		this.sharedWith = sharedWith;
 	}

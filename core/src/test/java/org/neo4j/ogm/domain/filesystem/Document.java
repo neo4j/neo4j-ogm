@@ -23,12 +23,10 @@ public class Document extends FileSystemEntity {
     @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     private Folder folder;
 
-    @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     public Folder getFolder() {
         return folder;
     }
 
-    @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     public void setFolder(Folder folder) {
         this.folder = folder;
     }

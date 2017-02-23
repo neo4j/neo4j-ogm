@@ -28,20 +28,16 @@ public class ObjectAnnotations {
     private String objectName; // fully qualified class, method or field name.
     private final Map<String, AnnotationInfo> annotations = new HashMap<>();
 
-    public String getName() {
-        return objectName;
-    }
-
-    public void setName(String objectName) {
-        this.objectName = objectName;
-    }
-
     public void put(String key, AnnotationInfo value) {
         annotations.put(key, value);
     }
 
     public AnnotationInfo get(String key) {
         return annotations.get(key);
+    }
+
+    public AnnotationInfo get(Class<?> keyClass) {
+        return annotations.get(keyClass.getCanonicalName());
     }
 
     public boolean isEmpty() {
@@ -51,7 +47,7 @@ public class ObjectAnnotations {
     Object getConverter() {
 
         // try to get a custom type converter
-        AnnotationInfo customType = get(Convert.CLASS);
+        AnnotationInfo customType = get(Convert.class);
         if (customType != null) {
             String classDescriptor = customType.get(Convert.CONVERTER, null);
             if (classDescriptor == null) {
@@ -68,18 +64,18 @@ public class ObjectAnnotations {
         }
 
         // try to find a pre-registered type annotation. this is very clumsy, but at least it is done only once
-        AnnotationInfo dateLongConverterInfo = get(DateLong.CLASS);
+        AnnotationInfo dateLongConverterInfo = get(DateLong.class);
         if (dateLongConverterInfo != null) {
             return new DateLongConverter();
         }
 
-        AnnotationInfo dateStringConverterInfo = get(DateString.CLASS);
+        AnnotationInfo dateStringConverterInfo = get(DateString.class);
         if (dateStringConverterInfo != null) {
             String format = dateStringConverterInfo.get(DateString.FORMAT, DateString.ISO_8601);
             return new DateStringConverter(format);
         }
 
-        AnnotationInfo enumStringConverterInfo = get(EnumString.CLASS);
+        AnnotationInfo enumStringConverterInfo = get(EnumString.class);
         if (enumStringConverterInfo != null) {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
@@ -91,7 +87,7 @@ public class ObjectAnnotations {
             }
         }
 
-        AnnotationInfo numberStringConverterInfo = get(NumberString.CLASS);
+        AnnotationInfo numberStringConverterInfo = get(NumberString.class);
         if (numberStringConverterInfo != null) {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);

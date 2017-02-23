@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public class UserV12 extends Entity {
 
+    @Relationship(type = "LIKES")
     private Set<UserV12> friend;
 
     @Relationship(type = "LIKES", direction = "INCOMING")
@@ -33,22 +34,18 @@ public class UserV12 extends Entity {
     public UserV12() {
     }
 
-    @Relationship(type = "LIKES")
     public Set<UserV12> getFriend() {
         return friend;
     }
 
-    @Relationship(type = "LIKES")
     public void setFriend(Set<UserV12> friend) {
         this.friend = friend;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public Set<UserV12> getFriendOf() {
         return friendOf;
     }
 
-    @Relationship(type = "LIKES", direction = "INCOMING")
     public void setFriendOf(Set<UserV12> friendOf) {
         this.friendOf = friendOf;
     }

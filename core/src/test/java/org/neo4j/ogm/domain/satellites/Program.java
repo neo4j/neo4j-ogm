@@ -24,15 +24,14 @@ import java.util.List;
 @NodeEntity(label = "Space_Program")
 public class Program extends DomainObject {
 
+    @Property(name = "program")
     private String name;
     private List<Satellite> satellites;
 
-    @Property(name = "program")
     public String getName() {
         return name;
     }
 
-    @Property(name = "program")
     public void setName(String name) {
         this.name = name;
     }

@@ -47,23 +47,19 @@ public class NumberConversionTest {
 
     @Test
     public void assertAccountMethodsHaveDefaultConverters() {
-        assertTrue(accountInfo.propertyGetter("balance").hasPropertyConverter());
-        assertTrue(accountInfo.propertySetter("balance").hasPropertyConverter());
+        assertTrue(accountInfo.propertyField("balance").hasPropertyConverter());
 
-        assertTrue(accountInfo.propertyGetter("facility").hasPropertyConverter());
-        assertTrue(accountInfo.propertySetter("facility").hasPropertyConverter());
+        assertTrue(accountInfo.propertyField("facility").hasPropertyConverter());
 
-        assertTrue(accountInfo.propertyGetter("deposits").hasPropertyConverter());
-        assertTrue(accountInfo.propertySetter("deposits").hasPropertyConverter());
+        assertTrue(accountInfo.propertyField("deposits").hasPropertyConverter());
 
-        assertTrue(accountInfo.propertyGetter("loans").hasPropertyConverter());
-        assertTrue(accountInfo.propertySetter("loans").hasPropertyConverter());
+        assertTrue(accountInfo.propertyField("loans").hasPropertyConverter());
     }
 
     @Test
     public void assertAccountBalanceConverterWorks() {
 
-        AttributeConverter converter = accountInfo.propertyGetter("balance").getPropertyConverter();
+        AttributeConverter converter = accountInfo.propertyField("balance").getPropertyConverter();
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         assertEquals("12345.67", converter.toGraphProperty(account.getBalance()));
@@ -77,7 +73,7 @@ public class NumberConversionTest {
      */
     @Test
     public void assertAccountDepositConverterWorks() {
-        AttributeConverter converter = accountInfo.propertyGetter("deposits").getPropertyConverter();
+        AttributeConverter converter = accountInfo.propertyField("deposits").getPropertyConverter();
         BigDecimal[] deposits = new BigDecimal[]{new BigDecimal("12345.67"), new BigDecimal("34567.89")};
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         account.setDeposits(deposits);
@@ -96,7 +92,7 @@ public class NumberConversionTest {
      */
     @Test
     public void assertAccountLoNAConverterWorks() {
-        AttributeConverter converter = accountInfo.propertyGetter("loans").getPropertyConverter();
+        AttributeConverter converter = accountInfo.propertyField("loans").getPropertyConverter();
         List<BigInteger> loans = new ArrayList<>();
         loans.add(BigInteger.valueOf(123456));
         loans.add(BigInteger.valueOf(567890));
@@ -115,7 +111,7 @@ public class NumberConversionTest {
     @Test
     public void assertAccountFacilityConverterWorks() {
 
-        AttributeConverter converter = accountInfo.propertyGetter("facility").getPropertyConverter();
+        AttributeConverter converter = accountInfo.propertyField("facility").getPropertyConverter();
 
         Account account = new Account(new BigDecimal("12345.67"), new BigInteger("1000"));
         assertEquals("1000", converter.toGraphProperty(account.getFacility()));
@@ -126,21 +122,21 @@ public class NumberConversionTest {
 
     @Test
     public void assertConvertingNullGraphPropertyWorksCorrectly() {
-        AttributeConverter converter = accountInfo.propertyGetter("facility").getPropertyConverter();
+        AttributeConverter converter = accountInfo.propertyField("facility").getPropertyConverter();
         assertEquals(null, converter.toEntityAttribute(null));
-        converter = accountInfo.propertyGetter("deposits").getPropertyConverter();
+        converter = accountInfo.propertyField("deposits").getPropertyConverter();
         assertEquals(null, converter.toEntityAttribute(null));
-        converter = accountInfo.propertyGetter("loans").getPropertyConverter();
+        converter = accountInfo.propertyField("loans").getPropertyConverter();
         assertEquals(null, converter.toEntityAttribute(null));
     }
 
     @Test
     public void assertConvertingNullAttributeWorksCorrectly() {
-        AttributeConverter converter = accountInfo.propertyGetter("facility").getPropertyConverter();
+        AttributeConverter converter = accountInfo.propertyField("facility").getPropertyConverter();
         assertEquals(null, converter.toGraphProperty(null));
-        converter = accountInfo.propertyGetter("deposits").getPropertyConverter();
+        converter = accountInfo.propertyField("deposits").getPropertyConverter();
         assertEquals(null, converter.toGraphProperty(null));
-        converter = accountInfo.propertyGetter("loans").getPropertyConverter();
+        converter = accountInfo.propertyField("loans").getPropertyConverter();
         assertEquals(null, converter.toGraphProperty(null));
     }
 

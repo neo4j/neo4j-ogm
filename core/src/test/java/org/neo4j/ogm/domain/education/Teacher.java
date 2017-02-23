@@ -15,6 +15,9 @@ package org.neo4j.ogm.domain.education;
 
 import java.util.List;
 
+import org.neo4j.ogm.annotation.PostLoad;
+import org.neo4j.ogm.annotation.Relationship;
+
 /**
  * @author Vince Bickers
  */
@@ -23,6 +26,7 @@ public class Teacher {
     private String name;
     private List<Course> courses;
     private Long id;
+
     private School school;
 
     public Teacher() {
@@ -48,13 +52,11 @@ public class Teacher {
         this.name = name;
     }
 
-    // @Lazy
     public List<Course> getCourses() {
         return courses;
     }
 
     public void setCourses(List<Course> courses) {
-        // persistable?
         this.courses = courses;
     }
 
@@ -75,5 +77,4 @@ public class Teacher {
         }
 
     }
-
 }

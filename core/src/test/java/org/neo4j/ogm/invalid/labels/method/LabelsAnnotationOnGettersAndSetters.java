@@ -21,14 +21,13 @@ import java.util.Collection;
 
 public class LabelsAnnotationOnGettersAndSetters {
 
+    @Labels
     private Collection<String> labels = new ArrayList<>();
 
-    @Labels
     public Collection<String> getLabels() {
         return labels;
     }
 
-    @Labels
     public void setLabels(Collection<String> labels) {
         this.labels = labels;
     }

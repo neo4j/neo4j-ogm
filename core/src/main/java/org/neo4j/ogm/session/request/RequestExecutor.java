@@ -324,23 +324,23 @@ public class RequestExecutor {
 			}
 		}
 	}
-	
+
 	/**
 	 * Append {@link TransientRelationship} of {@link CompileContext} to an index.
-	 * 
+	 *
 	 * @param context the compile context
-	 * @return an index of {@link TransientRelationship} 
+	 * @return an index of {@link TransientRelationship}
 	 */
 	private Map<Long, TransientRelationship> buildRegisteredTransientRelationshipIndex(CompileContext context) {
 		final Map<Long, TransientRelationship> transientRelationshipIndex = new HashMap<>();
-		
+
 		for (Object obj : context.registry()) {
 			if(TransientRelationship.class.isAssignableFrom(obj.getClass())) {
 				TransientRelationship transientRelationship = (TransientRelationship) obj;
 				transientRelationshipIndex.put(transientRelationship.getRef(), transientRelationship);
 			}
 		}
-		
+
 		return transientRelationshipIndex;
 	}
 
@@ -369,7 +369,7 @@ public class RequestExecutor {
 
 	private static void registerEntity(MappingContext mappingContext, ClassInfo classInfo, Long identity, Object entity) {
 		// ensure the newly created domain object is added into the mapping context
-		if (classInfo.annotationsInfo().get(RelationshipEntity.CLASS) == null) {
+		if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
 			mappingContext.replaceNodeEntity(entity, identity);      // force the node entity object to be overwritten
 		} else {
 			mappingContext.replaceRelationshipEntity(entity, identity); // force the relationship entity to be overwritten

@@ -28,12 +28,10 @@ public class UserV19 {
     public UserV19() {
     }
 
-    @Relationship(direction = "INCOMING")
     public UserV19 getKnows() {
         return knows;
     }
 
-    @Relationship(direction = "INCOMING")
     public void setKnows(UserV19 friend) {
         this.knows = friend;
     }

@@ -31,7 +31,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface RelationshipEntity {
 
-    String CLASS = "org.neo4j.ogm.annotation.RelationshipEntity";
     String TYPE = "type";
 
     String type();

@@ -53,12 +53,10 @@ public class Seasoning {
         this.name = name;
     }
 
-    @Relationship(type = "HAS", direction = "INCOMING")
     public Set<PizzaSeasoning> getPizzas() {
         return pizzas;
     }
 
-    @Relationship(type = "HAS", direction = "INCOMING")
     public void setPizzas(Set<PizzaSeasoning> pizzas) {
         this.pizzas = pizzas;
     }

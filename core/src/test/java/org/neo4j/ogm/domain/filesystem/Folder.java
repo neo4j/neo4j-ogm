@@ -23,10 +23,12 @@ import java.util.Collection;
  */
 public class Folder extends FileSystemEntity {
 
+    @Relationship(type = "CONTAINS", direction = Relationship.OUTGOING)
     private Collection<Document> documents = new ArrayList<>();
+
+    @Relationship(type = "ARCHIVED", direction = Relationship.OUTGOING)
     private Collection<Document> archived = new ArrayList<>();
 
-    @Relationship(type = "CONTAINS", direction = Relationship.OUTGOING)
     public Collection<Document> getDocuments() {
         return documents;
     }
@@ -35,7 +37,6 @@ public class Folder extends FileSystemEntity {
         this.documents = documents;
     }
 
-    @Relationship(type = "ARCHIVED", direction = Relationship.OUTGOING)
     public Collection<Document> getArchived() {
         return archived;
     }

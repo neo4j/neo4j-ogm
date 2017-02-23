@@ -43,12 +43,10 @@ public class Entity implements Comparable{
         return id;
     }
 
-    @Relationship(type = "REL", direction = "INCOMING")
     public Set<Entity> getChildren() {
         return children;
     }
 
-    @Relationship(type = "REL", direction = "INCOMING")
     public void setChildren(SortedSet<Entity> children) {
         this.children = children;
     }

@@ -156,7 +156,6 @@ public class DomainInfo implements ClassFileProcessor {
 
         LOGGER.debug("Registering converters and deregistering transient fields and methods....");
         postProcessFields(transientClassesRemoved);
-        postProcessMethods(transientClassesRemoved);
 
         LOGGER.info("Post-processing complete");
     }
@@ -189,31 +188,6 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void postProcessMethods(Set<Class> transientClassesRemoved) {
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
-            boolean registerConverters = false;
-            if (!classInfo.isEnum() && !classInfo.isInterface()) {
-                registerConverters = true;
-            }
-            Iterator<MethodInfo> methodInfoIterator = classInfo.methodsInfo().methods().iterator();
-            while (methodInfoIterator.hasNext()) {
-                MethodInfo methodInfo = methodInfoIterator.next();
-                if (!methodInfo.isSimpleGetter() && !methodInfo.isSimpleSetter()) {
-                    Class methodClass = null;
-                    try {
-                        methodClass = ClassUtils.getType(methodInfo.getTypeDescriptor());
-                    } catch (Exception e) {
-                        LOGGER.debug("Unable to compute class type for " + classInfo.name() + ", method: " + methodInfo.getName());
-                    }
-                    if (methodClass != null && transientClassesRemoved.contains(methodClass)) {
-                        methodInfoIterator.remove();
-                        classInfo.methodsInfo().removeGettersAndSetters(methodInfo);
-                        continue;
-                    }
-                }
-            }
-        }
-    }
 
     private Set<Class> removeTransientClass(ClassInfo transientClass) {
         Set<Class> removed = new HashSet<>();
@@ -364,46 +338,6 @@ public class DomainInfo implements ClassFileProcessor {
 
     public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
         return annotationNameToClassInfo.get(annotation);
-    }
-
-    private void setEnumMethodConverter(MethodInfo methodInfo, Class enumClass) {
-        if (methodInfo.isArray()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
-        } else if (methodInfo.isIterable()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getEnumCollectionConverter(enumClass, methodInfo.getCollectionClassname()));
-        } else {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getEnumConverter(enumClass));
-        }
-    }
-
-    private void setBigDecimalMethodConverter(MethodInfo methodInfo) {
-        if (methodInfo.isArray()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
-        } else if (methodInfo.isIterable()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalCollectionConverter(methodInfo.getCollectionClassname()));
-        } else {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalConverter());
-        }
-    }
-
-    private void setBigIntegerMethodConverter(MethodInfo methodInfo) {
-        if (methodInfo.isArray()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
-        } else if (methodInfo.isIterable()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerCollectionConverter(methodInfo.getCollectionClassname()));
-        } else {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerConverter());
-        }
-    }
-
-    private void setDateMethodConverter(MethodInfo methodInfo) {
-        if (methodInfo.isArray()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
-        } else if (methodInfo.isIterable()) {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getDateCollectionConverter(methodInfo.getCollectionClassname()));
-        } else {
-            methodInfo.setPropertyConverter(ConvertibleTypes.getDateConverter());
-        }
     }
 
     private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {

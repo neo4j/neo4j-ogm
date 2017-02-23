@@ -28,8 +28,6 @@ import org.neo4j.ogm.annotation.Transient;
 public class MethodsInfo {
 
     private final Map<String, MethodInfo> methods = new HashMap<>();
-    private final Map<String, MethodInfo> getters = new HashMap<>();
-    private final Map<String, MethodInfo> setters = new HashMap<>();
 
     MethodsInfo() {}
 
@@ -72,14 +70,6 @@ public class MethodsInfo {
         return methods.values();
     }
 
-    public Collection<MethodInfo> getters() {
-        return getters.values();
-    }
-
-    public Collection<MethodInfo> setters() {
-        return setters.values();
-    }
-
     public MethodInfo get(String methodName) {
         return methods.get(methodName);
     }
@@ -90,11 +80,6 @@ public class MethodsInfo {
                 addMethod(methodInfo);
             }
         }
-    }
-
-    void removeGettersAndSetters(MethodInfo methodInfo) {
-        getters.remove(methodInfo.getName());
-        setters.remove(methodInfo.getName());
     }
 
     private void addMethod(MethodInfo methodInfo) {

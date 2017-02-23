@@ -292,11 +292,6 @@ public class ClassInfo {
         return methodsInfo;
     }
 
-    @Override
-    public String toString() {
-        return name();
-    }
-
     private FieldInfo identityFieldOrNull() {
         try {
             return identityField();
@@ -753,9 +748,7 @@ public class ClassInfo {
     /**
      * Gets the class of the type parameter description of the entity related to this.
      * The match is done based on the following-
-     * 1. Look for a setter explicitly annotated with @Relationship for a type and implied direction
      * 2. Look for a field explicitly annotated with @Relationship for a type and implied direction
-     * 3. Look for a setter with name derived from the relationship type for the given direction
      * 4. Look for a field with name derived from the relationship type for the given direction
      *
      * @param relationshipType the relationship type

@@ -50,7 +50,7 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
     private Document a;
     private Document b;
 
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.filesystem");
+    private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.filesystem");
 
     private Session session;
 

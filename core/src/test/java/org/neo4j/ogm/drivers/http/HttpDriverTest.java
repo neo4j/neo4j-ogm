@@ -30,7 +30,7 @@ public class HttpDriverTest extends AbstractDriverTestSuite {
     @BeforeClass
     public static void configure() {
         Components.configure("ogm-http.properties");
-        testServer = new TestServer.Builder().build();
+        testServer = new TestServer.Builder(Components.getConfiguration()).build();
     }
 
     @AfterClass

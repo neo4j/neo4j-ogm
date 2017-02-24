@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class FriendsInLongTransactionTest extends MultiDriverTestClass {
 
-    Session session = new SessionFactory("org.neo4j.ogm.domain.friendships").openSession();
+    Session session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.friendships").openSession();
 
     /**
      * @see DATAGRAPH-703

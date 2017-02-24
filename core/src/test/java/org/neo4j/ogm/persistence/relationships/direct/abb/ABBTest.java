@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ABBTest extends RelationshipTrait {
 
-    private static SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.persistence.relationships.direct.abb");
+    private static SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships.direct.abb");
     private Session session;
     private A a;
     private B b1, b2;

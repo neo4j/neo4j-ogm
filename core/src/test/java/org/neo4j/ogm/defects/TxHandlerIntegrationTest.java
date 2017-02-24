@@ -42,7 +42,7 @@ public class TxHandlerIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() throws IOException {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
+        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.bike");
     }
 
     @Before

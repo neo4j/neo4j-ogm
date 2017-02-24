@@ -24,7 +24,7 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class KnowledgeTest extends MultiDriverTestClass {
 
-    private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.knowledge");
+    private SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.knowledge");
 
     /**
      * @see 351

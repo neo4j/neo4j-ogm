@@ -39,7 +39,7 @@ public class EnumsScannedTest extends MultiDriverTestClass {
 
     @Before
     public void init()  {
-        session =  new SessionFactory("org.neo4j.ogm.domain.food.entities.scanned").openSession();
+        session =  new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.food.entities.scanned").openSession();
     }
 
     @After

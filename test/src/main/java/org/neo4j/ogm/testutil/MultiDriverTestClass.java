@@ -18,7 +18,8 @@ import java.io.File;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
@@ -37,21 +38,21 @@ public class MultiDriverTestClass {
     private static TestServer testServer;
     private static GraphDatabaseService impermanentDb;
     private static File graphStore;
+    protected static Configuration baseConfiguration;
 
     @BeforeClass
     public static synchronized void setupMultiDriverTestEnvironment() {
 
-        Driver driver = Components.driver(); // this will load the driver
+        baseConfiguration = new Configuration(new ClasspathConfigurationSource(configFileName()));
 
-        if (driver instanceof HttpDriver ) {
-            testServer = new TestServer.Builder()
+        if (baseConfiguration.getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
+            testServer = new TestServer.Builder(baseConfiguration)
                     .enableAuthentication(true)
                     .enableBolt(false)
                     .transactionTimeoutSeconds(30)
                     .build();
-        }
-        else if (driver instanceof BoltDriver) {
-            testServer = new TestServer.Builder()
+        } else if (baseConfiguration.getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
+            testServer = new TestServer.Builder(baseConfiguration)
                     .enableBolt(true)
                     .transactionTimeoutSeconds(30)
                     .build();
@@ -93,4 +94,16 @@ public class MultiDriverTestClass {
         }
         return impermanentDb;
     }
+    private static String configFileName() {
+        String configFileName = System.getenv("ogm.properties");
+
+        if (configFileName == null) {
+            configFileName = System.getProperty("ogm.properties");
+            if (configFileName == null) {
+                configFileName = "ogm.properties";
+            }
+        }
+        return configFileName;
+    }
+
 }

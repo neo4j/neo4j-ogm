@@ -101,7 +101,7 @@ public class DriverServiceTest {
      * Neo4j server to be installed, authenticating with 'neo4j:password'.
      *
      * Note: The mechanism to ignore SSL handshaking installs a trust-everybody trust manager into
-     * any HttpDriver that is created with the 'ACCEPT_UNSIGNED' trust strategy configuration setting.
+     * any HttpDriver that is created with the 'ACCEPT_UNSIGNED' trust strategy baseConfiguration setting.
      *
      * It does not contaminate the behaviour of other any HttpDrivers that may be running.
      *

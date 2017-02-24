@@ -26,7 +26,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class DeleteCapabilityTest extends MultiDriverTestClass {
 
-    private Session session = new SessionFactory("org.neo4j.ogm.domain.music").openSession();
+    private Session session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.music").openSession();
 
     @Before
     public void init() {

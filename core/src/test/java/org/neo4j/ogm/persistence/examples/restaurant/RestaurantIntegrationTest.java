@@ -41,7 +41,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.restaurant").openSession();
+        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.restaurant").openSession();
     }
 
     @After

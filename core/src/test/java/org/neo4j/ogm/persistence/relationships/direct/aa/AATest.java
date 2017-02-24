@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNull;
  */
 public class AATest extends RelationshipTrait {
 
-    private static SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.persistence.relationships.direct.aa");
+    private static SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships.direct.aa");
     private Session session;
     private A a1, a2, a3, a4;
     private A loadedA1, loadedA2, loadedA3, loadedA4;

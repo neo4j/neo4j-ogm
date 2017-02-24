@@ -42,7 +42,7 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.companies").openSession();
+        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.companies").openSession();
     }
 
     @After

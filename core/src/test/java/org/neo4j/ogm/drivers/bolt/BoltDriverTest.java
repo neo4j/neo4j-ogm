@@ -33,7 +33,7 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 	@BeforeClass
 	public static void configure() {
 		Components.configure("ogm-bolt.properties");
-		testServer = new TestServer.Builder().enableBolt(true).build();
+		testServer = new TestServer.Builder(Components.getConfiguration()).enableBolt(true).build();
 	}
 
 	@AfterClass

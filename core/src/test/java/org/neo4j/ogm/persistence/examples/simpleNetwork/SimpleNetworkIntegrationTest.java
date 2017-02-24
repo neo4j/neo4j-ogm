@@ -37,7 +37,7 @@ public class SimpleNetworkIntegrationTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.simpleNetwork").openSession();
+        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.simpleNetwork").openSession();
     }
 
     @After

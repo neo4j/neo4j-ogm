@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
-	private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.minimum");
+	private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.minimum");
 
 	private Session session;
 

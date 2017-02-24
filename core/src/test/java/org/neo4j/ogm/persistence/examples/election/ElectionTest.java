@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  */
 public class ElectionTest extends MultiDriverTestClass {
 
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.election");
+    private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.election");
 
     private Session session;
 

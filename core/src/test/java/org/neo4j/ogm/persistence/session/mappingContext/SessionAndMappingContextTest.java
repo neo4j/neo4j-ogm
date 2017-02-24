@@ -40,7 +40,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = (Neo4jSession)new SessionFactory("org.neo4j.ogm.domain.music","org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = (Neo4jSession)new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.music","org.neo4j.ogm.domain.cineasts.annotated").openSession();
 
         artist1 = new Artist();
         artist1.setName("MainArtist");

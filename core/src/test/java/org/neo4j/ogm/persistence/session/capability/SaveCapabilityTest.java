@@ -48,7 +48,7 @@ public class SaveCapabilityTest extends MultiDriverTestClass{
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.music");
+        SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
         session.purgeDatabase();
         aerosmith = new Artist("Aerosmith");

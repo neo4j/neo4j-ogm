@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.request.DefaultRequest;
 import org.neo4j.ogm.session.request.RowDataStatement;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
@@ -47,14 +47,14 @@ public class AutoIndexManager {
 
     private final List<AutoIndex> indexes;
 
-    private final AutoIndexMode mode;
+    private final Configuration configuration;
 
     private final Driver driver;
 
-    public AutoIndexManager(MetaData metaData, Driver driver) {
+    public AutoIndexManager(MetaData metaData, Driver driver, Configuration configuration) {
 
         this.driver = initialiseDriver(driver);
-        this.mode = AutoIndexMode.fromString(Components.getConfiguration().getAutoIndex());
+        this.configuration = configuration;
         this.indexes = initialiseIndexMetadata(metaData);
     }
 
@@ -87,7 +87,7 @@ public class AutoIndexManager {
      * Builds indexes according to the configured mode.
      */
     public void build() {
-        switch (mode) {
+        switch ( AutoIndexMode.fromString(configuration.getAutoIndex())) {
             case ASSERT:
                 assertIndexes();
                 break;
@@ -108,8 +108,7 @@ public class AutoIndexManager {
             sb.append(index.getCreateStatement().getStatement()).append(newLine);
         }
 
-        File file = new File(Components.getConfiguration().getDumpDir(),
-                Components.getConfiguration().getDumpFilename());
+        File file = new File(configuration.getDumpDir(), configuration.getDumpFilename());
         FileWriter writer = null;
 
         LOGGER.debug("Dumping Indexes to: [{}]", file.toString());

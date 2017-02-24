@@ -35,7 +35,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class RelationshipEntityTest extends MultiDriverTestClass {
 
-    private final Session session = new SessionFactory("org.neo4j.ogm.persistence.relationships").openSession();
+    private final Session session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships").openSession();
     private U u;
     private M m;
     private R r1;

@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.server.AbstractNeoServer;
@@ -40,6 +41,7 @@ public class TestServer {
     private final Integer transactionTimeoutSeconds;
     private final Boolean enableAuthentication;
     private final Boolean enableBolt;
+    private final Configuration configuration;
 
     private GraphDatabaseService database;
     private ServerControls controls;
@@ -47,6 +49,7 @@ public class TestServer {
 
     private TestServer(Builder builder) {
 
+        this.configuration = builder.configuration;
         this.port = builder.port == null ? TestUtils.getAvailablePort() : builder.port;
         this.transactionTimeoutSeconds = builder.transactionTimeoutSeconds;
         this.enableAuthentication = builder.enableAuthentication;
@@ -104,7 +107,7 @@ public class TestServer {
                 try (Writer authStoreWriter = new FileWriter(authStore.toFile())) {
                     IOUtils.write("neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:", authStoreWriter);
                 }
-                driver().getConfiguration().setCredentials("neo4j", "password");
+                configuration.setCredentials("neo4j", "password");
             }
 
             return authStore.toAbsolutePath().toString();
@@ -115,8 +118,8 @@ public class TestServer {
 
     private void initialise(ServerControls controls) throws Exception {
         setDatabase(controls);
-        driver().getConfiguration().setURI(url());
-        driver().configure(driver().getConfiguration()); // we must reconfigure the driver if the URL has changed
+        configuration.setURI(url());
+        driver().configure(configuration); // we must reconfigure the driver if the URL has changed
     }
 
     private void setDatabase(ServerControls controls) throws Exception {
@@ -206,8 +209,10 @@ public class TestServer {
         private Integer transactionTimeoutSeconds = 60;
         private boolean enableAuthentication = false;
         private boolean enableBolt = false;
+        private Configuration configuration;
 
-        public Builder() {
+        public Builder(Configuration configuration) {
+            this.configuration = configuration;
         }
 
         public Builder port(int port) {

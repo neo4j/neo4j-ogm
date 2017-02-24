@@ -45,8 +45,8 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testUnauthorizedDriver() {
 
-        Components.driver().getConfiguration().setCredentials("", "");
-        session = new SessionFactory("dummy").openSession();
+        baseConfiguration.setCredentials("", "");
+        session = new SessionFactory(baseConfiguration, "dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");
@@ -66,7 +66,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testAuthorizedDriver() {
 
-        session = new SessionFactory("dummy").openSession();
+        session = new SessionFactory(baseConfiguration, "dummy").openSession();
 
         try (Transaction ignored = session.beginTransaction()) {
             assertNotNull(ignored);
@@ -81,8 +81,8 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testInvalidCredentials() {
 
-        Components.driver().getConfiguration().setCredentials("neo4j", "invalid_password");
-        session = new SessionFactory("dummy").openSession();
+        baseConfiguration.setCredentials("neo4j", "invalid_password");
+        session = new SessionFactory(baseConfiguration, "dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");

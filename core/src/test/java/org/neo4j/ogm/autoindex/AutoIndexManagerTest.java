@@ -31,15 +31,13 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 	@After
 	public void cleanUp() {
-		Components.getConfiguration().setAutoIndex("none");
+		baseConfiguration.setAutoIndex("none");
 	}
 
 	@Test
 	public void shouldPreserveConfiguration() {
-		Configuration configuration = Components.getConfiguration();
-		configuration.setAutoIndex("validate");
-		Components.configure(configuration);
-		assertEquals(AutoIndexMode.VALIDATE.getName(), Components.getConfiguration().getAutoIndex());
+		baseConfiguration.setAutoIndex("validate");
+		assertEquals(AutoIndexMode.VALIDATE.getName(), baseConfiguration.getAutoIndex());
 	}
 
 	@Test
@@ -53,9 +51,9 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 		createLoginConstraint();
 
-		Components.getConfiguration().setAutoIndex("validate");
-		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-		assertEquals(AutoIndexMode.VALIDATE.getName(), Components.getConfiguration().getAutoIndex());
+		baseConfiguration.setAutoIndex("validate");
+		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+		assertEquals(AutoIndexMode.VALIDATE.getName(), baseConfiguration.getAutoIndex());
 		assertEquals(1, indexManager.getIndexes().size());
 		indexManager.build();
 
@@ -64,9 +62,9 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 	@Test(expected = MissingIndexException.class)
 	public void testIndexesAreFailValidation() {
-		Components.getConfiguration().setAutoIndex("validate");
-		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-		assertEquals(AutoIndexMode.VALIDATE.getName(), Components.getConfiguration().getAutoIndex());
+		baseConfiguration.setAutoIndex("validate");
+		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+		assertEquals(AutoIndexMode.VALIDATE.getName(), baseConfiguration.getAutoIndex());
 		indexManager.build();
 	}
 
@@ -75,15 +73,15 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 		createLoginConstraint();
 
-		Components.getConfiguration().setAutoIndex("dump");
-		Components.getConfiguration().setDumpDir(".");
-		Components.getConfiguration().setDumpFilename("test.cql");
+		baseConfiguration.setAutoIndex("dump");
+		baseConfiguration.setDumpDir(".");
+		baseConfiguration.setDumpFilename("test.cql");
 
 		File file = new File("./test.cql");
 
 		try {
-			AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-			assertEquals(AutoIndexMode.DUMP.getName(), Components.getConfiguration().getAutoIndex());
+			AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+			assertEquals(AutoIndexMode.DUMP.getName(), baseConfiguration.getAutoIndex());
 			assertEquals(1, indexManager.getIndexes().size());
 			indexManager.build();
 			assertTrue(file.exists());
@@ -104,10 +102,10 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
 		createLoginConstraint();
 
-		Components.getConfiguration().setAutoIndex("assert");
+		baseConfiguration.setAutoIndex("assert");
 
-		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver());
-		assertEquals(AutoIndexMode.ASSERT.getName(), Components.getConfiguration().getAutoIndex());
+		AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+		assertEquals(AutoIndexMode.ASSERT.getName(), baseConfiguration.getAutoIndex());
 		assertEquals(1, indexManager.getIndexes().size());
 		indexManager.build();
 

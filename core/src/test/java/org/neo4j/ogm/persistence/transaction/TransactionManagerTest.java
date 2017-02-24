@@ -43,7 +43,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 	@Test
 	public void shouldBeAbleToCreateManagedTransaction() {
 		Session session = Mockito.mock(Session.class);
-		DefaultTransactionManager transactionManager = new DefaultTransactionManager(session);
+		DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, Components.driver());
 		Mockito.when(session.getLastBookmark()).thenReturn(null);
 		try (Transaction tx = transactionManager.openTransaction()) {
 			assertEquals(Transaction.Status.OPEN, tx.status());
@@ -52,7 +52,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
 	@Test(expected = TransactionManagerException.class)
 	public void shouldFailCommitFreeTransactionInManagedContext() {
-		DefaultTransactionManager transactionManager = new DefaultTransactionManager(null);
+		DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, Components.driver());
 		try (Transaction tx = Components.driver().newTransaction(Transaction.Type.READ_WRITE, null)) {
 			transactionManager.commit(tx);
 		}
@@ -60,7 +60,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
 	@Test(expected = TransactionManagerException.class)
 	public void shouldFailRollbackFreeTransactionInManagedContext() {
-		DefaultTransactionManager transactionManager = new DefaultTransactionManager(null);
+		DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, Components.driver());
 		try (Transaction tx = Components.driver().newTransaction(Transaction.Type.READ_WRITE, null)) {
 			transactionManager.rollback(tx);
 		}
@@ -69,7 +69,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 	@Test
 	public void shouldRollbackManagedTransaction() {
 		Session session = Mockito.mock(Session.class);
-		DefaultTransactionManager transactionManager = new DefaultTransactionManager(session);
+		DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, Components.driver());
 		Mockito.when(session.getLastBookmark()).thenReturn(null);
 		try (Transaction tx = transactionManager.openTransaction()) {
 			assertEquals(Transaction.Status.OPEN, tx.status());

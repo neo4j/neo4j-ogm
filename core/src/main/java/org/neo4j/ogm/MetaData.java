@@ -48,10 +48,6 @@ public class MetaData {
         domainInfo = new DomainInfo(packages);
     }
 
-    public MetaData(Class... classes) {
-        domainInfo = new DomainInfo(classes);
-    }
-
     /**
      * Finds the ClassInfo for the supplied partial class name or label.
      *

@@ -35,12 +35,6 @@ public class MetaDataTest {
         metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
     }
 
-    @Test
-    public void metaDataLoadsWhenClassesAreUsed() {
-        MetaData classBasedMetaData = new MetaData(Actor.class, Movie.class, Role.class);
-        assertEquals("org.neo4j.ogm.domain.cineasts.partial.Actor", classBasedMetaData.classInfo("Actor").name());
-    }
-
     /**
      * A class can be found if its simple name is unique in the domain
      */

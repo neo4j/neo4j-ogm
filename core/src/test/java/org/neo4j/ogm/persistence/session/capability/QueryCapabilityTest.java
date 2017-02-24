@@ -51,7 +51,7 @@ public class QueryCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.annotated").openSession();
         session.purgeDatabase();
 		session.clear();
         importCineasts();

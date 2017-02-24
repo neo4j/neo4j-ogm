@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class IdentityTest extends MultiDriverTestClass {
 
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.persistence.identity");
+    private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.identity");
 
     private Session session;
 

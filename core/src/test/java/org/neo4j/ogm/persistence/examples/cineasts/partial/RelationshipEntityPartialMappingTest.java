@@ -39,7 +39,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
     @Before
     public void init() {
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.minimum");
+        SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.minimum");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }

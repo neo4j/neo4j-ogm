@@ -24,11 +24,11 @@ import org.neo4j.ogm.exception.AmbiguousBaseClassException;
  */
 public class MetaDataTest {
 
-    private MetadataMap metaData;
+    private MetaData metaData;
 
     @Before
     public void setUp() {
-        metaData = new MetadataMap("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
     }
 
     /**
@@ -50,14 +50,14 @@ public class MetaDataTest {
 
     @Test
     public void testCanResolveRelationshipEntityFromRelationshipType() {
-        ClassMetadata classInfo = metaData.resolve("MEMBER_OF");
+        ClassInfo classInfo = metaData.resolve("MEMBER_OF");
         assertNotNull("The resolved class info shouldn't be null", classInfo);
         assertEquals("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity", classInfo.name());
     }
 
     @Test
     public void testCanResolveClassHierarchies() {
-        ClassMetadata classInfo = metaData.resolve("Login", "User");
+        ClassInfo classInfo = metaData.resolve("Login", "User");
         assertEquals("org.neo4j.ogm.domain.forum.Member", classInfo.name());
     }
 
@@ -82,7 +82,7 @@ public class MetaDataTest {
      * @see DATAGRAPH-577
      */
     public void testInterfaceWithSingleImplTaxa() {
-        ClassMetadata classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
+        ClassInfo classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
         assertNotNull(classInfo);
         assertEquals("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface", classInfo.name());
     }

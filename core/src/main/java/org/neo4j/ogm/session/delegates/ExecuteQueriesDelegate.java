@@ -27,8 +27,8 @@ import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRestModelRequest;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.metadata.ClassMetadata;
-import org.neo4j.ogm.metadata.FieldMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.model.Result;
@@ -122,7 +122,7 @@ public class ExecuteQueriesDelegate {
 
 	public long countEntitiesOfType(Class<?> entity) {
 
-		ClassMetadata classInfo = session.metaData().classInfo(entity.getName());
+		ClassInfo classInfo = session.metaData().classInfo(entity.getName());
 		if (classInfo == null) {
 			return 0;
 		}
@@ -130,10 +130,10 @@ public class ExecuteQueriesDelegate {
 		CypherQuery countStatement;
 		if (classInfo.isRelationshipEntity()) {
 
-			ClassMetadata startNodeInfo = null;
-			ClassMetadata endNodeInfo = null;
+			ClassInfo startNodeInfo = null;
+			ClassInfo endNodeInfo = null;
 
-			for (FieldMetadata fieldInfo : classInfo.fieldsInfo().fields()) {
+			for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
 				if (fieldInfo.hasAnnotation(StartNode.class)) {
 					startNodeInfo = session.metaData().classInfo(ClassUtils.getType(fieldInfo.getTypeDescriptor()).getName());
 				} else if (fieldInfo.hasAnnotation(EndNode.class)) {
@@ -160,7 +160,7 @@ public class ExecuteQueriesDelegate {
 
 	public long count(Class<?> clazz, Iterable<Filter> filters) {
 
-		ClassMetadata classInfo = session.metaData().classInfo(clazz.getSimpleName());
+		ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
 
 		if (classInfo != null) {
 

@@ -19,7 +19,7 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
@@ -92,7 +92,7 @@ public class DeleteDelegate  {
 
         for (Object object : objects ) {
 
-            ClassMetadata classInfo = session.metaData().classInfo(object);
+            ClassInfo classInfo = session.metaData().classInfo(object);
 
             if (classInfo != null) {
 
@@ -136,7 +136,7 @@ public class DeleteDelegate  {
     }
 
     public <T> void deleteAll(Class<T> type) {
-        ClassMetadata classInfo = session.metaData().classInfo(type.getName());
+        ClassInfo classInfo = session.metaData().classInfo(type.getName());
         if (classInfo != null) {
             Statement request = getDeleteStatementsBasedOnType(type).delete(session.entityType(classInfo.name()));
             RowModelRequest query = new DefaultRowModelRequest(request.getStatement(), request.getParameters());
@@ -154,7 +154,7 @@ public class DeleteDelegate  {
 
     public <T> Object delete(Class<T> clazz, Iterable<Filter> filters, boolean listResults) {
 
-        ClassMetadata classInfo = session.metaData().classInfo(clazz.getSimpleName());
+        ClassInfo classInfo = session.metaData().classInfo(clazz.getSimpleName());
 
         if (classInfo != null) {
 

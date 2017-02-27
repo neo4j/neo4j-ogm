@@ -46,7 +46,7 @@ import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.PropertyReader;
 import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
 /**
@@ -69,7 +69,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldPreferAnnotatedFieldToPlainMethodWhenFindingPropertyToSet() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
         EntityAccess objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
@@ -85,7 +85,7 @@ public class EntityAccessManagerTest {
      */
     @Test
     public void shouldPreferAnnotatedFieldToMethodNotAnnotatedWithPropertyWhenFindingPropertyToSet() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         DummyDomainObject domainObject = new DummyDomainObject();
 
         EntityAccess objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
@@ -98,7 +98,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldAccessViaFieldCorrespondingToPropertyIfNoAnnotationsOrAccessorMethodsArePresent() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.propertyWithoutAccessorMethods = 9;
@@ -117,7 +117,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldRetrieveObjectAccessForWritingIterableObject() {
-        ClassMetadata classInfo = this.domainInfo.getClass(Program.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
         RelationalWriter iterableAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "satellites", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", iterableAccess);
@@ -130,7 +130,7 @@ public class EntityAccessManagerTest {
     @Test
     @Ignore // we do expect this to work now.
     public void shouldNotRetrieveSetterMethodObjectAccessIfTypesAreIncompatible() {
-        ClassMetadata classInfo = this.domainInfo.getClass(Program.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
         Satellite singleSatellite = new Satellite();
 
@@ -143,7 +143,7 @@ public class EntityAccessManagerTest {
     @Test
     public void shouldPreferAnnotatedFieldToPlainSetterMatchingRelationshipTypeWhenSettingRelationshipObject() {
         // 2nd, try to find a field annotated with with relationship type
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         Member parameter = new Member();
 
@@ -165,7 +165,7 @@ public class EntityAccessManagerTest {
     @Test
     public void shouldPreferFieldBasedOnRelationshipTypeToPlainSetterWithMatchingParameterType() {
         // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Topic favouriteTopic = new Topic();
 
         // NB: the setter is called setTopic here, so a relationship type of just "TOPIC" would choose the setter
@@ -180,7 +180,7 @@ public class EntityAccessManagerTest {
     @Test
     public void shouldDefaultToFieldThatMatchesTheParameterTypeIfRelationshipTypeCannotBeMatchedAndNoSetterExists() {
         // 6th, try to find a field that shares the same type as the parameter
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Post forumPost = new Post();
 
         RelationalWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "UTTER_RUBBISH", Relationship.OUTGOING, forumPost);
@@ -193,7 +193,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldPreferAnnotatedFieldToPlainGetterWhenReadingFromAnObject() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.annotatedTestProperty = "more arbitrary text";
@@ -205,7 +205,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldPreferAnnotatedFieldToGetterWhenReadingFromAnObject() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.propertyWithDifferentAnnotatedGetter = "more arbitrary text";
@@ -225,7 +225,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldPreferMethodBasedAccessToFieldAccessWhenReadingFromObjectsWithoutAnnotations() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.nonAnnotatedTestProperty = new Double(30.16);
@@ -237,7 +237,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldPreferAnnotatedFieldToPlainGetterMethodMatchingRelationshipType() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.member = new Member();
@@ -257,7 +257,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldReadFromFieldMatchingRelationshipTypeInObjectWithoutAnnotationsOrAccessorMethods() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.postWithoutAccessorMethods = new Post();
@@ -270,7 +270,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldUseFieldAccessUnconditionallyForReadingIdentityProperty() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         final long id = 593L;
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -283,7 +283,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldRetrieveAppropriateObjectAccessToAllRelationalAttributesForParticularClass() {
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.postWithoutAccessorMethods = new Post();
@@ -317,7 +317,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldRetrieveAppropriateObjectAccessToEndNodeAttributeOnRelationshipEntity() {
-        ClassMetadata relationshipEntityClassInfo = domainInfo.getClass(ForumTopicLink.class.getName());
+        ClassInfo relationshipEntityClassInfo = domainInfo.getClass(ForumTopicLink.class.getName());
 
         RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(relationshipEntityClassInfo);
         assertNotNull("The resultant end node reader shouldn't be null", endNodeReader);
@@ -330,7 +330,7 @@ public class EntityAccessManagerTest {
 
     @Test
     public void shouldReturnNullOnAttemptToAccessNonExistentEndNodeAttributeOnRelationshipEntity() {
-        ClassMetadata classInfoOfNonRelationshipEntity = domainInfo.getClass(Member.class.getName());
+        ClassInfo classInfoOfNonRelationshipEntity = domainInfo.getClass(Member.class.getName());
         assertNull(EntityAccessManager.getEndNodeReader(classInfoOfNonRelationshipEntity));
     }
 
@@ -340,7 +340,7 @@ public class EntityAccessManagerTest {
     @Test
     public void shouldPreferAnnotatedFieldWithMatchingRelationshipTypeWhenGettingIterableWriter() {
         // 2nd, try to find a field annotated with with relationship type
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
@@ -359,7 +359,7 @@ public class EntityAccessManagerTest {
     @Test
     public void shouldPreferAnnotatedFieldWithMatchingRelationshipTypeWhenGettingIterableReader() {
         // 2nd, try to find a field annotated with with relationship type
-        ClassMetadata classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());

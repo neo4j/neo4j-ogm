@@ -15,9 +15,9 @@ package org.neo4j.ogm.typeconversion;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -33,8 +33,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class NumberConversionTest {
 
-    private static final MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.convertible.numbers");
-    private static final ClassMetadata accountInfo = metaData.classInfo("Account");
+    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.numbers");
+    private static final ClassInfo accountInfo = metaData.classInfo("Account");
 
     @Test
     public void assertAccountFieldsHaveDefaultConverters() {
@@ -142,8 +142,8 @@ public class NumberConversionTest {
 
     @Test
     public void assertHasCompositeConverter() {
-        MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.restaurant");
-        ClassMetadata restaurantInfo = metaData.classInfo("Restaurant");
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.restaurant");
+        ClassInfo restaurantInfo = metaData.classInfo("Restaurant");
         assertTrue(restaurantInfo.propertyField("location").hasCompositeConverter());
     }
 }

@@ -18,10 +18,10 @@ import org.neo4j.ogm.exception.MappingException;
 
 public class ClassValidator {
 
-    private ClassMetadata classInfo;
+    private ClassInfo classInfo;
 
 
-    public ClassValidator(ClassMetadata classInfo) {
+    public ClassValidator(ClassInfo classInfo) {
         this.classInfo = classInfo;
     }
 
@@ -38,7 +38,7 @@ public class ClassValidator {
     }
 
     private void validateFields() throws MappingException {
-        for (FieldMetadata fieldInfo : classInfo.fieldsInfo().fields()) {
+        for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
             if (fieldInfo.hasAnnotation(Property.class) && fieldInfo.hasCompositeConverter()) {
                 throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
                         classInfo.name(), fieldInfo.getName()));

@@ -21,15 +21,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.ClassMetadata;
-import org.neo4j.ogm.metadata.FieldMetadata;
-import org.neo4j.ogm.metadata.MethodMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.metadata.reflect.*;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
@@ -53,9 +53,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private final MappingContext mappingContext;
     private final EntityFactory entityFactory;
-    private final MetadataMap metadata;
+    private final MetaData metadata;
 
-    public GraphEntityMapper(MetadataMap metaData, MappingContext mappingContext) {
+    public GraphEntityMapper(MetaData metaData, MappingContext mappingContext) {
         this.metadata = metaData;
         this.entityFactory = new EntityFactory(metadata);
         this.mappingContext = mappingContext;
@@ -185,8 +185,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     }
 
     private void executePostLoad(Object instance) {
-        ClassMetadata classInfo = metadata.classInfo(instance);
-        MethodMetadata postLoadMethod = classInfo.postLoadMethodOrNull();
+        ClassInfo classInfo = metadata.classInfo(instance);
+        MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
         if (postLoadMethod != null) {
             final Method method = postLoadMethod.getMethod();
             try {
@@ -198,19 +198,19 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     }
 
     private void setIdentity(Object instance, Long id) {
-        ClassMetadata classInfo = metadata.classInfo(instance);
-        FieldMetadata fieldInfo = classInfo.identityField();
+        ClassInfo classInfo = metadata.classInfo(instance);
+        FieldInfo fieldInfo = classInfo.identityField();
         FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
     }
 
     private void setProperties(Node nodeModel, Object instance) {
         List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
-        ClassMetadata classInfo = metadata.classInfo(instance);
+        ClassInfo classInfo = metadata.classInfo(instance);
 
-        Collection<FieldMetadata> compositeFields = classInfo.fieldsInfo().compositeFields();
+        Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
         if (compositeFields.size() > 0) {
             Map<String, ?> propertyMap = PropertyUtils.toMap(propertyList);
-            for (FieldMetadata field : compositeFields) {
+            for (FieldInfo field : compositeFields) {
                 Object value = field.getCompositeConverter().toEntityAttribute(propertyMap);
                 PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
                 writer.write(instance, value);
@@ -223,15 +223,15 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     }
 
     private void setProperties(Edge relationshipModel, Object instance) {
-        ClassMetadata classInfo = metadata.classInfo(instance);
+        ClassInfo classInfo = metadata.classInfo(instance);
         for (Property<?, ?> property : relationshipModel.getPropertyList()) {
             writeProperty(classInfo, instance, property);
         }
     }
 
     private void setLabels(Node nodeModel, Object instance) {
-        ClassMetadata classInfo = metadata.classInfo(instance);
-        FieldMetadata labelFieldInfo = classInfo.labelFieldOrNull();
+        ClassInfo classInfo = metadata.classInfo(instance);
+        FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
             Collection<String> staticLabels = classInfo.staticLabels();
             Set<String> dynamicLabels = new HashSet<>();
@@ -244,7 +244,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
     }
 
-    private void writeProperty(ClassMetadata classInfo, Object instance, Property<?, ?> property) {
+    private void writeProperty(ClassInfo classInfo, Object instance, Property<?, ?> property) {
 
         PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey().toString());
 
@@ -273,7 +273,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     private boolean tryMappingAsSingleton(Object source, Object parameter, Edge edge, String relationshipDirection) {
 
         String edgeLabel = edge.getType();
-        ClassMetadata sourceInfo = metadata.classInfo(source);
+        ClassInfo sourceInfo = metadata.classInfo(source);
 
         RelationalWriter writer = getRelationalWriter(sourceInfo, edgeLabel, relationshipDirection, parameter);
         if (writer != null && writer.forScalar()) {
@@ -297,7 +297,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
                 if (source != null && target != null) {
                     // check whether this edge should in fact be handled as a relationship entity
-                    ClassMetadata relationshipEntityClassInfo = getRelationshipEntity(edge);
+                    ClassInfo relationshipEntityClassInfo = getRelationshipEntity(edge);
 
                     if (relationshipEntityClassInfo != null) {
                         mapRelationshipEntity(oneToMany, edge, source, target, relationshipEntityClassInfo);
@@ -331,7 +331,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
     }
 
-    private void mapRelationshipEntity(List<Edge> oneToMany, Edge edge, Object source, Object target, ClassMetadata relationshipEntityClassInfo) {
+    private void mapRelationshipEntity(List<Edge> oneToMany, Edge edge, Object source, Object target, ClassInfo relationshipEntityClassInfo) {
         logger.debug("Found relationship type: {} to map to RelationshipEntity: {}", edge.getType(), relationshipEntityClassInfo.name());
 
         // look to see if this relationship already exists in the mapping context.
@@ -343,7 +343,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
 
         // If the source has a writer for an outgoing relationship for the rel entity, then write the rel entity on the source if it's a scalar writer
-        ClassMetadata sourceInfo = metadata.classInfo(source);
+        ClassInfo sourceInfo = metadata.classInfo(source);
         RelationalWriter writer = getRelationalWriter(sourceInfo, edge.getType(), OUTGOING, relationshipEntity);
         if (writer == null) {
             logger.debug("No writer for {}", target);
@@ -357,7 +357,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         }
 
         //If the target has a writer for an incoming relationship for the rel entity, then write the rel entity on the target if it's a scalar writer
-        ClassMetadata targetInfo = metadata.classInfo(target);
+        ClassInfo targetInfo = metadata.classInfo(target);
         writer = getRelationalWriter(targetInfo, edge.getType(), Relationship.INCOMING, relationshipEntity);
 
         if (writer == null) {
@@ -384,7 +384,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         mappingContext.addRelationshipEntity(relationshipEntity, edge.getId());
 
         // set the start and end entities
-        ClassMetadata relEntityInfo = metadata.classInfo(relationshipEntity);
+        ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
 
         RelationalWriter startNodeWriter = EntityAccessManager.getStartOrEndNodeWriter(relEntityInfo, StartNode.class);
         if (startNodeWriter != null) {
@@ -497,7 +497,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * @return RelationalWriter or null if none exists
      */
     private RelationalWriter findIterableWriter(Object instance, Object parameter, String relationshipType, String relationshipDirection) {
-        ClassMetadata classInfo = metadata.classInfo(instance);
+        ClassInfo classInfo = metadata.classInfo(instance);
         return EntityAccessManager.getIterableWriter(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
     }
 
@@ -513,7 +513,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      */
     private void mapOneToMany(Object instance, Class<?> valueType, Object values, String relationshipType, String relationshipDirection) {
 
-        ClassMetadata classInfo = metadata.classInfo(instance);
+        ClassInfo classInfo = metadata.classInfo(instance);
 
         RelationalWriter writer = EntityAccessManager.getIterableWriter(classInfo, valueType, relationshipType, relationshipDirection);
         if (writer != null) {
@@ -539,14 +539,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 	// Find the correct RE associated with the edge. The edge type may be polymorphic, so we need to do a bit of work
 	// to identify the correct RE to bind to. We must not cache the value when found, because the correct determination
 	// depends on the runtime values of the edge in the mapping context, which may vary for the same edge pattern.
-	private ClassMetadata getRelationshipEntity(Edge edge) {
+	private ClassInfo getRelationshipEntity(Edge edge) {
 
 		Object source = mappingContext.getNodeEntity(edge.getStartNode());
 		Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
-        Set<ClassMetadata> classInfos = metadata.classInfoByLabelOrType(edge.getType());
+        Set<ClassInfo> classInfos = metadata.classInfoByLabelOrType(edge.getType());
 
-        for (ClassMetadata classInfo : classInfos) {
+        for (ClassInfo classInfo : classInfos) {
 
 			// both source and target must be declared as START and END nodes respectively
 			if (!nodeTypeMatches(classInfo, source, StartNode.class)) {
@@ -574,7 +574,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         // to the RE. If we can find a single properly-formed matching RE for this edge we'll assume it is
         // the right one, otherwise ... give up
         if (classInfos.size() == 1) {
-            ClassMetadata classInfo = classInfos.iterator().next();
+            ClassInfo classInfo = classInfos.iterator().next();
             if (nodeTypeMatches(classInfo, source, StartNode.class) && nodeTypeMatches(classInfo, target, EndNode.class)) {
                 return classInfo;
             }
@@ -629,10 +629,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * @param annotationClass the annotation to match
      * @return true if the class of the node matches field annotated
      */
-    private boolean nodeTypeMatches(ClassMetadata classInfo, Object node, Class<?> annotationClass) {
-        List<FieldMetadata> fields = classInfo.findFields(annotationClass.getCanonicalName());
+    private boolean nodeTypeMatches(ClassInfo classInfo, Object node, Class<?> annotationClass) {
+        List<FieldInfo> fields = classInfo.findFields(annotationClass.getCanonicalName());
         if (fields.size() == 1) {
-            FieldMetadata field = fields.get(0);
+            FieldInfo field = fields.get(0);
             if (field.isTypeOf(node.getClass())) {
                 return true;
             }
@@ -640,8 +640,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         return false;
     }
 
-    private Class underlyingElementType(ClassMetadata classInfo, String propertyName) {
-        FieldMetadata fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
+    private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
+        FieldInfo fieldInfo = fieldInfoForPropertyName(propertyName, classInfo);
         Class clazz = null;
         if (fieldInfo != null) {
             clazz = ClassUtils.getType(fieldInfo.getTypeDescriptor());
@@ -649,8 +649,8 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         return clazz;
     }
 
-    private FieldMetadata fieldInfoForPropertyName(String propertyName, ClassMetadata classInfo) {
-        FieldMetadata labelField = classInfo.labelFieldOrNull();
+    private FieldInfo fieldInfoForPropertyName(String propertyName, ClassInfo classInfo) {
+        FieldInfo labelField = classInfo.labelFieldOrNull();
         if (labelField != null && labelField.getName().toLowerCase().equals(propertyName.toLowerCase())) {
             return labelField;
         }

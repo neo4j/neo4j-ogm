@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.ClassMetadata;
-import org.neo4j.ogm.metadata.FieldMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.reflect.*;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.utils.ClassUtils;
@@ -41,15 +41,15 @@ public class SingleUseEntityMapper {
 	private static final Logger logger = LoggerFactory.getLogger(SingleUseEntityMapper.class);
 
 	private final EntityFactory entityFactory;
-	private final MetadataMap metadata;
+	private final MetaData metadata;
 
 	/**
-	 * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetadataMap}.
+	 * Constructs a new {@link SingleUseEntityMapper} based on the given mapping {@link MetaData}.
 	 *
-	 * @param mappingMetaData The {@link MetadataMap} to use for performing mappings
+	 * @param mappingMetaData The {@link MetaData} to use for performing mappings
 	 * @param entityFactory The entity factory to use.
 	 */
-	public SingleUseEntityMapper(MetadataMap mappingMetaData, EntityFactory entityFactory) {
+	public SingleUseEntityMapper(MetaData mappingMetaData, EntityFactory entityFactory) {
 		this.metadata = mappingMetaData;
 		this.entityFactory = new EntityFactory(mappingMetaData);
 	}
@@ -81,14 +81,14 @@ public class SingleUseEntityMapper {
 	}
 
 	private void setPropertiesOnEntity(Object entity, Map<String, Object> propertyMap) {
-		ClassMetadata classInfo = resolveClassInfoFor(entity.getClass());
+		ClassInfo classInfo = resolveClassInfoFor(entity.getClass());
 		for (Entry<String, Object> propertyMapEntry : propertyMap.entrySet()) {
 			writeProperty(classInfo, entity, propertyMapEntry);
 		}
 	}
 
-	private ClassMetadata resolveClassInfoFor(Class<?> type) {
-		ClassMetadata classInfo = this.metadata.classInfo(type.getSimpleName());
+	private ClassInfo resolveClassInfoFor(Class<?> type) {
+		ClassInfo classInfo = this.metadata.classInfo(type.getSimpleName());
 		if (classInfo != null) {
 			return classInfo;
 		}
@@ -97,18 +97,18 @@ public class SingleUseEntityMapper {
 	}
 
 	// TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
-	private void writeProperty(ClassMetadata classInfo, Object instance, Map.Entry<String, Object> property) {
+	private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
 		PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey());
 
 		if (writer == null) {
-			FieldMetadata fieldInfo = classInfo.relationshipFieldByName(property.getKey());
+			FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());
 			if (fieldInfo != null) {
 				writer = new FieldWriter(classInfo, fieldInfo);
 			}
 		}
 
 		if (writer == null && property.getKey().equals("id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
-			FieldMetadata idField = classInfo.identityField();
+			FieldInfo idField = classInfo.identityField();
 			if (idField != null) {
 				writer = new FieldWriter(classInfo, idField);
 			}
@@ -131,8 +131,8 @@ public class SingleUseEntityMapper {
 		}
 	}
 
-    private Class underlyingElementType(ClassMetadata classInfo, String propertyName) {
-        FieldMetadata fieldInfo = classInfo.propertyField(propertyName);
+    private Class underlyingElementType(ClassInfo classInfo, String propertyName) {
+        FieldInfo fieldInfo = classInfo.propertyField(propertyName);
         if (fieldInfo != null) {
             return ClassUtils.getType(fieldInfo.getTypeDescriptor());
         }

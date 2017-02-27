@@ -25,7 +25,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
 /**
@@ -39,7 +39,7 @@ public class RelationshipWriterPlainFieldsTest {
     @Test
     public void shouldFindWriterForCollection() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(S.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
@@ -52,7 +52,7 @@ public class RelationshipWriterPlainFieldsTest {
     @Test
     public void shouldFindWriterForScalar() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(S.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
@@ -65,7 +65,7 @@ public class RelationshipWriterPlainFieldsTest {
     @Test
     public void shouldFindWriterForArray() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(S.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
         RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);

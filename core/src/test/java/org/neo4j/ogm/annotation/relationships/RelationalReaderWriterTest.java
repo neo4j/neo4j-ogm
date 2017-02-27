@@ -26,7 +26,7 @@ import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
 /**
@@ -52,7 +52,7 @@ public class RelationalReaderWriterTest {
     public void testUserV1() {
         final String KNOWN_BY = "KNOWN_BY";
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV1.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV1.class.getName());
         UserV1 instance = new UserV1();
         UserV1 relatedObject = new UserV1();
 
@@ -78,7 +78,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV2() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV2.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV2.class.getName());
         UserV2 instance = new UserV2();
         UserV2 relatedObject = new UserV2();
 
@@ -103,7 +103,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV3() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV3.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV3.class.getName());
         UserV3 instance = new UserV3();
         UserV3 relatedObject = new UserV3();
 
@@ -128,7 +128,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV4() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV4.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV4.class.getName());
         UserV4 instance = new UserV4();
         UserV4 relatedObject = new UserV4();
 
@@ -153,7 +153,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV5() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV5.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV5.class.getName());
         UserV5 instance = new UserV5();
         UserV5 relatedObject = new UserV5();
 
@@ -178,7 +178,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV6() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV6.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV6.class.getName());
         UserV6 instance = new UserV6();
         UserV6 relatedObject = new UserV6();
 
@@ -206,7 +206,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV7() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV7.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV7.class.getName());
         UserV7 instance = new UserV7();
         UserV7 relatedObject = new UserV7();
 
@@ -231,7 +231,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV8() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV8.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV8.class.getName());
         UserV8 instance = new UserV8();
         UserV8 relatedObject = new UserV8();
 
@@ -255,7 +255,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV9() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV9.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV9.class.getName());
         UserV9 instance = new UserV9();
         UserV9 relatedObjectOut = new UserV9();
         UserV9 relatedObjectIn = new UserV9();
@@ -286,7 +286,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV10() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV10.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV10.class.getName());
         UserV10 instance = new UserV10();
         UserV10 relatedObjectOut = new UserV10();
         UserV10 relatedObjectIn = new UserV10();
@@ -317,7 +317,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV11() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV11.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV11.class.getName());
         UserV11 instance = new UserV11();
         UserV11 relatedObjectOut = new UserV11();
         UserV11 relatedObjectIn = new UserV11();
@@ -348,7 +348,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV12() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV12.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV12.class.getName());
         UserV12 instance = new UserV12();
         UserV12 relatedObjectOut = new UserV12();
         UserV12 relatedObjectIn = new UserV12();
@@ -380,7 +380,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV13() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV13.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV13.class.getName());
         UserV13 instance = new UserV13();
         UserV13 relatedObject = new UserV13();
 
@@ -405,7 +405,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV14() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV14.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV14.class.getName());
         UserV14 instance = new UserV14();
         UserV14 relatedObject = new UserV14();
 
@@ -428,7 +428,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV15() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV15.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV15.class.getName());
         UserV15 instance = new UserV15();
         UserV15 relatedObjectOut = new UserV15();
         UserV15 relatedObjectIn = new UserV15();
@@ -461,7 +461,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV16() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV16.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV16.class.getName());
         UserV16 instance = new UserV16();
         UserV16 relatedObjectOut = new UserV16();
         UserV16 relatedObjectIn = new UserV16();
@@ -494,7 +494,7 @@ public class RelationalReaderWriterTest {
      */
     @Test
     public void testUserV17() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV17.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV17.class.getName());
         UserV17 instance = new UserV17();
         UserV17 relatedObject = new UserV17();
 
@@ -519,7 +519,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV18() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV18.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV18.class.getName());
         UserV18 instance = new UserV18();
         UserV18 relatedObject = new UserV18();
 
@@ -544,7 +544,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV19() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV19.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV19.class.getName());
         UserV19 instance = new UserV19();
         UserV19 relatedObject = new UserV19();
 
@@ -569,7 +569,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV20() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV20.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV20.class.getName());
         UserV20 instance = new UserV20();
         UserV20 relatedObject = new UserV20();
         PlainUser otherRelatedObject = new PlainUser();
@@ -600,7 +600,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV21() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV21.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV21.class.getName());
         UserV21 instance = new UserV21();
         UserV21 relatedObject = new UserV21();
         PlainUser otherRelatedObject = new PlainUser();
@@ -632,7 +632,7 @@ public class RelationalReaderWriterTest {
     @Test
     public void testUserV22() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV22.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV22.class.getName());
         UserV22 instance = new UserV22();
         UserV22 relatedObject = new UserV22();
         PlainUser otherRelatedObject = new PlainUser();

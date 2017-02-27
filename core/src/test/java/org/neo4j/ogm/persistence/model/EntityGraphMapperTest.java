@@ -17,7 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
@@ -54,7 +54,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     private EntityMapper mapper;
 
-    private static MetadataMap mappingMetadata;
+    private static MetaData mappingMetadata;
     private static MappingContext mappingContext;
 
 
@@ -65,7 +65,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     @BeforeClass
     public static void setUpTestDatabase() {
 
-        mappingMetadata = new MetadataMap(
+        mappingMetadata = new MetaData(
                 "org.neo4j.ogm.domain.education",
                 "org.neo4j.ogm.domain.forum",
                 "org.neo4j.ogm.domain.social",

@@ -17,10 +17,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
-import org.neo4j.ogm.metadata.FieldMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 
 /**
  * @author Vince Bickers
@@ -35,9 +35,9 @@ class IdentityMap {
 
     private final Map<Long, Long> relEntityHash;
 
-    private final MetadataMap metaData;
+    private final MetaData metaData;
 
-    IdentityMap(MetadataMap metaData) {
+    IdentityMap(MetaData metaData) {
         this.nodeHash = new HashMap<>();
         this.relEntityHash = new HashMap<>();
         this.metaData = metaData;
@@ -51,7 +51,7 @@ class IdentityMap {
      * @param object the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
-    public void remember(Long entityId, Object object, ClassMetadata classInfo) {
+    public void remember(Long entityId, Object object, ClassInfo classInfo) {
         if (metaData.isRelationshipEntity(classInfo.name())) {
             relEntityHash.put(entityId, hash(object, classInfo));
         } else {
@@ -70,7 +70,7 @@ class IdentityMap {
      * @param classInfo metadata about the object
      * @return true if the object hasn't changed since it was remembered, false otherwise
      */
-    boolean remembered(Long entityId, Object object, ClassMetadata classInfo) {
+    boolean remembered(Long entityId, Object object, ClassInfo classInfo) {
         boolean isRelEntity = false;
 
         if (entityId != null) {
@@ -97,15 +97,15 @@ class IdentityMap {
     }
 
 
-    private static long hash(Object object, ClassMetadata classInfo) {
+    private static long hash(Object object, ClassInfo classInfo) {
         long hash = SEED;
 
-        List<FieldMetadata> hashFields = new ArrayList<>(classInfo.propertyFields());
+        List<FieldInfo> hashFields = new ArrayList<>(classInfo.propertyFields());
         if (classInfo.labelFieldOrNull() != null) {
             hashFields.add(classInfo.labelFieldOrNull());
         }
 
-        for (FieldMetadata fieldInfo : hashFields) {
+        for (FieldInfo fieldInfo : hashFields) {
             Field field = classInfo.getField(fieldInfo);
             Object value = FieldWriter.read(field, object);
             if (value != null) {

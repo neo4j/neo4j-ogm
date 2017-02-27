@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * The TypeRegister maintains the list of active objects ids in the session, mapping each object id to its type hierarchy.
@@ -38,7 +38,7 @@ public class TypeRegister {
      * @param type the class of the entity to be removed
      * @param id the id of the entity to be removed
      */
-    public void remove(MetadataMap metaData, Class type, Object id) {
+    public void remove(MetaData metaData, Class type, Object id) {
 
         Map<Object, Object> entities = register.get(type);
 
@@ -75,7 +75,7 @@ public class TypeRegister {
      * @param entity the entity to be added
      * @param id the id of the entity to be added
      */
-    public void add(MetadataMap metaData, Class type, Object entity, Object id) {
+    public void add(MetaData metaData, Class type, Object entity, Object id) {
         objectMap(type).put(id, entity);
         if (type.getSuperclass() != null
                 && metaData != null

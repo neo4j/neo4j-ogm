@@ -15,10 +15,10 @@ package org.neo4j.ogm.typeconversion;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.convertible.enums.*;
-import org.neo4j.ogm.metadata.ClassMetadata;
-import org.neo4j.ogm.metadata.FieldMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,15 +31,15 @@ import static org.junit.Assert.*;
  */
 public class EnumConversionTest {
 
-    private static final MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.convertible.enums");
+    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.enums");
 
-    private static final ClassMetadata algebraInfo = metaData.classInfo("Algebra");
-    private static final ClassMetadata personInfo = metaData.classInfo("Person");
-    private static final ClassMetadata tagEntityInfo = metaData.classInfo("TagEntity");
+    private static final ClassInfo algebraInfo = metaData.classInfo("Algebra");
+    private static final ClassInfo personInfo = metaData.classInfo("Person");
+    private static final ClassInfo tagEntityInfo = metaData.classInfo("TagEntity");
 
     @Test
     public void testSaveFieldWithAnnotatedConverter() {
-        FieldMetadata fieldInfo = algebraInfo.propertyField("numberSystem");
+        FieldInfo fieldInfo = algebraInfo.propertyField("numberSystem");
         assertTrue(fieldInfo.hasPropertyConverter());
 
         Algebra algebra = new Algebra();
@@ -52,7 +52,7 @@ public class EnumConversionTest {
 
     @Test
     public void testLoadFieldWithAnnotatedConverter() {
-        FieldMetadata fieldInfo = algebraInfo.propertyField("numberSystem");
+        FieldInfo fieldInfo = algebraInfo.propertyField("numberSystem");
         assertTrue(fieldInfo.hasPropertyConverter());
         // a node / rel property value loaded from neo4j, to be stored in on an enum
         String value = "INTEGER";
@@ -69,7 +69,7 @@ public class EnumConversionTest {
         Person bob = new Person();
         bob.setGender(Gender.MALE);
 
-        FieldMetadata fieldInfo = personInfo.propertyField("gender");
+        FieldInfo fieldInfo = personInfo.propertyField("gender");
 
         assertTrue(fieldInfo.hasPropertyConverter());
         Assert.assertEquals("MALE", fieldInfo.getPropertyConverter().toGraphProperty(bob.getGender()));
@@ -78,7 +78,7 @@ public class EnumConversionTest {
 
     @Test
     public void assertConvertingNullGraphPropertyWorksCorrectly() {
-        FieldMetadata methodInfo = personInfo.propertyField("gender");
+        FieldInfo methodInfo = personInfo.propertyField("gender");
         assertTrue(methodInfo.hasPropertyConverter());
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
@@ -86,7 +86,7 @@ public class EnumConversionTest {
 
     @Test
     public void assertConvertingNullAttributeWorksCorrectly() {
-        FieldMetadata methodInfo = personInfo.propertyField("gender");
+        FieldInfo methodInfo = personInfo.propertyField("gender");
         assertTrue(methodInfo.hasPropertyConverter());
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
@@ -103,7 +103,7 @@ public class EnumConversionTest {
         Education[] inProgress = new Education[]{Education.MASTERS, Education.PHD};
         bob.setInProgressEducation(inProgress);
 
-        FieldMetadata fieldInfo = personInfo.propertyField("inProgressEducation");
+        FieldInfo fieldInfo = personInfo.propertyField("inProgressEducation");
 
         assertTrue(fieldInfo.hasPropertyConverter());
         String[] converted = (String[]) fieldInfo.getPropertyConverter().toGraphProperty(bob.getInProgressEducation());
@@ -119,7 +119,7 @@ public class EnumConversionTest {
      */
     @Test
     public void assertConvertingNullArrayGraphPropertyWorksCorrectly() {
-        FieldMetadata methodInfo = personInfo.propertyField("inProgressEducation");
+        FieldInfo methodInfo = personInfo.propertyField("inProgressEducation");
         assertTrue(methodInfo.hasPropertyConverter());
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
@@ -130,7 +130,7 @@ public class EnumConversionTest {
      */
     @Test
     public void assertConvertingNullArrayAttributeWorksCorrectly() {
-        FieldMetadata methodInfo = personInfo.propertyField("inProgressEducation");
+        FieldInfo methodInfo = personInfo.propertyField("inProgressEducation");
         assertTrue(methodInfo.hasPropertyConverter());
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
@@ -148,7 +148,7 @@ public class EnumConversionTest {
         Person bob = new Person();
         bob.setCompletedEducation(completedEducation);
 
-        FieldMetadata fieldInfo = personInfo.propertyField("completedEducation");
+        FieldInfo fieldInfo = personInfo.propertyField("completedEducation");
 
         assertTrue(fieldInfo.hasPropertyConverter());
         String[] converted = (String[]) fieldInfo.getPropertyConverter().toGraphProperty(bob.getCompletedEducation());
@@ -162,7 +162,7 @@ public class EnumConversionTest {
      */
     @Test
     public void assertConvertingNullCollectionGraphPropertyWorksCorrectly() {
-        FieldMetadata methodInfo = personInfo.propertyField("completedEducation");
+        FieldInfo methodInfo = personInfo.propertyField("completedEducation");
         assertTrue(methodInfo.hasPropertyConverter());
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toEntityAttribute(null));
@@ -173,7 +173,7 @@ public class EnumConversionTest {
      */
     @Test
     public void assertConvertingNullCollectionAttributeWorksCorrectly() {
-        FieldMetadata methodInfo = personInfo.propertyField("completedEducation");
+        FieldInfo methodInfo = personInfo.propertyField("completedEducation");
         assertTrue(methodInfo.hasPropertyConverter());
         AttributeConverter attributeConverter = methodInfo.getPropertyConverter();
         assertEquals(null, attributeConverter.toGraphProperty(null));
@@ -184,7 +184,7 @@ public class EnumConversionTest {
      */
     @Test
     public void shouldNotRegisterEnumWhenTypeContainsEnumType() {
-        FieldMetadata fieldInfo = tagEntityInfo.relationshipFieldByName("tags");
+        FieldInfo fieldInfo = tagEntityInfo.relationshipFieldByName("tags");
         assertFalse(fieldInfo.hasPropertyConverter());
     }
 }

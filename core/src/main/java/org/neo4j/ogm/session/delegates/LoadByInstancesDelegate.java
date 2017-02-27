@@ -20,7 +20,7 @@ import java.util.Set;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 
 /**
@@ -42,7 +42,7 @@ public class LoadByInstancesDelegate {
 
 		Set<Long> ids = new HashSet<>();
 		Class type = objects.iterator().next().getClass();
-		ClassMetadata classInfo = session.metaData().classInfo(type.getName());
+		ClassInfo classInfo = session.metaData().classInfo(type.getName());
 		Field identityField = classInfo.getField(classInfo.identityField());
 
 		for (Object o : objects) {

@@ -16,7 +16,7 @@ package org.neo4j.ogm.persistence.examples.pets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.pets.Dog;
 import org.neo4j.ogm.domain.pets.DomesticDog;
 import org.neo4j.ogm.domain.pets.Kid;
@@ -54,7 +54,7 @@ public class PetIntegrationTest extends MultiDriverTestClass {
      */
     @Test
     public void shouldResolveMetadataCorrectly() {
-        MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.pets");
+        MetaData metaData = new MetaData("org.neo4j.ogm.domain.pets");
         assertEquals("org.neo4j.ogm.domain.pets.Animal", metaData.resolve("Animal").name());
         assertEquals("org.neo4j.ogm.domain.pets.Mammal", metaData.resolve("Mammal", "Animal").name());
         assertEquals("org.neo4j.ogm.domain.pets.Dog", metaData.resolve("Mammal", "Animal", "Dog").name());

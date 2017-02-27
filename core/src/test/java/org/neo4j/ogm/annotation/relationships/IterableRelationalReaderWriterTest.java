@@ -31,7 +31,7 @@ import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
 /**
@@ -57,7 +57,7 @@ public class IterableRelationalReaderWriterTest {
     public void testUserV1() {
         final String KNOWN_BY = "KNOWN_BY";
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV1.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV1.class.getName());
         UserV1 instance = new UserV1();
         Set<UserV1> relatedObject = Collections.singleton(new UserV1());
 
@@ -82,7 +82,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV2() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV2.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV2.class.getName());
         UserV2 instance = new UserV2();
         Set<UserV2> relatedObject = Collections.singleton(new UserV2());
 
@@ -107,7 +107,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV3() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV3.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV3.class.getName());
         UserV3 instance = new UserV3();
         Set<UserV3> relatedObject = Collections.singleton(new UserV3());
 
@@ -132,7 +132,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV4() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV4.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV4.class.getName());
         UserV4 instance = new UserV4();
         Set<UserV4> relatedObject = Collections.singleton(new UserV4());
 
@@ -157,7 +157,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV5() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV5.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV5.class.getName());
         UserV5 instance = new UserV5();
         Set<UserV5> relatedObject = Collections.singleton(new UserV5());
 
@@ -182,7 +182,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV6() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV6.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV6.class.getName());
         UserV6 instance = new UserV6();
         Set<UserV6> relatedObject = Collections.singleton(new UserV6());
 
@@ -210,7 +210,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV7() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV7.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV7.class.getName());
         UserV7 instance = new UserV7();
         Set<UserV7> relatedObject = Collections.singleton(new UserV7());
 
@@ -235,7 +235,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV8() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV8.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV8.class.getName());
         UserV8 instance = new UserV8();
         Set<UserV8> relatedObject = Collections.singleton(new UserV8());
 
@@ -259,7 +259,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV9() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV9.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV9.class.getName());
         UserV9 instance = new UserV9();
         Set<UserV9> relatedObjectOut = Collections.singleton(new UserV9());
         Set<UserV9> relatedObjectIn = Collections.singleton(new UserV9());
@@ -290,7 +290,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV10() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV10.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV10.class.getName());
         UserV10 instance = new UserV10();
         Set<UserV10> relatedObjectOut = Collections.singleton(new UserV10());
         Set<UserV10> relatedObjectIn = Collections.singleton(new UserV10());
@@ -321,7 +321,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV11() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV11.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV11.class.getName());
         UserV11 instance = new UserV11();
         Set<UserV11> relatedObjectOut = Collections.singleton(new UserV11());
         Set<UserV11> relatedObjectIn = Collections.singleton(new UserV11());
@@ -352,7 +352,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV12() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV12.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV12.class.getName());
         UserV12 instance = new UserV12();
         Set<UserV12> relatedObjectOut = Collections.singleton(new UserV12());
         Set<UserV12> relatedObjectIn = Collections.singleton(new UserV12());
@@ -384,7 +384,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV13() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV13.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV13.class.getName());
         UserV13 instance = new UserV13();
         Set<UserV13> relatedObject = Collections.singleton(new UserV13());
 
@@ -409,7 +409,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV14() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV14.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV14.class.getName());
         UserV14 instance = new UserV14();
         Set<UserV14> relatedObject = Collections.singleton(new UserV14());
 
@@ -432,7 +432,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV15() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV15.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV15.class.getName());
         UserV15 instance = new UserV15();
         Set<UserV15> relatedObjectOut = Collections.singleton(new UserV15());
         Set<UserV15> relatedObjectIn = Collections.singleton(new UserV15());
@@ -465,7 +465,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV16() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV16.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV16.class.getName());
         UserV16 instance = new UserV16();
         Set<UserV16> relatedObjectOut = Collections.singleton(new UserV16());
         Set<UserV16> relatedObjectIn = Collections.singleton(new UserV16());
@@ -498,7 +498,7 @@ public class IterableRelationalReaderWriterTest {
      */
     @Test
     public void testUserV17() {
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV17.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV17.class.getName());
         UserV17 instance = new UserV17();
         Set<UserV17> relatedObject = Collections.singleton(new UserV17());
 
@@ -523,7 +523,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV18() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV18.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV18.class.getName());
         UserV18 instance = new UserV18();
         Set<UserV18> relatedObject = Collections.singleton(new UserV18());
 
@@ -548,7 +548,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV19() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV19.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV19.class.getName());
         UserV19 instance = new UserV19();
         Set<UserV19> relatedObject = Collections.singleton(new UserV19());
 
@@ -573,7 +573,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV20() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV20.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV20.class.getName());
         UserV20 instance = new UserV20();
         List<PlainUser> relatedObject = Collections.singletonList(new PlainUser());
         UserV20 otherRelatedObject = new UserV20();
@@ -608,7 +608,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV21() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV21.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV21.class.getName());
         UserV21 instance = new UserV21();
         PlainUser relatedObject = new PlainUser();
         List<UserV21> otherRelatedObject = Collections.singletonList(new UserV21());
@@ -642,7 +642,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV22() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV22.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV22.class.getName());
         UserV22 instance = new UserV22();
         List<PlainUser> relatedObject = Collections.singletonList(new PlainUser());
         UserV22 otherRelatedObject = new UserV22();
@@ -675,7 +675,7 @@ public class IterableRelationalReaderWriterTest {
     @Test
     public void testUserV23() {
 
-        ClassMetadata classInfo = this.domainInfo.getClass(UserV23.class.getName());
+        ClassInfo classInfo = this.domainInfo.getClass(UserV23.class.getName());
         UserV23 instance = new UserV23();
         PlainUser relatedObject = new PlainUser();
         List<UserV23> otherRelatedObject = Collections.singletonList(new UserV23());

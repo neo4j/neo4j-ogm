@@ -16,7 +16,7 @@ package org.neo4j.ogm.context;
 import java.util.*;
 
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
 
 /**
@@ -26,7 +26,7 @@ import org.neo4j.ogm.metadata.reflect.EntityFactory;
  */
 public class SingleUseEntityMapperTest {
 
-	private MetadataMap metaData = new MetadataMap("org.neo4j.ogm.context");
+	private MetaData metaData = new MetaData("org.neo4j.ogm.context");
 
 //	@Test
 //	public void shouldMapFromRowModel() throws Exception {

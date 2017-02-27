@@ -17,8 +17,8 @@ package org.neo4j.ogm.defects;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetadataMap;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.ClassInfo;
 
 import static org.junit.Assert.*;
 
@@ -28,17 +28,17 @@ import static org.junit.Assert.*;
 @Ignore
 public class MetaDataTest {
 
-    private MetadataMap metaData;
+    private MetaData metaData;
 
     @Before
     public void setUp() {
-        metaData = new MetadataMap("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.integration.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
 
     @Test
     public void testThatJavaDotLangDotEnumIsAnEnum() {
-        ClassMetadata classInfo = metaData.classInfo("Enum");
+        ClassInfo classInfo = metaData.classInfo("Enum");
         assertNotNull("I was expecting java.lang.Enum to be in the meta-data", classInfo);
         assertEquals("java.lang.Enum", classInfo.name());
         assertTrue("Surely java.lang.Enum should be considered an enum", classInfo.isEnum());

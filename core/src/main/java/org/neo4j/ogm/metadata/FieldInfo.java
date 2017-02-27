@@ -30,7 +30,7 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class FieldMetadata {
+public class FieldInfo {
 
     private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
     private static final String autoboxers =
@@ -74,7 +74,7 @@ public class FieldMetadata {
 
 
     /**
-     * Constructs a new {@link FieldMetadata} based on the given arguments.
+     * Constructs a new {@link FieldInfo} based on the given arguments.
      *
      * @param name                    The name of the field
      * @param descriptor              The field descriptor that expresses the type of the field using Java signature string notation
@@ -82,7 +82,7 @@ public class FieldMetadata {
      *                                if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public FieldMetadata(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public FieldInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.name = name;
 
         this.descriptor = descriptor;

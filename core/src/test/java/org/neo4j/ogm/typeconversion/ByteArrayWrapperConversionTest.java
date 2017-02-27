@@ -14,9 +14,9 @@
 package org.neo4j.ogm.typeconversion;
 
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper;
-import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,8 +26,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class ByteArrayWrapperConversionTest {
 
-    private static final MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.convertible.bytes");
-    private static final ClassMetadata photoInfo = metaData.classInfo("PhotoWrapper");
+    private static final MetaData metaData = new MetaData("org.neo4j.ogm.domain.convertible.bytes");
+    private static final ClassInfo photoInfo = metaData.classInfo("PhotoWrapper");
 
     @Test
     public void testConvertersLoaded() {

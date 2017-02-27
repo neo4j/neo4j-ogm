@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -32,8 +32,8 @@ import org.neo4j.ogm.cypher.query.SortClause;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.AnnotationInfo;
-import org.neo4j.ogm.metadata.ClassMetadata;
-import org.neo4j.ogm.metadata.FieldMetadata;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
@@ -58,7 +58,7 @@ public class Neo4jSession implements Session {
 
     private final Logger logger = LoggerFactory.getLogger(Neo4jSession.class);
 
-    private final MetadataMap metaData;
+    private final MetaData metaData;
     private final MappingContext mappingContext;
     private final DefaultTransactionManager txManager;
 
@@ -77,7 +77,7 @@ public class Neo4jSession implements Session {
 
     private List<EventListener> registeredEventListeners = new LinkedList<>();
 
-    public Neo4jSession(MetadataMap metaData, Driver driver) {
+    public Neo4jSession(MetaData metaData, Driver driver) {
 
         this.metaData = metaData;
         this.driver = driver;
@@ -86,7 +86,7 @@ public class Neo4jSession implements Session {
         this.txManager = new DefaultTransactionManager(this, driver);
     }
 
-    public Neo4jSession(MetadataMap metaData, Driver driver, List<EventListener> eventListeners) {
+    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners) {
         this(metaData, driver);
         registeredEventListeners.addAll(eventListeners);
     }
@@ -495,7 +495,7 @@ public class Neo4jSession implements Session {
         if (metaData.isRelationshipEntity(type.getName())) {
             return new RelationshipQueryStatements<>();
         } else {
-            final FieldMetadata fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
+            final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
             return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.property() : null);
         }
     }
@@ -508,7 +508,7 @@ public class Neo4jSession implements Session {
         return mappingContext;
     }
 
-    public MetadataMap metaData() {
+    public MetaData metaData() {
         return metaData;
     }
 
@@ -544,8 +544,8 @@ public class Neo4jSession implements Session {
             }
             filter.setPropertyName(resolvePropertyName(filter.getOwnerEntityType(), filter.getPropertyName()));
 
-            ClassMetadata classInfo = metaData().classInfo(entityType.getName());
-            FieldMetadata fieldInfo = classInfo.fieldsInfo().get(filter.getPropertyName());
+            ClassInfo classInfo = metaData().classInfo(entityType.getName());
+            FieldInfo fieldInfo = classInfo.fieldsInfo().get(filter.getPropertyName());
             if (fieldInfo != null) {
                 filter.setPropertyConverter(fieldInfo.getPropertyConverter());
                 filter.setCompositeConverter(fieldInfo.getCompositeConverter());
@@ -553,7 +553,7 @@ public class Neo4jSession implements Session {
 
             if (filter.isNested()) {
                 resolveRelationshipType(filter);
-                ClassMetadata nestedClassInfo = metaData().classInfo(filter.getNestedPropertyType().getName());
+                ClassInfo nestedClassInfo = metaData().classInfo(filter.getNestedPropertyType().getName());
                 filter.setNestedEntityTypeLabel(entityType(nestedClassInfo.name()));
                 if (metaData().isRelationshipEntity(nestedClassInfo.name())) {
                     filter.setNestedRelationshipEntity(true);
@@ -575,8 +575,8 @@ public class Neo4jSession implements Session {
     }
 
     private String resolvePropertyName(Class entityType, String propertyName) {
-        ClassMetadata classInfo = metaData().classInfo(entityType.getName());
-        FieldMetadata fieldInfo = classInfo.propertyFieldByName(propertyName);
+        ClassInfo classInfo = metaData().classInfo(entityType.getName());
+        FieldInfo fieldInfo = classInfo.propertyFieldByName(propertyName);
         if (fieldInfo != null && fieldInfo.getAnnotations() != null) {
             AnnotationInfo annotation = fieldInfo.getAnnotations().get(Property.class);
             if (annotation != null) {
@@ -588,8 +588,8 @@ public class Neo4jSession implements Session {
     }
 
     private void resolveRelationshipType(Filter parameter) {
-        ClassMetadata classInfo = metaData().classInfo(parameter.getOwnerEntityType().getName());
-        FieldMetadata fieldInfo = classInfo.relationshipFieldByName(parameter.getNestedPropertyName());
+        ClassInfo classInfo = metaData().classInfo(parameter.getOwnerEntityType().getName());
+        FieldInfo fieldInfo = classInfo.relationshipFieldByName(parameter.getNestedPropertyName());
 
         String defaultRelationshipType = RelationshipUtils.inferRelationshipType(parameter.getNestedPropertyName());
         parameter.setRelationshipType(defaultRelationshipType);

@@ -35,11 +35,11 @@ public class DomainInfoTest {
     @Test
     public void testInterfaceClassIMembership() {
 
-        ClassMetadata classInfo = domainInfo.getClassSimpleName("IMembership");
+        ClassInfo classInfo = domainInfo.getClassSimpleName("IMembership");
 
         assertNotNull(classInfo);
 
-        for (ClassMetadata implementingClass : classInfo.directImplementingClasses()) {
+        for (ClassInfo implementingClass : classInfo.directImplementingClasses()) {
             System.out.println(implementingClass.name());
         }
         assertEquals(4, classInfo.directImplementingClasses().size());
@@ -49,7 +49,7 @@ public class DomainInfoTest {
     @Test
     public void testAbstractClassMembership() {
 
-        ClassMetadata classInfo = domainInfo.getClassSimpleName("Membership");
+        ClassInfo classInfo = domainInfo.getClassSimpleName("Membership");
         assertNotNull(classInfo);
         assertEquals(1, classInfo.directInterfaces().size());
 
@@ -58,7 +58,7 @@ public class DomainInfoTest {
     @Test
     public void testConcreteClassSilverMembership() {
 
-        ClassMetadata classInfo = domainInfo.getClassSimpleName("SilverMembership");
+        ClassInfo classInfo = domainInfo.getClassSimpleName("SilverMembership");
         assertNotNull(classInfo);
         assertEquals(1, classInfo.interfacesInfo().list().size());
 

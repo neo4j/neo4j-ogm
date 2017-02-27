@@ -30,41 +30,41 @@ import org.neo4j.ogm.domain.hierarchy.domain.trans.TransientSingleClass;
  */
 public class TransientObjectsTest {
 
-    private MetadataMap metaData;
+    private MetaData metaData;
 
     @Before
     public void setUp() {
-        metaData = new MetadataMap("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Test
     public void testFieldMarkedWithTransientModifierIsNotInMetaData() {
-        ClassMetadata classInfo = metaData.classInfo("PersistableClass");
+        ClassInfo classInfo = metaData.classInfo("PersistableClass");
         assertNotNull(classInfo);
-        FieldMetadata fieldInfo = classInfo.propertyField("transientObject");
+        FieldInfo fieldInfo = classInfo.propertyField("transientObject");
         assertNull(fieldInfo);
     }
 
     @Test
     public void testClassAnnotatedTransientIsExcludedFromMetaData() {
-        ClassMetadata classInfo = metaData.classInfo("TransientObjectsTest$TransientClass");
+        ClassInfo classInfo = metaData.classInfo("TransientObjectsTest$TransientClass");
         assertNull(classInfo);
     }
 
     @Test
     public void testFieldAnnotatedTransientIsExcludedFromMetaData() {
-        ClassMetadata classInfo = metaData.classInfo("PersistableClass");
-        FieldMetadata fieldInfo = classInfo.propertyField("chickenCounting");
+        ClassInfo classInfo = metaData.classInfo("PersistableClass");
+        FieldInfo fieldInfo = classInfo.propertyField("chickenCounting");
         assertNull(fieldInfo);
     }
 
 
     @Test
     public void testMethodWithTransientReturnTypeIsExcludedFromRelationshipFields() {
-        ClassMetadata classInfo = metaData.classInfo("PersistableClass");
-        FieldMetadata fieldInfo = classInfo.relationshipField("TRANSIENT_SINGLE_CLASS");
+        ClassInfo classInfo = metaData.classInfo("PersistableClass");
+        FieldInfo fieldInfo = classInfo.relationshipField("TRANSIENT_SINGLE_CLASS");
         assertNull(fieldInfo);
-        for (FieldMetadata field : classInfo.relationshipFields()) {
+        for (FieldInfo field : classInfo.relationshipFields()) {
             if (field.getName().equals("transientSingleClassField")) {
                 fail("transientSingleClassField should not be returned in relationshipFields");
             }

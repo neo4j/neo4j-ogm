@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations.relationships;
+package org.neo4j.ogm.annotation.relationships;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -21,13 +21,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.*;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.FieldReader;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.FieldReader;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.RelationalReader;
-import org.neo4j.ogm.entity.io.RelationalWriter;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.FieldReader;
+import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.RelationalReader;
+import org.neo4j.ogm.metadata.reflect.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 

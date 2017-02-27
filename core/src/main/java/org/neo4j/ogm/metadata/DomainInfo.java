@@ -21,7 +21,7 @@ import java.util.*;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.scanner.ClassPathScanner;
+import org.neo4j.ogm.classloader.ClassPathScanner;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;

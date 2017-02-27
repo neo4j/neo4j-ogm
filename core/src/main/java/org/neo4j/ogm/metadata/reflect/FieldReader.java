@@ -9,7 +9,7 @@
  *
  */
 
-package org.neo4j.ogm.entity.io;
+package org.neo4j.ogm.metadata.reflect;
 
 
 import java.util.Map;

@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations.relationshipEntities;
+package org.neo4j.ogm.annotation.relationshipEntities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -26,9 +26,9 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.RelationalWriter;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
@@ -36,22 +36,22 @@ import org.neo4j.ogm.metadata.DomainInfo;
  * @author Luanne Misquitta
  * @author Vince Bickers
  */
-public class AnnotatedFieldAndNonAnnotatedSetterTest {
+public class AnnotatedFieldWithNoSetterAndNonSetterTest {
+
     private EntityAccessManager entityAccessStrategy = new EntityAccessManager();
-    private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.annotations.relationshipEntities");
+    private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.annotation.relationshipEntities");
 
 
     @Test
-    public void shouldPreferAnnotatedFieldWithNonAnnotatedSetterForRelationshipEntity() {
-
+    public void shouldPreferAnnotatedFieldOverNonSetterInAbsenceOfSetterForRelationshipEntity() {
         ClassInfo classInfo = this.domainInfo.getClass(End.class.getName());
 
         RelEntity relEntity = new RelEntity();
         Set<RelEntity> parameter = new HashSet();
         parameter.addAll(Arrays.asList(relEntity));
 
-        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
 
+        RelationalWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
         End end = new End();
@@ -101,7 +101,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
         Long id;
         String name;
         @Relationship(type = "REL_ENTITY_TYPE", direction = "INCOMING")
-        Set<RelEntity> relEntities;
+        Set<RelEntity> relEntities = new HashSet<>();
 
         public End() {
         }
@@ -110,8 +110,9 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
             return relEntities;
         }
 
-        public void setRelEntities(Set<RelEntity> relEntities) {
-            this.relEntities = relEntities;
+        public void addRelEntity(RelEntity relEntity) {
+
         }
+
     }
 }

@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotations;
+package org.neo4j.ogm.annotation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,8 +32,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Member;
 import org.neo4j.ogm.domain.forum.Topic;
@@ -41,13 +39,13 @@ import org.neo4j.ogm.domain.forum.activity.Comment;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.EntityAccess;
-import org.neo4j.ogm.entity.io.FieldReader;
-import org.neo4j.ogm.entity.io.FieldWriter;
-import org.neo4j.ogm.entity.io.PropertyReader;
-import org.neo4j.ogm.entity.io.RelationalReader;
-import org.neo4j.ogm.entity.io.RelationalWriter;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.EntityAccess;
+import org.neo4j.ogm.metadata.reflect.FieldReader;
+import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.PropertyReader;
+import org.neo4j.ogm.metadata.reflect.RelationalReader;
+import org.neo4j.ogm.metadata.reflect.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
@@ -64,7 +62,7 @@ public class EntityAccessManagerTest {
         domainInfo = new DomainInfo(
                 "org.neo4j.ogm.domain.forum",
                 "org.neo4j.ogm.domain.satellites",
-                "org.neo4j.ogm.annotations"
+                "org.neo4j.ogm.annotation"
         );
     }
 

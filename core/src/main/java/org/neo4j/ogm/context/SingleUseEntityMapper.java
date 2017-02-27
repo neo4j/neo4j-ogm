@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.reflect.*;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;

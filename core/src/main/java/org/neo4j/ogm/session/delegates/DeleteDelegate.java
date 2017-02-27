@@ -18,7 +18,7 @@ import java.util.*;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;

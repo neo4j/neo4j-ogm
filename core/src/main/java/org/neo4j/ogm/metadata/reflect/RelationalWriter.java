@@ -9,7 +9,7 @@
  *
  */
 
-package org.neo4j.ogm.entity.io;
+package org.neo4j.ogm.metadata.reflect;
 
 /**
  * Specialisation of {@link PropertyWriter} that also exposes the relationship type represented by the corresponding

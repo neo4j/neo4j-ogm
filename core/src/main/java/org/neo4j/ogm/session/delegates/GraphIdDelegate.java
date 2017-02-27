@@ -14,7 +14,7 @@
 package org.neo4j.ogm.session.delegates;
 
 
-import org.neo4j.ogm.entity.io.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;

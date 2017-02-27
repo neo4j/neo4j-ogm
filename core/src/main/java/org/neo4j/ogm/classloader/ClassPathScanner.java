@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.scanner;
+package org.neo4j.ogm.classloader;
 
 import java.io.File;
 import java.io.FileInputStream;

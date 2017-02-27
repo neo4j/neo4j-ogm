@@ -15,7 +15,7 @@ package org.neo4j.ogm.context;
 
 
 import static org.neo4j.ogm.annotation.Relationship.*;
-import static org.neo4j.ogm.entity.io.EntityAccessManager.*;
+import static org.neo4j.ogm.metadata.reflect.EntityAccessManager.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,12 +25,12 @@ import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
-import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MethodInfo;
+import org.neo4j.ogm.metadata.reflect.*;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;

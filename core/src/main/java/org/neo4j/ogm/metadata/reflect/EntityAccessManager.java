@@ -9,12 +9,11 @@
  *
  */
 
-package org.neo4j.ogm.entity.io;
+package org.neo4j.ogm.metadata.reflect;
 
 import java.util.*;
 
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.DirectedRelationship;
@@ -22,7 +21,6 @@ import org.neo4j.ogm.context.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.MethodInfo;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +75,7 @@ public class EntityAccessManager {
             return propertyWriterCache.get(classInfo).get(propertyName);
         }
 
-        EntityAccess propertyWriter = determinePropertyAccessor(classInfo, propertyName, new AccessorFactory<EntityAccess>() {
-            @Override
-            public EntityAccess makeFieldAccessor(FieldInfo fieldInfo) {
-                return new FieldWriter(classInfo, fieldInfo);
-            }
-        });
+        EntityAccess propertyWriter = determinePropertyAccessor(classInfo, propertyName, (AccessorFactory<EntityAccess>) fieldInfo -> new FieldWriter(classInfo, fieldInfo));
 
         propertyWriterCache.get(classInfo).put(propertyName, propertyWriter);
         return propertyWriter;
@@ -104,13 +97,7 @@ public class EntityAccessManager {
             return propertyReaderCache.get(classInfo).get(propertyName);
         }
 
-        PropertyReader propertyReader =  determinePropertyAccessor(classInfo, propertyName, new AccessorFactory<PropertyReader>() {
-
-            @Override
-            public PropertyReader makeFieldAccessor(FieldInfo fieldInfo) {
-                return new FieldReader(classInfo, fieldInfo);
-            }
-        });
+        PropertyReader propertyReader =  determinePropertyAccessor(classInfo, propertyName, (AccessorFactory<PropertyReader>) fieldInfo -> new FieldReader(classInfo, fieldInfo));
 
         propertyReaderCache.get(classInfo).put(propertyName, propertyReader);
         return propertyReader;

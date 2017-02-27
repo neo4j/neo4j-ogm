@@ -9,14 +9,24 @@
  *
  */
 
-package org.neo4j.ogm.entity.io;
+package org.neo4j.ogm.metadata.reflect;
 
 /**
- * @author Vince Bickers
+ * Specialisation of {@link PropertyReader} that also exposes the relationship type represented by the corresponding
+ * object member.
+ *
+ * @author Adam George
  */
-public class EntityAccessException extends RuntimeException {
+public interface RelationalReader {
 
-    public EntityAccessException(String msg, Exception cause) {
-        super(msg, cause);
-    }
+    Object read(Object instance);
+
+    String propertyName();
+
+    String relationshipType();
+
+    String relationshipDirection();
+
+    String typeDescriptor();
+
 }

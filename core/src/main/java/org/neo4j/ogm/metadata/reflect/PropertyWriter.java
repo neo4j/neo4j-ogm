@@ -9,7 +9,7 @@
  *
  */
 
-package org.neo4j.ogm.entity.io;
+package org.neo4j.ogm.metadata.reflect;
 
 /**
  * Simple interface through which a particular property of a given object can be set.

@@ -17,8 +17,8 @@ import java.util.*;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.RelationalReader;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.utils.ClassUtils;

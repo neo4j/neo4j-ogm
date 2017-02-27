@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.entity.io.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
@@ -26,7 +26,7 @@ import org.neo4j.ogm.metadata.FieldInfo;
  * @author Vince Bickers
  * @author Mark Angrish
  */
-class EntityMemo {
+class IdentityMap {
 
     // objects with no properties will always hash to this value.
     private static final long SEED = 0xDEADBEEF / (11 * 257);
@@ -37,7 +37,7 @@ class EntityMemo {
 
     private final MetaData metaData;
 
-    EntityMemo(MetaData metaData) {
+    IdentityMap(MetaData metaData) {
         this.nodeHash = new HashMap<>();
         this.relEntityHash = new HashMap<>();
         this.metaData = metaData;

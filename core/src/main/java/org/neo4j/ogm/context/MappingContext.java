@@ -22,9 +22,9 @@ import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.context.register.EntityRegister;
 import org.neo4j.ogm.context.register.LabelHistoryRegister;
 import org.neo4j.ogm.context.register.TypeRegister;
-import org.neo4j.ogm.entity.io.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.reflect.*;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -52,14 +52,14 @@ public class MappingContext {
 
     private final LabelHistoryRegister labelHistoryRegister;
 
-    private final EntityMemo objectMemo;
+    private final IdentityMap objectMemo;
 
     private final MetaData metaData;
 
 
     public MappingContext(MetaData metaData) {
         this.metaData = metaData;
-        this.objectMemo = new EntityMemo(metaData);
+        this.objectMemo = new IdentityMap(metaData);
         this.typeRegister = new TypeRegister();
         this.nodeEntityRegister = new EntityRegister<>();
         this.primaryIndexNodeRegister = new EntityRegister<>();

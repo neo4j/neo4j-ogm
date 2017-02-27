@@ -14,8 +14,8 @@ package org.neo4j.ogm.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.entity.io.EntityAccessManager;
-import org.neo4j.ogm.entity.io.FieldReader;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 

@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.scanner.ClassPathScanner;
+import org.neo4j.ogm.classloader.ClassPathScanner;
 
 /**
  * @author Luanne Misquitta

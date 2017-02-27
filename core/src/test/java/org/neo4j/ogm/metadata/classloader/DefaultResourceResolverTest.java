@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.classloader;
+package org.neo4j.ogm.metadata.classloader;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.classloader;
+package org.neo4j.ogm.metadata.classloader;
 
 /**
  * Resolves the most appropriate class loader, based on the supplied Strategy implementation

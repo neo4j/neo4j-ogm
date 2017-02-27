@@ -11,15 +11,24 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.classloader;
+package org.neo4j.ogm.metadata.classloader;
+
+import java.io.File;
+import java.net.URL;
 
 /**
  * @author vince
- *
- * @see DefaultStrategy
  */
-public interface Strategy {
-
-    ClassLoader classLoader(Class caller);
-
+public interface ResourceResolver
+{
+    /**
+     * If a ResourceResolver understands the protocol of a specified resource
+     * it should resolve the resource as a File, and return it.
+     *
+     * If it is unable to convert the resource, it should return null.
+     *
+     * @param resource the URL to be converted
+     * @return the resource as a File
+     */
+    File resolve( URL resource ) throws Exception;
 }

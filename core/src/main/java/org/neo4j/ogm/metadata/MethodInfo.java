@@ -16,7 +16,7 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Method;
 
-import org.neo4j.ogm.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 

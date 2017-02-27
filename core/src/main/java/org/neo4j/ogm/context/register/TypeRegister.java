@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * The TypeRegister maintains the list of active objects ids in the session, mapping each object id to its type hierarchy.

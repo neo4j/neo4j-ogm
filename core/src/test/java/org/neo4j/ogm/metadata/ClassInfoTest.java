@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.cineasts.partial.Knows;
 import org.neo4j.ogm.domain.cineasts.partial.Rating;

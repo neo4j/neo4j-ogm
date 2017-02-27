@@ -14,7 +14,6 @@
 package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
 
 import static org.junit.Assert.assertEquals;
 

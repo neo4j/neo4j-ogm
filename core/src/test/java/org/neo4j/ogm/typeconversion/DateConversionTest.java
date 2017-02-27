@@ -13,14 +13,11 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
-import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.MethodInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

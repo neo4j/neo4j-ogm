@@ -17,11 +17,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.domain.cineasts.partial.Actor;
-import org.neo4j.ogm.domain.cineasts.partial.Movie;
-import org.neo4j.ogm.domain.cineasts.partial.Role;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers

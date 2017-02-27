@@ -16,7 +16,7 @@ package org.neo4j.ogm.utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.pizza.Pizza;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 
 import java.util.ArrayList;
 import java.util.Collection;

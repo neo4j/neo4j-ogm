@@ -15,11 +15,8 @@
 package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.invalid.convert.diner.InvalidDiner;
 import org.neo4j.ogm.invalid.convert.props.PropertyAndConvertTogether;
-import org.neo4j.ogm.invalid.labels.method.LabelsAnnotationOnGettersAndSetters;
 
 import static org.junit.Assert.*;
 

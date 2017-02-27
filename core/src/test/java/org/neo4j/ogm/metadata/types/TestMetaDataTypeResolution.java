@@ -14,7 +14,7 @@
 package org.neo4j.ogm.metadata.types;
 
 import org.junit.Assert;
-import org.neo4j.ogm.MetaData;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MethodInfo;

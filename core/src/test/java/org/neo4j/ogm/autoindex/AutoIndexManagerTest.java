@@ -1,7 +1,6 @@
 package org.neo4j.ogm.autoindex;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,10 +8,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.MetaData;
-import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 

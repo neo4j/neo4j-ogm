@@ -49,9 +49,9 @@ public class DomainInfo implements ClassFileProcessor {
 
     private final List<String> classPaths = new ArrayList<>();
 
-    private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    private final Map<String, ClassMetadata> classNameToClassInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassMetadata>> annotationNameToClassInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassMetadata>> interfaceNameToClassInfo = new HashMap<>();
 
     private final Set<Class> enumTypes = new HashSet<>();
 
@@ -74,9 +74,9 @@ public class DomainInfo implements ClassFileProcessor {
     private void buildAnnotationNameToClassInfoMap() {
 
         LOGGER.info("Building annotation class map");
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+        for (ClassMetadata classInfo : classNameToClassInfo.values()) {
             for (AnnotationInfo annotation : classInfo.annotations()) {
-                ArrayList<ClassInfo> classInfoList = annotationNameToClassInfo.get(annotation.getName());
+                ArrayList<ClassMetadata> classInfoList = annotationNameToClassInfo.get(annotation.getName());
                 if (classInfoList == null) {
                     annotationNameToClassInfo.put(annotation.getName(), classInfoList = new ArrayList<>());
                 }
@@ -87,10 +87,10 @@ public class DomainInfo implements ClassFileProcessor {
 
     private void buildInterfaceNameToClassInfoMap() {
         LOGGER.info("Building interface class map for {} classes", classNameToClassInfo.values().size());
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+        for (ClassMetadata classInfo : classNameToClassInfo.values()) {
             LOGGER.debug(" - {} implements {} interfaces", classInfo.simpleName(), classInfo.interfacesInfo().list().size());
             for (InterfaceInfo iface : classInfo.interfacesInfo().list()) {
-                ArrayList<ClassInfo> classInfoList = interfaceNameToClassInfo.get(iface.name());
+                ArrayList<ClassMetadata> classInfoList = interfaceNameToClassInfo.get(iface.name());
                 if (classInfoList == null) {
                     interfaceNameToClassInfo.put(iface.name(), classInfoList = new ArrayList<>());
                 }
@@ -112,9 +112,9 @@ public class DomainInfo implements ClassFileProcessor {
         buildAnnotationNameToClassInfoMap();
         buildInterfaceNameToClassInfoMap();
 
-        List<ClassInfo> transientClasses = new ArrayList<>();
+        List<ClassMetadata> transientClasses = new ArrayList<>();
 
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+        for (ClassMetadata classInfo : classNameToClassInfo.values()) {
 
             if (classInfo.name() == null || classInfo.name().equals("java.lang.Object")) continue;
 
@@ -138,9 +138,9 @@ public class DomainInfo implements ClassFileProcessor {
         LOGGER.debug("Checking for @Transient classes....");
 
         // find transient interfaces
-        Collection<ArrayList<ClassInfo>> interfaceInfos = interfaceNameToClassInfo.values();
-        for (ArrayList<ClassInfo> classInfos : interfaceInfos) {
-            for (ClassInfo classInfo : classInfos) {
+        Collection<ArrayList<ClassMetadata>> interfaceInfos = interfaceNameToClassInfo.values();
+        for (ArrayList<ClassMetadata> classInfos : interfaceInfos) {
+            for (ClassMetadata classInfo : classInfos) {
                 if (classInfo.isTransient()) {
                     LOGGER.debug("Registering @Transient baseclass: {}", classInfo.name());
                     transientClasses.add(classInfo);
@@ -150,7 +150,7 @@ public class DomainInfo implements ClassFileProcessor {
 
         // remove all transient class hierarchies
         Set<Class> transientClassesRemoved = new HashSet<>();
-        for (ClassInfo transientClass : transientClasses) {
+        for (ClassMetadata transientClass : transientClasses) {
             transientClassesRemoved.addAll(removeTransientClass(transientClass));
         }
 
@@ -161,14 +161,14 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     private void postProcessFields(Set<Class> transientClassesRemoved) {
-        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+        for (ClassMetadata classInfo : classNameToClassInfo.values()) {
             boolean registerConverters = false;
             if (!classInfo.isEnum() && !classInfo.isInterface()) {
                 registerConverters = true;
             }
-            Iterator<FieldInfo> fieldInfoIterator = classInfo.fieldsInfo().fields().iterator();
+            Iterator<FieldMetadata> fieldInfoIterator = classInfo.fieldsInfo().fields().iterator();
             while (fieldInfoIterator.hasNext()) {
-                FieldInfo fieldInfo = fieldInfoIterator.next();
+                FieldMetadata fieldInfo = fieldInfoIterator.next();
                 if (!fieldInfo.persistableAsProperty()) {
                     Class fieldClass = null;
                     try {
@@ -189,16 +189,16 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
 
-    private Set<Class> removeTransientClass(ClassInfo transientClass) {
+    private Set<Class> removeTransientClass(ClassMetadata transientClass) {
         Set<Class> removed = new HashSet<>();
         if (transientClass != null && !transientClass.name().equals("java.lang.Object")) {
             LOGGER.debug("Removing @Transient class: {}", transientClass.name());
             classNameToClassInfo.remove(transientClass.name());
             removed.add(transientClass.getUnderlyingClass());
-            for (ClassInfo transientChild : transientClass.directSubclasses()) {
+            for (ClassMetadata transientChild : transientClass.directSubclasses()) {
                 removeTransientClass(transientChild);
             }
-            for (ClassInfo transientChild : transientClass.directImplementingClasses()) {
+            for (ClassMetadata transientChild : transientClass.directImplementingClasses()) {
                 removeTransientClass(transientChild);
             }
         }
@@ -206,16 +206,16 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
 
-    private void extend(ClassInfo superclass, List<ClassInfo> subclasses) {
-        for (ClassInfo subclass : subclasses) {
+    private void extend(ClassMetadata superclass, List<ClassMetadata> subclasses) {
+        for (ClassMetadata subclass : subclasses) {
             subclass.extend(superclass);
             extend(subclass, subclass.directSubclasses());
         }
     }
 
-    private void implement(ClassInfo implementingClass, InterfaceInfo interfaceInfo) {
+    private void implement(ClassMetadata implementingClass, InterfaceInfo interfaceInfo) {
 
-        ClassInfo interfaceClass = classNameToClassInfo.get(interfaceInfo.name());
+        ClassMetadata interfaceClass = classNameToClassInfo.get(interfaceInfo.name());
 
         if (interfaceClass != null) {
             if (!implementingClass.directInterfaces().contains(interfaceClass)) {
@@ -227,7 +227,7 @@ public class DomainInfo implements ClassFileProcessor {
                 interfaceClass.directImplementingClasses().add(implementingClass);
             }
 
-            for (ClassInfo subClassInfo : implementingClass.directSubclasses()) {
+            for (ClassMetadata subClassInfo : implementingClass.directSubclasses()) {
                 implement(subClassInfo, interfaceInfo);
             }
         } else {
@@ -238,7 +238,7 @@ public class DomainInfo implements ClassFileProcessor {
     @Override
     public void process(final InputStream inputStream) throws IOException {
 
-        ClassInfo classInfo = new ClassInfo(inputStream);
+        ClassMetadata classInfo = new ClassMetadata(inputStream);
 
         String className = classInfo.name();
         String superclassName = classInfo.superclassName();
@@ -247,15 +247,15 @@ public class DomainInfo implements ClassFileProcessor {
 
         if (className != null) {
 
-            ClassInfo thisClassInfo = classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
+            ClassMetadata thisClassInfo = classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
 
             if (!thisClassInfo.hydrated()) {
 
                 thisClassInfo.hydrate(classInfo);
 
-                ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);
+                ClassMetadata superclassInfo = classNameToClassInfo.get(superclassName);
                 if (superclassInfo == null) {
-                    classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
+                    classNameToClassInfo.put(superclassName, new ClassMetadata(superclassName, thisClassInfo));
                 } else {
                     superclassInfo.addSubclass(thisClassInfo);
                 }
@@ -304,26 +304,26 @@ public class DomainInfo implements ClassFileProcessor {
         new ClassPathScanner().scan(classPaths, this);
     }
 
-    public ClassInfo getClass(String fqn) {
+    public ClassMetadata getClass(String fqn) {
         return classNameToClassInfo.get(fqn);
     }
 
     // all classes, including interfaces will be registered in classNameToClassInfo map
-    public ClassInfo getClassSimpleName(String fullOrPartialClassName) {
+    public ClassMetadata getClassSimpleName(String fullOrPartialClassName) {
         return getClassInfo(fullOrPartialClassName, classNameToClassInfo);
     }
 
 
-    public ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
-        ClassInfo classInfo = getClassSimpleName(fullOrPartialClassName);
+    public ClassMetadata getClassInfoForInterface(String fullOrPartialClassName) {
+        ClassMetadata classInfo = getClassSimpleName(fullOrPartialClassName);
         if (classInfo != null && classInfo.isInterface()) {
             return classInfo;
         }
         return null;
     }
 
-    private ClassInfo getClassInfo(String fullOrPartialClassName, Map<String, ClassInfo> infos) {
-        ClassInfo match = null;
+    private ClassMetadata getClassInfo(String fullOrPartialClassName, Map<String, ClassMetadata> infos) {
+        ClassMetadata match = null;
         for (String fqn : infos.keySet()) {
             if (fqn.endsWith("." + fullOrPartialClassName) || fqn.equals(fullOrPartialClassName)) {
                 if (match == null) {
@@ -336,11 +336,11 @@ public class DomainInfo implements ClassFileProcessor {
         return match;
     }
 
-    public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
+    public List<ClassMetadata> getClassInfosWithAnnotation(String annotation) {
         return annotationNameToClassInfo.get(annotation);
     }
 
-    private void registerDefaultFieldConverters(ClassInfo classInfo, FieldInfo fieldInfo) {
+    private void registerDefaultFieldConverters(ClassMetadata classInfo, FieldMetadata fieldInfo) {
 
         if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
 
@@ -389,7 +389,7 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
 
-    private void setEnumFieldConverter(FieldInfo fieldInfo, Class enumClass) {
+    private void setEnumFieldConverter(FieldMetadata fieldInfo, Class enumClass) {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getEnumArrayConverter(enumClass));
         } else if (fieldInfo.isIterable()) {
@@ -399,7 +399,7 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void setBigDecimalConverter(FieldInfo fieldInfo) {
+    private void setBigDecimalConverter(FieldMetadata fieldInfo) {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigDecimalArrayConverter());
         } else if (fieldInfo.isIterable()) {
@@ -409,7 +409,7 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void setBigIntegerFieldConverter(FieldInfo fieldInfo) {
+    private void setBigIntegerFieldConverter(FieldMetadata fieldInfo) {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getBigIntegerArrayConverter());
         } else if (fieldInfo.isIterable()) {
@@ -419,7 +419,7 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    private void setDateFieldConverter(FieldInfo fieldInfo) {
+    private void setDateFieldConverter(FieldMetadata fieldInfo) {
         if (fieldInfo.isArray()) {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateArrayConverter());
         } else if (fieldInfo.isIterable()) {
@@ -430,11 +430,11 @@ public class DomainInfo implements ClassFileProcessor {
     }
 
     // leaky for spring
-    public Map<String, ClassInfo> getClassInfoMap() {
+    public Map<String, ClassMetadata> getClassInfoMap() {
         return classNameToClassInfo;
     }
 
-    public List<ClassInfo> getClassInfos(String interfaceName) {
+    public List<ClassMetadata> getClassInfos(String interfaceName) {
         return interfaceNameToClassInfo.get(interfaceName);
     }
 }

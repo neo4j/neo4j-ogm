@@ -22,7 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
@@ -43,13 +43,13 @@ import org.neo4j.ogm.session.request.RowStatementFactory;
  */
 public class DirectRelationshipsTest {
 
-    private static MetaData mappingMetadata;
+    private static MetadataMap mappingMetadata;
     private static MappingContext mappingContext;
     private EntityMapper mapper;
 
     @BeforeClass
     public static void setUpTestDatabase() {
-        mappingMetadata = new MetaData("org.neo4j.ogm.domain.filesystem");
+        mappingMetadata = new MetadataMap("org.neo4j.ogm.domain.filesystem");
         mappingContext = new MappingContext(mappingMetadata);
     }
 

@@ -16,8 +16,8 @@ import java.util.Map;
 
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.AnnotationInfo;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
 import org.neo4j.ogm.metadata.ObjectAnnotations;
 
 /**
@@ -26,10 +26,10 @@ import org.neo4j.ogm.metadata.ObjectAnnotations;
  */
 public class FieldReader implements RelationalReader, PropertyReader {
 
-    private final ClassInfo classInfo;
-    private final FieldInfo fieldInfo;
+    private final ClassMetadata classInfo;
+    private final FieldMetadata fieldInfo;
 
-    public FieldReader(ClassInfo classInfo, FieldInfo fieldInfo) {
+    public FieldReader(ClassMetadata classInfo, FieldMetadata fieldInfo) {
         this.classInfo = classInfo;
         this.fieldInfo = fieldInfo;
     }

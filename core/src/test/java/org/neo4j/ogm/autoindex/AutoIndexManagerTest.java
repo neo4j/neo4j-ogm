@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
@@ -20,7 +20,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class AutoIndexManagerTest extends MultiDriverTestClass {
 
-	private MetaData metaData = new MetaData("org.neo4j.ogm.domain.forum");
+	private MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.forum");
 
 	private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( login:Login ) ASSERT login.userName IS UNIQUE";
 	private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (login:Login) ASSERT login.userName IS UNIQUE";

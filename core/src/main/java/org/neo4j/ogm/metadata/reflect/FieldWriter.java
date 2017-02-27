@@ -14,8 +14,8 @@ package org.neo4j.ogm.metadata.reflect;
 import java.lang.reflect.Field;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.utils.ClassUtils;
 
@@ -25,11 +25,11 @@ import org.neo4j.ogm.utils.ClassUtils;
  */
 public class FieldWriter extends EntityAccess {
 
-    private final FieldInfo fieldInfo;
+    private final FieldMetadata fieldInfo;
     private final Field field;
     private final Class<?> fieldType;
 
-    public FieldWriter(ClassInfo classInfo, FieldInfo fieldInfo) {
+    public FieldWriter(ClassMetadata classInfo, FieldMetadata fieldInfo) {
         this.fieldInfo = fieldInfo;
         this.field = classInfo.getField(fieldInfo);
         this.fieldType = this.field.getType();

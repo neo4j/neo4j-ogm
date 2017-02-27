@@ -26,7 +26,7 @@ public class AnnotationsTest {
     @Test
     public void shouldLoadMetaDataWithComplexAnnotations() {
 
-        MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
+        MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.annotations");
 
         assertEquals("org.neo4j.ogm.domain.annotations.SimpleNode", metaData.classInfo("SimpleNode").name());
         assertEquals("org.neo4j.ogm.domain.annotations.OtherNode", metaData.classInfo("OtherNode").name());
@@ -36,10 +36,10 @@ public class AnnotationsTest {
     @Test
     public void shouldReadIndexAnnotationElement() {
 
-        MetaData metaData = new MetaData("org.neo4j.ogm.domain.annotations");
-        ClassInfo classInfo = metaData.classInfo("IndexedEntity");
+        MetadataMap metaData = new MetadataMap("org.neo4j.ogm.domain.annotations");
+        ClassMetadata classInfo = metaData.classInfo("IndexedEntity");
 
-        FieldInfo fieldInfo = classInfo.propertyField("ref");
+        FieldMetadata fieldInfo = classInfo.propertyField("ref");
         AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get("org.neo4j.ogm.domain.annotations.IndexedEntity$Indexed");
 
         // string-y types

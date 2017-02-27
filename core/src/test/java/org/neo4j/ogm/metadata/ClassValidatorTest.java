@@ -26,7 +26,7 @@ public class ClassValidatorTest {
     @Test
     public void throwsExceptionWhenPropertyAndConvertTogether() {
         try {
-            MetaData metaData = new MetaData("org.neo4j.ogm.invalid.convert.props");
+            MetadataMap metaData = new MetadataMap("org.neo4j.ogm.invalid.convert.props");
             metaData.classInfo(PropertyAndConvertTogether.class.getSimpleName());
             fail("Should have thrown exception");
         } catch (MappingException e) {

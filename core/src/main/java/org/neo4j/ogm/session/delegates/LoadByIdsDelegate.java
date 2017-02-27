@@ -23,8 +23,8 @@ import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldReader;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -95,8 +95,8 @@ public class LoadByIdsDelegate {
 
     private <T, ID extends Serializable> boolean includeMappedEntity(Collection<ID> ids, T mapped) {
 
-        final ClassInfo classInfo = session.metaData().classInfo(mapped);
-        final FieldInfo primaryIndexField = classInfo.primaryIndexField();
+        final ClassMetadata classInfo = session.metaData().classInfo(mapped);
+        final FieldMetadata primaryIndexField = classInfo.primaryIndexField();
 
         if (primaryIndexField != null) {
             final Object primaryIndexValue = new FieldReader(classInfo, primaryIndexField).read(mapped);

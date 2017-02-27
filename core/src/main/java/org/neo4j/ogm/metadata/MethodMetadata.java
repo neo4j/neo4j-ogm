@@ -16,19 +16,15 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Method;
 
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
-import org.neo4j.ogm.utils.ClassUtils;
-import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class MethodInfo {
+public class MethodMetadata {
 
     private final String className;
     private final String name;
@@ -48,7 +44,7 @@ public class MethodInfo {
 
 
     /**
-     * Constructs a new {@link MethodInfo} based on the given arguments.
+     * Constructs a new {@link MethodMetadata} based on the given arguments.
      *
      * @param name                    The name of the method
      * @param descriptor              The method descriptor that expresses the parameters and return type using Java signature string
@@ -57,7 +53,7 @@ public class MethodInfo {
      *                                expresses its generic type, or <code>null</code> if that's not appropriate
      * @param annotations             The {@link ObjectAnnotations} applied to the field
      */
-    public MethodInfo(String className, String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public MethodMetadata(String className, String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.className = className;
         this.name = name;
         this.descriptor = descriptor;

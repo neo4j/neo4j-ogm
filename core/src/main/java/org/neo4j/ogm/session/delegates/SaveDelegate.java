@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.RequestExecutor;
 
@@ -69,7 +69,7 @@ public class SaveDelegate {
 				eventsDelegate.postSave();
 			}
 		} else {
-			ClassInfo classInfo = session.metaData().classInfo(object);
+			ClassMetadata classInfo = session.metaData().classInfo(object);
 			if (classInfo != null) {
 
 				if (session.eventsEnabled()) {

@@ -38,15 +38,14 @@ public class AnnotationInfo {
         } else {
             annotationClassName = annotationFieldDescriptor;
         }
-        setName(annotationClassName);
-
+        this.annotationName = annotationClassName;
         int numElementValuePairs = dataInputStream.readUnsignedShort();
 
         for (int i = 0; i < numElementValuePairs; i++) {
             String elementName = constantPool.readString(dataInputStream.readUnsignedShort());
             Object value = readAnnotationElementValue(dataInputStream, constantPool);
             if (elementName != null && value != null) {
-                put(elementName, value.toString());
+                elements.put(elementName, value.toString());
             }
         }
     }
@@ -55,17 +54,9 @@ public class AnnotationInfo {
         return annotationName;
     }
 
-    void setName(String annotationName) {
-        this.annotationName = annotationName;
-    }
-
-    void put(String key, String value) {
-        elements.put(key, value);
-    }
-
     public String get(String key, String defaultValue) {
         if (elements.get(key) == null) {
-            put(key, defaultValue);
+            elements.put(key, defaultValue);
         }
         return get(key);
     }
@@ -73,19 +64,6 @@ public class AnnotationInfo {
 
     public String get(String key) {
         return elements.get(key);
-    }
-
-    public String toString() {
-        StringBuilder sb = new StringBuilder(annotationName);
-        sb.append(": ");
-        for (String key : elements.keySet()) {
-            sb.append(key);
-            sb.append(":'");
-            sb.append(get(key, null));
-            sb.append("'");
-            sb.append(" ");
-        }
-        return sb.toString();
     }
 
     private Object readAnnotationElementValue(final DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {

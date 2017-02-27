@@ -13,11 +13,11 @@
 package org.neo4j.ogm.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldReader;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
 
 import java.util.Collection;
 
@@ -28,9 +28,9 @@ import java.util.Collection;
  */
 public class EntityUtils {
 
-    public static Long identity(Object entity, MetaData metaData) {
+    public static Long identity(Object entity, MetadataMap metaData) {
 
-        ClassInfo classInfo = metaData.classInfo(entity);
+        ClassMetadata classInfo = metaData.classInfo(entity);
         Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }
@@ -38,10 +38,10 @@ public class EntityUtils {
     /**
      * Returns the full set of labels, both static and dynamic, if any, to apply to a node.
      */
-    public static Collection<String> labels(Object entity, MetaData metaData) {
-        ClassInfo classInfo = metaData.classInfo(entity);
+    public static Collection<String> labels(Object entity, MetadataMap metaData) {
+        ClassMetadata classInfo = metaData.classInfo(entity);
         Collection<String> staticLabels = classInfo.staticLabels();
-        FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
+        FieldMetadata labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
             FieldReader reader = new FieldReader(classInfo, labelFieldInfo);
             Collection<String> labels = (Collection<String>) reader.readProperty(entity);

@@ -13,18 +13,15 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotation.Labels;
-import org.neo4j.ogm.annotation.PostLoad;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 public class ClassValidator {
 
-    private ClassInfo classInfo;
+    private ClassMetadata classInfo;
 
 
-    public ClassValidator(ClassInfo classInfo) {
+    public ClassValidator(ClassMetadata classInfo) {
         this.classInfo = classInfo;
     }
 
@@ -41,7 +38,7 @@ public class ClassValidator {
     }
 
     private void validateFields() throws MappingException {
-        for (FieldInfo fieldInfo : classInfo.fieldsInfo().fields()) {
+        for (FieldMetadata fieldInfo : classInfo.fieldsInfo().fields()) {
             if (fieldInfo.hasAnnotation(Property.class) && fieldInfo.hasCompositeConverter()) {
                 throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
                         classInfo.name(), fieldInfo.getName()));

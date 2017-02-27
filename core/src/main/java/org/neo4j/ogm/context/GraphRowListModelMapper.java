@@ -18,9 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
@@ -30,10 +30,10 @@ import org.neo4j.ogm.response.Response;
  */
 public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel> {
 
-    private final MetaData metaData;
+    private final MetadataMap metaData;
     private final MappingContext mappingContext;
 
-    public GraphRowListModelMapper(MetaData metaData, MappingContext mappingContext) {
+    public GraphRowListModelMapper(MetadataMap metaData, MappingContext mappingContext) {
         this.metaData = metaData;
         this.mappingContext = mappingContext;
     }
@@ -42,7 +42,7 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
 
         List<T> result = new ArrayList<>();
         Set<Long> resultEntityIds = new LinkedHashSet<>();
-        ClassInfo classInfo = metaData.classInfo(type.getName());
+        ClassMetadata classInfo = metaData.classInfo(type.getName());
 
         Set<Long> nodeIds = new LinkedHashSet<>();
         Set<Long> edgeIds = new LinkedHashSet<>();

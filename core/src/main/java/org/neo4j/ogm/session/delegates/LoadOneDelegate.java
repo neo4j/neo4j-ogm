@@ -17,8 +17,8 @@ import java.io.Serializable;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -44,7 +44,7 @@ public class LoadOneDelegate {
 
 	public <T, ID extends Serializable> T load(Class<T> type, ID id, int depth) {
 
-		final FieldInfo primaryIndexField = session.metaData().classInfo(type.getName()).primaryIndexField();
+		final FieldMetadata primaryIndexField = session.metaData().classInfo(type.getName()).primaryIndexField();
 		if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
 			throw new Neo4jException("Supplied id does not match primary index type on supplied class.");
 		}
@@ -60,7 +60,7 @@ public class LoadOneDelegate {
 
 	private <T, U> T lookup(Class<T> type, U id) {
 		Object ref;
-		ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+		ClassMetadata typeInfo = session.metaData().classInfo(type.getName());
 
 		if (typeInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
 			ref = session.context().getNodeEntity(id);

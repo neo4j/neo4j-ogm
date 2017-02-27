@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.classloader.ClassPathScanner;
 
 /**
@@ -117,9 +117,9 @@ public class ClassPathScannerTest {
     }
 
 
-    private List<String> extractClassNames(List<ClassInfo> classInfos) {
+    private List<String> extractClassNames(List<ClassMetadata> classInfos) {
         List<String> classnames = new ArrayList<>();
-        for (ClassInfo classInfo : classInfos) {
+        for (ClassMetadata classInfo : classInfos) {
             classnames.add(classInfo.name());
         }
         return classnames;

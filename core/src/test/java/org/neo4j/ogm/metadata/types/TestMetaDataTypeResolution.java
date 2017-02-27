@@ -14,10 +14,10 @@
 package org.neo4j.ogm.metadata.types;
 
 import org.junit.Assert;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.MethodInfo;
+import org.neo4j.ogm.metadata.MetadataMap;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
+import org.neo4j.ogm.metadata.MethodMetadata;
 import org.neo4j.ogm.utils.ClassUtils;
 
 /**
@@ -25,11 +25,11 @@ import org.neo4j.ogm.utils.ClassUtils;
  */
 public class TestMetaDataTypeResolution {
 
-	private MetaData metaData = new MetaData("org.neo4j.ogm.metadata.types");
+	private MetadataMap metaData = new MetadataMap("org.neo4j.ogm.metadata.types");
 
 	protected void checkMethod(String name, String expectedDescriptor, Class expectedPersistableType) {
-		ClassInfo classInfo = metaData.classInfo("POJO");
-		MethodInfo methodInfo = classInfo.methodsInfo().get(name);
+		ClassMetadata classInfo = metaData.classInfo("POJO");
+		MethodMetadata methodInfo = classInfo.methodsInfo().get(name);
 		String methodTypeDescriptor = methodInfo.getTypeDescriptor();
 		Assert.assertEquals(expectedDescriptor, methodTypeDescriptor);
 		Class clazz = ClassUtils.getType(methodTypeDescriptor);
@@ -37,8 +37,8 @@ public class TestMetaDataTypeResolution {
 	}
 
 	protected void checkField(String name, String expectedDescriptor, Class expectedPersistableType) {
-		ClassInfo classInfo = metaData.classInfo("POJO");
-		FieldInfo fieldInfo = classInfo.fieldsInfo().get(name);
+		ClassMetadata classInfo = metaData.classInfo("POJO");
+		FieldMetadata fieldInfo = classInfo.fieldsInfo().get(name);
 		String fieldDescriptor = fieldInfo.getTypeDescriptor();
 		Assert.assertEquals(expectedDescriptor, fieldDescriptor);
 		Class clazz = ClassUtils.getType(fieldDescriptor);

@@ -19,7 +19,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.RelationalReader;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.PersistenceEvent;
@@ -170,7 +170,7 @@ public final class SaveEventDelegate {
             return true;
         }
 
-        ClassInfo parentClassInfo = this.session.metaData().classInfo(parent);
+        ClassMetadata parentClassInfo = this.session.metaData().classInfo(parent);
 
         // an RE cannot contain additional refs because hyperedges are forbidden in Neo4j
         if (!parentClassInfo.isRelationshipEntity()) {
@@ -273,7 +273,7 @@ public final class SaveEventDelegate {
 
         List<Object> children = new ArrayList();
 
-        ClassInfo parentClassInfo = this.session.metaData().classInfo(parent);
+        ClassMetadata parentClassInfo = this.session.metaData().classInfo(parent);
 
         if (parentClassInfo != null) {
 
@@ -346,11 +346,11 @@ public final class SaveEventDelegate {
         String type = reader.relationshipType();
         String direction = reader.relationshipDirection();
 
-        ClassInfo parentInfo = this.session.metaData().classInfo(parent);
+        ClassMetadata parentInfo = this.session.metaData().classInfo(parent);
         Long parentId = EntityUtils.identity(parent, session.metaData());
 
 
-        ClassInfo referenceInfo = this.session.metaData().classInfo(reference);
+        ClassMetadata referenceInfo = this.session.metaData().classInfo(reference);
 
         if (referenceInfo != null) {
 
@@ -370,11 +370,11 @@ public final class SaveEventDelegate {
             else {
                 // graph relationship is transitive across the RE domain object
                 Object startNode =  EntityAccessManager.getStartNodeReader(referenceInfo).read(reference);
-                ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
+                ClassMetadata startNodeInfo = this.session.metaData().classInfo(startNode);
                 Long startNodeId = EntityUtils.identity(startNode, session.metaData());
 
                 Object endNode =  EntityAccessManager.getEndNodeReader(referenceInfo).read(reference);
-                ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
+                ClassMetadata endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = EntityUtils.identity(endNode, session.metaData());
 
                 MappedRelationship edge = new MappedRelationship(startNodeId, type, endNodeId, referenceId, startNodeInfo.getUnderlyingClass(), endNodeInfo.getUnderlyingClass());

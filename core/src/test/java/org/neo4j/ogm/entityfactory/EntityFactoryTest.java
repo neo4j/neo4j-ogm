@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.metadata.reflect.EntityFactory;
@@ -34,7 +34,7 @@ public class EntityFactoryTest {
 
     @Before
     public void setUp() {
-        this.entityFactory = new EntityFactory(new MetaData("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
+        this.entityFactory = new EntityFactory(new MetadataMap("org.neo4j.ogm.domain.social", "org.neo4j.ogm.domain.canonical"));
     }
 
     @Test

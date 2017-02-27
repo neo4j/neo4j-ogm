@@ -17,11 +17,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
 
@@ -34,14 +34,14 @@ public class EntityFactory {
 
     private final Map<String, String> taxaLeafClass = new HashMap<>();
 
-    private final MetaData metadata;
+    private final MetadataMap metadata;
 
     /**
-     * Constructs a new {@link EntityFactory} driven by the specified {@link MetaData}.
+     * Constructs a new {@link EntityFactory} driven by the specified {@link MetadataMap}.
      *
-     * @param metadata The mapping {@link MetaData}
+     * @param metadata The mapping {@link MetadataMap}
      */
-    public EntityFactory(MetaData metadata) {
+    public EntityFactory(MetadataMap metadata) {
         this.metadata = metadata;
     }
 
@@ -72,14 +72,14 @@ public class EntityFactory {
     }
 
     /**
-     * Constructs a new object based on the {@link ClassInfo}.
+     * Constructs a new object based on the {@link ClassMetadata}.
      *
      * @param <T> The class of object to return
-     * @param classInfo The {@link ClassInfo} from which to determine the type
+     * @param classInfo The {@link ClassMetadata} from which to determine the type
      * @return A new instance of the class that corresponds to the classinfo type, never <code>null</code>
      * @throws MappingException if it's not possible to resolve or instantiate a class from the given argument
      */
-    public <T> T newObject(ClassInfo classInfo) {
+    public <T> T newObject(ClassMetadata classInfo) {
         return (T) instantiate(classInfo.getUnderlyingClass());
     }
 
@@ -116,7 +116,7 @@ public class EntityFactory {
         String fqn = taxaLeafClass.get(Arrays.toString(taxa));
 
         if (fqn == null) {
-            ClassInfo classInfo = metadata.resolve(taxa);
+            ClassMetadata classInfo = metadata.resolve(taxa);
             if (classInfo != null) {
                 taxaLeafClass.put(Arrays.toString(taxa), fqn=classInfo.name());
             } else {

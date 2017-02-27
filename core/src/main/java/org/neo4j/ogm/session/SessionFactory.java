@@ -17,7 +17,7 @@ package org.neo4j.ogm.session;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
@@ -45,10 +45,10 @@ public class SessionFactory {
         return configFileName;
     }
 
-    private final MetaData metaData;
+    private final MetadataMap metaData;
     private final List<EventListener> eventListeners;
 
-    private SessionFactory(Configuration configuration, MetaData metaData) {
+    private SessionFactory(Configuration configuration, MetadataMap metaData) {
         this.metaData = metaData;
         AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, Components.driver(), configuration);
         autoIndexManager.build();
@@ -68,7 +68,7 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
-        this(new Configuration(new ClasspathConfigurationSource(configFileName())), new MetaData(packages));
+        this(new Configuration(new ClasspathConfigurationSource(configFileName())), new MetadataMap(packages));
     }
 
     /**
@@ -85,16 +85,16 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
-        this(configuration, new MetaData(packages));
+        this(configuration, new MetadataMap(packages));
     }
 
 
     /**
      * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.
      *
-     * @return The underlying {@link MetaData}
+     * @return The underlying {@link MetadataMap}
      */
-    public MetaData metaData() {
+    public MetadataMap metaData() {
         return metaData;
     }
 

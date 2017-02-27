@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 
@@ -32,7 +32,7 @@ public class MappingContextTest {
 
     @Before
     public void setUp() {
-        mappingContext = new MappingContext(new MetaData("org.neo4j.ogm.domain.policy", "org.neo4j.ogm.context"));
+        mappingContext = new MappingContext(new MetadataMap("org.neo4j.ogm.domain.policy", "org.neo4j.ogm.context"));
     }
 
     @Test

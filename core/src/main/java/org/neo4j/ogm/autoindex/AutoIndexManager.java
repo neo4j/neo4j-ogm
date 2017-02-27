@@ -20,11 +20,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
+import org.neo4j.ogm.metadata.FieldMetadata;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AutoIndexManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassMetadata.class);
 
     private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
 
@@ -51,7 +51,7 @@ public class AutoIndexManager {
 
     private final Driver driver;
 
-    public AutoIndexManager(MetaData metaData, Driver driver, Configuration configuration) {
+    public AutoIndexManager(MetadataMap metaData, Driver driver, Configuration configuration) {
 
         this.driver = initialiseDriver(driver);
         this.configuration = configuration;
@@ -63,13 +63,13 @@ public class AutoIndexManager {
         return driver;
     }
 
-    private List<AutoIndex> initialiseIndexMetadata(MetaData metaData) {
+    private List<AutoIndex> initialiseIndexMetadata(MetadataMap metaData) {
         LOGGER.debug("Building Index Metadata.");
         List<AutoIndex> indexMetadata = new ArrayList<>();
-        for (ClassInfo classInfo : metaData.persistentEntities()) {
+        for (ClassMetadata classInfo : metaData.persistentEntities()) {
 
             if (classInfo.containsIndexes()) {
-                for (FieldInfo fieldInfo : classInfo.getIndexFields()) {
+                for (FieldMetadata fieldInfo : classInfo.getIndexFields()) {
                     final AutoIndex index = new AutoIndex(classInfo.neo4jName(), fieldInfo.property(), fieldInfo.isConstraint());
                     LOGGER.debug("Adding Index [description={}]", index);
                     indexMetadata.add(index);

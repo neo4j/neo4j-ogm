@@ -18,19 +18,17 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
  */
 public class MetaDataTest {
 
-    private MetaData metaData;
+    private MetadataMap metaData;
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
+        metaData = new MetadataMap("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain");
     }
 
     /**
@@ -52,14 +50,14 @@ public class MetaDataTest {
 
     @Test
     public void testCanResolveRelationshipEntityFromRelationshipType() {
-        ClassInfo classInfo = metaData.resolve("MEMBER_OF");
+        ClassMetadata classInfo = metaData.resolve("MEMBER_OF");
         assertNotNull("The resolved class info shouldn't be null", classInfo);
         assertEquals("org.neo4j.ogm.domain.canonical.ArbitraryRelationshipEntity", classInfo.name());
     }
 
     @Test
     public void testCanResolveClassHierarchies() {
-        ClassInfo classInfo = metaData.resolve("Login", "User");
+        ClassMetadata classInfo = metaData.resolve("Login", "User");
         assertEquals("org.neo4j.ogm.domain.forum.Member", classInfo.name());
     }
 
@@ -84,7 +82,7 @@ public class MetaDataTest {
      * @see DATAGRAPH-577
      */
     public void testInterfaceWithSingleImplTaxa() {
-        ClassInfo classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
+        ClassMetadata classInfo = metaData.resolve("AnnotatedInterfaceWithSingleImpl");
         assertNotNull(classInfo);
         assertEquals("org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedChildWithAnnotatedInterface", classInfo.name());
     }

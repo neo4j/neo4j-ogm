@@ -16,7 +16,7 @@ package org.neo4j.ogm.session.delegates;
 
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.session.Neo4jSession;
 
 /**
@@ -32,7 +32,7 @@ public class GraphIdDelegate {
 
 	public Long resolveGraphIdFor(Object possibleEntity) {
 		if (possibleEntity != null) {
-			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
+			ClassMetadata classInfo = session.metaData().classInfo(possibleEntity);
 			try {
 				if (classInfo != null) {
 					Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(possibleEntity);

@@ -27,7 +27,7 @@ import org.neo4j.ogm.annotation.Transient;
  */
 public class MethodsInfo {
 
-    private final Map<String, MethodInfo> methods = new HashMap<>();
+    private final Map<String, MethodMetadata> methods = new HashMap<>();
 
     MethodsInfo() {}
 
@@ -61,28 +61,28 @@ public class MethodsInfo {
                 }
             }
             if (!methodName.equals("<init>") && !methodName.equals("<clinit>") && objectAnnotations.get(Transient.class) == null) {
-                addMethod(new MethodInfo(className, methodName, descriptor, typeParameterDescriptor, objectAnnotations));
+                addMethod(new MethodMetadata(className, methodName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }
     }
 
-    public Collection<MethodInfo> methods() {
+    public Collection<MethodMetadata> methods() {
         return methods.values();
     }
 
-    public MethodInfo get(String methodName) {
+    public MethodMetadata get(String methodName) {
         return methods.get(methodName);
     }
 
     public void append(MethodsInfo methodsInfo) {
-        for (MethodInfo methodInfo : methodsInfo.methods()) {
+        for (MethodMetadata methodInfo : methodsInfo.methods()) {
             if (!methods.containsKey(methodInfo.getName())) {
                 addMethod(methodInfo);
             }
         }
     }
 
-    private void addMethod(MethodInfo methodInfo) {
+    private void addMethod(MethodMetadata methodInfo) {
         String methodName = methodInfo.getName();
         methods.put(methodName, methodInfo);
     }

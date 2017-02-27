@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.MetadataMap;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -36,9 +36,9 @@ import org.neo4j.ogm.session.Utils;
 public class RestModelMapper implements ResponseMapper<RestModel> {
 
 	final GraphEntityMapper graphEntityMapper;
-	final MetaData metaData;
+	final MetadataMap metaData;
 
-	public RestModelMapper(GraphEntityMapper graphEntityMapper, MetaData metaData) {
+	public RestModelMapper(GraphEntityMapper graphEntityMapper, MetadataMap metaData) {
 		this.graphEntityMapper = graphEntityMapper;
 		this.metaData = metaData;
 	}

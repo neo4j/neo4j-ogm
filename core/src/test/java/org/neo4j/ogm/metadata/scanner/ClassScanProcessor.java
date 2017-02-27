@@ -14,7 +14,7 @@
 package org.neo4j.ogm.metadata.scanner;
 
 import org.neo4j.ogm.metadata.ClassFileProcessor;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +32,11 @@ public class ClassScanProcessor implements ClassFileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassScanProcessor.class);
 
-    List<ClassInfo> domainClassInfos = new ArrayList<>();
+    List<ClassMetadata> domainClassInfos = new ArrayList<>();
 
     @Override
     public void process(InputStream inputStream) throws IOException {
-        ClassInfo classInfo = new ClassInfo(inputStream);
+        ClassMetadata classInfo = new ClassMetadata(inputStream);
         domainClassInfos.add(classInfo);
         LOGGER.debug("ClassScanProcessor added: {}", classInfo.name());
     }
@@ -44,7 +44,7 @@ public class ClassScanProcessor implements ClassFileProcessor {
     @Override
     public void finish() {
         LOGGER.debug("ClassScanProcessor loaded:");
-        for (ClassInfo classInfo : domainClassInfos) {
+        for (ClassMetadata classInfo : domainClassInfos) {
             LOGGER.debug(classInfo.name());
         }
     }

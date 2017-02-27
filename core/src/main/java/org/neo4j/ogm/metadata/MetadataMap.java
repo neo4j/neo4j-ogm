@@ -25,7 +25,6 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
-import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +33,14 @@ import org.slf4j.LoggerFactory;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class MetaData {
+public class MetadataMap {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetaData.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataMap.class);
 
     private final DomainInfo domainInfo;
-    private Map<String, ClassInfo> classInfos = new HashMap<>();
+    private Map<String, ClassMetadata> classInfos = new HashMap<>();
 
-    public MetaData(String... packages) {
+    public MetadataMap(String... packages) {
         domainInfo = new DomainInfo(packages);
     }
 
@@ -53,12 +52,12 @@ public class MetaData {
      * @param name the simple class name or label for a class we want to find
      * @return A ClassInfo matching the supplied name, or null if it doesn't exist
      */
-    public ClassInfo classInfo(String name) {
+    public ClassMetadata classInfo(String name) {
         if (classInfos.containsKey(name)) {
             return classInfos.get(name);
         }
 
-        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
+        ClassMetadata classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
         if (classInfo != null) {
             classInfos.put(name, classInfo);
             return classInfo;
@@ -88,14 +87,14 @@ public class MetaData {
      * @param object the class name whose classInfo we want to find
      * @return A ClassInfo matching the supplied object's class, or null if it doesn't exist
      */
-    public ClassInfo classInfo(Object object) {
+    public ClassMetadata classInfo(Object object) {
         return classInfo(object.getClass().getName());
     }
 
-    private ClassInfo _classInfo(String name, String nodeEntityAnnotation, String annotationPropertyName) {
-        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
+    private ClassMetadata _classInfo(String name, String nodeEntityAnnotation, String annotationPropertyName) {
+        List<ClassMetadata> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
         if (labelledClasses != null) {
-            for (ClassInfo labelledClass : labelledClasses) {
+            for (ClassMetadata labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
                 String value = annotationInfo.get(annotationPropertyName, labelledClass.neo4jName());
                 if (value.equals(name)) {
@@ -106,11 +105,11 @@ public class MetaData {
         return null;
     }
 
-    private Set<ClassInfo> _classInfos(String name, String nodeEntityAnnotation) {
-        Set<ClassInfo> classInfos = new HashSet<>();
-        List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
+    private Set<ClassMetadata> _classInfos(String name, String nodeEntityAnnotation) {
+        Set<ClassMetadata> classInfos = new HashSet<>();
+        List<ClassMetadata> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
         if (labelledClasses != null) {
-            for (ClassInfo labelledClass : labelledClasses) {
+            for (ClassMetadata labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
                 String value = annotationInfo.get("type", labelledClass.neo4jName());
                 if (value.equals(name)) {
@@ -128,15 +127,15 @@ public class MetaData {
      * @param taxa the taxa (simple class names or labels)
      * @return The ClassInfo representing the base class among the taxa or <code>null</code> if it cannot be found
      */
-    public ClassInfo resolve(String... taxa) {
+    public ClassMetadata resolve(String... taxa) {
 
         if (taxa.length > 0) {
 
-            Set<ClassInfo> resolved = new HashSet<>();
+            Set<ClassMetadata> resolved = new HashSet<>();
 
             for (String taxon : taxa) {
                 LOGGER.debug("looking for concrete class to resolve label: {}", taxon);
-                ClassInfo taxonClassInfo = classInfo(taxon);
+                ClassMetadata taxonClassInfo = classInfo(taxon);
 
                 // ignore any foreign labels
                 if (taxonClassInfo == null) {
@@ -159,7 +158,7 @@ public class MetaData {
                 // if its a subclass, we replace the previously found class with this one.
                 if (taxonClassInfo != null) {
                     LOGGER.debug("concrete class found: {}. comparing with what's already been found previously...", taxonClassInfo);
-                    for (ClassInfo found : resolved) {
+                    for (ClassMetadata found : resolved) {
                         if (taxonClassInfo.isSubclassOf(found)) {
                             LOGGER.debug("{} is a subclass of {} and will replace it.",taxonClassInfo,found);
                             resolved.remove(found);
@@ -198,17 +197,17 @@ public class MetaData {
      * @param name the simple class name or label for a class we want to find
      * @return A Set of ClassInfo matching the supplied name, or empty if it doesn't exist
      */
-    public Set<ClassInfo> classInfoByLabelOrType(String name) {
+    public Set<ClassMetadata> classInfoByLabelOrType(String name) {
 
-        Set<ClassInfo> classInfos = new HashSet<>();
+        Set<ClassMetadata> classInfos = new HashSet<>();
 
-        ClassInfo classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
+        ClassMetadata classInfo = _classInfo(name, NodeEntity.class.getName(), "label");
         if (classInfo != null) {
             classInfos.add(classInfo);
         }
 
         //Potentially many relationship entities annotated with the same type
-        for(ClassInfo info : _classInfos(name, RelationshipEntity.class.getName())) {
+        for(ClassMetadata info : _classInfos(name, RelationshipEntity.class.getName())) {
             classInfos.add(info);
         }
 
@@ -222,7 +221,7 @@ public class MetaData {
     }
 
 
-    private ClassInfo findFirstSingleConcreteClass(ClassInfo root, List<ClassInfo> classInfoList) {
+    private ClassMetadata findFirstSingleConcreteClass(ClassMetadata root, List<ClassMetadata> classInfoList) {
 
         // if the root class is concrete, return it.
         if (!root.isInterface() && !root.isAbstract()) {
@@ -242,7 +241,7 @@ public class MetaData {
 
         // nothing found yet, but exactly one subclass exists. If its an interface,
         // replace with its single implementing class - iff exactly one implementing class exists
-        ClassInfo classInfo = classInfoList.iterator().next();
+        ClassMetadata classInfo = classInfoList.iterator().next();
         if (classInfo.isInterface()) {
             classInfo = findSingleImplementor(classInfo.name());
         }
@@ -253,24 +252,24 @@ public class MetaData {
     }
 
     public boolean isRelationshipEntity(String className) {
-        ClassInfo classInfo = classInfo(className);
+        ClassMetadata classInfo = classInfo(className);
         return classInfo != null && null != classInfo.annotationsInfo().get(RelationshipEntity.class);
     }
 
-    private ClassInfo findSingleImplementor(String taxon) {
-        ClassInfo interfaceInfo = domainInfo.getClassInfoForInterface(taxon);
+    private ClassMetadata findSingleImplementor(String taxon) {
+        ClassMetadata interfaceInfo = domainInfo.getClassInfoForInterface(taxon);
         if(interfaceInfo!=null && interfaceInfo.directImplementingClasses()!=null && interfaceInfo.directImplementingClasses().size()==1) {
             return interfaceInfo.directImplementingClasses().get(0);
         }
         return null;
     }
 
-    public Collection<ClassInfo> persistentEntities() {
+    public Collection<ClassMetadata> persistentEntities() {
         return domainInfo.getClassInfoMap().values();
     }
 
     public String entityType(String name) {
-        ClassInfo classInfo = classInfo(name);
+        ClassMetadata classInfo = classInfo(name);
         if(isRelationshipEntity(classInfo.name())) {
             AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
             return annotation.get(RelationshipEntity.TYPE, classInfo.name());
@@ -279,7 +278,7 @@ public class MetaData {
 
     }
 
-    public List<ClassInfo> getImplementingClassInfos(String interfaceName) {
+    public List<ClassMetadata> getImplementingClassInfos(String interfaceName) {
         return domainInfo.getClassInfos(interfaceName);
     }
 }

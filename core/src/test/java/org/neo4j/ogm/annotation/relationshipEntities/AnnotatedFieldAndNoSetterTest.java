@@ -29,7 +29,7 @@ import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.ClassMetadata;
 import org.neo4j.ogm.metadata.DomainInfo;
 
 
@@ -45,7 +45,7 @@ public class AnnotatedFieldAndNoSetterTest {
 
     @Test
     public void shouldPreferAnnotatedFieldInAbsenceOfSetterForRelationshipEntity() {
-        ClassInfo classInfo = this.domainInfo.getClass(End.class.getName());
+        ClassMetadata classInfo = this.domainInfo.getClass(End.class.getName());
 
         RelEntity relEntity = new RelEntity();
         Set<RelEntity> parameter = new HashSet();

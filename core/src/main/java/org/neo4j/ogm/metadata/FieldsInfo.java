@@ -28,7 +28,7 @@ public class FieldsInfo {
     private static final int FINAL_FIELD = 0x0010;
     private static final int TRANSIENT_FIELD = 0x0080;
 
-    private final Map<String, FieldInfo> fields = new HashMap<>();
+    private final Map<String, FieldMetadata> fields = new HashMap<>();
 
     FieldsInfo() {
     }
@@ -63,18 +63,18 @@ public class FieldsInfo {
                 }
             }
             if ((accessFlags & (STATIC_FIELD | FINAL_FIELD | TRANSIENT_FIELD)) == 0 && objectAnnotations.get(Transient.class) == null) {
-                fields.put(fieldName, new FieldInfo(fieldName, descriptor, typeParameterDescriptor, objectAnnotations));
+                fields.put(fieldName, new FieldMetadata(fieldName, descriptor, typeParameterDescriptor, objectAnnotations));
             }
         }
     }
 
-    public Collection<FieldInfo> fields() {
+    public Collection<FieldMetadata> fields() {
         return fields.values();
     }
 
-    public Collection<FieldInfo> compositeFields() {
-        List<FieldInfo> fields = new ArrayList<>();
-        for (FieldInfo field : fields()) {
+    public Collection<FieldMetadata> compositeFields() {
+        List<FieldMetadata> fields = new ArrayList<>();
+        for (FieldMetadata field : fields()) {
             if (field.hasCompositeConverter()) {
                 fields.add(field);
             }
@@ -83,12 +83,12 @@ public class FieldsInfo {
     }
 
 
-    public FieldInfo get(String name) {
+    public FieldMetadata get(String name) {
         return fields.get(name);
     }
 
     public void append(FieldsInfo fieldsInfo) {
-        for (FieldInfo fieldInfo : fieldsInfo.fields()) {
+        for (FieldMetadata fieldInfo : fieldsInfo.fields()) {
             if (!fields.containsKey(fieldInfo.getName())) {
                 fields.put(fieldInfo.getName(), fieldInfo);
             }

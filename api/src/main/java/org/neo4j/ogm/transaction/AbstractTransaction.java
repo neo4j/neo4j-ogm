@@ -46,7 +46,7 @@ public abstract class AbstractTransaction implements Transaction {
      * In the event that a rollback occurs, these objects will have been assigned an id from the database
      * but will be deleted from the graph, so we can reset their ids to null, in order to allow
      * a subsequent save request to operate correctly */
-    private List<Object> registeredNew = new ArrayList<>();
+    private final List<Object> registeredNew = new ArrayList<>();
 
     private Transaction.Status status = Transaction.Status.OPEN;
     protected Transaction.Type type = Type.READ_WRITE;

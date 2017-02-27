@@ -11,7 +11,7 @@ import java.util.Properties;
  */
 public class ClasspathConfigurationSource implements ConfigurationSource {
 
-    private Properties properties = new Properties();
+    private final Properties properties = new Properties();
 
     public ClasspathConfigurationSource(String propertiesFileName) {
 

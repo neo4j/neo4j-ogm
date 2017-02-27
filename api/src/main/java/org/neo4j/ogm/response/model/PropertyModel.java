@@ -34,8 +34,6 @@ public class PropertyModel<K, V> implements Property<K, V> {
         return new PropertyModel<>(key, value);
     }
 
-    public PropertyModel() {}
-
     public PropertyModel(K key, V value) {
         this.key = key;
         this.value = value;
@@ -45,16 +43,8 @@ public class PropertyModel<K, V> implements Property<K, V> {
         return key;
     }
 
-    public void setKey(K key) {
-        this.key = key;
-    }
-
     public V getValue() {
         return value;
-    }
-
-    public void setValue(V value) {
-        this.value = value;
     }
 
     public String toString() {

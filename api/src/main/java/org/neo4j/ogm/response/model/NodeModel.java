@@ -73,10 +73,6 @@ public class NodeModel implements Node {
         this.id = id;
     }
 
-    public void setPropertyList(List<Property<String, Object>> properties) {
-        this.properties = properties;
-    }
-
     public void setLabels(String[] labels) {
         this.labels = labels;
     }

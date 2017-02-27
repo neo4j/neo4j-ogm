@@ -18,8 +18,8 @@ package org.neo4j.ogm.exception;
  */
 public class CypherException extends RuntimeException {
 
-	private String code;
-	private String description;
+	private final String code;
+	private final String description;
 
 	public CypherException(String message, Throwable cause, String code, String description) {
 		super(message + "; Code: " + code + "; Description: " + description, cause);

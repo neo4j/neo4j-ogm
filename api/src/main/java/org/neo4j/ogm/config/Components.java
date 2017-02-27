@@ -94,7 +94,7 @@ public class Components {
      * If an auto-configure properties file is not available by any of these means, the Components class should be configured
      * by passing in a Configuration object to the configure method, or an explicit configuration file name
      */
-    public synchronized static void autoConfigure() {
+    private synchronized static void autoConfigure() {
         String configFileName = System.getenv("ogm.properties");
 
         if (configFileName == null) {

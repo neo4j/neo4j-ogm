@@ -56,23 +56,4 @@ public class DefaultGraphModel implements GraphModel {
             relationshipMap.put(relationship.getId(), relationship);
         }
     }
-
-    public NodeModel node(Long nodeId) {
-        return nodeMap.get(nodeId);
-    }
-
-    /**
-     * Determines whether or not this {@link DefaultGraphModel} contains a {@link NodeModel} that matches the specified ID.
-     *
-     * @param nodeId The graph node ID to match against a {@link NodeModel}
-     * @return <code>true</code> if this {@link DefaultGraphModel} contains a node identified by the given argument, <code>false</code>
-     *         if it doesn't
-     */
-    public boolean containsNodeWithId(Long nodeId) {
-        return nodeMap.containsKey(nodeId);
-    }
-
-    public boolean containsRelationshipWithId(Long relId) {
-        return relationshipMap.containsKey(relId);
-    }
 }

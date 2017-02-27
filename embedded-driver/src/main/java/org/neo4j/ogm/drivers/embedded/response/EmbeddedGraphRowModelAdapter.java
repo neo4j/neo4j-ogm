@@ -11,16 +11,8 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowModel;
@@ -39,13 +31,10 @@ import org.neo4j.ogm.result.adapter.GraphRowModelAdapter;
  */
 public class EmbeddedGraphRowModelAdapter extends GraphRowModelAdapter {
 
-    private GraphModelAdapter graphModelAdapter;
-
     private List<String> columns = new ArrayList<>();
 
     public EmbeddedGraphRowModelAdapter(GraphModelAdapter graphModelAdapter) {
         super(graphModelAdapter);
-        this.graphModelAdapter = graphModelAdapter;
     }
 
     /**
@@ -76,7 +65,7 @@ public class EmbeddedGraphRowModelAdapter extends GraphRowModelAdapter {
         DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
 
         return new DefaultGraphRowModel(graphModel, rowModel.getValues());
-  }
+    }
 
     private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel, List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
 
@@ -93,31 +82,13 @@ public class EmbeddedGraphRowModelAdapter extends GraphRowModelAdapter {
                 for (Object element : collection) {
                     adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
                 }
-            }
-            else {
+            } else {
                 adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
             }
-        }
-
-    }
-
-    private void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
-        if (element instanceof Path) {
-            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
-        }
-        else if (element instanceof Node) {
-            graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
-        }
-        else if (element instanceof Relationship) {
-            graphModelAdapter.buildRelationship(element, graphModel, nodeIdentities, edgeIdentities);
-        }
-        else {
-            values.add(element);
         }
     }
 
     public void setColumns(List<String> columns) {
         this.columns = columns;
     }
-
 }

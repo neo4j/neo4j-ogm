@@ -53,12 +53,6 @@ public abstract class AbstractConfigurableDriver implements Driver {
     }
 
     @Override
-    public Configuration getConfiguration() {
-        assert(configuration != null);
-        return configuration;
-    }
-
-    @Override
     public void setTransactionManager(TransactionManager transactionManager) {
         assert(transactionManager != null);
         this.transactionManager = transactionManager;

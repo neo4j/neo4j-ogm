@@ -34,13 +34,10 @@ import org.neo4j.ogm.result.adapter.GraphRowModelAdapter;
  */
 public class BoltGraphRowModelAdapter extends GraphRowModelAdapter {
 
-	private BoltGraphModelAdapter graphModelAdapter;
-
 	private List<String> columns = new ArrayList<>();
 
 	public BoltGraphRowModelAdapter(BoltGraphModelAdapter graphModelAdapter) {
 		super(graphModelAdapter);
-		this.graphModelAdapter = graphModelAdapter;
 	}
 
 	@Override
@@ -84,18 +81,6 @@ public class BoltGraphRowModelAdapter extends GraphRowModelAdapter {
 			} else {
 				adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
 			}
-		}
-	}
-
-	private void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
-		if (graphModelAdapter.isPath(element)) {
-			graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
-		} else if (graphModelAdapter.isNode(element)) {
-			graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
-		} else if (graphModelAdapter.isRelationship(element)) {
-			graphModelAdapter.buildRelationship(element, graphModel, nodeIdentities, edgeIdentities);
-		} else {
-			values.add(element);
 		}
 	}
 

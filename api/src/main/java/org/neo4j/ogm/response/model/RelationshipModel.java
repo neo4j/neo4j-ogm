@@ -82,10 +82,6 @@ public class RelationshipModel implements Edge {
         }
     }
 
-    public void setPropertyList(List<Property<String, Object>> properties) {
-        this.properties = properties;
-    }
-
 
     @Override
     public String toString() {

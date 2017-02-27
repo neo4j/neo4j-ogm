@@ -13,12 +13,7 @@
 
 package org.neo4j.ogm.result.adapter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.exception.ResultProcessingException;
 import org.neo4j.ogm.model.GraphModel;
@@ -35,77 +30,77 @@ import org.neo4j.ogm.response.model.DefaultRowModel;
  */
 public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, Object>, GraphRowModel> {
 
-	private final GraphModelAdapter graphModelAdapter;
-	private List<String> columns = new ArrayList<>();
+    private final GraphModelAdapter graphModelAdapter;
+    private List<String> columns = new ArrayList<>();
 
-	public GraphRowModelAdapter(GraphModelAdapter graphModelAdapter) {
-		this.graphModelAdapter = graphModelAdapter;
-	}
+    public GraphRowModelAdapter(GraphModelAdapter graphModelAdapter) {
+        this.graphModelAdapter = graphModelAdapter;
+    }
 
 
-	/**
-	 * Reads the next row from the result object and transforms it into a RowModel object
-	 *
-	 * @param data the data to transform, given as a map
-	 * @return @return the data transformed to an {@link RowModel}
-	 */
-	public GraphRowModel adapt(Map<String, Object> data) {
+    /**
+     * Reads the next row from the result object and transforms it into a RowModel object
+     *
+     * @param data the data to transform, given as a map
+     * @return @return the data transformed to an {@link RowModel}
+     */
+    public GraphRowModel adapt(Map<String, Object> data) {
 
-		if (columns == null) {
-			throw new ResultProcessingException("Result columns should not be null");
-		}
+        if (columns == null) {
+            throw new ResultProcessingException("Result columns should not be null");
+        }
 
-		Set<Long> nodeIdentities = new HashSet();
-		Set<Long> edgeIdentities = new HashSet();
+        Set<Long> nodeIdentities = new HashSet<>();
+        Set<Long> edgeIdentities = new HashSet<>();
 
-		GraphModel graphModel = new DefaultGraphModel();
-		List<String> variables = new ArrayList<>();
-		List<Object> values = new ArrayList<>();
+        GraphModel graphModel = new DefaultGraphModel();
+        List<String> variables = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
 
-		// there is no guarantee that the objects in the data are ordered the same way as required by the columns
-		// so we use the columns information to extract them in the correct order for post-processing.
-		Iterator<String> iterator = columns.iterator();
+        // there is no guarantee that the objects in the data are ordered the same way as required by the columns
+        // so we use the columns information to extract them in the correct order for post-processing.
+        Iterator<String> iterator = columns.iterator();
 
-		adapt(iterator, data, graphModel, variables, values, nodeIdentities, edgeIdentities);
+        adapt(iterator, data, graphModel, variables, values, nodeIdentities, edgeIdentities);
 
-		DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
+        DefaultRowModel rowModel = new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
 
-		return new DefaultGraphRowModel(graphModel, rowModel.getValues());
-	}
+        return new DefaultGraphRowModel(graphModel, rowModel.getValues());
+    }
 
-	private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel, List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
+    private void adapt(Iterator<String> iterator, Map<String, Object> data, GraphModel graphModel, List<String> variables, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
 
-		while (iterator.hasNext()) {
+        while (iterator.hasNext()) {
 
-			String key = iterator.next();
-			variables.add(key);
+            String key = iterator.next();
+            variables.add(key);
 
-			Object value = data.get(key);
+            Object value = data.get(key);
 
-			if (value!=null && value.getClass().isArray()) {
-				Iterable<Object> collection = AdapterUtils.convertToIterable(value);
-				for (Object element : collection) {
-					adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
-				}
-			} else {
-				adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
-			}
-		}
-	}
+            if (value != null && value.getClass().isArray()) {
+                Iterable<Object> collection = AdapterUtils.convertToIterable(value);
+                for (Object element : collection) {
+                    adapt(element, graphModel, values, nodeIdentities, edgeIdentities);
+                }
+            } else {
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+            }
+        }
+    }
 
-	private void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
-		if (graphModelAdapter.isPath(element)) {
-			graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
-		} else if (graphModelAdapter.isNode(element)) {
-			graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
-		} else if (graphModelAdapter.isRelationship(element)) {
-			graphModelAdapter.buildRelationship(element, graphModel, nodeIdentities, edgeIdentities);
-		} else {
-			values.add(element);
-		}
-	}
+    protected void adapt(Object element, GraphModel graphModel, List<Object> values, Set<Long> nodeIdentities, Set<Long> edgeIdentities) {
+        if (graphModelAdapter.isPath(element)) {
+            graphModelAdapter.buildPath(element, graphModel, nodeIdentities, edgeIdentities);
+        } else if (graphModelAdapter.isNode(element)) {
+            graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
+        } else if (graphModelAdapter.isRelationship(element)) {
+            graphModelAdapter.buildRelationship(element, graphModel, edgeIdentities);
+        } else {
+            values.add(element);
+        }
+    }
 
-	public void setColumns(List<String> columns) {
-		this.columns = columns;
-	}
+    public void setColumns(List<String> columns) {
+        this.columns = columns;
+    }
 }

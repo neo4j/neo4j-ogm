@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Configuration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
-
     private static final String DRIVER = "driver";
     private static final String URI = "URI";
     private static final String USERNAME = "username";
@@ -86,14 +84,6 @@ public class Configuration {
 
     public String getDriverClassName() {
         return properties.getProperty(DRIVER);
-    }
-
-    public String getUsername() {
-        return properties.getProperty(USERNAME);
-    }
-
-    public String getPassword() {
-        return properties.getProperty(PASSWORD);
     }
 
     public Integer getConnectionPoolSize() {

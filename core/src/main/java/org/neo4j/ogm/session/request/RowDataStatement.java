@@ -22,27 +22,27 @@ import org.neo4j.ogm.request.Statement;
  */
 public class RowDataStatement implements Statement {
 
-	private String statement;
-	private Map<String, Object> parameters;
+    private String statement;
+    private Map<String, Object> parameters;
 	private String[] resultDataContents = new String[] {"row"};
 
-	public RowDataStatement() {
-	}
+    public RowDataStatement() {
+    }
 
-	public RowDataStatement(String statement, Map<String, Object> parameters) {
-		this.statement = statement;
-		this.parameters = parameters;
-	}
+    public RowDataStatement(String statement, Map<String, Object> parameters) {
+        this.statement = statement;
+        this.parameters = parameters;
+    }
 
-	@Override
-	public String getStatement() {
-		return statement;
-	}
+    @Override
+    public String getStatement() {
+        return statement;
+    }
 
-	@Override
-	public Map<String, Object> getParameters() {
-		return parameters;
-	}
+    @Override
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
 	@Override
 	public String[] getResultDataContents() {

@@ -34,8 +34,8 @@ public abstract class RestModelAdapter implements ResultAdapter<Map<String,Objec
 		for (Map.Entry<String, Object> entry : result.entrySet()) {
 			Object value = entry.getValue();
 			if (value instanceof Collection) {
-				List<Object> adaptedValues = new ArrayList<>();
-				List<Object> values = (List) value;
+				Collection<Object> adaptedValues = new ArrayList<>();
+				Collection<Object> values = (List) value;
 				for (Object element : values) {
 					adaptedValues.add(processData(element));
 				}

@@ -89,7 +89,7 @@ public class TestServer {
             initialise(controls);
 
             // ensure we shutdown this server when the JVM terminates, if its not been shutdown by user code
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> shutdown()));
+            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
         } catch (Exception e) {
             throw new RuntimeException("Error starting in-process server",e);

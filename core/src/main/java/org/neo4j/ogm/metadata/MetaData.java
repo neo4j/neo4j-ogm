@@ -106,13 +106,13 @@ public class MetaData {
         return null;
     }
 
-    private Set<ClassInfo> _classInfos(String name, String nodeEntityAnnotation, String annotationPropertyName) {
+    private Set<ClassInfo> _classInfos(String name, String nodeEntityAnnotation) {
         Set<ClassInfo> classInfos = new HashSet<>();
         List<ClassInfo> labelledClasses = domainInfo.getClassInfosWithAnnotation(nodeEntityAnnotation);
         if (labelledClasses != null) {
             for (ClassInfo labelledClass : labelledClasses) {
                 AnnotationInfo annotationInfo = labelledClass.annotationsInfo().get(nodeEntityAnnotation);
-                String value = annotationInfo.get(annotationPropertyName, labelledClass.neo4jName());
+                String value = annotationInfo.get("type", labelledClass.neo4jName());
                 if (value.equals(name)) {
                     classInfos.add(labelledClass);
                 }
@@ -208,7 +208,7 @@ public class MetaData {
         }
 
         //Potentially many relationship entities annotated with the same type
-        for(ClassInfo info : _classInfos(name, RelationshipEntity.class.getName(), "type")) {
+        for(ClassInfo info : _classInfos(name, RelationshipEntity.class.getName())) {
             classInfos.add(info);
         }
 
@@ -282,9 +282,4 @@ public class MetaData {
     public List<ClassInfo> getImplementingClassInfos(String interfaceName) {
         return domainInfo.getClassInfos(interfaceName);
     }
-
-    public void registerConversionCallback(ConversionCallback conversionCallback) {
-        this.domainInfo.registerConversionCallback(conversionCallback);
-    }
-
 }

@@ -7,10 +7,6 @@ package org.neo4j.ogm.session;
  */
 public class Neo4jException extends RuntimeException {
 
-    public Neo4jException(String s, Throwable t) {
-        super(s, t);
-    }
-
     public Neo4jException(String s) {
         super(s);
     }

@@ -21,7 +21,6 @@ import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.event.SaveEventDelegate;
 import org.neo4j.ogm.session.request.RequestExecutor;
 
 /**

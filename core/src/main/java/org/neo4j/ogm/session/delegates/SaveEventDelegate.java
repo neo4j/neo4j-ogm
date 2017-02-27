@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.session.event;
+package org.neo4j.ogm.session.delegates;
 
 import java.util.*;
 
@@ -21,6 +21,8 @@ import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.session.event.Event;
+import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;

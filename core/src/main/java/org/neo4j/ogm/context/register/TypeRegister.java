@@ -103,7 +103,6 @@ public class TypeRegister {
     }
 
     private Map<Object, Object> objectMap(Class<?> type) {
-        Map<Object, Object> objectMap = register.computeIfAbsent(type, k -> new HashMap<>());
-        return objectMap;
+        return register.computeIfAbsent(type, k -> new HashMap<>());
     }
 }

@@ -36,23 +36,6 @@ public class Utils {
         };
     }
 
-    public static Map<String, Object> mapCollection(final String collectionName, final Collection<Property<String, Object>> properties) {
-
-        return new HashMap<String, Object>() {
-            {
-                final Map<String, Object> values = new HashMap<>();
-                for (Property<String, Object> property : properties) {
-                    String key = property.getKey();
-                    Object value = property.asParameter();
-                    if (value != null) {
-                        values.put(key, value);
-                    }
-                }
-                put(collectionName, values);
-            }
-        };
-    }
-
     public static int size(Iterable<?> iterable) {
         return (iterable instanceof Collection)
                        ? ((Collection<?>) iterable).size()

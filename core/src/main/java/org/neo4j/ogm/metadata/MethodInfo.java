@@ -102,16 +102,8 @@ public class MethodInfo {
         return descriptorClass;
     }
 
-    public boolean isScalar() {
-        return typeParameterDescriptor == null && !isArray();
-    }
-
     public boolean hasAnnotation(String annotationName) {
         return getAnnotations().get(annotationName) != null;
-    }
-
-    public boolean hasAnnotation(Class<?> annotationNameClass) {
-        return getAnnotations().get(annotationNameClass.getCanonicalName()) != null;
     }
 
     public boolean isArray() {

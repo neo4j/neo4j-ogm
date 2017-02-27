@@ -160,7 +160,7 @@ public class EmbeddedRequest implements Request {
             if (transactionManager.getCurrentTransaction() == null) {
                 transactionManager.openTransaction();
                 EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
-                tx.setAutoCommit(true);
+                tx.enableAutoCommit();
             } else {
                 if (!((EmbeddedTransaction) transactionManager.getCurrentTransaction()).transactionIsOpen()) {
                     throw new TransactionException("Transaction is already closed");

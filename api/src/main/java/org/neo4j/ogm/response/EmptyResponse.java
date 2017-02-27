@@ -16,10 +16,10 @@ package org.neo4j.ogm.response;
 /**
  * @author Vince Bickers
  */
-public class EmptyResponse implements Response {
+public class EmptyResponse<T> implements Response {
 
     @Override
-    public Object next() {
+    public T next() {
         return null;
     }
 

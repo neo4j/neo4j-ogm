@@ -98,8 +98,8 @@ public class EmbeddedTransaction extends AbstractTransaction {
         return nativeTransaction;
     }
 
-    public void setAutoCommit(boolean autoCommit) {
-        this.autoCommit = autoCommit;
+    public void enableAutoCommit() {
+        this.autoCommit = true;
     }
 
     public boolean isAutoCommit() {

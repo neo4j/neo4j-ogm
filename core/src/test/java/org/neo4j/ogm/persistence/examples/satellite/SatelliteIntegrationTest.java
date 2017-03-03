@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.domain.satellites.Program;
@@ -279,7 +280,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldLoadActiveSatellitesByPropertySorted() {
 
-        Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", "Y"), new SortOrder().add("ref"));
+        Collection<Satellite> satellites = session.loadAll(Satellite.class, new Filter("manned", ComparisonOperator.EQUALS,  "Y"), new SortOrder().add("ref"));
 
         Iterator<Satellite> iter = satellites.iterator();
         Satellite first = iter.next();

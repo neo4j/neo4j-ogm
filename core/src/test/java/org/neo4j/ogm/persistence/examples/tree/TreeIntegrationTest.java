@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.tree.Entity;
 import org.neo4j.ogm.session.Session;
@@ -83,7 +84,7 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
         session.query(cypher, Utils.map());
         session.clear();
-        Entity parent = session.loadAll(Entity.class, new Filter("name", "parent")).iterator().next();
+        Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent")).iterator().next();
         assertNotNull(parent);
         assertEquals(2, parent.getChildren().size());
         assertNull(parent.getParent());
@@ -105,7 +106,7 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         String cypher = "CREATE (parent:Entity {name:'parent'}) CREATE (child1:Entity {name:'c1'}) CREATE (child2:Entity {name:'c2'}) CREATE (child1)-[:REL]->(parent) CREATE (child2)-[:REL]->(parent)";
         session.query(cypher, Utils.map());
         session.clear();
-        Entity parent = session.loadAll(Entity.class, new Filter("name", "parent")).iterator().next();
+        Entity parent = session.loadAll(Entity.class, new Filter("name", ComparisonOperator.EQUALS, "parent")).iterator().next();
         assertNotNull(parent);
         assertEquals(2, parent.getChildren().size());
         assertNull(parent.getParent());

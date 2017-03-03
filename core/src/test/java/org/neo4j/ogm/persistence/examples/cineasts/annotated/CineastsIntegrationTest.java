@@ -32,6 +32,7 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.cineasts.annotated.*;
 import org.neo4j.ogm.session.Session;
@@ -86,7 +87,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void loadParticularUserRatingsAndComments() {
-        Collection<User> filmCritics = session.loadAll(User.class, new Filter("name", "Michal"));
+        Collection<User> filmCritics = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Michal"));
         assertEquals(1, filmCritics.size());
 
         User critic = filmCritics.iterator().next();
@@ -102,7 +103,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     @Test
     public void loadRatingsForSpecificFilm() {
-        Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", "Top Gear"));
+        Collection<Movie> films = session.loadAll(Movie.class, new Filter("title", ComparisonOperator.EQUALS, "Top Gear"));
         assertEquals(1, films.size());
 
         Movie film = films.iterator().next();

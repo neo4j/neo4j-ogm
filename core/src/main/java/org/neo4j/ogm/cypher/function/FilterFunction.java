@@ -28,8 +28,6 @@ public interface FilterFunction<T> {
 
     T getValue();
 
-    void setValue(T value);
-
     String expression(String nodeIdentifier);
 
     Map<String, Object> parameters();

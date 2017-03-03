@@ -21,6 +21,7 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.entityMapping.Movie;
 import org.neo4j.ogm.domain.entityMapping.Person;
@@ -78,7 +79,7 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
                 "create (_7)-[:`RATED` {`value`:4}]->(_9)\n" +
                 "create (_7)-[:`RATED` {`value`:5}]->(_9)\n" +
                 ";\n", Collections.EMPTY_MAP);
-        Person jim = session.loadAll(Person.class, new Filter("name", "Jim")).iterator().next();
+        Person jim = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Jim")).iterator().next();
         assertEquals(2, jim.movieRatings.size());
         assertEquals(1, jim.peopleILike.size());
         assertEquals(1, jim.peopleWhoLikeMe.size());
@@ -87,16 +88,16 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         assertEquals("Mary", jim.peopleILike.get(0).name);
 
 
-        Person bill = session.loadAll(Person.class, new Filter("name", "Bill")).iterator().next();
+        Person bill = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Bill")).iterator().next();
         assertEquals(2, bill.movieRatings.size());
         assertEquals(1, bill.peopleILike.size());
         assertEquals(0, bill.peopleWhoLikeMe.size());
         assertEquals(1, bill.peopleIFollow.size());
         assertEquals(1, bill.peopleWhoFollowMe.size());
 
-        Person mary = session.loadAll(Person.class, new Filter("name", "Mary")).iterator().next();
-        Movie dieHard = session.loadAll(Movie.class, new Filter("name", "Die Hard")).iterator().next();
-        Movie matrix = session.loadAll(Movie.class, new Filter("name", "The Matrix")).iterator().next();
+        Person mary = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Mary")).iterator().next();
+        Movie dieHard = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "Die Hard")).iterator().next();
+        Movie matrix = session.loadAll(Movie.class, new Filter("name", ComparisonOperator.EQUALS, "The Matrix")).iterator().next();
         assertEquals(1, mary.movieRatings.size());
         assertEquals(1, mary.peopleILike.size());
         assertEquals(2, mary.peopleWhoLikeMe.size());

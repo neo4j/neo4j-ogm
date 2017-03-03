@@ -85,8 +85,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         session.save(restaurant);
         session.clear();
 
-        Filter filter = new Filter(new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0)));
-        filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter filter = new Filter(new DistanceComparison(new DistanceFromPoint(37.61649, -122.38681, 1000 * 1000.0)), ComparisonOperator.LESS_THAN);
         Collection<Restaurant> found = session.loadAll(Restaurant.class, filter);
         Assert.assertNotNull(found);
         assertTrue(found.size() >= 1);
@@ -102,7 +101,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         session.clear();
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class,
-                new Filter("name", "San Francisco International Airport (SFO)"));
+                new Filter("name", ComparisonOperator.EQUALS, "San Francisco International Airport (SFO)"));
         assertEquals(1, results.size());
         Restaurant result = results.iterator().next();
         assertNotNull(result.getLocation());
@@ -149,14 +148,12 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
         Filters filters = new Filters();
 
-        Filter firstFilter = new Filter("name", "Foobar");
+        Filter firstFilter = new Filter("name", ComparisonOperator.EQUALS, "Foobar");
         firstFilter.setBooleanOperator(BooleanOperator.OR);
-        firstFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         filters.add(firstFilter);
 
-        Filter secondFilter = new Filter("name", "Antica Pesa");
+        Filter secondFilter = new Filter("name", ComparisonOperator.EQUALS, "Antica Pesa");
         secondFilter.setBooleanOperator(BooleanOperator.OR);
-        secondFilter.setComparisonOperator(ComparisonOperator.EQUALS);
         filters.add(secondFilter);
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, filters);
@@ -206,15 +203,14 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         cyma.setLaunchDate(new Date(2000));
         session.save(cyma);
 
-        Filter launchDateFilter = new Filter("launchDate", new Date(1001));
-        launchDateFilter.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter launchDateFilter = new Filter("launchDate", ComparisonOperator.LESS_THAN, new Date(1001));
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(launchDateFilter));
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals("Kuroda", results.iterator().next().getName());
 
-        Filter anotherFilter = new Filter("launchDate", new Date(999));
+        Filter anotherFilter = new Filter("launchDate", ComparisonOperator.EQUALS, new Date(999));
         results = session.loadAll(Restaurant.class, new Filters().add(anotherFilter));
 
         assertNotNull(results);
@@ -234,8 +230,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter filter = new Filter("name", "San Francisco");
-        filter.setComparisonOperator(ComparisonOperator.STARTING_WITH);
+        Filter filter = new Filter("name", ComparisonOperator.STARTING_WITH, "San Francisco");
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
         assertNotNull(results);
@@ -256,8 +251,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter filter = new Filter("name", "Airport (SFO)");
-        filter.setComparisonOperator(ComparisonOperator.ENDING_WITH);
+        Filter filter = new Filter("name", ComparisonOperator.ENDING_WITH, "Airport (SFO)");
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
         assertNotNull(results);
@@ -278,8 +272,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter filter = new Filter("name", "International Airport");
-        filter.setComparisonOperator(ComparisonOperator.CONTAINING);
+        Filter filter = new Filter("name", ComparisonOperator.CONTAINING, "International Airport");
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
         assertNotNull(results);
@@ -300,8 +293,7 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter filter = new Filter("name", new String[]{"Kuroda", "Foo", "Bar"});
-        filter.setComparisonOperator(ComparisonOperator.IN);
+        Filter filter = new Filter("name", ComparisonOperator.IN, new String[]{"Kuroda", "Foo", "Bar"});
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(filter));
         assertNotNull(results);
@@ -322,17 +314,13 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setLaunchDate(new Date(2000));
         session.save(kuroda);
 
-        Filter exists = new Filter();
-        exists.setPropertyName("name");
-        exists.setComparisonOperator(ComparisonOperator.EXISTS);
+        Filter exists = new Filter("name", ComparisonOperator.EXISTS);
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(exists));
         assertNotNull(results);
         assertEquals(2, results.size());
 
-        Filter notExists = new Filter();
-        notExists.setPropertyName("name");
-        notExists.setComparisonOperator(ComparisonOperator.EXISTS);
+        Filter notExists = new Filter("name", ComparisonOperator.EXISTS);
         notExists.setNegated(true);
 
         results = session.loadAll(Restaurant.class, new Filters().add(notExists));
@@ -354,18 +342,14 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         kuroda.setHalal(false);
         session.save(kuroda);
 
-        Filter isHalal = new Filter();
-        isHalal.setPropertyName("halal");
-        isHalal.setComparisonOperator(ComparisonOperator.IS_TRUE);
+        Filter isHalal = new Filter("halal", ComparisonOperator.IS_TRUE);
 
         Collection<Restaurant> results = session.loadAll(Restaurant.class, new Filters().add(isHalal));
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals("Kazan", results.iterator().next().getName());
 
-        Filter notHalal = new Filter();
-        notHalal.setPropertyName("halal");
-        notHalal.setComparisonOperator(ComparisonOperator.IS_TRUE);
+        Filter notHalal = new Filter("halal", ComparisonOperator.IS_TRUE);
         notHalal.setNegated(true);
 
         results = session.loadAll(Restaurant.class, new Filters().add(notHalal));

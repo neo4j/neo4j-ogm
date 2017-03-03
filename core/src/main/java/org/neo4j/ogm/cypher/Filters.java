@@ -24,14 +24,10 @@ import org.neo4j.ogm.cypher.function.FilterFunction;
  */
 public class Filters implements Iterable<Filter> {
 
-    private List<Filter> filters = new ArrayList<>();
-
+    private List<Filter> filters;
 
     public Filters() {
-    }
-
-    public Filters(String key, Object value) {
-        add(key, value);
+        filters = new ArrayList<>();
     }
 
     public Filters(Filter... filters) {
@@ -42,11 +38,6 @@ public class Filters implements Iterable<Filter> {
         add(filters);
     }
 
-
-    public Filters add(String key, Object value) {
-        this.add(new Filter(key, value));
-        return this;
-    }
 
     public Filters add(Filter... filters) {
         for (Filter filter : filters) {

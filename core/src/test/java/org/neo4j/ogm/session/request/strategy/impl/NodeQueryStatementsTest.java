@@ -16,7 +16,6 @@ package org.neo4j.ogm.session.request.strategy.impl;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
@@ -25,7 +24,6 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
-import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.exception.MissingOperatorException;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
@@ -62,8 +60,8 @@ public class NodeQueryStatementsTest {
 
 	@Test
 	public void testFindByDistance() {
-		FilterFunction function = new DistanceComparison(new DistanceFromPoint(37.4d, 112.9d, 1000.0d));
-		Filters filters = new Filters().add(function);
+        DistanceComparison function = new DistanceComparison(new DistanceFromPoint(37.4d, 112.9d, 1000.0d));
+        Filters filters = new Filters().add(new Filter(function, ComparisonOperator.EQUALS));
 		String statement = queryStatements.findByType("Restaurant",
 				filters, 4).getStatement();
 		assertEquals("MATCH (n:`Restaurant`) WHERE distance(point(n),point({latitude:{lat}, longitude:{lon}})) = {distance} WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)", statement);
@@ -114,7 +112,7 @@ public class NodeQueryStatementsTest {
 	@Test
 	public void testFindByProperty() throws Exception {
 		String statement = queryStatements.findByType("Asteroid",
-				new Filters().add("diameter", 60.2), 4).getStatement();
+                new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 60.2)), 4).getStatement();
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)", statement);
 	}
 
@@ -135,7 +133,7 @@ public class NodeQueryStatementsTest {
 
 	@Test
 	public void testFindByPropertyZeroDepth() throws Exception {
-		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } RETURN n", queryStatements.findByType("Asteroid", new Filters().add("diameter", 60.2), 0).getStatement());
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } RETURN n", queryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 60.2)), 0).getStatement());
 	}
 
 
@@ -145,7 +143,7 @@ public class NodeQueryStatementsTest {
 	 * @throws Exception
 	 */
 	public void testFindByPropertyWithNegativeValue() throws Exception {
-		PagingAndSortingQuery pagingAndSortingQuery = queryStatements.findByType("Asteroid", new Filters().add("albedo", -12.2), 0);
+        PagingAndSortingQuery pagingAndSortingQuery = queryStatements.findByType("Asteroid", new Filters().add(new Filter("albedo", ComparisonOperator.EQUALS, -12.2)), 0);
 
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`albedo` = { `albedo_0` } RETURN n", pagingAndSortingQuery.getStatement());
 		assertEquals(-12.2, (double) pagingAndSortingQuery.getParameters().get("albedo_0"), 0.005);
@@ -194,7 +192,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByPropertyNegativeDepth() throws Exception {
-		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` }  WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add("diameter", 60.2), -1).getStatement());
+        assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` }  WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS,  60.2)), -1).getStatement());
 	}
 
 	/**
@@ -203,7 +201,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByPropertyWithIllegalCharacters() throws Exception {
-		assertEquals("MATCH (n:`Studio`) WHERE n.`studio-name` = { `studio-name_0` } WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)", queryStatements.findByType("Studio", new Filters().add("studio-name", "Abbey Road Studios"), 3).getStatement());
+        assertEquals("MATCH (n:`Studio`) WHERE n.`studio-name` = { `studio-name_0` } WITH n MATCH p=(n)-[*0..3]-(m) RETURN p, ID(n)", queryStatements.findByType("Studio", new Filters().add(new Filter("studio-name", ComparisonOperator.EQUALS, "Abbey Road Studios")), 3).getStatement());
 	}
 
 	/**
@@ -212,8 +210,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByPropertyGreaterThan() throws Exception {
-		Filter parameter = new Filter("diameter", 60);
-		parameter.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter parameter = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement());
 	}
@@ -224,8 +221,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByPropertyGreaterThanEqual() throws Exception {
-		Filter parameter = new Filter("diameter", 60);
-		parameter.setComparisonOperator(ComparisonOperator.GREATER_THAN_EQUAL);
+        Filter parameter = new Filter("diameter", ComparisonOperator.GREATER_THAN_EQUAL, 60);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` >= { `diameter_0` } WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid", new Filters().add(parameter), 4).getStatement());
 	}
@@ -236,8 +232,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByPropertyLessThan() throws Exception {
-		Filter parameter = new Filter("diameter", 60);
-		parameter.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter parameter = new Filter("diameter", ComparisonOperator.LESS_THAN, 60);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` < { `diameter_0` } " +
 						"WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid",
@@ -250,8 +245,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByPropertyLessThanEqual() throws Exception {
-		Filter parameter = new Filter("diameter", 60);
-		parameter.setComparisonOperator(ComparisonOperator.LESS_THAN_EQUAL);
+        Filter parameter = new Filter("diameter", ComparisonOperator.LESS_THAN_EQUAL, 60);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` <= { `diameter_0` } " +
 						"WITH n MATCH p=(n)-[*0..4]-(m) RETURN p, ID(n)",
 				queryStatements.findByType("Asteroid",
@@ -263,9 +257,8 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleAndPropertiesLessThan() {
-		Filter nameParam = new Filter("name", "AST-1");
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.LESS_THAN, 60);
 		diameterParam.setBooleanOperator(BooleanOperator.AND);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } AND n.`diameter` < { `diameter_1` } " +
 						"WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)",
@@ -278,9 +271,8 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleAndPropertiesGreaterThan() {
-		Filter nameParam = new Filter("name", "AST-1");
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 		diameterParam.setBooleanOperator(BooleanOperator.AND);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } AND n.`diameter` > { `diameter_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement());
 	}
@@ -290,10 +282,9 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleAndPropertiesGreaterThanWithDifferentOrder() {
-		Filter nameParam = new Filter("name", "AST-1");
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
 		nameParam.setBooleanOperator(BooleanOperator.AND);
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } AND n.`name` = { `name_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(nameParam), 2).getStatement());
 	}
 
@@ -302,9 +293,8 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleOrPropertiesGreaterThan() {
-		Filter nameParam = new Filter("name", "AST-1");
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 		diameterParam.setBooleanOperator(BooleanOperator.OR);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } OR n.`diameter` > { `diameter_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement());
 	}
@@ -314,9 +304,8 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleOrPropertiesLessThan() {
-		Filter nameParam = new Filter("name", "AST-1");
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.LESS_THAN, 60);
 		diameterParam.setBooleanOperator(BooleanOperator.OR);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`name` = { `name_0` } OR n.`diameter` < { `diameter_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement());
 	}
@@ -326,10 +315,9 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleOrPropertiesGreaterThanWithDifferentOrder() {
-		Filter nameParam = new Filter("name", "AST-1");
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
 		nameParam.setBooleanOperator(BooleanOperator.OR);
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 		assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` > { `diameter_0` } OR n.`name` = { `name_1` } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", queryStatements.findByType("Asteroid", new Filters().add(diameterParam).add(nameParam), 2).getStatement());
 	}
 
@@ -338,10 +326,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByNestedPropertyOutgoing() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
@@ -355,10 +340,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByNestedPropertySameEntityType() {
-		Filter filter = new Filter();
-		filter.setPropertyName("name");
-		filter.getFunction().setValue("Vesta");
-		filter.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter filter = new Filter("name", ComparisonOperator.EQUALS, "Vesta");
 		filter.setNestedPropertyName("collidesWith");
 		filter.setNestedEntityTypeLabel("Asteroid");
 		filter.setRelationshipType("COLLIDES");
@@ -372,10 +354,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByNestedPropertyIncoming() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
@@ -388,10 +367,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByNestedPropertyUndirected() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
@@ -404,13 +380,9 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleNestedProperties() {
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setBooleanOperator(BooleanOperator.AND);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -424,13 +396,9 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleNestedPropertiesInfiniteDepth() {
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setBooleanOperator(BooleanOperator.AND);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -445,13 +413,9 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void testFindByMultipleNestedPropertiesOred() {
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setBooleanOperator(BooleanOperator.OR);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -466,13 +430,9 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void testFindByMultipleNestedPropertiesOredDepth0() {
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.GREATER_THAN);
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.GREATER_THAN, 60);
 
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setBooleanOperator(BooleanOperator.OR);
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
@@ -487,10 +447,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByNestedREProperty() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("totalDestructionProbability");
-		planetParam.setPropertyValue("20");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("totalDestructionProbability", ComparisonOperator.EQUALS, "20");
 		planetParam.setNestedPropertyName("collision");
 		planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
 		planetParam.setNestedRelationshipEntity(true);
@@ -509,10 +466,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleNestedREProperty() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("totalDestructionProbability");
-		planetParam.setPropertyValue("20");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("totalDestructionProbability", ComparisonOperator.EQUALS, "20");
 		planetParam.setNestedPropertyName("collision");
 		planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
 		planetParam.setNestedRelationshipEntity(true);
@@ -520,11 +474,8 @@ public class NodeQueryStatementsTest {
 		planetParam.setRelationshipDirection("OUTGOING");
 		planetParam.setNestedRelationshipEntity(true);
 
-		Filter satelliteParam = new Filter();
+        Filter satelliteParam = new Filter("signalStrength", ComparisonOperator.GREATER_THAN_EQUAL, "400");
 		satelliteParam.setBooleanOperator(BooleanOperator.AND);
-		satelliteParam.setPropertyName("signalStrength");
-		satelliteParam.setPropertyValue("400");
-		satelliteParam.setComparisonOperator(ComparisonOperator.GREATER_THAN_EQUAL);
 		satelliteParam.setNestedPropertyName("monitoringSatellites");
 		satelliteParam.setNestedEntityTypeLabel("Satellite"); //Collision is an RE
 		satelliteParam.setNestedRelationshipEntity(true);
@@ -545,10 +496,7 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByNestedBaseAndREProperty() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("totalDestructionProbability");
-		planetParam.setPropertyValue("20");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("totalDestructionProbability", ComparisonOperator.EQUALS, "20");
 		planetParam.setNestedPropertyName("collision");
 		planetParam.setNestedEntityTypeLabel("Collision"); //Collision is an RE
 		planetParam.setNestedRelationshipEntity(true);
@@ -556,10 +504,7 @@ public class NodeQueryStatementsTest {
 		planetParam.setRelationshipDirection("OUTGOING");
 		planetParam.setNestedRelationshipEntity(true);
 
-		Filter moonParam = new Filter();
-		moonParam.setPropertyName("name");
-		moonParam.setPropertyValue("Moon");
-		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
 		moonParam.setNestedPropertyName("moon");
 		moonParam.setNestedEntityTypeLabel("Moon");
 		moonParam.setRelationshipType("ORBITS");
@@ -578,19 +523,13 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByDifferentNestedPropertiesAnded() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
 		planetParam.setRelationshipDirection("OUTGOING");
 
-		Filter moonParam = new Filter();
-		moonParam.setPropertyName("name");
-		moonParam.setPropertyValue("Moon");
-		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
 		moonParam.setNestedPropertyName("moon");
 		moonParam.setNestedEntityTypeLabel("Moon");
 		moonParam.setRelationshipType("ORBITS");
@@ -609,19 +548,14 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test(expected = UnsupportedOperationException.class)
 	public void testFindByDifferentNestedPropertiesOred() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
+
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
 		planetParam.setRelationshipDirection("OUTGOING");
 
-		Filter moonParam = new Filter();
-		moonParam.setPropertyName("name");
-		moonParam.setPropertyValue("Moon");
-		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter moonParam = new Filter("name", ComparisonOperator.EQUALS, "Moon");
 		moonParam.setNestedPropertyName("moon");
 		moonParam.setNestedEntityTypeLabel("Moon");
 		moonParam.setRelationshipType("ORBITS");
@@ -635,19 +569,13 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test
 	public void testFindByMultipleNestedPropertiesAnded() {
-		Filter planetParam = new Filter();
-		planetParam.setPropertyName("name");
-		planetParam.setPropertyValue("Earth");
-		planetParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter planetParam = new Filter("name", ComparisonOperator.EQUALS, "Earth");
 		planetParam.setNestedPropertyName("collidesWith");
 		planetParam.setNestedEntityTypeLabel("Planet");
 		planetParam.setRelationshipType("COLLIDES");
 		planetParam.setRelationshipDirection("OUTGOING");
 
-		Filter moonParam = new Filter();
-		moonParam.setPropertyName("size");
-		moonParam.setPropertyValue("5");
-		moonParam.setComparisonOperator(ComparisonOperator.EQUALS);
+        Filter moonParam = new Filter("size", ComparisonOperator.EQUALS, "5");
 		moonParam.setNestedPropertyName("collidesWith");
 		moonParam.setNestedEntityTypeLabel("Planet");
 		moonParam.setRelationshipType("COLLIDES");
@@ -661,9 +589,8 @@ public class NodeQueryStatementsTest {
 	 */
 	@Test(expected = MissingOperatorException.class)
 	public void testFindByMultipleAndPropertiesWithMissingBooleanOperator() {
-		Filter nameParam = new Filter("name", "AST-1");
-		Filter diameterParam = new Filter("diameter", 60);
-		diameterParam.setComparisonOperator(ComparisonOperator.LESS_THAN);
+        Filter nameParam = new Filter("name", ComparisonOperator.EQUALS, "AST-1");
+        Filter diameterParam = new Filter("diameter", ComparisonOperator.LESS_THAN, 60);
 		queryStatements.findByType("Asteroid", new Filters().add(nameParam).add(diameterParam), 2).getStatement();
 	}
 }

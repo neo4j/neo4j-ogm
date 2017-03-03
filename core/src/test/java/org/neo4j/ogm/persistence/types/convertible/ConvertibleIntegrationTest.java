@@ -17,6 +17,7 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.domain.convertible.enums.Education;
@@ -69,7 +70,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         person.setGender(Gender.FEMALE);
         session.save(person);
 
-        Person luanne = session.loadAll(Person.class, new Filter("name", "luanne")).iterator().next();
+        Person luanne = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "luanne")).iterator().next();
         assertEquals(Gender.FEMALE, luanne.getGender());
         assertTrue(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL));
         assertTrue(luanne.getCompletedEducation().contains(Education.BACHELORS));
@@ -111,7 +112,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         memo.setClosed(new Date());
         session.save(memo);
 
-        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", "theMemo")).iterator().next();
+        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo",ComparisonOperator.EQUALS,  "theMemo")).iterator().next();
 
         Calendar loadedCal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         loadedCal.setTime(loadedMemo.getActioned());

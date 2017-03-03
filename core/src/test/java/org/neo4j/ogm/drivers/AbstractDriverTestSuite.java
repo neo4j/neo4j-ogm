@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.exception.CypherException;
@@ -106,7 +107,7 @@ public abstract class AbstractDriverTestSuite {
         User user = new User("Bilbo Baggins");
         session.save(user);
         session.clear();
-        User userByProperty = session.loadAll(User.class, new Filter("name", "Bilbo Baggins")).iterator().next();
+        User userByProperty = session.loadAll(User.class, new Filter("name", ComparisonOperator.EQUALS, "Bilbo Baggins")).iterator().next();
         assertNotNull(userByProperty);
     }
 

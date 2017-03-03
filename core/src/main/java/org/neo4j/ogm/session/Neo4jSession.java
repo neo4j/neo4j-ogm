@@ -542,7 +542,8 @@ public class Neo4jSession implements Session {
             if (filter.getOwnerEntityType() == null) {
                 filter.setOwnerEntityType(entityType);
             }
-            filter.setPropertyName(resolvePropertyName(filter.getOwnerEntityType(), filter.getPropertyName()));
+            String propertyName = resolvePropertyName(filter.getOwnerEntityType(), filter.getPropertyName());
+            Filter.setNameFromProperty(filter, propertyName);
 
             ClassInfo classInfo = metaData().classInfo(entityType.getName());
             FieldInfo fieldInfo = classInfo.fieldsInfo().get(filter.getPropertyName());

@@ -18,6 +18,8 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
@@ -71,19 +73,19 @@ public class NodeDeleteStatementsTest {
 
 	@Test
 	public void testDeleteWithLabelAndFilters() throws Exception {
-		CypherQuery query = statements.delete("INFLUENCE", new Filters().add("score", -12.2));
+		CypherQuery query = statements.delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
 		assertEquals("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", query.getStatement());
 	}
 
 	@Test
 	public void testDeleteWithLabelAndFiltersAndCount() throws Exception {
-		CypherQuery query = statements.deleteAndCount("INFLUENCE", new Filters().add("score", -12.2));
+		CypherQuery query = statements.deleteAndCount("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
 		assertEquals("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN COUNT(n)", query.getStatement());
 	}
 
 	@Test
 	public void testDeleteWithLabelAndFiltersAndList() throws Exception {
-		CypherQuery query = statements.deleteAndList("INFLUENCE", new Filters().add("score", -12.2));
+		CypherQuery query = statements.deleteAndList("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
 		assertEquals("MATCH (n:`INFLUENCE`) WHERE n.`score` = { `score_0` }  OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)", query.getStatement());
 	}
 }

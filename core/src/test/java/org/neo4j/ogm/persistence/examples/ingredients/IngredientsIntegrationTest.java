@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.domain.ingredients.Ingredient;
@@ -397,38 +398,38 @@ public class IngredientsIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"),new Pagination(0,1));
+        Collection<Ingredient> ingredients = session.loadAll(Ingredient.class, new Filter("name", ComparisonOperator.EQUALS,"Chicken"),new Pagination(0,1));
         assertEquals(1, ingredients.size());
 
         session.clear();
 
-        ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"), new Pagination(1,1));
+        ingredients = session.loadAll(Ingredient.class, new Filter("name",ComparisonOperator.EQUALS,"Chicken"), new Pagination(1,1));
         assertEquals(1, ingredients.size());
 
         session.clear();
 
-        ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"), new Pagination(0,2));
+        ingredients = session.loadAll(Ingredient.class, new Filter("name",ComparisonOperator.EQUALS,"Chicken"), new Pagination(0,2));
         assertEquals(2, ingredients.size());
 
-        ingredients = session.loadAll(Ingredient.class, new Filter("name","Chicken"), new Pagination(0,3));
+        ingredients = session.loadAll(Ingredient.class, new Filter("name",ComparisonOperator.EQUALS,"Chicken"), new Pagination(0,3));
         assertEquals(3, ingredients.size());
 
         session.clear();
 
-        Collection<Pairing> pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(0,1));
+        Collection<Pairing> pairings = session.loadAll(Pairing.class, new Filter("affinity",ComparisonOperator.EQUALS,"EXCELLENT"), new Pagination(0,1));
         assertEquals(1, pairings.size());
 
         session.clear();
 
-        pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(1,1));
+        pairings = session.loadAll(Pairing.class, new Filter("affinity",ComparisonOperator.EQUALS,"EXCELLENT"), new Pagination(1,1));
         assertEquals(1, pairings.size());
 
         session.clear();
 
-        pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(0,2));
+        pairings = session.loadAll(Pairing.class, new Filter("affinity",ComparisonOperator.EQUALS,"EXCELLENT"), new Pagination(0,2));
         assertEquals(2, pairings.size());
 
-        pairings = session.loadAll(Pairing.class, new Filter("affinity","EXCELLENT"), new Pagination(0,3));
+        pairings = session.loadAll(Pairing.class, new Filter("affinity",ComparisonOperator.EQUALS,"EXCELLENT"), new Pagination(0,3));
         assertEquals(3, pairings.size());
     }
 

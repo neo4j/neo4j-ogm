@@ -81,15 +81,14 @@ public class ParameterisedStatementTest {
 
     @Test
     public void findByPropertyStringValue() throws Exception {
-        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("ref", "45 Eugenia")), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("ref", ComparisonOperator.EQUALS, "45 Eugenia")), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`ref` = { `ref_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"ref_0\":\"45 Eugenia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyWildcardLike() throws JsonProcessingException {
-        Filter filter = new Filter("ref", "*nia");
-        filter.setComparisonOperator(ComparisonOperator.LIKE);
+        Filter filter = new Filter("ref", ComparisonOperator.LIKE,  "*nia");
         statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(filter), 1);
         assertEquals("{\"ref_0\":\"(?i).*nia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -97,28 +96,28 @@ public class ParameterisedStatementTest {
 
     @Test
     public void findByPropertyIntegralValue() throws Exception {
-        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("index", 77)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("index", ComparisonOperator.EQUALS, 77)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`index` = { `index_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"index_0\":77}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyStandardForm() throws Exception {
-        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", 6.02E1)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS,6.02E1)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter_0\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyDecimal() throws Exception {
-        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", 60.2)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS,60.2)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter_0\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyEmbeddedDelimiter() throws Exception {
-        statement = nodeQueryStatements.findByType("Cookbooks", new Filters().add(new Filter("title", "Mrs Beeton's Household Recipes")), 1);
+        statement = nodeQueryStatements.findByType("Cookbooks", new Filters().add(new Filter("title", ComparisonOperator.EQUALS,"Mrs Beeton's Household Recipes")), 1);
         assertEquals("MATCH (n:`Cookbooks`) WHERE n.`title` = { `title_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"title_0\":\"Mrs Beeton's Household Recipes\"}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -189,7 +188,7 @@ public class ParameterisedStatementTest {
      */
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
-        statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", "none")), 1);
+        statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", ComparisonOperator.EQUALS,"none")), 1);
         assertEquals("MATCH (n)-[r0:`HAS-ALBUM`]->(m) WHERE r0.`fake-property` = { `fake-property_0` }  WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
         assertEquals("{\"fake-property_0\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
 

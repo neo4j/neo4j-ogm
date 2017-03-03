@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.education;
 
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import static org.junit.Assert.*;
@@ -29,6 +30,7 @@ import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
+
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -55,7 +57,7 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
         session.save(course);
 
         //fetch Courses by name
-        Collection<Course> courses = session.loadAll(Course.class, new Filter("name", "CompSci"));
+        Collection<Course> courses = session.loadAll(Course.class, new Filter("name", ComparisonOperator.EQUALS, "CompSci"));
         assertEquals(1,courses.size());
         assertEquals(course,courses.iterator().next());
         assertEquals(1,courses.iterator().next().getStudents().size());

@@ -25,18 +25,16 @@ public class FilterTest {
 
 	@Test
 	public void toCypher() {
-		Filter filter = new Filter("moons", 23);
+		Filter filter = new Filter("moons",ComparisonOperator.LESS_THAN,  23);
 		filter.setBooleanOperator(BooleanOperator.AND);
-		filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		assertEquals("WHERE n.`moons` < { `moons_0` } ", filter.toCypher("n", true));
 	}
 
 	@Test
 	public void toCypher_function() {
-		FilterFunction function = new DistanceComparison(new DistanceFromPoint(37.4, 112.1, 1000.0));
-		Filter filter = new Filter(function);
+		DistanceComparison function = new DistanceComparison(new DistanceFromPoint(37.4, 112.1, 1000.0));
+		Filter filter = new Filter(function, ComparisonOperator.LESS_THAN);
 		filter.setBooleanOperator(BooleanOperator.AND);
-		filter.setComparisonOperator(ComparisonOperator.LESS_THAN);
 		filter.setNegated(true);
 		assertEquals("WHERE NOT(distance(point(n),point({latitude:{lat}, longitude:{lon}})) < {distance} ) ", filter.toCypher("n", true));
 	}

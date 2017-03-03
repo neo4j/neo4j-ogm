@@ -44,7 +44,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByProperty() {
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", query.findByType("Raptor", new Filters().add(new Filter("name", "velociraptor")), 2).setPagination(new Pagination(0, 2)).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", query.findByType("Raptor", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor")), 2).setPagination(new Pagination(0, 2)).getStatement());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testByPropertyDepthZero() {
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 RETURN n", query.findByType("Raptor", new Filters().add(new Filter("name", "velociraptor")), 0).setPagination(new Pagination(0, 2)).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 0 LIMIT 2 RETURN n", query.findByType("Raptor", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor")), 0).setPagination(new Pagination(0, 2)).getStatement());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByPropertyDepthInfinite() {
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", new Filters().add(new Filter("name", "velociraptor")), -1).setPagination(new Pagination(0, 2)).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n SKIP 0 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor")), -1).setPagination(new Pagination(0, 2)).getStatement());
     }
 
     @Test

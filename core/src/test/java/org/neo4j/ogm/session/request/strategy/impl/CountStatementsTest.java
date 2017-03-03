@@ -18,6 +18,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.session.request.strategy.AggregateStatements;
@@ -47,7 +49,7 @@ public class CountStatementsTest {
 
 	@Test
 	public void testCountNodesWithLabelAndFilters() throws Exception {
-		CypherQuery query = statements.countNodes("Person", new Filters().add("name", "Jim"));
+		CypherQuery query = statements.countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
 		assertEquals("MATCH (n:`Person`) WHERE n.`name` = { `name_0` }  RETURN COUNT(n)", query.getStatement());
 		assertEquals("{name_0=Jim}", query.getParameters().toString());
 
@@ -65,7 +67,7 @@ public class CountStatementsTest {
 
 	@Test
 	public void testCountEdgesWithTypeAndFilters() throws Exception {
-		CypherQuery query = statements.countEdges("INFLUENCE", new Filters().add("score", -12.2));
+		CypherQuery query = statements.countEdges("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
 		assertEquals("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  RETURN COUNT(r0)", query.getStatement());
 		assertEquals("{score_0=-12.2}", query.getParameters().toString());
 	}

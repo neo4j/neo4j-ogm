@@ -29,6 +29,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -79,7 +80,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertEquals("Please Please Me", theBeatles.getAlbums().iterator().next().getName());
         assertEquals("EMI Studios, London", theBeatles.getAlbums().iterator().next().getRecording().getStudio().getName());
 
-        please = session.loadAll(Album.class, new Filter("name", "Please Please Me")).iterator().next();
+        please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me")).iterator().next();
         assertEquals("The Beatles", please.getArtist().getName());
 
         Album hard = new Album("A Hard Day's Night");
@@ -106,7 +107,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldLoadStudioWithLocationMissingInDomainModel() {
         session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Utils.map());
-        Studio studio = session.loadAll(Studio.class, new Filter("name", "Abbey Road Studios")).iterator().next();
+        Studio studio = session.loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator().next();
         assertNotNull(studio);
 
     }
@@ -134,7 +135,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
 
-        please = session.loadAll(Album.class, new Filter("name", "Please Please Me"), 0).iterator().next();
+        please = session.loadAll(Album.class, new Filter("name", ComparisonOperator.EQUALS, "Please Please Me"), 0).iterator().next();
         assertEquals("Please Please Me", please.getName());
         assertNull(please.getArtist());
         assertNull(please.getRecording());
@@ -167,7 +168,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         theBeatlesAlbum.setGuestArtist(eric);
         session.save(theBeatlesAlbum);
 
-        theBeatles = session.loadAll(Artist.class, new Filters().add("name", "The Beatles")).iterator().next();
+        theBeatles = session.loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "The Beatles"))).iterator().next();
         assertEquals("The Beatles", theBeatles.getName());
         assertEquals(1, theBeatles.getAlbums().size());
         assertEquals("The Beatles", theBeatles.getAlbums().iterator().next().getName());
@@ -176,7 +177,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
 
         //Eric has 2 albums now
         session.clear();
-        Artist loadedEric = session.loadAll(Artist.class, new Filters().add("name", "Eric Clapton")).iterator().next();
+        Artist loadedEric = session.loadAll(Artist.class, new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Eric Clapton"))).iterator().next();
         assertNotNull(loadedEric);
         assertEquals("The Beatles", loadedEric.getGuestAlbums().iterator().next().getName());
         assertEquals("Slowhand", loadedEric.getAlbums().iterator().next().getName());

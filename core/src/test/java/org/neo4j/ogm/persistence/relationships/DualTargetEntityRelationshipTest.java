@@ -15,6 +15,7 @@ package org.neo4j.ogm.persistence.relationships;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.mappings.Category;
 import org.neo4j.ogm.domain.mappings.Event;
@@ -97,11 +98,11 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
 
         session.clear();
 
-        Collection<Tag> tagsFound = session.loadAll(Tag.class, new Filter("name", "tag1"));
+        Collection<Tag> tagsFound = session.loadAll(Tag.class, new Filter("name", ComparisonOperator.EQUALS, "tag1"));
         assertEquals(1, tagsFound.size());
         event.setTags(new HashSet<>(tagsFound));
 
-        Collection<Category> categoriesFound = session.loadAll(Category.class, new Filter("name", "cat1"));
+        Collection<Category> categoriesFound = session.loadAll(Category.class, new Filter("name", ComparisonOperator.EQUALS, "cat1"));
         assertEquals(1, categoriesFound.size());
         event.setCategory(categoriesFound.iterator().next());
 

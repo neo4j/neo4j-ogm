@@ -52,7 +52,7 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindByProperty() {
         sortOrder.add(SortOrder.Direction.DESC, "weight");
-        filters.add("name", "velociraptor");
+        filters.add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor"));
         check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n ORDER BY n.weight DESC MATCH p=(n)-[*0..2]-(m) RETURN p, ID(n)", query.findByType("Raptor", filters, 2).setSortOrder(sortOrder).getStatement());
     }
 
@@ -70,7 +70,7 @@ public class NodeEntityQuerySortingTest {
 
     @Test
     public void testByPropertyDepthZero() {
-        filters.add("name", "velociraptor");
+        filters.add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor"));
         sortOrder.add(SortOrder.Direction.DESC, "weight");
         check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n ORDER BY n.weight DESC RETURN n", query.findByType("Raptor", filters, 0).setSortOrder(sortOrder).getStatement());
     }
@@ -90,7 +90,7 @@ public class NodeEntityQuerySortingTest {
     @Test
     public void testFindByPropertyDepthInfinite() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
-        filters.add("name", "velociraptor");
+        filters.add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor"));
         check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", filters, -1).setSortOrder(sortOrder).getStatement());
     }
 

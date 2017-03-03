@@ -14,10 +14,10 @@
 package org.neo4j.ogm.cypher.function;
 
 
-import org.neo4j.ogm.cypher.Filter;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.cypher.Filter;
 
 /**
  * @author Jasper Blues
@@ -26,9 +26,6 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
 
     private DistanceFromPoint value;
     private Filter filter;
-
-    public DistanceComparison() {
-    }
 
     public DistanceComparison(DistanceFromPoint value) {
         this.value = value;
@@ -47,11 +44,6 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
     @Override
     public DistanceFromPoint getValue() {
         return value;
-    }
-
-    @Override
-    public void setValue(DistanceFromPoint value) {
-        this.value = value;
     }
 
     @Override

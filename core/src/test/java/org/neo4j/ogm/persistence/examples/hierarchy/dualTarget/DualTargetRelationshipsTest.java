@@ -18,6 +18,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.hierarchy.dualTarget.Event;
 import org.neo4j.ogm.domain.hierarchy.dualTarget.Member;
@@ -112,7 +113,7 @@ public class DualTargetRelationshipsTest  extends MultiDriverTestClass{
 
 		session.save(member);
 
-		Member m = session.loadAll(Member.class, new Filter("name","Member1"), 2).iterator().next();
+		Member m = session.loadAll(Member.class, new Filter("name", ComparisonOperator.EQUALS, "Member1"), 2).iterator().next();
 		assertEquals(2, m.getTags().size());
 		assertEquals(2, m.getEvents().size());
 

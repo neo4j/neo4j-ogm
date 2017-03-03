@@ -45,10 +45,6 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 		session.purgeDatabase();
 	}
 
-	private GraphDatabaseService getDatabase() {
-		return getGraphDatabaseService();
-	}
-
 	@Test
 	public void testThatAnnotatedRelationshipOnRelationshipEntityCreatesTheCorrectRelationshipTypeInTheGraph() {
 		Movie hp = new Movie("Goblet of Fire", 2005);
@@ -56,7 +52,7 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 		Actor daniel = new Actor("Daniel Radcliffe");
 		daniel.playedIn(hp, "Harry Potter");
 		session.save(daniel);
-		GraphTestUtils.assertSameGraph(getDatabase(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:ACTS_IN {role:'Harry Potter'}]->(m)");
 	}
 
 	@Test
@@ -66,7 +62,7 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 		Actor daniel = new Actor("Daniel Radcliffe");
 		daniel.nominatedFor(hp, "Saturn Award", 2005);
 		session.save(daniel);
-		GraphTestUtils.assertSameGraph(getDatabase(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "MERGE (m:Movie {uuid:\"" + hp.getUuid().toString() + "\"}) SET m.title = 'Goblet of Fire', m.year = 2005 MERGE (a:Actor {uuid:\"" + daniel.getUuid().toString() + "\"}) SET a.name='Daniel Radcliffe' create (a)-[:NOMINATIONS {name:'Saturn Award', year:2005}]->(m)");
 	}
 
 	@Test
@@ -82,7 +78,7 @@ public class RelationshipEntityMappingTest extends MultiDriverTestClass {
 		a.setR(r);
 
 		session.save(a);
-		GraphTestUtils.assertSameGraph(getDatabase(),
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
 				"CREATE (a:A) " +
 						"CREATE (b:B) " +
 						"CREATE (a)-[:CR]->(b)");

@@ -47,11 +47,6 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 		session.purgeDatabase();
 	}
 
-	private GraphDatabaseService getDatabase() {
-		return getGraphDatabaseService();
-	}
-
-
 	@Test
 	public void testThatABiDirectionalMappingIsEstablishedWhenAMutualRelationshipWithNoAnnotationsIsSaved() {
 
@@ -64,7 +59,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
 		// expect both objects to have a relationship to each other
 		session.save(policy);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (n:Policy:DomainObject {name:'Health'})-[:INFLUENCERS]->(m:Person:DomainObject {name:'Jim'})-[:INFLUENCED]->(n)");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})-[:INFLUENCERS]->(m:Person:DomainObject {name:'Jim'})-[:INFLUENCED]->(n)");
 	}
 
 	@Test
@@ -76,7 +71,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 		jim.getWritten().add(policy);
 
 		session.save(jim);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
 	}
 
 	@Test
@@ -89,7 +84,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
 		// we a single relationship, outgoing from person to policy to be established
 		session.save(policy);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
 	}
 
 	@Test
@@ -104,7 +99,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
 		// verify we create only one directed relationship in the graph
 		session.save(policy);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:WRITES_POLICY]-(m:Person:DomainObject {name:'Jim'})");
 	}
 
 	/**
@@ -119,7 +114,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 		jim.setAuthorized(policy);
 
 		session.save(jim);
-		GraphTestUtils.assertSameGraph(getDatabase(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:AUTHORIZED_POLICY]-(m:Person:DomainObject {name:'Jim'})");
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(), "CREATE (n:Policy:DomainObject {name:'Health'})<-[:AUTHORIZED_POLICY]-(m:Person:DomainObject {name:'Jim'})");
 	}
 
 
@@ -127,7 +122,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 	public void shouldAllowVoterToChangeHerMind() {
 
 		// create the graph
-		Result executionResult = getDatabase().execute(
+		Result executionResult = getGraphDatabaseService().execute(
 				"CREATE " +
 						"(a:Voter:Candidate {name:'A'}), " +
 						"(b:Voter:Candidate {name:'B'}), " +
@@ -150,7 +145,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 		// voter changes her mind
 		v.candidateVotedFor = a;
 		session.save(v);
-		GraphTestUtils.assertSameGraph(getDatabase(),
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
 				"CREATE (a:Voter:Candidate {name:'A'}) " +
 						"CREATE (b:Voter:Candidate {name:'B'}) " +
 						"CREATE (v:Voter {name:'V'})-[:CANDIDATE_VOTED_FOR]->(a)");

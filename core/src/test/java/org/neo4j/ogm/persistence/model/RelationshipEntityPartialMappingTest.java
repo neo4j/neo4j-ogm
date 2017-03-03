@@ -44,9 +44,6 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 		session.purgeDatabase();
 	}
 
-	private GraphDatabaseService getDatabase() {
-		return getGraphDatabaseService();
-	}
 
 	@Test
 	public void testCreateActorRoleAndMovie() {
@@ -59,7 +56,7 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 		keanu.addRole("Neo", matrix);
 
 		session.save(keanu);
-		GraphTestUtils.assertSameGraph(getDatabase(),
+		GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
 				"create (a:Actor {name:'Keanu Reeves'}) " +
 						"create (m:Movie {name:'The Matrix'}) " +
 						"create (a)-[:ACTS_IN {played:'Neo'}]->(m)");

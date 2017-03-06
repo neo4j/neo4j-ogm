@@ -13,17 +13,17 @@
 
 package org.neo4j.ogm.persistence.model;
 
+import java.io.IOException;
+
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
 
 /**
  * The purpose of these tests is to describe the behaviour of the
@@ -34,31 +34,36 @@ import java.io.IOException;
  */
 public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
-	private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.minimum");
+    private static SessionFactory sessionFactory;
 
-	private Session session;
+    private Session session;
 
-	@Before
-	public void init() throws IOException {
-		session = sessionFactory.openSession();
-		session.purgeDatabase();
-	}
-
-
-	@Test
-	public void testCreateActorRoleAndMovie() {
-
-		Actor keanu = new Actor("Keanu Reeves");
-		Movie matrix = new Movie("The Matrix");
+    @BeforeClass
+    public static void oneTimeSetup() {
+        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.minimum");
+    }
 
 
-		// note: this does not establish a role relationsip on the matrix
-		keanu.addRole("Neo", matrix);
+    @Before
+    public void init() throws IOException {
+        session = sessionFactory.openSession();
+        session.purgeDatabase();
+    }
 
-		session.save(keanu);
-		GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
-				"create (a:Actor {name:'Keanu Reeves'}) " +
-						"create (m:Movie {name:'The Matrix'}) " +
-						"create (a)-[:ACTS_IN {played:'Neo'}]->(m)");
-	}
+
+    @Test
+    public void testCreateActorRoleAndMovie() {
+
+        Actor keanu = new Actor("Keanu Reeves");
+        Movie matrix = new Movie("The Matrix");
+
+        // note: this does not establish a role relationsip on the matrix
+        keanu.addRole("Neo", matrix);
+
+        session.save(keanu);
+        GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
+                "create (a:Actor {name:'Keanu Reeves'}) " +
+                        "create (m:Movie {name:'The Matrix'}) " +
+                        "create (a)-[:ACTS_IN {played:'Neo'}]->(m)");
+    }
 }

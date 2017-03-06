@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.compiler.RelationshipBuilder;
+import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
 
 /**
  * A TransientRelationship represents a relationship that is not yet

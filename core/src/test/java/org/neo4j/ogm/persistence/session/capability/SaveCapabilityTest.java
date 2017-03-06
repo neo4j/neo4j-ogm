@@ -16,7 +16,7 @@ package org.neo4j.ogm.persistence.session.capability;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.compiler.CompileContext;
+import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;

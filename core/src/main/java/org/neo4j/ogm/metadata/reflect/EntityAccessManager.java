@@ -11,7 +11,9 @@
 
 package org.neo4j.ogm.metadata.reflect;
 
+import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
@@ -21,6 +23,7 @@ import org.neo4j.ogm.context.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,216 @@ import org.slf4j.LoggerFactory;
 public class EntityAccessManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityAccessManager.class);
+
+
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Object merge(Class<?> parameterType, Object newValues, Object[] currentValues, Class elementType) {
+        if (currentValues != null) {
+            return merge(parameterType, newValues, Arrays.asList(currentValues), elementType);
+        } else {
+            return merge(parameterType, newValues, new ArrayList(), elementType);
+        }
+    }
+
+
+    /**
+     * Merges the contents of <em>collection</em> with <em>hydrated</em> ensuring no duplicates and returns the result as an
+     * instance of the given parameter type.
+     *
+     * @param parameterType The type of Iterable or array to return
+     * @param newValues The objects to merge into a collection of the given parameter type, which may not necessarily be of a
+     *        type assignable from <em>parameterType</em> already
+     * @param currentValues The Iterable to merge into, which may be <code>null</code> if a new collection needs creating
+     * @param elementType   The type of the element in the array or collection
+     * @return The result of the merge, as an instance of the specified parameter type
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Object merge(Class<?> parameterType, Object newValues, Collection currentValues, Class elementType) {
+
+        //While we expect newValues to be an iterable, there are a couple of exceptions
+
+        if (newValues != null) {
+            //1. A primitive array cannot be cast directly to Iterable
+            newValues = boxPrimitiveArray(newValues);
+
+            //2. A char[] may come in as a String or an array of String[]
+            newValues = stringToCharacterIterable(newValues, parameterType, elementType);
+        }
+
+
+        if (parameterType.isArray()) {
+            Class type = parameterType.getComponentType();
+            List<Object> objects = new ArrayList<>(union((Collection) newValues, currentValues, elementType));
+
+            Object array = Array.newInstance(type, objects.size());
+            for (int i = 0; i < objects.size(); i++) {
+                Array.set(array, i, objects.get(i));
+            }
+            return array;
+        }
+
+        // create the desired type of collection and use it for the merge
+        Collection newCollection = createCollection(parameterType, (Collection) newValues, currentValues, elementType);
+        if (newCollection != null) {
+            return newCollection;
+        }
+
+        // hydrated is unusable at this point so we can just set the other collection if it's compatible
+        if (parameterType.isAssignableFrom(newValues.getClass())) {
+            return newValues;
+        }
+
+
+        throw new RuntimeException("Unsupported: " + parameterType.getName());
+    }
+
+    private static Collection<?> createCollection(Class<?> parameterType, Collection collection, Collection hydrated, Class elementType) {
+        if (Vector.class.isAssignableFrom(parameterType)) {
+            return new Vector<>(union(collection, hydrated, elementType));
+        }
+        if (List.class.isAssignableFrom(parameterType)) {
+            return new ArrayList<>(union(collection, hydrated, elementType));
+        }
+        if (SortedSet.class.isAssignableFrom(parameterType)) {
+            return new TreeSet<>(union(collection, hydrated, elementType));
+        }
+        if (Set.class.isAssignableFrom(parameterType)) {
+            return new HashSet<>(union(collection, hydrated, elementType));
+        }
+        return null;
+    }
+
+    public static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
+        if (collection == null) {
+            return hydrated;
+        }
+        if (hydrated==null || hydrated.size() == 0) {
+            Collection<Object> result = new ArrayList<>(collection.size());
+            for (Object object : collection) {
+                result.add(Utils.coerceTypes(elementType, object));
+            }
+            return result;
+        }
+        int resultSize = collection.size();
+        resultSize += hydrated.size();
+        Collection<Object> result = new LinkedHashSet<>(resultSize);
+
+        if (hydrated.size() > collection.size()) {
+            result.addAll(hydrated);
+            addToCollection(collection, result, elementType);
+        }
+        else {
+            addToCollection(collection, result, elementType);
+            addToCollection(hydrated, result, elementType);
+        }
+        return result;
+    }
+
+    private static void addToCollection(Collection add, Collection<Object> addTo, Class elementType) {
+        for (Object object : add) {
+            addTo.add(Utils.coerceTypes(elementType, object));
+        }
+    }
+
+
+    /**
+     * Convert to an Iterable of Character if the value is a String
+     * @param value the object, which may be a String, String[], Collection of String
+     * @return List of Character if the value is a String, or the value unchanged
+     */
+    private static Object stringToCharacterIterable(Object value, Class parameterType, Class elementType) {
+        boolean convertCharacters = false;
+        if (value instanceof String) {
+            char[] chars = ((String) value).toCharArray();
+            List<Character> characters = new ArrayList<>(chars.length);
+            for (char c : chars) {
+                characters.add(c);
+            }
+            return characters;
+        }
+
+        if (parameterType.getComponentType() != null) {
+            if (parameterType.getComponentType().equals(Character.class)) {
+                convertCharacters = true;
+            }
+        }
+        else {
+            if (elementType == Character.class || elementType == char.class) {
+                convertCharacters = true;
+            }
+        }
+
+        if (value.getClass().isArray() &&  convertCharacters && value.getClass().getComponentType().equals(String.class)) {
+            String[] strings = (String[]) value;
+            List<Character> characters = new ArrayList<>(strings.length);
+            for (String s : strings) {
+                characters.add(s.toCharArray()[0]);
+            }
+            return characters;
+        }
+
+        if (value.getClass().isArray() && elementType == String.class) {
+            String[] strings = (String[]) value;
+            return Arrays.asList(strings);
+        }
+        return value;
+    }
+
+    private static Object boxPrimitiveArray(Object value) {
+        if (value.getClass().isArray() && value.getClass().getComponentType().isPrimitive()) {
+            switch (value.getClass().getComponentType().toString()) {
+                case "int":
+                    int[] intArray = (int[]) value;
+                    List<Integer> boxedIntList = new ArrayList<>(intArray.length);
+                    for (int i : intArray) {
+                        boxedIntList.add(i);
+                    }
+                    return boxedIntList;
+
+                case "float":
+                    float[] floatArray = (float[]) value;
+                    List<Float> boxedFloatList = new ArrayList<>(floatArray.length);
+                    for (float f : floatArray) {
+                        boxedFloatList.add(f);
+                    }
+                    return boxedFloatList;
+
+                case "long":
+                    long[] longArray = (long[]) value;
+                    List<Long> boxedLongList = new ArrayList<>(longArray.length);
+                    for (long l : longArray) {
+                        boxedLongList.add(l);
+                    }
+                    return boxedLongList;
+
+                case "double":
+                    double[] dblArray = (double[]) value;
+                    List<Double> boxedDoubleList = new ArrayList<>(dblArray.length);
+                    for (double d : dblArray) {
+                        boxedDoubleList.add(d);
+                    }
+                    return boxedDoubleList;
+
+                case "boolean":
+                    boolean[] booleanArray = (boolean[]) value;
+                    List<Boolean> boxedBooleanList = new ArrayList<>(booleanArray.length);
+                    for (boolean b : booleanArray) {
+                        boxedBooleanList.add(b);
+                    }
+                    return boxedBooleanList;
+
+                case "char":
+                    char[] charArray = (char[]) value;
+                    List<Character> boxedCharList = new ArrayList<>(charArray.length);
+                    for (char c : charArray) {
+                        boxedCharList.add(c);
+                    }
+                    return boxedCharList;
+            }
+        }
+        return value;
+    }
 
     //TODO make these LRU caches with configurable size
     private static Map<ClassInfo, Map<DirectedRelationship,RelationalReader>> relationalReaderCache = new HashMap<>();
@@ -261,16 +474,7 @@ public class EntityAccessManager {
      * @return a Collection of PropertyReader instances which will be empty if no primitive properties are defined by the ClassInfo
      */
     public static Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
-        // do we care about "implicit" fields?  i.e., setX/getX with no matching X field
-        if(propertyReaders.containsKey(classInfo)) {
-            return propertyReaders.get(classInfo);
-        }
-        Collection<PropertyReader> readers = new ArrayList<>();
-        for (FieldInfo fieldInfo : classInfo.propertyFields()) {
-            readers.add(new FieldReader(classInfo, fieldInfo)); //otherwise use the field
-        }
-        propertyReaders.put(classInfo, readers);
-        return readers;
+        return classInfo.propertyFields().stream().map(k -> new FieldReader(classInfo, k)).collect(Collectors.toList());
     }
 
     /**
@@ -279,16 +483,7 @@ public class EntityAccessManager {
      * @return a Collection of RelationalReader instances which will be empty if no relationships are defined by the ClassInfo
      */
     public static Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
-        if(relationalReaders.containsKey(classInfo)) {
-            return relationalReaders.get(classInfo);
-        }
-        Collection<RelationalReader> readers = new ArrayList<>();
-
-        for (FieldInfo fieldInfo : classInfo.relationshipFields()) {
-            readers.add(new FieldReader(classInfo, fieldInfo));
-        }
-        relationalReaders.put(classInfo, readers);
-        return readers;
+        return classInfo.relationshipFields().stream().map(k -> new FieldReader(classInfo, k)).collect(Collectors.toList());
     }
 
     /**

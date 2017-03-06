@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.context;
 
-import org.neo4j.ogm.compiler.CompileContext;
+import org.neo4j.ogm.cypher.compiler.CompileContext;
 
 /**
  * Specification for an object-graph mapper, which can map arbitrary Java objects onto Cypher data manipulation queries.
@@ -27,7 +27,7 @@ public interface EntityMapper {
      * in Neo4j.
      *
      * @param entity The "root" node of the object graph to persist
-     * @return A {@link org.neo4j.ogm.compiler.CompileContext} object containing the statements required to persist the given object to Neo4j, along
+     * @return A {@link org.neo4j.ogm.cypher.compiler.CompileContext} object containing the statements required to persist the given object to Neo4j, along
      *         with a representation of the changes to be made by the Cypher statements never <code>null</code>
      * @throws NullPointerException if invoked with <code>null</code>
      */

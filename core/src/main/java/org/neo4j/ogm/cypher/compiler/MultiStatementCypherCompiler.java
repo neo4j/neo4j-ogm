@@ -11,13 +11,13 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 import java.util.*;
 
-import org.neo4j.ogm.compiler.builders.node.DefaultNodeBuilder;
-import org.neo4j.ogm.compiler.builders.node.DefaultRelationshipBuilder;
-import org.neo4j.ogm.compiler.builders.statement.*;
+import org.neo4j.ogm.cypher.compiler.builders.node.DefaultNodeBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.node.DefaultRelationshipBuilder;
+import org.neo4j.ogm.cypher.compiler.builders.statement.*;
 import org.neo4j.ogm.exception.UnknownStatementTypeException;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;

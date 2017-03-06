@@ -11,13 +11,13 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler.builders.node;
+package org.neo4j.ogm.cypher.compiler.builders.node;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.compiler.NodeBuilder;
+import org.neo4j.ogm.cypher.compiler.NodeBuilder;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;

@@ -19,11 +19,11 @@ import java.io.IOException;
 /**
  * @author Vince Bickers
  */
-public class ConstantPool {
+class ConstantPool {
 
     private final Object[] pool;
 
-    public ConstantPool(DataInputStream stream) throws IOException {
+    ConstantPool(DataInputStream stream) throws IOException {
 
         int size = stream.readUnsignedShort();
         pool = new Object[size];
@@ -75,7 +75,7 @@ public class ConstantPool {
     }
 
     // returns an indexed lookup, entry contains the index of the actual value in the pool
-    public String lookup(int entry) {
+    String lookup(int entry) {
 
         Object constantPoolObj = pool[entry];
 
@@ -87,39 +87,39 @@ public class ConstantPool {
         }
     }
 
-    public Boolean readBoolean(int entry) {
+    Boolean readBoolean(int entry) {
         return (Integer) pool[entry] == 1;
     }
 
-    public Byte readByte(int entry) {
+    Byte readByte(int entry) {
         return new Byte(String.valueOf(pool[entry]));
     }
 
-    public Character readChar(int entry) {
+    Character readChar(int entry) {
         return Character.forDigit((Integer) pool[entry], 10);
     }
 
-    public Double readDouble(int entry) {
+    Double readDouble(int entry) {
         return (Double) pool[entry];
     }
 
-    public Float readFloat(int entry) {
+    Float readFloat(int entry) {
         return (Float) pool[entry];
     }
 
-    public Integer readInteger(int entry) {
+    Integer readInteger(int entry) {
         return (Integer) pool[entry];
     }
 
-    public Long readLong(int entry) {
+    Long readLong(int entry) {
         return (Long) pool[entry];
     }
 
-    public Short readShort(int entry) {
+    Short readShort(int entry) {
         return Short.decode(String.valueOf(pool[entry]));
     }
 
-    public String readString(int entry) {
+    String readString(int entry) {
         return (String) pool[entry];
     }
 

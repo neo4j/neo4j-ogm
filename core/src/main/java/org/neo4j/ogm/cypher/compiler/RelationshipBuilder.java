@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler;
+package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.model.Edge;
 

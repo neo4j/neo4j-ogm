@@ -122,8 +122,8 @@ public class SingleUseEntityMapper {
 			if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
 				Class elementType = underlyingElementType(classInfo, property.getKey());
 				value = writer.type().isArray()
-						? EntityAccess.merge(writer.type(), value, new Object[]{}, elementType)
-						: EntityAccess.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
+						? EntityAccessManager.merge(writer.type(), value, new Object[]{}, elementType)
+						: EntityAccessManager.merge(writer.type(), value, Collections.EMPTY_LIST, elementType);
 			}
 			writer.write(instance, value);
 		} else {

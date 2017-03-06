@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.compiler.CompileContext;
-import org.neo4j.ogm.compiler.Compiler;
+import org.neo4j.ogm.cypher.compiler.CompileContext;
+import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.TransientRelationship;

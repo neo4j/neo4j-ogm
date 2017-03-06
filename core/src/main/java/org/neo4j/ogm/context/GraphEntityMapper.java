@@ -39,7 +39,6 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
-import org.neo4j.ogm.utils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,18 @@ import org.slf4j.LoggerFactory;
  */
 public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
-    private final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(GraphEntityMapper.class);
+
+    private static Map<String, ?> toMap(List<Property<String, Object>> propertyList) {
+
+        Map map = new HashMap();
+
+        for (Property<String, Object> property : propertyList) {
+            map.put(property.getKey(), property.getValue());
+        }
+
+        return map;
+    }
 
     private final MappingContext mappingContext;
     private final EntityFactory entityFactory;
@@ -209,7 +219,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
         if (compositeFields.size() > 0) {
-            Map<String, ?> propertyMap = PropertyUtils.toMap(propertyList);
+            Map<String, ?> propertyMap = toMap(propertyList);
             for (FieldInfo field : compositeFields) {
                 Object value = field.getCompositeConverter().toEntityAttribute(propertyMap);
                 PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
@@ -260,9 +270,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                     Class<?> paramType = writer.type();
                     Class elementType = underlyingElementType(classInfo, property.getKey().toString());
                     if (paramType.isArray()) {
-                        value = EntityAccess.merge(paramType, value, (Object[]) currentValue, elementType);
+                        value = EntityAccessManager.merge(paramType, value, (Object[]) currentValue, elementType);
                     } else {
-                        value = EntityAccess.merge(paramType, value, (Collection) currentValue, elementType);
+                        value = EntityAccessManager.merge(paramType, value, (Collection) currentValue, elementType);
                     }
                 }
             }
@@ -523,9 +533,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 if (reader != null) {
                     currentValues = reader.read(instance);
                     if (writer.type().isArray()) {
-                        values = EntityAccess.merge(writer.type(), values, (Object[]) currentValues, valueType);
+                        values = EntityAccessManager.merge(writer.type(), values, (Object[]) currentValues, valueType);
                     } else {
-                        values = EntityAccess.merge(writer.type(), values, (Collection) currentValues, valueType);
+                        values = EntityAccessManager.merge(writer.type(), values, (Collection) currentValues, valueType);
                     }
                 }
             }

@@ -11,13 +11,12 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.compiler.builders.statement;
+package org.neo4j.ogm.cypher.compiler.builders.statement;
 
 import java.util.*;
 
-import org.neo4j.ogm.compiler.CypherStatementBuilder;
+import org.neo4j.ogm.cypher.compiler.CypherStatementBuilder;
 import org.neo4j.ogm.model.Edge;
-import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.StatementFactory;
 
@@ -25,45 +24,38 @@ import org.neo4j.ogm.request.StatementFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class ExistingRelationshipStatementBuilder implements CypherStatementBuilder {
+public class DeletedRelationshipEntityStatementBuilder implements CypherStatementBuilder {
 
     private final StatementFactory statementFactory;
 
-    private final Set<Edge> edges;
+    private final Set<Edge> deletedEdges;
 
-    public ExistingRelationshipStatementBuilder(Set<Edge> edges, StatementFactory statementFactory) {
-        this.edges = edges;
+    public DeletedRelationshipEntityStatementBuilder(Set<Edge> deletedEdges, StatementFactory statementFactory) {
+        this.deletedEdges = deletedEdges;
         this.statementFactory = statementFactory;
     }
 
-
     @Override
     public Statement build() {
+
         final Map<String, Object> parameters = new HashMap<>();
         final StringBuilder queryBuilder = new StringBuilder();
 
-        if (edges.size() > 0) {
-            //queryBuilder.append("START r=rels({relIds}) SET r += ({rows}[toString(id(r))]).props"); //TODO 2.3+
-            queryBuilder.append("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) ");
-            queryBuilder.append("RETURN ID(r) as ref, ID(r) as id, {type} as type");
-            List<Long> relIds = new ArrayList<>(edges.size());
+        if (deletedEdges != null && deletedEdges.size() > 0) {
+
+            queryBuilder.append("START r=rel({relIds}) DELETE r");
+
+            List<Long> relIds = new ArrayList<>(deletedEdges.size());
             List<Map> rows = new ArrayList<>();
-            for (Edge edge : edges) {
+            for (Edge edge : deletedEdges) {
                 Map<String, Object> rowMap = new HashMap<>();
                 rowMap.put("relId", edge.getId());
-                Map<String, Object> props = new HashMap<>();
-                for (Property property : edge.getPropertyList()) {
-                    props.put((String) property.getKey(), property.getValue());
-                }
-                rowMap.put("props", props);
                 rows.add(rowMap);
                 relIds.add(edge.getId());
             }
             parameters.put("rows", rows);
             parameters.put("relIds", relIds);
-            parameters.put("type", "rel");
         }
-
         return statementFactory.statement(queryBuilder.toString(), parameters);
     }
 }

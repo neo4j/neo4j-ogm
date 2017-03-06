@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.canonical.Mappable;
 import org.neo4j.ogm.model.Result;
@@ -34,11 +35,19 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * @author Luanne Misquitta
  */
 public class CanonicalTest extends MultiDriverTestClass {
+
+	private static SessionFactory sessionFactory;
+
 	private Session session;
 
+	@BeforeClass
+	public static void oneTimeSetUp() {
+		sessionFactory = new SessionFactory("org.neo4j.ogm.domain.canonical");
+	}
+
 	@Before
-	public void init() throws IOException {
-		session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.canonical").openSession();
+	public void init() {
+		session = sessionFactory.openSession();
 	}
 
 	/**

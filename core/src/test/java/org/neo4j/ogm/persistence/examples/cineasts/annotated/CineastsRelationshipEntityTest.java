@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -49,12 +50,20 @@ import org.neo4j.ogm.testutil.TestUtils;
  */
 public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
+    }
+
     @Before
-    public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.annotated").openSession();
+    public void init() {
+        session = sessionFactory.openSession();
         session.purgeDatabase();
+
     }
 
     @Test

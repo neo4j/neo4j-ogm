@@ -20,6 +20,7 @@ import java.math.RoundingMode;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.food.entities.notScanned.Pizza;
 import org.neo4j.ogm.domain.food.entities.scanned.Risk;
@@ -37,11 +38,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EnumsNotScannedTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.food.entities.notScanned");
+    }
+
     @Before
-    public void init()  {
-        session =  new SessionFactory(baseConfiguration,"org.neo4j.ogm.domain.food.entities.notScanned").openSession();
+    public void init() {
+        session = sessionFactory.openSession();
     }
 
     @After

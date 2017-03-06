@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.blog.Author;
 import org.neo4j.ogm.domain.blog.Comment;
@@ -34,11 +35,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class BlogTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.blog");
+    }
+
     @Before
-    public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.blog").openSession();
+    public void init() {
+        session = sessionFactory.openSession();
     }
 
     @Test

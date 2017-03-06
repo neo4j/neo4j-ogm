@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.domain.social.Individual;
@@ -39,12 +40,17 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.social");
+    private static SessionFactory sessionFactory;
 
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+    }
+
     @Before
-    public void init() throws IOException {
+    public void init() {
         session = sessionFactory.openSession();
     }
 

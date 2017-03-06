@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.food.entities.scanned.Pizza;
 import org.neo4j.ogm.domain.food.entities.scanned.Risk;
@@ -35,11 +36,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EnumsScannedTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.food.entities.scanned");
+    }
+
     @Before
-    public void init()  {
-        session =  new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.food.entities.scanned").openSession();
+    public void init() {
+        session = sessionFactory.openSession();
     }
 
     @After

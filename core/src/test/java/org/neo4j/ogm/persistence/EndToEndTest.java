@@ -38,16 +38,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EndToEndTest extends MultiDriverTestClass {
 
-    private static Session session;
+    private static SessionFactory sessionFactory;
+
+    private Session session;
 
     @BeforeClass
-    public static void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.bike");
-        session = sessionFactory.openSession();
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(baseConfiguration,"org.neo4j.ogm.domain.bike");
     }
 
     @Before
-    public void setup() {
+    public void init() {
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 

@@ -14,6 +14,7 @@
 package org.neo4j.ogm.persistence.examples.cineasts.partial;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
@@ -35,13 +36,20 @@ import static org.junit.Assert.assertEquals;
  */
 public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.minimum");
+    }
 
     @Before
     public void init() {
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.cineasts.minimum");
         session = sessionFactory.openSession();
         session.purgeDatabase();
+
     }
 
     @Test

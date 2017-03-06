@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.domain.knowledge;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -24,7 +26,19 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class KnowledgeTest extends MultiDriverTestClass {
 
-    private SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.knowledge");
+    private static SessionFactory sessionFactory;
+
+    private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.knowledge");
+    }
+
+    @Before
+    public void init() {
+        session = sessionFactory.openSession();
+    }
 
     /**
      * @see 351
@@ -37,8 +51,6 @@ public class KnowledgeTest extends MultiDriverTestClass {
 
         Language java = new Language("Java");
         Language scala = new Language("Scala");
-
-        Session session = sessionFactory.openSession();
 
         john.knows(mary);
         john.knows(java);

@@ -14,6 +14,7 @@
 package org.neo4j.ogm.persistence.examples.election;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.election.Candidate;
 import org.neo4j.ogm.domain.election.Voter;
@@ -38,12 +39,17 @@ import static org.junit.Assert.*;
  */
 public class ElectionTest extends MultiDriverTestClass {
 
-    private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.election");
+    private static SessionFactory sessionFactory;
 
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.election");
+    }
+
     @Before
-    public void init() throws IOException {
+    public void init() {
         session = sessionFactory.openSession();
     }
 

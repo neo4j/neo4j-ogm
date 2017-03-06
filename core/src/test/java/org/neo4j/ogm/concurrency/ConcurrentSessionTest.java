@@ -2,10 +2,13 @@ package org.neo4j.ogm.concurrency;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.concurrency.model.World;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -19,10 +22,21 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class ConcurrentSessionTest extends MultiDriverTestClass {
 
-    private final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.concurrency.model");
-    private final Session session = sessionFactory.openSession();
+    private static SessionFactory sessionFactory;
+
+    private Session session;
 
     boolean failed = false;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.concurrency.model");
+    }
+
+    @Before
+    public void init() {
+        session = sessionFactory.openSession();
+    }
 
     @Test
     public void multipleThreadsResultsGetMixedUp() throws Exception {

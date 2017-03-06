@@ -15,6 +15,7 @@ package org.neo4j.ogm.persistence.relationships.transitive.abb;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
@@ -32,11 +33,16 @@ import static org.junit.Assert.assertEquals;
  */
 public class ABBTest extends RelationshipTrait {
 
-    private static SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships.transitive.abb");
+    private static SessionFactory sessionFactory;
     private Session session;
     private A a;
     private B b1, b2;
     private R r1, r2;
+
+    @BeforeClass
+    public static void oneTimeSetup() {
+        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships.transitive.abb");
+    }
 
     @Before
     public void init() throws IOException {

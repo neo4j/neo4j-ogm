@@ -20,7 +20,7 @@ import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;

@@ -17,9 +17,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.*;
 
-import org.neo4j.ogm.metadata.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
-import org.neo4j.ogm.metadata.classloader.ResourceResolver;
+import org.neo4j.ogm.metadata.bytecode.ClassLoaderResolver;
+import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
+import org.neo4j.ogm.metadata.bytecode.ResourceResolver;
 import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,7 +160,7 @@ public abstract class ClassUtils {
      * Uses the ResourceService to resolve classpath URLs. The "file" and "jar" protocols are
      * supported by default. Other protocols, for example "vfs", can be handled by writing
      * an appropriate resolver and registering it with the ServiceLoader mechanism
-     * as an instance of {@link org.neo4j.ogm.metadata.classloader.ResourceResolver}
+     * as an instance of {@link org.neo4j.ogm.metadata.bytecode.ResourceResolver}
      *
      * @param classPaths classpaths to be included
      * @return {@link List} of unique {@link File} objects on the classpath

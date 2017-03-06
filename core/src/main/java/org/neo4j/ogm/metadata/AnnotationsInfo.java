@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,27 +22,14 @@ import java.util.Map;
  */
 public class AnnotationsInfo {
 
-    private final Map<String, AnnotationInfo> classAnnotations = new HashMap<>();
+    private final Map<String, AnnotationInfo> classAnnotations;
 
-    AnnotationsInfo() {}
+    public AnnotationsInfo() {
+        this.classAnnotations = new HashMap<>();
+    }
 
-    public AnnotationsInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
-        int attributesCount = dataInputStream.readUnsignedShort();
-        for (int i = 0; i < attributesCount; i++) {
-            String attributeName = constantPool.readString(dataInputStream.readUnsignedShort());
-            int attributeLength = dataInputStream.readInt();
-            if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-                int annotationCount = dataInputStream.readUnsignedShort();
-                for (int m = 0; m < annotationCount; m++) {
-                    AnnotationInfo info = new AnnotationInfo(dataInputStream, constantPool);
-                    // todo: maybe register just the annotations we're interested in.
-                    classAnnotations.put(info.getName(), info);
-                }
-            }
-            else {
-                dataInputStream.skipBytes(attributeLength);
-            }
-        }
+    public AnnotationsInfo(Map<String, AnnotationInfo> classAnnotations) {
+        this.classAnnotations = new HashMap<>(classAnnotations);
     }
 
     public Collection<AnnotationInfo> list() {
@@ -63,13 +48,9 @@ public class AnnotationsInfo {
         return classAnnotations.get(annotationNameClass.getCanonicalName());
     }
 
-    void add(AnnotationInfo annotationInfo) {
-        classAnnotations.put(annotationInfo.getName(), annotationInfo);
-    }
-
     public void append(AnnotationsInfo annotationsInfo) {
         for (AnnotationInfo annotationInfo : annotationsInfo.list()) {
-            add(annotationInfo);
+            classAnnotations.put(annotationInfo.getName(), annotationInfo);
         }
     }
 }

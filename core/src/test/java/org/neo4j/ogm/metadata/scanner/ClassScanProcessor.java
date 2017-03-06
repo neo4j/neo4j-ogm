@@ -15,6 +15,7 @@ package org.neo4j.ogm.metadata.scanner;
 
 import org.neo4j.ogm.metadata.ClassFileProcessor;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.bytecode.ClassInfoBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class ClassScanProcessor implements ClassFileProcessor {
 
     @Override
     public void process(InputStream inputStream) throws IOException {
-        ClassInfo classInfo = new ClassInfo(inputStream);
+        ClassInfo classInfo = ClassInfoBuilder.create(inputStream);
         domainClassInfos.add(classInfo);
         LOGGER.debug("ClassScanProcessor added: {}", classInfo.name());
     }

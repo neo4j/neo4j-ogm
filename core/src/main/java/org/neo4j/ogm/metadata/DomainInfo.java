@@ -21,7 +21,8 @@ import java.util.*;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.classloader.ClassPathScanner;
+import org.neo4j.ogm.metadata.bytecode.ClassInfoBuilder;
+import org.neo4j.ogm.metadata.bytecode.ClassPathScanner;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
@@ -238,7 +239,7 @@ public class DomainInfo implements ClassFileProcessor {
     @Override
     public void process(final InputStream inputStream) throws IOException {
 
-        ClassInfo classInfo = new ClassInfo(inputStream);
+        ClassInfo classInfo = ClassInfoBuilder.create(inputStream);
 
         String className = classInfo.name();
         String superclassName = classInfo.superclassName();

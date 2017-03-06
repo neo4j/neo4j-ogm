@@ -11,26 +11,24 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.bytecode;
+
+import java.io.File;
+import java.net.URL;
 
 /**
- * @author Vince Bickers
+ * @author vince
  */
-interface ConstantPoolTags {
-
-    int UTF_8          = 1;
-    int INTEGER        = 3;
-    int FLOAT          = 4;
-    int LONG           = 5;
-    int DOUBLE         = 6;
-    int CLASS          = 7;
-    int STRING         = 8;
-    int FIELD_REF      = 9;
-    int METHOD_REF     =10;
-    int INTERFACE_REF  =11;
-    int NAME_AND_TYPE  =12;
-    int METHOD_HANDLE  =15;
-    int METHOD_TYPE    =16;
-    int INVOKE_DYNAMIC =18;
-
+public interface ResourceResolver
+{
+    /**
+     * If a ResourceResolver understands the protocol of a specified resource
+     * it should resolve the resource as a File, and return it.
+     *
+     * If it is unable to convert the resource, it should return null.
+     *
+     * @param resource the URL to be converted
+     * @return the resource as a File
+     */
+    File resolve( URL resource ) throws Exception;
 }

@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.neo4j.ogm.metadata.classloader.ClassLoaderResolver;
-import org.neo4j.ogm.metadata.classloader.ClassPathScanner;
+import org.neo4j.ogm.metadata.bytecode.ClassLoaderResolver;
+import org.neo4j.ogm.metadata.bytecode.ClassPathScanner;
 
 /**
  * For the purpose of testing classpath scanning within jars and to bypass the classload mechanism in tests.

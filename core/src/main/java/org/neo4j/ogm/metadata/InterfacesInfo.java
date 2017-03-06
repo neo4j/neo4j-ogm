@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,17 +22,16 @@ import java.util.Map;
  */
 public class InterfacesInfo {
 
-    private final Map<String, InterfaceInfo> interfaceMap = new HashMap<>();
+    private final Map<String, InterfaceInfo> interfaceMap;
 
-    InterfacesInfo() {}
-
-    public InterfacesInfo(DataInputStream dataInputStream, ConstantPool constantPool) throws IOException {
-        int interfaceCount = dataInputStream.readUnsignedShort();
-        for (int i = 0; i < interfaceCount; i++) {
-            String interfaceName = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-            interfaceMap.put(interfaceName, new InterfaceInfo(interfaceName));
-        }
+    public InterfacesInfo() {
+        this.interfaceMap = new HashMap<>();
     }
+
+    public InterfacesInfo(Map<String, InterfaceInfo> interfaceMap) {
+        this.interfaceMap = new HashMap(interfaceMap);
+    }
+
 
     public Collection<InterfaceInfo> list() {
         return interfaceMap.values();

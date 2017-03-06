@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.context.register.EntityRegister;
 import org.neo4j.ogm.context.register.LabelHistoryRegister;
 import org.neo4j.ogm.context.register.TypeRegister;

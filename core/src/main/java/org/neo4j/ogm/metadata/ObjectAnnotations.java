@@ -14,7 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
+import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.*;
 
 import java.util.HashMap;
@@ -25,7 +25,6 @@ import java.util.Map;
  */
 public class ObjectAnnotations {
 
-    private String objectName; // fully qualified class, method or field name.
     private final Map<String, AnnotationInfo> annotations = new HashMap<>();
 
     public void put(String key, AnnotationInfo value) {

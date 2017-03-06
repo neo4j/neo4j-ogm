@@ -13,20 +13,14 @@
 
 package org.neo4j.ogm.metadata;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.neo4j.ogm.annotation.*;
-import org.neo4j.ogm.metadata.classloader.MetaDataClassLoader;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
@@ -53,14 +47,10 @@ import org.slf4j.LoggerFactory;
 public class ClassInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
+
     private final List<ClassInfo> directSubclasses = new ArrayList<>();
     private final List<ClassInfo> directInterfaces = new ArrayList<>();
     private final List<ClassInfo> directImplementingClasses = new ArrayList<>();
-    /**
-     * ISSUE-180: synchronized can be used instead of this lock but right now this mechanism is here to see if
-     * ConcurrentModificationException stops occurring.
-     */
-    private final Lock lock = new ReentrantLock();
     private String className;
     private String directSuperclassName;
     private String neo4jName;
@@ -84,41 +74,6 @@ public class ClassInfo {
     private volatile boolean labelFieldMapped = false;
     private boolean primaryIndexFieldChecked = false;
 
-    // todo move this to a factory class
-    public ClassInfo(InputStream inputStream) throws IOException {
-
-        DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(inputStream, 1024));
-
-        // Magic
-        if (dataInputStream.readInt() != 0xCAFEBABE) {
-            return;
-        }
-
-        dataInputStream.readUnsignedShort();    //minor version
-        dataInputStream.readUnsignedShort();    // major version
-
-        ConstantPool constantPool = new ConstantPool(dataInputStream);
-
-        // Access flags
-        int flags = dataInputStream.readUnsignedShort();
-
-        isInterface = (flags & 0x0200) != 0;
-        isAbstract = (flags & 0x0400) != 0;
-        isEnum = (flags & 0x4000) != 0;
-
-        className = constantPool.lookup(dataInputStream.readUnsignedShort()).replace('/', '.');
-        String sce = constantPool.lookup(dataInputStream.readUnsignedShort());
-        if (sce != null) {
-            directSuperclassName = sce.replace('/', '.');
-        }
-        interfacesInfo = new InterfacesInfo(dataInputStream, constantPool);
-        fieldsInfo = new FieldsInfo(dataInputStream, constantPool);
-        methodsInfo = new MethodsInfo(className, dataInputStream, constantPool);
-        annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
-        new ClassValidator(this).validate();
-        primaryIndexField = primaryIndexField();
-    }
-
     /**
      * This class was referenced as a superclass of the given subclass.
      *
@@ -129,6 +84,32 @@ public class ClassInfo {
         this.className = name;
         this.hydrated = false;
         addSubclass(subclass);
+    }
+
+    public ClassInfo(boolean isAbstract, boolean isInterface, boolean isEnum, String className, String directSuperclassName, InterfacesInfo interfacesInfo, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
+        this.isAbstract = isAbstract;
+        this.isInterface = isInterface;
+        this.isEnum = isEnum;
+        this.className = className;
+        this.directSuperclassName = directSuperclassName;
+        this.interfacesInfo = interfacesInfo;
+        this.annotationsInfo = annotationsInfo;
+        this.fieldsInfo = fieldsInfo;
+        this.methodsInfo = methodsInfo;
+
+        if (isRelationshipEntity() && labelFieldOrNull() != null) {
+            throw new MappingException(String.format("'%s' is a relationship entity. The @Labels annotation can't be applied to " +
+                    "relationship entities.", name()));
+        }
+
+        for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+            if (fieldInfo.hasAnnotation(Property.class) && fieldInfo.hasCompositeConverter()) {
+                throw new MappingException(String.format("'%s' has both @Convert and @Property annotations applied to the field '%s'",
+                        name(), fieldInfo.getName()));
+            }
+        }
+        primaryIndexField = primaryIndexField();
+
     }
 
     /**
@@ -212,23 +193,18 @@ public class ClassInfo {
 
     public String neo4jName() {
         if (neo4jName == null) {
-            try {
-                lock.lock();
-                if (neo4jName == null) {
-                    AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.class);
-                    if (annotationInfo != null) {
-                        neo4jName = annotationInfo.get(NodeEntity.LABEL, simpleName());
-                        return neo4jName;
-                    }
-                    annotationInfo = annotationsInfo.get(RelationshipEntity.class);
-                    if (annotationInfo != null) {
-                        neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
-                        return neo4jName;
-                    }
-                    neo4jName = simpleName();
+            if (neo4jName == null) {
+                AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.class);
+                if (annotationInfo != null) {
+                    neo4jName = annotationInfo.get(NodeEntity.LABEL, simpleName());
+                    return neo4jName;
                 }
-            } finally {
-                lock.unlock();
+                annotationInfo = annotationsInfo.get(RelationshipEntity.class);
+                if (annotationInfo != null) {
+                    neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
+                    return neo4jName;
+                }
+                neo4jName = simpleName();
             }
         }
         return neo4jName;
@@ -310,31 +286,26 @@ public class ClassInfo {
         if (identityField != null) {
             return identityField;
         }
-        try {
-            lock.lock();
-            if (identityField == null) {
-                for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.class);
-                    if (annotationInfo != null) {
-                        if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
-                            identityField = fieldInfo;
-                            return fieldInfo;
-                        }
-                    }
-                }
-                FieldInfo fieldInfo = fieldsInfo().get("id");
-                if (fieldInfo != null) {
+        if (identityField == null) {
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.class);
+                if (annotationInfo != null) {
                     if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
                         identityField = fieldInfo;
                         return fieldInfo;
                     }
                 }
-                throw new MappingException("No identity field found for class: " + this.className);
-            } else {
-                return identityField;
             }
-        } finally {
-            lock.unlock();
+            FieldInfo fieldInfo = fieldsInfo().get("id");
+            if (fieldInfo != null) {
+                if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
+                    identityField = fieldInfo;
+                    return fieldInfo;
+                }
+            }
+            throw new MappingException("No identity field found for class: " + this.className);
+        } else {
+            return identityField;
         }
     }
 
@@ -347,26 +318,21 @@ public class ClassInfo {
         if (labelFieldMapped) {
             return labelField;
         }
-        try {
-            lock.lock();
-            if (!labelFieldMapped) {
-                for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    if (fieldInfo.isLabelField()) {
-                        if (!fieldInfo.isIterable()) {
-                            throw new MappingException(String.format(
-                                    "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
-                                            "type of collection.", fieldInfo.getName(), this.name()));
-                        }
-                        labelFieldMapped = true;
-                        labelField = fieldInfo;
-                        return labelField;
+        if (!labelFieldMapped) {
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                if (fieldInfo.isLabelField()) {
+                    if (!fieldInfo.isIterable()) {
+                        throw new MappingException(String.format(
+                                "Field '%s' in class '%s' includes the @Labels annotation, however this field is not a " +
+                                        "type of collection.", fieldInfo.getName(), this.name()));
                     }
+                    labelFieldMapped = true;
+                    labelField = fieldInfo;
+                    return labelField;
                 }
-            } else {
-                return labelField;
             }
-        } finally {
-            lock.unlock();
+        } else {
+            return labelField;
         }
         return null;
     }
@@ -388,26 +354,21 @@ public class ClassInfo {
      */
     public Collection<FieldInfo> propertyFields() {
         if (fieldInfos == null) {
-            try {
-                lock.lock();
-                if (fieldInfos == null) {
-                    FieldInfo identityField = identityFieldOrNull();
-                    fieldInfos = new HashSet<>();
-                    for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                        if (fieldInfo != identityField && !fieldInfo.isLabelField()) {
-                            AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
-                            if (annotationInfo == null) {
-                                if (fieldInfo.persistableAsProperty()) {
-                                    fieldInfos.add(fieldInfo);
-                                }
-                            } else {
+            if (fieldInfos == null) {
+                FieldInfo identityField = identityFieldOrNull();
+                fieldInfos = new HashSet<>();
+                for (FieldInfo fieldInfo : fieldsInfo().fields()) {
+                    if (fieldInfo != identityField && !fieldInfo.isLabelField()) {
+                        AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
+                        if (annotationInfo == null) {
+                            if (fieldInfo.persistableAsProperty()) {
                                 fieldInfos.add(fieldInfo);
                             }
+                        } else {
+                            fieldInfos.add(fieldInfo);
                         }
                     }
                 }
-            } finally {
-                lock.unlock();
             }
         }
         return fieldInfos;
@@ -423,18 +384,13 @@ public class ClassInfo {
     public FieldInfo propertyField(String propertyName) {
         if (propertyFields == null) {
 
-            try {
-                lock.lock();
-                if (propertyFields == null) {
-                    Collection<FieldInfo> fieldInfos = propertyFields();
-                    propertyFields = new HashMap<>(fieldInfos.size());
-                    for (FieldInfo fieldInfo : fieldInfos) {
+            if (propertyFields == null) {
+                Collection<FieldInfo> fieldInfos = propertyFields();
+                propertyFields = new HashMap<>(fieldInfos.size());
+                for (FieldInfo fieldInfo : fieldInfos) {
 
-                        propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
-                    }
+                    propertyFields.put(fieldInfo.property().toLowerCase(), fieldInfo);
                 }
-            } finally {
-                lock.unlock();
             }
         }
         return propertyFields.get(propertyName.toLowerCase());

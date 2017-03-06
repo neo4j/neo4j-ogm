@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata;
+package org.neo4j.ogm.metadata.bytecode;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 /**
  * @author Vince Bickers
  */
-class ConstantPool {
+public class ConstantPool {
 
     private final Object[] pool;
 

@@ -27,14 +27,6 @@ public class TestMetaDataTypeResolution {
 
 	private MetaData metaData = new MetaData("org.neo4j.ogm.metadata.types");
 
-	protected void checkMethod(String name, String expectedDescriptor, Class expectedPersistableType) {
-		ClassInfo classInfo = metaData.classInfo("POJO");
-		MethodInfo methodInfo = classInfo.methodsInfo().get(name);
-		String methodTypeDescriptor = methodInfo.getTypeDescriptor();
-		Assert.assertEquals(expectedDescriptor, methodTypeDescriptor);
-		Class clazz = ClassUtils.getType(methodTypeDescriptor);
-		Assert.assertEquals(expectedPersistableType, clazz);
-	}
 
 	protected void checkField(String name, String expectedDescriptor, Class expectedPersistableType) {
 		ClassInfo classInfo = metaData.classInfo("POJO");

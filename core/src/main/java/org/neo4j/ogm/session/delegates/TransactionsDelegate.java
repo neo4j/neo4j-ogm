@@ -12,6 +12,7 @@
  */
 package org.neo4j.ogm.session.delegates;
 
+import org.neo4j.ogm.session.GraphCallback;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.transaction.Transaction;
 
@@ -46,6 +47,12 @@ public class TransactionsDelegate {
 		session.debug("Transaction, tx id: " + tx);
 		return tx;
 	}
+
+	@Deprecated
+	public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+		return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
+	}
+
 
 	public Transaction getTransaction() {
 		return session.transactionManager().getCurrentTransaction();

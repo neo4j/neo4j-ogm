@@ -44,13 +44,6 @@ public class Filter {
     private String propertyName;
 
     /**
-     * @deprecated as of 2.0.4 This is a SDN only concern and has been moved to that project.
-     * The position of the property as specified in a derived finder method
-     */
-    @Deprecated
-    private Integer propertyPosition;
-
-    /**
      * The comparison operator to use in the property filter
      */
 	private ComparisonOperator comparisonOperator;
@@ -150,28 +143,9 @@ public class Filter {
         return propertyName;
     }
 
-    /**
-     * @deprecated use {@link FilterFunction#getValue()} instead.
-     */
     @Deprecated
-    public Object getPropertyValue() {
-        return this.function.getValue();
-    }
-
-    /**
-     * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
-     */
-    @Deprecated
-    public Integer getPropertyPosition() {
-        return propertyPosition;
-    }
-
-    /**
-     * @deprecated as of 2.0.4. This is a SDN only concern and has been moved to that project.
-     */
-    @Deprecated
-    public void setPropertyPosition(Integer propertyPosition) {
-        this.propertyPosition = propertyPosition;
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
     }
 
     public ComparisonOperator getComparisonOperator() {
@@ -200,7 +174,6 @@ public class Filter {
     public void setNegated(boolean negated) {
         this.negated = negated;
     }
-
 
     public Class<?> getOwnerEntityType() {
         return ownerEntityType;

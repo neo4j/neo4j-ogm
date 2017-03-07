@@ -464,6 +464,12 @@ public class Neo4jSession implements Session {
     }
 
     @Override
+    @Deprecated
+    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+        return transactionsDelegate.doInTransaction(graphCallback);
+    }
+
+    @Override
     public Transaction getTransaction() {
         return transactionsDelegate.getTransaction();
     }

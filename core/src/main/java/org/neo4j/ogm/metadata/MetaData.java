@@ -25,6 +25,7 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
+import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -281,4 +282,9 @@ public class MetaData {
     public List<ClassInfo> getImplementingClassInfos(String interfaceName) {
         return domainInfo.getClassInfos(interfaceName);
     }
+
+    public void registerConversionCallback(ConversionCallback conversionCallback) {
+        this.domainInfo.registerConversionCallback(conversionCallback);
+    }
+
 }

@@ -54,29 +54,23 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
 
         for (int i = 0; i < iterations; i++) {
 
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    World world = session.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 1")).iterator().next();
+            service.execute(() -> {
+                World world = session.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 1")).iterator().next();
 
-                    if (!"world 1".equals(world.getName())) {
-                        failed = true;
-                    }
-                    countDownLatch.countDown();
+                if (!"world 1".equals(world.getName())) {
+                    failed = true;
                 }
+                countDownLatch.countDown();
             });
 
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
+            service.execute(() -> {
 
-                    World world = session.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 2")).iterator().next();
+                World world = session.loadAll(World.class, new Filter("name", ComparisonOperator.EQUALS, "world 2")).iterator().next();
 
-                    if (!"world 2".equals(world.getName())) {
-                        failed = true;
-                    }
-                    countDownLatch.countDown();
+                if (!"world 2".equals(world.getName())) {
+                    failed = true;
                 }
+                countDownLatch.countDown();
             });
         }
         countDownLatch.await();

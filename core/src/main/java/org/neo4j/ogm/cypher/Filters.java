@@ -24,10 +24,9 @@ import org.neo4j.ogm.cypher.function.FilterFunction;
  */
 public class Filters implements Iterable<Filter> {
 
-    private List<Filter> filters;
+    private List<Filter> filters = new ArrayList<>();
 
     public Filters() {
-        filters = new ArrayList<>();
     }
 
     public Filters(Filter... filters) {

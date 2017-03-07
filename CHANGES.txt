@@ -1,6 +1,7 @@
 2.1.2
 --------------
 o Fixes issue where the X-Write header is wrong on read-only transactions first request. Fixes #323.
+o Primary index annotations are picked up on the whole class class hierarchy, not only on leaf class. Fixes #332.
 
 
 2.1.1

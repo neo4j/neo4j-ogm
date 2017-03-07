@@ -3,6 +3,7 @@ package org.neo4j.ogm.index;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.domain.cineasts.partial.Actor;
 import org.neo4j.ogm.index.domain.valid.Invoice;
@@ -13,6 +14,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Mark Angrish
+ * @author Nicolas Mervaillie
  */
 public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
@@ -28,6 +30,22 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final Session session2 = sessionFactory.openSession();
 
         final User retrievedUser1 = session2.load(User.class, "login1");
+        assertNotNull(retrievedUser1);
+        assertEquals(user1.getLogin(), retrievedUser1.getLogin());
+    }
+
+    @Test
+    public void loadUsesPrimaryIndexWhenPresentOnSuperclass() {
+
+        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
+        final Session session = sessionFactory.openSession();
+
+        ExtendedUser user1 = new ExtendedUser("login2", "Name 2", "password");
+        session.save(user1);
+
+        final Session session2 = sessionFactory.openSession();
+
+        final User retrievedUser1 = session2.load(ExtendedUser.class, "login2");
         assertNotNull(retrievedUser1);
         assertEquals(user1.getLogin(), retrievedUser1.getLogin());
     }

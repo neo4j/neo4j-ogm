@@ -45,10 +45,6 @@ public class DomainInfo implements ClassFileProcessor {
     private static final String bigIntegerSignature = "java/math/BigInteger";
     private static final String byteArraySignature = "[B";
     private static final String byteArrayWrapperSignature = "[Ljava/lang/Byte";
-    private static final String arraySignature = "[L";
-    private static final String collectionSignature = "L";
-
-    private final List<String> classPaths = new ArrayList<>();
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
@@ -58,19 +54,7 @@ public class DomainInfo implements ClassFileProcessor {
 
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
-    public DomainInfo(String... packages) {
-        long startTime = System.nanoTime();
-        load(packages);
 
-        LOGGER.info("{} classes loaded in {} nanoseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
-    }
-
-    public DomainInfo(Class... classes) {
-        long startTime = System.nanoTime();
-        load(classes);
-
-        LOGGER.info("{} classes loaded in {} nanoseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
-    }
 
     private void buildAnnotationNameToClassInfoMap() {
 
@@ -267,42 +251,6 @@ public class DomainInfo implements ClassFileProcessor {
                 enumTypes.add(thisClassInfo.getUnderlyingClass());
             }
         }
-    }
-
-    private void load(Class... classes) {
-        classPaths.clear();
-        classNameToClassInfo.clear();
-        annotationNameToClassInfo.clear();
-        interfaceNameToClassInfo.clear();
-
-        for (Class clazz : classes) {
-            // This can be done as all OGM managed classes must have different "simple names"'s.
-            final URL resource = clazz.getResource(clazz.getSimpleName() + ".class");
-
-            try (InputStream inputStream = resource.openStream()) {
-                process(inputStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private void load(String... packages) {
-        classPaths.clear();
-        classNameToClassInfo.clear();
-        annotationNameToClassInfo.clear();
-        interfaceNameToClassInfo.clear();
-
-        for (String packageName : packages) {
-            String path = packageName.replace(".", "/");
-            // ensure classpath entries are complete, to ensure we don't accidentally admit partial matches.
-            if (!path.endsWith("/")) {
-                path = path.concat("/");
-            }
-            classPaths.add(path);
-        }
-
-        new ClassPathScanner().scan(classPaths, this);
     }
 
     public ClassInfo getClass(String fqn) {

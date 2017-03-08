@@ -25,42 +25,42 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
 	@Test
 	public void testUnboundedGeneric() {
-		checkField("genericObject", "Ljava/lang/Object;", Object.class);
+		checkField("genericObject", "java.lang.Object", Object.class);
 	}
 
 	@Test
 	public void testGenericComparable() { // from java.lang
-		checkField("genericComparable", "Ljava/lang/Comparable;", Comparable.class);
+		checkField("genericComparable", "java.lang.Comparable", Comparable.class);
 	}
 
 	@Test
 	public void testGenericSerializable() { // from java.io
-		checkField("genericSerializable", "Ljava/io/Serializable;", Serializable.class);
+		checkField("genericSerializable", "java.io.Serializable", Serializable.class);
 	}
 
 	@Test
 	public void testGenericSelfReference() {
-		checkField("next", "Lorg/neo4j/ogm/metadata/types/POJO;", POJO.class);
+		checkField("next", "org.neo4j.ogm.metadata.typesPOJO", POJO.class);
 	}
 
 	@Test // List<S>
 	public void testCollectionWithUnboundGenericParameter() {
-		checkField("elements", "TS;", Object.class);
+		checkField("elements", "TS", Object.class);
 	}
 
 	@Test // List<POJO<S, T, U>> neighbours;
 	public void testCollectionWithConcreteParameterizedType() {
-		checkField("neighbours", "Lorg/neo4j/ogm/metadata/types/POJO<TS;TT;TU;", POJO.class);
+		checkField("neighbours", "org.neo4j.ogm.metadata.types.POJO<TS;TT;TU", POJO.class);
 	}
 
 	@Test // List<? extends Integer> superIntegers
 	public void testCollectionWithExtendedConcreteParameterizedType() {
-		checkField("superIntegers", "+Ljava/lang/Integer;", Object.class);
+		checkField("superIntegers", "+java.lang.Integer", Object.class);
 	}
 
 	@Test    // List<? super Integer> subIntegers;
 	public void testCollectionWithReducedConcreteParameterizedType() {
-		checkField("subIntegers", "-Ljava/lang/Integer;", Object.class);
+		checkField("subIntegers", "-java.lang.Integer", Object.class);
 	}
 
 
@@ -91,7 +91,7 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
 	@Test    // Iterable<Map<Class<S>, POJO<S, T, U>>> iterable;
 	public void testIterableOfMapOfParameterizedClasses() {
-		checkField("iterable", "Ljava/util/Map<Ljava/lang/Class<TS;", Map.class);
+		checkField("iterable", "java.util.Map<java.lang.Class<TS;", Map.class);
 	}
 
 

@@ -23,6 +23,7 @@ import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,7 +291,7 @@ public class ClassInfo {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.class);
                 if (annotationInfo != null) {
-                    if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
+                    if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
                         identityField = fieldInfo;
                         return fieldInfo;
                     }
@@ -298,7 +299,7 @@ public class ClassInfo {
             }
             FieldInfo fieldInfo = fieldsInfo().get("id");
             if (fieldInfo != null) {
-                if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
+                if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
                     identityField = fieldInfo;
                     return fieldInfo;
                 }
@@ -515,7 +516,7 @@ public class ClassInfo {
             return field;
         }
         try {
-            field = MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
+            field = ReflectionUtils.forName(name()).getDeclaredField(fieldInfo.getName());
             fieldInfoFields.put(fieldInfo, field);
             return field;
         } catch (NoSuchFieldException e) {
@@ -526,8 +527,6 @@ public class ClassInfo {
             } else {
                 throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -548,7 +547,7 @@ public class ClassInfo {
      * @return A {@link List} of {@link FieldInfo} objects that are of the given type, never <code>null</code>
      */
     public List<FieldInfo> findFields(Class<?> fieldType) {
-        String fieldSignature = "L" + fieldType.getName().replace(".", "/") + ";";
+        String fieldSignature = fieldType.getName();
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo.getTypeDescriptor().equals(fieldSignature)) {
@@ -607,8 +606,8 @@ public class ClassInfo {
             return iterableFieldsForType.get(iteratedType);
         }
         List<FieldInfo> fieldInfos = new ArrayList<>();
-        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
-        String arrayOfTypeSignature = "[" + typeSignature;
+        String typeSignature = iteratedType.getName();
+        String arrayOfTypeSignature = typeSignature + "[]";
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 String fieldType = fieldInfo.getTypeDescriptor();
@@ -692,12 +691,7 @@ public class ClassInfo {
      * @return the underlying class or null if it cannot be determined
      */
     public Class getUnderlyingClass() {
-        try {
-            return MetaDataClassLoader.loadClass(className);//Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("Could not get underlying class for {}", className);
-        }
-        return null;
+        return ReflectionUtils.forName(className);//Class.forName(className);
     }
 
     /**
@@ -753,12 +747,7 @@ public class ClassInfo {
         Map<String, FieldInfo> indexes = new HashMap<>();
 
         // No way to get declared fields from current byte code impl. Using reflection instead.
-        Field[] declaredFields;
-        try {
-            declaredFields = MetaDataClassLoader.loadClass(className).getDeclaredFields();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not reflectively read declared fields", e);
-        }
+        Field[] declaredFields = ReflectionUtils.forName(className).getDeclaredFields();
 
         final String indexAnnotation = Index.class.getCanonicalName();
 

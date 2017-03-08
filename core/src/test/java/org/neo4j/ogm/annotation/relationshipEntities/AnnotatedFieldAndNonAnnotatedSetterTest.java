@@ -13,9 +13,7 @@
 
 package org.neo4j.ogm.annotation.relationshipEntities;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,19 +24,21 @@ import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.DomainInfo;
+import org.neo4j.ogm.metadata.reflections.DomainInfoBuilder;
 
 /**
  * @author Luanne Misquitta
  * @author Vince Bickers
  */
 public class AnnotatedFieldAndNonAnnotatedSetterTest {
+
     private EntityAccessManager entityAccessStrategy = new EntityAccessManager();
-    private DomainInfo domainInfo = new DomainInfo("org.neo4j.ogm.annotation.relationshipEntities");
+    private DomainInfo domainInfo = DomainInfoBuilder.create("org.neo4j.ogm.annotation.relationshipEntities");
 
 
     @Test
@@ -61,6 +61,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
 
     @RelationshipEntity(type = "REL_ENTITY_TYPE")
     public static class RelEntity {
+
         Long id;
         @StartNode
         Start start;
@@ -88,6 +89,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
     }
 
     public static class Start {
+
         Long id;
         String name;
         @Relationship(type = "REL_ENTITY_TYPE", direction = "OUTGOING")
@@ -98,6 +100,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
     }
 
     public static class End {
+
         Long id;
         String name;
         @Relationship(type = "REL_ENTITY_TYPE", direction = "INCOMING")

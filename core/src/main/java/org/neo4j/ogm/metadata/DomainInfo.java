@@ -40,21 +40,19 @@ public class DomainInfo implements ClassFileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
 
-    private static final String dateSignature = "java/util/Date";
-    private static final String bigDecimalSignature = "java/math/BigDecimal";
-    private static final String bigIntegerSignature = "java/math/BigInteger";
-    private static final String byteArraySignature = "[B";
-    private static final String byteArrayWrapperSignature = "[Ljava/lang/Byte";
+    private static final String dateSignature = "java.util.Date";
+    private static final String bigDecimalSignature = "java.math.BigDecimal";
+    private static final String bigIntegerSignature = "java.math.BigInteger";
+    private static final String byteArraySignature = "byte[]";
+    private static final String byteArrayWrapperSignature = "java.lang.Byte[]";
 
-    private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
+    public final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
 
-    private final Set<Class> enumTypes = new HashSet<>();
+    public final Set<Class> enumTypes = new HashSet<>();
 
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
-
-
 
     private void buildAnnotationNameToClassInfoMap() {
 
@@ -223,34 +221,6 @@ public class DomainInfo implements ClassFileProcessor {
     @Override
     public void process(final InputStream inputStream) throws IOException {
 
-        ClassInfo classInfo = ClassInfoBuilder.create(inputStream);
-
-        String className = classInfo.name();
-        String superclassName = classInfo.superclassName();
-
-        LOGGER.debug("Processing: {} -> {}", className, superclassName);
-
-        if (className != null) {
-
-            ClassInfo thisClassInfo = classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
-
-            if (!thisClassInfo.hydrated()) {
-
-                thisClassInfo.hydrate(classInfo);
-
-                ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);
-                if (superclassInfo == null) {
-                    classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-                } else {
-                    superclassInfo.addSubclass(thisClassInfo);
-                }
-            }
-
-            if (thisClassInfo.isEnum()) {
-                LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
-                enumTypes.add(thisClassInfo.getUnderlyingClass());
-            }
-        }
     }
 
     public ClassInfo getClass(String fqn) {

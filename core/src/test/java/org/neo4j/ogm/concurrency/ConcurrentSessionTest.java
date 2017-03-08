@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -73,7 +74,7 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
                 countDownLatch.countDown();
             });
         }
-        countDownLatch.await();
+        countDownLatch.await(5, TimeUnit.SECONDS);
         assertFalse(failed);
     }
 }

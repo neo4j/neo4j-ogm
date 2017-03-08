@@ -18,7 +18,7 @@ package org.neo4j.ogm.metadata.bytecode;
  *
  * Do not use Class.forName() because it may not work when frameworks
  * such as Play reconfigure the ClassLoader hierarchies. Instead, replace
- * all such calls with MetaDataClassLoader.loadClass()
+ * all such calls with ReflectionUtils.forName()
  *
  * The principles behind this class loading technique are due to Vladimir Roubtsov,
  * as documented here: &lt;a href="http://www.javaworld.com/columns/jw-qna-index.shtml"&gt;

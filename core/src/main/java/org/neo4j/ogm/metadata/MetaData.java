@@ -25,7 +25,7 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
-import org.neo4j.ogm.metadata.bytecode.DomainInfoBuilder;
+import org.neo4j.ogm.metadata.reflections.DomainInfoBuilder;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

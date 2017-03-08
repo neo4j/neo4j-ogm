@@ -25,6 +25,7 @@ import org.neo4j.ogm.context.register.TypeRegister;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.reflect.*;
+import org.reflections.ReflectionUtils;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -214,7 +215,7 @@ public class MappingContext {
             for (ClassInfo implementingClass : implementingClasses) {
                 try {
                     String implementingClassName = implementingClass.name();
-                    removeType(MetaDataClassLoader.loadClass(implementingClassName));
+                    removeType(ReflectionUtils.forName(implementingClassName));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

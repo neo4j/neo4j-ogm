@@ -16,6 +16,7 @@ package org.neo4j.ogm.metadata;
 import org.neo4j.ogm.annotation.typeconversion.*;
 import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.*;
+import org.reflections.ReflectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class ObjectAnnotations {
 
             try {
                 String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
-                Class<?> clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
+                Class<?> clazz = ReflectionUtils.forName(className);//Class.forName(className);
                 return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -79,7 +80,7 @@ public class ObjectAnnotations {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
-                Class clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
+                Class clazz = ReflectionUtils.forName(className);//Class.forName(className);
                 return new EnumStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -91,7 +92,7 @@ public class ObjectAnnotations {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
             String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
-                Class clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
+                Class clazz = ReflectionUtils.forName(className);//Class.forName(className);
                 return new NumberStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.PlainUser;
 import org.neo4j.ogm.domain.entityMapping.iterables.*;
+import org.neo4j.ogm.metadata.reflections.DomainInfoBuilder;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
@@ -47,7 +48,7 @@ public class IterableRelationalReaderWriterTest {
     @Before
     public void setup() {
         entityAccessStrategy = new EntityAccessManager();
-        domainInfo = new DomainInfo("org.neo4j.ogm.domain.entityMapping.iterables");
+        domainInfo = DomainInfoBuilder.create("org.neo4j.ogm.domain.entityMapping.iterables");
     }
 
     /**

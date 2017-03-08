@@ -20,10 +20,10 @@ import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
+import org.reflections.ReflectionUtils;
 
 /**
  * @author Vince Bickers
@@ -32,29 +32,28 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  */
 public class FieldInfo {
 
-    private static final String primitives = "I,J,S,B,C,F,D,Z,[I,[J,[S,[B,[C,[F,[D,[Z";
+    private static final String primitives = "char,byte,short,int,long,float,double,boolean,char[],byte[],short[],int[],long[],float[],double[],boolean[]";
     private static final String autoboxers =
-            "Ljava/lang/Object;" +
-            "Ljava/lang/Character;" +
-            "Ljava/lang/Byte;" +
-            "Ljava/lang/Short;" +
-            "Ljava/lang/Integer;" +
-            "Ljava/lang/Long;" +
-            "Ljava/lang/Float;" +
-            "Ljava/lang/Double;" +
-            "Ljava/lang/Boolean;" +
-            "Ljava/lang/String;" +
-            "[Ljava/lang/Object;" +
-            "[Ljava/lang/Character;" +
-            "[Ljava/lang/Byte;" +
-            "[Ljava/lang/Short;" +
-            "[Ljava/lang/Integer;" +
-            "[Ljava/lang/Long;" +
-            "[Ljava/lang/Float;" +
-            "[Ljava/lang/Double;" +
-            "[Ljava/lang/Boolean;" +
-            "[Ljava/lang/String;";
-
+            "java.lang.Object" +
+                    "java.lang.Character" +
+                    "java.lang.Byte" +
+                    "java.lang.Short" +
+                    "java.lang.Integer" +
+                    "java.lang.Long" +
+                    "java.lang.Float" +
+                    "java.lang.Double" +
+                    "java.lang.Boolean" +
+                    "java.lang.String" +
+                    "java.lang.Object[]" +
+                    "java.lang.Character[]" +
+                    "java.lang.Byte[]" +
+                    "java.lang.Short[]" +
+                    "java.lang.Integer[]" +
+                    "java.lang.Long[]" +
+                    "java.lang.Float[]" +
+                    "java.lang.Double[]" +
+                    "java.lang.Boolean[]" +
+                    "java.lang.String[]";
 
 
     private final String name;
@@ -76,15 +75,14 @@ public class FieldInfo {
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
      *
-     * @param name                    The name of the field
-     * @param descriptor              The field descriptor that expresses the type of the field using Java signature string notation
+     * @param name The name of the field
+     * @param descriptor The field descriptor that expresses the type of the field using Java signature string notation
      * @param typeParameterDescriptor The descriptor that expresses the generic type parameter, which may be <code>null</code>
-     *                                if that's not appropriate
-     * @param annotations             The {@link ObjectAnnotations} applied to the field
+     * if that's not appropriate
+     * @param annotations The {@link ObjectAnnotations} applied to the field
      */
     public FieldInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.name = name;
-
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
@@ -99,7 +97,6 @@ public class FieldInfo {
                         "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
                         this.name));
             }
-
         }
     }
 
@@ -202,13 +199,13 @@ public class FieldInfo {
     public boolean isTypeOf(Class<?> type) {
 
         while (type != null) {
-            String typeSignature = "L" + type.getName().replace(".", "/") + ";";
+            String typeSignature = type.getName();
             if (descriptor != null && descriptor.equals(typeSignature)) {
                 return true;
             }
             // #issue 42: check interfaces when types are defined using generics as interface extensions
             for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = "L" + iface.getName().replace(".", "/") + ";";
+                typeSignature = iface.getName();
                 if (descriptor != null && descriptor.equals(typeSignature)) {
                     return true;
                 }
@@ -220,26 +217,23 @@ public class FieldInfo {
 
     public boolean isIterable() {
         String descriptorClass = getCollectionClassname();
-        try {
-            Class descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);
-            if (Iterable.class.isAssignableFrom(descriptorClazz)) {
-                return true;
-            }
-        } catch (ClassNotFoundException e) {
-            //e.printStackTrace();
+        Class descriptorClazz = ReflectionUtils.forName(descriptorClass);
+        if (Iterable.class.isAssignableFrom(descriptorClazz)) {
+            return true;
         }
+
         return false;
     }
 
     public boolean isParameterisedTypeOf(Class<?> type) {
         while (type != null) {
-            String typeSignature = "L" + type.getName().replace(".", "/") + ";";
+            String typeSignature =  type.getName();
             if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
                 return true;
             }
             // #issue 42: check interfaces when types are defined using generics as interface extensions
             for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = "L" + iface.getName().replace(".", "/") + ";";
+                typeSignature = iface.getName() ;
                 if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
                     return true;
                 }
@@ -251,13 +245,13 @@ public class FieldInfo {
 
     public boolean isArrayOf(Class<?> type) {
         while (type != null) {
-            String typeSignature = "[L" + type.getName().replace(".", "/") + ";";
+            String typeSignature =  type.getName() ;
             if (descriptor != null && descriptor.equals(typeSignature)) {
                 return true;
             }
             // #issue 42: check interfaces when types are defined using generics as interface extensions
             for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = "[L" + iface.getName().replace(".", "/") + ";";
+                typeSignature = iface.getName() ;
                 if (descriptor != null && descriptor.equals(typeSignature)) {
                     return true;
                 }
@@ -273,11 +267,7 @@ public class FieldInfo {
      * @return collection class name
      */
     public String getCollectionClassname() {
-        String descriptorClass = descriptor.replace("/", ".");
-        if (descriptorClass.startsWith("L")) {
-            descriptorClass = descriptorClass.substring(1, descriptorClass.length() - 1); //remove the leading L and trailing ;
-        }
-        return descriptorClass;
+        return descriptor;
     }
 
     public boolean isScalar() {
@@ -289,7 +279,7 @@ public class FieldInfo {
     }
 
     public boolean isArray() {
-        return descriptor.startsWith("[");
+        return descriptor.endsWith("[]");
     }
 
     public boolean hasAnnotation(String annotationName) {

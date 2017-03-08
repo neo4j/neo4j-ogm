@@ -22,52 +22,52 @@ public class AutoboxedFieldsTest extends TestMetaDataTypeResolution {
 
 	@Test
 	public void testObjectArray() {
-		checkField("oo", "[Ljava.lang.Object;", Object.class);
+		checkField("oo", "java.lang.Object[]", Object.class);
 	}
 
 	@Test
 	public void testStringArray () {
-		checkField("xx", "[Ljava.lang.String;", String.class);
+		checkField("xx", "java.lang.String[]", String.class);
 	}
 
 	@Test
 	public void testShortArray() {
-		checkField("ss", "[Ljava.lang.Short;", Short.class);
+		checkField("ss", "java.lang.Short[]", Short.class);
 	}
 
 	@Test
 	public void testCharacterArray() {
-		checkField("cc", "[Ljava.lang.Character;", Character.class);
+		checkField("cc", "java.lang.Character[]", Character.class);
 	}
 
 	@Test
 	public void testByteArray() {
-		checkField("bb", "[Ljava.lang.Byte;", Byte.class);
+		checkField("bb", "java.lang.Byte[]", Byte.class);
 	}
 
 	@Test
 	public void testLongArray() {
-		checkField("ll", "[Ljava.lang.Long;", Long.class);
+		checkField("ll", "java.lang.Long[]", Long.class);
 	}
 
 	@Test
 	public void testDoubleArray() {
-		checkField("dd", "[Ljava.lang.Double;", Double.class);
+		checkField("dd", "java.lang.Double[]", Double.class);
 	}
 
 	@Test
 	public void testFloatArray() {
-		checkField("ff", "[Ljava.lang.Float;", Float.class);
+		checkField("ff", "java.lang.Float[]", Float.class);
 	}
 
 	@Test
 	public void testBooleanArray() {
-		checkField("zz", "[Ljava.lang.Boolean;", Boolean.class);
+		checkField("zz", "java.lang.Boolean[]", Boolean.class);
 	}
 
 	@Test
 	public void testIntegerArray() {
-		checkField("ii", "[Ljava.lang.Integer;", Integer.class);
+		checkField("ii", "java.lang.Integer[]", Integer.class);
 	}
 
 	@Test

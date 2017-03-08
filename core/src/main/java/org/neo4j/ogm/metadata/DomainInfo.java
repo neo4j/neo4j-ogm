@@ -263,20 +263,21 @@ public class DomainInfo implements ClassFileProcessor {
 
         if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
 
-            if (fieldInfo.getTypeDescriptor().contains(dateSignature)) {
+            final String typeDescriptor = fieldInfo.getTypeDescriptor();
+            if (typeDescriptor.contains(dateSignature)) {
                 setDateFieldConverter(fieldInfo);
-            } else if (fieldInfo.getTypeDescriptor().contains(bigIntegerSignature)) {
+            } else if (typeDescriptor.contains(bigIntegerSignature)) {
                 setBigIntegerFieldConverter(fieldInfo);
-            } else if (fieldInfo.getTypeDescriptor().contains(bigDecimalSignature)) {
+            } else if (typeDescriptor.contains(bigDecimalSignature)) {
                 setBigDecimalConverter(fieldInfo);
-            } else if (fieldInfo.getTypeDescriptor().contains(byteArraySignature)) {
+            } else if (typeDescriptor.contains(byteArraySignature)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (fieldInfo.getTypeDescriptor().contains(byteArrayWrapperSignature)) {
+            } else if (typeDescriptor.contains(byteArrayWrapperSignature)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
                 if (fieldInfo.getAnnotations().get(Convert.class) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                    Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                    Class<?> entityAttributeType = ClassUtils.getType(typeDescriptor);
                     String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
                         throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
@@ -286,7 +287,7 @@ public class DomainInfo implements ClassFileProcessor {
                     fieldInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
-                Class fieldType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                Class fieldType = ClassUtils.getType(typeDescriptor);
 
                 boolean enumConverterSet = false;
                 for (Class enumClass : enumTypes) {

@@ -119,7 +119,6 @@ public class ClassInfo {
         methodsInfo = new MethodsInfo(dataInputStream, constantPool);
         annotationsInfo = new AnnotationsInfo(dataInputStream, constantPool);
         new ClassValidator(this).validate();
-        primaryIndexField = primaryIndexField();
     }
 
     /**

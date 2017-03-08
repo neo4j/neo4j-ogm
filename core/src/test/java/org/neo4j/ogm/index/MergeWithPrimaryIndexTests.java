@@ -65,7 +65,7 @@ public class MergeWithPrimaryIndexTests {
 
     @Test(expected = Neo4jException.class)
     public void exceptionRaisedWhenMoreThanOnePrimaryIndexDefinedInSameClass() {
-        new MetaData("org.neo4j.ogm.index.domain.invalid");
+        new MetaData("org.neo4j.ogm.index.domain.invalid").classInfo("BadClass").primaryIndexField();
     }
 
 

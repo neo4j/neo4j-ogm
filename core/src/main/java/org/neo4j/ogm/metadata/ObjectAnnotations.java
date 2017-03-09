@@ -37,7 +37,7 @@ public class ObjectAnnotations {
     }
 
     public AnnotationInfo get(Class<?> keyClass) {
-        return annotations.get(keyClass.getCanonicalName());
+        return annotations.get(keyClass.getSimpleName());
     }
 
     public boolean isEmpty() {

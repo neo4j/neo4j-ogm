@@ -40,58 +40,57 @@ public class GenericsFieldsTest extends TestMetaDataTypeResolution {
 
 	@Test
 	public void testGenericSelfReference() {
-		checkField("next", "org.neo4j.ogm.metadata.typesPOJO", POJO.class);
+		checkField("next", "org.neo4j.ogm.metadata.types.POJO", POJO.class);
 	}
 
 	@Test // List<S>
 	public void testCollectionWithUnboundGenericParameter() {
-		checkField("elements", "TS", Object.class);
+		checkField("elements", "java.lang.Object", Object.class);
 	}
 
 	@Test // List<POJO<S, T, U>> neighbours;
 	public void testCollectionWithConcreteParameterizedType() {
-		checkField("neighbours", "org.neo4j.ogm.metadata.types.POJO<TS;TT;TU", POJO.class);
+		checkField("neighbours", "org.neo4j.ogm.metadata.types.POJO", POJO.class);
 	}
 
 	@Test // List<? extends Integer> superIntegers
 	public void testCollectionWithExtendedConcreteParameterizedType() {
-		checkField("superIntegers", "+java.lang.Integer", Object.class);
+		checkField("superIntegers", "java.lang.Object", Object.class);
 	}
 
 	@Test    // List<? super Integer> subIntegers;
 	public void testCollectionWithReducedConcreteParameterizedType() {
-		checkField("subIntegers", "-java.lang.Integer", Object.class);
+		checkField("subIntegers", "java.lang.Object", Object.class);
 	}
-
 
 	@Test    // List<? extends S> superS;
 	public void testCollectionOfWildcardExtendingGenericType() {
-		checkField("superS", "+TS;", Object.class);
+		checkField("superS", "java.lang.Object", Object.class);
 	}
 
 	@Test    // List<? super S> subS;
 	public void testCollectionOfWildcardReducingGenericType() {
-		checkField("subS", "-TS;", Object.class);
+		checkField("subS", "java.lang.Object", Object.class);
 	}
 
 	@Test    // List<?>;
 	public void testListGenericWildcard() {
-		checkField("listOfAnything", "*", Object.class);
+		checkField("listOfAnything", "java.lang.Object", Object.class);
 	}
 
 	@Test    // Vector<?>;
 	public void testVectorGenericWildcard() {
-		checkField("vectorOfAnything", "*", Object.class);
+		checkField("vectorOfAnything", "java.lang.Object", Object.class);
 	}
 
 	@Test    // Set<?>;
 	public void testSetGenericWildcard() {
-		checkField("setOfAnything", "*", Object.class);
+		checkField("setOfAnything", "java.lang.Object", Object.class);
 	}
 
 	@Test    // Iterable<Map<Class<S>, POJO<S, T, U>>> iterable;
 	public void testIterableOfMapOfParameterizedClasses() {
-		checkField("iterable", "java.util.Map<java.lang.Class<TS;", Map.class);
+		checkField("iterable", "java.util.Map", Map.class);
 	}
 
 

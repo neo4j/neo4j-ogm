@@ -216,8 +216,7 @@ public class FieldInfo {
     }
 
     public boolean isIterable() {
-        String descriptorClass = getCollectionClassname();
-        Class descriptorClazz = ReflectionUtils.forName(descriptorClass);
+        Class descriptorClazz = ReflectionUtils.forName(descriptor);
         if (Iterable.class.isAssignableFrom(descriptorClazz)) {
             return true;
         }

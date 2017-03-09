@@ -34,9 +34,10 @@ public class DomainInfoBuilder {
             LOGGER.debug("Processing: {} -> {}", className, superclassName);
 
             if (className != null) {
-                if (cls.getAnnotation(Transient.class) != null || cls.isAnnotation() || cls.isAnonymousClass() || cls.isEnum() || cls.equals(Object.class) || cls.isInterface()) {
+                if ( cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class)) {
                     continue;
                 }
+
                 ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
 
                 if (!thisClassInfo.hydrated()) {
@@ -45,6 +46,10 @@ public class DomainInfoBuilder {
 
                     ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
                     if (superclassInfo == null) {
+
+                        if (superclassName == null) {
+                            superclassName = Object.class.getName();
+                        }
                         domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
                     } else {
                         superclassInfo.addSubclass(thisClassInfo);

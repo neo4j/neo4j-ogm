@@ -41,8 +41,8 @@ public class FieldsInfoBuilder {
                                     typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
                                     break;
                                 }
-                                if (genericType instanceof TypeVariable) {
-                                    typeParameterDescriptor = field.getType().getTypeName();
+                                if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
+                                    typeParameterDescriptor = Object.class.getName();
                                     break;
                                 }
                             }
@@ -51,7 +51,7 @@ public class FieldsInfoBuilder {
                             typeParameterDescriptor = parameterizedType.getRawType().getTypeName();
                         }
                     }
-                    if (genericType instanceof TypeVariable) {
+                    if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
                     fields.put(field.getName(), new FieldInfo(field.getName(), field.getType().getTypeName(),typeParameterDescriptor, objectAnnotations));

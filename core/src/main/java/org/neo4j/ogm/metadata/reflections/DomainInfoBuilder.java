@@ -2,6 +2,7 @@ package org.neo4j.ogm.metadata.reflections;
 
 import java.util.Set;
 
+import org.neo4j.ogm.annotation.Transient;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.reflections.Reflections;
@@ -33,7 +34,9 @@ public class DomainInfoBuilder {
             LOGGER.debug("Processing: {} -> {}", className, superclassName);
 
             if (className != null) {
-
+                if (cls.getAnnotation(Transient.class) != null || cls.isAnnotation() || cls.isAnonymousClass() || cls.isEnum() || cls.equals(Object.class) || cls.isInterface()) {
+                    continue;
+                }
                 ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
 
                 if (!thisClassInfo.hydrated()) {

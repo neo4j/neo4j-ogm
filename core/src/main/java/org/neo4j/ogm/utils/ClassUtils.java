@@ -150,83 +150,19 @@ public abstract class ClassUtils {
             return aClass;
         }
 
-
-        // handle Void
-        if (descriptor.equals("V")) {
-            return Void.class;
-        }
-
-
-        if (descriptor.contains(":")) {
-            return getType(descriptor.substring(descriptor.indexOf(":") + 1));
-        }
-
-        // generic types and wildcards are replaced by Object in the compiler
-        if (descriptor.startsWith("+") || descriptor.startsWith("-") || descriptor.startsWith("*")) {
+        if (!descriptor.contains(".") && !descriptor.contains("$")) {
             return Object.class;
         }
 
-        // function returns - strip off, and pass in the just the type part
-        if(descriptor.startsWith("()")) {
-            return getType(descriptor.substring(2));
+        final Class<?> aClass = ReflectionUtils.forName(descriptor);
+
+        if (aClass != null) {
+            return aClass;
+        }
+        else {
+            return null;
         }
 
-
-        // type is a function parameter?
-        int p = descriptor.indexOf("(");
-        int q = descriptor.indexOf(")");
-
-        // if the parameter is not an array of some type
-        if (!descriptor.contains("[")) {
-            if (descriptor.endsWith(";)V")) {
-                q--;
-            }
-            if (descriptor.startsWith("(L")) {
-                p++;
-            }
-            if(descriptor.startsWith("L")) { //handles descriptors of the format Ljava/lang/Byte;
-                p++;
-                q = descriptor.length()-1;
-            }
-        }
-
-        // type is an array?
-        if(descriptor.startsWith("[")) { //handles descriptors of the format [F
-            p = 0;
-            q = 2;
-        }
-        if(descriptor.startsWith("[L")) { //handles descriptors of the format [Ljava/lang/Float;
-            p = 1;
-            q = descriptor.length()-1;
-        }
-
-        if(descriptor.length()==1) { //handles descriptors of the format I
-            q=1;
-        }
-
-        if(q == p+1) { //handles descriptors of the format ()Lpackage/Class;
-            p = q + 1;
-            q = descriptor.length() - 1;
-        }
-
-        // some generic type we've lost through type erasure. JVM will use Object. so will we
-        if (p == -1 && q == -1) {
-            return Object.class;
-        }
-        // construct a type name
-        String typeName = descriptor.substring(p + 1, q);
-
-        // is it a primitive?
-        if (typeName.length() == 1) {
-            return PRIMITIVE_TYPE_MAP.get(typeName);
-        }
-
-        // if class is parametrized, obtain simple class signature.
-        if (typeName.contains("<")) {
-            typeName = typeName.substring(0, typeName.indexOf("<"));
-        }
-
-        return Object.class;
     }
 
     /**

@@ -1,8 +1,7 @@
 package org.neo4j.ogm.metadata.reflections;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,32 @@ public class FieldsInfoBuilder {
                     objectAnnotations.put(info.getName(), info);
                 }
                 if (objectAnnotations.get(Transient.class) == null) {
-                    fields.put(field.getName(), new FieldInfo(field.getName(), field.getType().getTypeName(), field.getGenericType().getTypeName().equals(field.getType().getTypeName()) ? null: field.getGenericType().getTypeName(), objectAnnotations));
+                    String typeParameterDescriptor = null;
+                    final Type genericType = field.getGenericType();
+                    if (genericType instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType)genericType;
+                        final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (actualTypeArguments.length > 0) {
+                            for (Type typeArgument: actualTypeArguments) {
+                                if (typeArgument instanceof ParameterizedType) {
+                                    ParameterizedType parameterizedTypeArgument = (ParameterizedType)typeArgument;
+                                    typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
+                                    break;
+                                }
+                                if (genericType instanceof TypeVariable) {
+                                    typeParameterDescriptor = field.getType().getTypeName();
+                                    break;
+                                }
+                            }
+                        }
+                        if (typeParameterDescriptor == null) {
+                            typeParameterDescriptor = parameterizedType.getRawType().getTypeName();
+                        }
+                    }
+                    if (genericType instanceof TypeVariable) {
+                        typeParameterDescriptor = field.getType().getTypeName();
+                    }
+                    fields.put(field.getName(), new FieldInfo(field.getName(), field.getType().getTypeName(),typeParameterDescriptor, objectAnnotations));
                 }
             }
         }

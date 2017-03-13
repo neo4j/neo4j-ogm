@@ -41,9 +41,12 @@ public class FieldsInfoBuilder {
                                     typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
                                     break;
                                 }
-                                if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
+                                else if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
                                     typeParameterDescriptor = Object.class.getName();
                                     break;
+                                }
+                                else if (typeArgument instanceof Class) {
+                                    typeParameterDescriptor = ((Class)typeArgument).getName();
                                 }
                             }
                         }

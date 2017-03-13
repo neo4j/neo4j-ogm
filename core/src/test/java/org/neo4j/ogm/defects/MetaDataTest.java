@@ -25,7 +25,6 @@ import static org.junit.Assert.*;
 /**
  * @author Luanne Misquitta
  */
-@Ignore
 public class MetaDataTest {
 
     private MetaData metaData;

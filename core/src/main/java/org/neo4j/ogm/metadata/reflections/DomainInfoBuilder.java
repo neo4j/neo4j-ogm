@@ -24,7 +24,7 @@ public class DomainInfoBuilder {
         DomainInfo domainInfo = new DomainInfo();
 
         final Set<Class<?>> allClasses = reflections.getSubTypesOf(Object.class);
-
+        allClasses.addAll(reflections.getSubTypesOf(Enum.class));
         for (Class<?> cls : allClasses) {
             ClassInfo classInfo = ClassInfoBuilder.create(cls);
 

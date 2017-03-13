@@ -245,7 +245,7 @@ public class FieldInfo {
     public boolean isArrayOf(Class<?> type) {
         while (type != null) {
             String typeSignature =  type.getName() ;
-            if (descriptor != null && descriptor.equals(typeSignature)) {
+            if (descriptor != null && descriptor.equals(typeSignature + "[]")) {
                 return true;
             }
             // #issue 42: check interfaces when types are defined using generics as interface extensions

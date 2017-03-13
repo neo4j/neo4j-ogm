@@ -41,7 +41,14 @@ public class AnnotationInfoBuilder {
             return ((Class) value).getName();
         }
         else {
-            return value.toString();
+            final String result = value.toString();
+            if (result.isEmpty()) {
+                if (element.getDefaultValue().toString().isEmpty()) {
+                    return null;
+                }
+                return element.getDefaultValue().toString();
+            }
+            return result;
         }
     }
 }

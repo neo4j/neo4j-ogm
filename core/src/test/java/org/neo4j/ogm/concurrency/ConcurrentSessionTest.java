@@ -74,7 +74,7 @@ public class ConcurrentSessionTest extends MultiDriverTestClass {
                 countDownLatch.countDown();
             });
         }
-        countDownLatch.await(5, TimeUnit.SECONDS);
+        countDownLatch.await();
         assertFalse(failed);
     }
 }

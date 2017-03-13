@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata.reflections;
+package org.neo4j.ogm.metadata.builder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

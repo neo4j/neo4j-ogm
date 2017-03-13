@@ -14,7 +14,6 @@
 package org.neo4j.ogm.typeconversion;
 
 import org.neo4j.ogm.annotation.typeconversion.DateString;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.reflections.ReflectionUtils;
 
 import java.math.BigDecimal;

@@ -13,14 +13,8 @@
 
 package org.neo4j.ogm.utils;
 
-import java.io.File;
-import java.net.URL;
 import java.util.*;
 
-import org.neo4j.ogm.metadata.bytecode.ClassLoaderResolver;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
-import org.neo4j.ogm.metadata.bytecode.ResourceResolver;
-import org.neo4j.ogm.exception.ServiceNotFoundException;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,52 +158,4 @@ public abstract class ClassUtils {
         }
 
     }
-
-    /**
-     * Get a list of unique elements on the classpath as File objects, preserving order.
-     * Classpath elements that do not exist are not returned.
-     *
-     * Uses the ResourceService to resolve classpath URLs. The "file" and "jar" protocols are
-     * supported by default. Other protocols, for example "vfs", can be handled by writing
-     * an appropriate resolver and registering it with the ServiceLoader mechanism
-     * as an instance of {@link org.neo4j.ogm.metadata.bytecode.ResourceResolver}
-     *
-     * @param classPaths classpaths to be included
-     * @return {@link List} of unique {@link File} objects on the classpath
-     */
-    public static Set<File> getUniqueClasspathElements(List<String> classPaths) {
-        Set<File> pathFiles = new HashSet<>();
-        for(String classPath : classPaths) {
-            try {
-				Enumeration<URL> resources = ClassLoaderResolver.resolve().getResources(classPath.replace(".","/"));
-                while(resources.hasMoreElements()) {
-                    URL url = resources.nextElement();
-                    pathFiles.add( resolve( url ));
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return pathFiles;
-    }
-
-
-    public static File resolve( URL url ) throws Exception {
-
-        ServiceLoader< ResourceResolver > serviceLoader = ServiceLoader.load( ResourceResolver.class );
-
-        for (ResourceResolver resourceResolver : serviceLoader) {
-            try {
-                File file = resourceResolver.resolve(url);
-                if (file != null) {
-                    return file;
-                }
-            } catch (ServiceConfigurationError sce) {
-                logger.warn("{}, reason: {}", sce.getLocalizedMessage(), sce.getCause());
-            }
-        }
-
-        throw new ServiceNotFoundException("Resource: " + url.toExternalForm());
-    }
-
 }

@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.reflections.ReflectionUtils;
@@ -109,6 +108,8 @@ public class ClassInfo {
                         name(), fieldInfo.getName()));
             }
         }
+        primaryIndexField = primaryIndexField();
+
     }
 
     /**

@@ -48,7 +48,7 @@ import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
-import org.neo4j.ogm.metadata.reflections.DomainInfoBuilder;
+import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 
 /**
  * @author Adam George

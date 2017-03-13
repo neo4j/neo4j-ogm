@@ -16,13 +16,10 @@ package org.neo4j.ogm.metadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.bytecode.ClassInfoBuilder;
-import org.neo4j.ogm.metadata.bytecode.ClassPathScanner;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;

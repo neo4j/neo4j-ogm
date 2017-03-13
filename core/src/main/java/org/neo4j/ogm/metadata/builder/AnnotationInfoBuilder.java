@@ -1,4 +1,4 @@
-package org.neo4j.ogm.metadata.reflections;
+package org.neo4j.ogm.metadata.builder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 
 /**

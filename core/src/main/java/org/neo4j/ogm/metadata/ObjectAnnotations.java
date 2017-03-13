@@ -14,7 +14,6 @@
 package org.neo4j.ogm.metadata;
 
 import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.typeconversion.*;
 import org.reflections.ReflectionUtils;
 

@@ -16,7 +16,6 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Method;
 
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.reflections.ReflectionUtils;
 
 /**

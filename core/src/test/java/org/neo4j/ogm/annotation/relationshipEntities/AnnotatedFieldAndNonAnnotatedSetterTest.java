@@ -29,7 +29,7 @@ import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
-import org.neo4j.ogm.metadata.reflections.DomainInfoBuilder;
+import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 
 /**
  * @author Luanne Misquitta

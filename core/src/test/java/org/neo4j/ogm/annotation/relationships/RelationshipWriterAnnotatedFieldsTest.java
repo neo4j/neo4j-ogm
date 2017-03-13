@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.metadata.reflections.DomainInfoBuilder;
+import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;

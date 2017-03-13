@@ -109,8 +109,6 @@ public class ClassInfo {
                         name(), fieldInfo.getName()));
             }
         }
-        primaryIndexField = primaryIndexField();
-
     }
 
     /**

@@ -13,18 +13,14 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.Set;
-
 /**
- * Iterable field annotated with incoming relationship. No methods present.
- *
- * @author Luanne Misquitta
+ * @author vince
  */
-public class UserV17 extends Entity {
 
-    @Relationship(type = "KNOWS", direction = "INCOMING")
-    public Set<UserV17> knows;
+public abstract class Entity {
+
+    public Long id;
+    public String name;
+
 
 }

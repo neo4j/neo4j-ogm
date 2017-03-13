@@ -14,7 +14,6 @@
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.domain.entityMapping.PlainUser;
 
 import java.util.List;
 

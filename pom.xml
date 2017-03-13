@@ -173,7 +173,7 @@
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
-                <version>0.9.10</version>
+                <version>0.9.11</version>
                 <scope>compile</scope>
             </dependency>
 

@@ -26,7 +26,7 @@ public class Person {
     private Long id;
     private String name;
 
-    @Relationship(type = "FRIEND_OF")
+    @Relationship(type = "FRIEND_OF", direction = Relationship.UNDIRECTED)
     private List<Friendship> friends;
 
     public Person() {

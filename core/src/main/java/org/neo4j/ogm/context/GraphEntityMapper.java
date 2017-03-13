@@ -198,7 +198,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         ClassInfo classInfo = metadata.classInfo(instance);
         MethodInfo postLoadMethod = classInfo.postLoadMethodOrNull();
         if (postLoadMethod != null) {
-            final Method method = postLoadMethod.getMethod();
+            final Method method = classInfo.getMethod(postLoadMethod);
             try {
                 method.invoke(instance);
             } catch (IllegalAccessException | InvocationTargetException e) {

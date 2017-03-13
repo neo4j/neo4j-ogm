@@ -28,7 +28,7 @@ public class MethodsInfoBuilder {
                     AnnotationInfo info = AnnotationInfoBuilder.create(annotation);
                     objectAnnotations.put(info.getName(), info);
                 }
-                methods.put(method.getName(), new MethodInfo(method.getClass().getName(), method.getName(), objectAnnotations));
+                methods.put(method.getName(), new MethodInfo(method.getDeclaringClass().getName(), method.getName(), objectAnnotations));
             }
         }
 

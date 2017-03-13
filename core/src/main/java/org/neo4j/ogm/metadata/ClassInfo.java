@@ -340,7 +340,7 @@ public class ClassInfo {
 
     public boolean isRelationshipEntity() {
         for (AnnotationInfo info : annotations()) {
-            if (info.getName().equals(RelationshipEntity.class.getCanonicalName())) {
+            if (info.getName().equals(RelationshipEntity.class.getName())) {
                 return true;
             }
         }
@@ -749,13 +749,13 @@ public class ClassInfo {
         // No way to get declared fields from current byte code impl. Using reflection instead.
         Field[] declaredFields = ReflectionUtils.forName(className).getDeclaredFields();
 
-        final String indexAnnotation = Index.class.getCanonicalName();
+        final String indexAnnotation = Index.class.getName();
 
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(indexAnnotation)) {
 
                 String propertyValue = fieldInfo.property();
-                if (fieldInfo.hasAnnotation(Property.class.getCanonicalName())) {
+                if (fieldInfo.hasAnnotation(Property.class.getName())) {
                     propertyValue = fieldInfo.property();
                 }
                 indexes.put(propertyValue, fieldInfo);
@@ -777,7 +777,7 @@ public class ClassInfo {
 
     public FieldInfo primaryIndexField() {
         if (!primaryIndexFieldChecked && primaryIndexField == null) {
-            final String indexAnnotation = Index.class.getCanonicalName();
+            final String indexAnnotation = Index.class.getName();
 
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(indexAnnotation);
@@ -798,7 +798,7 @@ public class ClassInfo {
 
     public MethodInfo postLoadMethodOrNull() {
         for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.hasAnnotation(PostLoad.class.getCanonicalName())) {
+            if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
                 return methodInfo;
             }
         }

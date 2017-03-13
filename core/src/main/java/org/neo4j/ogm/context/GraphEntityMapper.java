@@ -640,7 +640,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      * @return true if the class of the node matches field annotated
      */
     private boolean nodeTypeMatches(ClassInfo classInfo, Object node, Class<?> annotationClass) {
-        List<FieldInfo> fields = classInfo.findFields(annotationClass.getCanonicalName());
+        List<FieldInfo> fields = classInfo.findFields(annotationClass.getName());
         if (fields.size() == 1) {
             FieldInfo field = fields.get(0);
             if (field.isTypeOf(node.getClass())) {

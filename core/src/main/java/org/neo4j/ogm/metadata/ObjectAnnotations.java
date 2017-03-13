@@ -37,7 +37,7 @@ public class ObjectAnnotations {
     }
 
     public AnnotationInfo get(Class<?> keyClass) {
-        return annotations.get(keyClass.getSimpleName());
+        return keyClass == null ? null: annotations.get(keyClass.getName());
     }
 
     public boolean isEmpty() {
@@ -55,8 +55,7 @@ public class ObjectAnnotations {
             }
 
             try {
-                String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
-                Class<?> clazz = ReflectionUtils.forName(className);//Class.forName(className);
+                Class<?> clazz = ReflectionUtils.forName(classDescriptor);//Class.forName(className);
                 return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);

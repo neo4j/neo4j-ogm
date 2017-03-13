@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 
 /**
@@ -21,13 +22,26 @@ public class AnnotationInfoBuilder {
         for (Method element : declaredElements) {
             Object value = null;
             try {
-                value = element.invoke(annotation, (Object[]) null);
+                value = element.invoke(annotation);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Could not read value of Annotation " + element.getName());
             }
-            elements.put(element.getName(), value != null ? value.toString() : element.getDefaultValue().toString());
+            elements.put(element.getName(), value != null ? convert(element, value) : element.getDefaultValue().toString());
         }
 
-        return new AnnotationInfo(annotation.annotationType().getSimpleName(), elements);
+        return new AnnotationInfo(annotation.annotationType().getName(), elements);
+    }
+
+    private static String convert(Method element, Object value) {
+
+        if (element.getReturnType().isPrimitive()) {
+            return String.valueOf(value);
+        }
+        else if (element.getReturnType().equals(Class.class)) {
+            return ((Class) value).getName();
+        }
+        else {
+            return value.toString();
+        }
     }
 }

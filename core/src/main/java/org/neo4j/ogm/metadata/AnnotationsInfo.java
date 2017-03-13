@@ -45,7 +45,7 @@ public class AnnotationsInfo {
     }
 
     public AnnotationInfo get(Class<?> annotationNameClass) {
-        return classAnnotations.get(annotationNameClass.getCanonicalName());
+        return classAnnotations.get(annotationNameClass.getName());
     }
 
     public void append(AnnotationsInfo annotationsInfo) {

@@ -286,7 +286,7 @@ public class FieldInfo {
     }
 
     public boolean hasAnnotation(Class<?> annotationNameClass) {
-        return getAnnotations().get(annotationNameClass.getCanonicalName()) != null;
+        return getAnnotations().get(annotationNameClass.getName()) != null;
     }
 
     /**
@@ -326,7 +326,7 @@ public class FieldInfo {
      * @return <code>true</code> is this field is a constraint rather than just a plain index.
      */
     public boolean isConstraint() {
-        AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getCanonicalName());
+        AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getName());
         return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
     }
 }

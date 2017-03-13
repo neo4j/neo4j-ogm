@@ -1,3 +1,9 @@
+3.0.0-SNAPSHOT
+--------------
+o Primary index annotations are picked up on the whole class class hierarchy, not only on leaf class. Fixes #332.
+o Support Neo4j 3.1.2
+
+
 2.1.2
 --------------
 o Fixes issue where the X-Write header is wrong on read-only transactions first request. Fixes #323.

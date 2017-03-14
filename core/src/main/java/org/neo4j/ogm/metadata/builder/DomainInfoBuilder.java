@@ -18,12 +18,14 @@ public class DomainInfoBuilder {
 
 
     public static DomainInfo create(String... packages) {
+        // https://github.com/ronmamo/reflections/issues/80
         Reflections reflections = new Reflections(packages, new SubTypesScanner(false));
 
         DomainInfo domainInfo = new DomainInfo();
 
         final Set<Class<?>> allClasses = reflections.getSubTypesOf(Object.class);
         allClasses.addAll(reflections.getSubTypesOf(Enum.class));
+
         for (Class<?> cls : allClasses) {
             ClassInfo classInfo = ClassInfoBuilder.create(cls);
 
@@ -46,10 +48,9 @@ public class DomainInfoBuilder {
                     ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
                     if (superclassInfo == null) {
 
-                        if (superclassName == null) {
-                            superclassName = Object.class.getName();
+                        if (superclassName != null) {
+                            domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
                         }
-                        domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
                     } else {
                         superclassInfo.addSubclass(thisClassInfo);
                     }

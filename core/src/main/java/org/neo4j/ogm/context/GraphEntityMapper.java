@@ -528,7 +528,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         RelationalWriter writer = EntityAccessManager.getIterableWriter(classInfo, valueType, relationshipType, relationshipDirection);
         if (writer != null) {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                RelationalReader reader = EntityAccessManager.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
+                FieldReader reader = EntityAccessManager.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
                 Object currentValues;
                 if (reader != null) {
                     currentValues = reader.read(instance);

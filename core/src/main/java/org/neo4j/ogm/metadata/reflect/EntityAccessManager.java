@@ -253,16 +253,16 @@ public class EntityAccessManager {
     }
 
     //TODO make these LRU caches with configurable size
-    private static Map<ClassInfo, Map<DirectedRelationship, RelationalReader>> relationalReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationship, FieldReader>> relationalReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalWriter>> relationalWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalWriter>> iterableWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalReader>> iterableReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldReader>> iterableReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<Class, RelationalWriter>> relationshipEntityWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, FieldWriter>> propertyWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, FieldReader>> propertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<FieldReader>> propertyReaders = new HashMap<>();
     private static Map<ClassInfo, FieldReader> identityPropertyReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Collection<RelationalReader>> relationalReaders = new HashMap<>();
+    private static Map<ClassInfo, Collection<FieldReader>> relationalReaders = new HashMap<>();
 
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
@@ -410,14 +410,14 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns a RelationalReader for a scalar type definition on a ClassInfo that is not a primitive graph property
+     * Returns a FieldReader for a scalar type definition on a ClassInfo that is not a primitive graph property
      *
      * @param classInfo A ClassInfo declaring the type definition
      * @param relationshipType The name of the relationship in the graph
      * @param relationshipDirection The direction of the relationship in the graph
-     * @return A RelationalReader or null if none exists
+     * @return A FieldReader or null if none exists
      */
-    public static RelationalReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
+    public static FieldReader getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
 
         if (!relationalReaderCache.containsKey(classInfo)) {
             relationalReaderCache.put(classInfo, new HashMap<>());
@@ -475,12 +475,12 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns all the RelationalReader instances for this ClassInfo
+     * Returns all the FieldReader instances for this ClassInfo
      *
      * @param classInfo The ClassInfo whose RelationalReaders we want
-     * @return a Collection of RelationalReader instances which will be empty if no relationships are defined by the ClassInfo
+     * @return a Collection of FieldReader instances which will be empty if no relationships are defined by the ClassInfo
      */
-    public static Collection<RelationalReader> getRelationalReaders(ClassInfo classInfo) {
+    public static Collection<FieldReader> getRelationalReaders(ClassInfo classInfo) {
 
         return relationalReaders.computeIfAbsent(classInfo, k1 -> classInfo.relationshipFields().stream().map(k -> new FieldReader(classInfo, k)).collect(Collectors.toList()));
     }
@@ -534,15 +534,15 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns a RelationalReader for an iterable of a non-primitive scalar type defined by a ClassInfo
+     * Returns a FieldReader for an iterable of a non-primitive scalar type defined by a ClassInfo
      *
      * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
      * @param relationshipType the name of the relationship as it is in the graph
      * @param relationshipDirection the direction of the relationship as it is in the graph
      * @param parameterType the type that will be iterated over
-     * @return a valid RelationalReader or null if none is found
+     * @return a valid FieldReader or null if none is found
      */
-    public static RelationalReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static FieldReader getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if (!iterableReaderCache.containsKey(classInfo)) {
             iterableReaderCache.put(classInfo, new HashMap<>());
         }
@@ -598,13 +598,13 @@ public class EntityAccessManager {
     }
 
     /**
-     * Return a RelationalReader for the EndNode of a RelationshipEntity
+     * Return a FieldReader for the EndNode of a RelationshipEntity
      *
      * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
-     * @return a RelationalReader for the field annotated as the EndNode, or none if not found
+     * @return a FieldReader for the field annotated as the EndNode, or none if not found
      */
     // TODO extend for methods
-    public static RelationalReader getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
+    public static FieldReader getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
                 return new FieldReader(relationshipEntityClassInfo, fieldInfo);
@@ -615,13 +615,13 @@ public class EntityAccessManager {
     }
 
     /**
-     * Return a RelationalReader for the StartNode of a RelationshipEntity
+     * Return a FieldReader for the StartNode of a RelationshipEntity
      *
      * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
-     * @return a RelationalReader for the field annotated as the StartNode, or none if not found
+     * @return a FieldReader for the field annotated as the StartNode, or none if not found
      */
     // TODO: extend for methods
-    public static RelationalReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
+    public static FieldReader getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
                 return new FieldReader(relationshipEntityClassInfo, fieldInfo);

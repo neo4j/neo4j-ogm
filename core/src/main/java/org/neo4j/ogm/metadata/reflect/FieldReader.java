@@ -24,7 +24,7 @@ import org.neo4j.ogm.metadata.ObjectAnnotations;
  * @author Adam George
  * @author Luanne Misquitta
  */
-public class FieldReader implements RelationalReader {
+public class FieldReader {
 
     private final ClassInfo classInfo;
     private final FieldInfo fieldInfo;
@@ -34,7 +34,6 @@ public class FieldReader implements RelationalReader {
         this.fieldInfo = fieldInfo;
     }
 
-    @Override
     public Object read(Object instance) {
         return FieldWriter.read(classInfo.getField(fieldInfo), instance);
     }
@@ -60,7 +59,6 @@ public class FieldReader implements RelationalReader {
         return fieldInfo.getCompositeConverter().toGraphProperties(value);
     }
 
-    @Override
     public String relationshipType() {
         return fieldInfo.relationship();
     }
@@ -73,7 +71,6 @@ public class FieldReader implements RelationalReader {
         return fieldInfo.hasCompositeConverter();
     }
 
-    @Override
     public String relationshipDirection() {
         ObjectAnnotations annotations = fieldInfo.getAnnotations();
         if (annotations != null) {
@@ -85,7 +82,6 @@ public class FieldReader implements RelationalReader {
         return Relationship.UNDIRECTED;
     }
 
-    @Override
     public String typeDescriptor() {
         return fieldInfo.getTypeDescriptor();
     }

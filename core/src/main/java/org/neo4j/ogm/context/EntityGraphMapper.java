@@ -317,7 +317,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         ClassInfo srcInfo = metaData.classInfo(entity);
 
-        for (RelationalReader reader : EntityAccessManager.getRelationalReaders(srcInfo)) {
+        for (FieldReader reader : EntityAccessManager.getRelationalReaders(srcInfo)) {
 
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
@@ -631,7 +631,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private Object getStartEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
-        RelationalReader actualStartNodeReader = EntityAccessManager.getStartNodeReader(relEntityClassInfo);
+        FieldReader actualStartNodeReader = EntityAccessManager.getStartNodeReader(relEntityClassInfo);
         if (actualStartNodeReader != null) {
             return actualStartNodeReader.read(relationshipEntity);
         }
@@ -639,7 +639,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private Object getTargetEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
-        RelationalReader actualEndNodeReader = EntityAccessManager.getEndNodeReader(relEntityClassInfo);
+        FieldReader actualEndNodeReader = EntityAccessManager.getEndNodeReader(relEntityClassInfo);
         if (actualEndNodeReader != null) {
             return actualEndNodeReader.read(relationshipEntity);
         }
@@ -874,7 +874,7 @@ public class EntityGraphMapper implements EntityMapper {
         boolean mapBothWays = false;
 
         ClassInfo tgtInfo = metaData.classInfo(tgtObject);
-        for (RelationalReader tgtRelReader : EntityAccessManager.getRelationalReaders(tgtInfo)) {
+        for (FieldReader tgtRelReader : EntityAccessManager.getRelationalReaders(tgtInfo)) {
             String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
             if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
                     && tgtRelReader.relationshipType().equals(relationshipType)) { //The source must have the same relationship type to the target as the target to the source

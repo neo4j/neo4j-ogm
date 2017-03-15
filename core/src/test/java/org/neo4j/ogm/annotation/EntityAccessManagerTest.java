@@ -237,7 +237,7 @@ public class EntityAccessManagerTest {
         domainObject.member = new Member();
         domainObject.registeredMember = new Member();
 
-        RelationalReader reader = EntityAccessManager.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
+        FieldReader reader = EntityAccessManager.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertSame(domainObject.member, reader.read(domainObject));
         assertEquals("CONTAINS", reader.relationshipType());
@@ -256,7 +256,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.postWithoutAccessorMethods = new Post();
 
-        RelationalReader reader = EntityAccessManager.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
+        FieldReader reader = EntityAccessManager.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
@@ -288,11 +288,11 @@ public class EntityAccessManagerTest {
         domainObject.naturalSatellites = new ArrayList<>();
         domainObject.artificialSatellites = Collections.singletonList(new Satellite());
 
-        Collection<RelationalReader> relationalAccessors = EntityAccessManager.getRelationalReaders(classInfo);
+        Collection<FieldReader> relationalAccessors = EntityAccessManager.getRelationalReaders(classInfo);
         assertNotNull("The resultant list of object accessors shouldn't be null", relationalAccessors);
         assertEquals("An unexpected number of accessors was returned", 7, relationalAccessors.size());
 
-        Map<String, Class<? extends RelationalReader>> expectedRelationalReaders = new HashMap<>();
+        Map<String, Class<? extends FieldReader>> expectedRelationalReaders = new HashMap<>();
         expectedRelationalReaders.put("COMMENT", FieldReader.class);
         expectedRelationalReaders.put("FAVOURITE_TOPIC", FieldReader.class);
         expectedRelationalReaders.put("CONTAINS", FieldReader.class);
@@ -301,7 +301,7 @@ public class EntityAccessManagerTest {
         expectedRelationalReaders.put("ARTIFICIAL", FieldReader.class);
         expectedRelationalReaders.put("REGISTERED", FieldReader.class);
 
-        for (RelationalReader objectAccess : relationalAccessors) {
+        for (FieldReader objectAccess : relationalAccessors) {
             String relType = objectAccess.relationshipType();
             assertTrue("Relationship type " + relType + " wasn't expected", expectedRelationalReaders.containsKey(relType));
             assertEquals(expectedRelationalReaders.get(relType), objectAccess.getClass());
@@ -313,7 +313,7 @@ public class EntityAccessManagerTest {
     public void shouldRetrieveAppropriateObjectAccessToEndNodeAttributeOnRelationshipEntity() {
         ClassInfo relationshipEntityClassInfo = domainInfo.getClass(ForumTopicLink.class.getName());
 
-        RelationalReader endNodeReader = EntityAccessManager.getEndNodeReader(relationshipEntityClassInfo);
+        FieldReader endNodeReader = EntityAccessManager.getEndNodeReader(relationshipEntityClassInfo);
         assertNotNull("The resultant end node reader shouldn't be null", endNodeReader);
 
         ForumTopicLink forumTopicLink = new ForumTopicLink();
@@ -358,7 +358,7 @@ public class EntityAccessManagerTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        RelationalReader relationalReader = EntityAccessManager.getIterableReader(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
+        FieldReader relationalReader = EntityAccessManager.getIterableReader(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", relationalReader);
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.naturalSatellites = natural;

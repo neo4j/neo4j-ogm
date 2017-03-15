@@ -16,9 +16,6 @@ package org.neo4j.ogm.config;
 import java.net.URI;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A generic configuration class that can be set up programmatically
  * or via a properties file.

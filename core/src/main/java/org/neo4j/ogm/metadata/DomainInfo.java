@@ -14,8 +14,6 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
@@ -40,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class DomainInfo implements ClassFileProcessor {
+public class DomainInfo {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
 
     public static DomainInfo create(String... packages) {
         // https://github.com/ronmamo/reflections/issues/80
@@ -152,8 +150,7 @@ public class DomainInfo implements ClassFileProcessor {
         this.conversionCallbackRegistry.registerConversionCallback(conversionCallback);
     }
 
-    @Override
-    public void finish() {
+    private void finish() {
 
         LOGGER.info("Starting Post-processing phase");
 
@@ -281,11 +278,6 @@ public class DomainInfo implements ClassFileProcessor {
         } else {
             LOGGER.debug(" - No ClassInfo found for interface class: {}", interfaceInfo.name());
         }
-    }
-
-    @Override
-    public void process(final InputStream inputStream) throws IOException {
-
     }
 
     public ClassInfo getClass(String fqn) {

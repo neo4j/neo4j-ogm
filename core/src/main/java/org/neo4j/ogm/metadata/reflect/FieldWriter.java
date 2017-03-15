@@ -23,7 +23,7 @@ import org.neo4j.ogm.utils.ClassUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class FieldWriter extends EntityAccess {
+public class FieldWriter implements PropertyWriter, RelationalWriter {
 
     private final FieldInfo fieldInfo;
     private final Field field;

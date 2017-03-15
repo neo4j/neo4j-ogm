@@ -258,7 +258,7 @@ public class EntityAccessManager {
     private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalWriter>> iterableWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalReader>> iterableReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<Class, RelationalWriter>> relationshipEntityWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<String, EntityAccess>> propertyWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<String, PropertyWriter>> propertyWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, PropertyReader>> propertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<PropertyReader>> propertyReaders = new HashMap<>();
     private static Map<ClassInfo, PropertyReader> identityPropertyReaderCache = new HashMap<>();
@@ -274,16 +274,16 @@ public class EntityAccessManager {
      * @param propertyName the property name of the property in the graph
      * @return A PropertyWriter, or none if not found
      */
-    public static EntityAccess getPropertyWriter(final ClassInfo classInfo, String propertyName) {
+    public static PropertyWriter getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         if (!propertyWriterCache.containsKey(classInfo)) {
             propertyWriterCache.put(classInfo, new HashMap<>());
         }
-        Map<String, EntityAccess> entityAccessMap = propertyWriterCache.get(classInfo);
+        Map<String, PropertyWriter> entityAccessMap = propertyWriterCache.get(classInfo);
         if (entityAccessMap.containsKey(propertyName)) {
             return propertyWriterCache.get(classInfo).get(propertyName);
         }
 
-        EntityAccess propertyWriter = determinePropertyAccessor(classInfo, propertyName, (AccessorFactory<EntityAccess>) fieldInfo -> new FieldWriter(classInfo, fieldInfo));
+        PropertyWriter propertyWriter = determinePropertyAccessor(classInfo, propertyName, (AccessorFactory<PropertyWriter>) fieldInfo -> new FieldWriter(classInfo, fieldInfo));
 
         propertyWriterCache.get(classInfo).put(propertyName, propertyWriter);
         return propertyWriter;

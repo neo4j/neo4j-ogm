@@ -39,13 +39,7 @@ import org.neo4j.ogm.domain.forum.activity.Comment;
 import org.neo4j.ogm.domain.forum.activity.Post;
 import org.neo4j.ogm.domain.satellites.Program;
 import org.neo4j.ogm.domain.satellites.Satellite;
-import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.EntityAccess;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.reflect.PropertyReader;
-import org.neo4j.ogm.metadata.reflect.RelationalReader;
-import org.neo4j.ogm.metadata.reflect.RelationalWriter;
+import org.neo4j.ogm.metadata.reflect.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
@@ -72,7 +66,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
-        EntityAccess objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
+        PropertyWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -88,7 +82,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         DummyDomainObject domainObject = new DummyDomainObject();
 
-        EntityAccess objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
+        PropertyWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue(objectAccess instanceof FieldWriter);
         assertEquals(String.class, objectAccess.type());
@@ -104,7 +98,7 @@ public class EntityAccessManagerTest {
         domainObject.propertyWithoutAccessorMethods = 9;
 
         // test writing via field
-        EntityAccess writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
+        PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant writer shouldn't be null", writer);
         writer.write(domainObject, 27);
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);

@@ -59,10 +59,6 @@ public class MethodsInfo {
         return methods.values();
     }
 
-    public MethodInfo get(String methodName) {
-        return methods.get(methodName);
-    }
-
     public void append(MethodsInfo methodsInfo) {
         for (MethodInfo methodInfo : methodsInfo.methods()) {
             methods.putIfAbsent(methodInfo.getName(), methodInfo);

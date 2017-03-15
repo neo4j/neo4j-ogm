@@ -26,14 +26,6 @@ public class DefaultGraphModelRequest extends PagingAndSortingQuery implements G
 
     private final static String[] resultDataContents = new String[] {"graph"};
 
-    public DefaultGraphModelRequest(Statement request) {
-        this(request.getStatement(), request.getParameters());
-    }
-
-    public DefaultGraphModelRequest(String cypher) {
-        this(cypher, Utils.map());
-    }
-
     public DefaultGraphModelRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);
     }

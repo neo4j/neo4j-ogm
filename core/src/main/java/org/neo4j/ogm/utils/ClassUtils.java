@@ -25,22 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ClassUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger( ClassUtils.class );
-
-
     private static Map<String, Class<?>> descriptorTypeMappings = new HashMap<>();
-
-    @SuppressWarnings("serial")
-    private static final Map<String, Class<?>> PRIMITIVE_TYPE_MAP = new HashMap<String, Class<?>>() {{
-        put("Z", Boolean.TYPE);
-        put("B", Byte.TYPE);
-        put("C", Character.TYPE);
-        put("D", Double.TYPE);
-        put("F", Float.TYPE);
-        put("I", Integer.TYPE);
-        put("J", Long.TYPE);
-        put("S", Short.TYPE);
-    }};
 
     /**
      * Return the reified class for the parameter of a parameterised setter or field from the parameter signature.

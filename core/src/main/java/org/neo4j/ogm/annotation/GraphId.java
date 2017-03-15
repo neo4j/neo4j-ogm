@@ -28,6 +28,5 @@ import java.lang.annotation.*;
 @Inherited
 public @interface GraphId {
 
-    String name() default "";
 }
 

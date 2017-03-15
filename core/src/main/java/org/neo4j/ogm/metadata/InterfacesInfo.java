@@ -46,10 +46,6 @@ public class InterfacesInfo {
         return interfaceMap.values();
     }
 
-    public InterfaceInfo get(String interfaceName) {
-        return interfaceMap.get(interfaceName);
-    }
-
     void add(InterfaceInfo interfaceInfo) {
         interfaceMap.put(interfaceInfo.name(), interfaceInfo);
     }

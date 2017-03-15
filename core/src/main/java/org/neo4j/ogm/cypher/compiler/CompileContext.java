@@ -57,9 +57,4 @@ public interface CompileContext {
     void registerNewId(Long reference, Long id);
 
     void deregister(NodeBuilder nodeBuilder);
-
-    Collection<Mappable> getDeletedRelationships();
-
-    Object getVisitedObject(Long reference);
-
 }

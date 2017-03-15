@@ -21,8 +21,6 @@ public interface RelationalReader {
 
     Object read(Object instance);
 
-    String propertyName();
-
     String relationshipType();
 
     String relationshipDirection();

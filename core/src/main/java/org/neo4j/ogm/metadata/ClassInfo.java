@@ -697,10 +697,6 @@ public class ClassInfo {
         return found;
     }
 
-    public Class<?> getType(String typeParameterDescriptor) {
-        return ClassUtils.getType(typeParameterDescriptor);
-    }
-
     /**
      * Get the underlying class represented by this ClassInfo
      *

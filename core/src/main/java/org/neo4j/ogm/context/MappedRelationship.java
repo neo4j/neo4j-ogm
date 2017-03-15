@@ -79,21 +79,6 @@ public class MappedRelationship implements Mappable {
         active = true;
     }
 
-    /**
-     * Deactivating a relationship marks it for
-     * deletion, meaning that, unless it is
-     * subsequently reactivated, it will be
-     * removed from the database when the
-     * transaction commits.
-     */
-    public void deactivate() {
-        active = false;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
     public Class getEndNodeType() {
         return endNodeType;
     }

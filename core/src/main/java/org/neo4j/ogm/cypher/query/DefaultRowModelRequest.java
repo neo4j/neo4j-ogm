@@ -26,15 +26,6 @@ public class DefaultRowModelRequest extends PagingAndSortingQuery implements Row
 
     private final static String[] resultDataContents = new String[] {"row"};
 
-    public DefaultRowModelRequest(Statement request) {
-        this(request.getStatement(), request.getParameters());
-    }
-
-    public DefaultRowModelRequest(String cypher) {
-        this(cypher, Utils.map());
-    }
-
-
     public DefaultRowModelRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);
     }

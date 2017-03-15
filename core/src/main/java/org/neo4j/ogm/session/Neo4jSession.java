@@ -531,10 +531,6 @@ public class Neo4jSession implements Session {
         return txManager;
     }
 
-    public void info(String msg) {
-        logger.info("Thread {}: {}", Thread.currentThread().getId(), msg);
-    }
-
     public void warn(String msg) {
         logger.warn("Thread {}: {}", Thread.currentThread().getId(), msg);
     }

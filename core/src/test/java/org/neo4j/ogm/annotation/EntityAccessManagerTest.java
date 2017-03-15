@@ -66,7 +66,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
-        PropertyWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
+        FieldWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -82,7 +82,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         DummyDomainObject domainObject = new DummyDomainObject();
 
-        PropertyWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
+        FieldWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue(objectAccess instanceof FieldWriter);
         assertEquals(String.class, objectAccess.type());
@@ -98,7 +98,7 @@ public class EntityAccessManagerTest {
         domainObject.propertyWithoutAccessorMethods = 9;
 
         // test writing via field
-        PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
+        FieldWriter writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant writer shouldn't be null", writer);
         writer.write(domainObject, 27);
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);

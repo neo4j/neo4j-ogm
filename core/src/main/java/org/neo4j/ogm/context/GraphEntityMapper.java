@@ -222,7 +222,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             Map<String, ?> propertyMap = toMap(propertyList);
             for (FieldInfo field : compositeFields) {
                 Object value = field.getCompositeConverter().toEntityAttribute(propertyMap);
-                PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
+                FieldWriter writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
                 writer.write(instance, value);
             }
         }
@@ -256,7 +256,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private void writeProperty(ClassInfo classInfo, Object instance, Property<?, ?> property) {
 
-        PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey().toString());
+        FieldWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey().toString());
 
         if (writer == null) {
             logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());

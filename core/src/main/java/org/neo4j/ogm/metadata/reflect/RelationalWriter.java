@@ -12,12 +12,16 @@
 package org.neo4j.ogm.metadata.reflect;
 
 /**
- * Specialisation of {@link PropertyWriter} that also exposes the relationship type represented by the corresponding
+ * Specialisation of {@link FieldWriter} that also exposes the relationship type represented by the corresponding
  * object member.
  *
  * @author Adam George
  */
-public interface RelationalWriter extends PropertyWriter {
+public interface RelationalWriter {
+
+    void write(Object instance, Object valueToSet);
+
+    Class<?> type();
 
     String relationshipName();
 

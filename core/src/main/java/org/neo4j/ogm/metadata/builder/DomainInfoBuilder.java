@@ -3,6 +3,7 @@ package org.neo4j.ogm.metadata.builder;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -13,6 +14,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import org.reflections.vfs.Vfs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +29,9 @@ public class DomainInfoBuilder {
     public static DomainInfo create(String... packages) {
         // https://github.com/ronmamo/reflections/issues/80
         final Collection<URL> urls = new HashSet<>();
+        final ClassLoader[] classLoaders = ClasspathHelper.classLoaders();
         for (String pkg : packages) {
-            urls.addAll(ClasspathHelper.forPackage(pkg, ClasspathHelper.contextClassLoader(), ClasspathHelper.staticClassLoader()));
+            urls.addAll(ClasspathHelper.forPackage(pkg, classLoaders));
         }
 
         Reflections reflections =

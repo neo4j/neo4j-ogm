@@ -79,5 +79,33 @@
             <artifactId>reflections</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>local-test</groupId>
+            <artifactId>concert</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>local-test</groupId>
+            <artifactId>event</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>local-test</groupId>
+            <artifactId>radio</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>local-test-repo</id>
+            <url>file://${basedir}/src/test/lib</url>
+        </repository>
+    </repositories>
 </project>

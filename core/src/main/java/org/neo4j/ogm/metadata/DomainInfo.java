@@ -16,6 +16,7 @@ package org.neo4j.ogm.metadata;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -25,6 +26,12 @@ import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +43,67 @@ import org.slf4j.LoggerFactory;
 public class DomainInfo implements ClassFileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
+
+    public static DomainInfo create(String... packages) {
+        // https://github.com/ronmamo/reflections/issues/80
+        final Collection<URL> urls = new HashSet<>();
+        final ClassLoader[] classLoaders = ClasspathHelper.classLoaders();
+        for (String pkg : packages) {
+            urls.addAll(ClasspathHelper.forPackage(pkg, classLoaders));
+        }
+
+        Reflections reflections =
+                new Reflections(new ConfigurationBuilder()
+                        .setUrls(urls)
+                        .filterInputsBy(new FilterBuilder().includePackage(packages))
+                        .setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner()).useParallelExecutor());
+
+        DomainInfo domainInfo = new DomainInfo();
+
+        final Set<Class<?>> allClasses = reflections.getSubTypesOf(Object.class);
+        allClasses.addAll(reflections.getSubTypesOf(Enum.class));
+
+        for (Class<?> cls : allClasses) {
+            ClassInfo classInfo = ClassInfo.create(cls);
+
+            String className = classInfo.name();
+            String superclassName = classInfo.superclassName();
+
+            LOGGER.debug("Processing: {} -> {}", className, superclassName);
+
+            if (className != null) {
+                if (cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class)) {
+                    continue;
+                }
+
+                ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
+
+                if (!thisClassInfo.hydrated()) {
+
+                    thisClassInfo.hydrate(classInfo);
+
+                    ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+                    if (superclassInfo == null) {
+
+                        if (superclassName != null) {
+                            domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
+                        }
+                    } else {
+                        superclassInfo.addSubclass(thisClassInfo);
+                    }
+                }
+
+                if (thisClassInfo.isEnum()) {
+                    LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
+                    domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
+                }
+            }
+        }
+
+        domainInfo.finish();
+
+        return domainInfo;
+    }
 
     private static final String dateSignature = "java.util.Date";
     private static final String bigDecimalSignature = "java.math.BigDecimal";

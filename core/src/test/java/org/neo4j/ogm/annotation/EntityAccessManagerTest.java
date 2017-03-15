@@ -48,7 +48,6 @@ import org.neo4j.ogm.metadata.reflect.RelationalReader;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
-import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 
 /**
  * @author Adam George
@@ -60,7 +59,7 @@ public class EntityAccessManagerTest {
 
     @Before
     public void setup() {
-        domainInfo = DomainInfoBuilder.create(
+        domainInfo = DomainInfo.create(
                 "org.neo4j.ogm.domain.forum",
                 "org.neo4j.ogm.domain.satellites",
                 "org.neo4j.ogm.annotation"

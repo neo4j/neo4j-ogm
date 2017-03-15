@@ -15,6 +15,7 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,6 +48,24 @@ import org.slf4j.LoggerFactory;
 public class ClassInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassInfo.class);
+
+    public static ClassInfo create(Class<?> cls) {
+
+        final int modifiers = cls.getModifiers();
+        boolean isInterface = Modifier.isInterface(modifiers);
+        boolean isAbstract = Modifier.isAbstract(modifiers);
+        boolean isEnum = cls.isEnum();
+
+        String directSuperclassName = null;
+        if (cls.getSuperclass() != null) {
+            directSuperclassName = cls.getSuperclass().getName();
+        }
+        InterfacesInfo interfacesInfo = InterfacesInfo.create(cls);
+        FieldsInfo fieldsInfo = FieldsInfo.create(cls);
+        MethodsInfo methodsInfo = MethodsInfo.create(cls);
+        AnnotationsInfo annotationsInfo = AnnotationsInfo.create(cls);
+        return new ClassInfo(isAbstract, isInterface, isEnum, cls.getName(), directSuperclassName, interfacesInfo, annotationsInfo, fieldsInfo, methodsInfo);
+    }
 
     private final List<ClassInfo> directSubclasses = new ArrayList<>();
     private final List<ClassInfo> directInterfaces = new ArrayList<>();

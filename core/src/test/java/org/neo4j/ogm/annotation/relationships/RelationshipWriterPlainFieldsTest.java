@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.reflect.RelationalWriter;
@@ -35,7 +34,7 @@ import org.neo4j.ogm.metadata.DomainInfo;
 public class RelationshipWriterPlainFieldsTest {
 
     private EntityAccessManager entityAccessStrategy = new EntityAccessManager();
-    private DomainInfo domainInfo = DomainInfoBuilder.create(this.getClass().getPackage().getName());
+    private DomainInfo domainInfo = DomainInfo.create(this.getClass().getPackage().getName());
 
     @Test
     public void shouldFindWriterForCollection() {

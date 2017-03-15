@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.metadata;
 
+import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,16 @@ import java.util.Map;
  * @author Vince Bickers
  */
 public class AnnotationsInfo {
+
+    public static AnnotationsInfo create(Class<?> cls) {
+        Map<String, AnnotationInfo> classAnnotations = new HashMap<>();
+        final Annotation[] declaredAnnotations = cls.getDeclaredAnnotations();
+        for (Annotation annotation: declaredAnnotations) {
+            AnnotationInfo info = AnnotationInfo.create(annotation);
+            classAnnotations.put(info.getName(), info);
+        }
+        return new AnnotationsInfo(classAnnotations);
+    }
 
     private final Map<String, AnnotationInfo> classAnnotations;
 

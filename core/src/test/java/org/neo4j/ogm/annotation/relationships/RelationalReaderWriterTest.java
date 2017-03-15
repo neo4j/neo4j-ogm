@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.*;
-import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
@@ -43,7 +42,7 @@ public class RelationalReaderWriterTest {
     @Before
     public void setup() {
         entityAccessStrategy = new EntityAccessManager();
-        domainInfo = DomainInfoBuilder.create("org.neo4j.ogm.domain.entityMapping");
+        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.entityMapping");
     }
 
     /**

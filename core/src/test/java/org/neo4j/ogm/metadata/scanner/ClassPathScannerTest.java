@@ -16,10 +16,7 @@ package org.neo4j.ogm.metadata.scanner;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +25,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
-import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
-import org.reflections.util.ClasspathHelper;
 
 /**
  * @author Luanne Misquitta
@@ -39,7 +34,7 @@ public class ClassPathScannerTest {
 
     @Test
     public void directoryShouldBeScanned() {
-        final DomainInfo domainInfo = DomainInfoBuilder.create("org.neo4j.ogm.domain.bike");
+        final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.bike");
 
         assertEquals(5, domainInfo.getClassInfoMap().size());
 
@@ -53,7 +48,7 @@ public class ClassPathScannerTest {
 
     @Test
     public void nestedDirectoryShouldBeScanned() {
-        final DomainInfo domainInfo = DomainInfoBuilder.create("org.neo4j.ogm.domain.convertible");
+        final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
 
         assertEquals(18, domainInfo.getClassInfoMap().size());
 
@@ -79,7 +74,7 @@ public class ClassPathScannerTest {
 
     @Test
     public void zipFileWithDomainClassesShouldBeScanned() throws IOException {
-        final DomainInfo domainInfo = DomainInfoBuilder.create("concert.domain");
+        final DomainInfo domainInfo = DomainInfo.create("concert.domain");
         assertEquals(2, domainInfo.getClassInfoMap().size());
 
         Set<String> classNames = domainInfo.getClassInfoMap().keySet();
@@ -89,7 +84,7 @@ public class ClassPathScannerTest {
 
     @Test
     public void domainClassesInNestedZipShouldBeScanned() {
-        final DomainInfo domainInfo = DomainInfoBuilder.create("radio.domain");
+        final DomainInfo domainInfo = DomainInfo.create("radio.domain");
         assertEquals(2, domainInfo.getClassInfoMap().size());
 
         Set<String> classNames = domainInfo.getClassInfoMap().keySet();
@@ -99,7 +94,7 @@ public class ClassPathScannerTest {
 
     @Test
     public void domainClassesInDirectoryInNestedZipShouldBeScanned() {
-        final DomainInfo domainInfo = DomainInfoBuilder.create("event.domain");
+        final DomainInfo domainInfo = DomainInfo.create("event.domain");
         assertEquals(1, domainInfo.getClassInfoMap().size());
 
         Set<String> classNames = domainInfo.getClassInfoMap().keySet();

@@ -14,7 +14,6 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.builder.DomainInfoBuilder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +28,7 @@ public class DomainInfoTest {
 
     @Before
     public void setUp() {
-        domainInfo = DomainInfoBuilder.create("org.neo4j.ogm.domain.forum");
+        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.forum");
     }
 
 

@@ -254,10 +254,10 @@ public class EntityAccessManager {
 
     //TODO make these LRU caches with configurable size
     private static Map<ClassInfo, Map<DirectedRelationship, FieldReader>> relationalReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalWriter>> relationalWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalWriter>> iterableWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldWriter>> relationalWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldWriter>> iterableWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldReader>> iterableReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Map<Class, RelationalWriter>> relationshipEntityWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<Class, FieldWriter>> relationshipEntityWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, FieldWriter>> propertyWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, FieldReader>> propertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<FieldReader>> propertyReaders = new HashMap<>();
@@ -312,28 +312,28 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns a RelationalWriter for a scalar value represented as a relationship in the graph (i.e. not a primitive property)
+     * Returns a FieldWriter for a scalar value represented as a relationship in the graph (i.e. not a primitive property)
      *
      * @param classInfo the ClassInfo (or a superclass thereof) declaring the relationship
      * @param relationshipType the name of the relationship as it is in the graph
      * @param relationshipDirection the direction of the relationship as it is in the graph
      * @param scalarValue an Object whose class the relationship is defined for
-     * @return a valid RelationalWriter or null if none is found
+     * @return a valid FieldWriter or null if none is found
      */
-    public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
+    public static FieldWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
         return getRelationalWriter(classInfo, relationshipType, relationshipDirection, scalarValue.getClass());
     }
 
     /**
-     * Returns a RelationalWriter for a scalar type on a ClassInfo that is not a primitive graph property
+     * Returns a FieldWriter for a scalar type on a ClassInfo that is not a primitive graph property
      *
      * @param classInfo the ClassInfo (or a superclass thereof) declaring the relationship
      * @param relationshipType the name of the relationship as it is in the graph
      * @param relationshipDirection the direction of the relationship as it is in the graph
      * @param objectType the class the relationship is defined for
-     * @return a valid RelationalWriter or null if none is found
+     * @return a valid FieldWriter or null if none is found
      */
-    public static RelationalWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Class<?> objectType) {
+    public static FieldWriter getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Class<?> objectType) {
 
         if (!relationalWriterCache.containsKey(classInfo)) {
             relationalWriterCache.put(classInfo, new HashMap<>());
@@ -486,15 +486,15 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns an RelationalWriter for an iterable of a non-primitive scalar type defined by a ClassInfo
+     * Returns an FieldWriter for an iterable of a non-primitive scalar type defined by a ClassInfo
      *
      * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
      * @param relationshipType the name of the relationship as it is in the graph
      * @param relationshipDirection the direction of the relationship as it is in the graph
      * @param parameterType the type that will be iterated over
-     * @return a valid RelationalWriter or null if none is found
+     * @return a valid FieldWriter or null if none is found
      */
-    public static RelationalWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static FieldWriter getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if (!iterableWriterCache.containsKey(classInfo)) {
             iterableWriterCache.put(classInfo, new HashMap<>());
         }
@@ -633,7 +633,7 @@ public class EntityAccessManager {
 
     @Deprecated
     // TODO replace with getStartNodeWriter() and getEndNodeWriter()
-    public static RelationalWriter getStartOrEndNodeWriter(ClassInfo classInfo, Class entityAnnotation) {
+    public static FieldWriter getStartOrEndNodeWriter(ClassInfo classInfo, Class entityAnnotation) {
         if (entityAnnotation.getName() == null) {
             throw new RuntimeException(entityAnnotation.getSimpleName() + " is not defined on " + classInfo.name());
         }

@@ -23,7 +23,7 @@ import org.neo4j.ogm.utils.ClassUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class FieldWriter implements RelationalWriter {
+public class FieldWriter {
 
     private final FieldInfo fieldInfo;
     private final Field field;
@@ -53,7 +53,6 @@ public class FieldWriter implements RelationalWriter {
         }
     }
 
-    @Override
     public void write(Object instance, Object value) {
 
         if (fieldInfo.hasPropertyConverter()) {
@@ -68,7 +67,6 @@ public class FieldWriter implements RelationalWriter {
         }
     }
 
-    @Override
     public Class<?> type() {
         Class convertedType = fieldInfo.convertedType();
         if (convertedType != null) {
@@ -77,17 +75,14 @@ public class FieldWriter implements RelationalWriter {
         return fieldType;
     }
 
-    @Override
     public String relationshipName() {
         return this.fieldInfo.relationship();
     }
 
-    @Override
     public boolean forScalar() {
         return !Iterable.class.isAssignableFrom(type()) && !type().isArray();
     }
 
-    @Override
     public String typeParameterDescriptor() {
         return fieldInfo.getTypeDescriptor();
     }

@@ -220,7 +220,7 @@ public class MappingContext {
                 }
             }
         } else {
-            PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+            FieldReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
             removeType(type, identityReader);
         }
     }
@@ -258,7 +258,7 @@ public class MappingContext {
     public void removeEntity(Object entity) {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
         Long id = (Long) identityReader.readProperty(entity);
 
         purge(entity, identityReader, type);
@@ -291,7 +291,7 @@ public class MappingContext {
 
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        PropertyReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 
         Long id = (Long) identityReader.readProperty(entity);
 
@@ -338,7 +338,7 @@ public class MappingContext {
         }
     }
 
-    private void removeType(Class<?> type, PropertyReader identityReader) {
+    private void removeType(Class<?> type, FieldReader identityReader) {
 
         for (Object entity : getEntities(type)) {
             purge(entity, identityReader, type);
@@ -357,7 +357,7 @@ public class MappingContext {
      * TODO: The best way to fix this method is to replace it with an iterative approach using a <code>Stack</code> and
      * call remove() on the mappedRelationshipIterator. This will be both efficient and safe.
      */
-    private void purge(Object entity, PropertyReader identityReader, Class type) {
+    private void purge(Object entity, FieldReader identityReader, Class type) {
         Long id = (Long) identityReader.readProperty(entity);
         if (id != null) {
             // remove a NodeEntity
@@ -374,7 +374,7 @@ public class MappingContext {
                                 Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
                                 if (relEntity != null) {
                                     ClassInfo relClassInfo = metaData.classInfo(relEntity);
-                                    PropertyReader relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
+                                    FieldReader relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
                                     purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
                                 }
                             }

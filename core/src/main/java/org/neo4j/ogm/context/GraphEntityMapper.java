@@ -264,7 +264,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             Object value = property.getValue();
             // merge iterable / arrays and co-erce to the correct attribute type
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                PropertyReader reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
+                FieldReader reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
                 if (reader != null) {
                     Object currentValue = reader.readProperty(instance);
                     Class<?> paramType = writer.type();

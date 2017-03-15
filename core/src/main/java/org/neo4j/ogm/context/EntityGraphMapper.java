@@ -22,10 +22,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
 import org.neo4j.ogm.cypher.compiler.Compiler;
-import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.reflect.PropertyReader;
-import org.neo4j.ogm.metadata.reflect.RelationalReader;
+import org.neo4j.ogm.metadata.reflect.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
@@ -235,8 +232,8 @@ public class EntityGraphMapper implements EntityMapper {
             LOGGER.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
-            Collection<PropertyReader> propertyReaders = EntityAccessManager.getPropertyReaders(classInfo);
-            for (PropertyReader propertyReader : propertyReaders) {
+            Collection<FieldReader> propertyReaders = EntityAccessManager.getPropertyReaders(classInfo);
+            for (FieldReader propertyReader : propertyReaders) {
                 if (propertyReader.isComposite()) {
                     nodeBuilder.addProperties(propertyReader.readComposite(entity));
                 } else {
@@ -628,7 +625,7 @@ public class EntityGraphMapper implements EntityMapper {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 
-        for (PropertyReader propertyReader : EntityAccessManager.getPropertyReaders(relEntityClassInfo)) {
+        for (FieldReader propertyReader : EntityAccessManager.getPropertyReaders(relEntityClassInfo)) {
             relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
         }
     }

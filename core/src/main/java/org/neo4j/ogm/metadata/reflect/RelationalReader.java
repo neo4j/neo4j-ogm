@@ -12,7 +12,7 @@
 package org.neo4j.ogm.metadata.reflect;
 
 /**
- * Specialisation of {@link PropertyReader} that also exposes the relationship type represented by the corresponding
+ * Specialisation of {@link FieldReader} that also exposes the relationship type represented by the corresponding
  * object member.
  *
  * @author Adam George

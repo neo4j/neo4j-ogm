@@ -26,8 +26,8 @@ import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.TransientRelationship;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.reflect.PropertyReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
@@ -186,7 +186,7 @@ public class RequestExecutor {
 			if (!(obj instanceof TransientRelationship)) {
 				ClassInfo classInfo = session.metaData().classInfo(obj);
 				if (!classInfo.isRelationshipEntity()) {
-					PropertyReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+					FieldReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 					Long id = (Long) idReader.readProperty(obj);
 					if (id != null) {
 						LOGGER.debug("updating existing node id: {}, {}", id, obj);

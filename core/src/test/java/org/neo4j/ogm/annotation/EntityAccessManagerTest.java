@@ -104,7 +104,7 @@ public class EntityAccessManagerTest {
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);
 
         // test reading via field
-        PropertyReader reader = EntityAccessManager.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
+        FieldReader reader = EntityAccessManager.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant reader shouldn't be null", reader);
         assertEquals(domainObject.propertyWithoutAccessorMethods, reader.readProperty(domainObject));
     }
@@ -192,7 +192,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.annotatedTestProperty = "more arbitrary text";
 
-        PropertyReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "testProp");
+        FieldReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.annotatedTestProperty, objectAccess.readProperty(domainObject));
     }
@@ -203,14 +203,14 @@ public class EntityAccessManagerTest {
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.propertyWithDifferentAnnotatedGetter = "more arbitrary text";
-        Collection<PropertyReader> readers = EntityAccessManager.getPropertyReaders(classInfo);
+        Collection<FieldReader> readers = EntityAccessManager.getPropertyReaders(classInfo);
 
 
-        PropertyReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "differentAnnotationOnGetter");
+        FieldReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "differentAnnotationOnGetter");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.propertyWithDifferentAnnotatedGetter, objectAccess.readProperty(domainObject));
 
-        for (PropertyReader reader : readers) {
+        for (FieldReader reader : readers) {
             if (reader.propertyName().equals("differentAnnotationOnGetter")) {
                 assertTrue(reader instanceof FieldReader);
             }
@@ -224,7 +224,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.nonAnnotatedTestProperty = new Double(30.16);
 
-        PropertyReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
+        FieldReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.readProperty(domainObject));
     }
@@ -270,7 +270,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.setId(id);
 
-        PropertyReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
         assertNotNull("The resultant ID reader shouldn't be null", idReader);
         assertEquals(id, idReader.readProperty(domainObject));
     }

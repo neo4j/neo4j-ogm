@@ -259,9 +259,9 @@ public class EntityAccessManager {
     private static Map<ClassInfo, Map<DirectedRelationshipForType, RelationalReader>> iterableReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<Class, RelationalWriter>> relationshipEntityWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<String, FieldWriter>> propertyWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<String, PropertyReader>> propertyReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Collection<PropertyReader>> propertyReaders = new HashMap<>();
-    private static Map<ClassInfo, PropertyReader> identityPropertyReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Map<String, FieldReader>> propertyReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Collection<FieldReader>> propertyReaders = new HashMap<>();
+    private static Map<ClassInfo, FieldReader> identityPropertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<RelationalReader>> relationalReaders = new HashMap<>();
 
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
@@ -296,7 +296,7 @@ public class EntityAccessManager {
      * @param propertyName the property name of the property in the graph
      * @return A PropertyReader, or none if not found
      */
-    public static PropertyReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
+    public static FieldReader getPropertyReader(final ClassInfo classInfo, String propertyName) {
 
         if (!propertyReaderCache.containsKey(classInfo)) {
             propertyReaderCache.put(classInfo, new HashMap<>());
@@ -305,7 +305,7 @@ public class EntityAccessManager {
             return propertyReaderCache.get(classInfo).get(propertyName);
         }
 
-        PropertyReader propertyReader = determinePropertyAccessor(classInfo, propertyName, (AccessorFactory<PropertyReader>) fieldInfo -> new FieldReader(classInfo, fieldInfo));
+        FieldReader propertyReader = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> new FieldReader(classInfo, fieldInfo));
 
         propertyReaderCache.get(classInfo).put(propertyName, propertyReader);
         return propertyReader;
@@ -470,7 +470,7 @@ public class EntityAccessManager {
      * @param classInfo The ClassInfo whose PropertyReaders we want
      * @return a Collection of PropertyReader instances which will be empty if no primitive properties are defined by the ClassInfo
      */
-    public static Collection<PropertyReader> getPropertyReaders(ClassInfo classInfo) {
+    public static Collection<FieldReader> getPropertyReaders(ClassInfo classInfo) {
         return propertyReaders.computeIfAbsent(classInfo, k1 -> classInfo.propertyFields().stream().map(k -> new FieldReader(classInfo, k)).collect(Collectors.toList()));
     }
 
@@ -587,8 +587,8 @@ public class EntityAccessManager {
      * @param classInfo The ClassInfo declaring the identity property
      * @return A PropertyReader, or null if not found
      */
-    public static PropertyReader getIdentityPropertyReader(ClassInfo classInfo) {
-        PropertyReader propertyReader = identityPropertyReaderCache.get(classInfo);
+    public static FieldReader getIdentityPropertyReader(ClassInfo classInfo) {
+        FieldReader propertyReader = identityPropertyReaderCache.get(classInfo);
         if (propertyReader != null) {
             return propertyReader;
         }

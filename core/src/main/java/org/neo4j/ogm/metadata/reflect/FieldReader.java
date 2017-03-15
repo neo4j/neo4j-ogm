@@ -24,7 +24,7 @@ import org.neo4j.ogm.metadata.ObjectAnnotations;
  * @author Adam George
  * @author Luanne Misquitta
  */
-public class FieldReader implements RelationalReader, PropertyReader {
+public class FieldReader implements RelationalReader {
 
     private final ClassInfo classInfo;
     private final FieldInfo fieldInfo;
@@ -39,7 +39,6 @@ public class FieldReader implements RelationalReader, PropertyReader {
         return FieldWriter.read(classInfo.getField(fieldInfo), instance);
     }
 
-    @Override
     public Object readProperty(Object instance) {
         if (fieldInfo.hasCompositeConverter()) {
             throw new IllegalStateException(
@@ -52,7 +51,6 @@ public class FieldReader implements RelationalReader, PropertyReader {
         return value;
     }
 
-    @Override
     public Map<String, ?> readComposite(Object instance) {
         if (!fieldInfo.hasCompositeConverter()) {
             throw new IllegalStateException(
@@ -67,12 +65,10 @@ public class FieldReader implements RelationalReader, PropertyReader {
         return fieldInfo.relationship();
     }
 
-    @Override
     public String propertyName() {
         return fieldInfo.property();
     }
 
-    @Override
     public boolean isComposite() {
         return fieldInfo.hasCompositeConverter();
     }

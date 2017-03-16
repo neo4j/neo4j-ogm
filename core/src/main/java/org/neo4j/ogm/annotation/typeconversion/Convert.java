@@ -49,18 +49,7 @@ public @interface Convert {
     Class<?> graphPropertyType() default Unset.class;
 
     /** Placeholder to allow the annotation to be applied without specifying an explicit converter implementation. */
-    final class Unset implements AttributeConverter<Object, Object> {
-
-        @Override
-        public Object toGraphProperty(Object value) {
-            return null;
-        }
-
-        @Override
-        public Object toEntityAttribute(Object value) {
-            return null;
-        }
-    }
+    abstract class Unset implements AttributeConverter<Object, Object> {}
 
 }
 

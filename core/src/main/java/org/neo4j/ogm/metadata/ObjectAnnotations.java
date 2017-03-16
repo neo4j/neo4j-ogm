@@ -51,7 +51,7 @@ public class ObjectAnnotations {
         AnnotationInfo customType = get(Convert.class);
         if (customType != null) {
             String classDescriptor = customType.get(Convert.CONVERTER, null);
-            if (classDescriptor == null) {
+            if (classDescriptor == null || Convert.Unset.class.getName().equals(classDescriptor)) {
                 return null; // will have a default proxy converter applied later on
             }
 

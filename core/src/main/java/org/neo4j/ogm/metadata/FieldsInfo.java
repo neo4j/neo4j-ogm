@@ -24,8 +24,14 @@ import org.neo4j.ogm.annotation.Transient;
  */
 public class FieldsInfo {
 
-    public static FieldsInfo create(Class<?> cls) {
-        Map<String, FieldInfo> fields = new HashMap<>();
+    private final Map<String, FieldInfo> fields;
+
+    FieldsInfo() {
+        this.fields = new HashMap<>();
+    }
+
+    public FieldsInfo(Class<?> cls) {
+        this.fields = new HashMap<>();
 
         for (Field field : cls.getDeclaredFields()) {
             final int modifiers = field.getModifiers();
@@ -33,7 +39,7 @@ public class FieldsInfo {
                 ObjectAnnotations objectAnnotations = new ObjectAnnotations();
                 final Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
                 for (Annotation annotation : declaredAnnotations) {
-                    AnnotationInfo info = AnnotationInfo.create(annotation);
+                    AnnotationInfo info = new AnnotationInfo(annotation);
                     objectAnnotations.put(info.getName(), info);
                 }
                 if (objectAnnotations.get(Transient.class) == null) {
@@ -69,17 +75,6 @@ public class FieldsInfo {
                 }
             }
         }
-        return new FieldsInfo(fields);
-    }
-
-    private final Map<String, FieldInfo> fields;
-
-    public FieldsInfo() {
-        this.fields = new HashMap<>();
-    }
-
-    public FieldsInfo(Map<String, FieldInfo> fields) {
-        this.fields = new HashMap<>(fields);
     }
 
     public Collection<FieldInfo> fields() {

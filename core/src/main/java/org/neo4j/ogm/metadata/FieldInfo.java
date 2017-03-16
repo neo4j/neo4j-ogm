@@ -31,8 +31,8 @@ import org.neo4j.ogm.utils.RelationshipUtils;
  */
 public class FieldInfo {
 
-    private static final String primitives = "char,byte,short,int,long,float,double,boolean,char[],byte[],short[],int[],long[],float[],double[],boolean[]";
-    private static final String autoboxers =
+    private static final String PRIMITIVES = "char,byte,short,int,long,float,double,boolean,char[],byte[],short[],int[],long[],float[],double[],boolean[]";
+    private static final String AUTOBOXERS =
             "java.lang.Object" +
                     "java.lang.Character" +
                     "java.lang.Byte" +
@@ -149,9 +149,9 @@ public class FieldInfo {
 
     public boolean persistableAsProperty() {
 
-        return primitives.contains(descriptor)
-                || (autoboxers.contains(descriptor) && typeParameterDescriptor == null)
-                || (typeParameterDescriptor != null && autoboxers.contains(typeParameterDescriptor))
+        return PRIMITIVES.contains(descriptor)
+                || (AUTOBOXERS.contains(descriptor) && typeParameterDescriptor == null)
+                || (typeParameterDescriptor != null && AUTOBOXERS.contains(typeParameterDescriptor))
                 || propertyConverter != null
                 || compositeConverter != null;
     }

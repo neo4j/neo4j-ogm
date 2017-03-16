@@ -23,24 +23,20 @@ import java.util.Map;
  */
 public class AnnotationsInfo {
 
-    public static AnnotationsInfo create(Class<?> cls) {
-        Map<String, AnnotationInfo> classAnnotations = new HashMap<>();
-        final Annotation[] declaredAnnotations = cls.getDeclaredAnnotations();
-        for (Annotation annotation: declaredAnnotations) {
-            AnnotationInfo info = AnnotationInfo.create(annotation);
-            classAnnotations.put(info.getName(), info);
-        }
-        return new AnnotationsInfo(classAnnotations);
-    }
-
     private final Map<String, AnnotationInfo> classAnnotations;
 
     public AnnotationsInfo() {
         this.classAnnotations = new HashMap<>();
     }
 
-    public AnnotationsInfo(Map<String, AnnotationInfo> classAnnotations) {
-        this.classAnnotations = new HashMap<>(classAnnotations);
+    public AnnotationsInfo(Class<?> cls) {
+        this.classAnnotations = new HashMap<>();
+
+        final Annotation[] declaredAnnotations = cls.getDeclaredAnnotations();
+        for (Annotation annotation: declaredAnnotations) {
+            AnnotationInfo info = new AnnotationInfo(annotation);
+            classAnnotations.put(info.getName(), info);
+        }
     }
 
     public Collection<AnnotationInfo> list() {

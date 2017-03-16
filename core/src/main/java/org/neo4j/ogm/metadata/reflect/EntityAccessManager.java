@@ -298,16 +298,22 @@ public class EntityAccessManager {
      */
     public static FieldAccessor getPropertyReader(final ClassInfo classInfo, String propertyName) {
 
-        if (!propertyReaderCache.containsKey(classInfo)) {
-            propertyReaderCache.put(classInfo, new HashMap<>());
+        Map<String, FieldAccessor> fieldAccessorMap = propertyReaderCache.get(classInfo);
+
+        if (fieldAccessorMap == null) {
+            fieldAccessorMap = new HashMap<>();
+            propertyReaderCache.put(classInfo, fieldAccessorMap);
         }
-        if (propertyReaderCache.get(classInfo).containsKey(propertyName)) {
+
+        final FieldAccessor fieldAccessor = fieldAccessorMap.get(propertyName);
+
+        if (fieldAccessor != null) {
             return propertyReaderCache.get(classInfo).get(propertyName);
         }
 
         FieldAccessor propertyReader = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> new FieldAccessor(classInfo, fieldInfo));
 
-        propertyReaderCache.get(classInfo).put(propertyName, propertyReader);
+        fieldAccessorMap.put(propertyName, propertyReader);
         return propertyReader;
     }
 

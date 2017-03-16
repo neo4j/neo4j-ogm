@@ -35,6 +35,17 @@ import org.slf4j.LoggerFactory;
 public class DomainInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
+    private static final String DATE_SIGNATURE = "java.util.Date";
+    private static final String BIG_DECIMAL_SIGNATURE = "java.math.BigDecimal";
+    private static final String BIG_INTEGER_SIGNATURE = "java.math.BigInteger";
+    private static final String BYTE_ARRAY_SIGNATURE = "byte[]";
+    private static final String BYTE_ARRAY_WRAPPER_SIGNATURE = "java.lang.Byte[]";
+
+    private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
+    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
+    private final Set<Class> enumTypes = new HashSet<>();
+    private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
     public static DomainInfo create(String... packages) {
 
@@ -43,7 +54,7 @@ public class DomainInfo {
         DomainInfo domainInfo = new DomainInfo();
 
         for (Class<?> cls : allClasses) {
-            ClassInfo classInfo = ClassInfo.create(cls);
+            ClassInfo classInfo = new ClassInfo(cls);
 
             String className = classInfo.name();
             String superclassName = classInfo.superclassName();
@@ -84,20 +95,6 @@ public class DomainInfo {
         return domainInfo;
     }
 
-    private static final String dateSignature = "java.util.Date";
-    private static final String bigDecimalSignature = "java.math.BigDecimal";
-    private static final String bigIntegerSignature = "java.math.BigInteger";
-    private static final String byteArraySignature = "byte[]";
-    private static final String byteArrayWrapperSignature = "java.lang.Byte[]";
-
-    public final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
-    private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
-
-    public final Set<Class> enumTypes = new HashSet<>();
-
-    private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
-
     private void buildAnnotationNameToClassInfoMap() {
 
         LOGGER.info("Building annotation class map");
@@ -127,7 +124,7 @@ public class DomainInfo {
         }
     }
 
-    public void registerConversionCallback(ConversionCallback conversionCallback) {
+    void registerConversionCallback(ConversionCallback conversionCallback) {
         this.conversionCallbackRegistry.registerConversionCallback(conversionCallback);
     }
 
@@ -266,12 +263,12 @@ public class DomainInfo {
     }
 
     // all classes, including interfaces will be registered in classNameToClassInfo map
-    public ClassInfo getClassSimpleName(String fullOrPartialClassName) {
+    ClassInfo getClassSimpleName(String fullOrPartialClassName) {
         return getClassInfo(fullOrPartialClassName, classNameToClassInfo);
     }
 
 
-    public ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
+    ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
         ClassInfo classInfo = getClassSimpleName(fullOrPartialClassName);
         if (classInfo != null && classInfo.isInterface()) {
             return classInfo;
@@ -293,7 +290,7 @@ public class DomainInfo {
         return match;
     }
 
-    public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
+    List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
         return annotationNameToClassInfo.get(annotation);
     }
 
@@ -302,15 +299,15 @@ public class DomainInfo {
         if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
 
             final String typeDescriptor = fieldInfo.getTypeDescriptor();
-            if (typeDescriptor.contains(dateSignature)) {
+            if (typeDescriptor.contains(DATE_SIGNATURE)) {
                 setDateFieldConverter(fieldInfo);
-            } else if (typeDescriptor.contains(bigIntegerSignature)) {
+            } else if (typeDescriptor.contains(BIG_INTEGER_SIGNATURE)) {
                 setBigIntegerFieldConverter(fieldInfo);
-            } else if (typeDescriptor.contains(bigDecimalSignature)) {
+            } else if (typeDescriptor.contains(BIG_DECIMAL_SIGNATURE)) {
                 setBigDecimalConverter(fieldInfo);
-            } else if (typeDescriptor.contains(byteArraySignature)) {
+            } else if (typeDescriptor.contains(BYTE_ARRAY_SIGNATURE)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (typeDescriptor.contains(byteArrayWrapperSignature)) {
+            } else if (typeDescriptor.contains(BYTE_ARRAY_WRAPPER_SIGNATURE)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
                 if (fieldInfo.getAnnotations().get(Convert.class) != null) {
@@ -326,6 +323,10 @@ public class DomainInfo {
                 }
 
                 Class fieldType = ClassUtils.getType(typeDescriptor);
+
+                if (fieldType == null) {
+                    throw new RuntimeException("Class " + classInfo.name() + " field " + fieldInfo.getName() + " has null field type.");
+                }
 
                 boolean enumConverterSet = false;
                 for (Class enumClass : enumTypes) {

@@ -26,8 +26,14 @@ import java.util.Map;
  */
 public class MethodsInfo {
 
-    public static MethodsInfo create(Class<?> cls) {
-        Map<String, MethodInfo> methods = new HashMap<>();
+    private final Map<String, MethodInfo> methods;
+
+    MethodsInfo() {
+        this.methods = new HashMap<>();
+    }
+
+    public MethodsInfo(Class<?> cls) {
+        this.methods = new HashMap<>();
 
         for (Method method : cls.getDeclaredMethods()) {
             final int modifiers = method.getModifiers();
@@ -35,21 +41,14 @@ public class MethodsInfo {
                 ObjectAnnotations objectAnnotations = new ObjectAnnotations();
                 final Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
                 for (Annotation annotation : declaredAnnotations) {
-                    AnnotationInfo info = AnnotationInfo.create(annotation);
+                    AnnotationInfo info = new AnnotationInfo(annotation);
                     objectAnnotations.put(info.getName(), info);
                 }
                 methods.put(method.getName(), new MethodInfo(method.getDeclaringClass().getName(), method.getName(), objectAnnotations));
             }
         }
-
-        return new MethodsInfo(methods);
     }
 
-    private final Map<String, MethodInfo> methods;
-
-    public MethodsInfo() {
-        this.methods = new HashMap<>();
-    }
 
     public MethodsInfo(Map<String, MethodInfo> methods) {
         this.methods = new HashMap<>(methods);

@@ -22,25 +22,18 @@ import java.util.Map;
  */
 public class InterfacesInfo {
 
-    public static InterfacesInfo create(Class<?> cls) {
-        Map<String, InterfaceInfo> interfaceMap = new HashMap<>();
-        for (Class iface: cls.getInterfaces()) {
-            interfaceMap.put(iface.getName(), new InterfaceInfo(iface.getName()));
-        }
-
-        return new InterfacesInfo(interfaceMap);
-    }
-
     private final Map<String, InterfaceInfo> interfaceMap;
 
-    public InterfacesInfo() {
+    InterfacesInfo() {
         this.interfaceMap = new HashMap<>();
     }
 
-    public InterfacesInfo(Map<String, InterfaceInfo> interfaceMap) {
-        this.interfaceMap = new HashMap(interfaceMap);
+    public InterfacesInfo(Class<?> cls) {
+        this.interfaceMap = new HashMap();
+        for (Class iface : cls.getInterfaces()) {
+            interfaceMap.put(iface.getName(), new InterfaceInfo(iface.getName()));
+        }
     }
-
 
     public Collection<InterfaceInfo> list() {
         return interfaceMap.values();

@@ -22,7 +22,7 @@ public class InterfaceInfo {
 
     private final String interfaceName;
 
-    public InterfaceInfo(String name) {
+    InterfaceInfo(String name) {
         this.interfaceName = name;
     }
 

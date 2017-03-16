@@ -15,7 +15,7 @@ package org.neo4j.ogm.utils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
@@ -43,7 +43,7 @@ public class EntityUtils {
         Collection<String> staticLabels = classInfo.staticLabels();
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
-            FieldReader reader = new FieldReader(classInfo, labelFieldInfo);
+            FieldAccessor reader = new FieldAccessor(classInfo, labelFieldInfo);
             Collection<String> labels = (Collection<String>) reader.readProperty(entity);
             return CollectionUtils.union(staticLabels, labels);
         }

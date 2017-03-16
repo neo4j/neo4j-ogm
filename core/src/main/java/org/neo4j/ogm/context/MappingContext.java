@@ -24,8 +24,8 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -96,7 +96,7 @@ public class MappingContext {
             final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
             final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
             if (primaryIndexField != null) {
-                final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
+                final Object primaryIndexValue = new FieldAccessor(primaryIndexClassInfo, primaryIndexField).read(entity);
                 primaryIndexNodeRegister.add(primaryIndexValue, entity);
             }
         }
@@ -123,7 +123,7 @@ public class MappingContext {
         final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
         final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
         if (primaryIndexField != null) {
-            final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
+            final Object primaryIndexValue = new FieldAccessor(primaryIndexClassInfo, primaryIndexField).read(entity);
             primaryIndexNodeRegister.remove(primaryIndexValue);
         }
 
@@ -135,7 +135,7 @@ public class MappingContext {
         final ClassInfo primaryIndexClassInfo = metaData.classInfo(entity);
         final FieldInfo primaryIndexField = primaryIndexClassInfo.primaryIndexField(); // also need to add the class to key to prevent collisions.
         if (primaryIndexField != null) {
-            final Object primaryIndexValue = new FieldReader(primaryIndexClassInfo, primaryIndexField).read(entity);
+            final Object primaryIndexValue = new FieldAccessor(primaryIndexClassInfo, primaryIndexField).read(entity);
             primaryIndexNodeRegister.remove(primaryIndexValue);
         }
         addNodeEntity(entity, id);
@@ -220,7 +220,7 @@ public class MappingContext {
                 }
             }
         } else {
-            FieldReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+            FieldAccessor identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
             removeType(type, identityReader);
         }
     }
@@ -258,7 +258,7 @@ public class MappingContext {
     public void removeEntity(Object entity) {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        FieldReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldAccessor identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
         Long id = (Long) identityReader.readProperty(entity);
 
         purge(entity, identityReader, type);
@@ -281,7 +281,7 @@ public class MappingContext {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
         Field identityField = classInfo.getField(classInfo.identityField());
-        FieldWriter.write(identityField, entity, null);
+        FieldAccessor.write(identityField, entity, null);
     }
 
 
@@ -291,7 +291,7 @@ public class MappingContext {
 
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        FieldReader identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldAccessor identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 
         Long id = (Long) identityReader.readProperty(entity);
 
@@ -310,8 +310,8 @@ public class MappingContext {
                     }
                 }
             } else if (relationshipEntityRegister.contains(id)) {
-                FieldReader startNodeReader = EntityAccessManager.getStartNodeReader(classInfo);
-                FieldReader endNodeReader = EntityAccessManager.getEndNodeReader(classInfo);
+                FieldAccessor startNodeReader = EntityAccessManager.getStartNodeReader(classInfo);
+                FieldAccessor endNodeReader = EntityAccessManager.getEndNodeReader(classInfo);
                 neighbours.add(startNodeReader.read(entity));
                 neighbours.add(endNodeReader.read(entity));
             }
@@ -330,15 +330,15 @@ public class MappingContext {
         while (relationshipEntityIdIterator.hasNext()) {
             Long relationshipEntityId = relationshipEntityIdIterator.next();
             Object relationshipEntity = relationshipEntityRegister.get(relationshipEntityId);
-            FieldReader startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(relationshipEntity));
-            FieldReader endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(relationshipEntity));
+            FieldAccessor startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(relationshipEntity));
+            FieldAccessor endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(relationshipEntity));
             if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity == endNodeReader.read(relationshipEntity)) {
                 relationshipEntityIdIterator.remove();
             }
         }
     }
 
-    private void removeType(Class<?> type, FieldReader identityReader) {
+    private void removeType(Class<?> type, FieldAccessor identityReader) {
 
         for (Object entity : getEntities(type)) {
             purge(entity, identityReader, type);
@@ -357,7 +357,7 @@ public class MappingContext {
      * TODO: The best way to fix this method is to replace it with an iterative approach using a <code>Stack</code> and
      * call remove() on the mappedRelationshipIterator. This will be both efficient and safe.
      */
-    private void purge(Object entity, FieldReader identityReader, Class type) {
+    private void purge(Object entity, FieldAccessor identityReader, Class type) {
         Long id = (Long) identityReader.readProperty(entity);
         if (id != null) {
             // remove a NodeEntity
@@ -374,7 +374,7 @@ public class MappingContext {
                                 Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
                                 if (relEntity != null) {
                                     ClassInfo relClassInfo = metaData.classInfo(relEntity);
-                                    FieldReader relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
+                                    FieldAccessor relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
                                     purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
                                 }
                             }
@@ -388,10 +388,10 @@ public class MappingContext {
                 // remove a RelationshipEntity
                 if (relationshipEntityRegister.contains(id)) {
                     relationshipEntityRegister.remove(id);
-                    FieldReader startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(entity));
+                    FieldAccessor startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(entity));
                     Object startNode = startNodeReader.read(entity);
                     removeEntity(startNode);
-                    FieldReader endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(entity));
+                    FieldAccessor endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(entity));
                     Object endNode = endNodeReader.read(entity);
                     removeEntity(endNode);
                 }
@@ -417,7 +417,7 @@ public class MappingContext {
         ClassInfo classInfo = metaData.classInfo(entity);
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
-            FieldReader reader = new FieldReader(classInfo, fieldInfo);
+            FieldAccessor reader = new FieldAccessor(classInfo, fieldInfo);
             Collection<String> labels = (Collection<String>) reader.read(entity);
             Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
             labelHistory(id).push(labels);

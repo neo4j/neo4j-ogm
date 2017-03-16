@@ -232,8 +232,8 @@ public class EntityGraphMapper implements EntityMapper {
             LOGGER.debug("{} has changed", entity);
             context.register(entity);
             ClassInfo classInfo = metaData.classInfo(entity);
-            Collection<FieldReader> propertyReaders = EntityAccessManager.getPropertyReaders(classInfo);
-            for (FieldReader propertyReader : propertyReaders) {
+            Collection<FieldAccessor> propertyReaders = EntityAccessManager.getPropertyReaders(classInfo);
+            for (FieldAccessor propertyReader : propertyReaders) {
                 if (propertyReader.isComposite()) {
                     nodeBuilder.addProperties(propertyReader.readComposite(entity));
                 } else {
@@ -317,7 +317,7 @@ public class EntityGraphMapper implements EntityMapper {
 
         ClassInfo srcInfo = metaData.classInfo(entity);
 
-        for (FieldReader reader : EntityAccessManager.getRelationalReaders(srcInfo)) {
+        for (FieldAccessor reader : EntityAccessManager.getRelationalReaders(srcInfo)) {
 
             String relationshipType = reader.relationshipType();
             String relationshipDirection = reader.relationshipDirection();
@@ -478,7 +478,7 @@ public class EntityGraphMapper implements EntityMapper {
                 relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type());
                 if (relationshipEndsChanged) {
                     Field identityField = metaData.classInfo(entity).getField(metaData.classInfo(entity).identityField());
-                    FieldWriter.write(identityField, entity, null); //reset the ID to null
+                    FieldAccessor.write(identityField, entity, null); //reset the ID to null
                 }
             } else {
                 relationshipBuilder = cypherBuilder.existingRelationship(relId, directedRelationship.type());
@@ -625,13 +625,13 @@ public class EntityGraphMapper implements EntityMapper {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 
-        for (FieldReader propertyReader : EntityAccessManager.getPropertyReaders(relEntityClassInfo)) {
+        for (FieldAccessor propertyReader : EntityAccessManager.getPropertyReaders(relEntityClassInfo)) {
             relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
         }
     }
 
     private Object getStartEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
-        FieldReader actualStartNodeReader = EntityAccessManager.getStartNodeReader(relEntityClassInfo);
+        FieldAccessor actualStartNodeReader = EntityAccessManager.getStartNodeReader(relEntityClassInfo);
         if (actualStartNodeReader != null) {
             return actualStartNodeReader.read(relationshipEntity);
         }
@@ -639,7 +639,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private Object getTargetEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
-        FieldReader actualEndNodeReader = EntityAccessManager.getEndNodeReader(relEntityClassInfo);
+        FieldAccessor actualEndNodeReader = EntityAccessManager.getEndNodeReader(relEntityClassInfo);
         if (actualEndNodeReader != null) {
             return actualEndNodeReader.read(relationshipEntity);
         }
@@ -874,7 +874,7 @@ public class EntityGraphMapper implements EntityMapper {
         boolean mapBothWays = false;
 
         ClassInfo tgtInfo = metaData.classInfo(tgtObject);
-        for (FieldReader tgtRelReader : EntityAccessManager.getRelationalReaders(tgtInfo)) {
+        for (FieldAccessor tgtRelReader : EntityAccessManager.getRelationalReaders(tgtInfo)) {
             String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
             if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing
                     && tgtRelReader.relationshipType().equals(relationshipType)) { //The source must have the same relationship type to the target as the target to the source

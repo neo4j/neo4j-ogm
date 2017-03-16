@@ -22,7 +22,7 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.GraphModel;
@@ -99,7 +99,7 @@ public class LoadByIdsDelegate {
         final FieldInfo primaryIndexField = classInfo.primaryIndexField();
 
         if (primaryIndexField != null) {
-            final Object primaryIndexValue = new FieldReader(classInfo, primaryIndexField).read(mapped);
+            final Object primaryIndexValue = new FieldAccessor(classInfo, primaryIndexField).read(mapped);
             if (ids.contains(primaryIndexValue)) {
                 return true;
             }

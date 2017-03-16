@@ -18,7 +18,7 @@ import java.util.*;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
@@ -176,7 +176,7 @@ public final class SaveEventDelegate {
         if (!parentClassInfo.isRelationshipEntity()) {
 
             // build the set of mapped relationships for this object. if there any new ones, the object is dirty
-            for (FieldReader reader : relationalReaders(parent)) {
+            for (FieldAccessor reader : relationalReaders(parent)) {
 
                 clearPreviousRelationships(parent, reader);
 
@@ -222,7 +222,7 @@ public final class SaveEventDelegate {
     // we expect to put them back in again later. Any differences afterwards between
     // current relationships and the main mapping context indicate that relationships
     // have been deleted since the last time the objects were loaded.
-    private void clearPreviousRelationships(Object parent, FieldReader reader) {
+    private void clearPreviousRelationships(Object parent, FieldAccessor reader) {
 
         Long id = EntityUtils.identity(parent, session.metaData());
         String type = reader.relationshipType();
@@ -277,7 +277,7 @@ public final class SaveEventDelegate {
 
         if (parentClassInfo != null) {
 
-            for (FieldReader reader : EntityAccessManager.getRelationalReaders(parentClassInfo)) {
+            for (FieldAccessor reader : EntityAccessManager.getRelationalReaders(parentClassInfo)) {
 
                 Object reference = reader.read(parent);
 
@@ -307,7 +307,7 @@ public final class SaveEventDelegate {
     }
 
 
-    private Collection<FieldReader> relationalReaders(Object object) {
+    private Collection<FieldAccessor> relationalReaders(Object object) {
         return EntityAccessManager.getRelationalReaders(this.session.metaData().classInfo(object));
     }
 
@@ -318,7 +318,7 @@ public final class SaveEventDelegate {
     //
     // note that even if the reference is a singleton, a collection is always
     // returned, to make it easier for the caller to handle the results.
-    private Collection<MappedRelationship> map(Object parent, FieldReader reader) {
+    private Collection<MappedRelationship> map(Object parent, FieldAccessor reader) {
 
         Set<MappedRelationship> mappedRelationships = new HashSet<>();
 
@@ -341,7 +341,7 @@ public final class SaveEventDelegate {
     // creates a MappedRelationship between the parent object and the reference. In the case that the reference
     // object is a RE, the relationship is created from the start node and the end node of the RE.
     // a MappedRelationship therefore represents a directed edge between two nodes in the graph.
-    private void mapInstance(Set<MappedRelationship> mappedRelationships, Object parent, FieldReader reader, Object reference) {
+    private void mapInstance(Set<MappedRelationship> mappedRelationships, Object parent, FieldAccessor reader, Object reference) {
 
         String type = reader.relationshipType();
         String direction = reader.relationshipDirection();
@@ -384,7 +384,7 @@ public final class SaveEventDelegate {
         }
     }
 
-    private void mapCollection(Set<MappedRelationship> mappedRelationships, Object parent, FieldReader reader, Collection references) {
+    private void mapCollection(Set<MappedRelationship> mappedRelationships, Object parent, FieldAccessor reader, Collection references) {
 
         for (Object reference : references) {
             mapInstance(mappedRelationships, parent, reader, reference);

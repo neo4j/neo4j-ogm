@@ -27,8 +27,7 @@ import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 
 /**
  * @author Luanne Misquitta
@@ -49,10 +48,10 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
         Set<RelEntity> parameter = new HashSet();
         parameter.addAll(Arrays.asList(relEntity));
 
-        FieldWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
+        FieldAccessor objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
 
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
+        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldAccessor);
         End end = new End();
         objectAccess.write(end, parameter);
         assertEquals(end.getRelEntities(), parameter);

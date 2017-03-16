@@ -30,7 +30,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.forum.ForumTopicLink;
 import org.neo4j.ogm.domain.forum.Member;
@@ -66,7 +65,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         // testProp matches the setter/getter name but because the field is annotated then it should be used instead
-        FieldWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
+        FieldAccessor objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -82,9 +81,9 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         DummyDomainObject domainObject = new DummyDomainObject();
 
-        FieldWriter objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
+        FieldAccessor objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue(objectAccess instanceof FieldWriter);
+        assertTrue(objectAccess instanceof FieldAccessor);
         assertEquals(String.class, objectAccess.type());
         objectAccess.write(domainObject, "TEST");
         assertEquals("TEST", domainObject.propertyMethodsIgnored);
@@ -98,13 +97,13 @@ public class EntityAccessManagerTest {
         domainObject.propertyWithoutAccessorMethods = 9;
 
         // test writing via field
-        FieldWriter writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
+        FieldAccessor writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant writer shouldn't be null", writer);
         writer.write(domainObject, 27);
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);
 
         // test reading via field
-        FieldReader reader = EntityAccessManager.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
+        FieldAccessor reader = EntityAccessManager.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
         assertNotNull("The resultant reader shouldn't be null", reader);
         assertEquals(domainObject.propertyWithoutAccessorMethods, reader.readProperty(domainObject));
     }
@@ -113,7 +112,7 @@ public class EntityAccessManagerTest {
     public void shouldRetrieveObjectAccessForWritingIterableObject() {
         ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
-        FieldWriter iterableAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "satellites", Relationship.OUTGOING);
+        FieldAccessor iterableAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "satellites", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", iterableAccess);
         Program spaceProgramme = new Program();
         iterableAccess.write(spaceProgramme, Arrays.asList(new Satellite()));
@@ -122,26 +121,13 @@ public class EntityAccessManagerTest {
     }
 
     @Test
-    @Ignore // we do expect this to work now.
-    public void shouldNotRetrieveSetterMethodObjectAccessIfTypesAreIncompatible() {
-        ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
-
-        Satellite singleSatellite = new Satellite();
-
-        // the SATELLITES type matches the setter that takes an Iterable argument
-        FieldWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "SATELLITES", Relationship.OUTGOING, singleSatellite);
-        assertNull("A compatible object accessor shouldn't have been found", objectAccess);
-    }
-
-
-    @Test
     public void shouldPreferAnnotatedFieldToPlainSetterMatchingRelationshipTypeWhenSettingRelationshipObject() {
         // 2nd, try to find a field annotated with with relationship type
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
         Member parameter = new Member();
 
-        FieldWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "CONTAINS", Relationship.OUTGOING, parameter);
+        FieldAccessor objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "CONTAINS", Relationship.OUTGOING, parameter);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, parameter);
@@ -163,7 +149,7 @@ public class EntityAccessManagerTest {
         Topic favouriteTopic = new Topic();
 
         // NB: the setter is called setTopic here, so a relationship type of just "TOPIC" would choose the setter
-        FieldWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", Relationship.OUTGOING, favouriteTopic);
+        FieldAccessor objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "FAVOURITE_TOPIC", Relationship.OUTGOING, favouriteTopic);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, favouriteTopic);
@@ -177,7 +163,7 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         Post forumPost = new Post();
 
-        FieldWriter objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "UTTER_RUBBISH", Relationship.OUTGOING, forumPost);
+        FieldAccessor objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "UTTER_RUBBISH", Relationship.OUTGOING, forumPost);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, forumPost);
@@ -192,7 +178,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.annotatedTestProperty = "more arbitrary text";
 
-        FieldReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "testProp");
+        FieldAccessor objectAccess = EntityAccessManager.getPropertyReader(classInfo, "testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.annotatedTestProperty, objectAccess.readProperty(domainObject));
     }
@@ -203,16 +189,16 @@ public class EntityAccessManagerTest {
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.propertyWithDifferentAnnotatedGetter = "more arbitrary text";
-        Collection<FieldReader> readers = EntityAccessManager.getPropertyReaders(classInfo);
+        Collection<FieldAccessor> readers = EntityAccessManager.getPropertyReaders(classInfo);
 
 
-        FieldReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "differentAnnotationOnGetter");
+        FieldAccessor objectAccess = EntityAccessManager.getPropertyReader(classInfo, "differentAnnotationOnGetter");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.propertyWithDifferentAnnotatedGetter, objectAccess.readProperty(domainObject));
 
-        for (FieldReader reader : readers) {
+        for (FieldAccessor reader : readers) {
             if (reader.propertyName().equals("differentAnnotationOnGetter")) {
-                assertTrue(reader instanceof FieldReader);
+                assertTrue(reader instanceof FieldAccessor);
             }
         }
     }
@@ -224,7 +210,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.nonAnnotatedTestProperty = new Double(30.16);
 
-        FieldReader objectAccess = EntityAccessManager.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
+        FieldAccessor objectAccess = EntityAccessManager.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.readProperty(domainObject));
     }
@@ -237,7 +223,7 @@ public class EntityAccessManagerTest {
         domainObject.member = new Member();
         domainObject.registeredMember = new Member();
 
-        FieldReader reader = EntityAccessManager.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
+        FieldAccessor reader = EntityAccessManager.getRelationalReader(classInfo, "CONTAINS", Relationship.OUTGOING);
         assertNotNull("The resultant object reader shouldn't be null", reader);
         assertSame(domainObject.member, reader.read(domainObject));
         assertEquals("CONTAINS", reader.relationshipType());
@@ -256,7 +242,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.postWithoutAccessorMethods = new Post();
 
-        FieldReader reader = EntityAccessManager.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
+        FieldAccessor reader = EntityAccessManager.getRelationalReader(classInfo, "POST_WITHOUT_ACCESSOR_METHODS", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", reader);
         assertSame(domainObject.postWithoutAccessorMethods, reader.read(domainObject));
         assertEquals("POST_WITHOUT_ACCESSOR_METHODS", reader.relationshipType());
@@ -270,7 +256,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.setId(id);
 
-        FieldReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldAccessor idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
         assertNotNull("The resultant ID reader shouldn't be null", idReader);
         assertEquals(id, idReader.readProperty(domainObject));
     }
@@ -288,20 +274,20 @@ public class EntityAccessManagerTest {
         domainObject.naturalSatellites = new ArrayList<>();
         domainObject.artificialSatellites = Collections.singletonList(new Satellite());
 
-        Collection<FieldReader> relationalAccessors = EntityAccessManager.getRelationalReaders(classInfo);
+        Collection<FieldAccessor> relationalAccessors = EntityAccessManager.getRelationalReaders(classInfo);
         assertNotNull("The resultant list of object accessors shouldn't be null", relationalAccessors);
         assertEquals("An unexpected number of accessors was returned", 7, relationalAccessors.size());
 
-        Map<String, Class<? extends FieldReader>> expectedRelationalReaders = new HashMap<>();
-        expectedRelationalReaders.put("COMMENT", FieldReader.class);
-        expectedRelationalReaders.put("FAVOURITE_TOPIC", FieldReader.class);
-        expectedRelationalReaders.put("CONTAINS", FieldReader.class);
-        expectedRelationalReaders.put("POST_WITHOUT_ACCESSOR_METHODS", FieldReader.class);
-        expectedRelationalReaders.put("NATURAL", FieldReader.class);
-        expectedRelationalReaders.put("ARTIFICIAL", FieldReader.class);
-        expectedRelationalReaders.put("REGISTERED", FieldReader.class);
+        Map<String, Class<? extends FieldAccessor>> expectedRelationalReaders = new HashMap<>();
+        expectedRelationalReaders.put("COMMENT", FieldAccessor.class);
+        expectedRelationalReaders.put("FAVOURITE_TOPIC", FieldAccessor.class);
+        expectedRelationalReaders.put("CONTAINS", FieldAccessor.class);
+        expectedRelationalReaders.put("POST_WITHOUT_ACCESSOR_METHODS", FieldAccessor.class);
+        expectedRelationalReaders.put("NATURAL", FieldAccessor.class);
+        expectedRelationalReaders.put("ARTIFICIAL", FieldAccessor.class);
+        expectedRelationalReaders.put("REGISTERED", FieldAccessor.class);
 
-        for (FieldReader objectAccess : relationalAccessors) {
+        for (FieldAccessor objectAccess : relationalAccessors) {
             String relType = objectAccess.relationshipType();
             assertTrue("Relationship type " + relType + " wasn't expected", expectedRelationalReaders.containsKey(relType));
             assertEquals(expectedRelationalReaders.get(relType), objectAccess.getClass());
@@ -313,7 +299,7 @@ public class EntityAccessManagerTest {
     public void shouldRetrieveAppropriateObjectAccessToEndNodeAttributeOnRelationshipEntity() {
         ClassInfo relationshipEntityClassInfo = domainInfo.getClass(ForumTopicLink.class.getName());
 
-        FieldReader endNodeReader = EntityAccessManager.getEndNodeReader(relationshipEntityClassInfo);
+        FieldAccessor endNodeReader = EntityAccessManager.getEndNodeReader(relationshipEntityClassInfo);
         assertNotNull("The resultant end node reader shouldn't be null", endNodeReader);
 
         ForumTopicLink forumTopicLink = new ForumTopicLink();
@@ -339,7 +325,7 @@ public class EntityAccessManagerTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        FieldWriter objectAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
+        FieldAccessor objectAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, natural);
@@ -358,7 +344,7 @@ public class EntityAccessManagerTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        FieldReader relationalReader = EntityAccessManager.getIterableReader(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
+        FieldAccessor relationalReader = EntityAccessManager.getIterableReader(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", relationalReader);
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.naturalSatellites = natural;

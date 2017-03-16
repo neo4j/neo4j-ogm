@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
@@ -107,7 +107,7 @@ class IdentityMap {
 
         for (FieldInfo fieldInfo : hashFields) {
             Field field = classInfo.getField(fieldInfo);
-            Object value = FieldWriter.read(field, object);
+            Object value = FieldAccessor.read(field, object);
             if (value != null) {
                 if (value.getClass().isArray()) {
                     hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));

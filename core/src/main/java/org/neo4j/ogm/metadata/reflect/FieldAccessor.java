@@ -12,10 +12,13 @@
 package org.neo4j.ogm.metadata.reflect;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.ObjectAnnotations;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.utils.ClassUtils;
 
@@ -23,13 +26,15 @@ import org.neo4j.ogm.utils.ClassUtils;
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
-public class FieldWriter {
+public class FieldAccessor {
 
+    private final ClassInfo classInfo;
     private final FieldInfo fieldInfo;
     private final Field field;
     private final Class<?> fieldType;
 
-    public FieldWriter(ClassInfo classInfo, FieldInfo fieldInfo) {
+    public FieldAccessor(ClassInfo classInfo, FieldInfo fieldInfo) {
+        this.classInfo = classInfo;
         this.fieldInfo = fieldInfo;
         this.field = classInfo.getField(fieldInfo);
         this.fieldType = this.field.getType();
@@ -57,13 +62,13 @@ public class FieldWriter {
 
         if (fieldInfo.hasPropertyConverter()) {
             value = fieldInfo.getPropertyConverter().toEntityAttribute(value);
-            FieldWriter.write(field, instance, value);
+            FieldAccessor.write(field, instance, value);
         } else {
             if (fieldInfo.isScalar()) {
                 String descriptor = fieldInfo.getTypeDescriptor();
                 value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
             }
-            FieldWriter.write(field, instance, value);
+            FieldAccessor.write(field, instance, value);
         }
     }
 
@@ -84,6 +89,58 @@ public class FieldWriter {
     }
 
     public String typeParameterDescriptor() {
+        return fieldInfo.getTypeDescriptor();
+    }
+
+    public Object read(Object instance) {
+        return FieldAccessor.read(classInfo.getField(fieldInfo), instance);
+    }
+
+    public Object readProperty(Object instance) {
+        if (fieldInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "The readComposite method should be used for fields with a CompositeAttributeConverter");
+        }
+        Object value = FieldAccessor.read(classInfo.getField(fieldInfo), instance);
+        if (fieldInfo.hasPropertyConverter()) {
+            value = fieldInfo.getPropertyConverter().toGraphProperty(value);
+        }
+        return value;
+    }
+
+    public Map<String, ?> readComposite(Object instance) {
+        if (!fieldInfo.hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
+        }
+        Object value = FieldAccessor.read(classInfo.getField(fieldInfo), instance);
+        return fieldInfo.getCompositeConverter().toGraphProperties(value);
+    }
+
+    public String relationshipType() {
+        return fieldInfo.relationship();
+    }
+
+    public String propertyName() {
+        return fieldInfo.property();
+    }
+
+    public boolean isComposite() {
+        return fieldInfo.hasCompositeConverter();
+    }
+
+    public String relationshipDirection() {
+        ObjectAnnotations annotations = fieldInfo.getAnnotations();
+        if (annotations != null) {
+            AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
+            if (relationshipAnnotation != null) {
+                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+            }
+        }
+        return Relationship.UNDIRECTED;
+    }
+
+    public String typeDescriptor() {
         return fieldInfo.getTypeDescriptor();
     }
 }

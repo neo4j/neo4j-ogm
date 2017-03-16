@@ -47,7 +47,7 @@ public class Actor {
     @Relationship(type = "ACTS_IN", direction = "OUTGOING")
     private Set<Role> roles;
 
-    private Set<Nomination> nominations;
+    private Set<Nomination> nominations = new HashSet<>();
 
     @Relationship(type = "KNOWS", direction = "OUTGOING")
     public Set<Knows> knows = new HashSet<>();
@@ -76,9 +76,6 @@ public class Actor {
     }
 
     public Nomination nominatedFor(Movie movie, String nominationName, int year) {
-        if (nominations == null) {
-            nominations = new HashSet<>();
-        }
         Nomination nomination = new Nomination(movie, this, nominationName, year);
         nominations.add(nomination);
         if (movie.getNominations() == null) {

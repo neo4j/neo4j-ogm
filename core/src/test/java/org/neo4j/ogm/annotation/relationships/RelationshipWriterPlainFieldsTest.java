@@ -23,8 +23,7 @@ import java.util.List;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
@@ -41,9 +40,9 @@ public class RelationshipWriterPlainFieldsTest {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
-        FieldWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
+        FieldAccessor objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "LIST", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
+        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldAccessor);
         assertEquals("LIST", objectAccess.relationshipName());
 
     }
@@ -54,9 +53,9 @@ public class RelationshipWriterPlainFieldsTest {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
-        FieldWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
+        FieldAccessor objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "SCALAR", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
+        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldAccessor);
         assertEquals("SCALAR", objectAccess.relationshipName());
 
     }
@@ -67,9 +66,9 @@ public class RelationshipWriterPlainFieldsTest {
 
         ClassInfo classInfo = this.domainInfo.getClass(S.class.getName());
 
-        FieldWriter objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
+        FieldAccessor objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "ARRAY", Relationship.OUTGOING, new T());
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
-        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldWriter);
+        assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldAccessor);
         assertEquals("ARRAY", objectAccess.relationshipName());
 
     }

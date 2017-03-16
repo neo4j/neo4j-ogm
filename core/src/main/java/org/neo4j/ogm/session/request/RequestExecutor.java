@@ -26,8 +26,8 @@ import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
 import org.neo4j.ogm.context.TransientRelationship;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
+import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
@@ -186,7 +186,7 @@ public class RequestExecutor {
 			if (!(obj instanceof TransientRelationship)) {
 				ClassInfo classInfo = session.metaData().classInfo(obj);
 				if (!classInfo.isRelationshipEntity()) {
-					FieldReader idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+					FieldAccessor idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
 					Long id = (Long) idReader.readProperty(obj);
 					if (id != null) {
 						LOGGER.debug("updating existing node id: {}, {}", id, obj);
@@ -357,7 +357,7 @@ public class RequestExecutor {
 			// set the id field of the newly created domain object
 			ClassInfo classInfo = session.metaData().classInfo(persisted);
 			Field identityField = classInfo.getField(classInfo.identityField());
-			FieldWriter.write(identityField, persisted, identity);
+			FieldAccessor.write(identityField, persisted, identity);
 
 			if (tx != null) {
 				(( AbstractTransaction ) tx).registerNew( persisted );

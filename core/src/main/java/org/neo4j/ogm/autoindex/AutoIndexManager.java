@@ -79,7 +79,7 @@ public class AutoIndexManager {
         return indexMetadata;
     }
 
-    public List<AutoIndex> getIndexes() {
+    List<AutoIndex> getIndexes() {
         return indexes;
     }
 

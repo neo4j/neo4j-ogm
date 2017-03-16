@@ -79,7 +79,7 @@ public class DeleteDelegate  {
     // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
     private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
 
-        Set<Object> notified = new HashSet();
+        Set<Object> notified = new HashSet<>();
 
         if (session.eventsEnabled()) {
             for (Object affectedObject : neighbours) {

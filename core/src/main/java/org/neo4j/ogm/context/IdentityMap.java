@@ -51,7 +51,7 @@ class IdentityMap {
      * @param object the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
-    public void remember(Long entityId, Object object, ClassInfo classInfo) {
+    void remember(Long entityId, Object object, ClassInfo classInfo) {
         if (metaData.isRelationshipEntity(classInfo.name())) {
             relEntityHash.put(entityId, hash(object, classInfo));
         } else {

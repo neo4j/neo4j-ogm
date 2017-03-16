@@ -298,12 +298,7 @@ public class EntityAccessManager {
      */
     public static FieldAccessor getPropertyReader(final ClassInfo classInfo, String propertyName) {
 
-        Map<String, FieldAccessor> fieldAccessorMap = propertyReaderCache.get(classInfo);
-
-        if (fieldAccessorMap == null) {
-            fieldAccessorMap = new HashMap<>();
-            propertyReaderCache.put(classInfo, fieldAccessorMap);
-        }
+        Map<String, FieldAccessor> fieldAccessorMap = propertyReaderCache.computeIfAbsent(classInfo, k -> new HashMap<>());
 
         final FieldAccessor fieldAccessor = fieldAccessorMap.get(propertyName);
 

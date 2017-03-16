@@ -14,7 +14,9 @@
 package org.neo4j.ogm.metadata;
 
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
@@ -22,6 +24,7 @@ import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.RelationshipUtils;
 
 /**
@@ -59,6 +62,7 @@ public class FieldInfo {
     private final String descriptor;
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
+    private final boolean isArray;
 
     /**
      * The associated attribute converter for this field, if applicable, otherwise null.
@@ -80,7 +84,9 @@ public class FieldInfo {
      * if that's not appropriate
      * @param annotations The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public FieldInfo(Field field, String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+        field.getModifiers();
+        this.isArray = field.getType().isArray();
         this.name = name;
         this.descriptor = descriptor;
         this.typeParameterDescriptor = typeParameterDescriptor;
@@ -281,7 +287,7 @@ public class FieldInfo {
     }
 
     public boolean isArray() {
-        return descriptor.endsWith("[]");
+        return isArray;
     }
 
     public boolean hasAnnotation(String annotationName) {

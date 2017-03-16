@@ -71,7 +71,7 @@ public class FieldsInfo {
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
-                    fields.put(field.getName(), new FieldInfo(field.getName(), field.getType().getTypeName(),typeParameterDescriptor, objectAnnotations));
+                    fields.put(field.getName(), new FieldInfo(field, field.getName(), field.getType().getTypeName(),typeParameterDescriptor, objectAnnotations));
                 }
             }
         }

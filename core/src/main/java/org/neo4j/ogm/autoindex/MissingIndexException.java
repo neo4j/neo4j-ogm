@@ -5,9 +5,9 @@ package org.neo4j.ogm.autoindex;
  *
  * @author Mark Angrish
  */
-class MissingIndexException extends RuntimeException {
+public class MissingIndexException extends RuntimeException {
 
-	MissingIndexException(String message) {
+	public MissingIndexException(String message) {
 		super(message);
 	}
 }

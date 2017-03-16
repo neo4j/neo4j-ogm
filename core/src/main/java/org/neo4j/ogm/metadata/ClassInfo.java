@@ -23,7 +23,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
-import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -532,7 +531,7 @@ public class ClassInfo {
             return field;
         }
         try {
-            field = ReflectionUtils.forName(name()).getDeclaredField(fieldInfo.getName());
+            field = Class.forName(name(), false, Thread.currentThread().getContextClassLoader()).getDeclaredField(fieldInfo.getName());
             fieldInfoFields.put(fieldInfo, field);
             return field;
         } catch (NoSuchFieldException e) {
@@ -543,6 +542,8 @@ public class ClassInfo {
             } else {
                 throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
             }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -703,7 +704,12 @@ public class ClassInfo {
      * @return the underlying class or null if it cannot be determined
      */
     public Class getUnderlyingClass() {
-        return ReflectionUtils.forName(className);//Class.forName(className);
+        try {
+            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("Could not get underlying class for {}", className);
+        }
+        return null;
     }
 
     /**
@@ -759,7 +765,12 @@ public class ClassInfo {
         Map<String, FieldInfo> indexes = new HashMap<>();
 
         // No way to get declared fields from current byte code impl. Using reflection instead.
-        Field[] declaredFields = ReflectionUtils.forName(className).getDeclaredFields();
+        Field[] declaredFields;
+        try {
+            declaredFields = Class.forName(className, false, Thread.currentThread().getContextClassLoader()).getDeclaredFields();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Could not reflectively read declared fields", e);
+        }
 
         final String indexAnnotation = Index.class.getName();
 

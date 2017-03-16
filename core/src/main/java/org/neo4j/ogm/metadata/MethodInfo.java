@@ -16,7 +16,6 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Method;
 
-import org.reflections.ReflectionUtils;
 
 /**
  * @author Vince Bickers
@@ -57,7 +56,7 @@ public class MethodInfo {
      */
     public Method getMethod() {
         try {
-            return ReflectionUtils.forName(className).getMethod(name);
+            return Class.forName(className, false, Thread.currentThread().getContextClassLoader()).getMethod(name);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

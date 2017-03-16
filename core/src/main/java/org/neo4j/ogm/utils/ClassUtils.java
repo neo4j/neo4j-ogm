@@ -13,17 +13,18 @@
 
 package org.neo4j.ogm.utils;
 
-import java.util.*;
-
-import org.reflections.ReflectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.lang.model.type.PrimitiveType;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
 public abstract class ClassUtils {
+
+    private static final String primitives = "char,byte,short,int,long,float,double,boolean";
+
 
     private static Map<String, Class<?>> descriptorTypeMappings = new HashMap<>();
 
@@ -41,8 +42,7 @@ public abstract class ClassUtils {
         Class<?> type;
         try {
             type = computeType(descriptor);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             //return null and swallow the exception
             return null;
         }
@@ -54,6 +54,10 @@ public abstract class ClassUtils {
 
         if (descriptor == null) {
             return null;
+        }
+
+        if (descriptor.endsWith("[]")) {
+            descriptor = descriptor.substring(0, descriptor.length() - 2);
         }
 
         if (descriptor.equals(String.class.getName())) {
@@ -124,23 +128,10 @@ public abstract class ClassUtils {
             return boolean.class;
         }
 
-        if (descriptor.endsWith("[]")) {
-            final Class<?> aClass = ReflectionUtils.forName(descriptor.substring(0, descriptor.length() - 2));
-            return aClass;
-        }
-
         if (!descriptor.contains(".") && !descriptor.contains("$")) {
             return Object.class;
         }
 
-        final Class<?> aClass = ReflectionUtils.forName(descriptor);
-
-        if (aClass != null) {
-            return aClass;
-        }
-        else {
-            return null;
-        }
-
+        return Class.forName(descriptor, false, Thread.currentThread().getContextClassLoader());
     }
 }

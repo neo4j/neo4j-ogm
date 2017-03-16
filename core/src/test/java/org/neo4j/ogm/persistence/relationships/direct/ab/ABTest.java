@@ -41,7 +41,7 @@ public class ABTest extends RelationshipTrait {
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships.direct.ab.");
+        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.relationships.direct.ab");
     }
 
     @Before

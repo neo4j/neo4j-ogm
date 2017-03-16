@@ -23,7 +23,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.RelationshipUtils;
-import org.reflections.ReflectionUtils;
 
 /**
  * @author Vince Bickers
@@ -216,9 +215,13 @@ public class FieldInfo {
     }
 
     public boolean isIterable() {
-        Class descriptorClazz = ReflectionUtils.forName(descriptor);
-        if (Iterable.class.isAssignableFrom(descriptorClazz)) {
-            return true;
+        try {
+            Class descriptorClazz = Class.forName(descriptor, false, Thread.currentThread().getContextClassLoader());
+            if (Iterable.class.isAssignableFrom(descriptorClazz)) {
+                return true;
+            }
+        } catch (ClassNotFoundException e) {
+            //e.printStackTrace();
         }
 
         return false;

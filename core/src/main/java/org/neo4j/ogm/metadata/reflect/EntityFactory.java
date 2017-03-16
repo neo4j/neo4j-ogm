@@ -23,7 +23,6 @@ import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
-import org.reflections.ReflectionUtils;
 
 /**
  * A metadata-driven factory class for creating node and relationship entities.
@@ -102,9 +101,13 @@ public class EntityFactory {
 
         String fqn = resolve(taxa);
 
-        @SuppressWarnings("unchecked")
-        Class<T> loadedClass = (Class<T>) ReflectionUtils.forName(fqn); //Class.forName(fqn);
-        return instantiate(loadedClass);
+        try {
+            @SuppressWarnings("unchecked")
+            Class<T> loadedClass = (Class<T>) Class.forName(fqn, false, Thread.currentThread().getContextClassLoader()); //Class.forName(fqn);
+            return instantiate(loadedClass);
+        } catch (ClassNotFoundException e) {
+            throw new MappingException("Unable to load class with FQN: " + fqn, e);
+        }
     }
 
     private String resolve(String... taxa) {

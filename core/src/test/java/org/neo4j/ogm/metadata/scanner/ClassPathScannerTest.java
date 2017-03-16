@@ -29,7 +29,6 @@ import org.neo4j.ogm.metadata.DomainInfo;
 /**
  * @author Luanne Misquitta
  */
-@Ignore
 public class ClassPathScannerTest {
 
     @Test
@@ -47,6 +46,7 @@ public class ClassPathScannerTest {
     }
 
     @Test
+    @Ignore("This seems to also add AttributeConverter, which kind of makes sense. What do we expect here?")
     public void nestedDirectoryShouldBeScanned() {
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
 
@@ -61,12 +61,14 @@ public class ClassPathScannerTest {
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Education"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Gender"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.NumberSystem"));
-        assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Person"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.NumberSystemDomainConverter"));
+        assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Person"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.Tag"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagEntity"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.enums.TagModel"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.numbers.Account"));
+        assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.JsonNode"));
+        assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.MapJson"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapEntity"));
         assertTrue(classNames.contains("org.neo4j.ogm.domain.convertible.parametrized.StringMapConverter"));
     }
@@ -83,6 +85,7 @@ public class ClassPathScannerTest {
     }
 
     @Test
+    @Ignore("Work with Luke to see what needs to happen here.")
     public void domainClassesInNestedZipShouldBeScanned() {
         final DomainInfo domainInfo = DomainInfo.create("radio.domain");
         assertEquals(2, domainInfo.getClassInfoMap().size());
@@ -93,20 +96,12 @@ public class ClassPathScannerTest {
     }
 
     @Test
+    @Ignore("Work with Luke to see what needs to happen here.")
     public void domainClassesInDirectoryInNestedZipShouldBeScanned() {
         final DomainInfo domainInfo = DomainInfo.create("event.domain");
         assertEquals(1, domainInfo.getClassInfoMap().size());
 
         Set<String> classNames = domainInfo.getClassInfoMap().keySet();
         assertTrue(classNames.contains("event.domain.Show"));
-    }
-
-
-    private List<String> extractClassNames(List<ClassInfo> classInfos) {
-        List<String> classnames = new ArrayList<>();
-        for (ClassInfo classInfo : classInfos) {
-            classnames.add(classInfo.name());
-        }
-        return classnames;
     }
 }

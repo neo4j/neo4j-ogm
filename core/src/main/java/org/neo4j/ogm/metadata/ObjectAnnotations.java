@@ -13,12 +13,14 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.typeconversion.*;
-import org.reflections.ReflectionUtils;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.annotation.typeconversion.*;
+import org.neo4j.ogm.typeconversion.DateLongConverter;
+import org.neo4j.ogm.typeconversion.DateStringConverter;
+import org.neo4j.ogm.typeconversion.EnumStringConverter;
+import org.neo4j.ogm.typeconversion.NumberStringConverter;
 
 /**
  * @author Vince Bickers
@@ -36,7 +38,7 @@ public class ObjectAnnotations {
     }
 
     public AnnotationInfo get(Class<?> keyClass) {
-        return keyClass == null ? null: annotations.get(keyClass.getName());
+        return keyClass == null ? null : annotations.get(keyClass.getName());
     }
 
     public boolean isEmpty() {
@@ -54,7 +56,7 @@ public class ObjectAnnotations {
             }
 
             try {
-                Class<?> clazz = ReflectionUtils.forName(classDescriptor);//Class.forName(className);
+                Class<?> clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
                 return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -76,9 +78,9 @@ public class ObjectAnnotations {
         AnnotationInfo enumStringConverterInfo = get(EnumString.class);
         if (enumStringConverterInfo != null) {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
-            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
+            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length() - 1);
             try {
-                Class clazz = ReflectionUtils.forName(className);//Class.forName(className);
+                Class clazz = Class.forName(className, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
                 return new EnumStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -88,9 +90,9 @@ public class ObjectAnnotations {
         AnnotationInfo numberStringConverterInfo = get(NumberString.class);
         if (numberStringConverterInfo != null) {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
-            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
+            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length() - 1);
             try {
-                Class clazz = ReflectionUtils.forName(className);//Class.forName(className);
+                Class clazz = Class.forName(className, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
                 return new NumberStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -99,5 +101,4 @@ public class ObjectAnnotations {
 
         return null;
     }
-
 }

@@ -17,14 +17,15 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.context.register.EntityRegister;
 import org.neo4j.ogm.context.register.LabelHistoryRegister;
 import org.neo4j.ogm.context.register.TypeRegister;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.reflect.*;
-import org.reflections.ReflectionUtils;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.FieldReader;
+import org.neo4j.ogm.metadata.reflect.FieldWriter;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -75,7 +76,7 @@ public class MappingContext {
         Object result = null;
 
         if (id instanceof Long) {
-            result =  nodeEntityRegister.get((Long)id);
+            result = nodeEntityRegister.get((Long) id);
         }
 
         if (result == null) {
@@ -99,7 +100,6 @@ public class MappingContext {
                 primaryIndexNodeRegister.add(primaryIndexValue, entity);
             }
         }
-
 
         return entity;
     }
@@ -214,7 +214,7 @@ public class MappingContext {
             for (ClassInfo implementingClass : implementingClasses) {
                 try {
                     String implementingClassName = implementingClass.name();
-                    removeType(ReflectionUtils.forName(implementingClassName));
+                    removeType(Class.forName(implementingClassName, false, Thread.currentThread().getContextClassLoader()));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

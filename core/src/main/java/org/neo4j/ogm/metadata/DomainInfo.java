@@ -14,9 +14,9 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.net.URL;
 import java.util.*;
 
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
@@ -24,12 +24,6 @@ import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
 import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,23 +37,10 @@ public class DomainInfo {
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
 
     public static DomainInfo create(String... packages) {
-        // https://github.com/ronmamo/reflections/issues/80
-        final Collection<URL> urls = new HashSet<>();
-        final ClassLoader[] classLoaders = ClasspathHelper.classLoaders();
-        for (String pkg : packages) {
-            urls.addAll(ClasspathHelper.forPackage(pkg, classLoaders));
-        }
 
-        Reflections reflections =
-                new Reflections(new ConfigurationBuilder()
-                        .setUrls(urls)
-                        .filterInputsBy(new FilterBuilder().includePackage(packages))
-                        .setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner()).useParallelExecutor());
-
+        final Set<Class<?>> allClasses = new HashSet<>();
+        new FastClasspathScanner(packages).matchAllClasses(allClasses::add).scan();
         DomainInfo domainInfo = new DomainInfo();
-
-        final Set<Class<?>> allClasses = reflections.getSubTypesOf(Object.class);
-        allClasses.addAll(reflections.getSubTypesOf(Enum.class));
 
         for (Class<?> cls : allClasses) {
             ClassInfo classInfo = ClassInfo.create(cls);
@@ -83,7 +64,7 @@ public class DomainInfo {
                     ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
                     if (superclassInfo == null) {
 
-                        if (superclassName != null) {
+                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName.equals("java.lang.Enum")) {
                             domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
                         }
                     } else {

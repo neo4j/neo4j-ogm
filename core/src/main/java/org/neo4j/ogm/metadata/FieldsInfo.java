@@ -13,7 +13,11 @@
 
 package org.neo4j.ogm.metadata;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.*;
+
+import org.neo4j.ogm.annotation.Transient;
 
 /**
  * @author Vince Bickers
@@ -22,12 +26,55 @@ public class FieldsInfo {
 
     private final Map<String, FieldInfo> fields;
 
-    public FieldsInfo() {
+    FieldsInfo() {
         this.fields = new HashMap<>();
     }
 
-    public FieldsInfo(Map<String, FieldInfo> fields) {
-        this.fields = new HashMap<>(fields);
+    public FieldsInfo(ClassInfo classInfo, Class<?> cls) {
+        this.fields = new HashMap<>();
+
+        for (Field field : cls.getDeclaredFields()) {
+            final int modifiers = field.getModifiers();
+            if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
+                final Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
+                for (Annotation annotation : declaredAnnotations) {
+                    AnnotationInfo info = new AnnotationInfo(annotation);
+                    objectAnnotations.put(info.getName(), info);
+                }
+                if (objectAnnotations.get(Transient.class) == null) {
+                    String typeParameterDescriptor = null;
+                    final Type genericType = field.getGenericType();
+                    if (genericType instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType)genericType;
+                        final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (actualTypeArguments.length > 0) {
+                            for (Type typeArgument: actualTypeArguments) {
+                                if (typeArgument instanceof ParameterizedType) {
+                                    ParameterizedType parameterizedTypeArgument = (ParameterizedType)typeArgument;
+                                    typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
+                                    break;
+                                }
+                                else if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
+                                    typeParameterDescriptor = Object.class.getName();
+                                    break;
+                                }
+                                else if (typeArgument instanceof Class) {
+                                    typeParameterDescriptor = ((Class)typeArgument).getName();
+                                }
+                            }
+                        }
+                        if (typeParameterDescriptor == null) {
+                            typeParameterDescriptor = parameterizedType.getRawType().getTypeName();
+                        }
+                    }
+                    if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
+                        typeParameterDescriptor = field.getType().getTypeName();
+                    }
+                    fields.put(field.getName(), new FieldInfo(classInfo, field,typeParameterDescriptor, objectAnnotations));
+                }
+            }
+        }
     }
 
     public Collection<FieldInfo> fields() {

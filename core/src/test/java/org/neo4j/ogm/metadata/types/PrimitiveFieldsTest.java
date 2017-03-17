@@ -22,81 +22,81 @@ public class PrimitiveFieldsTest extends TestMetaDataTypeResolution {
 
 	@Test
 	public void testPrimitiveShortArray() {
-		checkField("pss", "[S", short.class);
+		checkField("pss", "short[]", short.class);
 	}
 
 	@Test
 	public void testPrimitiveCharArray() {
-		checkField("pcc", "[C", char.class);
+		checkField("pcc", "char[]", char.class);
 	}
 
 	@Test
 	public void testPrimitiveByteArray() {
-		checkField("pbb", "[B", byte.class);
+		checkField("pbb", "byte[]", byte.class);
 	}
 
 	@Test
 	public void testPrimitiveLongArray() {
-		checkField("pll", "[J", long.class);
+		checkField("pll", "long[]", long.class);
 	}
 
 	@Test
 	public void testPrimitiveDoubleArray() {
-		checkField("pdd", "[D", double.class);
+		checkField("pdd", "double[]", double.class);
 	}
 
 	@Test
 	public void testPrimitiveFloatArray() {
-		checkField("pff", "[F", float.class);
+		checkField("pff", "float[]", float.class);
 	}
 
 	@Test
 	public void testPrimitiveBooleanArray() {
-		checkField("pzz", "[Z", boolean.class);
+		checkField("pzz", "boolean[]", boolean.class);
 	}
 
 	@Test
 	public void testPrimitiveIntegerArray() {
-		checkField("pii", "[I", int.class);
+		checkField("pii", "int[]", int.class);
 	}
 
 	@Test
 	public void testPrimitiveShort() {
-		checkField("ps", "S", short.class);
+		checkField("ps", "short", short.class);
 	}
 
 	@Test
 	public void testPrimitiveChar() {
-		checkField("pc", "C", char.class);
+		checkField("pc", "char", char.class);
 	}
 
 	@Test
 	public void testPrimitiveByte() {
-		checkField("pb", "B", byte.class);
+		checkField("pb", "byte", byte.class);
 	}
 
 	@Test
 	public void testPrimitiveLong() {
-		checkField("pl", "J", long.class);
+		checkField("pl", "long", long.class);
 	}
 
 	@Test
 	public void testPrimitiveDouble() {
-		checkField("pd", "D", double.class);
+		checkField("pd", "double", double.class);
 	}
 
 	@Test
 	public void testPrimitiveFloat() {
-		checkField("pf", "F", float.class);
+		checkField("pf", "float", float.class);
 	}
 
 	@Test
 	public void testPrimitiveBoolean() {
-		checkField("pz", "Z", boolean.class);
+		checkField("pz", "boolean", boolean.class);
 	}
 
 	@Test
 	public void testPrimitiveInteger() {
-		checkField("pi", "I", int.class);
+		checkField("pi", "int", int.class);
 	}
 }

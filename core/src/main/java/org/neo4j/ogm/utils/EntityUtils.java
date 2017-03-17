@@ -12,14 +12,13 @@
  */
 package org.neo4j.ogm.utils;
 
+import java.util.Collection;
+
 import org.apache.commons.collections4.CollectionUtils;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-
-import java.util.Collection;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 
 /**
  * The utility methods here will all throw a <code>NullPointerException</code> if invoked with <code>null</code>.
@@ -31,7 +30,7 @@ public class EntityUtils {
     public static Long identity(Object entity, MetaData metaData) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
+        Object id = classInfo.identityField().readProperty(entity);
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }
 
@@ -43,8 +42,7 @@ public class EntityUtils {
         Collection<String> staticLabels = classInfo.staticLabels();
         FieldInfo labelFieldInfo = classInfo.labelFieldOrNull();
         if (labelFieldInfo != null) {
-            FieldReader reader = new FieldReader(classInfo, labelFieldInfo);
-            Collection<String> labels = (Collection<String>) reader.readProperty(entity);
+            Collection<String> labels = (Collection<String>) labelFieldInfo.readProperty(entity);
             return CollectionUtils.union(staticLabels, labels);
         }
         return staticLabels;

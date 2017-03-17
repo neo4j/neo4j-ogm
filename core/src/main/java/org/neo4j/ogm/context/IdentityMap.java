@@ -18,7 +18,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 
@@ -51,7 +50,7 @@ class IdentityMap {
      * @param object the object whose persistable properties we want to hash
      * @param classInfo metadata about the object
      */
-    public void remember(Long entityId, Object object, ClassInfo classInfo) {
+    void remember(Long entityId, Object object, ClassInfo classInfo) {
         if (metaData.isRelationshipEntity(classInfo.name())) {
             relEntityHash.put(entityId, hash(object, classInfo));
         } else {
@@ -107,7 +106,7 @@ class IdentityMap {
 
         for (FieldInfo fieldInfo : hashFields) {
             Field field = classInfo.getField(fieldInfo);
-            Object value = FieldWriter.read(field, object);
+            Object value = FieldInfo.read(field, object);
             if (value != null) {
                 if (value.getClass().isArray()) {
                     hash = hash * 31L + Arrays.hashCode(convertToObjectArray(value));

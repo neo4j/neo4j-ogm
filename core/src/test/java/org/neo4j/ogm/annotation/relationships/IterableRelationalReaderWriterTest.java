@@ -24,13 +24,9 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.domain.entityMapping.PlainUser;
 import org.neo4j.ogm.domain.entityMapping.iterables.*;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldReader;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
-import org.neo4j.ogm.metadata.reflect.RelationalReader;
-import org.neo4j.ogm.metadata.reflect.RelationalWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
@@ -41,13 +37,12 @@ public class IterableRelationalReaderWriterTest {
 
     final String KNOWS = "KNOWS";
     final String LIKES = "LIKES";
-    private EntityAccessManager entityAccessStrategy;
+    private EntityAccessManager EntityAccessManager;
     private DomainInfo domainInfo;
 
     @Before
     public void setup() {
-        entityAccessStrategy = new EntityAccessManager();
-        domainInfo = new DomainInfo("org.neo4j.ogm.domain.entityMapping.iterables");
+        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.entityMapping.iterables");
     }
 
     /**
@@ -61,16 +56,13 @@ public class IterableRelationalReaderWriterTest {
         UserV1 instance = new UserV1();
         Set<UserV1> relatedObject = Collections.singleton(new UserV1());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV1.class, KNOWN_BY, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV1.class, KNOWN_BY, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV1.class, KNOWN_BY, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
 
-        relationalWriter.write(instance, relatedObject);
+        relationalReader.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnownBy());
         assertEquals(relatedObject, relationalReader.read(instance));
 
@@ -86,18 +78,15 @@ public class IterableRelationalReaderWriterTest {
         UserV2 instance = new UserV2();
         Set<UserV2> relatedObject = Collections.singleton(new UserV2());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV2.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV2.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV2.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
-        assertEquals(relatedObject, relationalReader.read(instance));
+        assertEquals(relatedObject, relationalWriter.read(instance));
 
     }
 
@@ -111,14 +100,14 @@ public class IterableRelationalReaderWriterTest {
         UserV3 instance = new UserV3();
         Set<UserV3> relatedObject = Collections.singleton(new UserV3());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV3.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV3.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV3.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV3.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -136,14 +125,14 @@ public class IterableRelationalReaderWriterTest {
         UserV4 instance = new UserV4();
         Set<UserV4> relatedObject = Collections.singleton(new UserV4());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV4.class, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV4.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV4.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV4.class, KNOWS, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -161,14 +150,14 @@ public class IterableRelationalReaderWriterTest {
         UserV5 instance = new UserV5();
         Set<UserV5> relatedObject = Collections.singleton(new UserV5());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV5.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV5.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV5.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV5.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -186,17 +175,17 @@ public class IterableRelationalReaderWriterTest {
         UserV6 instance = new UserV6();
         Set<UserV6> relatedObject = Collections.singleton(new UserV6());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV6.class, KNOWS, Relationship.OUTGOING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV6.class, KNOWS, Relationship.OUTGOING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV6.class, KNOWS, Relationship.OUTGOING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV6.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnowsPeople());
@@ -214,14 +203,14 @@ public class IterableRelationalReaderWriterTest {
         UserV7 instance = new UserV7();
         Set<UserV7> relatedObject = Collections.singleton(new UserV7());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV7.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV7.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV7.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV7.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -239,14 +228,14 @@ public class IterableRelationalReaderWriterTest {
         UserV8 instance = new UserV8();
         Set<UserV8> relatedObject = Collections.singleton(new UserV8());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV8.class, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV8.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV8.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV8.class, KNOWS, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -264,21 +253,21 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV9> relatedObjectOut = Collections.singleton(new UserV9());
         Set<UserV9> relatedObjectIn = Collections.singleton(new UserV9());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV9.class, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV9.class, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV9.class, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV9.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
@@ -295,21 +284,21 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV10> relatedObjectOut = Collections.singleton(new UserV10());
         Set<UserV10> relatedObjectIn = Collections.singleton(new UserV10());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV10.class, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV10.class, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV10.class, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV10.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
@@ -326,21 +315,21 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV11> relatedObjectOut = Collections.singleton(new UserV11());
         Set<UserV11> relatedObjectIn = Collections.singleton(new UserV11());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV11.class, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV11.class, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV11.class, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV11.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
@@ -357,21 +346,21 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV12> relatedObjectOut = Collections.singleton(new UserV12());
         Set<UserV12> relatedObjectIn = Collections.singleton(new UserV12());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV12.class, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV12.class, LIKES, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV12.class, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV12.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
@@ -388,14 +377,14 @@ public class IterableRelationalReaderWriterTest {
         UserV13 instance = new UserV13();
         Set<UserV13> relatedObject = Collections.singleton(new UserV13());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV13.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV13.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV13.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV13.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -413,14 +402,14 @@ public class IterableRelationalReaderWriterTest {
         UserV14 instance = new UserV14();
         Set<UserV14> relatedObject = Collections.singleton(new UserV14());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV14.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV14.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV14.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV14.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
@@ -437,11 +426,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV15> relatedObjectOut = Collections.singleton(new UserV15());
         Set<UserV15> relatedObjectIn = Collections.singleton(new UserV15());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
@@ -449,11 +438,11 @@ public class IterableRelationalReaderWriterTest {
 
         instance = new UserV15();
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV15.class, KNOWS, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV15.class, KNOWS, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV15.class, KNOWS, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV15.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
@@ -470,11 +459,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV16> relatedObjectOut = Collections.singleton(new UserV16());
         Set<UserV16> relatedObjectIn = Collections.singleton(new UserV16());
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
@@ -482,11 +471,11 @@ public class IterableRelationalReaderWriterTest {
 
         instance = new UserV16();
 
-        relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV16.class, KNOWS, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV16.class, KNOWS, Relationship.INCOMING);
+        relationalReader = EntityAccessManager.getIterableField(classInfo, UserV16.class, KNOWS, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV16.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
@@ -502,14 +491,14 @@ public class IterableRelationalReaderWriterTest {
         UserV17 instance = new UserV17();
         Set<UserV17> relatedObject = Collections.singleton(new UserV17());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV17.class, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV17.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV17.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV17.class, KNOWS, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
@@ -527,14 +516,14 @@ public class IterableRelationalReaderWriterTest {
         UserV18 instance = new UserV18();
         Set<UserV18> relatedObject = Collections.singleton(new UserV18());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV18.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV18.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV18.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV18.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -552,14 +541,14 @@ public class IterableRelationalReaderWriterTest {
         UserV19 instance = new UserV19();
         Set<UserV19> relatedObject = Collections.singleton(new UserV19());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV19.class, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV19.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV19.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV19.class, KNOWS, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -578,24 +567,24 @@ public class IterableRelationalReaderWriterTest {
         List<PlainUser> relatedObject = Collections.singletonList(new PlainUser());
         UserV20 otherRelatedObject = new UserV20();
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV20.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV20.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV20.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV20.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);
         assertEquals(relatedObject, relationalReader.read(instance));
 
         instance = new UserV20();
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
@@ -613,23 +602,23 @@ public class IterableRelationalReaderWriterTest {
         PlainUser relatedObject = new PlainUser();
         List<UserV21> otherRelatedObject = Collections.singletonList(new UserV21());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV21.class, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV21.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV21.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV21.class, KNOWS, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
         assertEquals(otherRelatedObject, relationalReader.read(instance));
 
         instance = new UserV21();
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);
@@ -647,22 +636,22 @@ public class IterableRelationalReaderWriterTest {
         List<PlainUser> relatedObject = Collections.singletonList(new PlainUser());
         UserV22 otherRelatedObject = new UserV22();
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV22.class, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV22.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV22.class, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV22.class, KNOWS, Relationship.INCOMING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);
         assertEquals(relatedObject, relationalReader.read(instance));
 
         instance = new UserV22();
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
@@ -680,23 +669,23 @@ public class IterableRelationalReaderWriterTest {
         PlainUser relatedObject = new PlainUser();
         List<UserV23> otherRelatedObject = Collections.singletonList(new UserV23());
 
-        assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV23.class, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV23.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV23.class, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getIterableField(classInfo, UserV23.class, KNOWS, Relationship.OUTGOING));
 
-        RelationalReader relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
-        RelationalWriter relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getIterableField(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldReader);
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
         assertEquals(otherRelatedObject, relationalReader.read(instance));
 
         instance = new UserV23();
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
-        assertTrue(relationalWriter instanceof FieldWriter);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);

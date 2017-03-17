@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 
 /**
@@ -46,7 +46,7 @@ public class LoadByInstancesDelegate {
 		Field identityField = classInfo.getField(classInfo.identityField());
 
 		for (Object o : objects) {
-			ids.add((Long) FieldWriter.read(identityField, o));
+			ids.add((Long) FieldInfo.read(identityField, o));
 		}
 		return session.loadAll(type, ids, sortOrder, pagination, depth);
 	}

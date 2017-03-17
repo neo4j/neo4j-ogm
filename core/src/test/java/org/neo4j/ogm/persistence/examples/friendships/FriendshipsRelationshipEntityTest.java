@@ -13,7 +13,15 @@
 
 package org.neo4j.ogm.persistence.examples.friendships;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Friendship;
 import org.neo4j.ogm.domain.friendships.Person;
@@ -21,25 +29,23 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
  */
 public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() throws IOException {
+        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.friendships");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.friendships").openSession();
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
@@ -57,7 +63,6 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         assertNotNull(dave.getId());
         assertNotNull(mike.getId());
         assertNotNull(dave.getFriends().get(0).getId());
-
     }
 
     @Test
@@ -79,7 +84,7 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
                 assertEquals("Mike", person.getFriends().get(0).getFriend().getName());
             } else if (person.getName().equals("Mike")) {
                 expected--;
-                assertEquals("Dave", person.getFriends().get(0).getPerson().getName());
+                assertEquals(0, person.getFriends().size());
             }
         }
         assertEquals(0, expected);
@@ -99,7 +104,6 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         assertNotNull(dave.getId());
         assertNotNull(mike.getId());
         assertNotNull(dave.getFriends().get(0).getId());
-
     }
 
     @Test
@@ -123,7 +127,6 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         assertEquals("Dave", daveCopy.getName());
         assertEquals("Mike", mikeCopy.getName());
         assertEquals(5, friendshipCopy.getStrength());
-
     }
 
     @Test
@@ -147,14 +150,13 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
         assertEquals("Dave", daveCopy.getName());
         assertEquals("Mike", mikeCopy.getName());
         assertEquals(5, friendshipCopy.getStrength());
-
     }
 
     /**
      * @see DATAGRAPH-644
      */
     @Test
-    public void shouldRetrieveRelationshipEntitySetPropertyCorrecly() {
+    public void shouldRetrieveRelationshipEntitySetPropertyCorrectly() {
 
         Person mike = new Person("Mike");
         Person dave = new Person("Dave");
@@ -172,8 +174,7 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.clear();
 
-        mike = session.load(Person.class, mike.getId());
-        assertEquals(2, mike.getFriends().get(0).getSharedHobbies().size());
-
+        dave = session.load(Person.class, dave.getId());
+        assertEquals(2, dave.getFriends().get(0).getSharedHobbies().size());
     }
 }

@@ -217,16 +217,6 @@ public class CypherContext implements CompileContext {
         compiler.unmap(nodeBuilder);
     }
 
-    @Override
-    public Collection<Mappable> getDeletedRelationships() {
-        return deletedRelationships;
-    }
-
-    @Override
-    public Object getVisitedObject(Long reference) {
-        return visitedObjects.get(reference);
-    }
-
     private boolean isMappableAlreadyDeleted(Mappable mappedRelationship) {
         for (Mappable deletedRelationship : deletedRelationships) {
             if (deletedRelationship.getEndNodeId() == mappedRelationship.getEndNodeId() && deletedRelationship.getStartNodeId() == mappedRelationship.getStartNodeId() && deletedRelationship.getRelationshipType().equals(mappedRelationship.getRelationshipType())) {

@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.metadata;
 
+import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +29,14 @@ public class AnnotationsInfo {
         this.classAnnotations = new HashMap<>();
     }
 
-    public AnnotationsInfo(Map<String, AnnotationInfo> classAnnotations) {
-        this.classAnnotations = new HashMap<>(classAnnotations);
+    public AnnotationsInfo(Class<?> cls) {
+        this.classAnnotations = new HashMap<>();
+
+        final Annotation[] declaredAnnotations = cls.getDeclaredAnnotations();
+        for (Annotation annotation: declaredAnnotations) {
+            AnnotationInfo info = new AnnotationInfo(annotation);
+            classAnnotations.put(info.getName(), info);
+        }
     }
 
     public Collection<AnnotationInfo> list() {
@@ -45,7 +52,7 @@ public class AnnotationsInfo {
     }
 
     public AnnotationInfo get(Class<?> annotationNameClass) {
-        return classAnnotations.get(annotationNameClass.getCanonicalName());
+        return classAnnotations.get(annotationNameClass.getName());
     }
 
     public void append(AnnotationsInfo annotationsInfo) {

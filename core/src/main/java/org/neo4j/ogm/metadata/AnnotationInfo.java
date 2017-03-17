@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.metadata;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,12 +26,45 @@ import java.util.Map;
  */
 public class AnnotationInfo {
 
+    private static String convert(Method element, Object value) {
+
+        final Class<?> returnType = element.getReturnType();
+        if (returnType.isPrimitive()) {
+            return String.valueOf(value);
+        }
+        else if (returnType.equals(Class.class)) {
+            return ((Class) value).getName();
+        } else {
+            final String result = value.toString();
+            if (result.isEmpty()) {
+                if (element.getDefaultValue().toString().isEmpty()) {
+                    return null;
+                }
+                return element.getDefaultValue().toString();
+            }
+            return result;
+        }
+    }
+
     private String annotationName;
+
     private Map<String, String> elements;
 
-    public AnnotationInfo(String annotationName, Map<String, String> elements) {
-        this.annotationName = annotationName;
-        this.elements = new HashMap<>(elements);
+    public AnnotationInfo(Annotation annotation) {
+
+        this.annotationName = annotation.annotationType().getName();
+        this.elements = new HashMap<>();
+
+        final Method[] declaredElements = annotation.annotationType().getDeclaredMethods();
+        for (Method element : declaredElements) {
+            Object value = null;
+            try {
+                value = element.invoke(annotation);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Could not read value of Annotation " + element.getName());
+            }
+            elements.put(element.getName(), value != null ? convert(element, value) : element.getDefaultValue().toString());
+        }
     }
 
     public String getName() {

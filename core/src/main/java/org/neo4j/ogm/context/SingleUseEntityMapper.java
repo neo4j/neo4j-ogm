@@ -98,19 +98,20 @@ public class SingleUseEntityMapper {
 
 	// TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
 	private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
-		PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey());
+
+		FieldInfo writer = classInfo.getFieldInfo( property.getKey());
 
 		if (writer == null) {
 			FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());
 			if (fieldInfo != null) {
-				writer = new FieldWriter(classInfo, fieldInfo);
+				writer = fieldInfo;
 			}
 		}
 
 		if (writer == null && property.getKey().equals("id")) { //When mapping query results to objects that are not domain entities, there's no concept of a GraphID
 			FieldInfo idField = classInfo.identityField();
 			if (idField != null) {
-				writer = new FieldWriter(classInfo, idField);
+				writer = idField;
 			}
 		}
 

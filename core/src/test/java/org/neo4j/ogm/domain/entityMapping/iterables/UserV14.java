@@ -12,8 +12,6 @@
  */
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.domain.entityMapping.Entity;
-
 import java.util.Set;
 
 /**

@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 class EntityCollector {
 
-    private final Logger logger = LoggerFactory.getLogger(EntityCollector.class);
     private final Map<Long, Map<DirectedRelationship, Map<Class, Set<Object>>>> relationshipCollectibles = new HashMap<>(); //TODO bad, we'll never remember what this does in a months time!! refactor this class!
 
     /**

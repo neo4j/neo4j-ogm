@@ -15,12 +15,12 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
@@ -58,10 +58,10 @@ public class ClassInfo {
     private boolean isAbstract;
     private boolean isEnum;
     private boolean hydrated;
-    private FieldsInfo fieldsInfo = new FieldsInfo();
-    private MethodsInfo methodsInfo = new MethodsInfo();
-    private AnnotationsInfo annotationsInfo = new AnnotationsInfo();
-    private InterfacesInfo interfacesInfo = new InterfacesInfo();
+    private FieldsInfo fieldsInfo;
+    private MethodsInfo methodsInfo;
+    private AnnotationsInfo annotationsInfo;
+    private InterfacesInfo interfacesInfo;
     private ClassInfo directSuperclass;
     private Map<Class, List<FieldInfo>> iterableFieldsForType = new HashMap<>();
     private Map<FieldInfo, Field> fieldInfoFields = new ConcurrentHashMap<>();
@@ -73,6 +73,7 @@ public class ClassInfo {
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
     private boolean primaryIndexFieldChecked = false;
+    private Class<?> cls;
 
     /**
      * This class was referenced as a superclass of the given subclass.
@@ -80,22 +81,31 @@ public class ClassInfo {
      * @param name the name of the class
      * @param subclass {@link ClassInfo} of the subclass
      */
-    public ClassInfo(String name, ClassInfo subclass) {
+    ClassInfo(String name, ClassInfo subclass) {
         this.className = name;
         this.hydrated = false;
+        this.fieldsInfo = new FieldsInfo();
+        this.methodsInfo = new MethodsInfo();
+        this.annotationsInfo = new AnnotationsInfo();
+        this.interfacesInfo = new InterfacesInfo();
         addSubclass(subclass);
     }
 
-    public ClassInfo(boolean isAbstract, boolean isInterface, boolean isEnum, String className, String directSuperclassName, InterfacesInfo interfacesInfo, AnnotationsInfo annotationsInfo, FieldsInfo fieldsInfo, MethodsInfo methodsInfo) {
-        this.isAbstract = isAbstract;
-        this.isInterface = isInterface;
-        this.isEnum = isEnum;
-        this.className = className;
-        this.directSuperclassName = directSuperclassName;
-        this.interfacesInfo = interfacesInfo;
-        this.annotationsInfo = annotationsInfo;
-        this.fieldsInfo = fieldsInfo;
-        this.methodsInfo = methodsInfo;
+    public ClassInfo(Class<?> cls) {
+        this.cls = cls;
+        final int modifiers = cls.getModifiers();
+        this.isInterface = Modifier.isInterface(modifiers);
+        this.isAbstract = Modifier.isAbstract(modifiers);
+        this.isEnum = cls.isEnum();
+        this.className = cls.getName();
+
+        if (cls.getSuperclass() != null) {
+            this.directSuperclassName = cls.getSuperclass().getName();
+        }
+        this.interfacesInfo = new InterfacesInfo(cls);
+        this.fieldsInfo = new FieldsInfo(this, cls);
+        this.methodsInfo = new MethodsInfo(cls);
+        this.annotationsInfo = new AnnotationsInfo(cls);
 
         if (isRelationshipEntity() && labelFieldOrNull() != null) {
             throw new MappingException(String.format("'%s' is a relationship entity. The @Labels annotation can't be applied to " +
@@ -115,7 +125,7 @@ public class ClassInfo {
      *
      * @param classInfoDetails ClassInfo details
      */
-    public void hydrate(ClassInfo classInfoDetails) {
+    void hydrate(ClassInfo classInfoDetails) {
 
         if (!this.hydrated) {
             this.hydrated = true;
@@ -124,6 +134,7 @@ public class ClassInfo {
             this.isInterface = classInfoDetails.isInterface;
             this.isEnum = classInfoDetails.isEnum;
             this.directSuperclassName = classInfoDetails.directSuperclassName;
+            this.cls = classInfoDetails.cls;
 
             //this.interfaces.addAll(classInfoDetails.interfaces());
 
@@ -146,7 +157,7 @@ public class ClassInfo {
      *
      * @param subclass the subclass
      */
-    public void addSubclass(ClassInfo subclass) {
+    void addSubclass(ClassInfo subclass) {
         if (subclass.directSuperclass != null && subclass.directSuperclass != this) {
             throw new RuntimeException(subclass.className + " has two superclasses: " + subclass.directSuperclass.className + ", " + this.className);
         }
@@ -154,7 +165,7 @@ public class ClassInfo {
         this.directSubclasses.add(subclass);
     }
 
-    public boolean hydrated() {
+    boolean hydrated() {
         return hydrated;
     }
 
@@ -221,19 +232,19 @@ public class ClassInfo {
         return labelNames;
     }
 
-    public List<ClassInfo> directSubclasses() {
+    List<ClassInfo> directSubclasses() {
         return directSubclasses;
     }
 
-    public List<ClassInfo> directImplementingClasses() {
+    List<ClassInfo> directImplementingClasses() {
         return directImplementingClasses;
     }
 
-    public List<ClassInfo> directInterfaces() {
+    List<ClassInfo> directInterfaces() {
         return directInterfaces;
     }
 
-    public org.neo4j.ogm.metadata.InterfacesInfo interfacesInfo() {
+    InterfacesInfo interfacesInfo() {
         return interfacesInfo;
     }
 
@@ -249,21 +260,23 @@ public class ClassInfo {
         return isEnum;
     }
 
-    public org.neo4j.ogm.metadata.AnnotationsInfo annotationsInfo() {
+    public AnnotationsInfo annotationsInfo() {
         return annotationsInfo;
     }
 
-    public String superclassName() {
+    String superclassName() {
         return directSuperclassName;
     }
 
-    public org.neo4j.ogm.metadata.FieldsInfo fieldsInfo() {
+    public FieldsInfo fieldsInfo() {
         return fieldsInfo;
     }
 
-    public org.neo4j.ogm.metadata.MethodsInfo methodsInfo() {
+    MethodsInfo methodsInfo() {
         return methodsInfo;
     }
+
+
 
     private FieldInfo identityFieldOrNull() {
         try {
@@ -288,7 +301,7 @@ public class ClassInfo {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.class);
                 if (annotationInfo != null) {
-                    if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
+                    if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
                         identityField = fieldInfo;
                         return fieldInfo;
                     }
@@ -296,7 +309,7 @@ public class ClassInfo {
             }
             FieldInfo fieldInfo = fieldsInfo().get("id");
             if (fieldInfo != null) {
-                if (fieldInfo.getTypeDescriptor().equals("Ljava/lang/Long;")) {
+                if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
                     identityField = fieldInfo;
                     return fieldInfo;
                 }
@@ -337,7 +350,7 @@ public class ClassInfo {
 
     public boolean isRelationshipEntity() {
         for (AnnotationInfo info : annotations()) {
-            if (info.getName().equals(RelationshipEntity.class.getCanonicalName())) {
+            if (info.getName().equals(RelationshipEntity.class.getName())) {
                 return true;
             }
         }
@@ -513,7 +526,7 @@ public class ClassInfo {
             return field;
         }
         try {
-            field = MetaDataClassLoader.loadClass(name()).getDeclaredField(fieldInfo.getName());
+            field = cls.getDeclaredField(fieldInfo.getName());
             fieldInfoFields.put(fieldInfo, field);
             return field;
         } catch (NoSuchFieldException e) {
@@ -524,8 +537,6 @@ public class ClassInfo {
             } else {
                 throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -546,7 +557,7 @@ public class ClassInfo {
      * @return A {@link List} of {@link FieldInfo} objects that are of the given type, never <code>null</code>
      */
     public List<FieldInfo> findFields(Class<?> fieldType) {
-        String fieldSignature = "L" + fieldType.getName().replace(".", "/") + ";";
+        String fieldSignature = fieldType.getName();
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (fieldInfo.getTypeDescriptor().equals(fieldSignature)) {
@@ -605,8 +616,8 @@ public class ClassInfo {
             return iterableFieldsForType.get(iteratedType);
         }
         List<FieldInfo> fieldInfos = new ArrayList<>();
-        String typeSignature = "L" + iteratedType.getName().replace('.', '/') + ";";
-        String arrayOfTypeSignature = "[" + typeSignature;
+        String typeSignature = iteratedType.getName();
+        String arrayOfTypeSignature = typeSignature + "[]";
         try {
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 String fieldType = fieldInfo.getTypeDescriptor();
@@ -662,7 +673,7 @@ public class ClassInfo {
      * @param classInfo the classInfo at the toplevel of a type hierarchy to search through
      * @return true if this classInfo is in the subclass hierarchy of classInfo, false otherwise
      */
-    public boolean isSubclassOf(ClassInfo classInfo) {
+    boolean isSubclassOf(ClassInfo classInfo) {
 
         if (this == classInfo) {
             return true;
@@ -680,22 +691,13 @@ public class ClassInfo {
         return found;
     }
 
-    public Class<?> getType(String typeParameterDescriptor) {
-        return ClassUtils.getType(typeParameterDescriptor);
-    }
-
     /**
      * Get the underlying class represented by this ClassInfo
      *
      * @return the underlying class or null if it cannot be determined
      */
     public Class getUnderlyingClass() {
-        try {
-            return MetaDataClassLoader.loadClass(className);//Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("Could not get underlying class for {}", className);
-        }
-        return null;
+        return cls;
     }
 
     /**
@@ -708,7 +710,7 @@ public class ClassInfo {
      * @param relationshipDirection the relationship direction
      * @return class of the type parameter descriptor or null if it could not be determined
      */
-    public Class getTypeParameterDescriptorForRelationship(String relationshipType, String relationshipDirection) {
+    Class getTypeParameterDescriptorForRelationship(String relationshipType, String relationshipDirection) {
         final boolean STRICT_MODE = true; //strict mode for matching methods and fields, will only look for explicit annotations
         final boolean INFERRED_MODE = false; //inferred mode for matching methods and fields, will infer the relationship type from the getter/setter/property
 
@@ -753,18 +755,18 @@ public class ClassInfo {
         // No way to get declared fields from current byte code impl. Using reflection instead.
         Field[] declaredFields;
         try {
-            declaredFields = MetaDataClassLoader.loadClass(className).getDeclaredFields();
+            declaredFields = Class.forName(className, false, Thread.currentThread().getContextClassLoader()).getDeclaredFields();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Could not reflectively read declared fields", e);
         }
 
-        final String indexAnnotation = Index.class.getCanonicalName();
+        final String indexAnnotation = Index.class.getName();
 
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
             if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(indexAnnotation)) {
 
                 String propertyValue = fieldInfo.property();
-                if (fieldInfo.hasAnnotation(Property.class.getCanonicalName())) {
+                if (fieldInfo.hasAnnotation(Property.class.getName())) {
                     propertyValue = fieldInfo.property();
                 }
                 indexes.put(propertyValue, fieldInfo);
@@ -786,7 +788,7 @@ public class ClassInfo {
 
     public FieldInfo primaryIndexField() {
         if (!primaryIndexFieldChecked && primaryIndexField == null) {
-            final String indexAnnotation = Index.class.getCanonicalName();
+            final String indexAnnotation = Index.class.getName();
 
             for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(indexAnnotation);
@@ -807,9 +809,59 @@ public class ClassInfo {
 
     public MethodInfo postLoadMethodOrNull() {
         for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.hasAnnotation(PostLoad.class.getCanonicalName())) {
+            if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
                 return methodInfo;
             }
+        }
+        return null;
+    }
+
+    public FieldInfo getFieldInfo(String propertyName) {
+
+        // fall back to the field if method cannot be found
+        FieldInfo labelField = labelFieldOrNull();
+        if (labelField != null && labelField.getName().equals(propertyName)) {
+            return labelField;
+        }
+        FieldInfo propertyField = propertyField(propertyName);
+        if (propertyField != null) {
+            return propertyField;
+        }
+        return null;
+    }
+
+    /**
+     * Return a FieldInfo for the EndNode of a RelationshipEntity
+     *
+     * @return a FieldInfo for the field annotated as the EndNode, or none if not found
+     */
+    public FieldInfo getEndNodeReader() {
+        if (isRelationshipEntity()) {
+            for (FieldInfo fieldInfo : relationshipFields()) {
+                if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
+                    return fieldInfo;
+                }
+            }
+            LOGGER.warn("Failed to find an @EndNode on {}", name());
+        }
+
+        return null;
+    }
+
+    /**
+     * Return a FieldInfo for the StartNode of a RelationshipEntity
+     *
+     * @return a FieldInfo for the field annotated as the StartNode, or none if not found
+     */
+    public FieldInfo getStartNodeReader() {
+        if (isRelationshipEntity()) {
+
+            for (FieldInfo fieldInfo : relationshipFields()) {
+                if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
+                    return fieldInfo;
+                }
+            }
+            LOGGER.warn("Failed to find an @StartNode on {}", name());
         }
         return null;
     }

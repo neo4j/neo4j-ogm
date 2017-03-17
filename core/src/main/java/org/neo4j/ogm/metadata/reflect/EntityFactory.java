@@ -17,11 +17,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.Node;
 
@@ -104,7 +103,7 @@ public class EntityFactory {
 
         try {
             @SuppressWarnings("unchecked")
-            Class<T> loadedClass = (Class<T>) MetaDataClassLoader.loadClass(fqn); //Class.forName(fqn);
+            Class<T> loadedClass = (Class<T>) Class.forName(fqn, false, Thread.currentThread().getContextClassLoader());
             return instantiate(loadedClass);
         } catch (ClassNotFoundException e) {
             throw new MappingException("Unable to load class with FQN: " + fqn, e);
@@ -118,7 +117,7 @@ public class EntityFactory {
         if (fqn == null) {
             ClassInfo classInfo = metadata.resolve(taxa);
             if (classInfo != null) {
-                taxaLeafClass.put(Arrays.toString(taxa), fqn=classInfo.name());
+                taxaLeafClass.put(Arrays.toString(taxa), fqn = classInfo.name());
             } else {
                 throw new BaseClassNotFoundException(Arrays.toString(taxa));
             }
@@ -135,5 +134,4 @@ public class EntityFactory {
             throw new MappingException("Unable to instantiate " + loadedClass, e);
         }
     }
-
 }

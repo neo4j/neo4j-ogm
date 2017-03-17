@@ -22,7 +22,7 @@ public class IndexedEntity {
 
     Long id;
 
-    @Indexed(b = 'a', c = 1, d = 0.01d, f = 0.02f, i = 5, j = 6, s = 3, t = "t", z = true)
+    @Indexed(b = 'a', c = '\u0031', d = 0.01d, f = 0.02f, i = 5, j = 6, s = 3, t = "t", z = true)
     String ref;
 
     @Retention(RetentionPolicy.RUNTIME)

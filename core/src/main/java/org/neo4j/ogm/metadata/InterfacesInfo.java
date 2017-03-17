@@ -24,30 +24,24 @@ public class InterfacesInfo {
 
     private final Map<String, InterfaceInfo> interfaceMap;
 
-    public InterfacesInfo() {
+    InterfacesInfo() {
         this.interfaceMap = new HashMap<>();
     }
 
-    public InterfacesInfo(Map<String, InterfaceInfo> interfaceMap) {
-        this.interfaceMap = new HashMap(interfaceMap);
+    InterfacesInfo(Class<?> cls) {
+        this.interfaceMap = new HashMap<>();
+        for (Class iface : cls.getInterfaces()) {
+            interfaceMap.put(iface.getName(), new InterfaceInfo(iface));
+        }
     }
-
 
     public Collection<InterfaceInfo> list() {
         return interfaceMap.values();
     }
 
-    public InterfaceInfo get(String interfaceName) {
-        return interfaceMap.get(interfaceName);
-    }
-
-    void add(InterfaceInfo interfaceInfo) {
-        interfaceMap.put(interfaceInfo.name(), interfaceInfo);
-    }
-
     public void append(InterfacesInfo interfacesInfo) {
         for (InterfaceInfo interfaceInfo : interfacesInfo.list()) {
-            add(interfaceInfo);
+            interfaceMap.put(interfaceInfo.name(), interfaceInfo);
         }
     }
 }

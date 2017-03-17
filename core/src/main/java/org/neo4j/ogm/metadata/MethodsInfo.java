@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.metadata;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +28,27 @@ public class MethodsInfo {
 
     private final Map<String, MethodInfo> methods;
 
-    public MethodsInfo() {
+    MethodsInfo() {
         this.methods = new HashMap<>();
     }
+
+    public MethodsInfo(Class<?> cls) {
+        this.methods = new HashMap<>();
+
+        for (Method method : cls.getDeclaredMethods()) {
+            final int modifiers = method.getModifiers();
+            if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+                ObjectAnnotations objectAnnotations = new ObjectAnnotations();
+                final Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+                for (Annotation annotation : declaredAnnotations) {
+                    AnnotationInfo info = new AnnotationInfo(annotation);
+                    objectAnnotations.put(info.getName(), info);
+                }
+                methods.put(method.getName(), new MethodInfo(method, objectAnnotations));
+            }
+        }
+    }
+
 
     public MethodsInfo(Map<String, MethodInfo> methods) {
         this.methods = new HashMap<>(methods);
@@ -35,10 +56,6 @@ public class MethodsInfo {
 
     public Collection<MethodInfo> methods() {
         return methods.values();
-    }
-
-    public MethodInfo get(String methodName) {
-        return methods.get(methodName);
     }
 
     public void append(MethodsInfo methodsInfo) {

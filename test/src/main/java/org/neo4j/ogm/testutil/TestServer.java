@@ -186,15 +186,6 @@ public class TestServer {
     }
 
     /**
-     * Loads the specified CQL file from the classpath into the database.
-     *
-     * @param cqlFileName The name of the CQL file to load
-     */
-    public void loadClasspathCypherScriptFile(String cqlFileName) {
-        this.database.execute(TestUtils.readCQLFile(cqlFileName).toString());
-    }
-
-    /**
      * Retrieves the underlying {@link org.neo4j.graphdb.GraphDatabaseService} used in this test.
      *
      * @return The test {@link org.neo4j.graphdb.GraphDatabaseService}

@@ -29,10 +29,6 @@ public class DefaultRestModelRequest extends PagingAndSortingQuery implements Re
 		super(cypher, parameters);
 	}
 
-	public DefaultRestModelRequest(String cypher) {
-		this(cypher, Utils.map());
-	}
-
 	@Override
 	public String[] getResultDataContents() {
 		return resultDataContents;

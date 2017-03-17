@@ -18,10 +18,6 @@ package org.neo4j.ogm.exception;
  */
 public class BaseClassNotFoundException extends MappingException {
 
-    public BaseClassNotFoundException(String taxa, Exception cause) {
-        super("Could not find a class to map to " + taxa, cause);
-    }
-
     public BaseClassNotFoundException(String taxa) {
         super("Could not find a class to map to " + taxa);
     }

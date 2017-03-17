@@ -16,9 +16,6 @@ package org.neo4j.ogm.config;
 import java.net.URI;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A generic configuration class that can be set up programmatically
  * or via a properties file.
@@ -29,8 +26,6 @@ public class Configuration {
 
     private static final String DRIVER = "driver";
     private static final String URI = "URI";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
     private static final String CONNECTION_POOL_SIZE = "connection.pool.size";
     private static final String ENCRYPTION_LEVEL = "encryption.level";
     private static final String TRUST_STRATEGY = "trust.strategy";

@@ -18,8 +18,8 @@ import java.util.*;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
-import org.neo4j.ogm.metadata.reflect.FieldWriter;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
@@ -79,7 +79,7 @@ public class DeleteDelegate  {
     // TODO : this is being done in multiple requests at the moment, one per object. Why not put them in a single request?
     private void deleteOneOrMoreObjects(Set<Object> neighbours, List<?> objects) {
 
-        Set<Object> notified = new HashSet();
+        Set<Object> notified = new HashSet<>();
 
         if (session.eventsEnabled()) {
             for (Object affectedObject : neighbours) {
@@ -97,7 +97,7 @@ public class DeleteDelegate  {
             if (classInfo != null) {
 
                 Field identityField = classInfo.getField(classInfo.identityField());
-                Long identity = (Long) FieldWriter.read(identityField, object);
+                Long identity = (Long) FieldInfo.read(identityField, object);
                 if (identity != null) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
                     if (session.eventsEnabled()) {

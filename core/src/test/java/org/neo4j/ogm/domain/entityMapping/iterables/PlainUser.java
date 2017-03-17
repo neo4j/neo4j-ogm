@@ -11,15 +11,11 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.metadata.bytecode;
+package org.neo4j.ogm.domain.entityMapping.iterables;
 
 /**
- * @author vince
- *
- * @see DefaultStrategy
+ * @author Luanne Misquitta
  */
-public interface Strategy {
-
-    ClassLoader classLoader(Class caller);
+public class PlainUser extends Entity {
 
 }

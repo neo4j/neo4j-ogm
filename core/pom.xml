@@ -75,9 +75,37 @@
         </dependency>
 
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
+            <groupId>io.github.lukehutch</groupId>
+            <artifactId>fast-classpath-scanner</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>local-test</groupId>
+            <artifactId>concert</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>local-test</groupId>
+            <artifactId>event</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>local-test</groupId>
+            <artifactId>radio</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>local-test-repo</id>
+            <url>file://${basedir}/src/test/lib</url>
+        </repository>
+    </repositories>
 </project>

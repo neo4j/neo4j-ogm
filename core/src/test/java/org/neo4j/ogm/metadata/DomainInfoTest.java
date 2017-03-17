@@ -28,7 +28,7 @@ public class DomainInfoTest {
 
     @Before
     public void setUp() {
-        domainInfo = new DomainInfo("org.neo4j.ogm.domain.forum");
+        domainInfo = DomainInfo.create("org.neo4j.ogm.domain.forum");
     }
 
 

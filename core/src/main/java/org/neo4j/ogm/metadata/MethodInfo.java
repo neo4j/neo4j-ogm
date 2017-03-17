@@ -16,7 +16,6 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Method;
 
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
 
 /**
  * @author Vince Bickers
@@ -24,9 +23,9 @@ import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
  */
 public class MethodInfo {
 
-    private final String className;
     private final String name;
     private final ObjectAnnotations annotations;
+    private final Method method;
 
     /**
      * Constructs a new {@link MethodInfo} based on the given arguments.
@@ -35,9 +34,9 @@ public class MethodInfo {
      * notation
      * @param annotations The {@link ObjectAnnotations} applied to the field
      */
-    public MethodInfo(String className, String name, ObjectAnnotations annotations) {
-        this.className = className;
-        this.name = name;
+    MethodInfo(Method method, ObjectAnnotations annotations) {
+        this.method = method;
+        this.name = method.getName();
         this.annotations = annotations;
     }
 
@@ -45,7 +44,7 @@ public class MethodInfo {
         return name;
     }
 
-    public boolean hasAnnotation(String annotationName) {
+    boolean hasAnnotation(String annotationName) {
         return annotations.get(annotationName) != null;
     }
 
@@ -56,10 +55,6 @@ public class MethodInfo {
      * @return a Method, if it exists on the corresponding class.
      */
     public Method getMethod() {
-        try {
-            return MetaDataClassLoader.loadClass(className).getMethod(name);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return method;
     }
 }

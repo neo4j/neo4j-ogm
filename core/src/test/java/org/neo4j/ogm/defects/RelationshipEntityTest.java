@@ -21,6 +21,7 @@ import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
 
@@ -32,14 +33,14 @@ import static org.junit.Assert.assertNotNull;
  * @author Mark Angrish
  */
 @Ignore
-public class RelationshipEntityTest {
+public class RelationshipEntityTest extends MultiDriverTestClass{
 
 
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = new SessionFactory(baseConfiguration,"org.neo4j.ogm.domain.cineasts.annotated").openSession();
     }
 
     @After
@@ -61,7 +62,7 @@ public class RelationshipEntityTest {
 
         session.clear();
 
-        daniel = session.load(Actor.class, daniel.getId());
+        daniel = session.load(Actor.class, daniel.getUuid());
         assertNotNull(daniel);
         assertEquals(1, daniel.getNominations().size()); //fails
     }

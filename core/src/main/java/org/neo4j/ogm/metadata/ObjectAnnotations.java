@@ -13,12 +13,14 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.metadata.bytecode.MetaDataClassLoader;
-import org.neo4j.ogm.typeconversion.*;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.annotation.typeconversion.*;
+import org.neo4j.ogm.typeconversion.DateLongConverter;
+import org.neo4j.ogm.typeconversion.DateStringConverter;
+import org.neo4j.ogm.typeconversion.EnumStringConverter;
+import org.neo4j.ogm.typeconversion.NumberStringConverter;
 
 /**
  * @author Vince Bickers
@@ -36,7 +38,7 @@ public class ObjectAnnotations {
     }
 
     public AnnotationInfo get(Class<?> keyClass) {
-        return annotations.get(keyClass.getCanonicalName());
+        return keyClass == null ? null : annotations.get(keyClass.getName());
     }
 
     public boolean isEmpty() {
@@ -49,13 +51,12 @@ public class ObjectAnnotations {
         AnnotationInfo customType = get(Convert.class);
         if (customType != null) {
             String classDescriptor = customType.get(Convert.CONVERTER, null);
-            if (classDescriptor == null) {
+            if (classDescriptor == null || Convert.Unset.class.getName().equals(classDescriptor)) {
                 return null; // will have a default proxy converter applied later on
             }
 
             try {
-                String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
-                Class<?> clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
+                Class<?> clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
                 return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -77,9 +78,8 @@ public class ObjectAnnotations {
         AnnotationInfo enumStringConverterInfo = get(EnumString.class);
         if (enumStringConverterInfo != null) {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
-            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
-                Class clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
+                Class clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
                 return new EnumStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -89,9 +89,8 @@ public class ObjectAnnotations {
         AnnotationInfo numberStringConverterInfo = get(NumberString.class);
         if (numberStringConverterInfo != null) {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
-            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length()-1);
             try {
-                Class clazz = MetaDataClassLoader.loadClass(className);//Class.forName(className);
+                Class clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
                 return new NumberStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -100,5 +99,4 @@ public class ObjectAnnotations {
 
         return null;
     }
-
 }

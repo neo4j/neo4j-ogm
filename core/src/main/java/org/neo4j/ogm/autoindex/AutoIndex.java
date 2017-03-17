@@ -32,7 +32,7 @@ class AutoIndex {
 	 */
 	private final String description;
 
-	public AutoIndex(String label, String property, boolean unique) {
+	AutoIndex(String label, String property, boolean unique) {
 
 		if (unique) {
 			this.description = "CONSTRAINT ON ( " + label.toLowerCase() + ":" + label + " ) ASSERT " + label.toLowerCase() + "." + property + " IS UNIQUE";
@@ -41,7 +41,7 @@ class AutoIndex {
 		}
 	}
 
-	public Statement getCreateStatement() {
+	Statement getCreateStatement() {
 		return new RowDataStatement("CREATE " + this.description, EMPTY_MAP);
 	}
 
@@ -49,7 +49,7 @@ class AutoIndex {
 		return new RowDataStatement("DROP " + this.description, EMPTY_MAP);
 	}
 
-	public String getDescription() {
+	String getDescription() {
 		return description;
 	}
 

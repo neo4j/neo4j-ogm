@@ -14,15 +14,11 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.metadata.bytecode.ClassInfoBuilder;
-import org.neo4j.ogm.metadata.bytecode.ClassPathScanner;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
 import org.neo4j.ogm.typeconversion.ConvertibleTypes;
@@ -36,40 +32,67 @@ import org.slf4j.LoggerFactory;
  * @author Luanne Misquitta
  * @author Mark Angrish
  */
-public class DomainInfo implements ClassFileProcessor {
+public class DomainInfo {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassFileProcessor.class);
-
-    private static final String dateSignature = "java/util/Date";
-    private static final String bigDecimalSignature = "java/math/BigDecimal";
-    private static final String bigIntegerSignature = "java/math/BigInteger";
-    private static final String byteArraySignature = "[B";
-    private static final String byteArrayWrapperSignature = "[Ljava/lang/Byte";
-    private static final String arraySignature = "[L";
-    private static final String collectionSignature = "L";
-
-    private final List<String> classPaths = new ArrayList<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainInfo.class);
+    private static final String DATE_SIGNATURE = "java.util.Date";
+    private static final String BIG_DECIMAL_SIGNATURE = "java.math.BigDecimal";
+    private static final String BIG_INTEGER_SIGNATURE = "java.math.BigInteger";
+    private static final String BYTE_ARRAY_SIGNATURE = "byte[]";
+    private static final String BYTE_ARRAY_WRAPPER_SIGNATURE = "java.lang.Byte[]";
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> interfaceNameToClassInfo = new HashMap<>();
-
     private final Set<Class> enumTypes = new HashSet<>();
-
     private final ConversionCallbackRegistry conversionCallbackRegistry = new ConversionCallbackRegistry();
 
-    public DomainInfo(String... packages) {
-        long startTime = System.nanoTime();
-        load(packages);
+    public static DomainInfo create(String... packages) {
 
-        LOGGER.info("{} classes loaded in {} nanoseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
-    }
+        final Set<Class<?>> allClasses = new HashSet<>();
+        new FastClasspathScanner(packages).matchAllClasses(allClasses::add).strictWhitelist().scan();
+        DomainInfo domainInfo = new DomainInfo();
 
-    public DomainInfo(Class... classes) {
-        long startTime = System.nanoTime();
-        load(classes);
+        for (Class<?> cls : allClasses) {
+            ClassInfo classInfo = new ClassInfo(cls);
 
-        LOGGER.info("{} classes loaded in {} nanoseconds", classNameToClassInfo.entrySet().size(), (System.nanoTime() - startTime));
+            String className = classInfo.name();
+            String superclassName = classInfo.superclassName();
+
+            LOGGER.debug("Processing: {} -> {}", className, superclassName);
+
+            if (className != null) {
+                if (cls.isAnnotation() || cls.isAnonymousClass() || cls.equals(Object.class)) {
+                    continue;
+                }
+
+                ClassInfo thisClassInfo = domainInfo.classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
+
+                if (!thisClassInfo.hydrated()) {
+
+                    thisClassInfo.hydrate(classInfo);
+
+                    ClassInfo superclassInfo = domainInfo.classNameToClassInfo.get(superclassName);
+                    if (superclassInfo == null) {
+
+                        if (superclassName != null && !superclassName.equals("java.lang.Object") && !superclassName.equals("java.lang.Enum")) {
+                            domainInfo.classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
+                        }
+                    } else {
+                        superclassInfo.addSubclass(thisClassInfo);
+                    }
+                }
+
+                if (thisClassInfo.isEnum()) {
+                    LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
+                    domainInfo.enumTypes.add(thisClassInfo.getUnderlyingClass());
+                }
+            }
+        }
+
+        domainInfo.finish();
+
+        return domainInfo;
     }
 
     private void buildAnnotationNameToClassInfoMap() {
@@ -101,12 +124,11 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    public void registerConversionCallback(ConversionCallback conversionCallback) {
+    void registerConversionCallback(ConversionCallback conversionCallback) {
         this.conversionCallbackRegistry.registerConversionCallback(conversionCallback);
     }
 
-    @Override
-    public void finish() {
+    private void finish() {
 
         LOGGER.info("Starting Post-processing phase");
 
@@ -236,86 +258,17 @@ public class DomainInfo implements ClassFileProcessor {
         }
     }
 
-    @Override
-    public void process(final InputStream inputStream) throws IOException {
-
-        ClassInfo classInfo = ClassInfoBuilder.create(inputStream);
-
-        String className = classInfo.name();
-        String superclassName = classInfo.superclassName();
-
-        LOGGER.debug("Processing: {} -> {}", className, superclassName);
-
-        if (className != null) {
-
-            ClassInfo thisClassInfo = classNameToClassInfo.computeIfAbsent(className, k -> classInfo);
-
-            if (!thisClassInfo.hydrated()) {
-
-                thisClassInfo.hydrate(classInfo);
-
-                ClassInfo superclassInfo = classNameToClassInfo.get(superclassName);
-                if (superclassInfo == null) {
-                    classNameToClassInfo.put(superclassName, new ClassInfo(superclassName, thisClassInfo));
-                } else {
-                    superclassInfo.addSubclass(thisClassInfo);
-                }
-            }
-
-            if (thisClassInfo.isEnum()) {
-                LOGGER.debug("Registering enum class: {}", thisClassInfo.name());
-                enumTypes.add(thisClassInfo.getUnderlyingClass());
-            }
-        }
-    }
-
-    private void load(Class... classes) {
-        classPaths.clear();
-        classNameToClassInfo.clear();
-        annotationNameToClassInfo.clear();
-        interfaceNameToClassInfo.clear();
-
-        for (Class clazz : classes) {
-            // This can be done as all OGM managed classes must have different "simple names"'s.
-            final URL resource = clazz.getResource(clazz.getSimpleName() + ".class");
-
-            try (InputStream inputStream = resource.openStream()) {
-                process(inputStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private void load(String... packages) {
-        classPaths.clear();
-        classNameToClassInfo.clear();
-        annotationNameToClassInfo.clear();
-        interfaceNameToClassInfo.clear();
-
-        for (String packageName : packages) {
-            String path = packageName.replace(".", "/");
-            // ensure classpath entries are complete, to ensure we don't accidentally admit partial matches.
-            if (!path.endsWith("/")) {
-                path = path.concat("/");
-            }
-            classPaths.add(path);
-        }
-
-        new ClassPathScanner().scan(classPaths, this);
-    }
-
     public ClassInfo getClass(String fqn) {
         return classNameToClassInfo.get(fqn);
     }
 
     // all classes, including interfaces will be registered in classNameToClassInfo map
-    public ClassInfo getClassSimpleName(String fullOrPartialClassName) {
+    ClassInfo getClassSimpleName(String fullOrPartialClassName) {
         return getClassInfo(fullOrPartialClassName, classNameToClassInfo);
     }
 
 
-    public ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
+    ClassInfo getClassInfoForInterface(String fullOrPartialClassName) {
         ClassInfo classInfo = getClassSimpleName(fullOrPartialClassName);
         if (classInfo != null && classInfo.isInterface()) {
             return classInfo;
@@ -337,7 +290,7 @@ public class DomainInfo implements ClassFileProcessor {
         return match;
     }
 
-    public List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
+    List<ClassInfo> getClassInfosWithAnnotation(String annotation) {
         return annotationNameToClassInfo.get(annotation);
     }
 
@@ -345,20 +298,21 @@ public class DomainInfo implements ClassFileProcessor {
 
         if (!fieldInfo.hasPropertyConverter() && !fieldInfo.hasCompositeConverter()) {
 
-            if (fieldInfo.getTypeDescriptor().contains(dateSignature)) {
+            final String typeDescriptor = fieldInfo.getTypeDescriptor();
+            if (typeDescriptor.contains(DATE_SIGNATURE)) {
                 setDateFieldConverter(fieldInfo);
-            } else if (fieldInfo.getTypeDescriptor().contains(bigIntegerSignature)) {
+            } else if (typeDescriptor.contains(BIG_INTEGER_SIGNATURE)) {
                 setBigIntegerFieldConverter(fieldInfo);
-            } else if (fieldInfo.getTypeDescriptor().contains(bigDecimalSignature)) {
+            } else if (typeDescriptor.contains(BIG_DECIMAL_SIGNATURE)) {
                 setBigDecimalConverter(fieldInfo);
-            } else if (fieldInfo.getTypeDescriptor().contains(byteArraySignature)) {
+            } else if (typeDescriptor.contains(BYTE_ARRAY_SIGNATURE)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
-            } else if (fieldInfo.getTypeDescriptor().contains(byteArrayWrapperSignature)) {
+            } else if (typeDescriptor.contains(BYTE_ARRAY_WRAPPER_SIGNATURE)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayWrapperBase64Converter());
             } else {
                 if (fieldInfo.getAnnotations().get(Convert.class) != null) {
                     // no converter's been set but this method is annotated with @Convert so we need to proxy it
-                    Class<?> entityAttributeType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                    Class<?> entityAttributeType = ClassUtils.getType(typeDescriptor);
                     String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
                         throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
@@ -368,7 +322,11 @@ public class DomainInfo implements ClassFileProcessor {
                     fieldInfo.setPropertyConverter(new ProxyAttributeConverter(entityAttributeType, ClassUtils.getType(graphTypeDescriptor), this.conversionCallbackRegistry));
                 }
 
-                Class fieldType = ClassUtils.getType(fieldInfo.getTypeDescriptor());
+                Class fieldType = ClassUtils.getType(typeDescriptor);
+
+                if (fieldType == null) {
+                    throw new RuntimeException("Class " + classInfo.name() + " field " + fieldInfo.getName() + " has null field type.");
+                }
 
                 boolean enumConverterSet = false;
                 for (Class enumClass : enumTypes) {

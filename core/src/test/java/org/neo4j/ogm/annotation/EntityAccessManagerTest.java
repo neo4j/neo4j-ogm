@@ -301,7 +301,7 @@ public class EntityAccessManagerTest {
     public void shouldRetrieveAppropriateObjectAccessToEndNodeAttributeOnRelationshipEntity() {
         ClassInfo relationshipEntityClassInfo = domainInfo.getClass(ForumTopicLink.class.getName());
 
-        FieldInfo endNodeReader = EntityAccessManager.getEndNodeReader(relationshipEntityClassInfo);
+        FieldInfo endNodeReader = relationshipEntityClassInfo.getEndNodeReader();
         assertNotNull("The resultant end node reader shouldn't be null", endNodeReader);
 
         ForumTopicLink forumTopicLink = new ForumTopicLink();
@@ -313,7 +313,7 @@ public class EntityAccessManagerTest {
     @Test
     public void shouldReturnNullOnAttemptToAccessNonExistentEndNodeAttributeOnRelationshipEntity() {
         ClassInfo classInfoOfNonRelationshipEntity = domainInfo.getClass(Member.class.getName());
-        assertNull(EntityAccessManager.getEndNodeReader(classInfoOfNonRelationshipEntity));
+        assertNull(classInfoOfNonRelationshipEntity .getEndNodeReader());
     }
 
     /**

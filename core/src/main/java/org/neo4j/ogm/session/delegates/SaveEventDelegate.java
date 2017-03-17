@@ -360,11 +360,11 @@ public final class SaveEventDelegate {
                 }
             } else {
                 // graph relationship is transitive across the RE domain object
-                Object startNode = EntityAccessManager.getStartNodeReader(referenceInfo).read(reference);
+                Object startNode = referenceInfo.getStartNodeReader().read(reference);
                 ClassInfo startNodeInfo = this.session.metaData().classInfo(startNode);
                 Long startNodeId = EntityUtils.identity(startNode, session.metaData());
 
-                Object endNode = EntityAccessManager.getEndNodeReader(referenceInfo).read(reference);
+                Object endNode = referenceInfo.getEndNodeReader().read(reference);
                 ClassInfo endNodeInfo = this.session.metaData().classInfo(endNode);
                 Long endNodeId = EntityUtils.identity(endNode, session.metaData());
 

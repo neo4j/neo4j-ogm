@@ -316,8 +316,9 @@ public class EntityAccessManager {
             //If it's outgoing, then proceed to find other matches
             if (!relationshipDirection.equals(Relationship.INCOMING)) {
 
-                // 3rd, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
-                for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+                // 2nd, try to find a scalar or vector field annotated as the neo4j relationship type and direction, allowing for implied relationships
+                final Set<FieldInfo> candidateRelationshipFields = classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE);
+                for (FieldInfo fieldInfo : candidateRelationshipFields) {
                     if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
                         if (fieldInfo.isTypeOf(objectType) ||
                                 fieldInfo.isParameterisedTypeOf(objectType) ||
@@ -328,8 +329,8 @@ public class EntityAccessManager {
                     }
                 }
 
-                // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
-                for (FieldInfo fieldInfo : classInfo.candidateRelationshipFields(relationshipType, relationshipDirection, INFERRED_MODE)) {
+                // 3rd, try to find a "XYZ" field name where XYZ is derived from the relationship type
+                for (FieldInfo fieldInfo : candidateRelationshipFields) {
                     if (fieldInfo != null) {
                         if (fieldInfo.isTypeOf(objectType) ||
                                 fieldInfo.isParameterisedTypeOf(objectType) ||
@@ -340,7 +341,7 @@ public class EntityAccessManager {
                     }
                 }
 
-                // 8th, try to find a unique field that has the same type as the parameter
+                // 4th, try to find a unique field that has the same type as the parameter
                 List<FieldInfo> fieldInfos = classInfo.findFields(objectType);
                 if (fieldInfos.size() == 1) {
                     FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
@@ -501,39 +502,7 @@ public class EntityAccessManager {
         return null;
     }
 
-    /**
-     * Return a FieldInfo for the EndNode of a RelationshipEntity
-     *
-     * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
-     * @return a FieldInfo for the field annotated as the EndNode, or none if not found
-     */
-    // TODO extend for methods
-    public static FieldInfo getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
-        for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
-            if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
-                return fieldInfo;
-            }
-        }
-        LOGGER.warn("Failed to find an @EndNode on {}", relationshipEntityClassInfo);
-        return null;
-    }
 
-    /**
-     * Return a FieldInfo for the StartNode of a RelationshipEntity
-     *
-     * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
-     * @return a FieldInfo for the field annotated as the StartNode, or none if not found
-     */
-    // TODO: extend for methods
-    public static FieldInfo getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
-        for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
-            if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
-                return fieldInfo;
-            }
-        }
-        LOGGER.warn("Failed to find an @StartNode on {}", relationshipEntityClassInfo);
-        return null;
-    }
 
     @Deprecated
     // TODO replace with getStartNodeWriter() and getEndNodeWriter()

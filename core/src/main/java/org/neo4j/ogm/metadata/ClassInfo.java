@@ -93,9 +93,9 @@ public class ClassInfo {
 
     public ClassInfo(Class<?> cls) {
         final int modifiers = cls.getModifiers();
-        this.isInterface =  Modifier.isInterface(modifiers);
-        this.isAbstract =  Modifier.isAbstract(modifiers);
-        this.isEnum =  cls.isEnum();
+        this.isInterface = Modifier.isInterface(modifiers);
+        this.isAbstract = Modifier.isAbstract(modifiers);
+        this.isEnum = cls.isEnum();
         this.className = cls.getName();
 
         if (cls.getSuperclass() != null) {
@@ -103,7 +103,7 @@ public class ClassInfo {
         }
         this.interfacesInfo = new InterfacesInfo(cls);
         this.fieldsInfo = new FieldsInfo(this, cls);
-        this.methodsInfo =  new MethodsInfo(cls);
+        this.methodsInfo = new MethodsInfo(cls);
         this.annotationsInfo = new AnnotationsInfo(cls);
 
         if (isRelationshipEntity() && labelFieldOrNull() != null) {
@@ -829,6 +829,42 @@ public class ClassInfo {
         FieldInfo propertyField = propertyField(propertyName);
         if (propertyField != null) {
             return propertyField;
+        }
+        return null;
+    }
+
+    /**
+     * Return a FieldInfo for the EndNode of a RelationshipEntity
+     *
+     * @return a FieldInfo for the field annotated as the EndNode, or none if not found
+     */
+    public FieldInfo getEndNodeReader() {
+        if (isRelationshipEntity()) {
+            for (FieldInfo fieldInfo : relationshipFields()) {
+                if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
+                    return fieldInfo;
+                }
+            }
+            LOGGER.warn("Failed to find an @EndNode on {}", name());
+        }
+
+        return null;
+    }
+
+    /**
+     * Return a FieldInfo for the StartNode of a RelationshipEntity
+     *
+     * @return a FieldInfo for the field annotated as the StartNode, or none if not found
+     */
+    public FieldInfo getStartNodeReader() {
+        if (isRelationshipEntity()) {
+
+            for (FieldInfo fieldInfo : relationshipFields()) {
+                if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
+                    return fieldInfo;
+                }
+            }
+            LOGGER.warn("Failed to find an @StartNode on {}", name());
         }
         return null;
     }

@@ -308,8 +308,8 @@ public class MappingContext {
                     }
                 }
             } else if (relationshipEntityRegister.contains(id)) {
-                FieldInfo startNodeReader = EntityAccessManager.getStartNodeReader(classInfo);
-                FieldInfo endNodeReader = EntityAccessManager.getEndNodeReader(classInfo);
+                FieldInfo startNodeReader = classInfo.getStartNodeReader();
+                FieldInfo endNodeReader = classInfo.getEndNodeReader();
                 neighbours.add(startNodeReader.read(entity));
                 neighbours.add(endNodeReader.read(entity));
             }
@@ -328,8 +328,9 @@ public class MappingContext {
         while (relationshipEntityIdIterator.hasNext()) {
             Long relationshipEntityId = relationshipEntityIdIterator.next();
             Object relationshipEntity = relationshipEntityRegister.get(relationshipEntityId);
-            FieldInfo startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(relationshipEntity));
-            FieldInfo endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(relationshipEntity));
+            final ClassInfo classInfo = metaData.classInfo(relationshipEntity);
+            FieldInfo startNodeReader = classInfo.getStartNodeReader();
+            FieldInfo endNodeReader = classInfo.getEndNodeReader();
             if (startOrEndEntity == startNodeReader.read(relationshipEntity) || startOrEndEntity == endNodeReader.read(relationshipEntity)) {
                 relationshipEntityIdIterator.remove();
             }
@@ -386,10 +387,11 @@ public class MappingContext {
                 // remove a RelationshipEntity
                 if (relationshipEntityRegister.contains(id)) {
                     relationshipEntityRegister.remove(id);
-                    FieldInfo startNodeReader = EntityAccessManager.getStartNodeReader(metaData.classInfo(entity));
+                    final ClassInfo classInfo = metaData.classInfo(entity);
+                    FieldInfo startNodeReader = classInfo.getStartNodeReader();
                     Object startNode = startNodeReader.read(entity);
                     removeEntity(startNode);
-                    FieldInfo endNodeReader = EntityAccessManager.getEndNodeReader(metaData.classInfo(entity));
+                    FieldInfo endNodeReader = classInfo.getEndNodeReader();
                     Object endNode = endNodeReader.read(entity);
                     removeEntity(endNode);
                 }

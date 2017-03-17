@@ -87,12 +87,12 @@ public class EntityGraphMapper implements EntityMapper {
 
             ClassInfo reInfo = metaData.classInfo(entity);
 
-            Object startNode = EntityAccessManager.getStartNodeReader(reInfo).read(entity);
+            Object startNode = reInfo.getStartNodeReader().read(entity);
             if (startNode == null) {
                 throw new RuntimeException("@StartNode of relationship entity may not be null");
             }
 
-            Object endNode = EntityAccessManager.getEndNodeReader(reInfo).read(entity);
+            Object endNode = reInfo.getEndNodeReader().read(entity);
             if (endNode == null) {
                 throw new RuntimeException("@EndNode of relationship entity may not be null");
             }
@@ -631,7 +631,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private Object getStartEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
-        FieldInfo actualStartNodeReader = EntityAccessManager.getStartNodeReader(relEntityClassInfo);
+        FieldInfo actualStartNodeReader = relEntityClassInfo.getStartNodeReader();
         if (actualStartNodeReader != null) {
             return actualStartNodeReader.read(relationshipEntity);
         }
@@ -639,7 +639,7 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private Object getTargetEntity(ClassInfo relEntityClassInfo, Object relationshipEntity) {
-        FieldInfo actualEndNodeReader = EntityAccessManager.getEndNodeReader(relEntityClassInfo);
+        FieldInfo actualEndNodeReader = relEntityClassInfo.getEndNodeReader();
         if (actualEndNodeReader != null) {
             return actualEndNodeReader.read(relationshipEntity);
         }
@@ -794,7 +794,7 @@ public class EntityGraphMapper implements EntityMapper {
             //If its a rel entity then we want to rebase the startClass to the @StartNode of the rel entity and the endClass to the rel entity
             if (metaData.isRelationshipEntity(tgtClass.getName())) {
                 srcClass = tgtClass;
-                String start = EntityAccessManager.getStartNodeReader(metaData.classInfo(tgtClass.getName())).typeDescriptor();
+                String start = metaData.classInfo(tgtClass.getName()).getStartNodeReader().typeDescriptor();
                 tgtClass = ClassUtils.getType(start);
             }
             reallyCreateRelationship(context, tgt, relationshipBuilder, src, tgtClass, srcClass);

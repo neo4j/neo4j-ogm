@@ -258,8 +258,6 @@ public class EntityAccessManager {
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<Class, FieldInfo>> relationshipEntityWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<String, FieldInfo>> propertyWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<String, FieldInfo>> propertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<FieldInfo>> propertyReaders = new HashMap<>();
     private static Map<ClassInfo, FieldInfo> identityPropertyReaderCache = new HashMap<>();
     private static Map<ClassInfo, Collection<FieldInfo>> relationalReaders = new HashMap<>();
@@ -267,50 +265,6 @@ public class EntityAccessManager {
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
 
-    /**
-     * Returns a PropertyWriter for a property declared by a ClassInfo
-     *
-     * @param classInfo A ClassInfo declaring the property
-     * @param propertyName the property name of the property in the graph
-     * @return A PropertyWriter, or none if not found
-     */
-    public static FieldInfo getPropertyWriter(final ClassInfo classInfo, String propertyName) {
-        if (!propertyWriterCache.containsKey(classInfo)) {
-            propertyWriterCache.put(classInfo, new HashMap<>());
-        }
-        Map<String, FieldInfo> entityAccessMap = propertyWriterCache.get(classInfo);
-        if (entityAccessMap.containsKey(propertyName)) {
-            return propertyWriterCache.get(classInfo).get(propertyName);
-        }
-
-        FieldInfo propertyWriter = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> fieldInfo);
-
-        propertyWriterCache.get(classInfo).put(propertyName, propertyWriter);
-        return propertyWriter;
-    }
-
-    /**
-     * Returns a PropertyReader for the property of an object in the graph
-     *
-     * @param classInfo A ClassInfo declaring the property
-     * @param propertyName the property name of the property in the graph
-     * @return A PropertyReader, or none if not found
-     */
-    public static FieldInfo getPropertyReader(final ClassInfo classInfo, String propertyName) {
-
-        Map<String, FieldInfo> fieldAccessorMap = propertyReaderCache.computeIfAbsent(classInfo, k -> new HashMap<>());
-
-        final FieldInfo fieldAccessor = fieldAccessorMap.get(propertyName);
-
-        if (fieldAccessor != null) {
-            return propertyReaderCache.get(classInfo).get(propertyName);
-        }
-
-        FieldInfo propertyReader = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> fieldInfo);
-
-        fieldAccessorMap.put(propertyName, propertyReader);
-        return propertyReader;
-    }
 
     /**
      * Returns a FieldWriter for a scalar value represented as a relationship in the graph (i.e. not a primitive property)
@@ -693,28 +647,5 @@ public class EntityAccessManager {
             directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, ClassUtils.getType(fieldInfo.getTypeDescriptor()));
         }
         iterableWriterCache.get(classInfo).put(directedRelationshipForType, fieldAccessor);
-    }
-
-    // TODO: enable lookup via classinfo hierarchy
-    private static <T> T determinePropertyAccessor(ClassInfo classInfo, String propertyName, AccessorFactory<T> factory) {
-
-        // fall back to the field if method cannot be found
-        FieldInfo labelField = classInfo.labelFieldOrNull();
-        if (labelField != null && labelField.getName().equals(propertyName)) {
-            return factory.makeFieldAccessor(labelField);
-        }
-        FieldInfo fieldInfo = classInfo.propertyField(propertyName);
-        if (fieldInfo != null) {
-            return factory.makeFieldAccessor(fieldInfo);
-        }
-        return null;
-    }
-
-    /**
-     * Used internally to hide differences in object construction from strategy algorithm.
-     */
-    private interface AccessorFactory<T> {
-
-        T makeFieldAccessor(FieldInfo fieldInfo);
     }
 }

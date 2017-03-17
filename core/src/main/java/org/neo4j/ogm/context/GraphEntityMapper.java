@@ -222,7 +222,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             Map<String, ?> propertyMap = toMap(propertyList);
             for (FieldInfo field : compositeFields) {
                 Object value = field.getCompositeConverter().toEntityAttribute(propertyMap);
-                FieldInfo writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
+                FieldInfo writer = classInfo.getFieldInfo(field.getName());
                 writer.write(instance, value);
             }
         }
@@ -256,7 +256,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private void writeProperty(ClassInfo classInfo, Object instance, Property<?, ?> property) {
 
-        FieldInfo writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey().toString());
+        FieldInfo writer = classInfo.getFieldInfo(property.getKey().toString());
 
         if (writer == null) {
             logger.debug("Unable to find property: {} on class: {} for writing", property.getKey(), classInfo.name());
@@ -264,7 +264,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
             Object value = property.getValue();
             // merge iterable / arrays and co-erce to the correct attribute type
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                FieldInfo reader = EntityAccessManager.getPropertyReader(classInfo, property.getKey().toString());
+                FieldInfo reader = classInfo.getFieldInfo(property.getKey().toString());
                 if (reader != null) {
                     Object currentValue = reader.readProperty(instance);
                     Class<?> paramType = writer.type();

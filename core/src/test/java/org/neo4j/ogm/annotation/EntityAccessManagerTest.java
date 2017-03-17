@@ -65,8 +65,8 @@ public class EntityAccessManagerTest {
     public void shouldPreferAnnotatedFieldToPlainMethodWhenFindingPropertyToSet() {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
 
-        // testProp matches the setter/getter name but because the field is annotated then it should be used instead
-        FieldInfo objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testProp");
+        FieldInfo objectAccess = classInfo.getFieldInfo( "testProp");
+
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
 
         DummyDomainObject domainObject = new DummyDomainObject();
@@ -82,7 +82,8 @@ public class EntityAccessManagerTest {
         ClassInfo classInfo = this.domainInfo.getClass(DummyDomainObject.class.getName());
         DummyDomainObject domainObject = new DummyDomainObject();
 
-        FieldInfo objectAccess = EntityAccessManager.getPropertyWriter(classInfo, "testIgnored");
+        FieldInfo objectAccess = classInfo.getFieldInfo( "testIgnored");
+
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue(objectAccess instanceof FieldInfo);
         assertEquals(String.class, objectAccess.type());
@@ -98,13 +99,14 @@ public class EntityAccessManagerTest {
         domainObject.propertyWithoutAccessorMethods = 9;
 
         // test writing via field
-        FieldInfo writer = EntityAccessManager.getPropertyWriter(classInfo, "propertyWithoutAccessorMethods");
+        FieldInfo writer = classInfo.getFieldInfo( "propertyWithoutAccessorMethods");
+
         assertNotNull("The resultant writer shouldn't be null", writer);
         writer.write(domainObject, 27);
         assertEquals(27, domainObject.propertyWithoutAccessorMethods);
 
         // test reading via field
-        FieldInfo reader = EntityAccessManager.getPropertyReader(classInfo, "propertyWithoutAccessorMethods");
+        FieldInfo reader = classInfo.getFieldInfo("propertyWithoutAccessorMethods");
         assertNotNull("The resultant reader shouldn't be null", reader);
         assertEquals(domainObject.propertyWithoutAccessorMethods, reader.readProperty(domainObject));
     }
@@ -179,7 +181,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.annotatedTestProperty = "more arbitrary text";
 
-        FieldInfo objectAccess = EntityAccessManager.getPropertyReader(classInfo, "testProp");
+        FieldInfo objectAccess = classInfo.getFieldInfo("testProp");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.annotatedTestProperty, objectAccess.readProperty(domainObject));
     }
@@ -192,8 +194,7 @@ public class EntityAccessManagerTest {
         domainObject.propertyWithDifferentAnnotatedGetter = "more arbitrary text";
         Collection<FieldInfo> readers = EntityAccessManager.getPropertyReaders(classInfo);
 
-
-        FieldInfo objectAccess = EntityAccessManager.getPropertyReader(classInfo, "differentAnnotationOnGetter");
+        FieldInfo objectAccess = classInfo.getFieldInfo("differentAnnotationOnGetter");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.propertyWithDifferentAnnotatedGetter, objectAccess.readProperty(domainObject));
 
@@ -211,7 +212,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.nonAnnotatedTestProperty = new Double(30.16);
 
-        FieldInfo objectAccess = EntityAccessManager.getPropertyReader(classInfo, "nonAnnotatedTestProperty");
+        FieldInfo objectAccess = classInfo.getFieldInfo("nonAnnotatedTestProperty");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertEquals(domainObject.nonAnnotatedTestProperty, objectAccess.readProperty(domainObject));
     }

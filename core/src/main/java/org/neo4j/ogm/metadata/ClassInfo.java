@@ -818,5 +818,19 @@ public class ClassInfo {
         }
         return null;
     }
+
+    public FieldInfo getFieldInfo(String propertyName) {
+
+        // fall back to the field if method cannot be found
+        FieldInfo labelField = labelFieldOrNull();
+        if (labelField != null && labelField.getName().equals(propertyName)) {
+            return labelField;
+        }
+        FieldInfo propertyField = propertyField(propertyName);
+        if (propertyField != null) {
+            return propertyField;
+        }
+        return null;
+    }
 }
 

@@ -98,7 +98,8 @@ public class SingleUseEntityMapper {
 
 	// TODO: the following is all pretty much identical to GraphEntityMapper so should probably be refactored
 	private void writeProperty(ClassInfo classInfo, Object instance, Map.Entry<String, Object> property) {
-		FieldInfo writer = EntityAccessManager.getPropertyWriter(classInfo, property.getKey());
+
+		FieldInfo writer = classInfo.getFieldInfo( property.getKey());
 
 		if (writer == null) {
 			FieldInfo fieldInfo = classInfo.relationshipFieldByName(property.getKey());

@@ -56,7 +56,7 @@ public class ObjectAnnotations {
             }
 
             try {
-                Class<?> clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
+                Class<?> clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
                 return clazz.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -78,9 +78,8 @@ public class ObjectAnnotations {
         AnnotationInfo enumStringConverterInfo = get(EnumString.class);
         if (enumStringConverterInfo != null) {
             String classDescriptor = enumStringConverterInfo.get(EnumString.TYPE, null);
-            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length() - 1);
             try {
-                Class clazz = Class.forName(className, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
+                Class clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
                 return new EnumStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -90,9 +89,8 @@ public class ObjectAnnotations {
         AnnotationInfo numberStringConverterInfo = get(NumberString.class);
         if (numberStringConverterInfo != null) {
             String classDescriptor = numberStringConverterInfo.get(NumberString.TYPE, null);
-            String className = classDescriptor.replace("/", ".").substring(1, classDescriptor.length() - 1);
             try {
-                Class clazz = Class.forName(className, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
+                Class clazz = Class.forName(classDescriptor, false, Thread.currentThread().getContextClassLoader());
                 return new NumberStringConverter(clazz);
             } catch (Exception e) {
                 throw new RuntimeException(e);

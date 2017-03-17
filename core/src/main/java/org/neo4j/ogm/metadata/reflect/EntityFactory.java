@@ -103,7 +103,7 @@ public class EntityFactory {
 
         try {
             @SuppressWarnings("unchecked")
-            Class<T> loadedClass = (Class<T>) Class.forName(fqn, false, Thread.currentThread().getContextClassLoader()); //Class.forName(fqn);
+            Class<T> loadedClass = (Class<T>) Class.forName(fqn, false, Thread.currentThread().getContextClassLoader());
             return instantiate(loadedClass);
         } catch (ClassNotFoundException e) {
             throw new MappingException("Unable to load class with FQN: " + fqn, e);

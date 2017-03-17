@@ -225,16 +225,7 @@ public class FieldInfo {
     }
 
     public boolean isIterable() {
-        try {
-            Class descriptorClazz = Class.forName(descriptor, false, Thread.currentThread().getContextClassLoader());
-            if (Iterable.class.isAssignableFrom(descriptorClazz)) {
-                return true;
-            }
-        } catch (ClassNotFoundException e) {
-            //e.printStackTrace();
-        }
-
-        return false;
+            return Iterable.class.isAssignableFrom(fieldType);
     }
 
     public boolean isParameterisedTypeOf(Class<?> type) {

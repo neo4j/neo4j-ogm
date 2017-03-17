@@ -212,7 +212,7 @@ public class MappingContext {
             for (ClassInfo implementingClass : implementingClasses) {
                 try {
                     String implementingClassName = implementingClass.name();
-                    removeType(Class.forName(implementingClassName, false, Thread.currentThread().getContextClassLoader()));
+                    removeType(classInfo.getUnderlyingClass());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

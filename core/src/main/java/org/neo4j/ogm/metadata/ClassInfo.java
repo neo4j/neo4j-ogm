@@ -92,6 +92,7 @@ public class ClassInfo {
     }
 
     public ClassInfo(Class<?> cls) {
+        this.cls = cls;
         final int modifiers = cls.getModifiers();
         this.isInterface = Modifier.isInterface(modifiers);
         this.isAbstract = Modifier.isAbstract(modifiers);
@@ -133,6 +134,7 @@ public class ClassInfo {
             this.isInterface = classInfoDetails.isInterface;
             this.isEnum = classInfoDetails.isEnum;
             this.directSuperclassName = classInfoDetails.directSuperclassName;
+            this.cls = classInfoDetails.cls;
 
             //this.interfaces.addAll(classInfoDetails.interfaces());
 
@@ -273,6 +275,8 @@ public class ClassInfo {
     MethodsInfo methodsInfo() {
         return methodsInfo;
     }
+
+
 
     private FieldInfo identityFieldOrNull() {
         try {
@@ -522,7 +526,7 @@ public class ClassInfo {
             return field;
         }
         try {
-            field = Class.forName(name(), false, Thread.currentThread().getContextClassLoader()).getDeclaredField(fieldInfo.getName());
+            field = cls.getDeclaredField(fieldInfo.getName());
             fieldInfoFields.put(fieldInfo, field);
             return field;
         } catch (NoSuchFieldException e) {
@@ -533,8 +537,6 @@ public class ClassInfo {
             } else {
                 throw new RuntimeException("Field " + fieldInfo.getName() + " not found in class " + name() + " or any of its superclasses");
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -695,12 +697,7 @@ public class ClassInfo {
      * @return the underlying class or null if it cannot be determined
      */
     public Class getUnderlyingClass() {
-        try {
-            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());//Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("Could not get underlying class for {}", className);
-        }
-        return null;
+        return cls;
     }
 
     /**

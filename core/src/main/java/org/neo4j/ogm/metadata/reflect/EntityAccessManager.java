@@ -122,7 +122,7 @@ public class EntityAccessManager {
         return null;
     }
 
-    public static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
+    private static Collection<Object> union(Collection collection, Collection hydrated, Class elementType) {
         if (collection == null) {
             return hydrated;
         }

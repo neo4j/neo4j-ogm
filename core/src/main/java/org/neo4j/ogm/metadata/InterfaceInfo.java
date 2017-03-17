@@ -22,8 +22,8 @@ public class InterfaceInfo {
 
     private final String interfaceName;
 
-    InterfaceInfo(String name) {
-        this.interfaceName = name;
+    InterfaceInfo(Class iface) {
+        this.interfaceName = iface.getName();
     }
 
     String name() {

@@ -28,10 +28,10 @@ public class InterfacesInfo {
         this.interfaceMap = new HashMap<>();
     }
 
-    public InterfacesInfo(Class<?> cls) {
-        this.interfaceMap = new HashMap();
+    InterfacesInfo(Class<?> cls) {
+        this.interfaceMap = new HashMap<>();
         for (Class iface : cls.getInterfaces()) {
-            interfaceMap.put(iface.getName(), new InterfaceInfo(iface.getName()));
+            interfaceMap.put(iface.getName(), new InterfaceInfo(iface));
         }
     }
 
@@ -39,13 +39,9 @@ public class InterfacesInfo {
         return interfaceMap.values();
     }
 
-    void add(InterfaceInfo interfaceInfo) {
-        interfaceMap.put(interfaceInfo.name(), interfaceInfo);
-    }
-
     public void append(InterfacesInfo interfacesInfo) {
         for (InterfaceInfo interfaceInfo : interfacesInfo.list()) {
-            add(interfaceInfo);
+            interfaceMap.put(interfaceInfo.name(), interfaceInfo);
         }
     }
 }

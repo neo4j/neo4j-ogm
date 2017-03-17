@@ -81,9 +81,6 @@ public class FieldInfo {
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
      *
-     * @param containingClassInfo
-     * @param name The name of the field
-     * @param descriptor The field descriptor that expresses the type of the field using Java signature string notation
      * @param typeParameterDescriptor The descriptor that expresses the generic type parameter, which may be <code>null</code>
      * if that's not appropriate
      * @param annotations The {@link ObjectAnnotations} applied to the field

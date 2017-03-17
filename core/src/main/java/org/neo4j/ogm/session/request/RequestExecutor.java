@@ -185,7 +185,7 @@ public class RequestExecutor {
 			if (!(obj instanceof TransientRelationship)) {
 				ClassInfo classInfo = session.metaData().classInfo(obj);
 				if (!classInfo.isRelationshipEntity()) {
-					FieldInfo idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+					FieldInfo idReader = classInfo.identityField();
 					Long id = (Long) idReader.readProperty(obj);
 					if (id != null) {
 						LOGGER.debug("updating existing node id: {}, {}", id, obj);

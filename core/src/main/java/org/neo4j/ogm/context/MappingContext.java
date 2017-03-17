@@ -154,7 +154,7 @@ public class MappingContext {
 
     public boolean isDirty(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
+        Object id = classInfo.identityField().readProperty(entity);
         return !objectMemo.remembered((Long) id, entity, classInfo);
     }
 
@@ -218,7 +218,7 @@ public class MappingContext {
                 }
             }
         } else {
-            FieldInfo identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+            FieldInfo identityReader = classInfo.identityField();
             removeType(type, identityReader);
         }
     }
@@ -256,7 +256,7 @@ public class MappingContext {
     public void removeEntity(Object entity) {
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        FieldInfo identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldInfo identityReader = classInfo.identityField();
         Long id = (Long) identityReader.readProperty(entity);
 
         purge(entity, identityReader, type);
@@ -289,7 +289,7 @@ public class MappingContext {
 
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        FieldInfo identityReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldInfo identityReader = classInfo.identityField();
 
         Long id = (Long) identityReader.readProperty(entity);
 
@@ -372,7 +372,7 @@ public class MappingContext {
                                 Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
                                 if (relEntity != null) {
                                     ClassInfo relClassInfo = metaData.classInfo(relEntity);
-                                    FieldInfo relIdentityReader = EntityAccessManager.getIdentityPropertyReader(relClassInfo);
+                                    FieldInfo relIdentityReader = relClassInfo.identityField();
                                     purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
                                 }
                             }
@@ -407,7 +407,7 @@ public class MappingContext {
 
     private void remember(Object entity) {
         ClassInfo classInfo = metaData.classInfo(entity);
-        Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
+        Long id = (Long) classInfo.identityField().readProperty(entity);
         objectMemo.remember(id, entity, classInfo);
     }
 
@@ -416,7 +416,7 @@ public class MappingContext {
         FieldInfo fieldInfo = classInfo.labelFieldOrNull();
         if (fieldInfo != null) {
             Collection<String> labels = (Collection<String>) fieldInfo.read(entity);
-            Long id = (Long) EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
+            Long id = (Long) classInfo.identityField().readProperty(entity);
             labelHistory(id).push(labels);
         }
     }

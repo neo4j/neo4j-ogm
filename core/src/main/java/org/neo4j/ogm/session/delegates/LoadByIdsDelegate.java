@@ -103,7 +103,7 @@ public class LoadByIdsDelegate {
                 return true;
             }
         }
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(mapped);
+        Object id = classInfo.identityField().readProperty(mapped);
         return ids.contains(id);
     }
 }

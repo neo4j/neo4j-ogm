@@ -258,9 +258,6 @@ public class EntityAccessManager {
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<Class, FieldInfo>> relationshipEntityWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Collection<FieldInfo>> propertyReaders = new HashMap<>();
-    private static Map<ClassInfo, FieldInfo> identityPropertyReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Collection<FieldInfo>> relationalReaders = new HashMap<>();
 
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
@@ -413,27 +410,6 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns all the PropertyReader instances for this ClassInfo
-     *
-     * @param classInfo The ClassInfo whose PropertyReaders we want
-     * @return a Collection of PropertyReader instances which will be empty if no primitive properties are defined by the ClassInfo
-     */
-    public static Collection<FieldInfo> getPropertyReaders(ClassInfo classInfo) {
-        return propertyReaders.computeIfAbsent(classInfo, k1 -> classInfo.propertyFields().stream().collect(Collectors.toList()));
-    }
-
-    /**
-     * Returns all the FieldInfo instances for this ClassInfo
-     *
-     * @param classInfo The ClassInfo whose RelationalReaders we want
-     * @return a Collection of FieldInfo instances which will be empty if no relationships are defined by the ClassInfo
-     */
-    public static Collection<FieldInfo> getRelationalReaders(ClassInfo classInfo) {
-
-        return relationalReaders.computeIfAbsent(classInfo, k1 -> classInfo.relationshipFields().stream().collect(Collectors.toList()));
-    }
-
-    /**
      * Returns an FieldWriter for an iterable of a non-primitive scalar type defined by a ClassInfo
      *
      * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
@@ -523,22 +499,6 @@ public class EntityAccessManager {
         }
         iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, null);
         return null;
-    }
-
-    /**
-     * Return the PropertyReader for a ClassInfo's identity property
-     *
-     * @param classInfo The ClassInfo declaring the identity property
-     * @return A PropertyReader, or null if not found
-     */
-    public static FieldInfo getIdentityPropertyReader(ClassInfo classInfo) {
-        FieldInfo propertyReader = identityPropertyReaderCache.get(classInfo);
-        if (propertyReader != null) {
-            return propertyReader;
-        }
-        propertyReader = classInfo.identityField();
-        identityPropertyReaderCache.put(classInfo, propertyReader);
-        return propertyReader;
     }
 
     /**

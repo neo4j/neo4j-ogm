@@ -30,7 +30,7 @@ public class EntityUtils {
     public static Long identity(Object entity, MetaData metaData) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(entity);
+        Object id = classInfo.identityField().readProperty(entity);
         return (id == null ? -System.identityHashCode(entity) : (Long) id);
     }
 

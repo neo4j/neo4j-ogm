@@ -271,7 +271,7 @@ public final class SaveEventDelegate {
 
         if (parentClassInfo != null) {
 
-            for (FieldInfo reader : EntityAccessManager.getRelationalReaders(parentClassInfo)) {
+            for (FieldInfo reader : parentClassInfo.relationshipFields()) {
 
                 Object reference = reader.read(parent);
 
@@ -302,7 +302,7 @@ public final class SaveEventDelegate {
 
 
     private Collection<FieldInfo> relationalReaders(Object object) {
-        return EntityAccessManager.getRelationalReaders(this.session.metaData().classInfo(object));
+        return this.session.metaData().classInfo(object).relationshipFields();
     }
 
 

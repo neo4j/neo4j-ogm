@@ -35,7 +35,7 @@ public class GraphIdDelegate {
 			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
 			try {
 				if (classInfo != null) {
-					Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(possibleEntity);
+					Object id = classInfo.identityField().readProperty(possibleEntity);
 					if (id != null) {
 						return (long) id;
 					}

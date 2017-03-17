@@ -192,7 +192,7 @@ public class EntityAccessManagerTest {
 
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.propertyWithDifferentAnnotatedGetter = "more arbitrary text";
-        Collection<FieldInfo> readers = EntityAccessManager.getPropertyReaders(classInfo);
+        Collection<FieldInfo> readers = classInfo.propertyFields();
 
         FieldInfo objectAccess = classInfo.getFieldInfo("differentAnnotationOnGetter");
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
@@ -258,7 +258,7 @@ public class EntityAccessManagerTest {
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.setId(id);
 
-        FieldInfo idReader = EntityAccessManager.getIdentityPropertyReader(classInfo);
+        FieldInfo idReader = classInfo.identityField();
         assertNotNull("The resultant ID reader shouldn't be null", idReader);
         assertEquals(id, idReader.readProperty(domainObject));
     }
@@ -276,7 +276,7 @@ public class EntityAccessManagerTest {
         domainObject.naturalSatellites = new ArrayList<>();
         domainObject.artificialSatellites = Collections.singletonList(new Satellite());
 
-        Collection<FieldInfo> relationalAccessors = EntityAccessManager.getRelationalReaders(classInfo);
+        Collection<FieldInfo> relationalAccessors = classInfo.relationshipFields();
         assertNotNull("The resultant list of object accessors shouldn't be null", relationalAccessors);
         assertEquals("An unexpected number of accessors was returned", 7, relationalAccessors.size());
 

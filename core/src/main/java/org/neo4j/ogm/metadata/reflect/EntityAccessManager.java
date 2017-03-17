@@ -253,16 +253,16 @@ public class EntityAccessManager {
     }
 
     //TODO make these LRU caches with configurable size
-    private static Map<ClassInfo, Map<DirectedRelationship, FieldAccessor>> relationalReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldAccessor>> relationalWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldAccessor>> iterableWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldAccessor>> iterableReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Map<Class, FieldAccessor>> relationshipEntityWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<String, FieldAccessor>> propertyWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<String, FieldAccessor>> propertyReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Collection<FieldAccessor>> propertyReaders = new HashMap<>();
-    private static Map<ClassInfo, FieldAccessor> identityPropertyReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Collection<FieldAccessor>> relationalReaders = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationship, FieldInfo>> relationalReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> relationalWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Map<Class, FieldInfo>> relationshipEntityWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<String, FieldInfo>> propertyWriterCache = new HashMap<>();
+    private static Map<ClassInfo, Map<String, FieldInfo>> propertyReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Collection<FieldInfo>> propertyReaders = new HashMap<>();
+    private static Map<ClassInfo, FieldInfo> identityPropertyReaderCache = new HashMap<>();
+    private static Map<ClassInfo, Collection<FieldInfo>> relationalReaders = new HashMap<>();
 
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
@@ -274,16 +274,16 @@ public class EntityAccessManager {
      * @param propertyName the property name of the property in the graph
      * @return A PropertyWriter, or none if not found
      */
-    public static FieldAccessor getPropertyWriter(final ClassInfo classInfo, String propertyName) {
+    public static FieldInfo getPropertyWriter(final ClassInfo classInfo, String propertyName) {
         if (!propertyWriterCache.containsKey(classInfo)) {
             propertyWriterCache.put(classInfo, new HashMap<>());
         }
-        Map<String, FieldAccessor> entityAccessMap = propertyWriterCache.get(classInfo);
+        Map<String, FieldInfo> entityAccessMap = propertyWriterCache.get(classInfo);
         if (entityAccessMap.containsKey(propertyName)) {
             return propertyWriterCache.get(classInfo).get(propertyName);
         }
 
-        FieldAccessor propertyWriter = determinePropertyAccessor(classInfo, propertyName, (AccessorFactory<FieldAccessor>) fieldInfo -> new FieldAccessor(classInfo, fieldInfo));
+        FieldInfo propertyWriter = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> fieldInfo);
 
         propertyWriterCache.get(classInfo).put(propertyName, propertyWriter);
         return propertyWriter;
@@ -296,17 +296,17 @@ public class EntityAccessManager {
      * @param propertyName the property name of the property in the graph
      * @return A PropertyReader, or none if not found
      */
-    public static FieldAccessor getPropertyReader(final ClassInfo classInfo, String propertyName) {
+    public static FieldInfo getPropertyReader(final ClassInfo classInfo, String propertyName) {
 
-        Map<String, FieldAccessor> fieldAccessorMap = propertyReaderCache.computeIfAbsent(classInfo, k -> new HashMap<>());
+        Map<String, FieldInfo> fieldAccessorMap = propertyReaderCache.computeIfAbsent(classInfo, k -> new HashMap<>());
 
-        final FieldAccessor fieldAccessor = fieldAccessorMap.get(propertyName);
+        final FieldInfo fieldAccessor = fieldAccessorMap.get(propertyName);
 
         if (fieldAccessor != null) {
             return propertyReaderCache.get(classInfo).get(propertyName);
         }
 
-        FieldAccessor propertyReader = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> new FieldAccessor(classInfo, fieldInfo));
+        FieldInfo propertyReader = determinePropertyAccessor(classInfo, propertyName, fieldInfo -> fieldInfo);
 
         fieldAccessorMap.put(propertyName, propertyReader);
         return propertyReader;
@@ -321,7 +321,7 @@ public class EntityAccessManager {
      * @param scalarValue an Object whose class the relationship is defined for
      * @return a valid FieldWriter or null if none is found
      */
-    public static FieldAccessor getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
+    public static FieldInfo getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Object scalarValue) {
         return getRelationalWriter(classInfo, relationshipType, relationshipDirection, scalarValue.getClass());
     }
 
@@ -334,7 +334,7 @@ public class EntityAccessManager {
      * @param objectType the class the relationship is defined for
      * @return a valid FieldWriter or null if none is found
      */
-    public static FieldAccessor getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Class<?> objectType) {
+    public static FieldInfo getRelationalWriter(ClassInfo classInfo, String relationshipType, String relationshipDirection, Class<?> objectType) {
 
         if (!relationalWriterCache.containsKey(classInfo)) {
             relationalWriterCache.put(classInfo, new HashMap<>());
@@ -355,9 +355,8 @@ public class EntityAccessManager {
                     if (fieldInfo.isTypeOf(objectType) ||
                             fieldInfo.isParameterisedTypeOf(objectType) ||
                             fieldInfo.isArrayOf(objectType)) {
-                        FieldAccessor fieldAccessor = new FieldAccessor(lookupClassInfo, fieldInfo);
-                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldAccessor);
-                        return fieldAccessor;
+                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                        return fieldInfo;
                     }
                 }
             }
@@ -372,9 +371,8 @@ public class EntityAccessManager {
                         if (fieldInfo.isTypeOf(objectType) ||
                                 fieldInfo.isParameterisedTypeOf(objectType) ||
                                 fieldInfo.isArrayOf(objectType)) {
-                            FieldAccessor fieldAccessor = new FieldAccessor(lookupClassInfo, fieldInfo);
-                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldAccessor);
-                            return fieldAccessor;
+                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                            return fieldInfo;
                         }
                     }
                 }
@@ -385,9 +383,8 @@ public class EntityAccessManager {
                         if (fieldInfo.isTypeOf(objectType) ||
                                 fieldInfo.isParameterisedTypeOf(objectType) ||
                                 fieldInfo.isArrayOf(objectType)) {
-                            FieldAccessor fieldAccessor = new FieldAccessor(lookupClassInfo, fieldInfo);
-                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldAccessor);
-                            return fieldAccessor;
+                            relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                            return fieldInfo;
                         }
                     }
                 }
@@ -397,9 +394,8 @@ public class EntityAccessManager {
                 if (fieldInfos.size() == 1) {
                     FieldInfo candidateFieldInfo = fieldInfos.iterator().next();
                     if (!candidateFieldInfo.relationshipDirection(Relationship.UNDIRECTED).equals(Relationship.INCOMING)) {
-                        FieldAccessor fieldAccessor = new FieldAccessor(lookupClassInfo, candidateFieldInfo);
-                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, fieldAccessor);
-                        return fieldAccessor;
+                        relationalWriterCache.get(lookupClassInfo).put(directedRelationship, candidateFieldInfo);
+                        return candidateFieldInfo;
                     }
                 }
             }
@@ -411,14 +407,14 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns a FieldAccessor for a scalar type definition on a ClassInfo that is not a primitive graph property
+     * Returns a FieldInfo for a scalar type definition on a ClassInfo that is not a primitive graph property
      *
      * @param classInfo A ClassInfo declaring the type definition
      * @param relationshipType The name of the relationship in the graph
      * @param relationshipDirection The direction of the relationship in the graph
-     * @return A FieldAccessor or null if none exists
+     * @return A FieldInfo or null if none exists
      */
-    public static FieldAccessor getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
+    public static FieldInfo getRelationalReader(ClassInfo classInfo, String relationshipType, String relationshipDirection) {
 
         if (!relationalReaderCache.containsKey(classInfo)) {
             relationalReaderCache.put(classInfo, new HashMap<>());
@@ -435,9 +431,8 @@ public class EntityAccessManager {
             // 1st, try to find a field explicitly annotated with the neo4j relationship type and direction
             FieldInfo fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                FieldAccessor fieldReader = new FieldAccessor(lookupClassInfo, fieldInfo);
-                relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldReader);
-                return fieldReader;
+                relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                return fieldInfo;
             }
 
             //If the direction is INCOMING, then the annotation should have been present and we should have found a match already.
@@ -447,16 +442,14 @@ public class EntityAccessManager {
                 // 3rd, try to find a field  annotated with the neo4j relationship type and direction, allowing for implied relationships
                 fieldInfo = classInfo.relationshipField(relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null && !fieldInfo.getAnnotations().isEmpty()) {
-                    FieldAccessor fieldReader = new FieldAccessor(lookupClassInfo, fieldInfo);
-                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldReader);
-                    return fieldReader;
+                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                    return fieldInfo;
                 }
 
                 // 4th, try to find a "XYZ" field name where XYZ is derived from the relationship type
                 if (fieldInfo != null) {
-                    FieldAccessor fieldReader = new FieldAccessor(classInfo, fieldInfo);
-                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldReader);
-                    return fieldReader;
+                    relationalReaderCache.get(lookupClassInfo).put(directedRelationship, fieldInfo);
+                    return fieldInfo;
                 }
             }
             classInfo = classInfo.directSuperclass();
@@ -471,19 +464,19 @@ public class EntityAccessManager {
      * @param classInfo The ClassInfo whose PropertyReaders we want
      * @return a Collection of PropertyReader instances which will be empty if no primitive properties are defined by the ClassInfo
      */
-    public static Collection<FieldAccessor> getPropertyReaders(ClassInfo classInfo) {
-        return propertyReaders.computeIfAbsent(classInfo, k1 -> classInfo.propertyFields().stream().map(k -> new FieldAccessor(classInfo, k)).collect(Collectors.toList()));
+    public static Collection<FieldInfo> getPropertyReaders(ClassInfo classInfo) {
+        return propertyReaders.computeIfAbsent(classInfo, k1 -> classInfo.propertyFields().stream().collect(Collectors.toList()));
     }
 
     /**
-     * Returns all the FieldAccessor instances for this ClassInfo
+     * Returns all the FieldInfo instances for this ClassInfo
      *
      * @param classInfo The ClassInfo whose RelationalReaders we want
-     * @return a Collection of FieldAccessor instances which will be empty if no relationships are defined by the ClassInfo
+     * @return a Collection of FieldInfo instances which will be empty if no relationships are defined by the ClassInfo
      */
-    public static Collection<FieldAccessor> getRelationalReaders(ClassInfo classInfo) {
+    public static Collection<FieldInfo> getRelationalReaders(ClassInfo classInfo) {
 
-        return relationalReaders.computeIfAbsent(classInfo, k1 -> classInfo.relationshipFields().stream().map(k -> new FieldAccessor(classInfo, k)).collect(Collectors.toList()));
+        return relationalReaders.computeIfAbsent(classInfo, k1 -> classInfo.relationshipFields().stream().collect(Collectors.toList()));
     }
 
     /**
@@ -495,7 +488,7 @@ public class EntityAccessManager {
      * @param parameterType the type that will be iterated over
      * @return a valid FieldWriter or null if none is found
      */
-    public static FieldAccessor getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static FieldInfo getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if (!iterableWriterCache.containsKey(classInfo)) {
             iterableWriterCache.put(classInfo, new HashMap<>());
         }
@@ -511,9 +504,8 @@ public class EntityAccessManager {
             //1st find a field annotated with type and direction
             FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null) {
-                FieldAccessor fieldAccessor = new FieldAccessor(lookupClassInfo, fieldInfo);
-                cacheIterableFieldWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldAccessor);
-                return fieldAccessor;
+                cacheIterableFieldWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldInfo);
+                return fieldInfo;
             }
 
             //If relationshipDirection=INCOMING, we should have found an annotated field already
@@ -523,9 +515,8 @@ public class EntityAccessManager {
                 //3rd, find a field with implied type and direction
                 fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null) {
-                    FieldAccessor fieldAccessor = new FieldAccessor(lookupClassInfo, fieldInfo);
-                    cacheIterableFieldWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldAccessor);
-                    return fieldAccessor;
+                    cacheIterableFieldWriter(lookupClassInfo, parameterType, relationshipType, relationshipDirection, directedRelationshipForType, fieldInfo, fieldInfo);
+                    return fieldInfo;
                 }
             }
             classInfo = classInfo.directSuperclass();
@@ -535,15 +526,15 @@ public class EntityAccessManager {
     }
 
     /**
-     * Returns a FieldAccessor for an iterable of a non-primitive scalar type defined by a ClassInfo
+     * Returns a FieldInfo for an iterable of a non-primitive scalar type defined by a ClassInfo
      *
      * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
      * @param relationshipType the name of the relationship as it is in the graph
      * @param relationshipDirection the direction of the relationship as it is in the graph
      * @param parameterType the type that will be iterated over
-     * @return a valid FieldAccessor or null if none is found
+     * @return a valid FieldInfo or null if none is found
      */
-    public static FieldAccessor getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static FieldInfo getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if (!iterableReaderCache.containsKey(classInfo)) {
             iterableReaderCache.put(classInfo, new HashMap<>());
         }
@@ -559,9 +550,8 @@ public class EntityAccessManager {
             //1st find a field annotated with type and direction
             FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
             if (fieldInfo != null) {
-                FieldAccessor fieldReader = new FieldAccessor(lookupClassInfo, fieldInfo);
-                iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldReader);
-                return fieldReader;
+                iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldInfo);
+                return fieldInfo;
             }
 
             //If relationshipDirection=INCOMING, we should have found an annotated field already
@@ -571,9 +561,8 @@ public class EntityAccessManager {
                 //3rd find a field with implied type and direction
                 fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
                 if (fieldInfo != null) {
-                    FieldAccessor fieldReader = new FieldAccessor(lookupClassInfo, fieldInfo);
-                    iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldReader);
-                    return fieldReader;
+                    iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldInfo);
+                    return fieldInfo;
                 }
             }
             classInfo = classInfo.directSuperclass();
@@ -588,27 +577,27 @@ public class EntityAccessManager {
      * @param classInfo The ClassInfo declaring the identity property
      * @return A PropertyReader, or null if not found
      */
-    public static FieldAccessor getIdentityPropertyReader(ClassInfo classInfo) {
-        FieldAccessor propertyReader = identityPropertyReaderCache.get(classInfo);
+    public static FieldInfo getIdentityPropertyReader(ClassInfo classInfo) {
+        FieldInfo propertyReader = identityPropertyReaderCache.get(classInfo);
         if (propertyReader != null) {
             return propertyReader;
         }
-        propertyReader = new FieldAccessor(classInfo, classInfo.identityField());
+        propertyReader = classInfo.identityField();
         identityPropertyReaderCache.put(classInfo, propertyReader);
         return propertyReader;
     }
 
     /**
-     * Return a FieldAccessor for the EndNode of a RelationshipEntity
+     * Return a FieldInfo for the EndNode of a RelationshipEntity
      *
      * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
-     * @return a FieldAccessor for the field annotated as the EndNode, or none if not found
+     * @return a FieldInfo for the field annotated as the EndNode, or none if not found
      */
     // TODO extend for methods
-    public static FieldAccessor getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
+    public static FieldInfo getEndNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
-                return new FieldAccessor(relationshipEntityClassInfo, fieldInfo);
+                return fieldInfo;
             }
         }
         LOGGER.warn("Failed to find an @EndNode on {}", relationshipEntityClassInfo);
@@ -616,16 +605,16 @@ public class EntityAccessManager {
     }
 
     /**
-     * Return a FieldAccessor for the StartNode of a RelationshipEntity
+     * Return a FieldInfo for the StartNode of a RelationshipEntity
      *
      * @param relationshipEntityClassInfo the ClassInfo representing the RelationshipEntity
-     * @return a FieldAccessor for the field annotated as the StartNode, or none if not found
+     * @return a FieldInfo for the field annotated as the StartNode, or none if not found
      */
     // TODO: extend for methods
-    public static FieldAccessor getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
+    public static FieldInfo getStartNodeReader(ClassInfo relationshipEntityClassInfo) {
         for (FieldInfo fieldInfo : relationshipEntityClassInfo.relationshipFields()) {
             if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
-                return new FieldAccessor(relationshipEntityClassInfo, fieldInfo);
+                return fieldInfo;
             }
         }
         LOGGER.warn("Failed to find an @StartNode on {}", relationshipEntityClassInfo);
@@ -634,7 +623,7 @@ public class EntityAccessManager {
 
     @Deprecated
     // TODO replace with getStartNodeWriter() and getEndNodeWriter()
-    public static FieldAccessor getStartOrEndNodeWriter(ClassInfo classInfo, Class entityAnnotation) {
+    public static FieldInfo getStartOrEndNodeWriter(ClassInfo classInfo, Class entityAnnotation) {
         if (entityAnnotation.getName() == null) {
             throw new RuntimeException(entityAnnotation.getSimpleName() + " is not defined on " + classInfo.name());
         }
@@ -654,9 +643,8 @@ public class EntityAccessManager {
         }
         if (field != null) {
             //Otherwise use the field
-            FieldAccessor fieldAccessor = new FieldAccessor(classInfo, field);
-            relationshipEntityWriterCache.get(classInfo).put(entityAnnotation, fieldAccessor);
-            return fieldAccessor;
+            relationshipEntityWriterCache.get(classInfo).put(entityAnnotation, field);
+            return field;
         }
         relationshipEntityWriterCache.get(classInfo).put(entityAnnotation, null);
         return null;
@@ -699,7 +687,7 @@ public class EntityAccessManager {
         return null;
     }
 
-    private static void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo, FieldAccessor fieldAccessor) {
+    private static void cacheIterableFieldWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, DirectedRelationshipForType directedRelationshipForType, FieldInfo fieldInfo, FieldInfo fieldAccessor) {
         if (fieldInfo.isParameterisedTypeOf(parameterType)) {
             //Cache the writer for the superclass used in the type param
             directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, ClassUtils.getType(fieldInfo.getTypeDescriptor()));

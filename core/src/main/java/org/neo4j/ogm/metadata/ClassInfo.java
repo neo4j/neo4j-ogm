@@ -73,6 +73,7 @@ public class ClassInfo {
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
     private boolean primaryIndexFieldChecked = false;
+    private Class<?> cls;
 
     /**
      * This class was referenced as a superclass of the given subclass.
@@ -91,7 +92,6 @@ public class ClassInfo {
     }
 
     public ClassInfo(Class<?> cls) {
-
         final int modifiers = cls.getModifiers();
         this.isInterface =  Modifier.isInterface(modifiers);
         this.isAbstract =  Modifier.isAbstract(modifiers);
@@ -102,7 +102,7 @@ public class ClassInfo {
             this.directSuperclassName = cls.getSuperclass().getName();
         }
         this.interfacesInfo = new InterfacesInfo(cls);
-        this.fieldsInfo = new FieldsInfo(cls);
+        this.fieldsInfo = new FieldsInfo(this, cls);
         this.methodsInfo =  new MethodsInfo(cls);
         this.annotationsInfo = new AnnotationsInfo(cls);
 

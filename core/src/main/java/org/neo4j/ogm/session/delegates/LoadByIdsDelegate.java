@@ -21,10 +21,9 @@ import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
@@ -99,7 +98,7 @@ public class LoadByIdsDelegate {
         final FieldInfo primaryIndexField = classInfo.primaryIndexField();
 
         if (primaryIndexField != null) {
-            final Object primaryIndexValue = new FieldAccessor(classInfo, primaryIndexField).read(mapped);
+            final Object primaryIndexValue = primaryIndexField.read(mapped);
             if (ids.contains(primaryIndexValue)) {
                 return true;
             }

@@ -25,9 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.entityMapping.iterables.*;
+import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
-import org.neo4j.ogm.metadata.reflect.FieldAccessor;
-import org.neo4j.ogm.metadata.reflect.FieldAccessor;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.DomainInfo;
 
@@ -61,11 +60,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV1.class, KNOWN_BY, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV1.class, KNOWN_BY, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV1.class, KNOWN_BY, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnownBy());
@@ -86,11 +85,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV2.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV2.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV2.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -111,11 +110,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV3.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV3.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV3.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -136,11 +135,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV4.class, KNOWS, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV4.class, KNOWS, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV4.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -161,11 +160,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV5.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV5.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV5.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -183,17 +182,17 @@ public class IterableRelationalReaderWriterTest {
         UserV6 instance = new UserV6();
         Set<UserV6> relatedObject = Collections.singleton(new UserV6());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV6.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV6.class, KNOWS, Relationship.OUTGOING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV6.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnowsPeople());
@@ -214,11 +213,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV7.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV7.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV7.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -239,11 +238,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV8.class, KNOWS, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV8.class, KNOWS, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV8.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -261,11 +260,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV9> relatedObjectOut = Collections.singleton(new UserV9());
         Set<UserV9> relatedObjectIn = Collections.singleton(new UserV9());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV9.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
@@ -274,8 +273,8 @@ public class IterableRelationalReaderWriterTest {
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV9.class, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV9.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
@@ -292,11 +291,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV10> relatedObjectOut = Collections.singleton(new UserV10());
         Set<UserV10> relatedObjectIn = Collections.singleton(new UserV10());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV10.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
@@ -305,8 +304,8 @@ public class IterableRelationalReaderWriterTest {
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV10.class, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV10.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
@@ -323,11 +322,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV11> relatedObjectOut = Collections.singleton(new UserV11());
         Set<UserV11> relatedObjectIn = Collections.singleton(new UserV11());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV11.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
@@ -336,8 +335,8 @@ public class IterableRelationalReaderWriterTest {
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV11.class, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV11.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
@@ -354,11 +353,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV12> relatedObjectOut = Collections.singleton(new UserV12());
         Set<UserV12> relatedObjectIn = Collections.singleton(new UserV12());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV12.class, LIKES, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
@@ -367,8 +366,8 @@ public class IterableRelationalReaderWriterTest {
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV12.class, LIKES, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV12.class, LIKES, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
@@ -388,11 +387,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV13.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV13.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV13.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -413,11 +412,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV14.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV14.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV14.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
@@ -434,11 +433,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV15> relatedObjectOut = Collections.singleton(new UserV15());
         Set<UserV15> relatedObjectIn = Collections.singleton(new UserV15());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV15.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
@@ -449,8 +448,8 @@ public class IterableRelationalReaderWriterTest {
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV15.class, KNOWS, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV15.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
@@ -467,11 +466,11 @@ public class IterableRelationalReaderWriterTest {
         Set<UserV16> relatedObjectOut = Collections.singleton(new UserV16());
         Set<UserV16> relatedObjectIn = Collections.singleton(new UserV16());
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV16.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
@@ -482,8 +481,8 @@ public class IterableRelationalReaderWriterTest {
         relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV16.class, KNOWS, Relationship.INCOMING);
         relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV16.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
@@ -502,11 +501,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV17.class, KNOWS, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV17.class, KNOWS, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV17.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
@@ -527,11 +526,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV18.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV18.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV18.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -552,11 +551,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV19.class, KNOWS, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV19.class, KNOWS, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV19.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -578,11 +577,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV20.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV20.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);
@@ -591,8 +590,8 @@ public class IterableRelationalReaderWriterTest {
         instance = new UserV20();
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
@@ -613,11 +612,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV21.class, KNOWS, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV21.class, KNOWS, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV21.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
@@ -626,7 +625,7 @@ public class IterableRelationalReaderWriterTest {
         instance = new UserV21();
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);
@@ -647,11 +646,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV22.class, KNOWS, Relationship.INCOMING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV22.class, KNOWS, Relationship.INCOMING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, PlainUser.class, KNOWS, Relationship.OUTGOING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);
@@ -659,7 +658,7 @@ public class IterableRelationalReaderWriterTest {
 
         instance = new UserV22();
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
@@ -680,11 +679,11 @@ public class IterableRelationalReaderWriterTest {
         assertNull(entityAccessStrategy.getIterableReader(classInfo, UserV23.class, KNOWS, Relationship.OUTGOING));
         assertNull(entityAccessStrategy.getIterableWriter(classInfo, UserV23.class, KNOWS, Relationship.OUTGOING));
 
-        FieldAccessor relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
-        FieldAccessor relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalReader = entityAccessStrategy.getIterableReader(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = entityAccessStrategy.getIterableWriter(classInfo, UserV23.class, KNOWS, Relationship.INCOMING);
 
-        assertTrue(relationalReader instanceof FieldAccessor);
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalReader instanceof FieldInfo);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.user);
@@ -693,7 +692,7 @@ public class IterableRelationalReaderWriterTest {
         instance = new UserV23();
         relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
-        assertTrue(relationalWriter instanceof FieldAccessor);
+        assertTrue(relationalWriter instanceof FieldInfo);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.plainUsers);

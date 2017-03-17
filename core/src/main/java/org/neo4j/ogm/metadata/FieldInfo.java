@@ -16,12 +16,13 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.Map;
 
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
@@ -63,7 +64,9 @@ public class FieldInfo {
     private final String typeParameterDescriptor;
     private final ObjectAnnotations annotations;
     private final boolean isArray;
-
+    private final ClassInfo containingClassInfo;
+    private final Field field;
+    private final Class<?> fieldType;
     /**
      * The associated attribute converter for this field, if applicable, otherwise null.
      */
@@ -78,17 +81,21 @@ public class FieldInfo {
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
      *
+     * @param containingClassInfo
      * @param name The name of the field
      * @param descriptor The field descriptor that expresses the type of the field using Java signature string notation
      * @param typeParameterDescriptor The descriptor that expresses the generic type parameter, which may be <code>null</code>
      * if that's not appropriate
      * @param annotations The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(Field field, String name, String descriptor, String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public FieldInfo(ClassInfo classInfo, Field field,String typeParameterDescriptor, ObjectAnnotations annotations) {
+        this.containingClassInfo = classInfo;
+        this.field = field;
+        this.fieldType = field.getType();
         field.getModifiers();
         this.isArray = field.getType().isArray();
-        this.name = name;
-        this.descriptor = descriptor;
+        this.name = field.getName();
+        this.descriptor = field.getType().getTypeName();
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
         if (!this.annotations.isEmpty()) {
@@ -235,13 +242,13 @@ public class FieldInfo {
 
     public boolean isParameterisedTypeOf(Class<?> type) {
         while (type != null) {
-            String typeSignature =  type.getName();
+            String typeSignature = type.getName();
             if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
                 return true;
             }
             // #issue 42: check interfaces when types are defined using generics as interface extensions
             for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = iface.getName() ;
+                typeSignature = iface.getName();
                 if (typeParameterDescriptor != null && typeParameterDescriptor.equals(typeSignature)) {
                     return true;
                 }
@@ -253,13 +260,13 @@ public class FieldInfo {
 
     public boolean isArrayOf(Class<?> type) {
         while (type != null) {
-            String typeSignature =  type.getName() ;
+            String typeSignature = type.getName();
             if (descriptor != null && descriptor.equals(typeSignature + "[]")) {
                 return true;
             }
             // #issue 42: check interfaces when types are defined using generics as interface extensions
             for (Class<?> iface : type.getInterfaces()) {
-                typeSignature = iface.getName() ;
+                typeSignature = iface.getName();
                 if (descriptor != null && descriptor.equals(typeSignature)) {
                     return true;
                 }
@@ -337,5 +344,114 @@ public class FieldInfo {
     public boolean isConstraint() {
         AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getName());
         return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
+    }
+
+    // =================================================================================================================
+    // From FieldAccessor
+    // =================================================================================================================
+
+
+    public static void write(Field field, Object instance, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object read(Field field, Object instance) {
+        try {
+            field.setAccessible(true);
+            return field.get(instance);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void write(Object instance, Object value) {
+
+        if (hasPropertyConverter()) {
+            value = getPropertyConverter().toEntityAttribute(value);
+            write(field, instance, value);
+        } else {
+            if (isScalar()) {
+                String descriptor = getTypeDescriptor();
+                value = Utils.coerceTypes(ClassUtils.getType(descriptor), value);
+            }
+            write(field, instance, value);
+        }
+    }
+
+    public Class<?> type() {
+        Class convertedType = convertedType();
+        if (convertedType != null) {
+            return convertedType;
+        }
+        return fieldType;
+    }
+
+    public String relationshipName() {
+        return this.relationship();
+    }
+
+    public boolean forScalar() {
+        return !Iterable.class.isAssignableFrom(type()) && !type().isArray();
+    }
+
+    public String typeParameterDescriptor() {
+        return getTypeDescriptor();
+    }
+
+    public Object read(Object instance) {
+        return read(containingClassInfo.getField(this), instance);
+    }
+
+    public Object readProperty(Object instance) {
+        if (hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "The readComposite method should be used for fields with a CompositeAttributeConverter");
+        }
+        Object value = read(containingClassInfo.getField(this), instance);
+        if (hasPropertyConverter()) {
+            value = getPropertyConverter().toGraphProperty(value);
+        }
+        return value;
+    }
+
+    public Map<String, ?> readComposite(Object instance) {
+        if (!hasCompositeConverter()) {
+            throw new IllegalStateException(
+                    "readComposite should only be used when a field is annotated with a CompositeAttributeConverter");
+        }
+        Object value = read(containingClassInfo.getField(this), instance);
+        return getCompositeConverter().toGraphProperties(value);
+    }
+
+    public String relationshipType() {
+        return relationship();
+    }
+
+    public String propertyName() {
+        return property();
+    }
+
+    public boolean isComposite() {
+        return hasCompositeConverter();
+    }
+
+    public String relationshipDirection() {
+        ObjectAnnotations annotations = getAnnotations();
+        if (annotations != null) {
+            AnnotationInfo relationshipAnnotation = annotations.get(Relationship.class);
+            if (relationshipAnnotation != null) {
+                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+            }
+        }
+        return Relationship.UNDIRECTED;
+    }
+
+    public String typeDescriptor() {
+        return getTypeDescriptor();
     }
 }

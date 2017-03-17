@@ -30,7 +30,7 @@ public class FieldsInfo {
         this.fields = new HashMap<>();
     }
 
-    public FieldsInfo(Class<?> cls) {
+    public FieldsInfo(ClassInfo classInfo, Class<?> cls) {
         this.fields = new HashMap<>();
 
         for (Field field : cls.getDeclaredFields()) {
@@ -71,7 +71,7 @@ public class FieldsInfo {
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
-                    fields.put(field.getName(), new FieldInfo(field, field.getName(), field.getType().getTypeName(),typeParameterDescriptor, objectAnnotations));
+                    fields.put(field.getName(), new FieldInfo(classInfo, field,typeParameterDescriptor, objectAnnotations));
                 }
             }
         }

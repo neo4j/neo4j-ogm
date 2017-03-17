@@ -46,7 +46,6 @@ public class ClassPathScannerTest {
     }
 
     @Test
-    @Ignore("This seems to also add AttributeConverter, which kind of makes sense. What do we expect here?")
     public void nestedDirectoryShouldBeScanned() {
         final DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.domain.convertible");
 

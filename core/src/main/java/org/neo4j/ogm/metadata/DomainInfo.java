@@ -50,7 +50,7 @@ public class DomainInfo {
     public static DomainInfo create(String... packages) {
 
         final Set<Class<?>> allClasses = new HashSet<>();
-        new FastClasspathScanner(packages).matchAllClasses(allClasses::add).scan();
+        new FastClasspathScanner(packages).matchAllClasses(allClasses::add).strictWhitelist().scan();
         DomainInfo domainInfo = new DomainInfo();
 
         for (Class<?> cls : allClasses) {

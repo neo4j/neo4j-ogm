@@ -252,12 +252,9 @@ public class EntityAccessManager {
         return value;
     }
 
-    //TODO make these LRU caches with configurable size
     private static Map<ClassInfo, Map<DirectedRelationship, FieldInfo>> relationalReaderCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> relationalWriterCache = new HashMap<>();
     private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableWriterCache = new HashMap<>();
-    private static Map<ClassInfo, Map<DirectedRelationshipForType, FieldInfo>> iterableReaderCache = new HashMap<>();
-    private static Map<ClassInfo, Map<Class, FieldInfo>> relationshipEntityWriterCache = new HashMap<>();
 
     private static final boolean STRICT_MODE = true; //strict mode for matching readers and writers, will only look for explicit annotations
     private static final boolean INFERRED_MODE = false; //inferred mode for matching readers and writers, will infer the relationship type from the getter/setter
@@ -419,7 +416,7 @@ public class EntityAccessManager {
      * @param parameterType the type that will be iterated over
      * @return a valid FieldWriter or null if none is found
      */
-    public static FieldInfo getIterableWriter(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
+    public static FieldInfo getIterableField(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
         if (!iterableWriterCache.containsKey(classInfo)) {
             iterableWriterCache.put(classInfo, new HashMap<>());
         }
@@ -455,84 +452,6 @@ public class EntityAccessManager {
         iterableWriterCache.get(lookupClassInfo).put(directedRelationshipForType, null);
         return null;
     }
-
-    /**
-     * Returns a FieldInfo for an iterable of a non-primitive scalar type defined by a ClassInfo
-     *
-     * @param classInfo the ClassInfo (or a superclass thereof) declaring the iterable relationship
-     * @param relationshipType the name of the relationship as it is in the graph
-     * @param relationshipDirection the direction of the relationship as it is in the graph
-     * @param parameterType the type that will be iterated over
-     * @return a valid FieldInfo or null if none is found
-     */
-    public static FieldInfo getIterableReader(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection) {
-        if (!iterableReaderCache.containsKey(classInfo)) {
-            iterableReaderCache.put(classInfo, new HashMap<>());
-        }
-        DirectedRelationshipForType directedRelationshipForType = new DirectedRelationshipForType(relationshipType, relationshipDirection, parameterType);
-        if (iterableReaderCache.get(classInfo).containsKey(directedRelationshipForType)) {
-            return iterableReaderCache.get(classInfo).get(directedRelationshipForType);
-        }
-
-        ClassInfo lookupClassInfo = classInfo;
-
-        while (classInfo != null) {
-
-            //1st find a field annotated with type and direction
-            FieldInfo fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, STRICT_MODE);
-            if (fieldInfo != null) {
-                iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldInfo);
-                return fieldInfo;
-            }
-
-            //If relationshipDirection=INCOMING, we should have found an annotated field already
-
-            if (!relationshipDirection.equals(Relationship.INCOMING)) {
-
-                //3rd find a field with implied type and direction
-                fieldInfo = getIterableFieldInfo(classInfo, parameterType, relationshipType, relationshipDirection, INFERRED_MODE);
-                if (fieldInfo != null) {
-                    iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, fieldInfo);
-                    return fieldInfo;
-                }
-            }
-            classInfo = classInfo.directSuperclass();
-        }
-        iterableReaderCache.get(lookupClassInfo).put(directedRelationshipForType, null);
-        return null;
-    }
-
-
-
-    @Deprecated
-    // TODO replace with getStartNodeWriter() and getEndNodeWriter()
-    public static FieldInfo getStartOrEndNodeWriter(ClassInfo classInfo, Class entityAnnotation) {
-        if (entityAnnotation.getName() == null) {
-            throw new RuntimeException(entityAnnotation.getSimpleName() + " is not defined on " + classInfo.name());
-        }
-
-        relationshipEntityWriterCache.computeIfAbsent(classInfo, k -> new HashMap<>());
-        if (relationshipEntityWriterCache.get(classInfo).containsKey(entityAnnotation)) {
-            return relationshipEntityWriterCache.get(classInfo).get(entityAnnotation);
-        }
-
-        //Find annotated field
-        FieldInfo field = null;
-        for (FieldInfo fieldInfo : classInfo.relationshipFields()) {
-            if (fieldInfo.getAnnotations().get(entityAnnotation.getName()) != null) {
-                field = fieldInfo;
-                break;
-            }
-        }
-        if (field != null) {
-            //Otherwise use the field
-            relationshipEntityWriterCache.get(classInfo).put(entityAnnotation, field);
-            return field;
-        }
-        relationshipEntityWriterCache.get(classInfo).put(entityAnnotation, null);
-        return null;
-    }
-
 
     // TODO: lookup via classinfo hierarchy
     private static FieldInfo getIterableFieldInfo(ClassInfo classInfo, Class<?> parameterType, String relationshipType, String relationshipDirection, boolean strict) {

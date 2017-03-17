@@ -396,14 +396,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         // set the start and end entities
         ClassInfo relEntityInfo = metadata.classInfo(relationshipEntity);
 
-        FieldInfo startNodeWriter = EntityAccessManager.getStartOrEndNodeWriter(relEntityInfo, StartNode.class);
+        FieldInfo startNodeWriter = relEntityInfo.getStartNodeReader();
         if (startNodeWriter != null) {
             startNodeWriter.write(relationshipEntity, startEntity);
         } else {
             throw new RuntimeException("Cannot find a writer for the StartNode of relational entity " + relEntityInfo.name());
         }
 
-        FieldInfo endNodeWriter = EntityAccessManager.getStartOrEndNodeWriter(relEntityInfo, EndNode.class);
+        FieldInfo endNodeWriter = relEntityInfo.getEndNodeReader();
         if (endNodeWriter != null) {
             endNodeWriter.write(relationshipEntity, endEntity);
         } else {
@@ -508,7 +508,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
      */
     private FieldInfo findIterableWriter(Object instance, Object parameter, String relationshipType, String relationshipDirection) {
         ClassInfo classInfo = metadata.classInfo(instance);
-        return EntityAccessManager.getIterableWriter(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
+        return EntityAccessManager.getIterableField(classInfo, parameter.getClass(), relationshipType, relationshipDirection);
     }
 
 
@@ -525,10 +525,10 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         ClassInfo classInfo = metadata.classInfo(instance);
 
-        FieldInfo writer = EntityAccessManager.getIterableWriter(classInfo, valueType, relationshipType, relationshipDirection);
+        FieldInfo writer = EntityAccessManager.getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
         if (writer != null) {
             if (writer.type().isArray() || Iterable.class.isAssignableFrom(writer.type())) {
-                FieldInfo reader = EntityAccessManager.getIterableReader(classInfo, valueType, relationshipType, relationshipDirection);
+                FieldInfo reader = EntityAccessManager.getIterableField(classInfo, valueType, relationshipType, relationshipDirection);
                 Object currentValues;
                 if (reader != null) {
                     currentValues = reader.read(instance);

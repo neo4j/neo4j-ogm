@@ -115,7 +115,7 @@ public class EntityAccessManagerTest {
     public void shouldRetrieveObjectAccessForWritingIterableObject() {
         ClassInfo classInfo = this.domainInfo.getClass(Program.class.getName());
 
-        FieldInfo iterableAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "satellites", Relationship.OUTGOING);
+        FieldInfo iterableAccess = EntityAccessManager.getIterableField(classInfo, Satellite.class, "satellites", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", iterableAccess);
         Program spaceProgramme = new Program();
         iterableAccess.write(spaceProgramme, Arrays.asList(new Satellite()));
@@ -327,7 +327,7 @@ public class EntityAccessManagerTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        FieldInfo objectAccess = EntityAccessManager.getIterableWriter(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
+        FieldInfo objectAccess = EntityAccessManager.getIterableField(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         DummyDomainObject domainObject = new DummyDomainObject();
         objectAccess.write(domainObject, natural);
@@ -346,7 +346,7 @@ public class EntityAccessManagerTest {
         List<Satellite> natural = new ArrayList<>();
         natural.add(new Satellite());
 
-        FieldInfo relationalReader = EntityAccessManager.getIterableReader(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
+        FieldInfo relationalReader = EntityAccessManager.getIterableField(classInfo, Satellite.class, "NATURAL", Relationship.OUTGOING);
         assertNotNull("The resultant object accessor shouldn't be null", relationalReader);
         DummyDomainObject domainObject = new DummyDomainObject();
         domainObject.naturalSatellites = natural;

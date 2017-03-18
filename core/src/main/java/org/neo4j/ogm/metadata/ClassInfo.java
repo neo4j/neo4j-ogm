@@ -72,6 +72,8 @@ public class ClassInfo {
     private volatile FieldInfo primaryIndexField = null;
     private volatile FieldInfo labelField = null;
     private volatile boolean labelFieldMapped = false;
+    private volatile boolean isPostLoadMethodMapped = false;
+    private volatile MethodInfo postLoadMethod;
     private boolean primaryIndexFieldChecked = false;
     private Class<?> cls;
 
@@ -342,8 +344,7 @@ public class ClassInfo {
                     return labelField;
                 }
             }
-        } else {
-            return labelField;
+            labelFieldMapped = true;
         }
         return null;
     }
@@ -808,10 +809,18 @@ public class ClassInfo {
     }
 
     public MethodInfo postLoadMethodOrNull() {
+        if (isPostLoadMethodMapped) {
+            return postLoadMethod;
+        }
+        if (!isPostLoadMethodMapped) {
         for (MethodInfo methodInfo : methodsInfo().methods()) {
             if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
-                return methodInfo;
+                    isPostLoadMethodMapped = true;
+                    postLoadMethod = methodInfo;
+                    return postLoadMethod;
             }
+            }
+            isPostLoadMethodMapped = true;
         }
         return null;
     }

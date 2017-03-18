@@ -52,7 +52,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
     private static Map<String, ?> toMap(List<Property<String, Object>> propertyList) {
 
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
 
         for (Property<String, Object> property : propertyList) {
             map.put(property.getKey(), property.getValue());
@@ -99,7 +99,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         return objects;
     }
 
-    public Map<Long, Object> mapRelationships(GraphModel model) {
+    Map<Long, Object> mapRelationships(GraphModel model) {
         Map<Long, Object> results = new HashMap<>();
         Set<Long> edgeIds = new LinkedHashSet<>();
         mapRelationships(model, edgeIds);

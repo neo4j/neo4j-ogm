@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.context.register;
+package org.neo4j.ogm.context;
 
 import java.util.Collections;
 import java.util.HashMap;

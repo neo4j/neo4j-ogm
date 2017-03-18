@@ -15,7 +15,6 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -59,9 +58,7 @@ public class MappingContext {
         this.nodeEntityRegister = new HashMap<>();
         this.primaryIndexNodeRegister = new HashMap<>();
         this.relationshipEntityRegister = new HashMap<>();
-        // NOTE: The use of CopyOnWriteArraySet here is to prevent ConcurrentModificationException from occurring when
-        // the purge() method is called.
-        this.relationshipRegister = new CopyOnWriteArraySet<>();
+        this.relationshipRegister = new HashSet<>();
         this.labelHistoryRegister = new HashMap<>();
     }
 
@@ -341,18 +338,9 @@ public class MappingContext {
     }
 
 
-    /**
-     * NOTE: There was a lot of concurrent code in other classes (see commit) to prevent this method from throwing
-     * ConcurrentModificationException. This is due to: 1) not deleting through the iterator
-     * 2) using an iterative approach along with recursion and then modifying the underlying collection.
-     * To get around this we can either block all methods that are involved in the recursion stack from concurrently
-     * modifying the mapped relationship collection (previous implementation: very inefficient) to copying the collection
-     * on write (current implementation: inefficient).
-     * TODO: The best way to fix this method is to replace it with an iterative approach using a <code>Stack</code> and
-     * call remove() on the mappedRelationshipIterator. This will be both efficient and safe.
-     */
-    private void purge(Object entity, FieldInfo identityReader, Class type) {
-        Long id = (Long) identityReader.readProperty(entity);
+    private void purge(Object entity, FieldInfo fieldInfo, Class type) {
+        Long id = (Long) fieldInfo.readProperty(entity);
+        Set<Object> relEntitiesToPurge = new HashSet<>();
         if (id != null) {
             // remove a NodeEntity
             if (!metaData.isRelationshipEntity(type.getName())) {
@@ -360,21 +348,20 @@ public class MappingContext {
                     // remove the object from the node register
                     nodeEntityRegister.remove(id);
                     // remove all relationship mappings to/from this object
-                    for (MappedRelationship mappedRelationship : relationshipRegister) {
+                    Iterator<MappedRelationship> mappedRelationshipIterator = relationshipRegister.iterator();
+                    while (mappedRelationshipIterator.hasNext()) {
+                        MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
                         if (mappedRelationship.getStartNodeId() == id || mappedRelationship.getEndNodeId() == id) {
 
                             // first purge any RE mappings (if its a RE)
                             if (mappedRelationship.getRelationshipId() != null) {
                                 Object relEntity = relationshipEntityRegister.get(mappedRelationship.getRelationshipId());
                                 if (relEntity != null) {
-                                    ClassInfo relClassInfo = metaData.classInfo(relEntity);
-                                    FieldInfo relIdentityReader = relClassInfo.identityField();
-                                    purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
+                                    relEntitiesToPurge.add(relEntity);
                                 }
                             }
-
                             // finally remove the mapped relationship
-                            relationshipRegister.remove(mappedRelationship);
+                            mappedRelationshipIterator.remove();
                         }
                     }
                 }
@@ -390,6 +377,11 @@ public class MappingContext {
                     Object endNode = endNodeReader.read(entity);
                     removeEntity(endNode);
                 }
+            }
+            for (Object relEntity : relEntitiesToPurge) {
+                ClassInfo relClassInfo = metaData.classInfo(relEntity);
+                FieldInfo relIdentityReader = relClassInfo.identityField();
+                purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
             }
         }
     }

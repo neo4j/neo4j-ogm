@@ -16,6 +16,7 @@ package org.neo4j.ogm.context;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.Relationship;
@@ -143,7 +144,9 @@ public class EntityGraphMapper implements EntityMapper {
     private void deleteObsoleteRelationships(Compiler compiler) {
         CompileContext context = compiler.context();
 
-        for (MappedRelationship mappedRelationship : mappingContext.getRelationships()) {
+        Iterator<MappedRelationship> mappedRelationshipIterator = mappingContext.getRelationships().iterator();
+        while (mappedRelationshipIterator.hasNext()) {
+            MappedRelationship mappedRelationship = mappedRelationshipIterator.next();
 
             // if we cannot remove this relationship from the compile context, it
             // means the user has deleted the relationship
@@ -160,7 +163,8 @@ public class EntityGraphMapper implements EntityMapper {
                 clearRelatedObjects(mappedRelationship.getEndNodeId());
 
                 // finally remove the relationship from the mapping context
-                mappingContext.removeRelationship(mappedRelationship);
+                //mappingContext.removeRelationship(mappedRelationship);
+                mappedRelationshipIterator.remove();
             }
         }
     }

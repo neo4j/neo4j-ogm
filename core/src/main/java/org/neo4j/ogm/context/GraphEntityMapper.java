@@ -122,9 +122,17 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
 
         mapEntities(type, graphModel, nodeIds, edgeIds);
         List<T> results = new ArrayList<>();
+        Set<Long> seenNodeIds = new HashSet<>();
+        Set<Long> seenEdgeIds = new HashSet<>();
 
         for (Long id : nodeIds) {
             Object o = mappingContext.getNodeEntity(id);
+
+            if (!seenNodeIds.contains(id)) {
+                executePostLoad(o);
+                seenNodeIds.add(id);
+            }
+
             if (o != null && type.isAssignableFrom(o.getClass())) {
                 results.add(type.cast(o));
             }
@@ -134,6 +142,14 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         if (results.isEmpty()) {
             for (Long id : edgeIds) {
                 Object o = mappingContext.getRelationshipEntity(id);
+
+                if (!seenEdgeIds.contains(id)) {
+                    if (o != null) {
+                        executePostLoad(o);
+                    }
+                    seenEdgeIds.add(id);
+                }
+
                 if (o != null && type.isAssignableFrom(o.getClass())) {
                     results.add(type.cast(o));
                 }
@@ -147,27 +163,6 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         try {
             mapNodes(graphModel, nodeIds);
             mapRelationships(graphModel, edgeIds);
-
-            Set<Long> seenNodeIds = new HashSet<>();
-            for (Long nodeId: nodeIds) {
-                if (!seenNodeIds.contains(nodeId)) {
-                    Object entity = mappingContext.getNodeEntity(nodeId);
-                    executePostLoad(entity);
-                    seenNodeIds.add(nodeId);
-                }
-            }
-
-            Set<Long> seenEdgeIds = new HashSet<>();
-            for (Long edgeId: edgeIds) {
-                if (!seenEdgeIds.contains(edgeId)) {
-                    Object entity = mappingContext.getRelationshipEntity(edgeId);
-                    if (entity != null) {
-                        executePostLoad(entity);
-                    }
-                    seenNodeIds.add(edgeId);
-                }
-            }
-
         } catch (Exception e) {
             throw new MappingException("Error mapping GraphModel to instance of " + type.getName(), e);
         }

@@ -13,14 +13,12 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.event.Event;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author vince
@@ -60,7 +58,6 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(c, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
-
     }
 
     @Test
@@ -81,8 +78,6 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
-
-
     }
 
     @Test
@@ -98,7 +93,6 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
-
     }
 
     @Test
@@ -151,7 +145,6 @@ public class AssociatedObjectsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(4, eventListener.count());
-
     }
 
     @Test

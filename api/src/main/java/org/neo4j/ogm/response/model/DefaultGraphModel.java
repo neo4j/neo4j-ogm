@@ -13,19 +13,19 @@
 
 package org.neo4j.ogm.response.model;
 
-import org.neo4j.ogm.model.Edge;
-import org.neo4j.ogm.model.GraphModel;
-import org.neo4j.ogm.model.Node;
-
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.neo4j.ogm.model.Edge;
+import org.neo4j.ogm.model.GraphModel;
+import org.neo4j.ogm.model.Node;
+
 /**
  * The results of a query, modelled as graph data.
  *
- *  @author Michal Bachman
+ * @author Michal Bachman
  */
 public class DefaultGraphModel implements GraphModel {
 

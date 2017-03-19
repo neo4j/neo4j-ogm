@@ -13,16 +13,17 @@
 
 package org.neo4j.ogm.domain.mappings;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Nils Dr\u00F6ge
  * @author Luanne Misquitta
  */
 public class Tag extends Entity {
+
     private String name;
 
     @Relationship(type = "HAS", direction = Relationship.INCOMING)

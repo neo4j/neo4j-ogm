@@ -26,5 +26,4 @@ public class ClassWithoutZeroArgumentConstructor {
     public ClassWithoutZeroArgumentConstructor(int parameter) {
         // do nothing
     }
-
 }

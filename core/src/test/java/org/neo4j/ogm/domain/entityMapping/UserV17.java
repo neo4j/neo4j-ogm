@@ -24,5 +24,4 @@ public class UserV17 extends Entity {
 
     @Relationship(type = "KNOWS", direction = "INCOMING")
     public UserV17 knows;
-
 }

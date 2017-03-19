@@ -18,5 +18,5 @@ package org.neo4j.ogm.domain.hierarchy.dualRelation;
  */
 public abstract class AbstractNamedOwnedObject {
 
-	public Long id;
+    public Long id;
 }

@@ -20,14 +20,14 @@ import org.neo4j.ogm.model.Query;
  */
 public class ResultRestModel implements Query<Object[]> {
 
-	private Object[] rest;
+    private Object[] rest;
 
-	public void setRest(Object[] restModel) {
-		this.rest = restModel;
-	}
+    public void setRest(Object[] restModel) {
+        this.rest = restModel;
+    }
 
-	@Override
-	public Object[] queryResults() {
-		return rest;
-	}
+    @Override
+    public Object[] queryResults() {
+        return rest;
+    }
 }

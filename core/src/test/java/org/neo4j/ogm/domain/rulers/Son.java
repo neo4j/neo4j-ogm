@@ -17,6 +17,7 @@ package org.neo4j.ogm.domain.rulers;
  * @author Vince Bickers
  */
 public class Son extends Person {
+
     @Override
     public String sex() {
         return "Male";

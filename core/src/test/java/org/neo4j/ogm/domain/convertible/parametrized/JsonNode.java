@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.domain.convertible.parametrized;
 
+import java.util.Map;
+
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
-
-import java.util.Map;
 
 /**
  * @author vince
@@ -29,6 +29,5 @@ public class JsonNode {
     public Long id;
 
     @Convert(MapJson.class)
-    public Map<String,Object> payload;
-
+    public Map<String, Object> payload;
 }

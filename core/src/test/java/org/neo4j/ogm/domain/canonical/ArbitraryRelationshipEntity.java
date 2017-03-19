@@ -25,5 +25,4 @@ import org.neo4j.ogm.annotation.RelationshipEntity;
 public class ArbitraryRelationshipEntity {
 
     // nothing here yet
-
 }

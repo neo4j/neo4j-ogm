@@ -13,11 +13,8 @@
 
 package org.neo4j.ogm.persistence.examples.blog;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.HashSet;
 
 import org.junit.Before;
@@ -72,7 +69,6 @@ public class BlogTest extends MultiDriverTestClass {
         assertEquals(p4, p3.getNext());
         assertNull(p4.getNext());
 
-
         session.save(p1);
 
         session.clear();
@@ -91,10 +87,9 @@ public class BlogTest extends MultiDriverTestClass {
         assertEquals(p3.getId(), f2.getNext().getId());
         assertEquals(p4.getId(), f3.getNext().getId());
         assertNull(f4.getNext());
-
     }
 
-	/**
+    /**
      * @see Issue #99
      */
     @Test

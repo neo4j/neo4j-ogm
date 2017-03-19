@@ -21,40 +21,40 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class TransactionsDelegate {
 
-	private final Neo4jSession session;
+    private final Neo4jSession session;
 
-	public TransactionsDelegate(Neo4jSession neo4jSession) {
-		this.session = neo4jSession;
-	}
+    public TransactionsDelegate(Neo4jSession neo4jSession) {
+        this.session = neo4jSession;
+    }
 
-	public Transaction beginTransaction() {
-		session.debug("beginTransaction()");
-		session.debug("Neo4jSession identity: " + this);
+    public Transaction beginTransaction() {
+        session.debug("beginTransaction()");
+        session.debug("Neo4jSession identity: " + this);
 
-		Transaction tx = session.transactionManager().openTransaction();
+        Transaction tx = session.transactionManager().openTransaction();
 
-		session.debug("Transaction, tx id: " + tx);
-		return tx;
-	}
+        session.debug("Transaction, tx id: " + tx);
+        return tx;
+    }
 
-	public Transaction beginTransaction(Transaction.Type type) {
+    public Transaction beginTransaction(Transaction.Type type) {
 
-		session.debug("beginTransaction()");
-		session.debug("Neo4jSession identity: " + this);
+        session.debug("beginTransaction()");
+        session.debug("Neo4jSession identity: " + this);
 
-		Transaction tx = session.transactionManager().openTransaction(type);
+        Transaction tx = session.transactionManager().openTransaction(type);
 
-		session.debug("Transaction, tx id: " + tx);
-		return tx;
-	}
+        session.debug("Transaction, tx id: " + tx);
+        return tx;
+    }
 
-	@Deprecated
-	public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-		return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
-	}
+    @Deprecated
+    public <T> T doInTransaction(GraphCallback<T> graphCallback) {
+        return graphCallback.apply(session.requestHandler(), getTransaction(), session.metaData());
+    }
 
 
-	public Transaction getTransaction() {
-		return session.transactionManager().getCurrentTransaction();
-	}
+    public Transaction getTransaction() {
+        return session.transactionManager().getCurrentTransaction();
+    }
 }

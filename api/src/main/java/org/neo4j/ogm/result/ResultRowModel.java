@@ -19,7 +19,7 @@ import org.neo4j.ogm.model.Query;
 /**
  * @author Vince Bickers
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ResultRowModel implements Query<Object[]> {
 
     private Object[] row;
@@ -32,5 +32,4 @@ public class ResultRowModel implements Query<Object[]> {
     public void setRow(Object[] rowModel) {
         this.row = rowModel;
     }
-
 }

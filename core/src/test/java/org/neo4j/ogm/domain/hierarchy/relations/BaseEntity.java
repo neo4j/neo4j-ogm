@@ -24,37 +24,38 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 @NodeEntity(label = "BaseType")
 public abstract class BaseEntity {
-	@GraphId
-	private Long graphId;
-	public String name;
 
-	@Relationship(type = "RELATED_TO", direction = "OUTGOING")
-	private List<BaseEntity> outgoing = new ArrayList<>();
-	@Relationship(type = "RELATED_TO", direction = "INCOMING")
-	private List<BaseEntity> incoming = new ArrayList<>();
+    @GraphId
+    private Long graphId;
+    public String name;
 
-	public Long getGraphId() {
-		return graphId;
-	}
+    @Relationship(type = "RELATED_TO", direction = "OUTGOING")
+    private List<BaseEntity> outgoing = new ArrayList<>();
+    @Relationship(type = "RELATED_TO", direction = "INCOMING")
+    private List<BaseEntity> incoming = new ArrayList<>();
 
-	public List<BaseEntity> getOutgoing() {
-		return outgoing;
-	}
+    public Long getGraphId() {
+        return graphId;
+    }
 
-	public void setOutgoing(List<BaseEntity> outgoing) {
-		this.outgoing = outgoing;
-	}
+    public List<BaseEntity> getOutgoing() {
+        return outgoing;
+    }
 
-	public List<BaseEntity> getIncoming() {
-		return incoming;
-	}
+    public void setOutgoing(List<BaseEntity> outgoing) {
+        this.outgoing = outgoing;
+    }
 
-	public void setIncoming(List<BaseEntity> incoming) {
-		this.incoming = incoming;
-	}
+    public List<BaseEntity> getIncoming() {
+        return incoming;
+    }
 
-	public void addIncoming(BaseEntity related) {
-		incoming.add(related);
-		related.getOutgoing().add(this);
-	}
+    public void setIncoming(List<BaseEntity> incoming) {
+        this.incoming = incoming;
+    }
+
+    public void addIncoming(BaseEntity related) {
+        incoming.add(related);
+        related.getOutgoing().add(this);
+    }
 }

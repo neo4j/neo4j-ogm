@@ -13,18 +13,10 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +59,6 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
         pleaseId = please.getId();
         beatlesId = theBeatles.getId();
-
     }
 
     @After
@@ -94,14 +85,12 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), 0);
         assertEquals(0, albums.size());
 
-
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"));
         assertEquals(1, artists.size());
         assertEquals("The Beatles", artists.iterator().next().getName());
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"));
         assertEquals(0, albums.size());
-
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), 0);
         assertEquals(1, artists.size());
@@ -110,14 +99,12 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), 0);
         assertEquals(0, albums.size());
 
-
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new Pagination(0, 5));
         assertEquals(1, artists.size());
         assertEquals("The Beatles", artists.iterator().next().getName());
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new Pagination(0, 5));
         assertEquals(0, albums.size());
-
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new Pagination(0, 5), 0);
         assertEquals(1, artists.size());
@@ -126,14 +113,12 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new Pagination(0, 5), 0);
         assertEquals(0, albums.size());
 
-
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5));
         assertEquals(1, artists.size());
         assertEquals("The Beatles", artists.iterator().next().getName());
 
         albums = session.loadAll(Album.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5));
         assertEquals(0, albums.size());
-
 
         artists = session.loadAll(Artist.class, Collections.singletonList(beatlesId), new SortOrder().add("name"), new Pagination(0, 5), 0);
         assertEquals(1, artists.size());
@@ -175,7 +160,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertNull(artist);
     }
 
-	/**
+    /**
      * @see Issue 170
      */
     @Test
@@ -272,7 +257,6 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertFalse(context.isDirty(purpleFloyd));  // nothing has changed, so it should not be dirty
 
         assertTrue(pinkFloyd == purpleFloyd);       // two refs pointing to the same object
-
     }
 
     /**
@@ -315,10 +299,9 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertFalse(context.isDirty(recording1995));  // nothing has changed, so it should not be dirty
 
         assertTrue(recording == recording1995);       // two refs pointing to the same object
-
     }
 
-	/**
+    /**
      * @see DATAGRAPH-642, Issue 174
      */
     @Test
@@ -453,7 +436,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
 
     /**
      * @see Issue 173
-      */
+     */
     @Test
     public void shouldNotModifyPreviouslyLoadedNodesWhenDepthIsReduced() {
         Artist led = new Artist("Led Zeppelin");
@@ -523,10 +506,9 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertNotNull(ledZeppelin0);
         assertEquals(led.getName(), ledZeppelin0.getName());
         assertEquals(0, ledZeppelin0.getAlbums().size());
-
     }
 
-	/**
+    /**
      * @see Issue 173
      */
     @Test
@@ -569,7 +551,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertNull(ledZeppelinIV.getRecording());
     }
 
-	/**
+    /**
      * @see Issue 173
      */
     @Test
@@ -619,7 +601,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         }
     }
 
-	/**
+    /**
      * @see Issue 173
      */
     @Test
@@ -684,7 +666,6 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertEquals("Led Zeppelin", artistNames.get(1));
         assertEquals("The Beatles", artistNames.get(2));
 
-
         sortOrder = new SortOrder();
         sortOrder.add(SortOrder.Direction.DESC, "name");
         artists = session.loadAll(Artist.class, ids, sortOrder);
@@ -696,8 +677,5 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
         assertEquals("The Beatles", artistNames.get(0));
         assertEquals("Led Zeppelin", artistNames.get(1));
         assertEquals("Bon Jovi", artistNames.get(2));
-
     }
-
-
 }

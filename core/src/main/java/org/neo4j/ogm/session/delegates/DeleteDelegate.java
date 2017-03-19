@@ -35,7 +35,7 @@ import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
 /**
  * @author Vince Bickers
  */
-public class DeleteDelegate  {
+public class DeleteDelegate {
 
     private final Neo4jSession session;
 
@@ -90,7 +90,7 @@ public class DeleteDelegate  {
             }
         }
 
-        for (Object object : objects ) {
+        for (Object object : objects) {
 
             ClassInfo classInfo = session.metaData().classInfo(object);
 
@@ -115,7 +115,7 @@ public class DeleteDelegate  {
                         }
                         if (session.eventsEnabled()) {
                             if (notified.contains(object)) {
-                               session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
+                                session.notifyListeners(new PersistenceEvent(object, Event.TYPE.POST_DELETE));
                             }
                         }
                     }
@@ -132,7 +132,6 @@ public class DeleteDelegate  {
                 }
             }
         }
-
     }
 
     public <T> void deleteAll(Class<T> type) {
@@ -220,14 +219,11 @@ public class DeleteDelegate  {
     /**
      * Handles the post-delete phase of a delete query in which objects have been
      * deleted according to some filter criteria.
-     *
      * In this scenario, we don't necessarily have references to all the deleted
      * objects in the mapping context, so we can only handle the ones we know about.
-     *
      * The two tasks to be done here are to remove the object from the mapping
      * context if we're holding a reference to it, and to raise a POST_DELETE event
      * for every such object found.
-     *
      * Note that is not possible to raise a PRE_DELETE event because we don't
      * know beforehand which objects will be deleted by the query.
      *

@@ -20,13 +20,12 @@ package org.neo4j.ogm.cypher;
  */
 public interface PropertyValueTransformer {
 
-	/**
-	 * Transforms the given property value into a format that's compatible with the comparison operator in the context
-	 * of the current query being built.
-	 *
-	 * @param propertyValue The property value to transform, which may be <code>null</code>
-	 * @return The transformed property value or <code>null</code> if invoked with <code>null</code>
-	 */
-	Object transformPropertyValue(Object propertyValue);
-
+    /**
+     * Transforms the given property value into a format that's compatible with the comparison operator in the context
+     * of the current query being built.
+     *
+     * @param propertyValue The property value to transform, which may be <code>null</code>
+     * @return The transformed property value or <code>null</code> if invoked with <code>null</code>
+     */
+    Object transformPropertyValue(Object propertyValue);
 }

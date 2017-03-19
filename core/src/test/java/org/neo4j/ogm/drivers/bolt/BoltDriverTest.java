@@ -13,12 +13,10 @@
 
 package org.neo4j.ogm.drivers.bolt;
 
-import static org.junit.Assume.*;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.testutil.TestServer;
 
 
@@ -28,26 +26,26 @@ import org.neo4j.ogm.testutil.TestServer;
  */
 public class BoltDriverTest extends AbstractDriverTestSuite {
 
-	private static TestServer testServer;
+    private static TestServer testServer;
 
-	@BeforeClass
-	public static void configure() {
-		Components.configure("ogm-bolt.properties");
-		testServer = new TestServer.Builder(Components.getConfiguration()).enableBolt(true).build();
-	}
+    @BeforeClass
+    public static void configure() {
+        Components.configure("ogm-bolt.properties");
+        testServer = new TestServer.Builder(Components.getConfiguration()).enableBolt(true).build();
+    }
 
-	@AfterClass
-	public static void reset() {
-		testServer.shutdown();
-		Components.destroy();
-	}
+    @AfterClass
+    public static void reset() {
+        testServer.shutdown();
+        Components.destroy();
+    }
 
-	@Override
-	public void setUpTest() {
+    @Override
+    public void setUpTest() {
 
-	}
+    }
 
-	@Override
-	public void tearDownTest() {
-	}
+    @Override
+    public void tearDownTest() {
+    }
 }

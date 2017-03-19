@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.metadata;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * @author vince
@@ -30,7 +30,6 @@ public class AnnotationsTest {
 
         assertEquals("org.neo4j.ogm.domain.annotations.SimpleNode", metaData.classInfo("SimpleNode").name());
         assertEquals("org.neo4j.ogm.domain.annotations.OtherNode", metaData.classInfo("OtherNode").name());
-
     }
 
     @Test
@@ -55,6 +54,4 @@ public class AnnotationsTest {
         // boolean
         assertEquals("true", annotationInfo.get("z", "false"));
     }
-
-
 }

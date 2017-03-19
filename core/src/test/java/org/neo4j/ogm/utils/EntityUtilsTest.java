@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.utils;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.ogm.domain.pizza.Pizza;
-import org.neo4j.ogm.metadata.MetaData;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.domain.pizza.Pizza;
+import org.neo4j.ogm.metadata.MetaData;
 
 
 public class EntityUtilsTest {
@@ -51,10 +51,5 @@ public class EntityUtilsTest {
         assertTrue(collatedLabels.contains("Hot"));
         assertTrue(collatedLabels.contains("Spicy"));
         assertTrue(collatedLabels.contains("Pizza"));
-
     }
-
-
-
-
 }

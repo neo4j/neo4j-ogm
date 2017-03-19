@@ -4,7 +4,6 @@ import java.util.UUID;
 
 /**
  * Converter to convert {@link java.util.UUID} to {@link java.lang.String}.
- *
  * This is a convenience class for those that use UUID to define node uniqueness.
  *
  * @author Mark Angrish

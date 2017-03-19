@@ -35,5 +35,4 @@ public abstract class Person {
     public void setHeirs(List<Person> heirs) {
         this.heirs = heirs;
     }
-
 }

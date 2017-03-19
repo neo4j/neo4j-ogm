@@ -26,27 +26,23 @@ import org.junit.Test;
  */
 public class PagingAndSortingQueryTest {
 
-	@Test
-	public void shouldAppendRelationshipIdentifiersCorrectly()
-	{
-		String cypher = "MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
-				"MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
-				"WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)";
+    @Test
+    public void shouldAppendRelationshipIdentifiersCorrectly() {
+        String cypher = "MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
+                "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
+                "WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)";
 
-		Map<String, Object> params = new HashMap<>();
-		params.put("name_0", "Jasper");
-		params.put("ratings_stars_1", 1000);
+        Map<String, Object> params = new HashMap<>();
+        params.put("name_0", "Jasper");
+        params.put("ratings_stars_1", 1000);
 
+        PagingAndSortingQuery query = new DefaultGraphModelRequest(cypher, params);
+        query.setPagination(new Pagination(0, 4));
 
-		PagingAndSortingQuery query = new DefaultGraphModelRequest(cypher, params);
-		query.setPagination(new Pagination(0, 4));
-
-
-		String stmt = query.getStatement();
-		assertEquals("MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
-				"MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
-				"WITH n,r0 SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", stmt);
-		System.out.println(stmt);
-	}
-
+        String stmt = query.getStatement();
+        assertEquals("MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
+                "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
+                "WITH n,r0 SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", stmt);
+        System.out.println(stmt);
+    }
 }

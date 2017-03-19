@@ -13,22 +13,21 @@
 
 package org.neo4j.ogm.persistence.examples.pets;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.pets.Dog;
 import org.neo4j.ogm.domain.pets.DomesticDog;
 import org.neo4j.ogm.domain.pets.Kid;
 import org.neo4j.ogm.domain.pets.Mammal;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
@@ -124,5 +123,4 @@ public class PetIntegrationTest extends MultiDriverTestClass {
         assertNotNull(snoopy);
         assertEquals(dog.getName(), snoopy.getName());
     }
-
 }

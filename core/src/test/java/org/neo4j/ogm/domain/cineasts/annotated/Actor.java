@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.domain.cineasts.annotated;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.typeconversion.UuidStringConverter;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author Vince Bickers

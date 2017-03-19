@@ -28,7 +28,7 @@ public interface EntityMapper {
      *
      * @param entity The "root" node of the object graph to persist
      * @return A {@link org.neo4j.ogm.cypher.compiler.CompileContext} object containing the statements required to persist the given object to Neo4j, along
-     *         with a representation of the changes to be made by the Cypher statements never <code>null</code>
+     * with a representation of the changes to be made by the Cypher statements never <code>null</code>
      * @throws NullPointerException if invoked with <code>null</code>
      */
     CompileContext map(Object entity);
@@ -40,9 +40,8 @@ public interface EntityMapper {
      * @param entity The "root" node of the object graph to persist
      * @param depth The number of objects away from the "root" to traverse when looking for objects to map
      * @return A {@link CompileContext} object containing the statements required to persist the given object to Neo4j, along
-     *         with a representation of the changes to be made by the Cypher statements never <code>null</code>
+     * with a representation of the changes to be made by the Cypher statements never <code>null</code>
      * @throws NullPointerException if invoked with <code>null</code>
      */
     CompileContext map(Object entity, int depth);
-
 }

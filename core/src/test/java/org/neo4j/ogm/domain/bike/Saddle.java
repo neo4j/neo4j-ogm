@@ -17,6 +17,7 @@ package org.neo4j.ogm.domain.bike;
  * @author Vince Bickers
  */
 public class Saddle {
+
     private Long id;
     private Double price;
     private String material;

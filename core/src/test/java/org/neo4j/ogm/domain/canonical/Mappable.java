@@ -23,6 +23,7 @@ import java.util.Vector;
  * @author Vince Bickers
  */
 public class Mappable {
+
     private Long id;
 
     private int primitiveInt;

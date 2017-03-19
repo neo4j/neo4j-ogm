@@ -25,13 +25,13 @@ import org.neo4j.ogm.result.adapter.ResultAdapter;
  */
 public class StatisticsModelAdapter implements ResultAdapter<StatementResult, QueryStatisticsModel> {
 
-	protected static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
+    protected static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
-	@Override
-	public QueryStatisticsModel adapt(StatementResult result) {
-		QueryStatisticsModel queryStatisticsModel = new QueryStatisticsModel();
-		SummaryCounters stats = result.consume().counters();
-		queryStatisticsModel.setProperties_set(stats.propertiesSet());
-		return queryStatisticsModel;
-	}
+    @Override
+    public QueryStatisticsModel adapt(StatementResult result) {
+        QueryStatisticsModel queryStatisticsModel = new QueryStatisticsModel();
+        SummaryCounters stats = result.consume().counters();
+        queryStatisticsModel.setProperties_set(stats.propertiesSet());
+        return queryStatisticsModel;
+    }
 }

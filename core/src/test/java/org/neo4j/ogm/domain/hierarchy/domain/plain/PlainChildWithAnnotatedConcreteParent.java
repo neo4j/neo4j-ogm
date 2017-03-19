@@ -19,4 +19,5 @@ import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedConcreteParent;
  * @author Michal Bachman
  */
 public class PlainChildWithAnnotatedConcreteParent extends AnnotatedConcreteParent {
+
 }

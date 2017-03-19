@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.QueryExecutionException;
 import org.neo4j.graphdb.Result;
+import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.drivers.embedded.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.GraphRowModelResponse;
 import org.neo4j.ogm.drivers.embedded.response.RestModelResponse;
@@ -29,7 +30,6 @@ import org.neo4j.ogm.drivers.embedded.response.RowModelResponse;
 import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.exception.TransactionException;
-import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
@@ -95,6 +95,7 @@ public class EmbeddedRequest implements Request {
         final String[] finalColumns = columns;
         return new Response<RowModel>() {
             int currentRow = 0;
+
             @Override
             public RowModel next() {
                 if (currentRow < rowmodels.size()) {
@@ -118,7 +119,7 @@ public class EmbeddedRequest implements Request {
 
             @Override
             public String[] columns() {
-               return finalColumns;
+                return finalColumns;
             }
         };
     }
@@ -144,7 +145,8 @@ public class EmbeddedRequest implements Request {
         try {
             String cypher = statement.getStatement();
             String params = mapper.writeValueAsString(statement.getParameters());
-            TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
+            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
+            };
             HashMap<String, Object> parameterMap = mapper.readValue(params.getBytes(), typeRef);
 
             logger.info("Request: {} with params {}", cypher, parameterMap);
@@ -167,19 +169,14 @@ public class EmbeddedRequest implements Request {
                 }
             }
             return graphDatabaseService.execute(cypher, parameterMap);
-
-        }
-        catch (QueryExecutionException qee) {
+        } catch (QueryExecutionException qee) {
             EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
             tx.rollback();
-            throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(),qee.getMessage());
-        }
-        catch (Exception e) {
+            throw new CypherException("Error executing Cypher", qee, qee.getStatusCode(), qee.getMessage());
+        } catch (Exception e) {
             EmbeddedTransaction tx = (EmbeddedTransaction) transactionManager.getCurrentTransaction();
             tx.rollback();
             throw new RuntimeException(e);
         }
-
     }
-
 }

@@ -13,19 +13,18 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.domain.convertible.numbers.Account;
-import org.neo4j.ogm.metadata.ClassInfo;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
+import org.neo4j.ogm.domain.convertible.numbers.Account;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
@@ -42,7 +41,6 @@ public class NumberConversionTest {
         assertTrue(accountInfo.propertyField("facility").hasPropertyConverter());
         assertTrue(accountInfo.propertyField("deposits").hasPropertyConverter());
         assertTrue(accountInfo.propertyField("loans").hasPropertyConverter());
-
     }
 
     @Test

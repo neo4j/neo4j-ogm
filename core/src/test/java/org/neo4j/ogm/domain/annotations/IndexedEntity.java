@@ -29,18 +29,25 @@ public class IndexedEntity {
     @Target({ElementType.FIELD, ElementType.METHOD})
     @Inherited
     public @interface Indexed {
+
         byte b();
+
         char c();
+
         double d();
+
         float f();
+
         int i();
+
         long j();
+
         short s();
+
         String t();
+
         boolean z();
-
     }
-
 }
 
 

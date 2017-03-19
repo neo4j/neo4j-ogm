@@ -30,6 +30,4 @@ public class Algebra {
     public void setNumberSystem(NumberSystem numberSystem) {
         this.numberSystem = numberSystem;
     }
-
-
 }

@@ -15,11 +15,12 @@ package org.neo4j.ogm.exception;
 
 /**
  * Exception thrown if a connection could not be obtained to the Neo4j database
+ *
  * @author Luanne Misquitta
  */
 public class ConnectionException extends RuntimeException {
 
-	public ConnectionException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ConnectionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

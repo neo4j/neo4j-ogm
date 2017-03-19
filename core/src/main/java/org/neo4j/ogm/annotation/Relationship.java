@@ -31,5 +31,6 @@ public @interface Relationship {
     String UNDIRECTED = "UNDIRECTED";
 
     String type() default "";
+
     String direction() default OUTGOING;
 }

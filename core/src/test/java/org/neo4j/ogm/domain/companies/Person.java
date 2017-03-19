@@ -87,5 +87,4 @@ public class Person {
     public Set<Device> getDevices() {
         return devices;
     }
-
 }

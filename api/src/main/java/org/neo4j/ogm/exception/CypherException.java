@@ -14,38 +14,41 @@ package org.neo4j.ogm.exception;
 
 /**
  * An exception raised when executing a Cypher query
+ *
  * @author Luanne Misquitta
  */
 public class CypherException extends RuntimeException {
 
-	private final String code;
-	private final String description;
+    private final String code;
+    private final String description;
 
-	public CypherException(String message, Throwable cause, String code, String description) {
-		super(message + "; Code: " + code + "; Description: " + description, cause);
-		this.code = code;
-		this.description = description;
-	}
+    public CypherException(String message, Throwable cause, String code, String description) {
+        super(message + "; Code: " + code + "; Description: " + description, cause);
+        this.code = code;
+        this.description = description;
+    }
 
-	public CypherException(String message, String code, String description) {
-		super(message + "; Code: " + code + "; Description: " + description);
-		this.code = code;
-		this.description = description;
-	}
+    public CypherException(String message, String code, String description) {
+        super(message + "; Code: " + code + "; Description: " + description);
+        this.code = code;
+        this.description = description;
+    }
 
-	/**
-	 * The Neo4j error status code
-	 * @return the neo4j error status code
-	 */
-	public String getCode() {
-		return code;
-	}
+    /**
+     * The Neo4j error status code
+     *
+     * @return the neo4j error status code
+     */
+    public String getCode() {
+        return code;
+    }
 
-	/**
-	 * The error description
-	 * @return the error description
-	 */
-	public String getDescription() {
-		return description;
-	}
+    /**
+     * The error description
+     *
+     * @return the error description
+     */
+    public String getDescription() {
+        return description;
+    }
 }

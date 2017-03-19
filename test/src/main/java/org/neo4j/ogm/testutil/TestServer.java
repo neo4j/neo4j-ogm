@@ -24,14 +24,13 @@ import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
 
 /**
- *
  * @author Vince Bickers
  */
 @SuppressWarnings("deprecation")
@@ -60,7 +59,6 @@ public class TestServer {
         System.out.println("******************************************************************************");
         System.out.println("* Starting new in memory test server on: " + url());
         System.out.println("******************************************************************************");
-
     }
 
     private void startServer() {
@@ -71,7 +69,6 @@ public class TestServer {
                         .withConfig("dbms.connector.0.enabled", String.valueOf(enableBolt))
                         .withConfig("dbms.connector.0.address", "localhost:" + String.valueOf(port))
                         .newServer();
-
             } else {
                 controls = TestServerBuilders.newInProcessBuilder()
                         .withConfig("dbms.connector.1.enabled", "true")
@@ -90,11 +87,9 @@ public class TestServer {
 
             // ensure we shutdown this server when the JVM terminates, if its not been shutdown by user code
             Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
-
         } catch (Exception e) {
-            throw new RuntimeException("Error starting in-process server",e);
+            throw new RuntimeException("Error starting in-process server", e);
         }
-
     }
 
     private String createAuthStore() {
@@ -146,17 +141,18 @@ public class TestServer {
     public synchronized void shutdown() {
 
         if (database != null && database.isAvailable(100)) {
-			System.out.println("******************************************************************************");
-			System.out.println("* Stopping in memory test server on: " + url());
-			System.out.println("******************************************************************************");
+            System.out.println("******************************************************************************");
+            System.out.println("* Stopping in memory test server on: " + url());
+            System.out.println("******************************************************************************");
             database.shutdown();
-			database = null;
+            database = null;
         }
         controls.close();
     }
 
     /**
      * Waits for a period of time and checks the database availability afterwards
+     *
      * @param timeout milliseconds to wait
      * @return true if the database is available, false otherwise
      */
@@ -229,7 +225,5 @@ public class TestServer {
         public TestServer build() {
             return new TestServer(this);
         }
-
     }
-
 }

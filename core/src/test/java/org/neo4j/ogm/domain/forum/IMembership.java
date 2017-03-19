@@ -37,5 +37,4 @@ public interface IMembership {
 
     @Transient
     IMembership[] getUpgrades();
-
 }

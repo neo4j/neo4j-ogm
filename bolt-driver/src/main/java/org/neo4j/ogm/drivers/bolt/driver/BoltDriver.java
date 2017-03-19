@@ -18,8 +18,8 @@ import java.net.URI;
 
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
-import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
 import org.neo4j.ogm.drivers.bolt.transaction.BoltTransaction;

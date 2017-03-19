@@ -21,15 +21,14 @@ import org.neo4j.ogm.annotation.StartNode;
  * @author vince
  */
 
-@RelationshipEntity(type="KNOWS")
+@RelationshipEntity(type = "KNOWS")
 public class Knows {
 
-     Long id;
+    Long id;
 
-     @StartNode
-     Entity knower;
+    @StartNode
+    Entity knower;
 
-     @EndNode
-     Entity knowee;
-
+    @EndNode
+    Entity knowee;
 }

@@ -19,6 +19,7 @@ package org.neo4j.ogm.context;
  * The relationshipId is recorded for relationship entities, and not for simple relationships.
  * The relationship direction is always OUTGOING from the startNodeId to the endNodeId.
  * The startNodeType and endNodeType represent the class type of the entities on either end of the relationship, and may be a relationship entity class.
+ *
  * @author Adam George
  * @author Luanne Misquitta
  */
@@ -111,4 +112,5 @@ public class MappedRelationship implements Mappable {
 
     public String toString() {
         return String.format("(%s)-[%s:%s]->(%s)", startNodeId, relationshipId, relationshipType, endNodeId);
-    }}
+    }
+}

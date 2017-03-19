@@ -34,5 +34,4 @@ public class ResultGraphModel implements Query<GraphModel> {
     public void setGraph(DefaultGraphModel graph) {
         this.graph = graph;
     }
-
 }

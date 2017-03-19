@@ -12,11 +12,11 @@
  */
 package org.neo4j.ogm.domain.simpleNetwork.abstractions;
 
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceIdentityNode;
 import org.neo4j.ogm.domain.simpleNetwork.interfaces.InterfaceTimeRelation;
-
-import java.util.Set;
 
 /**
  * @author vince

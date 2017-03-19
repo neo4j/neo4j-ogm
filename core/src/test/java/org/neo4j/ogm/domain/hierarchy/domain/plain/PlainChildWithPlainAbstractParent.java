@@ -17,4 +17,5 @@ package org.neo4j.ogm.domain.hierarchy.domain.plain;
  * @author Michal Bachman
  */
 public class PlainChildWithPlainAbstractParent extends PlainAbstractParent {
+
 }

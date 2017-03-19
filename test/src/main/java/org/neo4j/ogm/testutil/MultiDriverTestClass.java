@@ -19,11 +19,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.test.TestGraphDatabaseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MultiDriverTestClass {
 
-	private static final Logger logger = LoggerFactory.getLogger(MultiDriverTestClass.class);
+    private static final Logger logger = LoggerFactory.getLogger(MultiDriverTestClass.class);
     private static TestServer testServer;
     private static GraphDatabaseService impermanentDb;
     private static File graphStore;
@@ -56,14 +56,12 @@ public class MultiDriverTestClass {
                     .enableBolt(true)
                     .transactionTimeoutSeconds(30)
                     .build();
-        }
-        else {
+        } else {
             graphStore = FileUtils.createTemporaryGraphStore();
             impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
-			logger.info("Creating new impermanent database {}", impermanentDb);
+            logger.info("Creating new impermanent database {}", impermanentDb);
             Components.setDriver(new EmbeddedDriver(impermanentDb));
         }
-
     }
 
     @AfterClass
@@ -84,7 +82,7 @@ public class MultiDriverTestClass {
                 impermanentDb.shutdown();
             }
             impermanentDb = null;
-			graphStore = null;
+            graphStore = null;
         }
     }
 
@@ -94,6 +92,7 @@ public class MultiDriverTestClass {
         }
         return impermanentDb;
     }
+
     private static String configFileName() {
         String configFileName = System.getenv("ogm.properties");
 
@@ -105,5 +104,4 @@ public class MultiDriverTestClass {
         }
         return configFileName;
     }
-
 }

@@ -22,8 +22,7 @@ import org.neo4j.ogm.cypher.Filter;
  */
 public interface MatchClause {
 
-	MatchClause append(Filter filter);
+    MatchClause append(Filter filter);
 
-	String toCypher();
-
+    String toCypher();
 }

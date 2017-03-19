@@ -14,12 +14,7 @@
 package org.neo4j.ogm.context;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.RestModel;
@@ -30,141 +25,135 @@ import org.neo4j.ogm.response.model.RelationshipModel;
 import org.neo4j.ogm.session.Utils;
 
 /**
- *  Map NodeModels and RelationshipModels obtained from cypher queries to domain entities
- *  @author Luanne Misquitta
+ * Map NodeModels and RelationshipModels obtained from cypher queries to domain entities
+ *
+ * @author Luanne Misquitta
  */
 public class RestModelMapper implements ResponseMapper<RestModel> {
 
-	final GraphEntityMapper graphEntityMapper;
-	final MetaData metaData;
+    final GraphEntityMapper graphEntityMapper;
+    final MetaData metaData;
 
-	public RestModelMapper(GraphEntityMapper graphEntityMapper, MetaData metaData) {
-		this.graphEntityMapper = graphEntityMapper;
-		this.metaData = metaData;
-	}
+    public RestModelMapper(GraphEntityMapper graphEntityMapper, MetaData metaData) {
+        this.graphEntityMapper = graphEntityMapper;
+        this.metaData = metaData;
+    }
 
-	@Override
-	public <T> Iterable<T> map(Class<T> type, Response<RestModel> response) {
-		RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
-		RestModel model = response.next();
-		Collection<Map<String, Object>> result = new ArrayList<>();
-		Map<Long, String> relationshipEntityColumns = new HashMap<>(); //Relationship ID to column name
+    @Override
+    public <T> Iterable<T> map(Class<T> type, Response<RestModel> response) {
+        RestStatisticsModel restStatisticsModel = new RestStatisticsModel();
+        RestModel model = response.next();
+        Collection<Map<String, Object>> result = new ArrayList<>();
+        Map<Long, String> relationshipEntityColumns = new HashMap<>(); //Relationship ID to column name
 
-		restStatisticsModel.setStatistics(model.getStats());
+        restStatisticsModel.setStatistics(model.getStats());
 
-		while (model.getRow().entrySet().size() > 0) {
-			Map<String,Object> row = model.getRow();
-			List<RelationshipModel> relationshipModels = new ArrayList<>();
-			for (Map.Entry<String,Object> entry : row.entrySet()) {
-				Object value = entry.getValue();
-				if (value instanceof List) {
-					List entityList = (List) value;
-					if (isMappable(entityList)) {
-						for (int i=0; i< entityList.size(); i++) {
-							Object mapped = mapEntity(entry.getKey(), entityList.get(i), relationshipModels, relationshipEntityColumns);
-							if (mapped != null) { //if null, it'll be a relationship, which we're mapping after all nodes
-								entityList.set(i, mapped);
-							}
-						}
-					}
-					else {
-						convertListValueToArray(entityList, entry);
-					}
-				}
-				else {
-					if (isMappable(Collections.singletonList(value))) {
-						Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns);
-						if (mapped != null) {
-							entry.setValue(mapped);
-						}
-					}
-				}
+        while (model.getRow().entrySet().size() > 0) {
+            Map<String, Object> row = model.getRow();
+            List<RelationshipModel> relationshipModels = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof List) {
+                    List entityList = (List) value;
+                    if (isMappable(entityList)) {
+                        for (int i = 0; i < entityList.size(); i++) {
+                            Object mapped = mapEntity(entry.getKey(), entityList.get(i), relationshipModels, relationshipEntityColumns);
+                            if (mapped != null) { //if null, it'll be a relationship, which we're mapping after all nodes
+                                entityList.set(i, mapped);
+                            }
+                        }
+                    } else {
+                        convertListValueToArray(entityList, entry);
+                    }
+                } else {
+                    if (isMappable(Collections.singletonList(value))) {
+                        Object mapped = mapEntity(entry.getKey(), value, relationshipModels, relationshipEntityColumns);
+                        if (mapped != null) {
+                            entry.setValue(mapped);
+                        }
+                    }
+                }
+            }
+            //Map all relationships
+            DefaultGraphModel graphModel = new DefaultGraphModel();
+            graphModel.setRelationships(relationshipModels.toArray(new RelationshipModel[relationshipModels.size()]));
+            Map<Long, Object> relationshipEntities = graphEntityMapper.mapRelationships(graphModel);
+            for (Map.Entry<Long, Object> entry : relationshipEntities.entrySet()) {
+                Object rels = row.get(relationshipEntityColumns.get(entry.getKey()));
+                if (rels instanceof List) {
+                    List relsList = (List) rels;
+                    for (int i = 0; i < relsList.size(); i++) {
+                        if (relsList.get(i) instanceof RelationshipModel) {
+                            if (((RelationshipModel) relsList.get(i)).getId().equals(entry.getKey())) {
+                                relsList.set(i, entry.getValue());
+                            }
+                        }
+                    }
+                } else {
+                    row.put(relationshipEntityColumns.get(entry.getKey()), entry.getValue());
+                }
+            }
 
-			}
-			//Map all relationships
-			DefaultGraphModel graphModel = new DefaultGraphModel();
-			graphModel.setRelationships(relationshipModels.toArray(new RelationshipModel[relationshipModels.size()]));
-			Map<Long, Object> relationshipEntities = graphEntityMapper.mapRelationships(graphModel);
-			for (Map.Entry<Long, Object> entry : relationshipEntities.entrySet()) {
-				Object rels = row.get(relationshipEntityColumns.get(entry.getKey()));
-				if (rels instanceof List) {
-					List relsList = (List)rels;
-					for (int i=0;i<relsList.size(); i++) {
-						if (relsList.get(i) instanceof RelationshipModel) {
-							if (((RelationshipModel) relsList.get(i)).getId().equals(entry.getKey())) {
-								relsList.set(i, entry.getValue());
-							}
-						}
-					}
-				} else {
-					row.put(relationshipEntityColumns.get(entry.getKey()), entry.getValue());
-				}
-			}
+            result.add(row);
+            model = response.next();
+        }
+        restStatisticsModel.setResult(result);
+        return (Iterable<T>) Collections.singletonList(restStatisticsModel);
+    }
 
+    private void convertListValueToArray(List entityList, Map.Entry<String, Object> entry) {
+        Class arrayClass = null;
+        for (Object element : entityList) {
+            Class clazz = element.getClass();
+            if (arrayClass == null) {
+                arrayClass = clazz;
+            } else {
+                if (arrayClass != clazz) {
+                    arrayClass = null;
+                    break;
+                }
+            }
+        }
+        if (arrayClass == null) {
+            entry.setValue(entityList.toArray());
+        } else {
+            Object array = Array.newInstance(arrayClass, entityList.size());
+            for (int j = 0; j < entityList.size(); j++) {
+                Array.set(array, j, Utils.coerceTypes(arrayClass, entityList.get(j)));
+            }
+            entry.setValue(array);
+        }
+    }
 
-			result.add(row);
-			model = response.next();
-		}
-		restStatisticsModel.setResult(result);
-		return (Iterable<T>) Collections.singletonList(restStatisticsModel);
-	}
+    private boolean isMappable(List entityList) {
+        if (entityList.size() > 0) {
+            for (Object entityObj : entityList) {
+                if (entityObj instanceof NodeModel || entityObj instanceof RelationshipModel) {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
-	private void convertListValueToArray(List entityList, Map.Entry<String, Object> entry) {
-		Class arrayClass = null;
-		for (Object element : entityList) {
-			Class clazz = element.getClass();
-			if (arrayClass == null) {
-				arrayClass = clazz;
-			}
-			else {
-				if (arrayClass != clazz) {
-					arrayClass = null;
-					break;
-				}
-			}
-		}
-		if (arrayClass == null) {
-			entry.setValue(entityList.toArray());
-		}
-		else {
-			Object array = Array.newInstance(arrayClass, entityList.size());
-			for (int j = 0; j < entityList.size(); j++) {
-				Array.set(array, j, Utils.coerceTypes(arrayClass, entityList.get(j)));
-			}
-			entry.setValue(array);
-		}
-	}
-
-	private boolean isMappable(List entityList) {
-		if (entityList.size() > 0) {
-			for (Object entityObj : entityList) {
-				if (entityObj instanceof NodeModel || entityObj instanceof RelationshipModel) {
-					continue;
-				}
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	private Object mapEntity(String column, Object entity, List<RelationshipModel> relationshipModels, Map<Long, String> relationshipEntityColumns) {
-		if (entity instanceof NodeModel) {
-			NodeModel nodeModel = (NodeModel) entity;
-			DefaultGraphModel graphModel = new DefaultGraphModel();
-			graphModel.setNodes(new NodeModel[]{nodeModel});
-			if (nodeModel.getLabels() != null && metaData.resolve(nodeModel.getLabels()) != null) {
-				List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
-				return mapped.get(0);
-			}
-		} else if (entity instanceof RelationshipModel) {
-			RelationshipModel relationshipModel = (RelationshipModel) entity;
-			relationshipModels.add(relationshipModel);
-			if (relationshipModel.getPropertyList().size() > 0) {
-				relationshipEntityColumns.put(relationshipModel.getId(), column);
-			}
-		}
-		return null;
-	}
-
+    private Object mapEntity(String column, Object entity, List<RelationshipModel> relationshipModels, Map<Long, String> relationshipEntityColumns) {
+        if (entity instanceof NodeModel) {
+            NodeModel nodeModel = (NodeModel) entity;
+            DefaultGraphModel graphModel = new DefaultGraphModel();
+            graphModel.setNodes(new NodeModel[]{nodeModel});
+            if (nodeModel.getLabels() != null && metaData.resolve(nodeModel.getLabels()) != null) {
+                List mapped = graphEntityMapper.map(metaData.resolve(nodeModel.getLabels()).getUnderlyingClass(), graphModel);
+                return mapped.get(0);
+            }
+        } else if (entity instanceof RelationshipModel) {
+            RelationshipModel relationshipModel = (RelationshipModel) entity;
+            relationshipModels.add(relationshipModel);
+            if (relationshipModel.getPropertyList().size() > 0) {
+                relationshipEntityColumns.put(relationshipModel.getId(), column);
+            }
+        }
+        return null;
+    }
 }

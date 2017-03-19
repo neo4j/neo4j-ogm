@@ -21,6 +21,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 @NodeEntity
 public class A {
+
     private Long id;
 
 

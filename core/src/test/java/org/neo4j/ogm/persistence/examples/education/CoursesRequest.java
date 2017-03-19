@@ -347,5 +347,4 @@ public class CoursesRequest extends StubHttpDriver {
     public String[] getResponse() {
         return jsonModel;
     }
-
 }

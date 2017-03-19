@@ -13,12 +13,7 @@
 
 package org.neo4j.ogm.result.adapter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.response.model.DefaultGraphModel;
@@ -48,20 +43,16 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
 
         GraphModel graphModel = new DefaultGraphModel();
 
-        for (Map.Entry<String,Object> mapEntry : data.entrySet()) {
+        for (Map.Entry<String, Object> mapEntry : data.entrySet()) {
 
             final Object value = mapEntry.getValue();
             if (isPath(value)) {
                 buildPath(value, graphModel, nodeIdentities, edgeIdentities);
-            }
-            else if (isNode(value)) {
+            } else if (isNode(value)) {
                 buildNode(value, graphModel, nodeIdentities);
-            }
-            else if (isRelationship(value)) {
+            } else if (isRelationship(value)) {
                 buildRelationship(value, graphModel, edgeIdentities);
-            }
-
-            else if (value instanceof Iterable) {
+            } else if (value instanceof Iterable) {
                 Iterable collection = (Iterable) value;
                 for (Object element : collection) {
                     if (isPath(element)) {
@@ -82,7 +73,7 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
 
     public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {
         Iterator<Object> relIterator = relsInPath(path).iterator();
-        Iterator<Object> nodeIterator =nodesInPath(path).iterator();
+        Iterator<Object> nodeIterator = nodesInPath(path).iterator();
 
         while (relIterator.hasNext()) {
             buildRelationship(relIterator.next(), graphModel, edgeIdentities);
@@ -102,7 +93,7 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
             nodeModel.setId(nodeId(node));
             List<String> labelNames = labels(node);
 
-            nodeModel.setLabels(labelNames.toArray(new String[] {}));
+            nodeModel.setLabels(labelNames.toArray(new String[]{}));
 
             nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
 
@@ -159,7 +150,7 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
 
     public abstract Long endNodeId(Object relationship);
 
-    public abstract Map<String,Object> properties(Object container);
+    public abstract Map<String, Object> properties(Object container);
 
     public abstract List<Object> nodesInPath(Object path);
 

@@ -13,6 +13,14 @@
 
 package org.neo4j.drivers.http.response;
 
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Set;
+
 import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -23,15 +31,6 @@ import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.result.ResultGraphModel;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Set;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luanne Misquitta
@@ -45,25 +44,25 @@ public class JsonGraphResponseTest {
     public void setUpMocks() {
         when(response.getEntity()).thenReturn(entity);
     }
+
     @Test
     public void shouldParseColumnsInGraphResponseCorrectly() throws IOException {
 
         when(entity.getContent()).thenReturn(graphResultsAndNoErrors());
 
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
-            TestCase.assertEquals( 1, rsp.columns().length );
-            TestCase.assertEquals( "_0", rsp.columns()[0] );
+            TestCase.assertEquals(1, rsp.columns().length);
+            TestCase.assertEquals("_0", rsp.columns()[0]);
         }
     }
 
     @Test
-    public void shouldParseColumnsInGraphResponseWithNoColumnsCorrectly() throws IOException
-    {
+    public void shouldParseColumnsInGraphResponseWithNoColumnsCorrectly() throws IOException {
         when(entity.getContent()).thenReturn(noGraphResultsAndNoErrors());
 
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
-            TestCase.assertEquals( 1, rsp.columns().length );
-            TestCase.assertEquals( "_0", rsp.columns()[0] );
+            TestCase.assertEquals(1, rsp.columns().length);
+            TestCase.assertEquals("_0", rsp.columns()[0]);
         }
     }
 
@@ -74,32 +73,32 @@ public class JsonGraphResponseTest {
 
         try (Response<GraphModel> rsp = new TestGraphHttpResponse()) {
             GraphModel graphModel = rsp.next();
-            TestCase.assertNotNull( graphModel );
+            TestCase.assertNotNull(graphModel);
             Set<Node> nodes = graphModel.getNodes();
-            TestCase.assertEquals( 1, nodes.size() );
-            TestCase.assertEquals( "adam", nodes.iterator().next().getPropertyList().get( 0 ).getValue() );
-            TestCase.assertEquals( 0, graphModel.getRelationships().size() );
+            TestCase.assertEquals(1, nodes.size());
+            TestCase.assertEquals("adam", nodes.iterator().next().getPropertyList().get(0).getValue());
+            TestCase.assertEquals(0, graphModel.getRelationships().size());
 
             graphModel = rsp.next();
-            TestCase.assertNotNull( graphModel );
+            TestCase.assertNotNull(graphModel);
             nodes = graphModel.getNodes();
-            TestCase.assertEquals( 2, nodes.size() );
+            TestCase.assertEquals(2, nodes.size());
             Iterator<Node> nodeIterator = nodes.iterator();
             nodeIterator.next(); //skip adam
-            TestCase.assertEquals( "GraphAware", nodeIterator.next().getPropertyList().get( 0 ).getValue() );
-            TestCase.assertEquals( 1, graphModel.getRelationships().size() );
-            TestCase.assertEquals( "EMPLOYED_BY", graphModel.getRelationships().iterator().next().getType() );
+            TestCase.assertEquals("GraphAware", nodeIterator.next().getPropertyList().get(0).getValue());
+            TestCase.assertEquals(1, graphModel.getRelationships().size());
+            TestCase.assertEquals("EMPLOYED_BY", graphModel.getRelationships().iterator().next().getType());
 
-            for (int i=0;i<4;i++) {
-                TestCase.assertNotNull( rsp.next() );
+            for (int i = 0; i < 4; i++) {
+                TestCase.assertNotNull(rsp.next());
             }
-            TestCase.assertNull( rsp.next() );
+            TestCase.assertNull(rsp.next());
         }
     }
 
     private InputStream graphResultsAndNoErrors() {
 
-        final String s= "{\n" +
+        final String s = "{\n" +
                 "  \"results\": [\n" +
                 "    {\n" +
                 "      \"columns\": [\n" +
@@ -328,7 +327,6 @@ public class JsonGraphResponseTest {
                 "  \"errors\": []\n" +
                 "}";
         return new ByteArrayInputStream(s.getBytes());
-
     }
 
     static class TestGraphHttpResponse extends AbstractHttpResponse<ResultGraphModel> implements Response<GraphModel> {
@@ -351,7 +349,6 @@ public class JsonGraphResponseTest {
         public void close() {
             //Nothing to do, the response has been closed already
         }
-
     }
 //
 }

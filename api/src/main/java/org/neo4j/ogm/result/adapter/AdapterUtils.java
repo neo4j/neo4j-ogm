@@ -21,12 +21,12 @@ import java.util.List;
  */
 public class AdapterUtils {
 
-	public static Iterable<Object> convertToIterable(Object array) {
-		List<Object> list = new ArrayList<>();
-		int length = Array.getLength(array);
-		for (int i = 0; i < length; i++) {
-			list.add(Array.get(array, i));
-		}
-		return list;
-	}
+    public static Iterable<Object> convertToIterable(Object array) {
+        List<Object> list = new ArrayList<>();
+        int length = Array.getLength(array);
+        for (int i = 0; i < length; i++) {
+            list.add(Array.get(array, i));
+        }
+        return list;
+    }
 }

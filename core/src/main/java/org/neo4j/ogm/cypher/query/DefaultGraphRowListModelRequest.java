@@ -24,15 +24,14 @@ import org.neo4j.ogm.request.GraphRowListModelRequest;
  */
 public class DefaultGraphRowListModelRequest extends PagingAndSortingQuery implements GraphRowListModelRequest {
 
-    private final static String[] resultDataContents = new String[] {"graph", "row"};
+    private final static String[] resultDataContents = new String[]{"graph", "row"};
 
-	public DefaultGraphRowListModelRequest(String cypher, Map<String, ?> parameters) {
-		super(cypher, parameters);
-	}
+    public DefaultGraphRowListModelRequest(String cypher, Map<String, ?> parameters) {
+        super(cypher, parameters);
+    }
 
     // used by object mapper
     public String[] getResultDataContents() {
         return resultDataContents;
     }
-
 }

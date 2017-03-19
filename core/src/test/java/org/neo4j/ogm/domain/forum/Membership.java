@@ -41,5 +41,4 @@ public abstract class Membership implements IMembership {
     public void setFees(Integer fees) {
         this.fees = fees;
     }
-
 }

@@ -8,7 +8,4 @@ import java.util.Collection;
 public class Lahmacun extends Pizza {
 
     private Collection<String> labels;
-
-    
-
 }

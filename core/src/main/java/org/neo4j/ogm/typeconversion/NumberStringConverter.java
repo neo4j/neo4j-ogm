@@ -16,7 +16,6 @@ package org.neo4j.ogm.typeconversion;
 /**
  * The NumberStringConverter can be used to convert any java object that extends
  * java.lang.Number to and from its String representation.
- *
  * By default, the OGM will automatically convert BigInteger and BigDecimal
  * entity attributes using this converter.
  *

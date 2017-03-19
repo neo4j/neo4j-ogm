@@ -77,7 +77,6 @@ public class PropertyModel<K, V> implements Property<K, V> {
         PropertyModel property = (PropertyModel) o;
 
         return key.equals(property.key) && value.equals(property.value);
-
     }
 
     @Override

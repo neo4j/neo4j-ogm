@@ -19,4 +19,5 @@ import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedInterface;
  * @author Luanne Misquitta
  */
 public interface PlainInterfaceChildWithAnnotatedParentInterface extends AnnotatedInterface {
+
 }

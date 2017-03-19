@@ -21,5 +21,4 @@ package org.neo4j.ogm.domain.entityMapping;
 public class UserV14 extends Entity {
 
     public UserV14 knows;
-
 }

@@ -18,9 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.GraphRowModel;
 import org.neo4j.ogm.response.Response;
@@ -65,13 +65,11 @@ public class GraphRowListModelMapper implements ResponseMapper<GraphRowListModel
         }
 
         if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-            for(Long resultEntityId : resultEntityIds) {
+            for (Long resultEntityId : resultEntityIds) {
                 result.add((T) mappingContext.getNodeEntity(resultEntityId));
             }
-
-        }
-        else {
-            for(Long resultEntityId : resultEntityIds) {
+        } else {
+            for (Long resultEntityId : resultEntityIds) {
                 result.add((T) mappingContext.getRelationshipEntity(resultEntityId));
             }
         }

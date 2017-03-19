@@ -43,5 +43,4 @@ public class BikeRequest extends StubHttpDriver {
     public String[] getResponse() {
         return jsonModel;
     }
-
 }

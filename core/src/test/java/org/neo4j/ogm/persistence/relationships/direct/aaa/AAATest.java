@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.aaa;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,11 +27,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Luanne Misquitta
@@ -85,7 +85,6 @@ public class AAATest extends RelationshipTrait {
         assertSameArray(new A[]{a2, a3}, loadedA1.a);
         assertSameArray(new A[]{a1, a3}, loadedA2.a);
         assertSameArray(new A[]{a2, a4}, loadedA3.a);
-
     }
 
     /**
@@ -107,7 +106,6 @@ public class AAATest extends RelationshipTrait {
         assertSameArray(new A[]{loadedA2, loadedA3}, a1.a);
         assertSameArray(new A[]{loadedA1, loadedA3}, a2.a);
         assertSameArray(new A[]{loadedA2, loadedA4}, a3.a);
-
     }
 
     /**
@@ -195,5 +193,4 @@ public class AAATest extends RelationshipTrait {
             return key.hashCode();
         }
     }
-
 }

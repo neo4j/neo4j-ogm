@@ -20,9 +20,7 @@ import java.lang.annotation.Target;
 
 /**
  * Identifies a domain entity as being backed by a relationship in the graph.
- *
  * This annotation is always needed for relationship-backed entities.
- *
  * The type attribute supplies the relationship type in the graph.
  *
  * @author Michal Bachman

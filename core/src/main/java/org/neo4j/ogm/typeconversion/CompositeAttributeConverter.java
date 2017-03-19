@@ -21,5 +21,4 @@ public interface CompositeAttributeConverter<T> {
     Map<String, ?> toGraphProperties(T value);
 
     T toEntityAttribute(Map<String, ?> value);
-
 }

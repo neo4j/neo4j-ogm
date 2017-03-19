@@ -18,8 +18,7 @@ import java.util.Map;
 /**
  * @author Luanne Misquitta
  */
-public interface Result extends Query<Iterable<Map<String, Object>>>, Iterable<Map<String,Object>>  {
+public interface Result extends Query<Iterable<Map<String, Object>>>, Iterable<Map<String, Object>> {
 
-	QueryStatistics queryStatistics();
-
+    QueryStatistics queryStatistics();
 }

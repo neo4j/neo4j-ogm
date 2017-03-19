@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
@@ -30,19 +29,15 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * These tests are to establish the behaviour of degenerate entity models
- *
  * An entity model is considered degenerate if a relationship that should
  * exist between two entities is only established on one of them.
- *
  * For example if a parent object maintains a list of child objects
  * but a child object maintains a null (or incorrect) reference to its parent
  * the entity model is degenerate.
- *
  * The OGM is designed to cope with such models.
  *
  * @author Vince Bickers
  * @author Luanne Misquitta
- *
  */
 public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
@@ -65,7 +60,6 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
                         "CREATE (f)-[:CONTAINS]->(a) " +
                         "CREATE (f)-[:CONTAINS]->(b) " +
                         "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
-
 
         Map<String, Object> resultSet = executionResult.next();
 
@@ -161,7 +155,6 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
                         "CREATE (b:Document { name: 'b' }) " +
                         "CREATE (f)-[:CONTAINS]->(b) " +
                         "CREATE (g)-[:CONTAINS]->(a) ");
-
     }
 
     @Test
@@ -182,6 +175,5 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
                         "CREATE (c:Document { name: 'c' } ) " +
                         "CREATE (f)-[:CONTAINS]->(b) " +
                         "CREATE (f)-[:CONTAINS]->(c) ");
-
     }
 }

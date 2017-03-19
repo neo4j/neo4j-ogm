@@ -24,31 +24,30 @@ import org.neo4j.ogm.transaction.TransactionManager;
 /**
  * @author Luanne Misquitta
  */
-public class RestModelResponse extends EmbeddedResponse<DefaultRestModel>  {
+public class RestModelResponse extends EmbeddedResponse<DefaultRestModel> {
 
-	private EmbeddedRestModelAdapter restModelAdapter = new EmbeddedRestModelAdapter();
-	private final QueryStatisticsModel statisticsModel;
+    private EmbeddedRestModelAdapter restModelAdapter = new EmbeddedRestModelAdapter();
+    private final QueryStatisticsModel statisticsModel;
 
-	public RestModelResponse(Result result, TransactionManager transactionManager) {
-		super(result, transactionManager);
-		statisticsModel = new StatisticsModelAdapter().adapt(result);
-	}
+    public RestModelResponse(Result result, TransactionManager transactionManager) {
+        super(result, transactionManager);
+        statisticsModel = new StatisticsModelAdapter().adapt(result);
+    }
 
-	@Override
-	public DefaultRestModel next() {
-		DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-		defaultRestModel.setStats(statisticsModel);
-		return defaultRestModel;
-	}
+    @Override
+    public DefaultRestModel next() {
+        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
+        defaultRestModel.setStats(statisticsModel);
+        return defaultRestModel;
+    }
 
-	private Map<String,Object> buildModel() {
-		Map<String,Object> row = new LinkedHashMap<>();
-		if (result.hasNext()) {
-			Map<String, Object> data = result.next();
-			row = restModelAdapter.adapt(data);
-		}
+    private Map<String, Object> buildModel() {
+        Map<String, Object> row = new LinkedHashMap<>();
+        if (result.hasNext()) {
+            Map<String, Object> data = result.next();
+            row = restModelAdapter.adapt(data);
+        }
 
-		return row;
-	}
-
+        return row;
+    }
 }

@@ -13,27 +13,27 @@
 
 package org.neo4j.ogm.persistence.examples.restaurant;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
-import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
@@ -357,5 +357,4 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         assertEquals(1, results.size());
         assertEquals("Kuroda", results.iterator().next().getName());
     }
-
 }

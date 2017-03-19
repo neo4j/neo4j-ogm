@@ -19,20 +19,20 @@ import org.neo4j.ogm.result.adapter.RowModelAdapter;
  */
 public class BoltRowModelAdapter extends RowModelAdapter {
 
-	private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
+    private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
 
-	@Override
-	public boolean isPath(Object value) {
-		return entityAdapter.isPath(value);
-	}
+    @Override
+    public boolean isPath(Object value) {
+        return entityAdapter.isPath(value);
+    }
 
-	@Override
-	public boolean isNode(Object value) {
-		return entityAdapter.isNode(value);
-	}
+    @Override
+    public boolean isNode(Object value) {
+        return entityAdapter.isNode(value);
+    }
 
-	@Override
-	public boolean isRelationship(Object value) {
-		return entityAdapter.isRelationship(value);
-	}
+    @Override
+    public boolean isRelationship(Object value) {
+        return entityAdapter.isRelationship(value);
+    }
 }

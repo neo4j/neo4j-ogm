@@ -13,15 +13,15 @@
 
 package org.neo4j.ogm.persistence.examples.bike;
 
+import static org.junit.Assert.*;
+
+import java.util.Collection;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.util.Collection;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Vince Bickers
@@ -82,7 +82,5 @@ public class BikeTest {
         Collection<Bike> theSameBikes = session.loadAll(Bike.class);
 
         assertEquals(bikes.size(), theSameBikes.size());
-
     }
-
 }

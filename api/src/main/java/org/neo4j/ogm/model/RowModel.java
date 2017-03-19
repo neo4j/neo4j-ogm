@@ -19,5 +19,6 @@ package org.neo4j.ogm.model;
 public interface RowModel {
 
     Object[] getValues();
+
     String[] variables();
 }

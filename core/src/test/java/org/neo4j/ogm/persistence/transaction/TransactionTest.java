@@ -15,6 +15,8 @@ package org.neo4j.ogm.persistence.transaction;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,12 +31,11 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
-import java.io.IOException;
-
 /**
  * @author Luanne Misquitta
  */
 public class TransactionTest extends MultiDriverTestClass {
+
     private Session session;
 
     @Before
@@ -156,5 +157,4 @@ public class TransactionTest extends MultiDriverTestClass {
             Assert.assertFalse(tx2.isReadOnly());
         }
     }
-
 }

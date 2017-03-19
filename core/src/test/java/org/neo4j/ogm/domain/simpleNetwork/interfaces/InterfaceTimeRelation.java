@@ -36,5 +36,4 @@ public interface InterfaceTimeRelation<S, T> {
     Long getTo();
 
     void setTo(Long to);
-
 }

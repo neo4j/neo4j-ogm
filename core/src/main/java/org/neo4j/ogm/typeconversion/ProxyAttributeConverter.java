@@ -48,5 +48,4 @@ public final class ProxyAttributeConverter implements AttributeConverter<Object,
         ConversionCallback conversionCallback = this.converterCallbackRegistry.lookUpConverter();
         return conversionCallback.convert(this.targetGraphType, valueFromEntity);
     }
-
 }

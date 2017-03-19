@@ -39,5 +39,4 @@ public class RowModelResponse extends EmbeddedResponse<RowModel> {
         }
         return null;
     }
-
 }

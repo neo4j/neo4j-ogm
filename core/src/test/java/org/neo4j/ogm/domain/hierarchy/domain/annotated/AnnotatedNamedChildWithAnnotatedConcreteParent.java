@@ -20,4 +20,5 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 @NodeEntity(label = "Child")
 public class AnnotatedNamedChildWithAnnotatedConcreteParent extends AnnotatedConcreteParent {
+
 }

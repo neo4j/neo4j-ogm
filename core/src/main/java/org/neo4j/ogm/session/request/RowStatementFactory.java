@@ -22,8 +22,8 @@ import org.neo4j.ogm.request.StatementFactory;
  */
 public class RowStatementFactory implements StatementFactory {
 
-	@Override
-	public RowDataStatement statement(String statement, Map<String, Object> parameters) {
-		return new RowDataStatement(statement, parameters);
-	}
+    @Override
+    public RowDataStatement statement(String statement, Map<String, Object> parameters) {
+        return new RowDataStatement(statement, parameters);
+    }
 }

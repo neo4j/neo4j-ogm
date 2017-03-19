@@ -182,11 +182,11 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map("ids", ids));
         }
 
-        public static  DefaultGraphModelRequest findByLabel(String label) {
+        public static DefaultGraphModelRequest findByLabel(String label) {
             return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map());
         }
 
-        public static  DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
+        public static DefaultGraphRowListModelRequest findByProperties(String label, Filters parameters) {
             FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, parameters);
             query.setReturnClause(" WITH n MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
             return new DefaultGraphRowListModelRequest(query.statement(), query.parameters());

@@ -19,24 +19,17 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- *
  * The AbstractConfigurableDriver is used by all drivers to configure themselves.
- *
  * The configure method takes a generic {@link Configuration} object, which is used to configure the
  * driver appropriately. This object contains of one or more key-value
  * pairs. Every driver configuration must contain a mandatory key "URI", whose corresponding value is
  * a text representation of the driver uri, for example:
- *
  * setConfig("URI", "http://username:password@hostname:port")
- *
  * if credentials are not present the URI, they can be specified in one of
  * two ways, either as a plain text username/password key-values pair in the configuration e.g.
- *
  * setConfig("username", "bilbo")
  * setConfig("password", "hobbit")
- *
  * or, alternatively using the "credentials" key
- *
  * setConfig("credentials", new UsernamePasswordCredentials("bilbo", "hobbit")
  *
  * @author vince
@@ -54,7 +47,7 @@ public abstract class AbstractConfigurableDriver implements Driver {
 
     @Override
     public void setTransactionManager(TransactionManager transactionManager) {
-        assert(transactionManager != null);
+        assert (transactionManager != null);
         this.transactionManager = transactionManager;
     }
 

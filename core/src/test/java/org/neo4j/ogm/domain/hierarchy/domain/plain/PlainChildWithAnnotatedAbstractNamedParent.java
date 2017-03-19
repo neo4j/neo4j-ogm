@@ -19,4 +19,5 @@ import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedAbstractNamedPar
  * @author Michal Bachman
  */
 public class PlainChildWithAnnotatedAbstractNamedParent extends AnnotatedAbstractNamedParent {
+
 }

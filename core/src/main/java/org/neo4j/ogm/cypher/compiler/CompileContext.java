@@ -13,8 +13,9 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.context.Mappable;
 import java.util.Collection;
+
+import org.neo4j.ogm.context.Mappable;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.

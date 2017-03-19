@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Annotated iterable field (implied outgoing), non annotated getter and setter, relationship type different from property name

@@ -25,65 +25,65 @@ import org.neo4j.ogm.result.adapter.GraphModelAdapter;
  */
 public class EmbeddedGraphModelAdapter extends GraphModelAdapter {
 
-	private EmbeddedEntityAdapter entityAdapter = new EmbeddedEntityAdapter();
+    private EmbeddedEntityAdapter entityAdapter = new EmbeddedEntityAdapter();
 
-	@Override
-	public boolean isPath(Object value) {
-		return entityAdapter.isPath(value);
-	}
+    @Override
+    public boolean isPath(Object value) {
+        return entityAdapter.isPath(value);
+    }
 
-	@Override
-	public boolean isNode(Object value) {
-		return entityAdapter.isNode(value);
-	}
+    @Override
+    public boolean isNode(Object value) {
+        return entityAdapter.isNode(value);
+    }
 
-	@Override
-	public boolean isRelationship(Object value) {
-		return entityAdapter.isRelationship(value);
-	}
+    @Override
+    public boolean isRelationship(Object value) {
+        return entityAdapter.isRelationship(value);
+    }
 
-	@Override
-	public long nodeId(Object node) {
-		return entityAdapter.nodeId(node);
-	}
+    @Override
+    public long nodeId(Object node) {
+        return entityAdapter.nodeId(node);
+    }
 
-	@Override
-	public List<String> labels(Object node) {
-		return entityAdapter.labels(node);
-	}
+    @Override
+    public List<String> labels(Object node) {
+        return entityAdapter.labels(node);
+    }
 
-	@Override
-	public long relationshipId(Object relationship) {
-		return entityAdapter.relationshipId(relationship);
-	}
+    @Override
+    public long relationshipId(Object relationship) {
+        return entityAdapter.relationshipId(relationship);
+    }
 
-	@Override
-	public String relationshipType(Object relationship) {
-		return entityAdapter.relationshipType(relationship);
-	}
+    @Override
+    public String relationshipType(Object relationship) {
+        return entityAdapter.relationshipType(relationship);
+    }
 
-	@Override
-	public Long startNodeId(Object relationship) {
-		return entityAdapter.startNodeId(relationship);
-	}
+    @Override
+    public Long startNodeId(Object relationship) {
+        return entityAdapter.startNodeId(relationship);
+    }
 
-	@Override
-	public Long endNodeId(Object relationship) {
-		return entityAdapter.endNodeId(relationship);
-	}
+    @Override
+    public Long endNodeId(Object relationship) {
+        return entityAdapter.endNodeId(relationship);
+    }
 
-	@Override
-	public Map<String, Object> properties(Object container) {
-		return entityAdapter.properties(container);
-	}
+    @Override
+    public Map<String, Object> properties(Object container) {
+        return entityAdapter.properties(container);
+    }
 
-	@Override
-	public List<Object> nodesInPath(Object path) {
-		return entityAdapter.nodesInPath(path);
-	}
+    @Override
+    public List<Object> nodesInPath(Object path) {
+        return entityAdapter.nodesInPath(path);
+    }
 
-	@Override
-	public List<Object> relsInPath(Object path) {
-		return entityAdapter.relsInPath(path);
-	}
+    @Override
+    public List<Object> relsInPath(Object path) {
+        return entityAdapter.relsInPath(path);
+    }
 }

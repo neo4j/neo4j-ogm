@@ -17,7 +17,6 @@ import java.lang.reflect.Array;
 /**
  * By default the OGM will map enum arrays to and from
  * the string arrays with values returned by enum.name()
- *
  * enum.name() is preferred to enum.ordinal() because it
  * is (slightly) safer: a persisted enum have to be renamed
  * to break its database mapping, whereas if its ordinal
@@ -27,7 +26,7 @@ import java.lang.reflect.Array;
  * @author Luanne Misquitta
  */
 
-public class EnumArrayStringConverter implements AttributeConverter<Enum[],String[]> {
+public class EnumArrayStringConverter implements AttributeConverter<Enum[], String[]> {
 
     private final Class<? extends Enum> enumClass;
 
@@ -37,25 +36,25 @@ public class EnumArrayStringConverter implements AttributeConverter<Enum[],Strin
 
     @Override
     public String[] toGraphProperty(Enum[] value) {
-        if(value==null) {
+        if (value == null) {
             return null;
         }
         String[] values = new String[(value.length)];
-        int i=0;
-        for(Enum e : value) {
-            values[i++]=e.name();
+        int i = 0;
+        for (Enum e : value) {
+            values[i++] = e.name();
         }
         return values;
     }
 
     @Override
     public Enum[] toEntityAttribute(String[] stringValues) {
-        if(stringValues==null) {
+        if (stringValues == null) {
             return null;
         }
-        Enum[] values = (Enum[])Array.newInstance(enumClass,stringValues.length);
-        int i=0;
-        for(String value : stringValues) {
+        Enum[] values = (Enum[]) Array.newInstance(enumClass, stringValues.length);
+        int i = 0;
+        for (String value : stringValues) {
             values[i++] = Enum.valueOf(enumClass, value);
         }
         return values;

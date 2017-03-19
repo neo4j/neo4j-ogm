@@ -17,6 +17,7 @@ package org.neo4j.ogm.domain.rulers;
  * @author Vince Bickers
  */
 public class Daughter extends Person {
+
     @Override
     public String sex() {
         return "Female";
@@ -26,6 +27,4 @@ public class Daughter extends Person {
     public boolean isCommoner() {
         return true;
     }
-
-
 }

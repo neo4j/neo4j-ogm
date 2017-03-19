@@ -15,9 +15,6 @@ package org.neo4j.ogm.domain.education;
 
 import java.util.List;
 
-import org.neo4j.ogm.annotation.PostLoad;
-import org.neo4j.ogm.annotation.Relationship;
-
 /**
  * @author Vince Bickers
  */
@@ -75,6 +72,5 @@ public class Teacher {
         if (this.school != null) {
             this.school.getTeachers().add(this);
         }
-
     }
 }

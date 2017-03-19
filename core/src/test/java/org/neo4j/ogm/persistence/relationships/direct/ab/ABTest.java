@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.ab;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,12 +27,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -70,7 +69,6 @@ public class ABTest extends RelationshipTrait {
 
         a = session.load(A.class, a.id);
         assertEquals(b, a.b);
-
     }
 
     @Test
@@ -80,7 +78,6 @@ public class ABTest extends RelationshipTrait {
 
         b = session.load(B.class, b.id);
         assertEquals(a, b.a);
-
     }
 
     @Test
@@ -97,7 +94,6 @@ public class ABTest extends RelationshipTrait {
 
         // expect the relationship to have gone.
         assertNull(a.b);
-
     }
 
     @NodeEntity(label = "A")
@@ -160,5 +156,4 @@ public class ABTest extends RelationshipTrait {
             return key.hashCode();
         }
     }
-
 }

@@ -18,7 +18,7 @@ package org.neo4j.ogm.exception;
  */
 public class MissingOperatorException extends RuntimeException {
 
-	public MissingOperatorException(String message) {
-		super(message);
-	}
+    public MissingOperatorException(String message) {
+        super(message);
+    }
 }

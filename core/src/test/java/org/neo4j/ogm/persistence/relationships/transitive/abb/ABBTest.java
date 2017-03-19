@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.relationships.transitive.abb;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,11 +26,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -49,6 +49,7 @@ public class ABBTest extends RelationshipTrait {
         session = sessionFactory.openSession();
         setUpEntityModel();
     }
+
     @After
     public void cleanup() {
         session.purgeDatabase();
@@ -73,7 +74,6 @@ public class ABBTest extends RelationshipTrait {
         a.r = new R[]{r1, r2};
         b1.r = r1;
         b2.r = r2;
-
     }
 
     @Test
@@ -81,12 +81,10 @@ public class ABBTest extends RelationshipTrait {
 
         session.save(b1);
 
-
         a = session.load(A.class, a.id);
 
         assertEquals(2, a.r.length);
         assertSameArray(new B[]{a.r[0].b, a.r[1].b}, new B[]{b1, b2});
-
     }
 
     @Test
@@ -99,7 +97,6 @@ public class ABBTest extends RelationshipTrait {
 
         assertEquals(a, b1.r.a);
         assertEquals(a, b2.r.a);
-
     }
 
     @Test
@@ -119,7 +116,6 @@ public class ABBTest extends RelationshipTrait {
         // expect the b1 relationship to have gone.
         assertEquals(1, a.r.length);
         assertSameArray(new B[]{b2}, new B[]{a.r[0].b});
-
     }
 
     @Test
@@ -143,7 +139,6 @@ public class ABBTest extends RelationshipTrait {
         b3 = session.load(B.class, b3.id);
 
         assertSameArray(new A[]{a}, new A[]{b3.r.a});
-
     }
 
     @Test
@@ -167,7 +162,6 @@ public class ABBTest extends RelationshipTrait {
         assertSameArray(new A[]{a}, new A[]{b3.r.a});
         assertSameArray(new R[]{r1, r2, r3}, a.r);
         assertSameArray(new B[]{b1, b2, b3}, new B[]{a.r[0].b, a.r[1].b, a.r[2].b});
-
     }
 
     /**
@@ -241,12 +235,14 @@ public class ABBTest extends RelationshipTrait {
 
     @NodeEntity(label = "A")
     public static class A extends E {
+
         @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
         R[] r;
     }
 
     @NodeEntity(label = "B")
     public static class B extends E {
+
         @Relationship(type = "EDGE", direction = Relationship.INCOMING)
         R r;
     }
@@ -309,7 +305,5 @@ public class ABBTest extends RelationshipTrait {
         public String toString() {
             return this.getClass().getSimpleName() + ":" + a.id + "->" + b.id;
         }
-
     }
-
 }

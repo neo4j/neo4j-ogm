@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
@@ -159,5 +159,4 @@ public class MappingContextTest {
         assertFalse(mappingContext.isDirty(healthcare));
         assertFalse(mappingContext.isDirty(immigration));
     }
-
 }

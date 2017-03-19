@@ -17,38 +17,38 @@ import org.neo4j.ogm.model.Edge;
 
 /**
  * Builds a relationship to be persisted in the database
+ *
  * @author Luanne Misquitta
  */
 public interface RelationshipBuilder {
 
-	Long reference();
+    Long reference();
 
-	void setReference(Long reference);
+    void setReference(Long reference);
 
-	void addProperty(String key, Object value);
+    void addProperty(String key, Object value);
 
-	String type();
+    String type();
 
-	void setType(String type);
+    void setType(String type);
 
-	void relate(Long startNodeId, Long endNodeId);
+    void relate(Long startNodeId, Long endNodeId);
 
-	RelationshipBuilder direction(String direction);
+    RelationshipBuilder direction(String direction);
 
-	boolean hasDirection(String direction);
+    boolean hasDirection(String direction);
 
-	boolean isBidirectional();
+    boolean isBidirectional();
 
-	boolean isSingleton();
+    boolean isSingleton();
 
-	void setSingleton(boolean singleton);
+    void setSingleton(boolean singleton);
 
-	boolean isRelationshipEntity();
+    boolean isRelationshipEntity();
 
-	void setRelationshipEntity(boolean relationshipEntity);
+    void setRelationshipEntity(boolean relationshipEntity);
 
-	boolean isNew();
+    boolean isNew();
 
-	Edge edge();
-
+    Edge edge();
 }

@@ -33,7 +33,7 @@ public class AnnotationsInfo {
         this.classAnnotations = new HashMap<>();
 
         final Annotation[] declaredAnnotations = cls.getDeclaredAnnotations();
-        for (Annotation annotation: declaredAnnotations) {
+        for (Annotation annotation : declaredAnnotations) {
             AnnotationInfo info = new AnnotationInfo(annotation);
             classAnnotations.put(info.getName(), info);
         }

@@ -13,8 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.hierarchy.dualRelationships;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
@@ -35,131 +34,126 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * If the setter were not annotated, these tests would fail.
  * //TODO revisit this after we take a decision on mapping strategies
  *
- * @see Issue 144
- *
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @see Issue 144
  */
-public class DualRelationshipTest extends MultiDriverTestClass{
-	private Session session;
+public class DualRelationshipTest extends MultiDriverTestClass {
 
-	@Before
-	public void init() throws IOException {
-		session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.hierarchy.dualRelation").openSession();
-	}
+    private Session session;
 
-	@After
-	public void tearDown() {
-		session.purgeDatabase();
-	}
+    @Before
+    public void init() throws IOException {
+        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.hierarchy.dualRelation").openSession();
+    }
 
-	@Test
-	public void shouldRehydrateProperlyUsingLoad() {
+    @After
+    public void tearDown() {
+        session.purgeDatabase();
+    }
 
-		Thing thing1 = new Thing();
-		Thing thing2 = new Thing();
-		DataView dataview = new DataView();
-		dataview.setName("dataview");
+    @Test
+    public void shouldRehydrateProperlyUsingLoad() {
 
-		thing1.setName("owner");
-		thing2.setName("shared");
+        Thing thing1 = new Thing();
+        Thing thing2 = new Thing();
+        DataView dataview = new DataView();
+        dataview.setName("dataview");
 
-		dataview.setOwner(thing1);
-		dataview.getSharedWith().add(thing2);
+        thing1.setName("owner");
+        thing2.setName("shared");
 
-		session.save(dataview);
+        dataview.setOwner(thing1);
+        dataview.getSharedWith().add(thing2);
 
-		session.clear();
+        session.save(dataview);
 
-		DataView found = session.load(DataView.class, dataview.getId());
+        session.clear();
 
-		assertEquals("owner", found.getOwner().getName());
-		assertEquals("shared", found.getSharedWith().get(0).getName());
-		assertEquals(1, found.getSharedWith().size());
+        DataView found = session.load(DataView.class, dataview.getId());
 
-	}
+        assertEquals("owner", found.getOwner().getName());
+        assertEquals("shared", found.getSharedWith().get(0).getName());
+        assertEquals(1, found.getSharedWith().size());
+    }
 
-	@Test
-	public void shouldRehydrateProperlyWithQuery() {
+    @Test
+    public void shouldRehydrateProperlyWithQuery() {
 
-		Thing thing1 = new Thing();
-		Thing thing2 = new Thing();
-		DataView dataview = new DataView();
-		dataview.setName("dataview");
+        Thing thing1 = new Thing();
+        Thing thing2 = new Thing();
+        DataView dataview = new DataView();
+        dataview.setName("dataview");
 
-		thing1.setName("owner");
-		thing2.setName("shared");
+        thing1.setName("owner");
+        thing2.setName("shared");
 
-		dataview.setOwner(thing1);
-		dataview.getSharedWith().add(thing2);
+        dataview.setOwner(thing1);
+        dataview.getSharedWith().add(thing2);
 
-		session.save(dataview);
+        session.save(dataview);
 
-		session.clear();
+        session.clear();
 
-		String query = "MATCH (n:DataView) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
+        String query = "MATCH (n:DataView) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
 
-		DataView found = session.queryForObject(DataView.class, query, Utils.map());
+        DataView found = session.queryForObject(DataView.class, query, Utils.map());
 
-		assertEquals(1, found.getSharedWith().size());
-		assertEquals("owner", found.getOwner().getName());
-		assertEquals("shared", found.getSharedWith().get(0).getName());
+        assertEquals(1, found.getSharedWith().size());
+        assertEquals("owner", found.getOwner().getName());
+        assertEquals("shared", found.getSharedWith().get(0).getName());
+    }
 
-	}
+    @Test
+    public void shouldRehydrateEntitiesWithAbstractParentProperlyUsingLoad() {
 
-	@Test
-	public void shouldRehydrateEntitiesWithAbstractParentProperlyUsingLoad() {
+        ThingOwned thing1 = new ThingOwned();
+        ThingOwned thing2 = new ThingOwned();
+        DataViewOwned dataview = new DataViewOwned();
+        dataview.setName("dataview");
 
-		ThingOwned thing1 = new ThingOwned();
-		ThingOwned thing2 = new ThingOwned();
-		DataViewOwned dataview = new DataViewOwned();
-		dataview.setName("dataview");
+        thing1.setName("owner");
+        thing2.setName("shared");
 
-		thing1.setName("owner");
-		thing2.setName("shared");
+        dataview.setOwner(thing1);
+        dataview.getSharedWith().add(thing2);
 
-		dataview.setOwner(thing1);
-		dataview.getSharedWith().add(thing2);
+        session.save(dataview);
 
-		session.save(dataview);
+        session.clear();
 
-		session.clear();
+        DataViewOwned found = session.load(DataViewOwned.class, dataview.getId());
 
-		DataViewOwned found = session.load(DataViewOwned.class, dataview.getId());
+        assertEquals("owner", found.getOwner().getName());
+        assertEquals("shared", found.getSharedWith().get(0).getName());
+        assertEquals(1, found.getSharedWith().size());
+    }
 
+    @Test
+    public void shouldRehydrateEntitiesWithAbstractParentProperlyWithQuery() {
 
-		assertEquals("owner", found.getOwner().getName());
-		assertEquals("shared", found.getSharedWith().get(0).getName());
-		assertEquals(1, found.getSharedWith().size());
+        ThingOwned thing1 = new ThingOwned();
+        ThingOwned thing2 = new ThingOwned();
+        DataViewOwned dataview = new DataViewOwned();
+        dataview.setName("dataview");
 
-	}
+        thing1.setName("owner");
+        thing2.setName("shared");
 
-	@Test
-	public void shouldRehydrateEntitiesWithAbstractParentProperlyWithQuery() {
+        dataview.setOwner(thing1);
+        dataview.getSharedWith().add(thing2);
 
-		ThingOwned thing1 = new ThingOwned();
-		ThingOwned thing2 = new ThingOwned();
-		DataViewOwned dataview = new DataViewOwned();
-		dataview.setName("dataview");
+        session.save(dataview);
 
-		thing1.setName("owner");
-		thing2.setName("shared");
+        session.clear();
 
-		dataview.setOwner(thing1);
-		dataview.getSharedWith().add(thing2);
+        String query = "MATCH (n:DataViewOwned) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
 
-		session.save(dataview);
+        DataViewOwned found = session.queryForObject(DataViewOwned.class, query, Utils.map());
 
-		session.clear();
-
-		String query = "MATCH (n:DataViewOwned) WITH n MATCH p=(n)-[*0..1]-(m) RETURN n,nodes(p),rels(p)";
-
-		DataViewOwned found = session.queryForObject(DataViewOwned.class, query, Utils.map());
-
-		assertNotNull(found);
-		assertEquals(1, found.getSharedWith().size());
-		assertEquals("owner", found.getOwner().getName());
-		assertEquals("shared", found.getSharedWith().get(0).getName());
-
-	}
+        assertNotNull(found);
+        assertEquals(1, found.getSharedWith().size());
+        assertEquals("owner", found.getOwner().getName());
+        assertEquals("shared", found.getSharedWith().get(0).getName());
+    }
 }

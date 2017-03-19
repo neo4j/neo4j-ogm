@@ -17,6 +17,7 @@ package org.neo4j.ogm.domain.rulers;
  * @author Vince Bickers
  */
 public class Duke extends Nobleman {
+
     @Override
     public String rulesOver() {
         return "Duchy";

@@ -23,33 +23,33 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
  */
 public class URLArrayConverter implements AttributeConverter<URL[], String[]> {
 
-	@Override
-	public String[] toGraphProperty(URL[] value) {
-		if (value == null) {
-			return null;
-		}
+    @Override
+    public String[] toGraphProperty(URL[] value) {
+        if (value == null) {
+            return null;
+        }
 
-		String[] values = new String[value.length];
-		for (int i=0; i < value.length; i++) {
-			values[i] = value[i].toString();
-		}
-		return values;
-	}
+        String[] values = new String[value.length];
+        for (int i = 0; i < value.length; i++) {
+            values[i] = value[i].toString();
+        }
+        return values;
+    }
 
-	@Override
-	public URL[] toEntityAttribute(String[] value) {
-		if (value == null) {
-			return null;
-		}
-		URL[] urls = new URL[value.length];
-		for (int i=0; i < value.length; i++) {
-			try {
-				urls[i] = new URL(value[i]);
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-		}
-		return urls;
-	}
+    @Override
+    public URL[] toEntityAttribute(String[] value) {
+        if (value == null) {
+            return null;
+        }
+        URL[] urls = new URL[value.length];
+        for (int i = 0; i < value.length; i++) {
+            try {
+                urls[i] = new URL(value[i]);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+        return urls;
+    }
 }
 

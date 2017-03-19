@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.Relationship;
@@ -34,6 +33,7 @@ import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;

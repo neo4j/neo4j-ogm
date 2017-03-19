@@ -13,10 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.tree;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,10 +92,9 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
         }
         assertTrue(childNames.contains("c1"));
         assertTrue(childNames.contains("c2"));
-
     }
 
-	/**
+    /**
      * @see Issue 88
      */
     @Test
@@ -115,7 +111,7 @@ public class TreeIntegrationTest extends MultiDriverTestClass {
             childNames.add(child.getName());
             assertEquals(parent.getName(), child.getParent().getName());
         }
-       assertEquals("c1", childNames.get(0));
-       assertEquals("c2", childNames.get(1));
+        assertEquals("c1", childNames.get(0));
+        assertEquals("c2", childNames.get(1));
     }
 }

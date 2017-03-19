@@ -18,6 +18,8 @@ import java.util.Map;
  * @author Luanne Misquitta
  */
 public interface RestModel {
-	Map<String,Object> getRow();
-	QueryStatistics getStats();
+
+    Map<String, Object> getRow();
+
+    QueryStatistics getStats();
 }

@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.relationships.transitive.ab;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,12 +26,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -69,7 +68,6 @@ public class ABTest extends MultiDriverTestClass {
 
         a.r = r;
         b.r = r;
-
     }
 
     @Test
@@ -80,7 +78,6 @@ public class ABTest extends MultiDriverTestClass {
         a = session.load(A.class, a.id);
 
         assertEquals(b, a.r.b);
-
     }
 
     @Test
@@ -91,7 +88,6 @@ public class ABTest extends MultiDriverTestClass {
         b = session.load(B.class, b.id);
 
         assertEquals(a, b.r.a);
-
     }
 
     @Test
@@ -111,7 +107,6 @@ public class ABTest extends MultiDriverTestClass {
 
         // expect the relationship to have gone.
         assertNull(a.r);
-
     }
 
     /**
@@ -185,12 +180,14 @@ public class ABTest extends MultiDriverTestClass {
 
     @NodeEntity(label = "A")
     public static class A extends E {
+
         @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
         R r;
     }
 
     @NodeEntity(label = "B")
     public static class B extends E {
+
         @Relationship(type = "EDGE", direction = Relationship.INCOMING)
         R r;
     }
@@ -211,7 +208,6 @@ public class ABTest extends MultiDriverTestClass {
         public String toString() {
             return this.getClass().getSimpleName() + ":" + a.id + "->" + b.id;
         }
-
     }
 
     /**
@@ -254,5 +250,4 @@ public class ABTest extends MultiDriverTestClass {
             return key.hashCode();
         }
     }
-
 }

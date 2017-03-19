@@ -16,9 +16,9 @@ package org.neo4j.ogm.exception;
 /**
  * @author Luanne Misquitta
  */
-public class UnknownStatementTypeException extends RuntimeException{
+public class UnknownStatementTypeException extends RuntimeException {
 
-	public UnknownStatementTypeException(String message) {
-		super(message);
-	}
+    public UnknownStatementTypeException(String message) {
+        super(message);
+    }
 }

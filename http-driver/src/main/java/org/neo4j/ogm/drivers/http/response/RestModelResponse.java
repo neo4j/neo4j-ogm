@@ -12,46 +12,46 @@
  */
 package org.neo4j.ogm.drivers.http.response;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.neo4j.ogm.model.RestModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRestModel;
 import org.neo4j.ogm.result.ResultRestModel;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * @author Luanne Misquitta
  */
 public class RestModelResponse extends AbstractHttpResponse<ResultRestModel> implements Response<RestModel> {
 
-	private RestModelAdapter restModelAdapter = new RestModelAdapter();
+    private RestModelAdapter restModelAdapter = new RestModelAdapter();
 
-	public RestModelResponse(CloseableHttpResponse httpResponse) {
-		super(httpResponse, ResultRestModel.class);
-		restModelAdapter.setColumns(columns());
-	}
+    public RestModelResponse(CloseableHttpResponse httpResponse) {
+        super(httpResponse, ResultRestModel.class);
+        restModelAdapter.setColumns(columns());
+    }
 
-	@Override
-	public RestModel next() {
-		DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-		defaultRestModel.setStats(statistics());
-		return defaultRestModel;
-	}
+    @Override
+    public RestModel next() {
+        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
+        defaultRestModel.setStats(statistics());
+        return defaultRestModel;
+    }
 
-	@Override
-	public void close() {
-		//Nothing to do, the response has been closed already
-	}
+    @Override
+    public void close() {
+        //Nothing to do, the response has been closed already
+    }
 
-	private Map<String,Object> buildModel() {
-		ResultRestModel result = nextDataRecord("rest");
-		Map<String,Object> row = new LinkedHashMap<>();
-		if (result != null) {
-			row = restModelAdapter.adapt(result.queryResults());
-		}
+    private Map<String, Object> buildModel() {
+        ResultRestModel result = nextDataRecord("rest");
+        Map<String, Object> row = new LinkedHashMap<>();
+        if (result != null) {
+            row = restModelAdapter.adapt(result.queryResults());
+        }
 
-		return row;
-	}
+        return row;
+    }
 }

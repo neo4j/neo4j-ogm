@@ -46,7 +46,7 @@ public class Filter {
     /**
      * The comparison operator to use in the property filter
      */
-	private ComparisonOperator comparisonOperator;
+    private ComparisonOperator comparisonOperator;
 
     /**
      * The boolean operator used to append this filter to the previous ones.
@@ -107,11 +107,11 @@ public class Filter {
         this.function.setFilter(this);
     }
 
-	public Filter(DistanceComparison distanceComparisonFunction, ComparisonOperator comparisonOperator) {
-		this.index = 0;
-		this.function = distanceComparisonFunction;
-		this.function.setFilter(this);
-		this.comparisonOperator = comparisonOperator;
+    public Filter(DistanceComparison distanceComparisonFunction, ComparisonOperator comparisonOperator) {
+        this.index = 0;
+        this.function = distanceComparisonFunction;
+        this.function.setFilter(this);
+        this.comparisonOperator = comparisonOperator;
     }
 
     //Convenience Constructor
@@ -121,14 +121,14 @@ public class Filter {
         this.propertyName = propertyName;
     }
 
-	// TODO: Split Operators up into binary and unary.
-	public Filter(String propertyName, ComparisonOperator comparisonOperator) {
-		this(new PropertyComparison(null));
-		this.propertyName = propertyName;
-		if (!EnumSet.of(ComparisonOperator.EXISTS, ComparisonOperator.IS_TRUE, ComparisonOperator.IS_NULL).contains(comparisonOperator)) {
-			throw new RuntimeException("This constructor can only be used with Unary comparison operators");
-		}
-		this.comparisonOperator = comparisonOperator;
+    // TODO: Split Operators up into binary and unary.
+    public Filter(String propertyName, ComparisonOperator comparisonOperator) {
+        this(new PropertyComparison(null));
+        this.propertyName = propertyName;
+        if (!EnumSet.of(ComparisonOperator.EXISTS, ComparisonOperator.IS_TRUE, ComparisonOperator.IS_NULL).contains(comparisonOperator)) {
+            throw new RuntimeException("This constructor can only be used with Unary comparison operators");
+        }
+        this.comparisonOperator = comparisonOperator;
     }
 
     public String getRelationshipDirection() {
@@ -316,7 +316,7 @@ public class Filter {
         return String.format("NOT(%s) ", expression);
     }
 
-	public static void setNameFromProperty(Filter filter, String propertyName) {
-		filter.propertyName = propertyName;
-	}
+    public static void setNameFromProperty(Filter filter, String propertyName) {
+        filter.propertyName = propertyName;
+    }
 }

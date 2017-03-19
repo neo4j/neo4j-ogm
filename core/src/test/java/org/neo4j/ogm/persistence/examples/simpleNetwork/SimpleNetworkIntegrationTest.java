@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.persistence.examples.simpleNetwork;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,10 +27,6 @@ import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author vince
@@ -94,7 +94,6 @@ public class SimpleNetworkIntegrationTest extends MultiDriverTestClass {
 
         // assert
         Assert.assertEquals(2, loadedIdentityNode.getStates().size());
-
     }
 }
 

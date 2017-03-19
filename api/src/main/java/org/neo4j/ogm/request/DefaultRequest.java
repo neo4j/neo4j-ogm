@@ -20,6 +20,5 @@ import java.util.List;
  */
 public interface DefaultRequest {
 
-	List<Statement> getStatements();
-
+    List<Statement> getStatements();
 }

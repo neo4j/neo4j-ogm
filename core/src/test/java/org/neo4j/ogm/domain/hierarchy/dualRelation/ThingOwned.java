@@ -22,43 +22,44 @@ import org.neo4j.ogm.annotation.Relationship;
  * @author Luanne Misquitta
  */
 @NodeEntity(label = "ThingOwned")
-public class ThingOwned extends AbstractNamedOwnedObject{
-	public String name;
+public class ThingOwned extends AbstractNamedOwnedObject {
 
-	public String uuid;
+    public String name;
 
-	@Relationship(type= "SHARED_WITH", direction = Relationship.OUTGOING)
-	public Set<ThingOwned> sharedWith;
+    public String uuid;
 
-	public Long getId() {
-		return id;
-	}
+    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    public Set<ThingOwned> sharedWith;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getUuid() {
-		return uuid;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
-	public Set<ThingOwned> getSharedWith() {
-		return sharedWith;
-	}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
-	public void setSharedWith(Set<ThingOwned> sharedWith) {
-		this.sharedWith = sharedWith;
-	}
+    public Set<ThingOwned> getSharedWith() {
+        return sharedWith;
+    }
+
+    public void setSharedWith(Set<ThingOwned> sharedWith) {
+        this.sharedWith = sharedWith;
+    }
 }

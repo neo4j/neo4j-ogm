@@ -34,7 +34,6 @@ public class EmbeddedTransaction extends AbstractTransaction {
 
     /**
      * Request a new transaction.
-     *
      * Creates a new user transaction for the current thread, and associates it with
      * a new or existing native transaction in the underlying database. All commit and rollback operations
      * on the user transaction are delegated to the native transaction.
@@ -42,7 +41,6 @@ public class EmbeddedTransaction extends AbstractTransaction {
      * @param transactionManager an instance of {@link TransactionManager}
      * @param nativeTransaction the {@link org.neo4j.graphdb.Transaction} backing this Transaction object
      * @param type the {@link org.neo4j.ogm.transaction.Transaction.Type} of this transaction
-     *
      */
     public EmbeddedTransaction(TransactionManager transactionManager, Transaction nativeTransaction, Type type) {
         super(transactionManager);
@@ -64,11 +62,9 @@ public class EmbeddedTransaction extends AbstractTransaction {
                     LOGGER.warn("Transaction is already closed");
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new TransactionException(e.getLocalizedMessage());
-        }
-        finally {
+        } finally {
             super.rollback();
         }
     }
@@ -85,11 +81,9 @@ public class EmbeddedTransaction extends AbstractTransaction {
                     throw new IllegalStateException("This transaction has already been completed.");
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new TransactionException(e.getLocalizedMessage());
-        }
-        finally {
+        } finally {
             super.commit();
         }
     }

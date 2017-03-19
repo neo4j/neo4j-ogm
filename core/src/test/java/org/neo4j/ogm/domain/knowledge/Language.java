@@ -21,10 +21,10 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class Language extends Entity {
 
-    public Language() {}
+    public Language() {
+    }
 
     public Language(String name) {
         this.name = name;
     }
-
 }

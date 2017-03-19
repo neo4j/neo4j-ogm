@@ -15,41 +15,41 @@ package org.neo4j.ogm.context;
 
 /**
  * Represents a relationship type along with a direction.
+ *
  * @author Luanne Misquitta
  */
 public class DirectedRelationship {
 
-	private String relationshipType;
-	private String relationshipDirection;
+    private String relationshipType;
+    private String relationshipDirection;
 
-	public DirectedRelationship(String relationshipType, String relationshipDirection) {
-		this.relationshipType = relationshipType;
-		this.relationshipDirection = relationshipDirection;
-	}
+    public DirectedRelationship(String relationshipType, String relationshipDirection) {
+        this.relationshipType = relationshipType;
+        this.relationshipDirection = relationshipDirection;
+    }
 
-	public String type() {
-		return relationshipType;
-	}
+    public String type() {
+        return relationshipType;
+    }
 
-	public String direction() {
-		return relationshipDirection;
-	}
+    public String direction() {
+        return relationshipDirection;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		DirectedRelationship that = (DirectedRelationship) o;
+        DirectedRelationship that = (DirectedRelationship) o;
 
-		return relationshipType.equals(that.relationshipType) && relationshipDirection.equals(that.relationshipDirection);
-	}
+        return relationshipType.equals(that.relationshipType) && relationshipDirection.equals(that.relationshipDirection);
+    }
 
-	@Override
-	public int hashCode() {
-		int result = relationshipType.hashCode();
-		result = 31 * result + relationshipDirection.hashCode();
-		return result;
-	}
-
+    @Override
+    public int hashCode() {
+        int result = relationshipType.hashCode();
+        result = 31 * result + relationshipDirection.hashCode();
+        return result;
+    }
 }

@@ -29,78 +29,78 @@ import org.slf4j.LoggerFactory;
  */
 public class BoltTransaction extends AbstractTransaction {
 
-	public static final String NEO_CLIENT_ERROR_SECURITY = "Neo.ClientError.Security";
-	private final Transaction nativeTransaction;
-	private final Session nativeSession;
-	private final Logger LOGGER = LoggerFactory.getLogger(BoltTransaction.class);
+    public static final String NEO_CLIENT_ERROR_SECURITY = "Neo.ClientError.Security";
+    private final Transaction nativeTransaction;
+    private final Session nativeSession;
+    private final Logger LOGGER = LoggerFactory.getLogger(BoltTransaction.class);
 
 
-	public BoltTransaction(TransactionManager transactionManager, Transaction transaction, Session session, Type type) {
-		super(transactionManager);
-		this.nativeTransaction = transaction;
-		this.nativeSession = session;
-		this.type = type;
-	}
+    public BoltTransaction(TransactionManager transactionManager, Transaction transaction, Session session, Type type) {
+        super(transactionManager);
+        this.nativeTransaction = transaction;
+        this.nativeSession = session;
+        this.type = type;
+    }
 
-	@Override
-	public void rollback() {
-		try {
-			if (transactionManager.canRollback()) {
-				LOGGER.debug("Rolling back native transaction: {}", nativeTransaction);
-				if (nativeTransaction.isOpen()) {
-					nativeTransaction.failure();
-					nativeTransaction.close();
-					nativeSession.close();
-				} else {
-					LOGGER.warn("Transaction is already closed");
-				}
-			}
-		} catch (Exception e) {
-			if (nativeSession.isOpen()) {
-				nativeSession.close();
-			}
-			throw new TransactionException(e.getLocalizedMessage());
-		} finally {
-			super.rollback();
-		}
-	}
+    @Override
+    public void rollback() {
+        try {
+            if (transactionManager.canRollback()) {
+                LOGGER.debug("Rolling back native transaction: {}", nativeTransaction);
+                if (nativeTransaction.isOpen()) {
+                    nativeTransaction.failure();
+                    nativeTransaction.close();
+                    nativeSession.close();
+                } else {
+                    LOGGER.warn("Transaction is already closed");
+                }
+            }
+        } catch (Exception e) {
+            if (nativeSession.isOpen()) {
+                nativeSession.close();
+            }
+            throw new TransactionException(e.getLocalizedMessage());
+        } finally {
+            super.rollback();
+        }
+    }
 
-	@Override
-	public void commit() {
-		final boolean canCommit = transactionManager.canCommit();
-		try {
-			if (canCommit) {
-				LOGGER.debug("Committing native transaction: {}", nativeTransaction);
-				if (nativeTransaction.isOpen()) {
-					nativeTransaction.success();
-					nativeTransaction.close();
-					nativeSession.close();
-				} else {
-					throw new IllegalStateException("Transaction is already closed");
-				}
-			}
-		} catch (ClientException ce) {
-			if (nativeSession.isOpen()) {
-				nativeSession.close();
-			}
-			if (ce.neo4jErrorCode().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
-				throw new ConnectionException("Security Error: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
-			}
-			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
-		} catch (Exception e) {
-			if (nativeSession.isOpen()) {
-				nativeSession.close();
-			}
-			throw new TransactionException(e.getLocalizedMessage());
-		} finally {
-			super.commit();
-			if (canCommit) {
-				transactionManager.bookmark(nativeSession.lastBookmark());
-			}
-		}
-	}
+    @Override
+    public void commit() {
+        final boolean canCommit = transactionManager.canCommit();
+        try {
+            if (canCommit) {
+                LOGGER.debug("Committing native transaction: {}", nativeTransaction);
+                if (nativeTransaction.isOpen()) {
+                    nativeTransaction.success();
+                    nativeTransaction.close();
+                    nativeSession.close();
+                } else {
+                    throw new IllegalStateException("Transaction is already closed");
+                }
+            }
+        } catch (ClientException ce) {
+            if (nativeSession.isOpen()) {
+                nativeSession.close();
+            }
+            if (ce.neo4jErrorCode().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
+                throw new ConnectionException("Security Error: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
+            }
+            throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
+        } catch (Exception e) {
+            if (nativeSession.isOpen()) {
+                nativeSession.close();
+            }
+            throw new TransactionException(e.getLocalizedMessage());
+        } finally {
+            super.commit();
+            if (canCommit) {
+                transactionManager.bookmark(nativeSession.lastBookmark());
+            }
+        }
+    }
 
-	public Transaction nativeBoltTransaction() {
-		return nativeTransaction;
-	}
+    public Transaction nativeBoltTransaction() {
+        return nativeTransaction;
+    }
 }

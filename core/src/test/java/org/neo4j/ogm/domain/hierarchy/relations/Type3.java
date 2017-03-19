@@ -21,28 +21,28 @@ import org.neo4j.ogm.annotation.Relationship;
 /**
  * @author Luanne Misquitta
  */
-public class Type3 extends BaseEntity{
+public class Type3 extends BaseEntity {
 
-	@Relationship(type = "TYPE_TO", direction = "OUTGOING")
-	private Set<Type3> type3Out = new HashSet<>();
+    @Relationship(type = "TYPE_TO", direction = "OUTGOING")
+    private Set<Type3> type3Out = new HashSet<>();
 
-	@Relationship(type = "TYPE_TO", direction = "INCOMING")
-	private Set<Type3> type3In = new HashSet<>();
+    @Relationship(type = "TYPE_TO", direction = "INCOMING")
+    private Set<Type3> type3In = new HashSet<>();
 
 
-	public Set<Type3> getType3Out() {
-		return type3Out;
-	}
+    public Set<Type3> getType3Out() {
+        return type3Out;
+    }
 
-	public void setType3Out(Set<Type3> type3Out) {
-		this.type3Out = type3Out;
-	}
+    public void setType3Out(Set<Type3> type3Out) {
+        this.type3Out = type3Out;
+    }
 
-	public Set<Type3> getType3In() {
-		return type3In;
-	}
+    public Set<Type3> getType3In() {
+        return type3In;
+    }
 
-	public void setType3In(Set<Type3> type3In) {
-		this.type3In = type3In;
-	}
+    public void setType3In(Set<Type3> type3In) {
+        this.type3In = type3In;
+    }
 }

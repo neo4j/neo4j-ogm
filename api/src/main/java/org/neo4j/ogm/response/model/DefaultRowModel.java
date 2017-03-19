@@ -31,7 +31,6 @@ public class DefaultRowModel implements RowModel {
     }
 
 
-
     public Object[] getValues() {
         return values;
     }

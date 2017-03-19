@@ -15,27 +15,25 @@ package org.neo4j.ogm.cypher.function;
 
 public class DistanceFromPoint {
 
-	private double latitude;
-	private double longitude;
-	private double distance;
+    private double latitude;
+    private double longitude;
+    private double distance;
 
-	public DistanceFromPoint(Double latitude, Double longitude, Double distance) {
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.distance = distance;
-	}
+    public DistanceFromPoint(Double latitude, Double longitude, Double distance) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.distance = distance;
+    }
 
-	public Double getLatitude() {
-		return latitude;
-	}
+    public Double getLatitude() {
+        return latitude;
+    }
 
-	public Double getLongitude() {
-		return longitude;
-	}
+    public Double getLongitude() {
+        return longitude;
+    }
 
-	public Double getDistance() {
-		return distance;
-	}
-
-
+    public Double getDistance() {
+        return distance;
+    }
 }

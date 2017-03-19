@@ -43,5 +43,4 @@ public class GraphModelResponse extends AbstractHttpResponse<ResultGraphModel> i
     public void close() {
         // nothing to do here
     }
-
 }

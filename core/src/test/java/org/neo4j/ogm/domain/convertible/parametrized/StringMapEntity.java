@@ -26,23 +26,23 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 @NodeEntity
 public class StringMapEntity {
 
-	private Long id;
+    private Long id;
 
-	@Convert(StringMapConverter.class)
-	private Map<String,String> stringMap = new HashMap<>();
+    @Convert(StringMapConverter.class)
+    private Map<String, String> stringMap = new HashMap<>();
 
-	public StringMapEntity() {
-	}
+    public StringMapEntity() {
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Map<String, String> getStringMap() {
-		return stringMap;
-	}
+    public Map<String, String> getStringMap() {
+        return stringMap;
+    }
 
-	public void setStringMap(Map<String, String> stringMap) {
-		this.stringMap = stringMap;
-	}
+    public void setStringMap(Map<String, String> stringMap) {
+        this.stringMap = stringMap;
+    }
 }

@@ -13,14 +13,13 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
-import org.junit.Test;
-import org.neo4j.ogm.domain.filesystem.Document;
-import org.neo4j.ogm.session.event.Event;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.neo4j.ogm.domain.filesystem.Document;
+import org.neo4j.ogm.session.event.Event;
 
 /**
  * @author vince
@@ -44,7 +43,6 @@ public class CollectionsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(b, Event.TYPE.POST_SAVE));
         assertTrue(eventListener.captured(c, Event.TYPE.PRE_SAVE));
         assertTrue(eventListener.captured(c, Event.TYPE.POST_SAVE));
-
     }
 
     @Test
@@ -66,7 +64,6 @@ public class CollectionsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(folder, Event.TYPE.POST_SAVE));
 
         assertEquals(8, eventListener.count());
-
     }
 
     @Test
@@ -78,7 +75,6 @@ public class CollectionsTest extends EventTestBaseClass {
 
         assertTrue(eventListener.captured(Document.class, Event.TYPE.PRE_DELETE));
         assertTrue(eventListener.captured(Document.class, Event.TYPE.POST_DELETE));
-
     }
 
     @Test
@@ -107,8 +103,5 @@ public class CollectionsTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(bruce, Event.TYPE.POST_SAVE));
 
         assertEquals(14, eventListener.count());
-
     }
-
-
 }

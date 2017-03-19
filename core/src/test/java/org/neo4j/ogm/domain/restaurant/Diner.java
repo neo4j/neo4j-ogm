@@ -15,7 +15,6 @@
 package org.neo4j.ogm.domain.restaurant;
 
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * A kind of entity that is willing to consume food from a Restaurant. Not to be confused with a roadside style eatery.

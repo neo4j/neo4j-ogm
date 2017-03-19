@@ -16,7 +16,6 @@ package org.neo4j.ogm.typeconversion;
 /**
  * By default the OGM will map enum objects to and from
  * the string value returned by enum.name()
- *
  * enum.name() is preferred to enum.ordinal() because it
  * is (slightly) safer: a persisted enum have to be renamed
  * to break its database mapping, whereas if its ordinal
@@ -44,5 +43,4 @@ public class EnumStringConverter implements AttributeConverter<Enum, String> {
         if (value == null) return null;
         return Enum.valueOf(enumClass, value);
     }
-
 }

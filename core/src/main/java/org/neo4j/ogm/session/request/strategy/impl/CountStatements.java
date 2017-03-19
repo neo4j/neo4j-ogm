@@ -50,7 +50,7 @@ public class CountStatements implements AggregateStatements {
             cypherLabels.append(":`").append(label).append('`');
         }
         return new DefaultRowModelRequest(String.format("MATCH (n%s) RETURN COUNT(n)", cypherLabels.toString()),
-                Collections.<String, String> emptyMap());
+                Collections.<String, String>emptyMap());
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.neo4j.ogm.annotation.StartNode;
  * @author vince
  */
 public abstract class R {
+
     private Long id;
 
     @StartNode
@@ -43,5 +44,4 @@ public abstract class R {
     public void setB(B b) {
         this.b = b;
     }
-
 }

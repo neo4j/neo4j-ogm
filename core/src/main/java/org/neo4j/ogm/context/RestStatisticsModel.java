@@ -22,29 +22,29 @@ import org.neo4j.ogm.model.QueryStatistics;
 /**
  * @author Luanne Misquitta
  */
-public class RestStatisticsModel implements Iterable{
+public class RestStatisticsModel implements Iterable {
 
-	Collection<Map<String, Object>> result;
-	QueryStatistics statistics;
+    Collection<Map<String, Object>> result;
+    QueryStatistics statistics;
 
-	public Collection<Map<String, Object>> getResult() {
-		return result;
-	}
+    public Collection<Map<String, Object>> getResult() {
+        return result;
+    }
 
-	public void setResult(Collection<Map<String, Object>> result) {
-		this.result = result;
-	}
+    public void setResult(Collection<Map<String, Object>> result) {
+        this.result = result;
+    }
 
-	public QueryStatistics getStatistics() {
-		return statistics;
-	}
+    public QueryStatistics getStatistics() {
+        return statistics;
+    }
 
-	public void setStatistics(QueryStatistics statistics) {
-		this.statistics = statistics;
-	}
+    public void setStatistics(QueryStatistics statistics) {
+        this.statistics = statistics;
+    }
 
-	@Override
-	public Iterator iterator() {
-		return result.iterator();
-	}
+    @Override
+    public Iterator iterator() {
+        return result.iterator();
+    }
 }

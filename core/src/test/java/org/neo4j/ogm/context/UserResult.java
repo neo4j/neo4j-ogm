@@ -21,42 +21,42 @@ import java.util.Map;
  */
 public class UserResult {
 
-	private String password;
-	private Long id;
+    private String password;
+    private Long id;
 
-	private Map<String, Object> profile = new HashMap<String, Object>();
+    private Map<String, Object> profile = new HashMap<String, Object>();
 
-	private Map<String, Object> associatedProfile = new HashMap<String, Object>();
+    private Map<String, Object> associatedProfile = new HashMap<String, Object>();
 
-	public Map<String, Object> getProfile() {
-		return profile;
-	}
+    public Map<String, Object> getProfile() {
+        return profile;
+    }
 
-	public void setProfile(Map<String, Object> profile) {
-		this.profile = profile;
-	}
+    public void setProfile(Map<String, Object> profile) {
+        this.profile = profile;
+    }
 
-	public Map<String, Object> getAssociatedProfile() {
-		return associatedProfile;
-	}
+    public Map<String, Object> getAssociatedProfile() {
+        return associatedProfile;
+    }
 
-	public void setAssociatedProfile(Map<String, Object> associatedProfile) {
-		this.associatedProfile = associatedProfile;
-	}
+    public void setAssociatedProfile(Map<String, Object> associatedProfile) {
+        this.associatedProfile = associatedProfile;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

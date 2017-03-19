@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.cypher;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.strategy.impl.NodeDeleteStatements;
-import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
+import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
 
 /**
@@ -88,7 +88,7 @@ public class ParameterisedStatementTest {
 
     @Test
     public void findByPropertyWildcardLike() throws JsonProcessingException {
-        Filter filter = new Filter("ref", ComparisonOperator.LIKE,  "*nia");
+        Filter filter = new Filter("ref", ComparisonOperator.LIKE, "*nia");
         statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(filter), 1);
         assertEquals("{\"ref_0\":\"(?i).*nia\"}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -103,21 +103,21 @@ public class ParameterisedStatementTest {
 
     @Test
     public void findByPropertyStandardForm() throws Exception {
-        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS,6.02E1)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 6.02E1)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter_0\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyDecimal() throws Exception {
-        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS,60.2)), 1);
+        statement = nodeQueryStatements.findByType("Asteroid", new Filters().add(new Filter("diameter", ComparisonOperator.EQUALS, 60.2)), 1);
         assertEquals("MATCH (n:`Asteroid`) WHERE n.`diameter` = { `diameter_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"diameter_0\":60.2}", mapper.writeValueAsString(statement.getParameters()));
     }
 
     @Test
     public void findByPropertyEmbeddedDelimiter() throws Exception {
-        statement = nodeQueryStatements.findByType("Cookbooks", new Filters().add(new Filter("title", ComparisonOperator.EQUALS,"Mrs Beeton's Household Recipes")), 1);
+        statement = nodeQueryStatements.findByType("Cookbooks", new Filters().add(new Filter("title", ComparisonOperator.EQUALS, "Mrs Beeton's Household Recipes")), 1);
         assertEquals("MATCH (n:`Cookbooks`) WHERE n.`title` = { `title_0` } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", statement.getStatement());
         assertEquals("{\"title_0\":\"Mrs Beeton's Household Recipes\"}", mapper.writeValueAsString(statement.getParameters()));
     }
@@ -188,10 +188,8 @@ public class ParameterisedStatementTest {
      */
     @Test
     public void testFindByPropertyWithIllegalCharacter() throws Exception {
-        statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", ComparisonOperator.EQUALS,"none")), 1);
+        statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", new Filters().add(new Filter("fake-property", ComparisonOperator.EQUALS, "none")), 1);
         assertEquals("MATCH (n)-[r0:`HAS-ALBUM`]->(m) WHERE r0.`fake-property` = { `fake-property_0` }  WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
         assertEquals("{\"fake-property_0\":\"none\"}", mapper.writeValueAsString(statement.getParameters()));
-
     }
-
 }

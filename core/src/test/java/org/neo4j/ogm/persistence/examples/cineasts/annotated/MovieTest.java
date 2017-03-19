@@ -13,16 +13,15 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
+import static org.junit.Assert.*;
+
+import java.util.UUID;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.UUID;
 
 /**
  * @author Michal Bachman

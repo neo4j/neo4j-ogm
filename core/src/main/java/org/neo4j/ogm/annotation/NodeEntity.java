@@ -18,13 +18,11 @@ import java.lang.annotation.*;
 
 /**
  * Identifies a domain entity as being backed by a node in the graph.
- *
  * This annotation is not needed if the domain entity's simple classname
  * matches at least one of the labels of the node in the graph (case
  * insensitive)
  *
  * @author Vince Bickers
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

@@ -13,6 +13,11 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.abb;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,11 +27,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -63,7 +63,6 @@ public class ABBTest extends RelationshipTrait {
         a.b = new B[]{b1, b2};
         b1.a = a;
         b2.a = a;
-
     }
 
     @Test
@@ -76,7 +75,6 @@ public class ABBTest extends RelationshipTrait {
 
         assertEquals(a, b1.a);
         assertEquals(a, b2.a);
-
     }
 
     @Test
@@ -88,8 +86,6 @@ public class ABBTest extends RelationshipTrait {
         a = session.load(A.class, a.id);
 
         assertSameArray(new B[]{b1, b2}, a.b);
-
-
     }
 
     @Test
@@ -109,7 +105,6 @@ public class ABBTest extends RelationshipTrait {
 
         // expect the b1 relationship to have gone.
         assertSameArray(new B[]{b2}, a.b);
-
     }
 
     @Test
@@ -126,7 +121,6 @@ public class ABBTest extends RelationshipTrait {
         a = session.load(A.class, a.id);
 
         assertSameArray(new B[]{b1, b2, b3}, a.b);
-
     }
 
     @NodeEntity(label = "A")

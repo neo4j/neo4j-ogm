@@ -14,7 +14,7 @@
 
 package org.neo4j.ogm.domain.convertible.parametrized;
 
-import static org.neo4j.driver.internal.util.Iterables.map;
+import static org.neo4j.driver.internal.util.Iterables.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +27,13 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
  */
 public class StringMapConverter implements AttributeConverter<Map<String, String>, List<String>> {
 
-	@Override
-	public List<String> toGraphProperty(Map<String, String> value) {
-		return Arrays.asList("a","b","c");
-	}
+    @Override
+    public List<String> toGraphProperty(Map<String, String> value) {
+        return Arrays.asList("a", "b", "c");
+    }
 
-	@Override
-	public Map<String, String> toEntityAttribute(List<String> value) {
-		return map("a","1","b","2","c","3");
-	}
+    @Override
+    public Map<String, String> toEntityAttribute(List<String> value) {
+        return map("a", "1", "b", "2", "c", "3");
+    }
 }

@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.cypher.function;
 
-import org.neo4j.ogm.cypher.Filter;
-
 import java.util.Map;
+
+import org.neo4j.ogm.cypher.Filter;
 
 /**
  * @author Jasper Blues
@@ -31,5 +31,4 @@ public interface FilterFunction<T> {
     String expression(String nodeIdentifier);
 
     Map<String, Object> parameters();
-
 }

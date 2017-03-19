@@ -80,8 +80,6 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
         assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='a'}", a.toString());
         assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}", b.toString());
-
-
     }
 
     @Test
@@ -108,7 +106,6 @@ public class StaleObjectTest extends MultiDriverTestClass {
         assertEquals("Document{folder=Folder{name='f', documents=2, archived=0}, name='b'}", b.toString());   // b is attached to f, which hasn't been saved or reloaded, so is unchanged
 
         assertEquals("Document{folder=Folder{name='f', documents=1, archived=0}, name='b'}", p.getDocuments().iterator().next().toString());
-
     }
 
     @Test
@@ -123,12 +120,10 @@ public class StaleObjectTest extends MultiDriverTestClass {
         assertEquals("Document{folder=Folder{name='f', documents=0, archived=0}, name='a'}", a.toString());
         assertEquals("Document{folder=Folder{name='f', documents=0, archived=0}, name='b'}", b.toString());
 
-
         Document aa = session.load(Document.class, a.getId());
         Document bb = session.load(Document.class, b.getId());
 
         assertEquals("Document{folder=null, name='a'}", aa.toString());
         assertEquals("Document{folder=null, name='b'}", bb.toString());
     }
-
 }

@@ -13,6 +13,14 @@
 
 package org.neo4j.drivers.http.response;
 
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -26,56 +34,42 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultGraphRowListModel;
 import org.neo4j.ogm.result.ResultGraphRowListModel;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Luanne Misquitta
  */
-public class JsonGraphRowResponseTest
-{
+public class JsonGraphRowResponseTest {
 
-    private static CloseableHttpResponse response = mock( CloseableHttpResponse.class );
-    private static HttpEntity entity = mock( HttpEntity.class );
+    private static CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+    private static HttpEntity entity = mock(HttpEntity.class);
 
     @Before
-    public void setUpMocks()
-    {
-        when( response.getEntity() ).thenReturn( entity );
+    public void setUpMocks() {
+        when(response.getEntity()).thenReturn(entity);
     }
 
     @Test
-    public void shouldParseDataInFilterGraphResponseCorrectly() throws IOException
-    {
+    public void shouldParseDataInFilterGraphResponseCorrectly() throws IOException {
         when(entity.getContent()).thenReturn(filterQueryGraphRowResponse());
 
-        try ( Response< GraphRowListModel > rsp = new TestGraphRowHttpResponse(  ) )
-        {
+        try (Response<GraphRowListModel> rsp = new TestGraphRowHttpResponse()) {
             GraphRowListModel graphRowListModel = rsp.next();
-            TestCase.assertNotNull( graphRowListModel );
+            TestCase.assertNotNull(graphRowListModel);
 
-            List< GraphRowModel > graphRowModels = graphRowListModel.model();
-            TestCase.assertEquals( 8, graphRowModels.size() );
-            GraphRowModel model = graphRowModels.get( 0 );
+            List<GraphRowModel> graphRowModels = graphRowListModel.model();
+            TestCase.assertEquals(8, graphRowModels.size());
+            GraphRowModel model = graphRowModels.get(0);
             GraphModel graph = model.getGraph();
-            TestCase.assertEquals( Long.valueOf( 26 ), graph.getNodes().iterator().next().getId() );
-            TestCase.assertEquals( 0, graph.getRelationships().size() );
+            TestCase.assertEquals(Long.valueOf(26), graph.getNodes().iterator().next().getId());
+            TestCase.assertEquals(0, graph.getRelationships().size());
             Object[] rows = model.getRow();
-            TestCase.assertEquals( 2, rows.length );
-            Map row1 = (Map) ( (List) rows[0] ).get( 0 );
-            TestCase.assertEquals( "GraphAware", row1.get( "name" ) );
-            TestCase.assertEquals( 26, rows[1] );
+            TestCase.assertEquals(2, rows.length);
+            Map row1 = (Map) ((List) rows[0]).get(0);
+            TestCase.assertEquals("GraphAware", row1.get("name"));
+            TestCase.assertEquals(26, rows[1]);
         }
     }
 
-    private InputStream filterQueryGraphRowResponse()
-    {
+    private InputStream filterQueryGraphRowResponse() {
         final String s = "{\n" +
                 "  \"results\": [\n" +
                 "    {\n" +
@@ -438,28 +432,23 @@ public class JsonGraphRowResponseTest
                 "  ],\n" +
                 "  \"errors\": []\n" +
                 "}";
-        return new ByteArrayInputStream( s.getBytes() );
+        return new ByteArrayInputStream(s.getBytes());
     }
 
-    static class TestGraphRowHttpResponse extends AbstractHttpResponse< ResultGraphRowListModel > implements Response< GraphRowListModel >
-    {
+    static class TestGraphRowHttpResponse extends AbstractHttpResponse<ResultGraphRowListModel> implements Response<GraphRowListModel> {
 
-        public TestGraphRowHttpResponse()
-        {
-            super( response, ResultGraphRowListModel.class );
+        public TestGraphRowHttpResponse() {
+            super(response, ResultGraphRowListModel.class);
         }
 
         @Override
-        public GraphRowListModel next()
-        {
-            ResultGraphRowListModel graphRowModel = nextDataRecord( "data" );
+        public GraphRowListModel next() {
+            ResultGraphRowListModel graphRowModel = nextDataRecord("data");
 
-            if ( graphRowModel != null )
-            {
+            if (graphRowModel != null) {
                 DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
-                for ( GraphRowModel model : graphRowModel.getData() )
-                {
-                    graphRowListModel.add( model );
+                for (GraphRowModel model : graphRowModel.getData()) {
+                    graphRowListModel.add(model);
                 }
                 return graphRowListModel;
             }
@@ -467,8 +456,7 @@ public class JsonGraphRowResponseTest
         }
 
         @Override
-        public void close()
-        {
+        public void close() {
             //Nothing to do, the response has been closed already
         }
     }

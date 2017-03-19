@@ -28,54 +28,54 @@ import org.neo4j.ogm.session.Neo4jSession;
  */
 public class LoadByInstancesDelegate {
 
-	private final Neo4jSession session;
+    private final Neo4jSession session;
 
-	public LoadByInstancesDelegate(Neo4jSession session) {
-		this.session = session;
-	}
+    public LoadByInstancesDelegate(Neo4jSession session) {
+        this.session = session;
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination, int depth) {
+    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination, int depth) {
 
-		if (objects == null || objects.isEmpty()) {
-			return objects;
-		}
+        if (objects == null || objects.isEmpty()) {
+            return objects;
+        }
 
-		Set<Long> ids = new HashSet<>();
-		Class type = objects.iterator().next().getClass();
-		ClassInfo classInfo = session.metaData().classInfo(type.getName());
-		Field identityField = classInfo.getField(classInfo.identityField());
+        Set<Long> ids = new HashSet<>();
+        Class type = objects.iterator().next().getClass();
+        ClassInfo classInfo = session.metaData().classInfo(type.getName());
+        Field identityField = classInfo.getField(classInfo.identityField());
 
-		for (Object o : objects) {
-			ids.add((Long) FieldInfo.read(identityField, o));
-		}
-		return session.loadAll(type, ids, sortOrder, pagination, depth);
-	}
+        for (Object o : objects) {
+            ids.add((Long) FieldInfo.read(identityField, o));
+        }
+        return session.loadAll(type, ids, sortOrder, pagination, depth);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects) {
-		return loadAll(objects, new SortOrder(), null, 1);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects) {
+        return loadAll(objects, new SortOrder(), null, 1);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, int depth) {
-		return loadAll(objects, new SortOrder(), null, depth);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects, int depth) {
+        return loadAll(objects, new SortOrder(), null, depth);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder) {
-		return loadAll(objects, sortOrder, null, 1);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder) {
+        return loadAll(objects, sortOrder, null, 1);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, int depth) {
-		return loadAll(objects, sortOrder, null, depth);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, int depth) {
+        return loadAll(objects, sortOrder, null, depth);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination) {
-		return loadAll(objects, new SortOrder(), pagination, 1);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination) {
+        return loadAll(objects, new SortOrder(), pagination, 1);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination, int depth) {
-		return loadAll(objects, new SortOrder(), pagination, depth);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects, Pagination pagination, int depth) {
+        return loadAll(objects, new SortOrder(), pagination, depth);
+    }
 
-	public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination) {
-		return loadAll(objects, sortOrder, pagination, 1);
-	}
+    public <T> Collection<T> loadAll(Collection<T> objects, SortOrder sortOrder, Pagination pagination) {
+        return loadAll(objects, sortOrder, pagination, 1);
+    }
 }

@@ -13,10 +13,9 @@
 
 package org.neo4j.ogm.persistence.examples.social;
 
-import static org.junit.Assert.assertEquals;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,12 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.domain.social.Mortal;
-import org.neo4j.ogm.domain.social.Person;
-import org.neo4j.ogm.domain.social.SocialUser;
-import org.neo4j.ogm.domain.social.User;
+import org.neo4j.ogm.domain.social.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -97,7 +91,6 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         personA.getPeopleILike().add(personB);
         session.save(personA);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (a)-[:LIKES]->(b)");
-
     }
 
     /**
@@ -110,7 +103,6 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         mortalA.getKnownBy().add(mortalB);
         session.save(mortalA);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:Mortal {name:'A'}) CREATE (b:Mortal {name:'B'}) CREATE (a)<-[:KNOWN_BY]-(b)");
-
     }
 
     /**
@@ -186,7 +178,6 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         session.save(personD);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:Person {name:'A'}) CREATE (b:Person {name:'B'}) CREATE (c:Person {name:'C'}) CREATE (d:Person {name:'D'})" +
                 "CREATE (a)-[:LIKES]->(b) CREATE (a)-[:LIKES]->(c) CREATE (b)-[:LIKES]->(a) CREATE (d)-[:LIKES]->(a)");
-
     }
 
     /**
@@ -281,7 +272,5 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         userA.unfriend(userB);
         session.save(userA);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'})");
-
     }
-
 }

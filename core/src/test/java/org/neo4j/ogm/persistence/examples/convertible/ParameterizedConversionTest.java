@@ -13,9 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.convertible;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
@@ -61,11 +59,10 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
 
         assertTrue(found.payload.containsKey("key"));
         assertEquals("value", found.payload.get("key"));
-
     }
 
-	/**
-	 * @see Issue 102
+    /**
+     * @see Issue 102
      */
     @Test
     public void shouldConvertParameterizedStringMap() {

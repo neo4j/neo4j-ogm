@@ -13,13 +13,12 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 
 /**

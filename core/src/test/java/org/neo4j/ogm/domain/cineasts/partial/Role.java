@@ -40,6 +40,4 @@ public class Role {
         this.actor = actor;
         this.movie = movie;
     }
-
-
 }

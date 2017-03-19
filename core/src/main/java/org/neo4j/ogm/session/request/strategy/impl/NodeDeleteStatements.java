@@ -28,7 +28,7 @@ import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 public class NodeDeleteStatements implements DeleteStatements {
 
     @Override
-    
+
     public CypherQuery delete(Long id) {
         return new DefaultRowModelRequest("MATCH (n) WHERE ID(n) = { id } OPTIONAL MATCH (n)-[r0]-() DELETE r0, n", Utils.map("id", id));
     }
@@ -86,5 +86,6 @@ public class NodeDeleteStatements implements DeleteStatements {
     public CypherQuery deleteAndList(String label, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
         query.setReturnClause(" OPTIONAL MATCH (n)-[r0]-() DELETE r0, n RETURN ID(n)");
-        return new DefaultRowModelRequest(query.statement(), query.parameters());    }
+        return new DefaultRowModelRequest(query.statement(), query.parameters());
+    }
 }

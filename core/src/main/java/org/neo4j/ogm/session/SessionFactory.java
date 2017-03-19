@@ -17,11 +17,11 @@ package org.neo4j.ogm.session;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
 
 /**

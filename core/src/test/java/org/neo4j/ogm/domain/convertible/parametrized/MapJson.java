@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.domain.convertible.parametrized;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.neo4j.ogm.typeconversion.AttributeConverter;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
  * @author vince

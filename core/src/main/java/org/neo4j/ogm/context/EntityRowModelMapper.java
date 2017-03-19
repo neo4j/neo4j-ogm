@@ -13,18 +13,17 @@
 
 package org.neo4j.ogm.context;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Utils;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 
 public class EntityRowModelMapper implements ResponseMapper<RowModel> {
 
     /**
-     *
      * @param <T> The type of entity to which the row is to be mapped
      */
     @Override

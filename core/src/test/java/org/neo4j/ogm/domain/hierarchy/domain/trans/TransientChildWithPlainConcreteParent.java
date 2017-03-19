@@ -21,4 +21,5 @@ import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainConcreteParent;
  */
 @Transient
 public class TransientChildWithPlainConcreteParent extends PlainConcreteParent {
+
 }

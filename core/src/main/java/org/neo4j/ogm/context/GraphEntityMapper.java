@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.StartNode;
@@ -29,8 +28,10 @@ import org.neo4j.ogm.exception.BaseClassNotFoundException;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.metadata.MethodInfo;
-import org.neo4j.ogm.metadata.reflect.*;
+import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
+import org.neo4j.ogm.metadata.reflect.EntityFactory;
 import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.Node;
@@ -77,7 +78,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         List<T> objects = new ArrayList<>();
         Set<Long> objectIds = new HashSet<>();
           /*
-		 * these two lists will contain the node ids and edge ids from the response, in the order
+         * these two lists will contain the node ids and edge ids from the response, in the order
          * they were presented to us.
          */
         Set<Long> nodeIds = new LinkedHashSet<>();
@@ -541,38 +542,37 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         logger.debug("Unable to map iterable of type: {} onto property of {}", valueType, classInfo.name());
     }
 
-	// Find the correct RE associated with the edge. The edge type may be polymorphic, so we need to do a bit of work
-	// to identify the correct RE to bind to. We must not cache the value when found, because the correct determination
-	// depends on the runtime values of the edge in the mapping context, which may vary for the same edge pattern.
-	private ClassInfo getRelationshipEntity(Edge edge) {
+    // Find the correct RE associated with the edge. The edge type may be polymorphic, so we need to do a bit of work
+    // to identify the correct RE to bind to. We must not cache the value when found, because the correct determination
+    // depends on the runtime values of the edge in the mapping context, which may vary for the same edge pattern.
+    private ClassInfo getRelationshipEntity(Edge edge) {
 
-		Object source = mappingContext.getNodeEntity(edge.getStartNode());
-		Object target = mappingContext.getNodeEntity(edge.getEndNode());
+        Object source = mappingContext.getNodeEntity(edge.getStartNode());
+        Object target = mappingContext.getNodeEntity(edge.getEndNode());
 
         Set<ClassInfo> classInfos = metadata.classInfoByLabelOrType(edge.getType());
 
         for (ClassInfo classInfo : classInfos) {
 
-			// both source and target must be declared as START and END nodes respectively
-			if (!nodeTypeMatches(classInfo, source, StartNode.class)) {
-				continue;
-			}
+            // both source and target must be declared as START and END nodes respectively
+            if (!nodeTypeMatches(classInfo, source, StartNode.class)) {
+                continue;
+            }
 
-			if (!nodeTypeMatches(classInfo, target, EndNode.class)) {
-				continue;
-			}
+            if (!nodeTypeMatches(classInfo, target, EndNode.class)) {
+                continue;
+            }
 
-			// if the source OR the target (or one of their superclasses) declares the relationship
-			// back to the relationshipEntityClass, we've found a match
-			Class relationshipEntityClass = classInfo.getUnderlyingClass();
-			if (declaresRelationshipTo(relationshipEntityClass, source.getClass(), edge.getType(), OUTGOING)) {
-				return classInfo;
-			}
+            // if the source OR the target (or one of their superclasses) declares the relationship
+            // back to the relationshipEntityClass, we've found a match
+            Class relationshipEntityClass = classInfo.getUnderlyingClass();
+            if (declaresRelationshipTo(relationshipEntityClass, source.getClass(), edge.getType(), OUTGOING)) {
+                return classInfo;
+            }
 
-			if (declaresRelationshipTo(relationshipEntityClass, target.getClass(), edge.getType(), INCOMING)) {
-				return classInfo;
-			}
-
+            if (declaresRelationshipTo(relationshipEntityClass, target.getClass(), edge.getType(), INCOMING)) {
+                return classInfo;
+            }
         }
         // we've made our best efforts to find the correct RE. If we've failed it means
         // that either a matching RE doesn't exist, or its start and end nodes don't declare a reference
@@ -595,38 +595,31 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         return null;
     }
 
-	/**
-	 * Determines if a class hierarchy that possibly declares a given relationship declares it on a specific class.
-	 *
-	 * This method is used to resolve polymorphic relationship entity relationship types. In this case, 'to' is
-	 * a concrete subclass of a relationship entity whose relationship type is declared on a superclass. In other words,
-	 * the relationship type is polymorphic.  The class 'by' is a class that is either a start node or end node of that
-	 * polymorphic type, but which does not necessarily refer to the relationship entity subtype referenced by 'to'.
-	 *
-	 * See #298
-	 *
-	 * Logic:
-	 *
-	 * Given a class 'to', a class 'by' and a relationship 'r':
-	 *
-	 * if the class 'by' (or one of its superclasses) declares a setter or field 'x', annotated with relationship 'r':
-	 *   if the class of 'x' is the same as 'to':
-	 *   	<-- true
-	 *
-	 * Otherwise: <-- false.
-	 *
-	 * @param to the Class which the named relationship must refer to
-	 * @param by a Class the named relationship is declared by
-	 * @param relationshipName the name of the relationship
-	 * @param relationshipDirection the direction of the relationship
-	 *
-	 * @return true if 'by' declares the specified relationship on 'to', false otherwise
-	 */
-	private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, String relationshipDirection) {
+    /**
+     * Determines if a class hierarchy that possibly declares a given relationship declares it on a specific class.
+     * This method is used to resolve polymorphic relationship entity relationship types. In this case, 'to' is
+     * a concrete subclass of a relationship entity whose relationship type is declared on a superclass. In other words,
+     * the relationship type is polymorphic.  The class 'by' is a class that is either a start node or end node of that
+     * polymorphic type, but which does not necessarily refer to the relationship entity subtype referenced by 'to'.
+     * See #298
+     * Logic:
+     * Given a class 'to', a class 'by' and a relationship 'r':
+     * if the class 'by' (or one of its superclasses) declares a setter or field 'x', annotated with relationship 'r':
+     * if the class of 'x' is the same as 'to':
+     * <-- true
+     * Otherwise: <-- false.
+     *
+     * @param to the Class which the named relationship must refer to
+     * @param by a Class the named relationship is declared by
+     * @param relationshipName the name of the relationship
+     * @param relationshipDirection the direction of the relationship
+     * @return true if 'by' declares the specified relationship on 'to', false otherwise
+     */
+    private boolean declaresRelationshipTo(Class to, Class by, String relationshipName, String relationshipDirection) {
         return EntityAccessManager.getRelationalWriter(metadata.classInfo(by.getName()), relationshipName, relationshipDirection, to) != null;
-	}
+    }
 
-	/**
+    /**
      * Checks that the class of the node matches the class defined in the class info for a given annotation
      *
      * @param classInfo the ClassInfo

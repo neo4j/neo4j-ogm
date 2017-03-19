@@ -89,20 +89,35 @@ public class Restaurant {
         this.location = location;
     }
 
-    public double getScore() { return score; }
+    public double getScore() {
+        return score;
+    }
 
-    public void setScore(double score) { this.score = score; }
+    public void setScore(double score) {
+        this.score = score;
+    }
 
-    public String getDescription() { return description; }
+    public String getDescription() {
+        return description;
+    }
 
-    public void setDescription(String description) { this.description = description; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public Date getLaunchDate() { return launchDate; }
+    public Date getLaunchDate() {
+        return launchDate;
+    }
 
-    public void setLaunchDate(Date launchDate) { this.launchDate = launchDate; }
+    public void setLaunchDate(Date launchDate) {
+        this.launchDate = launchDate;
+    }
 
-    public boolean isHalal() { return halal; }
+    public boolean isHalal() {
+        return halal;
+    }
 
-    public void setHalal(boolean halal) { this.halal = halal; }
-
+    public void setHalal(boolean halal) {
+        this.halal = halal;
+    }
 }

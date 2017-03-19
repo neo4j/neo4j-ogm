@@ -19,28 +19,28 @@ import org.neo4j.ogm.model.RestModel;
 
 /**
  * The results of a query, modelled as rest response data.
+ *
  * @author Luanne Misquitta
  */
-public class DefaultRestModel implements RestModel{
+public class DefaultRestModel implements RestModel {
 
-	private final Map<String,Object> row;
-	private QueryStatistics stats = new QueryStatisticsModel();
+    private final Map<String, Object> row;
+    private QueryStatistics stats = new QueryStatisticsModel();
 
-	public DefaultRestModel(Map<String,Object> row) {
-		this.row = row;
-	}
+    public DefaultRestModel(Map<String, Object> row) {
+        this.row = row;
+    }
 
-	@Override
-	public Map<String, Object> getRow() {
-		return row;
-	}
+    @Override
+    public Map<String, Object> getRow() {
+        return row;
+    }
 
-	public QueryStatistics getStats() {
-		return stats;
-	}
+    public QueryStatistics getStats() {
+        return stats;
+    }
 
-	public void setStats(QueryStatistics stats) {
-		this.stats = stats;
-	}
-
+    public void setStats(QueryStatistics stats) {
+        this.stats = stats;
+    }
 }

@@ -1,5 +1,8 @@
 package org.neo4j.ogm.persistence.session.mappingContext;
 
+import java.io.IOException;
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,11 +15,7 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.io.IOException;
-import java.util.Collections;
 
 /**
  * @author Mihai Raulea
@@ -27,8 +26,8 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     // i need a Neo4jSession because the session interface does not define the context() method
     private Neo4jSession session;
 
-    private Album album1,album2,album3;
-    private Artist artist1,artist2;
+    private Album album1, album2, album3;
+    private Artist artist1, artist2;
     private Recording recording;
     private ReleaseFormat releaseFormat;
     private Studio studio;
@@ -37,10 +36,9 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     private Knows knows, knows2;
 
 
-
     @Before
     public void init() throws IOException {
-        session = (Neo4jSession)new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.music","org.neo4j.ogm.domain.cineasts.annotated").openSession();
+        session = (Neo4jSession) new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.music", "org.neo4j.ogm.domain.cineasts.annotated").openSession();
 
         artist1 = new Artist();
         artist1.setName("MainArtist");
@@ -104,18 +102,18 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
 
         // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = mappingContext.getNodeEntity(artist1.getId());
-        Assert.assertTrue( object == null);
+        Assert.assertTrue(object == null);
 
         // check that objects with references to the deleted object have been cleared
         // check for TransientRelationship, where the object connected to the deleted object holds ref in a Set
-        Album retrievedAlbum1 = (Album)mappingContext.getNodeEntity(album1.getId());
-        Assert.assertTrue( retrievedAlbum1.getArtist() == null );
+        Album retrievedAlbum1 = (Album) mappingContext.getNodeEntity(album1.getId());
+        Assert.assertTrue(retrievedAlbum1.getArtist() == null);
 
-        Album retrievedAlbum2 = (Album)mappingContext.getNodeEntity(album2.getId());
-        Assert.assertTrue( retrievedAlbum2.getArtist() == null );
+        Album retrievedAlbum2 = (Album) mappingContext.getNodeEntity(album2.getId());
+        Assert.assertTrue(retrievedAlbum2.getArtist() == null);
 
-        Album retrievedAlbum3 = (Album)mappingContext.getNodeEntity(album3.getId());
-        Assert.assertTrue( retrievedAlbum3.getArtist() == null );
+        Album retrievedAlbum3 = (Album) mappingContext.getNodeEntity(album3.getId());
+        Assert.assertTrue(retrievedAlbum3.getArtist() == null);
     }
 
     @Test
@@ -129,7 +127,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         Result result = session.query("MATCH (n) RETURN n", Collections.EMPTY_MAP);
         // check that the mapping context does not hold a reference to the deleted entity anymore
         Object object = session.context().getNodeEntity(actor1.getId());
-        Assert.assertTrue( object == null);
+        Assert.assertTrue(object == null);
         // check for a defined RelationshipEntity; the relationship should also be removed from the mappingContext
         objectRel = session.context().getRelationshipEntity(knows.id);
         Assert.assertTrue(objectRel == null);
@@ -191,9 +189,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
             Assert.assertNull(mary.getId());
             Assert.assertNull(maryKnowsJohn.id);
             Assert.assertNull(john.getId());
-
         }
-
     }
 
     @Test
@@ -213,9 +209,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
             session.save(mary);
 
             session.context().reset(mary);
-
         }
-
     }
 
     @Test
@@ -225,7 +219,5 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
             session.save(new Actor("Mary"));
             session.deleteAll(Actor.class);
         }
-
     }
-
 }

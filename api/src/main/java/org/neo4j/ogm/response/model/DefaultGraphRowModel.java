@@ -22,7 +22,7 @@ import org.neo4j.ogm.model.GraphRowModel;
  *
  * @author Luanne Misquitta
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DefaultGraphRowModel implements GraphRowModel {
 
     public DefaultGraphRowModel() {
@@ -32,7 +32,7 @@ public class DefaultGraphRowModel implements GraphRowModel {
     private Object[] row;
 
     public DefaultGraphRowModel(GraphModel graph, Object[] row) {
-        this.graph = (DefaultGraphModel)graph;
+        this.graph = (DefaultGraphModel) graph;
         this.row = row;
     }
 

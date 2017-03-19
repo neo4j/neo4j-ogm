@@ -21,6 +21,5 @@ public class ClassWithPrivateConstructor {
     private ClassWithPrivateConstructor() {
         // can't instantiate me!
     }
-
 }
 

@@ -13,6 +13,13 @@
 
 package org.neo4j.ogm.persistence.examples.social;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,13 +32,6 @@ import org.neo4j.ogm.domain.social.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -67,7 +67,6 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         assertNotNull(personD);
         assertEquals(1, personD.getPeopleILike().size());
         assertEquals(personA, personD.getPeopleILike().get(0));
-
     }
 
     /**
@@ -81,7 +80,6 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         Individual individualA = session.loadAll(Individual.class, new Filter("name", ComparisonOperator.EQUALS, "A")).iterator().next();
         assertNotNull(individualA);
         assertEquals(2, individualA.getFriends().size());
-
     }
 
     /**
@@ -267,6 +265,5 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
         session.clear();
         vince = session.load(User.class, vince.getId());
         assertEquals(1, vince.getFriends().size());
-
     }
 }

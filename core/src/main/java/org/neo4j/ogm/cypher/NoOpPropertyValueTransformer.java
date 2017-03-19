@@ -15,7 +15,6 @@ package org.neo4j.ogm.cypher;
 
 /**
  * {@link PropertyValueTransformer} that does nothing but pass through the property value.
- *
  * This is so that a {@link PropertyValueTransformer} never has to be set to <code>null</code> for a comparison operator if
  * no transformation is required.
  *
@@ -23,9 +22,8 @@ package org.neo4j.ogm.cypher;
  */
 public class NoOpPropertyValueTransformer implements PropertyValueTransformer {
 
-	@Override
-	public Object transformPropertyValue(Object propertyValue) {
-		return propertyValue;
-	}
-
+    @Override
+    public Object transformPropertyValue(Object propertyValue) {
+        return propertyValue;
+    }
 }

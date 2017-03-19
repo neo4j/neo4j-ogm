@@ -12,11 +12,11 @@
  */
 package org.neo4j.ogm.domain.simpleNetwork.classes;
 
+import java.util.Set;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.simpleNetwork.abstractions.AbstractIdentityNode;
-
-import java.util.Set;
 
 /**
  * @author vince

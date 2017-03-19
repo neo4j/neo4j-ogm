@@ -13,18 +13,10 @@
 
 package org.neo4j.ogm.persistence.examples.music;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -109,7 +101,6 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         session.query("CREATE (s:Studio {`studio-name`:'Abbey Road Studios'})", Utils.map());
         Studio studio = session.loadAll(Studio.class, new Filter("name", ComparisonOperator.EQUALS, "Abbey Road Studios")).iterator().next();
         assertNotNull(studio);
-
     }
 
     /**
@@ -157,7 +148,6 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         slowhand.setRecording(slowRecording);
         slowhand.setArtist(eric);
         session.save(slowhand);
-
 
         session.clear();
         Album theBeatlesAlbum = new Album("The Beatles");
@@ -255,7 +245,7 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         assertFalse(resultIterator.hasNext());
     }
 
-	/**
+    /**
      * @see Issue 191
      */
     @Test
@@ -274,5 +264,4 @@ public class MusicIntegrationTest extends MultiDriverTestClass {
         studios = session.loadAll(Studio.class, new SortOrder().add(SortOrder.Direction.DESC, "name"));
         assertEquals("Olympic Studios, London", studios.iterator().next().getName());
     }
-
 }

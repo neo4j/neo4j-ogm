@@ -52,7 +52,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format(MATCH_WITH_ID + MATCH_PATHS,min,max,min,max);
+            String qry = String.format(MATCH_WITH_ID + MATCH_PATHS, min, max, min, max);
             return new DefaultGraphModelRequest(qry, Utils.map("id", id));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -64,7 +64,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format(MATCH_WITH_IDS + MATCH_PATHS_WITH_REL_ID, min,max,min,max);
+            String qry = String.format(MATCH_WITH_IDS + MATCH_PATHS_WITH_REL_ID, min, max, min, max);
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -76,7 +76,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         int max = max(depth);
         int min = min(max);
         if (max > 0) {
-            String qry = String.format(MATCH_WITH_TYPE_AND_IDS + MATCH_PATHS_WITH_REL_ID, type,min,max,max,max);
+            String qry = String.format(MATCH_WITH_TYPE_AND_IDS + MATCH_PATHS_WITH_REL_ID, type, min, max, max, max);
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -92,7 +92,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
     public PagingAndSortingQuery findByType(String type, int depth) {
         int max = max(depth);
         if (max > 0) {
-           String qry = String.format("MATCH ()-[r0:`%s`]-() " + MATCH_PATHS_WITH_REL_ID, type, 0, max, 0, max);
+            String qry = String.format("MATCH ()-[r0:`%s`]-() " + MATCH_PATHS_WITH_REL_ID, type, 0, max, 0, max);
             return new DefaultGraphModelRequest(qry, Utils.map());
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
@@ -100,24 +100,24 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
     }
 
 
-	@Override
-	public PagingAndSortingQuery findByType(String type, Filters parameters, int depth) {
-		int max = max(depth);
-		int min = min(max);
-		if (max > 0) {
+    @Override
+    public PagingAndSortingQuery findByType(String type, Filters parameters, int depth) {
+        int max = max(depth);
+        int min = min(max);
+        if (max > 0) {
             FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, parameters);
-			query.setReturnClause(String.format(MATCH_PATHS_WITH_REL_ID, min, max, min, max));
-			return new DefaultGraphRowListModelRequest(query.statement(), query.parameters());
-		} else {
-			throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
-		}
-	}
+            query.setReturnClause(String.format(MATCH_PATHS_WITH_REL_ID, min, max, min, max));
+            return new DefaultGraphRowListModelRequest(query.statement(), query.parameters());
+        } else {
+            throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
+        }
+    }
 
     private int min(int depth) {
         return Math.min(0, depth);
     }
 
     private int max(int depth) {
-		return Math.max(0, depth);
-	}
+        return Math.max(0, depth);
+    }
 }

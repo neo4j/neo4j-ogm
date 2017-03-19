@@ -24,19 +24,20 @@ import org.neo4j.ogm.domain.food.entities.scanned.Risk;
  * @author Luanne Misquitta
  */
 public class Pizza {
-	public Long id;
 
-	public Risk strokeRisk;
+    public Long id;
 
-	@Convert(RiskConverter.class)
-	public Risk diabetesRisk;
+    public Risk strokeRisk;
 
-	@Property(name = "riskCancer")
-	public Risk cancerRisk;
+    @Convert(RiskConverter.class)
+    public Risk diabetesRisk;
 
-	@Convert(RiskConverter.class)
-	@Property(name = "riskHT")
-	public Risk hypertensionRisk;
+    @Property(name = "riskCancer")
+    public Risk cancerRisk;
 
-	public RoundingMode roundingMode; //a java enum, to test that these are converted too
+    @Convert(RiskConverter.class)
+    @Property(name = "riskHT")
+    public Risk hypertensionRisk;
+
+    public RoundingMode roundingMode; //a java enum, to test that these are converted too
 }

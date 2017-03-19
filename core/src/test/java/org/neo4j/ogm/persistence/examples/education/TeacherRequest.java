@@ -115,12 +115,9 @@ public class TeacherRequest extends StubHttpDriver {
                     "{\"id\":\"228\",\"type\":\"TEACHES\",\"startNode\":\"22\",\"endNode\":\"8\",\"properties\":{}}" +
                     "] " +
                     "} }"
-
     };
 
     public String[] getResponse() {
         return jsonModel;
     }
-
-
 }

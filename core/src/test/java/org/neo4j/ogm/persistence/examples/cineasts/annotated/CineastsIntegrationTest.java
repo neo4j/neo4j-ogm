@@ -13,15 +13,8 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.annotated;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -154,7 +147,6 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         assertEquals("Vince", vince.getName());
         assertEquals(1, vince.getTitles().size());
         assertEquals(Title.MR, vince.getTitles().get(0));
-
     }
 
     /**
@@ -174,7 +166,6 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         } catch (UnsupportedEncodingException e) {
             fail("UTF-8 encoding not supported on this platform");
         }
-
     }
 
     @Test
@@ -217,9 +208,9 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         assertEquals("Carrie-Ann Moss", loadedActor.getName());
     }
 
-	/**
-     * @see issue #125
+    /**
      * @throws MalformedURLException
+     * @see issue #125
      */
     @Test
     public void shouldModifyStringArraysCorrectly() throws MalformedURLException {
@@ -253,9 +244,9 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
         assertEquals("robin", user.getNicknames()[1]);
     }
 
-	/**
-     * @see Issue #128
+    /**
      * @throws MalformedURLException
+     * @see Issue #128
      */
     @Test
     public void shouldBeAbleToSetNodePropertiesToNull() throws MalformedURLException {

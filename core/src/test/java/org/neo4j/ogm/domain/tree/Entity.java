@@ -22,7 +22,8 @@ import org.neo4j.ogm.annotation.Relationship;
 /**
  * @author Luanne Misquitta
  */
-public class Entity implements Comparable{
+public class Entity implements Comparable {
+
     private Long id;
     private String name;
 
@@ -67,16 +68,14 @@ public class Entity implements Comparable{
 
     @Override
     public int compareTo(Object o) {
-        Entity that = (Entity)o;
+        Entity that = (Entity) o;
         if (this.name != null) {
             if (that.name != null) {
                 return this.name.compareTo(that.name);
-            }
-            else {
+            } else {
                 return 1;
             }
         }
         return -1;
     }
-
 }

@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.examples.cineasts.partial;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,13 +24,10 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * The purpose of these tests is to describe the behaviour of the
  * mapper when a RelationshipEntity object is not referenced by
  * both of its Related entities, both when writing and reading
- *
  * In this scenario, the Role relationship, which is a RelationshipEntity
  * linking Actors and Movies, is referenced only from the Actor entity.
  *
@@ -49,7 +48,6 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
     public void init() {
         session = sessionFactory.openSession();
         session.purgeDatabase();
-
     }
 
     @Test
@@ -64,7 +62,6 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
         Actor keanu2 = session.load(Actor.class, keanu.getId());
 
         assertEquals(1, keanu2.roles().size());
-
     }
 
     @Test
@@ -88,7 +85,6 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         Actor keanu3 = session.load(Actor.class, keanu2.getId());
         assertEquals(3, keanu3.roles().size());
-
     }
 
     @Test
@@ -113,8 +109,5 @@ public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
         Actor keanu3 = session.load(Actor.class, keanu2.getId());
         assertEquals(1, keanu3.roles().size());
-
-
     }
-
 }

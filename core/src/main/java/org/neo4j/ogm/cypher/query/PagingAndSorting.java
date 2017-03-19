@@ -18,6 +18,6 @@ package org.neo4j.ogm.cypher.query;
 public interface PagingAndSorting {
 
     PagingAndSortingQuery setPagination(Pagination page);
-    PagingAndSortingQuery setSortOrder(SortOrder sortOrder);
 
+    PagingAndSortingQuery setSortOrder(SortOrder sortOrder);
 }

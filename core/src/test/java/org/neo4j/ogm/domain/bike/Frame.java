@@ -36,5 +36,4 @@ public class Frame {
     public void setSize(Integer size) {
         this.size = size;
     }
-
 }

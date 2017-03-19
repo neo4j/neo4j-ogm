@@ -36,5 +36,4 @@ public interface GraphCallback<T> {
      * @return An arbitrary result (or <code>null</code>) based on the desired behaviour of this callback function
      */
     T apply(Request requestHandler, Transaction transaction, MetaData metaData);
-
 }

@@ -14,9 +14,9 @@
 package org.neo4j.ogm.persistence.relationships.direct;
 
 
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.fail;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Vince Bickers
@@ -27,7 +27,6 @@ public class RelationshipTrait extends MultiDriverTestClass {
 
         if (as == null || bs == null) fail("null arrays not allowed");
         if (as.length != bs.length) fail("arrays are not same length");
-
 
         for (Object a : as) {
             boolean found = false;
@@ -40,5 +39,4 @@ public class RelationshipTrait extends MultiDriverTestClass {
             if (!found) fail("array contents are not the same: " + as + ", " + bs);
         }
     }
-
 }

@@ -77,7 +77,6 @@ public class Knows {
 
         if (!firstActor.equals(knows.firstActor)) return false;
         return secondActor.equals(knows.secondActor);
-
     }
 
     @Override

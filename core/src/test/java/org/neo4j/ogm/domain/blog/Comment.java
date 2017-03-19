@@ -20,24 +20,25 @@ import org.neo4j.ogm.annotation.StartNode;
 
 /**
  * This is a relationship entity only to test navigation in one direction. Do not make this a node entity.
+ *
  * @author Luanne Misquitta
  */
 @RelationshipEntity(type = "COMMENT_BY")
 public class Comment {
 
-	@GraphId Long id;
+    @GraphId Long id;
 
-	@StartNode Post post;
-	@EndNode Author author;
+    @StartNode Post post;
+    @EndNode Author author;
 
-	String comment;
+    String comment;
 
-	public Comment() {
-	}
+    public Comment() {
+    }
 
-	public Comment(Post post, Author author, String comment) {
-		this.post = post;
-		this.author = author;
-		this.comment = comment;
-	}
+    public Comment(Post post, Author author, String comment) {
+        this.post = post;
+        this.author = author;
+        this.comment = comment;
+    }
 }

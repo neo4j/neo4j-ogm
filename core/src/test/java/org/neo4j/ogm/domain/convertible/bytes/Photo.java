@@ -38,5 +38,4 @@ public class Photo {
     public void setImage(byte[] image) {
         this.image = image;
     }
-
 }

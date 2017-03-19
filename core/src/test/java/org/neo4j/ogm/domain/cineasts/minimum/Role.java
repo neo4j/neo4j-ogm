@@ -27,10 +27,10 @@ public class Role {
     String played;
 
     @StartNode
-	Actor actor;
+    Actor actor;
 
     @EndNode
-	Movie movie;
+    Movie movie;
 
     public Role() {
     }
@@ -40,6 +40,4 @@ public class Role {
         this.actor = actor;
         this.movie = movie;
     }
-
-
 }

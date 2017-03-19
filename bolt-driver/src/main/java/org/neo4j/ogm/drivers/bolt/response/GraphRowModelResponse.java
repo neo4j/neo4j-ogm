@@ -25,24 +25,24 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class GraphRowModelResponse extends BoltResponse<GraphRowListModel> {
 
-	private BoltGraphRowModelAdapter adapter = new BoltGraphRowModelAdapter(new BoltGraphModelAdapter());
+    private BoltGraphRowModelAdapter adapter = new BoltGraphRowModelAdapter(new BoltGraphModelAdapter());
 
-	public GraphRowModelResponse(StatementResult result, TransactionManager transactionManager) {
-		super(result, transactionManager);
-		adapter.setColumns(Arrays.asList(columns()));
-	}
+    public GraphRowModelResponse(StatementResult result, TransactionManager transactionManager) {
+        super(result, transactionManager);
+        adapter.setColumns(Arrays.asList(columns()));
+    }
 
-	@Override
-	public GraphRowListModel fetchNext() {
-		if (result.hasNext()) {
-			DefaultGraphRowListModel model = new DefaultGraphRowListModel();
-			model.add(adapter.adapt(result.next().asMap()));
+    @Override
+    public GraphRowListModel fetchNext() {
+        if (result.hasNext()) {
+            DefaultGraphRowListModel model = new DefaultGraphRowListModel();
+            model.add(adapter.adapt(result.next().asMap()));
 
-			while (result.hasNext()) {
-				model.add(adapter.adapt(result.next().asMap()));
-			}
-			return model;
-		}
-		return null;
-	}
+            while (result.hasNext()) {
+                model.add(adapter.adapt(result.next().asMap()));
+            }
+            return model;
+        }
+        return null;
+    }
 }

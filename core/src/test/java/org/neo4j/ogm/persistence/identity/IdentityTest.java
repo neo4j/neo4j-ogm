@@ -12,6 +12,12 @@
  */
 package org.neo4j.ogm.persistence.identity;
 
+import static org.junit.Assert.*;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,13 +26,6 @@ import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * These tests relate to the concept of node and relationship identity in the OGM. Identity
@@ -71,7 +70,6 @@ public class IdentityTest extends MultiDriverTestClass {
         // same hashcode, so a single object, not two in set
         assertEquals(1, nodes.size());
 
-
         session.save(start);
         session.save(end);
 
@@ -91,7 +89,6 @@ public class IdentityTest extends MultiDriverTestClass {
         assertNotNull(checkNode.link);
         assertEquals(start.id, checkNode.link.start.id);
         assertEquals(end.id, checkNode.link.end.id);
-
     }
 
     @Test
@@ -183,5 +180,4 @@ public class IdentityTest extends MultiDriverTestClass {
             return 1;
         }
     }
-
 }

@@ -36,5 +36,4 @@ public class CaseInsensitiveLikePropertyValueTransformer implements PropertyValu
     private static String escapeRegexCharacters(String propertyValue) {
         return CHARS_TO_ESCAPE.matcher(propertyValue).replaceAll("\\\\$1");
     }
-
 }

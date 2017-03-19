@@ -34,5 +34,4 @@ public class NumberSystemDomainConverter implements AttributeConverter<NumberSys
         }
         throw new RuntimeException("Conversion failed!");
     }
-
 }

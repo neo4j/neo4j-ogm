@@ -38,5 +38,4 @@ public class EmbeddedRowModelAdapter extends RowModelAdapter {
     public boolean isRelationship(Object value) {
         return entityAdapter.isRelationship(value);
     }
-
 }

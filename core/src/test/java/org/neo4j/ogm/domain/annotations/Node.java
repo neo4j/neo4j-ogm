@@ -27,4 +27,5 @@ import org.neo4j.ogm.annotation.NodeEntity;
         @JsonSubTypes.Type(value = OtherNode.class, name = "other")
 })
 public interface Node {
+
 }

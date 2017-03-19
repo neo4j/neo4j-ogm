@@ -29,6 +29,7 @@ public interface QueryStatements<ID extends Serializable> {
 
     /**
      * construct a query to fetch a single object with the specified id
+     *
      * @param id the id of the object to find
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
@@ -37,12 +38,14 @@ public interface QueryStatements<ID extends Serializable> {
 
     /**
      * construct a query to fetch all objects
+     *
      * @return a {@link PagingAndSortingQuery}
      */
     PagingAndSortingQuery findAll();
 
     /**
      * construct a query to fetch all objects with the specified ids
+     *
      * @param ids the ids of the objects to find
      * @param depth the depth to traverse for any related objects
      * @return a {@link PagingAndSortingQuery}
@@ -51,6 +54,7 @@ public interface QueryStatements<ID extends Serializable> {
 
     /**
      * construct a query to fetch all objects with the specified ids
+     *
      * @param type the label attached to the object, or the relationship type
      * @param ids the ids of the objects to find
      * @param depth the depth to traverse for any related objects
@@ -60,6 +64,7 @@ public interface QueryStatements<ID extends Serializable> {
 
     /**
      * construct queries to fetch all objects with the specified label or relationship type
+     *
      * @param type the label attached to the object, or the relationship type
      * @param depth the depth to traverse for related objects
      * @return a {@link PagingAndSortingQuery}
@@ -68,6 +73,7 @@ public interface QueryStatements<ID extends Serializable> {
 
     /**
      * construct queries to fetch all objects with the specified label that match the specified filters
+     *
      * @param type the label value or relationship type to filter on
      * @param filters parameters to filter on
      * @param depth the depth to traverse for related objects
@@ -75,5 +81,4 @@ public interface QueryStatements<ID extends Serializable> {
      */
 
     PagingAndSortingQuery findByType(String type, Filters filters, int depth);
-
 }

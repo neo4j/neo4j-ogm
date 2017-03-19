@@ -14,9 +14,9 @@
 package org.neo4j.ogm.domain.satellites;
 
 
-import org.neo4j.ogm.annotation.typeconversion.DateLong;
-
 import java.util.Date;
+
+import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
 /**
  * @author Vince Bickers
@@ -48,6 +48,4 @@ public abstract class DomainObject {
     public void setUpdated(Date updated) {
         this.updated = updated;
     }
-
-
 }

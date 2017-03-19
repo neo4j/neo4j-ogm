@@ -44,5 +44,4 @@ public class Cheese {
     public void setName(String name) {
         this.name = name;
     }
-
 }

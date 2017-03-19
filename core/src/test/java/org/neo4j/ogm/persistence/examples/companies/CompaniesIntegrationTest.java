@@ -13,9 +13,7 @@
 
 package org.neo4j.ogm.persistence.examples.companies;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -71,7 +69,6 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
             assertNotNull(employee.getEmployer());
             assertNull(employee.getOwns());
         }
-
     }
 
     @Test
@@ -99,7 +96,6 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
             assertEquals(1, employee.getOwns().size());
             assertEquals(company.getId(), employee.getOwns().iterator().next().getId());
         }
-
     }
 
     /**
@@ -112,7 +108,7 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
         person.addDevice(device);
         session.save(person);
         person.removeDevice(device);
-        assertEquals(0,person.getDevices().size());
+        assertEquals(0, person.getDevices().size());
         session.save(person);
 
         session.clear();

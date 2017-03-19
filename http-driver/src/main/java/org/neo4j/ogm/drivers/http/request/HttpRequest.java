@@ -34,13 +34,13 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.neo4j.ogm.config.Credentials;
+import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.drivers.http.response.GraphModelResponse;
 import org.neo4j.ogm.drivers.http.response.GraphRowsModelResponse;
 import org.neo4j.ogm.drivers.http.response.RestModelResponse;
 import org.neo4j.ogm.drivers.http.response.RowModelResponse;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.exception.ResultProcessingException;
-import org.neo4j.ogm.config.ObjectMapperFactory;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.model.RestModel;
@@ -83,7 +83,7 @@ public class HttpRequest implements Request {
             return new EmptyResponse();
         } else {
             String cypher = cypherRequest(request);
-            return new GraphModelResponse(executeRequest( cypher ));
+            return new GraphModelResponse(executeRequest(cypher));
         }
     }
 
@@ -94,7 +94,6 @@ public class HttpRequest implements Request {
         } else {
             String cypher = cypherRequest(request);
             return new RowModelResponse(executeRequest(cypher));
-
         }
     }
 
@@ -103,7 +102,6 @@ public class HttpRequest implements Request {
         Statements statements = new Statements(query.getStatements());
         String cypher = cypherRequest(statements);
         return new RowModelResponse(executeRequest(cypher));
-
     }
 
     @Override
@@ -113,17 +111,14 @@ public class HttpRequest implements Request {
         } else {
             String cypher = cypherRequest(request);
             return new GraphRowsModelResponse(executeRequest(cypher));
-
         }
-
     }
 
     @Override
     public Response<RestModel> execute(RestModelRequest request) {
         if (request.getStatement().length() == 0) {
             return new EmptyResponse();
-        }
-        else {
+        } else {
             String cypher = cypherRequest(request);
             return new RestModelResponse(executeRequest(cypher));
         }
@@ -171,13 +166,11 @@ public class HttpRequest implements Request {
 
         LOGGER.debug("Thread: {}, request: {}", Thread.currentThread().getId(), request);
 
-
         CloseableHttpResponse response;
 
         request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
         request.setHeader(new BasicHeader(HTTP.USER_AGENT, "neo4j-ogm.java/2.0"));
         request.setHeader(new BasicHeader("Accept", "application/json;charset=UTF-8"));
-
 
         HttpAuthorization.authorize(request, credentials);
 
@@ -206,24 +199,17 @@ public class HttpRequest implements Request {
                 }
 
                 return response; // don't close response yet, it is not consumed!
-
             }
 
             // if we didn't get a response at all, try again
             catch (NoHttpResponseException nhre) {
                 LOGGER.warn("Thread: {}, No response from server:  Retrying in {} milliseconds, retries left: {}", Thread.currentThread().getId(), retryStrategy.getTimeToWait(), retryStrategy.numberOfTriesLeft);
                 retryStrategy.errorOccured();
-            }
-
-            catch (RetryException re) {
+            } catch (RetryException re) {
                 throw new HttpRequestException(request, re);
-            }
-
-            catch (ClientProtocolException uhe) {
+            } catch (ClientProtocolException uhe) {
                 throw new ConnectionException(request.getURI().toString(), uhe);
-            }
-
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 throw new HttpRequestException(request, ioe);
             }
 
@@ -301,8 +287,8 @@ public class HttpRequest implements Request {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
+
     static class RetryException extends RuntimeException {
 
         public RetryException(String msg) {

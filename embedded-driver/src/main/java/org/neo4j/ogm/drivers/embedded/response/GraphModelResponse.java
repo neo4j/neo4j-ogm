@@ -38,5 +38,4 @@ public class GraphModelResponse extends EmbeddedResponse<GraphModel> {
         }
         return null;
     }
-
 }

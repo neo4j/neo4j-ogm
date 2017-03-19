@@ -25,7 +25,7 @@ public class Nomination {
 
     Long id;
     @EndNode
-	Movie movie;
+    Movie movie;
     @StartNode
     Actor actor;
     String name;

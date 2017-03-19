@@ -27,5 +27,4 @@ public class ConversionCallbackRegistry {
     public void registerConversionCallback(ConversionCallback conversionCallback) {
         this.conversionCallback = conversionCallback;
     }
-
 }

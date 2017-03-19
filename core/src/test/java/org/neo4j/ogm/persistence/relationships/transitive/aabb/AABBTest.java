@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.persistence.relationships.transitive.aabb;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.*;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -94,7 +94,6 @@ public class AABBTest extends RelationshipTrait {
         assertSameArray(new B[]{a1.r[0].b, a1.r[1].b}, new B[]{b1, b2});
         assertSameArray(new B[]{a2.r[0].b, a2.r[1].b}, new B[]{b1, b3});
         assertSameArray(new B[]{a3.r[0].b, a3.r[1].b}, new B[]{b2, b3});
-
     }
 
     @Test
@@ -113,7 +112,6 @@ public class AABBTest extends RelationshipTrait {
         assertSameArray(new A[]{b1.r[0].a, b1.r[1].a}, new A[]{a1, a2});
         assertSameArray(new A[]{b2.r[0].a, b2.r[1].a}, new A[]{a1, a3});
         assertSameArray(new A[]{b3.r[0].a, b3.r[1].a}, new A[]{a2, a3});
-
     }
 
     @Test
@@ -135,18 +133,15 @@ public class AABBTest extends RelationshipTrait {
         assertEquals(1, a1.r.length);
         assertSameArray(new B[]{b1}, new B[]{a1.r[0].b});
 
-
         // when we reload a3
         a3 = session.load(A.class, a3.id);
         // expect the b2 relationship to have gone.
         assertSameArray(new B[]{b3}, new B[]{a3.r[0].b});
 
-
         // and when we reload a2
         a2 = session.load(A.class, a2.id);
         // expect its relationships to be intact.
         assertSameArray(new B[]{b1, b3}, new B[]{a2.r[0].b, a2.r[1].b});
-
     }
 
 
@@ -167,7 +162,6 @@ public class AABBTest extends RelationshipTrait {
 
         assertSameArray(new R[]{r1, r3, r7}, b1.r);
         assertSameArray(new R[]{r1, r2, r7}, a1.r);
-
     }
 
     /**
@@ -323,7 +317,6 @@ public class AABBTest extends RelationshipTrait {
 
         @Relationship(type = "EDGE", direction = Relationship.OUTGOING)
         R[] r;
-
     }
 
     @NodeEntity(label = "B")
@@ -331,7 +324,6 @@ public class AABBTest extends RelationshipTrait {
 
         @Relationship(type = "EDGE", direction = Relationship.INCOMING)
         R[] r;
-
     }
 
     @RelationshipEntity(type = "EDGE")
@@ -358,7 +350,6 @@ public class AABBTest extends RelationshipTrait {
         public String toString() {
             return this.getClass().getSimpleName() + ":" + a.id + "->" + b.id;
         }
-
     }
 
     /**

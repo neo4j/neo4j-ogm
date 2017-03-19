@@ -18,36 +18,35 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.config.Components;
 
 /**
  * @author vince
  */
 public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
-	private GraphDatabaseService graphDatabaseService;
+    private GraphDatabaseService graphDatabaseService;
 
-	@BeforeClass
-	public static void configure() throws Exception {
-		Components.configure("embedded.ha.driver.properties");
-		deleteExistingEmbeddedDatabase();
-	}
+    @BeforeClass
+    public static void configure() throws Exception {
+        Components.configure("embedded.ha.driver.properties");
+        deleteExistingEmbeddedDatabase();
+    }
 
-	@AfterClass
-	public static void reset() {
-		Components.destroy();
-	}
+    @AfterClass
+    public static void reset() {
+        Components.destroy();
+    }
 
-	@Override
-	public void setUpTest() {
-		graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
-		Assert.assertTrue(graphDatabaseService instanceof HighlyAvailableGraphDatabase);
-	}
+    @Override
+    public void setUpTest() {
+        graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
+        Assert.assertTrue(graphDatabaseService instanceof HighlyAvailableGraphDatabase);
+    }
 
-	@Override
-	public void tearDownTest() {
-	}
-
+    @Override
+    public void tearDownTest() {
+    }
 }

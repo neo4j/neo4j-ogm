@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -21,8 +23,6 @@ import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
-
-import java.util.UUID;
 
 /**
  * @author vince
@@ -48,7 +48,6 @@ public class LifecycleTest extends EventTestBaseClass {
 
         Assert.assertNotNull(f2.getName());
         Assert.assertNotNull(f2.getUuid());
-
     }
 
     @Test
@@ -70,7 +69,7 @@ public class LifecycleTest extends EventTestBaseClass {
         Assert.assertNotNull(f.getUuid());
 
         //
-        Assert.assertFalse( ((Neo4jSession) session).context().isDirty(f));
+        Assert.assertFalse(((Neo4jSession) session).context().isDirty(f));
 
         session.delete(d);
 
@@ -83,13 +82,12 @@ public class LifecycleTest extends EventTestBaseClass {
 
         Assert.assertTrue(f2.getDocuments().isEmpty());
         Assert.assertEquals("folder", f2.getName());
-
     }
 
     private EventListener uuidEventListener = new EventListener() {
         @Override
         public void onPreSave(Event event) {
-            FileSystemEntity entity = (FileSystemEntity)event.getObject();
+            FileSystemEntity entity = (FileSystemEntity) event.getObject();
             if (entity.getId() == null) {
                 entity.setUuid(UUID.randomUUID().toString());
             }
@@ -102,7 +100,7 @@ public class LifecycleTest extends EventTestBaseClass {
 
         @Override
         public void onPreDelete(Event event) {
-            FileSystemEntity entity = (FileSystemEntity)event.getObject();
+            FileSystemEntity entity = (FileSystemEntity) event.getObject();
             if (entity instanceof Document) {
                 Document d = (Document) entity;
                 Folder f = d.getFolder();
@@ -115,6 +113,4 @@ public class LifecycleTest extends EventTestBaseClass {
 
         }
     };
-
-
 }

@@ -12,8 +12,7 @@
  */
 package org.neo4j.ogm.cypher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +21,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
+import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 
@@ -95,8 +94,6 @@ public class DirectRelationshipsTest {
         createRelStatements = cypherStatements(compiler.createRelationshipsStatements());
         assertEquals(1, createRelStatements.size());
         assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type", createRelStatements.get(0));
-
-
     }
 
     @Test
@@ -282,7 +279,7 @@ public class DirectRelationshipsTest {
         assertEquals(2, createRelStatements.size());
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
-        boolean archivedType=false, containsType=false;
+        boolean archivedType = false, containsType = false;
         for (Statement statement : statements) {
             if (statement.getStatement().contains("ARCHIVED")) {
                 archivedType = true;
@@ -300,7 +297,7 @@ public class DirectRelationshipsTest {
 
         statements = compiler.createNodesStatements();
         createNodeStatements = cypherStatements(statements);
-        assertEquals(2, createNodeStatements.size()) ;
+        assertEquals(2, createNodeStatements.size());
         assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Folder`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Document`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
 
@@ -309,8 +306,8 @@ public class DirectRelationshipsTest {
         assertEquals(2, createRelStatements.size());
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`CONTAINS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`ARCHIVED`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
-        archivedType=false;
-        containsType=false;
+        archivedType = false;
+        containsType = false;
         for (Statement statement : statements) {
             if (statement.getStatement().contains("ARCHIVED")) {
                 archivedType = true;
@@ -389,7 +386,6 @@ public class DirectRelationshipsTest {
         doc2.setFolder(null);
         folder.getDocuments().remove(doc2);
 
-
         // then
         assertEquals(1, folder.getDocuments().size());
 
@@ -464,7 +460,7 @@ public class DirectRelationshipsTest {
 
     private List<String> cypherStatements(List<Statement> statements) {
         List<String> cypher = new ArrayList<>(statements.size());
-        for(Statement statement : statements) {
+        for (Statement statement : statements) {
             cypher.add(statement.getStatement());
         }
         return cypher;

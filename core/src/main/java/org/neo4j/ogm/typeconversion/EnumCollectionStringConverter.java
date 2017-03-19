@@ -17,7 +17,6 @@ import java.util.*;
 /**
  * By default the OGM will map enum collections to and from
  * the string collections containing values returned by enum.name()
- *
  * enum.name() is preferred to enum.ordinal() because it
  * is (slightly) safer: a persisted enum have to be renamed
  * to break its database mapping, whereas if its ordinal

@@ -31,5 +31,4 @@ public class EmptyResponse<T> implements Response {
     public String[] columns() {
         return new String[0];
     }
-
 }

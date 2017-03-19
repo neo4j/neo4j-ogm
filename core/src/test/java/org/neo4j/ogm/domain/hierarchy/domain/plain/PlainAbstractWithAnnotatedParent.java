@@ -19,4 +19,5 @@ import org.neo4j.ogm.domain.hierarchy.domain.annotated.AnnotatedSingleClass;
  * @author Luanne Misquitta
  */
 public abstract class PlainAbstractWithAnnotatedParent extends AnnotatedSingleClass {
+
 }

@@ -25,18 +25,18 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class RowModelResponse extends BoltResponse<RowModel> {
 
-	private final ResultAdapter<Map<String, Object>, RowModel> adapter = new BoltRowModelAdapter();
+    private final ResultAdapter<Map<String, Object>, RowModel> adapter = new BoltRowModelAdapter();
 
-	public RowModelResponse(StatementResult result, TransactionManager transactionManager) {
-		super(result, transactionManager);
-		((BoltRowModelAdapter) adapter).setColumns(Arrays.asList(columns()));
-	}
+    public RowModelResponse(StatementResult result, TransactionManager transactionManager) {
+        super(result, transactionManager);
+        ((BoltRowModelAdapter) adapter).setColumns(Arrays.asList(columns()));
+    }
 
-	@Override
-	public RowModel fetchNext() {
-		if (result.hasNext()) {
-			return adapter.adapt(result.next().asMap());
-		}
-		return null;
-	}
+    @Override
+    public RowModel fetchNext() {
+        if (result.hasNext()) {
+            return adapter.adapt(result.next().asMap());
+        }
+        return null;
+    }
 }

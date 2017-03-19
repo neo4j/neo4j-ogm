@@ -27,5 +27,4 @@ public class Voter extends Entity {
     public Voter(String s) {
         super(s);
     }
-
 }

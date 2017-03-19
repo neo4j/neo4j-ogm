@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.utils;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * @author Mark Angrish

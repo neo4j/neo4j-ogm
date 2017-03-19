@@ -13,16 +13,16 @@
 
 package org.neo4j.ogm.persistence.examples.education;
 
+import static org.junit.Assert.*;
+
+import java.util.*;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Vince Bickers
@@ -44,7 +44,6 @@ public class EducationTest {
         checkCourseNames(mrThomas, "Maths", "English", "Physics");
         checkCourseNames(mrsRoberts, "English", "History", "PE");
         checkCourseNames(missYoung, "History", "Geography", "Philosophy and Ethics");
-
     }
 
     @Test
@@ -56,7 +55,6 @@ public class EducationTest {
         // i.e. we have a set of partially loaded courses attached to our teachers which we now want to
         // hydrate by getting all their relationships
         hydrateCourses(teachers.values());
-
 
         Set<Course> courses = new HashSet<>();
         for (Teacher teacher : teachers.values()) {

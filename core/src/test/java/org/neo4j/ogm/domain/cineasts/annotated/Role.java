@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.StartNode;
  */
 @RelationshipEntity(type = "ACTS_IN")
 public class Role {
+
     Long id;
     @EndNode
     Movie movie;

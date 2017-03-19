@@ -13,14 +13,14 @@
 
 package org.neo4j.ogm.domain.pizza;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Labels;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Labels;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * An entity that contains multiple relationships and RE's with the same relationship type and direction.
@@ -121,8 +121,11 @@ public class Pizza {
         this.cheeses = cheeses;
     }
 
-    public List<String> getLabels() { return labels; }
+    public List<String> getLabels() {
+        return labels;
+    }
 
-    public void setLabels(List<String> labels) { this.labels = labels;}
-
+    public void setLabels(List<String> labels) {
+        this.labels = labels;
+    }
 }

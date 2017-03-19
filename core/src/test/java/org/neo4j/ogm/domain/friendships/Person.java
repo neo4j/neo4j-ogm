@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.domain.friendships;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers
@@ -55,5 +55,4 @@ public class Person {
         this.friends.add(friendship);
         return friendship;
     }
-
 }

@@ -13,8 +13,7 @@
 
 package org.neo4j.ogm.persistence.types.convertible;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -166,13 +165,13 @@ public class NumericConversionTest extends MultiDriverTestClass {
         assertEquals(new Double(31), i.getMaxTemp());
     }
 
-	/**
+    /**
      * @see DATAGRAPH-840
      */
     @Test
     public void shouldConvertToLongInsteadOfCasting() {
         Individual individual = new Individual();
-        individual.setLongCollection(Arrays.<Long>asList(1l,2l,3l));
+        individual.setLongCollection(Arrays.<Long>asList(1l, 2l, 3l));
         session.save(individual);
 
         session.clear();
@@ -181,5 +180,4 @@ public class NumericConversionTest extends MultiDriverTestClass {
             assertTrue(number instanceof Long);
         }
     }
-
 }

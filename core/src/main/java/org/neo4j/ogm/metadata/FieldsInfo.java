@@ -46,21 +46,19 @@ public class FieldsInfo {
                     String typeParameterDescriptor = null;
                     final Type genericType = field.getGenericType();
                     if (genericType instanceof ParameterizedType) {
-                        ParameterizedType parameterizedType = (ParameterizedType)genericType;
+                        ParameterizedType parameterizedType = (ParameterizedType) genericType;
                         final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
                         if (actualTypeArguments.length > 0) {
-                            for (Type typeArgument: actualTypeArguments) {
+                            for (Type typeArgument : actualTypeArguments) {
                                 if (typeArgument instanceof ParameterizedType) {
-                                    ParameterizedType parameterizedTypeArgument = (ParameterizedType)typeArgument;
+                                    ParameterizedType parameterizedTypeArgument = (ParameterizedType) typeArgument;
                                     typeParameterDescriptor = parameterizedTypeArgument.getRawType().getTypeName();
                                     break;
-                                }
-                                else if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
+                                } else if (typeArgument instanceof TypeVariable || typeArgument instanceof WildcardType) {
                                     typeParameterDescriptor = Object.class.getName();
                                     break;
-                                }
-                                else if (typeArgument instanceof Class) {
-                                    typeParameterDescriptor = ((Class)typeArgument).getName();
+                                } else if (typeArgument instanceof Class) {
+                                    typeParameterDescriptor = ((Class) typeArgument).getName();
                                 }
                             }
                         }
@@ -71,7 +69,7 @@ public class FieldsInfo {
                     if (typeParameterDescriptor == null && (genericType instanceof TypeVariable)) {
                         typeParameterDescriptor = field.getType().getTypeName();
                     }
-                    fields.put(field.getName(), new FieldInfo(classInfo, field,typeParameterDescriptor, objectAnnotations));
+                    fields.put(field.getName(), new FieldInfo(classInfo, field, typeParameterDescriptor, objectAnnotations));
                 }
             }
         }

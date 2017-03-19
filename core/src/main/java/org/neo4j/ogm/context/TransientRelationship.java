@@ -19,12 +19,10 @@ import org.neo4j.ogm.cypher.compiler.RelationshipBuilder;
  * A TransientRelationship represents a relationship that is not yet
  * established in the graph, where at least one of either the
  * start node or end node is also a new object.
- *
  * Transient Relationships are recorded while the cypher request
  * to save the domain model is being being constructed, and they are saved
  * in the log of the transaction's current context for post-processing
  * after the save request completes.
- *
  * If the save succeeds, the ids of the two ends of the actual relationship
  * will now be fully known in the response. The start and end nodes of the transient
  * relationship (which were previously place holders) can now be

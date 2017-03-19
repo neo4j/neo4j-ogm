@@ -23,6 +23,7 @@ import org.neo4j.ogm.response.Response;
  */
 
 public interface ResponseMapper<M> {
+
     /**
      * Maps the data representation in the given response onto instances of <code>T</code>.
      *

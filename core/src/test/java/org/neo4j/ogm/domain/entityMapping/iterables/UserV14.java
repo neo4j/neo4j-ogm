@@ -22,5 +22,4 @@ import java.util.Set;
 public class UserV14 extends Entity {
 
     public Set<UserV14> knows;
-
 }

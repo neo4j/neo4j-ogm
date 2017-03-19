@@ -19,6 +19,7 @@ import org.neo4j.ogm.annotation.GraphId;
  * @author Nils Dr\u00F6ge
  */
 public abstract class Entity {
+
     @GraphId
     private Long nodeId;
 

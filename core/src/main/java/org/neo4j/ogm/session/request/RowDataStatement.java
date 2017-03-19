@@ -24,7 +24,7 @@ public class RowDataStatement implements Statement {
 
     private String statement;
     private Map<String, Object> parameters;
-	private String[] resultDataContents = new String[] {"row"};
+    private String[] resultDataContents = new String[]{"row"};
 
     public RowDataStatement() {
     }
@@ -44,13 +44,13 @@ public class RowDataStatement implements Statement {
         return parameters;
     }
 
-	@Override
-	public String[] getResultDataContents() {
-		return resultDataContents;
-	}
+    @Override
+    public String[] getResultDataContents() {
+        return resultDataContents;
+    }
 
-	@Override
-	public boolean isIncludeStats() {
-		return false;
-	}
+    @Override
+    public boolean isIncludeStats() {
+        return false;
+    }
 }

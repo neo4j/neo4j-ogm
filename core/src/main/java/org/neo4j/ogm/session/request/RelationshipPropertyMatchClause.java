@@ -22,49 +22,49 @@ import org.neo4j.ogm.cypher.Filter;
  */
 public class RelationshipPropertyMatchClause implements MatchClause {
 
-	private int index;
-	private String relationshipType;
-	private StringBuilder clause;
+    private int index;
+    private String relationshipType;
+    private StringBuilder clause;
 
-	public RelationshipPropertyMatchClause(int index, String relationshipType) {
-		this.index = index;
-		this.relationshipType = relationshipType;
-	}
+    public RelationshipPropertyMatchClause(int index, String relationshipType) {
+        this.index = index;
+        this.relationshipType = relationshipType;
+    }
 
-	@Override
-	public MatchClause append(Filter filter) {
-		if (clause == null) {
-			clause = new StringBuilder("MATCH (n)");
-			if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
-				clause.append("<");
-			}
+    @Override
+    public MatchClause append(Filter filter) {
+        if (clause == null) {
+            clause = new StringBuilder("MATCH (n)");
+            if (filter.getRelationshipDirection().equals(Relationship.INCOMING)) {
+                clause.append("<");
+            }
 //			String relationshipIdentifier = filter.isNestedRelationshipEntity() ? relationshipIdentifier() : "";
-			clause.append(String.format("-[%s:`%s`]-", relationshipIdentifier(), this.relationshipType));
-			if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
-				clause.append(">");
-			}
-			clause.append(String.format("(%s) ", nodeIdentifier()));
-		}
+            clause.append(String.format("-[%s:`%s`]-", relationshipIdentifier(), this.relationshipType));
+            if (filter.getRelationshipDirection().equals(Relationship.OUTGOING)) {
+                clause.append(">");
+            }
+            clause.append(String.format("(%s) ", nodeIdentifier()));
+        }
 
-		//TODO this implies support for querying by one relationship entity only
-		clause.append(filter.toCypher(relationshipIdentifier(), clause.indexOf(" WHERE ") == -1));
-		return this;
-	}
+        //TODO this implies support for querying by one relationship entity only
+        clause.append(filter.toCypher(relationshipIdentifier(), clause.indexOf(" WHERE ") == -1));
+        return this;
+    }
 
-	public String getRelationshipType() {
-		return relationshipType;
-	}
+    public String getRelationshipType() {
+        return relationshipType;
+    }
 
-	@Override
-	public String toCypher() {
-		return clause.toString();
-	}
+    @Override
+    public String toCypher() {
+        return clause.toString();
+    }
 
-	private String nodeIdentifier() {
-		return "m" + this.index;
-	}
+    private String nodeIdentifier() {
+        return "m" + this.index;
+    }
 
-	private String relationshipIdentifier() {
-		return "r" + this.index;
-	}
+    private String relationshipIdentifier() {
+        return "r" + this.index;
+    }
 }

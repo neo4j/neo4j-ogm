@@ -13,11 +13,7 @@
 
 package org.neo4j.ogm.config;
 
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.junit.*;
-import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +21,11 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertNotNull;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.junit.*;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 
 /**
  * @author vince
@@ -39,7 +39,7 @@ public class DriverServiceTest {
     public static void createEmbeddedStore() throws IOException {
         try {
             Files.createDirectory(Paths.get(TMP_NEO4J_DB));
-        } catch(FileAlreadyExistsException e){
+        } catch (FileAlreadyExistsException e) {
             // the directory already exists.
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -99,12 +99,9 @@ public class DriverServiceTest {
     /**
      * This test is marked @Ignore by default because it requires a locally running
      * Neo4j server to be installed, authenticating with 'neo4j:password'.
-     *
      * Note: The mechanism to ignore SSL handshaking installs a trust-everybody trust manager into
      * any HttpDriver that is created with the 'ACCEPT_UNSIGNED' trust strategy baseConfiguration setting.
-     *
      * It does not contaminate the behaviour of other any HttpDrivers that may be running.
-     *
      */
     @Test
     @Ignore
@@ -117,7 +114,6 @@ public class DriverServiceTest {
                 "  } ]\n" +
                 "}", "UTF-8"));
 
-
         // note that the default driver class is set from the URI if a driver class has not yet been configured
         Configuration configuration = new Configuration();
         configuration.setURI("https://neo4j:password@localhost:7473");
@@ -129,7 +125,6 @@ public class DriverServiceTest {
             // expected
         }
 
-
         // now set the config to ignore SSL handshaking and try again;
         configuration.setTrustStrategy("ACCEPT_UNSIGNED");
 
@@ -140,5 +135,4 @@ public class DriverServiceTest {
             Assert.fail("Should NOT have thrown security exception");
         }
     }
-
 }

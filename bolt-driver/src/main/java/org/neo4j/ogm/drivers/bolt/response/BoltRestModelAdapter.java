@@ -23,51 +23,51 @@ import org.neo4j.ogm.result.adapter.RestModelAdapter;
  */
 public class BoltRestModelAdapter extends RestModelAdapter {
 
-	private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
+    private BoltEntityAdapter entityAdapter = new BoltEntityAdapter();
 
-	@Override
-	public boolean isNode(Object value) {
-		return entityAdapter.isNode(value);
-	}
+    @Override
+    public boolean isNode(Object value) {
+        return entityAdapter.isNode(value);
+    }
 
-	@Override
-	public boolean isRelationship(Object value) {
-		return entityAdapter.isRelationship(value);
-	}
+    @Override
+    public boolean isRelationship(Object value) {
+        return entityAdapter.isRelationship(value);
+    }
 
-	@Override
-	public long nodeId(Object node) {
-		return entityAdapter.nodeId(node);
-	}
+    @Override
+    public long nodeId(Object node) {
+        return entityAdapter.nodeId(node);
+    }
 
-	@Override
-	public List<String> labels(Object value) {
-		return entityAdapter.labels(value);
-	}
+    @Override
+    public List<String> labels(Object value) {
+        return entityAdapter.labels(value);
+    }
 
 
-	@Override
-	public long relationshipId(Object relationship) {
-		return entityAdapter.relationshipId(relationship);
-	}
+    @Override
+    public long relationshipId(Object relationship) {
+        return entityAdapter.relationshipId(relationship);
+    }
 
-	@Override
-	public String relationshipType(Object relationship) {
-		return entityAdapter.relationshipType(relationship);
-	}
+    @Override
+    public String relationshipType(Object relationship) {
+        return entityAdapter.relationshipType(relationship);
+    }
 
-	@Override
-	public Long startNodeId(Object relationship) {
-		return entityAdapter.startNodeId(relationship);
-	}
+    @Override
+    public Long startNodeId(Object relationship) {
+        return entityAdapter.startNodeId(relationship);
+    }
 
-	@Override
-	public Long endNodeId(Object relationship) {
-		return entityAdapter.endNodeId(relationship);
-	}
+    @Override
+    public Long endNodeId(Object relationship) {
+        return entityAdapter.endNodeId(relationship);
+    }
 
-	@Override
-	public Map<String, Object> properties(Object container) {
-		return entityAdapter.properties(container);
-	}
+    @Override
+    public Map<String, Object> properties(Object container) {
+        return entityAdapter.properties(container);
+    }
 }

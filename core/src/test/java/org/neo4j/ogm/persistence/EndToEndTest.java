@@ -13,11 +13,8 @@
 
 package org.neo4j.ogm.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -44,7 +41,7 @@ public class EndToEndTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration,"org.neo4j.ogm.domain.bike");
+        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.bike");
     }
 
     @Before
@@ -79,7 +76,6 @@ public class EndToEndTest extends MultiDriverTestClass {
 
         assertEquals(bike.getId(), actual2.getId());
         assertEquals(bike.getBrand(), actual2.getBrand());
-
     }
 
 
@@ -183,7 +179,5 @@ public class EndToEndTest extends MultiDriverTestClass {
         assertNotNull(bike.getId());
         assertNotNull(bike.getFrame().getId());
         assertNotNull(bike.getSaddle().getId());
-
     }
-
 }

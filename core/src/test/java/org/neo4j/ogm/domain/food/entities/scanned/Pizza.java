@@ -26,15 +26,13 @@ public class Pizza {
 
     public Risk strokeRisk;
 
-	@Convert(RiskConverter.class)
+    @Convert(RiskConverter.class)
     public Risk diabetesRisk;
 
-	@Property(name = "riskCancer")
-	public Risk cancerRisk;
+    @Property(name = "riskCancer")
+    public Risk cancerRisk;
 
-	@Convert(RiskConverter.class)
-	@Property(name = "riskHT")
-	public Risk hypertensionRisk;
-
-
+    @Convert(RiskConverter.class)
+    @Property(name = "riskHT")
+    public Risk hypertensionRisk;
 }

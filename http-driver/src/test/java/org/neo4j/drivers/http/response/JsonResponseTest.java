@@ -12,6 +12,12 @@
  */
 package org.neo4j.drivers.http.response;
 
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.Before;
@@ -22,33 +28,24 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author vince
  */
 public class JsonResponseTest {
 
-    private static CloseableHttpResponse response = mock( CloseableHttpResponse.class );
-    private static HttpEntity entity = mock( HttpEntity.class );
+    private static CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+    private static HttpEntity entity = mock(HttpEntity.class);
 
     @Before
-    public void setUpMocks()
-    {
-        when( response.getEntity() ).thenReturn( entity );
+    public void setUpMocks() {
+        when(response.getEntity()).thenReturn(entity);
     }
 
     @Test(expected = CypherException.class)
-    public void shouldHandleNoResultsAndErrors() throws IOException
-    {
+    public void shouldHandleNoResultsAndErrors() throws IOException {
         when(entity.getContent()).thenReturn(noResultsAndErrors());
 
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             parseResponse(rsp);
         }
     }
@@ -58,7 +55,7 @@ public class JsonResponseTest {
 
         when(entity.getContent()).thenReturn(resultsAndErrors());
 
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             parseResponse(rsp);
         }
     }
@@ -68,7 +65,7 @@ public class JsonResponseTest {
 
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             parseResponse(rsp);
         }
     }
@@ -78,14 +75,14 @@ public class JsonResponseTest {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
-        try( Response<DefaultRowModel> rsp = new TestRowHttpResponse() ) {
+        try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             parseResponse(rsp);
         }
     }
 
     private void parseResponse(Response<DefaultRowModel> rsp) {
         //noinspection StatementWithEmptyBody
-        while (rsp.next() != null);
+        while (rsp.next() != null) ;
     }
 
     private InputStream resultsAndErrors() {
@@ -131,7 +128,7 @@ public class JsonResponseTest {
 
     private InputStream rowResultsAndNoErrors() {
 
-        final String s= "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
+        final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
 
         return new ByteArrayInputStream(s.getBytes());
     }
@@ -164,6 +161,5 @@ public class JsonResponseTest {
         public void close() {
             //Nothing to do, the response has been closed already
         }
-
     }
 }

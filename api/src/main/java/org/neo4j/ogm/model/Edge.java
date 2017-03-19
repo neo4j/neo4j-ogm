@@ -19,6 +19,7 @@ import java.util.List;
  * @author vince
  */
 public interface Edge {
+
     String getType();
 
     Long getStartNode();
@@ -28,5 +29,4 @@ public interface Edge {
     Long getId();
 
     List<Property<String, Object>> getPropertyList();
-
 }

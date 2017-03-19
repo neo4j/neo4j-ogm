@@ -25,33 +25,33 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class Tag extends BaseNode {
 
-	@Relationship(type = "CREATOR", direction = "INCOMING")
-	Member creator;
+    @Relationship(type = "CREATOR", direction = "INCOMING")
+    Member creator;
 
-	@Relationship(type = "TAGGED_WITH", direction = "INCOMING")
-	Set<Event> events = new HashSet<>();
+    @Relationship(type = "TAGGED_WITH", direction = "INCOMING")
+    Set<Event> events = new HashSet<>();
 
-	public Member getCreator() {
-		return creator;
-	}
+    public Member getCreator() {
+        return creator;
+    }
 
-	public void setCreator(Member creator) {
-		this.creator = creator;
-	}
+    public void setCreator(Member creator) {
+        this.creator = creator;
+    }
 
-	public Set<Event> getEvents() {
-		return events;
-	}
+    public Set<Event> getEvents() {
+        return events;
+    }
 
-	public void setEvents(Set<Event> events) {
-		this.events = events;
-	}
+    public void setEvents(Set<Event> events) {
+        this.events = events;
+    }
 
 
-	public Tag() {
-	}
+    public Tag() {
+    }
 
-	public Tag(String name) {
-		super(name);
-	}
+    public Tag(String name) {
+        super(name);
+    }
 }

@@ -15,32 +15,33 @@ package org.neo4j.ogm.context;
 
 /**
  * A DirectedRelationship mapping to objects of a particular type.
+ *
  * @author Luanne Misquitta
  */
 public class DirectedRelationshipForType extends DirectedRelationship {
 
-	Class type;
+    Class type;
 
-	public DirectedRelationshipForType(String relationshipType, String relationshipDirection, Class type) {
-		super(relationshipType, relationshipDirection);
-		this.type = type;
-	}
+    public DirectedRelationshipForType(String relationshipType, String relationshipDirection, Class type) {
+        super(relationshipType, relationshipDirection);
+        this.type = type;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
-		DirectedRelationshipForType that = (DirectedRelationshipForType) o;
+        DirectedRelationshipForType that = (DirectedRelationshipForType) o;
 
-		return type.equals(that.type);
-	}
+        return type.equals(that.type);
+    }
 
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		result = 31 * result + type.hashCode();
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
+    }
 }

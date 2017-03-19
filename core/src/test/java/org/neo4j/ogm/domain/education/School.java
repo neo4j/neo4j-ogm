@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.PostLoad;
-import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Vince Bickers

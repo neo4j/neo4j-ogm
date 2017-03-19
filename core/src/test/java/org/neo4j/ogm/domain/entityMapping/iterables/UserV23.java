@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.List;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * One iterable and one scalar, same relationship types, incoming, fields and methods annotated

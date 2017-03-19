@@ -27,7 +27,6 @@ import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
- *
  * This test class defines the behaviour of a transaction which is open
  * on the client, but closed on the server (for whatever reason), under
  * the different scenarios of commit, rollback and close.
@@ -36,48 +35,48 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class ClosedTransactionTest extends MultiDriverTestClass {
 
-	private static SessionFactory sessionFactory;
-	private Session session;
-	private DefaultTransactionManager transactionManager;
+    private static SessionFactory sessionFactory;
+    private Session session;
+    private DefaultTransactionManager transactionManager;
 
-	private Transaction tx;
+    private Transaction tx;
 
 
-	@BeforeClass
-	public static void oneTimeSetUp() {
-		sessionFactory = new SessionFactory("org.neo4j.ogm.domain.tree");
-	}
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.tree");
+    }
 
-	@Before
-	public void init() {
-		transactionManager = new DefaultTransactionManager(session, Components.driver());
-		session = sessionFactory.openSession();
-	}
+    @Before
+    public void init() {
+        transactionManager = new DefaultTransactionManager(session, Components.driver());
+        session = sessionFactory.openSession();
+    }
 
-	@Before
-	public void createTransactionAndCloseOnServerButNotOnClient() {
-		tx = transactionManager.openTransaction();
-		tx.close();
-		transactionManager.reinstate((AbstractTransaction) tx);
-	}
+    @Before
+    public void createTransactionAndCloseOnServerButNotOnClient() {
+        tx = transactionManager.openTransaction();
+        tx.close();
+        transactionManager.reinstate((AbstractTransaction) tx);
+    }
 
-	@After
-	public void clearTransactionManager() {
-		transactionManager.clear();
-	}
+    @After
+    public void clearTransactionManager() {
+        transactionManager.clear();
+    }
 
-	@Test
-	public void shouldNotThrowExceptionWhenRollingBackAClosedTransaction() {
-		tx.rollback();
-	}
+    @Test
+    public void shouldNotThrowExceptionWhenRollingBackAClosedTransaction() {
+        tx.rollback();
+    }
 
-	@Test
-	public void shouldNotThrowExceptionWhenClosingAClosedTransaction() {
-		tx.close();
-	}
+    @Test
+    public void shouldNotThrowExceptionWhenClosingAClosedTransaction() {
+        tx.close();
+    }
 
-	@Test(expected = TransactionException.class)
-	public void shouldThrowExceptionWhenCommittingAClosedTransaction() {
-		tx.commit();
-	}
+    @Test(expected = TransactionException.class)
+    public void shouldThrowExceptionWhenCommittingAClosedTransaction() {
+        tx.commit();
+    }
 }

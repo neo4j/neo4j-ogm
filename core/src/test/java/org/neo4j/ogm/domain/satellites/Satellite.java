@@ -102,5 +102,4 @@ public class Satellite extends DomainObject {
     public void setProgram(Program program) {
         this.program = program;
     }
-
 }

@@ -62,5 +62,4 @@ public class DistanceComparison implements FilterFunction<DistanceFromPoint> {
         map.put("distance", value.getDistance());
         return map;
     }
-
 }

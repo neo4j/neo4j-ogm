@@ -26,7 +26,7 @@ import org.neo4j.ogm.metadata.reflect.EntityFactory;
  */
 public class SingleUseEntityMapperTest {
 
-	private MetaData metaData = new MetaData("org.neo4j.ogm.context");
+    private MetaData metaData = new MetaData("org.neo4j.ogm.context");
 
 //	@Test
 //	public void shouldMapFromRowModel() throws Exception {
@@ -34,40 +34,38 @@ public class SingleUseEntityMapperTest {
 //
 //	}
 
-	@Test
-	public void shouldMapFromMap() throws Exception {
+    @Test
+    public void shouldMapFromMap() throws Exception {
 
-		Collection<Object> toReturn = new ArrayList<>();
-		SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new EntityFactory(metaData));
+        Collection<Object> toReturn = new ArrayList<>();
+        SingleUseEntityMapper entityMapper = new SingleUseEntityMapper(metaData, new EntityFactory(metaData));
 
-		Iterable<Map<String, Object>> results = getQueryResults();
+        Iterable<Map<String, Object>> results = getQueryResults();
 
-		for (Map<String, Object> result : results) {
-			toReturn.add(entityMapper.map(UserResult.class, result));
-		}
-	}
+        for (Map<String, Object> result : results) {
+            toReturn.add(entityMapper.map(UserResult.class, result));
+        }
+    }
 
-	private Iterable<Map<String, Object>> getQueryResults() {
-		List<Map<String, Object>> results = new ArrayList<>();
+    private Iterable<Map<String, Object>> getQueryResults() {
+        List<Map<String, Object>> results = new ArrayList<>();
 
-		Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
 
-		Map<String, Object> profile = new HashMap<>();
+        Map<String, Object> profile = new HashMap<>();
 
-		profile.put("enterpriseId","p.enterpriseId");
-		profile.put("clidUuid", "u.clidUuid");
-		profile.put("profileId","p.clidUuid");
-		profile.put("firstName","p.firstName");
-		profile.put("lastName","p.lastName");
-		profile.put("email","u.email");
-		profile.put("roles","roles");
-		profile.put("connectionType","connectionType");
+        profile.put("enterpriseId", "p.enterpriseId");
+        profile.put("clidUuid", "u.clidUuid");
+        profile.put("profileId", "p.clidUuid");
+        profile.put("firstName", "p.firstName");
+        profile.put("lastName", "p.lastName");
+        profile.put("email", "u.email");
+        profile.put("roles", "roles");
+        profile.put("connectionType", "connectionType");
 
-		result.put("profile", profile);
-		results.add(result);
+        result.put("profile", profile);
+        results.add(result);
 
-		return results;
-	}
-
-
+        return results;
+    }
 }

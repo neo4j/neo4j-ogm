@@ -12,9 +12,7 @@
  */
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.math.RoundingMode;
 
@@ -33,7 +31,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Mihai Raulea
  * @author Luanne Misquitta
- *
  * @see issue #145
  */
 public class EnumsNotScannedTest extends MultiDriverTestClass {
@@ -121,8 +118,8 @@ public class EnumsNotScannedTest extends MultiDriverTestClass {
         assertNull(pizza.cancerRisk);
     }
 
-	/**
-	 * @see DATAGRAPH-659
+    /**
+     * @see DATAGRAPH-659
      */
     @Test
     public void shouldHandleJavaEnums() {
@@ -135,5 +132,4 @@ public class EnumsNotScannedTest extends MultiDriverTestClass {
         assertNotNull(pizza);
         assertEquals(RoundingMode.CEILING, pizza.roundingMode);
     }
-
 }

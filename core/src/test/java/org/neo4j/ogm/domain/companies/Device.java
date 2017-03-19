@@ -21,25 +21,26 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 @NodeEntity
 public class Device {
-	@GraphId
-	private Long id;
 
-	@Relationship(type ="DEVICE", direction = Relationship.UNDIRECTED)
-	private Person person;
+    @GraphId
+    private Long id;
 
-	public Person getPerson() {
-		return person;
-	}
+    @Relationship(type = "DEVICE", direction = Relationship.UNDIRECTED)
+    private Person person;
 
-	public void setPerson(Person person) {
-		this.person = person;
-	}
+    public Person getPerson() {
+        return person;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public void setPerson(Person person) {
+        this.person = person;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

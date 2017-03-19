@@ -16,7 +16,6 @@ package org.neo4j.ogm.metadata;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,8 +30,7 @@ public class AnnotationInfo {
         final Class<?> returnType = element.getReturnType();
         if (returnType.isPrimitive()) {
             return String.valueOf(value);
-        }
-        else if (returnType.equals(Class.class)) {
+        } else if (returnType.equals(Class.class)) {
             return ((Class) value).getName();
         } else {
             final String result = value.toString();

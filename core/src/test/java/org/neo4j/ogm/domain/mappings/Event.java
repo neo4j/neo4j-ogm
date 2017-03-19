@@ -13,16 +13,17 @@
 
 package org.neo4j.ogm.domain.mappings;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Nils Dr\u00F6ge
  */
 public class Event extends Entity {
+
     private String title;
 
     @Relationship(type = "HAS")

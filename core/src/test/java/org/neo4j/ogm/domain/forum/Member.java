@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.domain.forum;
 
+import java.util.Date;
+import java.util.List;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.domain.forum.activity.Activity;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Vince Bickers
@@ -90,5 +90,4 @@ public class Member extends Login {
     public void setNicknames(int[] nicknames) {
         this.nicknames = nicknames;
     }
-
 }

@@ -13,13 +13,12 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.neo4j.ogm.domain.filesystem.Document;
 import org.neo4j.ogm.domain.filesystem.Folder;
 import org.neo4j.ogm.session.event.Event;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author vince
@@ -63,7 +62,6 @@ public class NodeEntityTest extends EventTestBaseClass {
 
         assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
         assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
-
     }
 
     @Test
@@ -76,7 +74,6 @@ public class NodeEntityTest extends EventTestBaseClass {
 
         assertTrue(eventListener.captured(a, Event.TYPE.PRE_SAVE));
         assertTrue(eventListener.captured(a, Event.TYPE.POST_SAVE));
-
     }
 
     @Test
@@ -87,7 +84,6 @@ public class NodeEntityTest extends EventTestBaseClass {
         session.delete(unpersistedDocument);
 
         assertEquals(0, eventListener.count());
-
     }
 
     @Test
@@ -105,6 +101,5 @@ public class NodeEntityTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(lee, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
-
     }
 }

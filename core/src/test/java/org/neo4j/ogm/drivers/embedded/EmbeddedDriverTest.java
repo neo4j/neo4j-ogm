@@ -18,9 +18,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.kernel.impl.factory.GraphDatabaseFacade;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.config.Components;
 
 /**
  * @author vince
@@ -31,20 +31,20 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() throws Exception {
-		Components.configure("embedded.driver.properties");
-		deleteExistingEmbeddedDatabase();
+        Components.configure("embedded.driver.properties");
+        deleteExistingEmbeddedDatabase();
     }
 
 
-	@AfterClass
+    @AfterClass
     public static void reset() {
         Components.destroy();
     }
 
     @Override
     public void setUpTest() {
-		graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
-		Assert.assertTrue(graphDatabaseService instanceof GraphDatabaseFacade);
+        graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
+        Assert.assertTrue(graphDatabaseService instanceof GraphDatabaseFacade);
     }
 
     @Override

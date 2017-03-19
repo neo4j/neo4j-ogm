@@ -23,45 +23,45 @@ import org.neo4j.ogm.annotation.Relationship;
  * @author Luanne Misquitta
  */
 @NodeEntity(label = "DataViewOwned")
-public class DataViewOwned extends AbstractNamedOwnedObject{
+public class DataViewOwned extends AbstractNamedOwnedObject {
 
-	String name;
+    String name;
 
-	@Relationship(type= "OWNER", direction = Relationship.OUTGOING)
-	public ThingOwned owner;
+    @Relationship(type = "OWNER", direction = Relationship.OUTGOING)
+    public ThingOwned owner;
 
-	@Relationship(type= "SHARED_WITH", direction = Relationship.OUTGOING)
-	public List<ThingOwned> sharedWith = new ArrayList<>();
+    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    public List<ThingOwned> sharedWith = new ArrayList<>();
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public ThingOwned getOwner() {
-		return owner;
-	}
+    public ThingOwned getOwner() {
+        return owner;
+    }
 
-	public void setOwner(ThingOwned owner) {
-		this.owner = owner;
-	}
+    public void setOwner(ThingOwned owner) {
+        this.owner = owner;
+    }
 
-	public List<ThingOwned> getSharedWith() {
-		return sharedWith;
-	}
+    public List<ThingOwned> getSharedWith() {
+        return sharedWith;
+    }
 
-	public void setSharedWith(List<ThingOwned> sharedWith) {
-		this.sharedWith = sharedWith;
-	}
+    public void setSharedWith(List<ThingOwned> sharedWith) {
+        this.sharedWith = sharedWith;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 }

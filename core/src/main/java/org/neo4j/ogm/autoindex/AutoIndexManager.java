@@ -20,11 +20,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
@@ -87,7 +87,7 @@ public class AutoIndexManager {
      * Builds indexes according to the configured mode.
      */
     public void build() {
-        switch ( AutoIndexMode.fromString(configuration.getAutoIndex())) {
+        switch (AutoIndexMode.fromString(configuration.getAutoIndex())) {
             case ASSERT:
                 assertIndexes();
                 break;

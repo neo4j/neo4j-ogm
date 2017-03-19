@@ -13,13 +13,12 @@
 
 package org.neo4j.ogm.typeconversion;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.convertible.bytes.PhotoWrapper;
 import org.neo4j.ogm.metadata.ClassInfo;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
@@ -59,7 +58,5 @@ public class ByteArrayWrapperConversionTest {
         assertEquals(Byte.decode("2"), image[1]);
         assertEquals(Byte.decode("3"), image[2]);
         assertEquals(Byte.decode("4"), image[3]);
-
     }
-
 }

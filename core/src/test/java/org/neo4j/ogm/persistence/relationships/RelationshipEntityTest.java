@@ -116,7 +116,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         assertNotNull(u);
         assertEquals(0, u.rset.size());
-
     }
 
     @Test
@@ -293,7 +292,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         Assert.assertNotNull(link.id);
         Arc reloaded = session.queryForObject(Arc.class, "MATCH (f:Vertex)-[a:Arc]->(t:Vertex) return f, a, t", Utils.map());
 
-
         Assert.assertNotNull(reloaded);
         Assert.assertNotNull(reloaded.from);
         Assert.assertNotNull(reloaded.to);
@@ -301,7 +299,6 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
         Assert.assertEquals(link.id, reloaded.id);
         Assert.assertEquals(from.id, reloaded.from.id);
         Assert.assertEquals(to.id, reloaded.to.id);
-
     }
 
     @NodeEntity(label = "U")
@@ -362,6 +359,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
     @NodeEntity(label = "Vertex")
     public static class Vertex {
+
         Long id;
         String name;
     }
@@ -377,6 +375,5 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
         @EndNode
         Vertex to;
-
     }
 }

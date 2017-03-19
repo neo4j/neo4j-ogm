@@ -32,47 +32,47 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  */
 public class LoadOneDelegate {
 
-	private Neo4jSession session;
+    private Neo4jSession session;
 
-	public LoadOneDelegate(Neo4jSession session) {
-		this.session = session;
-	}
+    public LoadOneDelegate(Neo4jSession session) {
+        this.session = session;
+    }
 
-	public <T, ID extends Serializable> T load(Class<T> type, ID id) {
-		return load(type, id, 1);
-	}
+    public <T, ID extends Serializable> T load(Class<T> type, ID id) {
+        return load(type, id, 1);
+    }
 
-	public <T, ID extends Serializable> T load(Class<T> type, ID id, int depth) {
+    public <T, ID extends Serializable> T load(Class<T> type, ID id, int depth) {
 
-		final FieldInfo primaryIndexField = session.metaData().classInfo(type.getName()).primaryIndexField();
-		if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
-			throw new Neo4jException("Supplied id does not match primary index type on supplied class.");
-		}
+        final FieldInfo primaryIndexField = session.metaData().classInfo(type.getName()).primaryIndexField();
+        if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
+            throw new Neo4jException("Supplied id does not match primary index type on supplied class.");
+        }
 
-		QueryStatements queryStatements = session.queryStatementsFor(type);
-		PagingAndSortingQuery qry = queryStatements.findOne(id, depth);
+        QueryStatements queryStatements = session.queryStatementsFor(type);
+        PagingAndSortingQuery qry = queryStatements.findOne(id, depth);
 
-		try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-			new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-			return lookup(type, id);
-		}
-	}
+        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+            new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
+            return lookup(type, id);
+        }
+    }
 
-	private <T, U> T lookup(Class<T> type, U id) {
-		Object ref;
-		ClassInfo typeInfo = session.metaData().classInfo(type.getName());
+    private <T, U> T lookup(Class<T> type, U id) {
+        Object ref;
+        ClassInfo typeInfo = session.metaData().classInfo(type.getName());
 
-		if (typeInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-			ref = session.context().getNodeEntity(id);
-		} else {
-			// Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
-			// But we know this will always be Long.
-			ref = session.context().getRelationshipEntity((Long) id);
-		}
-		try {
-			return type.cast(ref);
-		} catch (ClassCastException cce) {
-			return null;
-		}
-	}
+        if (typeInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
+            ref = session.context().getNodeEntity(id);
+        } else {
+            // Coercing to Long. identityField.convertedType() yields no parametrised type to call cast() with.
+            // But we know this will always be Long.
+            ref = session.context().getRelationshipEntity((Long) id);
+        }
+        try {
+            return type.cast(ref);
+        } catch (ClassCastException cce) {
+            return null;
+        }
+    }
 }

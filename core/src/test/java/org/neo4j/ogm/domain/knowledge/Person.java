@@ -13,11 +13,11 @@
 
 package org.neo4j.ogm.domain.knowledge;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author vince
@@ -31,7 +31,8 @@ public class Person extends Entity {
     @Relationship(type = "KNOWS_LANGUAGE")
     List<Knows> knownLanguages = new ArrayList<>();
 
-    public Person() {}
+    public Person() {
+    }
 
     public Person(String name) {
         this.name = name;

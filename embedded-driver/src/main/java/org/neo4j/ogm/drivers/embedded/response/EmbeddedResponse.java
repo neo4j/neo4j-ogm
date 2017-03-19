@@ -13,8 +13,8 @@
 
 package org.neo4j.ogm.drivers.embedded.response;
 
-import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.graphdb.Result;
+import org.neo4j.ogm.drivers.embedded.transaction.EmbeddedTransaction;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.transaction.TransactionManager;
 import org.slf4j.Logger;
@@ -61,7 +61,6 @@ public abstract class EmbeddedResponse<T> implements Response {
     public String[] columns() {
         return result.columns().toArray(new String[result.columns().size()]);
     }
-
 }
 
 

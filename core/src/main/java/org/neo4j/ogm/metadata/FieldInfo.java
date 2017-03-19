@@ -85,7 +85,7 @@ public class FieldInfo {
      * if that's not appropriate
      * @param annotations The {@link ObjectAnnotations} applied to the field
      */
-    public FieldInfo(ClassInfo classInfo, Field field,String typeParameterDescriptor, ObjectAnnotations annotations) {
+    public FieldInfo(ClassInfo classInfo, Field field, String typeParameterDescriptor, ObjectAnnotations annotations) {
         this.containingClassInfo = classInfo;
         this.field = field;
         this.fieldType = field.getType();
@@ -225,7 +225,7 @@ public class FieldInfo {
     }
 
     public boolean isIterable() {
-            return Iterable.class.isAssignableFrom(fieldType);
+        return Iterable.class.isAssignableFrom(fieldType);
     }
 
     public boolean isParameterisedTypeOf(Class<?> type) {

@@ -19,6 +19,8 @@ package org.neo4j.ogm.response;
 public interface Response<T> extends AutoCloseable {
 
     T next();
+
     void close();
+
     String[] columns();
 }

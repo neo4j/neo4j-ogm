@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.persistence.relationships;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -87,7 +87,6 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         assertEquals(2, jim.peopleWhoFollowMe.size());
         assertEquals("Mary", jim.peopleILike.get(0).name);
 
-
         Person bill = session.loadAll(Person.class, new Filter("name", ComparisonOperator.EQUALS, "Bill")).iterator().next();
         assertEquals(2, bill.movieRatings.size());
         assertEquals(1, bill.peopleILike.size());
@@ -138,7 +137,6 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         jim.peopleWhoFollowMe.add(mary);
         jim.peopleWhoLikeMe.add(mary);
         session.save(jim);
-
 
         Movie matrix = new Movie();
         matrix.name = "The Matrix";
@@ -207,7 +205,6 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
 
         Person bob = new Person();
         bob.name = "Bob";
-
 
         Rating ratingSix = Rating.create(bob, matrix, 4);
         Rating ratingSeven = Rating.create(bob, matrix, 5);

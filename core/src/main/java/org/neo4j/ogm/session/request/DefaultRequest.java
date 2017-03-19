@@ -22,13 +22,13 @@ import org.neo4j.ogm.request.Statement;
  */
 public class DefaultRequest implements org.neo4j.ogm.request.DefaultRequest {
 
-	List<Statement> statements;
+    List<Statement> statements;
 
-	public List<Statement> getStatements() {
-		return statements;
-	}
+    public List<Statement> getStatements() {
+        return statements;
+    }
 
-	public void setStatements(List<Statement> statements) {
-		this.statements = statements;
-	}
+    public void setStatements(List<Statement> statements) {
+        this.statements = statements;
+    }
 }

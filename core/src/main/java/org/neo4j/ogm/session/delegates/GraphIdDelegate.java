@@ -14,7 +14,6 @@
 package org.neo4j.ogm.session.delegates;
 
 
-import org.neo4j.ogm.metadata.reflect.EntityAccessManager;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
@@ -24,35 +23,35 @@ import org.neo4j.ogm.session.Neo4jSession;
  */
 public class GraphIdDelegate {
 
-	private final Neo4jSession session;
+    private final Neo4jSession session;
 
-	public GraphIdDelegate(Neo4jSession session) {
-		this.session = session;
-	}
+    public GraphIdDelegate(Neo4jSession session) {
+        this.session = session;
+    }
 
-	public Long resolveGraphIdFor(Object possibleEntity) {
-		if (possibleEntity != null) {
-			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
-			try {
-				if (classInfo != null) {
-					Object id = classInfo.identityField().readProperty(possibleEntity);
-					if (id != null) {
-						return (long) id;
-					}
-				}
-			} catch (MappingException me) {
-				//Possibly no identity field on the entity. One example is an Enum- it won't have an identity field.
-				return null;
-			}
-		}
-		return null;
-	}
+    public Long resolveGraphIdFor(Object possibleEntity) {
+        if (possibleEntity != null) {
+            ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
+            try {
+                if (classInfo != null) {
+                    Object id = classInfo.identityField().readProperty(possibleEntity);
+                    if (id != null) {
+                        return (long) id;
+                    }
+                }
+            } catch (MappingException me) {
+                //Possibly no identity field on the entity. One example is an Enum- it won't have an identity field.
+                return null;
+            }
+        }
+        return null;
+    }
 
-	public boolean detachNodeEntity(Long id) {
-		return session.context().detachNodeEntity(id);
-	}
+    public boolean detachNodeEntity(Long id) {
+        return session.context().detachNodeEntity(id);
+    }
 
-	public boolean detachRelationshipEntity(Long id) {
-		return session.context().detachRelationshipEntity(id);
-	}
+    public boolean detachRelationshipEntity(Long id) {
+        return session.context().detachRelationshipEntity(id);
+    }
 }

@@ -20,10 +20,10 @@ package org.neo4j.ogm.session.event;
 public interface Event {
 
     Object getObject();
+
     TYPE getLifeCycle();
 
     enum TYPE {
         PRE_SAVE, POST_SAVE, PRE_DELETE, POST_DELETE
     }
-
 }

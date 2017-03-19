@@ -27,9 +27,8 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
- * @see Issue #130
- *
  * @author vince
+ * @see Issue #130
  */
 public class TransactionSerialisationTest extends MultiDriverTestClass {
 
@@ -86,25 +85,24 @@ public class TransactionSerialisationTest extends MultiDriverTestClass {
         @Override
         public void run() {
 
-			Session session = sessionFactory.openSession();
+            Session session = sessionFactory.openSession();
 
-			try (Transaction tx = session.beginTransaction()) {
+            try (Transaction tx = session.beginTransaction()) {
                 session.query(query, Utils.map());
-				tx.commit();
+                tx.commit();
             } catch (Exception e) {
                 Assert.assertTrue(e instanceof CypherException);
             } finally {
                 latch.countDown();
             }
 
-			while (!Thread.currentThread().isInterrupted()) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt(); //propagate interrupt
-				}
-			}
-
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); //propagate interrupt
+                }
+            }
         }
     }
 }

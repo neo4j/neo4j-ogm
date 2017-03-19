@@ -24,117 +24,117 @@ import org.neo4j.ogm.model.QueryStatistics;
  */
 public class QueryStatisticsModel implements QueryStatistics {
 
-	private boolean contains_updates;
-	private int nodes_created;
-	private int nodes_deleted;
-	private int properties_set;
-	private int relationships_created;
-	private int relationships_deleted; // embedded result calls it this
+    private boolean contains_updates;
+    private int nodes_created;
+    private int nodes_deleted;
+    private int properties_set;
+    private int relationships_created;
+    private int relationships_deleted; // embedded result calls it this
     private int relationship_deleted;  // http response calls it this. go figure
-	private int labels_added;
-	private int labels_removed;
-	private int indexes_added;
-	private int indexes_removed;
-	private int constraints_added;
-	private int constraints_removed;
+    private int labels_added;
+    private int labels_removed;
+    private int indexes_added;
+    private int indexes_removed;
+    private int constraints_added;
+    private int constraints_removed;
 
-	public boolean containsUpdates() {
-		return contains_updates;
-	}
+    public boolean containsUpdates() {
+        return contains_updates;
+    }
 
-	public int getNodesCreated() {
-		return nodes_created;
-	}
+    public int getNodesCreated() {
+        return nodes_created;
+    }
 
-	public int getNodesDeleted() {
-		return nodes_deleted;
-	}
+    public int getNodesDeleted() {
+        return nodes_deleted;
+    }
 
-	public int getPropertiesSet() {
-		return properties_set;
-	}
+    public int getPropertiesSet() {
+        return properties_set;
+    }
 
-	public int getRelationshipsCreated() {
-		return relationships_created;
-	}
+    public int getRelationshipsCreated() {
+        return relationships_created;
+    }
 
     // could be set by different drivers, but only one property will be set
-	public int getRelationshipsDeleted() {
-		return relationships_deleted + relationship_deleted;
-	}
+    public int getRelationshipsDeleted() {
+        return relationships_deleted + relationship_deleted;
+    }
 
-	public int getLabelsAdded() {
-		return labels_added;
-	}
+    public int getLabelsAdded() {
+        return labels_added;
+    }
 
-	public int getLabelsRemoved() {
-		return labels_removed;
-	}
+    public int getLabelsRemoved() {
+        return labels_removed;
+    }
 
-	public int getIndexesAdded() {
-		return indexes_added;
-	}
+    public int getIndexesAdded() {
+        return indexes_added;
+    }
 
-	public int getIndexesRemoved() {
-		return indexes_removed;
-	}
+    public int getIndexesRemoved() {
+        return indexes_removed;
+    }
 
-	public int getConstraintsAdded() {
-		return constraints_added;
-	}
+    public int getConstraintsAdded() {
+        return constraints_added;
+    }
 
-	public int getConstraintsRemoved() {
-		return constraints_removed;
-	}
+    public int getConstraintsRemoved() {
+        return constraints_removed;
+    }
 
-	public void setContains_updates(boolean contains_updates) {
-		this.contains_updates = contains_updates;
-	}
+    public void setContains_updates(boolean contains_updates) {
+        this.contains_updates = contains_updates;
+    }
 
-	public void setNodes_created(int nodes_created) {
-		this.nodes_created = nodes_created;
-	}
+    public void setNodes_created(int nodes_created) {
+        this.nodes_created = nodes_created;
+    }
 
-	public void setNodes_deleted(int nodes_deleted) {
-		this.nodes_deleted = nodes_deleted;
-	}
+    public void setNodes_deleted(int nodes_deleted) {
+        this.nodes_deleted = nodes_deleted;
+    }
 
-	public void setProperties_set(int properties_set) {
-		this.properties_set = properties_set;
-	}
+    public void setProperties_set(int properties_set) {
+        this.properties_set = properties_set;
+    }
 
-	public void setRelationships_created(int relationships_created) {
-		this.relationships_created = relationships_created;
-	}
+    public void setRelationships_created(int relationships_created) {
+        this.relationships_created = relationships_created;
+    }
 
     // property name in embedded driver
-	public void setRelationships_deleted(int relationships_deleted) {
-		this.relationships_deleted = relationships_deleted;
-	}
+    public void setRelationships_deleted(int relationships_deleted) {
+        this.relationships_deleted = relationships_deleted;
+    }
 
-	public void setLabels_added(int labels_added) {
-		this.labels_added = labels_added;
-	}
+    public void setLabels_added(int labels_added) {
+        this.labels_added = labels_added;
+    }
 
-	public void setLabels_removed(int labels_removed) {
-		this.labels_removed = labels_removed;
-	}
+    public void setLabels_removed(int labels_removed) {
+        this.labels_removed = labels_removed;
+    }
 
-	public void setIndexes_added(int indexes_added) {
-		this.indexes_added = indexes_added;
-	}
+    public void setIndexes_added(int indexes_added) {
+        this.indexes_added = indexes_added;
+    }
 
-	public void setIndexes_removed(int indexes_removed) {
-		this.indexes_removed = indexes_removed;
-	}
+    public void setIndexes_removed(int indexes_removed) {
+        this.indexes_removed = indexes_removed;
+    }
 
-	public void setConstraints_added(int constraints_added) {
-		this.constraints_added = constraints_added;
-	}
+    public void setConstraints_added(int constraints_added) {
+        this.constraints_added = constraints_added;
+    }
 
-	public void setConstraints_removed(int constraints_removed) {
-		this.constraints_removed = constraints_removed;
-	}
+    public void setConstraints_removed(int constraints_removed) {
+        this.constraints_removed = constraints_removed;
+    }
 
     public int getRelationship_deleted() {
         return relationship_deleted + relationships_deleted;

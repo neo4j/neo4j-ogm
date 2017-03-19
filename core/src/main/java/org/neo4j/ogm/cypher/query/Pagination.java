@@ -35,9 +35,10 @@ public class Pagination {
         this.size = pageSize;
     }
 
-	/**
+    /**
      * The offset, if present, determines how many records to skip.
      * Otherwise, pageNumber * pageSize records are skipped.
+     *
      * @param offset the offset
      */
     public void setOffset(Integer offset) {

@@ -17,6 +17,7 @@ package org.neo4j.ogm.domain.cineasts.plain;
  * @author Vince Bickers
  */
 public class Role {
+
     Movie movie;
     Actor actor;
     String role;

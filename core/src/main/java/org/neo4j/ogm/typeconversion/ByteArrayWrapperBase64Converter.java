@@ -19,7 +19,6 @@ import org.apache.commons.lang3.ArrayUtils;
 /**
  * By default the OGM will map Byte[] wrapped byte[] objects to Base64
  * String values when being stored as a node / relationship property
- *
  * The conversion between the primitive byte[] class and its wrapper
  * Byte[] means that this converter is slightly slower than
  * using the ByteArray64Converter, which works with primitive
@@ -45,5 +44,4 @@ public class ByteArrayWrapperBase64Converter implements AttributeConverter<Byte[
         }
         return wrapper;
     }
-
 }

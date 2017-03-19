@@ -13,6 +13,15 @@
 package org.neo4j.ogm.persistence.types.convertible;
 
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,15 +36,6 @@ import org.neo4j.ogm.domain.convertible.numbers.Account;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -112,7 +112,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         memo.setClosed(new Date());
         session.save(memo);
 
-        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo",ComparisonOperator.EQUALS,  "theMemo")).iterator().next();
+        Memo loadedMemo = session.loadAll(Memo.class, new Filter("memo", ComparisonOperator.EQUALS, "theMemo")).iterator().next();
 
         Calendar loadedCal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         loadedCal.setTime(loadedMemo.getActioned());
@@ -142,9 +142,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertEquals(date100000.get(Calendar.DAY_OF_MONTH), loadedCal.get(Calendar.DAY_OF_MONTH));
         assertEquals(date100000.get(Calendar.MONTH), loadedCal.get(Calendar.MONTH));
         assertEquals(date100000.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
-
     }
-
 
 
     /**
@@ -173,7 +171,6 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertEquals(new BigInteger("1000"), loadedAccount.getFacility());
         assertEquals(loans, loadedAccount.getLoans());
         assertSameArray(deposits, loadedAccount.getDeposits());
-
     }
 
     /**
@@ -212,7 +209,6 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         if (as == null || bs == null) fail("null arrays not allowed");
         if (as.length != bs.length) fail("arrays are not same length");
 
-
         for (Object a : as) {
             boolean found = false;
             for (Object b : bs) {
@@ -224,5 +220,4 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
             if (!found) fail("array contents are not the same: " + as + ", " + bs);
         }
     }
-
 }

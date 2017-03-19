@@ -16,7 +16,6 @@ import java.util.Map;
 
 /**
  * Extends {@link CypherQuery} with additional functionality for Paging and Sorting.
- *
  * Only used by queries that return actual nodes and/or relationships from the graph. Other queries
  * just use {@link CypherQuery}
  *
@@ -58,7 +57,7 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
                 stmt = stmt.replace(withClause, newWithClause + sorting + pagination);
                 //If a path is returned, also return the original entities in the page
                 if (stmt.contains("MATCH p=(") && !stmt.contains("RETURN p, ID(n)")) {
-                    stmt = stmt.replace("RETURN p","RETURN p, ID(n)");
+                    stmt = stmt.replace("RETURN p", "RETURN p, ID(n)");
                 }
             } else {
                 if (stmt.startsWith("MATCH p=(")) {
@@ -75,13 +74,12 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
                     stmt = stmt.replace("RETURN ", "WITH n" + sorting + pagination + " RETURN ");
                 }
                 if (stmt.contains("MATCH p=(") && stmt.contains("WITH n") && !stmt.contains("RETURN p, ID(n)")) {
-                    stmt = stmt.replace("RETURN p","RETURN p, ID(n)");
+                    stmt = stmt.replace("RETURN p", "RETURN p, ID(n)");
                 }
             }
         }
 
         return stmt;
-
     }
 
     @Override
@@ -103,5 +101,4 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
     public SortOrder sortOrder() {
         return sortOrder;
     }
-
 }

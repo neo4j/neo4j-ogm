@@ -14,13 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -47,7 +41,6 @@ public class MetaData {
 
     /**
      * Finds the ClassInfo for the supplied partial class name or label.
-     *
      * The supplied ClassInfo, if found can represent either a Class or an Interface
      *
      * @param name the simple class name or label for a class we want to find
@@ -161,7 +154,7 @@ public class MetaData {
                     LOGGER.debug("concrete class found: {}. comparing with what's already been found previously...", taxonClassInfo);
                     for (ClassInfo found : resolved) {
                         if (taxonClassInfo.isSubclassOf(found)) {
-                            LOGGER.debug("{} is a subclass of {} and will replace it.",taxonClassInfo,found);
+                            LOGGER.debug("{} is a subclass of {} and will replace it.", taxonClassInfo, found);
                             resolved.remove(found);
                             break; // there will only be one
                         }
@@ -177,7 +170,7 @@ public class MetaData {
 
                 // finally, we can add the taxonClassInfo - if it is still valid
                 if (taxonClassInfo != null) {
-                    LOGGER.debug("{} resolving class: {}", taxon,taxonClassInfo);
+                    LOGGER.debug("{} resolving class: {}", taxon, taxonClassInfo);
                     resolved.add(taxonClassInfo);
                 }
             }
@@ -208,7 +201,7 @@ public class MetaData {
         }
 
         //Potentially many relationship entities annotated with the same type
-        for(ClassInfo info : _classInfos(name, RelationshipEntity.class.getName())) {
+        for (ClassInfo info : _classInfos(name, RelationshipEntity.class.getName())) {
             classInfos.add(info);
         }
 
@@ -249,7 +242,6 @@ public class MetaData {
 
         // if we have a potential concrete class, keep going!
         return (classInfo == null ? null : findFirstSingleConcreteClass(classInfo, classInfo.directSubclasses()));
-
     }
 
     public boolean isRelationshipEntity(String className) {
@@ -259,7 +251,7 @@ public class MetaData {
 
     private ClassInfo findSingleImplementor(String taxon) {
         ClassInfo interfaceInfo = domainInfo.getClassInfoForInterface(taxon);
-        if(interfaceInfo!=null && interfaceInfo.directImplementingClasses()!=null && interfaceInfo.directImplementingClasses().size()==1) {
+        if (interfaceInfo != null && interfaceInfo.directImplementingClasses() != null && interfaceInfo.directImplementingClasses().size() == 1) {
             return interfaceInfo.directImplementingClasses().get(0);
         }
         return null;
@@ -271,12 +263,11 @@ public class MetaData {
 
     public String entityType(String name) {
         ClassInfo classInfo = classInfo(name);
-        if(isRelationshipEntity(classInfo.name())) {
+        if (isRelationshipEntity(classInfo.name())) {
             AnnotationInfo annotation = classInfo.annotationsInfo().get(RelationshipEntity.class);
             return annotation.get(RelationshipEntity.TYPE, classInfo.name());
         }
         return classInfo.neo4jName();
-
     }
 
     public List<ClassInfo> getImplementingClassInfos(String interfaceName) {
@@ -286,5 +277,4 @@ public class MetaData {
     public void registerConversionCallback(ConversionCallback conversionCallback) {
         this.domainInfo.registerConversionCallback(conversionCallback);
     }
-
 }

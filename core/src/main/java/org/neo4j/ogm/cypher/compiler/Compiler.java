@@ -35,7 +35,8 @@ public interface Compiler {
 
     /**
      * Returns a {@link RelationshipBuilder} that represents a new relationship to be created in the database
-     * @param type          the relationship type
+     *
+     * @param type the relationship type
      * @param bidirectional true if the relationship must be created in both incoming and outgoing directions, false otherwise
      * @return A {@link RelationshipBuilder} representing a new relationship
      */
@@ -43,7 +44,8 @@ public interface Compiler {
 
     /**
      * Returns a {@link RelationshipBuilder} that represents a new relationship to be created in the database
-     * @param type  the relationship type
+     *
+     * @param type the relationship type
      * @return A {@link RelationshipBuilder} representing a new relationship
      */
     RelationshipBuilder newRelationship(String type);
@@ -75,8 +77,9 @@ public interface Compiler {
      */
     void unrelate(Long startNode, String relationshipType, Long endNode, Long relId);
 
-	/**
+    /**
      * Remove a {@link NodeBuilder}
+     *
      * @param nodeBuilder The {@link NodeBuilder}
      */
     void unmap(NodeBuilder nodeBuilder);
@@ -138,18 +141,21 @@ public interface Compiler {
 
     /**
      * Returns this compiler's context
+     *
      * @return the current compiler context
      */
     CompileContext context();
 
-	/**
+    /**
      * Whether there new relationships to be created that depend on nodes being created first
+     *
      * @return true if there are any statements that depend on new nodes being created first
      */
     boolean hasStatementsDependentOnNewNodes();
 
-	/**
+    /**
      * Specify the {@link StatementFactory} that this {@link Compiler} will useto produce {@link Statement}s
+     *
      * @param statementFactory The {@link StatementFactory}
      */
     void useStatementFactory(StatementFactory statementFactory);

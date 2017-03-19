@@ -27,6 +27,4 @@ public class Actor {
     public Role playedIn(Movie movie, String role) {
         return null;
     }
-
-
 }

@@ -21,19 +21,19 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
  */
 public class RiskConverter implements AttributeConverter<Risk, String> {
 
-	@Override
-	public String toGraphProperty(org.neo4j.ogm.domain.food.entities.scanned.Risk value) {
-		if (value == null) {
-			return null;
-		}
-		return value.name();
-	}
+    @Override
+    public String toGraphProperty(org.neo4j.ogm.domain.food.entities.scanned.Risk value) {
+        if (value == null) {
+            return null;
+        }
+        return value.name();
+    }
 
-	@Override
-	public Risk toEntityAttribute(String value) {
-		if (value == null) {
-			return null;
-		}
-		return Risk.valueOf(value);
-	}
+    @Override
+    public Risk toEntityAttribute(String value) {
+        if (value == null) {
+            return null;
+        }
+        return Risk.valueOf(value);
+    }
 }

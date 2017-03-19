@@ -22,17 +22,17 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
  */
 public class URLConverter implements AttributeConverter<URL, String> {
 
-	@Override
-	public String toGraphProperty(URL value) {
-		return value == null ? null : value.toString();
-	}
+    @Override
+    public String toGraphProperty(URL value) {
+        return value == null ? null : value.toString();
+    }
 
-	@Override
-	public URL toEntityAttribute(String value) {
-		try {
-			return value == null ? null : new URL(value);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+    @Override
+    public URL toEntityAttribute(String value) {
+        try {
+            return value == null ? null : new URL(value);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 }

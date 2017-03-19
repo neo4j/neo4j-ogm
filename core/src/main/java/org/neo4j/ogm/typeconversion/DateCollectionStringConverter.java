@@ -19,13 +19,10 @@ import java.util.*;
 /**
  * By default the OGM will map date collections to UTC-based ISO8601 compliant
  * String collections when being stored as a node / relationship property
- *
  * Users can override this behaviour for Date objects using
  * the appropriate annotations:
- *
  * {@link org.neo4j.ogm.annotation.typeconversion.DateString#FORMAT} will convert between dates and strings
  * using a user defined date format, e.g. "yy-MM-dd"
- *
  * {@link org.neo4j.ogm.annotation.typeconversion.DateLong} will read and write dates as Long values in the database.
  *
  * @author Luanne Misquitta
@@ -36,7 +33,7 @@ public class DateCollectionStringConverter implements AttributeConverter<Collect
     private final Class<? extends Collection> collectionClass;
 
 
-    public DateCollectionStringConverter(String userDefinedFormat,Class<? extends Collection> collectionClass) {
+    public DateCollectionStringConverter(String userDefinedFormat, Class<? extends Collection> collectionClass) {
         this.collectionClass = collectionClass;
         simpleDateFormat = new SimpleDateFormat(userDefinedFormat);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

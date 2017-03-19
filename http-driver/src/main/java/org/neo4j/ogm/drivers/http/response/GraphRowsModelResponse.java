@@ -26,26 +26,26 @@ import org.neo4j.ogm.result.ResultGraphRowListModel;
  */
 public class GraphRowsModelResponse extends AbstractHttpResponse<ResultGraphRowListModel> implements Response<GraphRowListModel> {
 
-	public GraphRowsModelResponse(CloseableHttpResponse httpResponse) {
-		super(httpResponse, ResultGraphRowListModel.class);
-	}
+    public GraphRowsModelResponse(CloseableHttpResponse httpResponse) {
+        super(httpResponse, ResultGraphRowListModel.class);
+    }
 
-	@Override
-	public GraphRowListModel next() {
-		ResultGraphRowListModel graphRowModel = nextDataRecord("data");
+    @Override
+    public GraphRowListModel next() {
+        ResultGraphRowListModel graphRowModel = nextDataRecord("data");
 
-		if (graphRowModel != null) {
-			DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
-			for (GraphRowModel model : graphRowModel.getData()) {
-				graphRowListModel.add(model);
-			}
-			return graphRowListModel;
-		}
-		return null;
-	}
+        if (graphRowModel != null) {
+            DefaultGraphRowListModel graphRowListModel = new DefaultGraphRowListModel();
+            for (GraphRowModel model : graphRowModel.getData()) {
+                graphRowListModel.add(model);
+            }
+            return graphRowListModel;
+        }
+        return null;
+    }
 
-	@Override
-	public void close() {
-		//Nothing to do, the response has been closed already
-	}
+    @Override
+    public void close() {
+        //Nothing to do, the response has been closed already
+    }
 }

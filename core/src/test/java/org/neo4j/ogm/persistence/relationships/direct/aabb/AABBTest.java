@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.persistence.relationships.direct.aabb;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,9 +25,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
-
-import java.io.IOException;
-import java.util.UUID;
 
 /**
  * @author Vince Bickers
@@ -85,7 +85,6 @@ public class AABBTest extends RelationshipTrait {
         assertSameArray(new A[]{a1, a2}, b1.a);
         assertSameArray(new A[]{a1, a3}, b2.a);
         assertSameArray(new A[]{a2, a3}, b3.a);
-
     }
 
     @Test
@@ -102,7 +101,6 @@ public class AABBTest extends RelationshipTrait {
         assertSameArray(new B[]{b1, b2}, a1.b);
         assertSameArray(new B[]{b1, b3}, a2.b);
         assertSameArray(new B[]{b2, b3}, a3.b);
-
     }
 
     @Test
@@ -125,23 +123,19 @@ public class AABBTest extends RelationshipTrait {
         // expect the b2 relationship to have gone.
         assertSameArray(new B[]{b1}, a1.b);
 
-
         // when we reload a3
         a3 = session.load(A.class, a3.id);
 
         // expect the b2 relationship to have gone.
         assertSameArray(new B[]{b3}, a3.b);
 
-
         // but when we reload a2
         //session.clear();
 
         a2 = session.load(A.class, a2.id);
 
-
         // expect its relationships to be intact.
         assertSameArray(new B[]{b1, b3}, a2.b);
-
     }
 
     @Test
@@ -158,7 +152,6 @@ public class AABBTest extends RelationshipTrait {
         a1 = session.load(A.class, a1.id);
 
         assertSameArray(new B[]{b1, b2, b3}, a1.b);
-
     }
 
     @NodeEntity(label = "A")
@@ -216,6 +209,4 @@ public class AABBTest extends RelationshipTrait {
             return key.hashCode();
         }
     }
-
-
 }

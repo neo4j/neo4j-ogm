@@ -18,22 +18,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Produces a singleton ObjectMapper
+ *
  * @author Luanne Misquitta
  */
 public class ObjectMapperFactory {
-	private static final JsonFactory jsonFactory = new JsonFactory();
-	private static final ObjectMapper mapper = new ObjectMapper(jsonFactory);
 
-	private ObjectMapperFactory() {
+    private static final JsonFactory jsonFactory = new JsonFactory();
+    private static final ObjectMapper mapper = new ObjectMapper(jsonFactory);
 
-	}
+    private ObjectMapperFactory() {
 
-	public static ObjectMapper objectMapper() {
-		return mapper;
-	}
+    }
 
-	public static JsonFactory jsonFactory() {
-		return jsonFactory;
-	}
+    public static ObjectMapper objectMapper() {
+        return mapper;
+    }
 
+    public static JsonFactory jsonFactory() {
+        return jsonFactory;
+    }
 }

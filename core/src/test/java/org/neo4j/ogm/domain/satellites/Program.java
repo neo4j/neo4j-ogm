@@ -13,10 +13,10 @@
 
 package org.neo4j.ogm.domain.satellites;
 
+import java.util.List;
+
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
-
-import java.util.List;
 
 /**
  * @author Vince Bickers

@@ -19,5 +19,6 @@ package org.neo4j.ogm.result.adapter;
  * @author vince
  */
 public interface ResultAdapter<F, T> {
-     T adapt(F result);
+
+    T adapt(F result);
 }

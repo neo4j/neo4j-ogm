@@ -23,101 +23,102 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  */
 public class DefaultRelationshipBuilder implements RelationshipBuilder {
 
-	RelationshipModel relationship = new RelationshipModel();
-	private String direction;
-	private boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
-	private boolean bidirectional = false;
-	private boolean relationshipEntity = false;
+    RelationshipModel relationship = new RelationshipModel();
+    private String direction;
+    private boolean singleton = true; // will be false if the relationship can be mapped multiple times between two instances
+    private boolean bidirectional = false;
+    private boolean relationshipEntity = false;
 
-	public DefaultRelationshipBuilder(String type, boolean bidirectional) {
-		relationship.setType(type);
-		relationship.setId((long) -System.identityHashCode(relationship));
-		this.bidirectional = bidirectional;
-	}
+    public DefaultRelationshipBuilder(String type, boolean bidirectional) {
+        relationship.setType(type);
+        relationship.setId((long) -System.identityHashCode(relationship));
+        this.bidirectional = bidirectional;
+    }
 
-	public DefaultRelationshipBuilder(String type, Long relationshipId) {
-		if(relationshipId==null) {
-			relationshipId = (long) -System.identityHashCode(relationship);
-		}
-		relationship.setId(relationshipId);
-		relationship.setType(type);
-	}
+    public DefaultRelationshipBuilder(String type, Long relationshipId) {
+        if (relationshipId == null) {
+            relationshipId = (long) -System.identityHashCode(relationship);
+        }
+        relationship.setId(relationshipId);
+        relationship.setType(type);
+    }
 
-	@Override
-	public Long reference() {
-		return relationship.getId();
-	}
-	@Override
-	public void setType(String type) {
-		relationship.setType(type);
-	}
+    @Override
+    public Long reference() {
+        return relationship.getId();
+    }
 
-
-	@Override
-	public void addProperty(String key, Object value) {
-		relationship.getPropertyList().add(new PropertyModel<>(key, value));
-	}
+    @Override
+    public void setType(String type) {
+        relationship.setType(type);
+    }
 
 
-	@Override
-	public void relate(Long startNodeId, Long endNodeId) {
-		relationship.setStartNode(startNodeId);
-		relationship.setEndNode(endNodeId);
-	}
+    @Override
+    public void addProperty(String key, Object value) {
+        relationship.getPropertyList().add(new PropertyModel<>(key, value));
+    }
 
-	@Override
-	public String type() {
-		return relationship.getType();
-	}
 
-	@Override
-	public boolean hasDirection(String direction) {
-		return this.direction != null && this.direction.equals(direction);
-	}
+    @Override
+    public void relate(Long startNodeId, Long endNodeId) {
+        relationship.setStartNode(startNodeId);
+        relationship.setEndNode(endNodeId);
+    }
 
-	@Override
-	public boolean isSingleton() {
-		return singleton;
-	}
+    @Override
+    public String type() {
+        return relationship.getType();
+    }
 
-	@Override
-	public boolean isNew() {
-		return true;
-	}
+    @Override
+    public boolean hasDirection(String direction) {
+        return this.direction != null && this.direction.equals(direction);
+    }
 
-	@Override
-	public void setSingleton(boolean b) {
-		this.singleton = b;
-	}
+    @Override
+    public boolean isSingleton() {
+        return singleton;
+    }
 
-	@Override
-	public boolean isRelationshipEntity() {
-		return relationshipEntity;
-	}
+    @Override
+    public boolean isNew() {
+        return true;
+    }
 
-	@Override
-	public void setRelationshipEntity(boolean relationshipEntity) {
-		this.relationshipEntity = relationshipEntity;
-	}
+    @Override
+    public void setSingleton(boolean b) {
+        this.singleton = b;
+    }
 
-	@Override
-	public RelationshipBuilder direction(String direction) {
-		this.direction = direction;
-		return this;
-	}
+    @Override
+    public boolean isRelationshipEntity() {
+        return relationshipEntity;
+    }
 
-	@Override
-	public boolean isBidirectional() {
-		return bidirectional;
-	}
+    @Override
+    public void setRelationshipEntity(boolean relationshipEntity) {
+        this.relationshipEntity = relationshipEntity;
+    }
 
-	@Override
-	public Edge edge() {
-		return relationship;
-	}
+    @Override
+    public RelationshipBuilder direction(String direction) {
+        this.direction = direction;
+        return this;
+    }
 
-	@Override
-	public void setReference(Long reference) {
-		relationship.setId(reference);
-	}
+    @Override
+    public boolean isBidirectional() {
+        return bidirectional;
+    }
+
+    @Override
+    public Edge edge() {
+        return relationship;
+    }
+
+    @Override
+    public void setReference(Long reference) {
+        relationship.setId(reference);
+    }
 }

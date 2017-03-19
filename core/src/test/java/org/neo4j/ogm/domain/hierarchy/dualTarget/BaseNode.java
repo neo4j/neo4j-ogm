@@ -20,25 +20,25 @@ import org.neo4j.ogm.annotation.GraphId;
  */
 public abstract class BaseNode {
 
-	@GraphId Long id;
-	String name;
+    @GraphId Long id;
+    String name;
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public BaseNode() {
-	}
+    public BaseNode() {
+    }
 
-	public BaseNode(String name) {
-		this.name = name;
-	}
+    public BaseNode(String name) {
+        this.name = name;
+    }
 }

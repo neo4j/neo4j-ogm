@@ -16,5 +16,4 @@ package org.neo4j.ogm.config;
 public interface Credentials<T> {
 
     T credentials();
-
 }

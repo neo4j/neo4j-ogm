@@ -32,5 +32,4 @@ public class UserV8 extends Entity {
     public void setKnows(UserV8 knows) {
         this.knows = knows;
     }
-
 }

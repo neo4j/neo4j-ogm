@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.persistence.examples.spies;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.spies.Spy;
@@ -20,11 +24,6 @@ import org.neo4j.ogm.domain.spies.Target;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luanne Misquitta
@@ -72,15 +71,11 @@ public class SpyIntegrationTest extends MultiDriverTestClass {
         assertEquals("Robin", mata.getSpiedOnBy().getCode());
         assertEquals(julius.getName(), mata.getSpiedOnBy().getSpy().getName());
 
-
         session.clear();
         julius = session.load(Spy.class, julius.getId());
         assertNotNull(julius);
         assertEquals(mata.getName(), julius.getSpiesOn().getTarget().getName());
         assertEquals("Hawk", julius.getSpiedOnBy().getCode());
         assertEquals(mata.getName(), julius.getSpiedOnBy().getSpy().getName());
-
     }
-
-
 }

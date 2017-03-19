@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * One outgoing and one incoming relationship of the same type. Incoming iterable field and methods annotated. Outgoing iterable field annotated (implied outgoing), methods not annotated.

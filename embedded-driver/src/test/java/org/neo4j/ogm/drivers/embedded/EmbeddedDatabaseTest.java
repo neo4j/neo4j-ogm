@@ -13,19 +13,10 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import org.junit.BeforeClass;
@@ -33,9 +24,9 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
-import org.neo4j.ogm.config.Components;
 
 /**
  * @author vince
@@ -58,11 +49,10 @@ public class EmbeddedDatabaseTest {
             assertNull(configuration.getURI());
             assertNotNull(driver.getGraphDatabaseService());
         }
-
     }
 
     @Test
-    public  void shouldWriteAndRead() {
+    public void shouldWriteAndRead() {
         try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
 
             GraphDatabaseService databaseService = driver.getGraphDatabaseService();
@@ -80,8 +70,8 @@ public class EmbeddedDatabaseTest {
     public void shouldBeAbleToHaveMultipleInstances() {
 
         try (
-            EmbeddedDriver driver1 = new EmbeddedDriver(configuration);
-            EmbeddedDriver driver2 = new EmbeddedDriver(configuration)) {
+                EmbeddedDriver driver1 = new EmbeddedDriver(configuration);
+                EmbeddedDriver driver2 = new EmbeddedDriver(configuration)) {
 
             assertNotNull(driver1.getGraphDatabaseService());
             assertNotNull(driver2.getGraphDatabaseService());
@@ -119,7 +109,6 @@ public class EmbeddedDatabaseTest {
                 tx1.success();
                 tx2.success();
             }
-
         } catch (Exception e) {
             fail("Should not have thrown exception");
         }
@@ -165,6 +154,4 @@ public class EmbeddedDatabaseTest {
             e.printStackTrace();
         }
     }
-
-
 }

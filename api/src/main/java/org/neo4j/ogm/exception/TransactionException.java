@@ -17,6 +17,7 @@ package org.neo4j.ogm.exception;
  * @author Vince Bickers
  */
 public class TransactionException extends RuntimeException {
+
     public TransactionException(String msg) {
         super(msg);
     }

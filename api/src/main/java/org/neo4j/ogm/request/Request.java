@@ -27,9 +27,12 @@ import org.neo4j.ogm.response.Response;
 public interface Request {
 
     Response<GraphModel> execute(GraphModelRequest query);
-    Response<RowModel> execute(RowModelRequest query);
-    Response<RowModel> execute(DefaultRequest query);
-    Response<GraphRowListModel> execute(GraphRowListModelRequest query);
-    Response<RestModel> execute(RestModelRequest query);
 
+    Response<RowModel> execute(RowModelRequest query);
+
+    Response<RowModel> execute(DefaultRequest query);
+
+    Response<GraphRowListModel> execute(GraphRowListModelRequest query);
+
+    Response<RestModel> execute(RestModelRequest query);
 }

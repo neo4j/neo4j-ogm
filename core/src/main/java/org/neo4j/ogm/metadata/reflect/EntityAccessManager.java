@@ -13,11 +13,8 @@ package org.neo4j.ogm.metadata.reflect;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.StartNode;
 import org.neo4j.ogm.context.DirectedRelationship;
 import org.neo4j.ogm.context.DirectedRelationshipForType;
 import org.neo4j.ogm.metadata.AnnotationInfo;

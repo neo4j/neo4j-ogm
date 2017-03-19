@@ -12,7 +12,7 @@
  */
 package org.neo4j.ogm.cypher;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
@@ -79,7 +79,7 @@ public class NodeEntityQueryPagingTest {
 
     @Test
     public void testFindByTypeAndOffset() {
-        Pagination pagination = new Pagination(1,5);
+        Pagination pagination = new Pagination(1, 5);
         pagination.setOffset(3);
         check("MATCH (n:`Raptor`) WITH n SKIP 3 LIMIT 5 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", query.findByType("Raptor", 1).setPagination(pagination).getStatement());
     }

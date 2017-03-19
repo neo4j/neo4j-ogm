@@ -21,6 +21,4 @@ public interface GraphRowModel {
     GraphModel getGraph();
 
     Object[] getRow();
-
-
 }

@@ -14,17 +14,17 @@
 
 package org.neo4j.ogm.domain.restaurant;
 
-import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 
 public class LocationConverter implements CompositeAttributeConverter<Location> {
 
     @Override
     public Map<String, ?> toGraphProperties(Location location) {
         Map<String, Double> properties = new HashMap<>();
-        if (location != null)  {
+        if (location != null) {
             properties.put("latitude", location.getLatitude());
             properties.put("longitude", location.getLongitude());
         }
@@ -40,5 +40,4 @@ public class LocationConverter implements CompositeAttributeConverter<Location> 
         }
         return null;
     }
-
 }

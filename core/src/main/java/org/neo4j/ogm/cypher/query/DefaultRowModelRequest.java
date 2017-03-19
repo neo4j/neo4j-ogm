@@ -16,15 +16,13 @@ package org.neo4j.ogm.cypher.query;
 import java.util.Map;
 
 import org.neo4j.ogm.request.RowModelRequest;
-import org.neo4j.ogm.request.Statement;
-import org.neo4j.ogm.session.Utils;
 
 /**
  * @author Vince Bickers
  */
 public class DefaultRowModelRequest extends PagingAndSortingQuery implements RowModelRequest {
 
-    private final static String[] resultDataContents = new String[] {"row"};
+    private final static String[] resultDataContents = new String[]{"row"};
 
     public DefaultRowModelRequest(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);

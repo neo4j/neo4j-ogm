@@ -14,9 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
+import static junit.framework.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -99,12 +97,11 @@ public class TransientObjectsTest {
         public TransientSingleClass getTransientSingleClass() {
             return null;
         }
-
-
     }
 
     @Transient
     public class TransientClass {
+
         private Long id;
     }
 }

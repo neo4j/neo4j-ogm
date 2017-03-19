@@ -279,7 +279,6 @@ public class ClassInfo {
     }
 
 
-
     private FieldInfo identityFieldOrNull() {
         try {
             return identityField();
@@ -813,12 +812,12 @@ public class ClassInfo {
             return postLoadMethod;
         }
         if (!isPostLoadMethodMapped) {
-        for (MethodInfo methodInfo : methodsInfo().methods()) {
-            if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
+            for (MethodInfo methodInfo : methodsInfo().methods()) {
+                if (methodInfo.hasAnnotation(PostLoad.class.getName())) {
                     isPostLoadMethodMapped = true;
                     postLoadMethod = methodInfo;
                     return postLoadMethod;
-            }
+                }
             }
             isPostLoadMethodMapped = true;
         }

@@ -18,33 +18,33 @@ import org.neo4j.ogm.cypher.Filter;
 
 public class RelatedNodePropertyMatchClause implements MatchClause {
 
-	private String label;
-	private int index;
-	private StringBuilder clause;
+    private String label;
+    private int index;
+    private StringBuilder clause;
 
-	public RelatedNodePropertyMatchClause(String label, int nodeIdentifier) {
-		this.label = label;
-		this.index = nodeIdentifier;
-		this.clause = new StringBuilder(String.format("MATCH (%s:`%s`) ", nodeIdentifier(), this.label));
-	}
+    public RelatedNodePropertyMatchClause(String label, int nodeIdentifier) {
+        this.label = label;
+        this.index = nodeIdentifier;
+        this.clause = new StringBuilder(String.format("MATCH (%s:`%s`) ", nodeIdentifier(), this.label));
+    }
 
-	public String getLabel() {
-		return label;
-	}
+    public String getLabel() {
+        return label;
+    }
 
 
-	@Override
-	public MatchClause append(Filter filter) {
-		clause.append(filter.toCypher(nodeIdentifier(), clause.indexOf(" WHERE ") == -1));
-		return this;
-	}
+    @Override
+    public MatchClause append(Filter filter) {
+        clause.append(filter.toCypher(nodeIdentifier(), clause.indexOf(" WHERE ") == -1));
+        return this;
+    }
 
-	@Override
-	public String toCypher() {
-		return clause.toString();
-	}
+    @Override
+    public String toCypher() {
+        return clause.toString();
+    }
 
-	private String nodeIdentifier() {
-		return "m" + this.index;
-	}
+    private String nodeIdentifier() {
+        return "m" + this.index;
+    }
 }

@@ -25,46 +25,46 @@ import org.neo4j.ogm.session.request.RowDataStatement;
  */
 class AutoIndex {
 
-	private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
+    private static final Map<String, Object> EMPTY_MAP = Collections.emptyMap();
 
-	/**
-	 * This is a cypher fragment that is used during create and drop for constraints.
-	 */
-	private final String description;
+    /**
+     * This is a cypher fragment that is used during create and drop for constraints.
+     */
+    private final String description;
 
-	AutoIndex(String label, String property, boolean unique) {
+    AutoIndex(String label, String property, boolean unique) {
 
-		if (unique) {
-			this.description = "CONSTRAINT ON ( " + label.toLowerCase() + ":" + label + " ) ASSERT " + label.toLowerCase() + "." + property + " IS UNIQUE";
-		} else {
-			this.description = "INDEX ON :" + label + "( " + property + " )";
-		}
-	}
+        if (unique) {
+            this.description = "CONSTRAINT ON ( " + label.toLowerCase() + ":" + label + " ) ASSERT " + label.toLowerCase() + "." + property + " IS UNIQUE";
+        } else {
+            this.description = "INDEX ON :" + label + "( " + property + " )";
+        }
+    }
 
-	Statement getCreateStatement() {
-		return new RowDataStatement("CREATE " + this.description, EMPTY_MAP);
-	}
+    Statement getCreateStatement() {
+        return new RowDataStatement("CREATE " + this.description, EMPTY_MAP);
+    }
 
-	public Statement getDropStatement() {
-		return new RowDataStatement("DROP " + this.description, EMPTY_MAP);
-	}
+    public Statement getDropStatement() {
+        return new RowDataStatement("DROP " + this.description, EMPTY_MAP);
+    }
 
-	String getDescription() {
-		return description;
-	}
+    String getDescription() {
+        return description;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		AutoIndex autoIndex = (AutoIndex) o;
+        AutoIndex autoIndex = (AutoIndex) o;
 
-		return description != null ? description.equals(autoIndex.description) : autoIndex.description == null;
-	}
+        return description != null ? description.equals(autoIndex.description) : autoIndex.description == null;
+    }
 
-	@Override
-	public int hashCode() {
-		return description != null ? description.hashCode() : 0;
-	}
+    @Override
+    public int hashCode() {
+        return description != null ? description.hashCode() : 0;
+    }
 }

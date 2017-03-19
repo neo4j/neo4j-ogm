@@ -13,17 +13,19 @@
 
 package org.neo4j.ogm.typeconversion;
 
+import static org.junit.Assert.*;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers

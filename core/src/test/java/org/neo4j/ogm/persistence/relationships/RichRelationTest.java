@@ -12,6 +12,11 @@
  */
 package org.neo4j.ogm.persistence.relationships;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.mappings.Article;
@@ -21,12 +26,6 @@ import org.neo4j.ogm.domain.mappings.Tag;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.util.Collections;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 
 /**
  * @author Nils Dr\u00F6ge
@@ -114,7 +113,6 @@ public class RichRelationTest extends MultiDriverTestClass {
 
         assertNotNull(savedPerson);
         assertNotNull(savedArticle);
-
     }
 
     /**
@@ -145,7 +143,6 @@ public class RichRelationTest extends MultiDriverTestClass {
 
         assertNotNull(savedPerson);
         assertNotNull(savedArticle);
-
     }
 
     /**
@@ -176,7 +173,5 @@ public class RichRelationTest extends MultiDriverTestClass {
 
         assertNotNull(savedPerson);
         assertNotNull(savedArticle);
-
     }
-
 }

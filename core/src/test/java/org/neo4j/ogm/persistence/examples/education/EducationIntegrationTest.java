@@ -13,9 +13,6 @@
 
 package org.neo4j.ogm.persistence.examples.education;
 
-import org.neo4j.ogm.cypher.ComparisonOperator;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -25,14 +22,15 @@ import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
-
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
  * @author Luanne Misquitta
@@ -58,9 +56,9 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
 
         //fetch Courses by name
         Collection<Course> courses = session.loadAll(Course.class, new Filter("name", ComparisonOperator.EQUALS, "CompSci"));
-        assertEquals(1,courses.size());
-        assertEquals(course,courses.iterator().next());
-        assertEquals(1,courses.iterator().next().getStudents().size());
+        assertEquals(1, courses.size());
+        assertEquals(course, courses.iterator().next());
+        assertEquals(1, courses.iterator().next().getStudents().size());
     }
 
     /**
@@ -97,21 +95,19 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
 
         session.clear();
         //Load the school with depth -1
-        hogwarts = session.load(School.class,hogwarts.getId(),-1);
+        hogwarts = session.load(School.class, hogwarts.getId(), -1);
         assertEquals(2, hogwarts.getTeachers().size());
-        for(Teacher teacher : hogwarts.getTeachers()) {
-            if(teacher.getName().equals("Severus Snape")) {
+        for (Teacher teacher : hogwarts.getTeachers()) {
+            if (teacher.getName().equals("Severus Snape")) {
                 assertEquals(2, teacher.getCourses().size());
-                for(Course course : teacher.getCourses()) {
-                    if(course.getName().equals("Potions")) {
+                for (Course course : teacher.getCourses()) {
+                    if (course.getName().equals("Potions")) {
                         assertEquals(2, course.getStudents().size());
-                    }
-                    else {
+                    } else {
                         assertEquals(1, course.getStudents().size());
                     }
                 }
-            }
-            else {
+            } else {
                 assertEquals(1, teacher.getCourses().size());
                 assertEquals(3, teacher.getCourses().get(0).getStudents().size());
             }

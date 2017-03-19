@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.drivers.http.driver;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -38,23 +42,20 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-
 /**
  * @author vince
  */
 
-public final class HttpDriver extends AbstractConfigurableDriver
-{
+public final class HttpDriver extends AbstractConfigurableDriver {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpDriver.class);
 
     private CloseableHttpClient httpClient;
 
-    public HttpDriver() {}
+    public HttpDriver() {
+    }
 
-    public HttpDriver( CloseableHttpClient httpClient ) {
+    public HttpDriver(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
@@ -66,7 +67,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 httpClient.close();
             }
         } catch (Exception e) {
-            LOGGER.warn( "Unexpected Exception when closing http client httpClient: ", e );
+            LOGGER.warn("Unexpected Exception when closing http client httpClient: ", e);
         }
     }
 
@@ -87,7 +88,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
 
     public CloseableHttpResponse executeHttpRequest(HttpRequestBase request) throws HttpRequestException {
 
-        try(CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, configuration.getCredentials())) {
+        try (CloseableHttpResponse response = HttpRequest.execute(httpClient(), request, configuration.getCredentials())) {
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
                 String responseText;
@@ -99,20 +100,18 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 }
             }
             return response;
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw new HttpRequestException(request, ioe);
-        }
-        finally {
+        } finally {
             request.releaseConnection();
-            LOGGER.debug( "Thread: {}, Connection released", Thread.currentThread().getId() );
+            LOGGER.debug("Thread: {}, Connection released", Thread.currentThread().getId());
         }
     }
 
     private String newTransactionUrl(Transaction.Type type) {
 
         String url = transactionEndpoint(configuration.getURI());
-        LOGGER.debug( "Thread: {}, POST {}", Thread.currentThread().getId(), url );
+        LOGGER.debug("Thread: {}, POST {}", Thread.currentThread().getId(), url);
 
         HttpPost request = new HttpPost(url);
         request.setHeader("X-WRITE", type == Transaction.Type.READ_ONLY ? "0" : "1");
@@ -123,7 +122,6 @@ public final class HttpDriver extends AbstractConfigurableDriver
         } catch (IOException ioe) {
             throw new HttpRequestException(request, ioe);
         }
-
     }
 
     private String autoCommitUrl() {
@@ -149,16 +147,16 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 LOGGER.debug("Thread: {}, request url {}", Thread.currentThread().getId(), ((HttpTransaction) tx).url());
                 return ((HttpTransaction) tx).url();
             } else {
-                LOGGER.debug( "Thread: {}, No current transaction, using auto-commit", Thread.currentThread().getId() );
+                LOGGER.debug("Thread: {}, No current transaction, using auto-commit", Thread.currentThread().getId());
             }
         } else {
-            LOGGER.debug( "Thread: {}, No transaction manager available, using auto-commit", Thread.currentThread().getId() );
+            LOGGER.debug("Thread: {}, No transaction manager available, using auto-commit", Thread.currentThread().getId());
         }
-        LOGGER.debug( "Thread: {}, request url {}", Thread.currentThread().getId(), autoCommitUrl() );
+        LOGGER.debug("Thread: {}, request url {}", Thread.currentThread().getId(), autoCommitUrl());
         return autoCommitUrl();
     }
 
-    public boolean readOnly()  {
+    public boolean readOnly() {
         if (transactionManager != null) {
             Transaction tx = transactionManager.getCurrentTransaction();
             if (tx != null) {
@@ -168,7 +166,7 @@ public final class HttpDriver extends AbstractConfigurableDriver
         return false; // its read-write by default
     }
 
-    private synchronized CloseableHttpClient httpClient()  {
+    private synchronized CloseableHttpClient httpClient() {
 
         if (httpClient == null) {   // most of the time this will be false, branch-prediction will be very fast and the lock released immediately
 
@@ -208,7 +206,6 @@ public final class HttpDriver extends AbstractConfigurableDriver
                 httpClientBuilder.setConnectionManager(connectionManager);
 
                 httpClient = httpClientBuilder.build();
-
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

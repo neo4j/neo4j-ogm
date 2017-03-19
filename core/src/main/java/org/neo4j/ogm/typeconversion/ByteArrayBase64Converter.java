@@ -34,5 +34,4 @@ public class ByteArrayBase64Converter implements AttributeConverter<byte[], Stri
         if (value == null) return null;
         return Base64.decodeBase64(value);
     }
-
 }

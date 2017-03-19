@@ -14,29 +14,17 @@
 package org.neo4j.ogm.cypher;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.cypher.compiler.CompileContext;
-import org.neo4j.ogm.cypher.compiler.Compiler;
+import org.junit.*;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
+import org.neo4j.ogm.cypher.compiler.CompileContext;
+import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -48,6 +36,7 @@ import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Artist;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 
@@ -112,7 +101,6 @@ public class CypherCompilerTest {
         assertEquals(0, compiler.createNodesStatements().size());
         assertEquals("UNWIND {rows} as row MATCH (n) WHERE ID(n)=row.nodeId SET n:`Student`:`DomainObject` SET n += row.props RETURN row.nodeId as ref, ID(n) as id, row.type as type",
                 compiler.updateNodesStatements().get(0).getStatement());
-
     }
 
     @Test
@@ -138,7 +126,6 @@ public class CypherCompilerTest {
 
         mary.setSchool(waller);
         waller.getTeachers().add(mary);
-
 
         Compiler compiler = mapAndCompile(waller);
         compiler.useStatementFactory(new RowStatementFactory());
@@ -194,7 +181,6 @@ public class CypherCompilerTest {
         assertEquals(0, compiler.updateNodesStatements().size());
         assertEquals(0, compiler.createRelationshipsStatements().size());
         assertEquals(0, compiler.updateRelationshipStatements().size());
-
     }
 
 
@@ -270,7 +256,6 @@ public class CypherCompilerTest {
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`SCHOOL`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`TEACHERS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
 
-
         //Save mary
         compiler = mapper.map(mary).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
@@ -324,13 +309,13 @@ public class CypherCompilerTest {
         assertTrue(createNodeStatements.contains("UNWIND {rows} as row CREATE (n:`Student`:`DomainObject`) SET n=row.props RETURN row.nodeRef as ref, ID(n) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
-            if(statement.getStatement().contains("Teacher")) {
+            if (statement.getStatement().contains("Teacher")) {
                 assertEquals(1, rows.size());
             }
-            if(statement.getStatement().contains("Student")) {
+            if (statement.getStatement().contains("Student")) {
                 assertEquals(3, rows.size());
             }
-            if(statement.getStatement().contains("Course")) {
+            if (statement.getStatement().contains("Course")) {
                 assertEquals(2, rows.size());
             }
         }
@@ -342,10 +327,10 @@ public class CypherCompilerTest {
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`STUDENTS`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
-            if(statement.getStatement().contains("STUDENTS")) {
+            if (statement.getStatement().contains("STUDENTS")) {
                 assertEquals(4, rows.size());
             }
-            if(statement.getStatement().contains("COURSES")) {
+            if (statement.getStatement().contains("COURSES")) {
                 assertEquals(2, rows.size());
             }
         }
@@ -402,7 +387,7 @@ public class CypherCompilerTest {
         assertEquals(1, statements.size());
         assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`STUDENTS`]->(endNode) DELETE rel",
                 statements.get(0).getStatement());
-        assertEquals(2, ((List)statements.get(0).getParameters().get("rows")).size());
+        assertEquals(2, ((List) statements.get(0).getParameters().get("rows")).size());
     }
 
     @Test
@@ -461,8 +446,7 @@ public class CypherCompilerTest {
         assertEquals(1, statements.size());
         assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`STUDENTS`]->(endNode) DELETE rel",
                 statements.get(0).getStatement());
-        assertEquals(1, ((List)statements.get(0).getParameters().get("rows")).size());
-
+        assertEquals(1, ((List) statements.get(0).getParameters().get("rows")).size());
 
         // fixme: these other tests now need to be in their own test method, because
         // a bug fix to the deletion code means that a second deletion won't (correctly) fire again
@@ -478,7 +462,6 @@ public class CypherCompilerTest {
 //
 //        // we can't explore the object model from shivani at all, so no changes.
 //        expectOnSave(shivani, "");
-
 
     }
 
@@ -504,7 +487,6 @@ public class CypherCompilerTest {
         assertTrue(hillsRoad.getTeachers().contains(missJones));
         Assert.assertEquals(hillsRoad, mrWhite.getSchool());
         Assert.assertEquals(hillsRoad, missJones.getSchool());
-
 
         mappingContext.addNodeEntity(hillsRoad, schoolId);
         mappingContext.addNodeEntity(mrWhite, whiteId);
@@ -533,7 +515,6 @@ public class CypherCompilerTest {
         List<Statement> statements = compiler.createNodesStatements();
         assertEquals(0, statements.size());
 
-
         statements = compiler.createRelationshipsStatements();
         assertEquals(0, statements.size());
 
@@ -541,7 +522,7 @@ public class CypherCompilerTest {
         assertEquals(1, statements.size());
         assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`TEACHERS`]->(endNode) DELETE rel",
                 statements.get(0).getStatement());
-        assertEquals(1, ((List)statements.get(0).getParameters().get("rows")).size());
+        assertEquals(1, ((List) statements.get(0).getParameters().get("rows")).size());
 
         // we expect mrWhite's relationship to hillsRoad to be removed
         // but the change to hillsRoad's relationship with MrWhite is not detected
@@ -553,7 +534,6 @@ public class CypherCompilerTest {
         statements = compiler.createNodesStatements();
         assertEquals(0, statements.size());
 
-
         statements = compiler.createRelationshipsStatements();
         assertEquals(0, statements.size());
 
@@ -561,7 +541,7 @@ public class CypherCompilerTest {
         assertEquals(1, statements.size());
         assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`SCHOOL`]->(endNode) DELETE rel",
                 statements.get(0).getStatement());
-        assertEquals(1, ((List)statements.get(0).getParameters().get("rows")).size());
+        assertEquals(1, ((List) statements.get(0).getParameters().get("rows")).size());
 
         // because missJones has a reference to hillsRoad, we expect an outcome
         // the same as if we had saved hillsRoiad directly.
@@ -738,8 +718,7 @@ public class CypherCompilerTest {
         assertEquals(1, statements.size());
         assertEquals("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MATCH (startNode)-[rel:`HAS_TOPIC`]->(endNode) DELETE rel",
                 statements.get(0).getStatement());
-        assertEquals(1, ((List)statements.get(0).getParameters().get("rows")).size());
-
+        assertEquals(1, ((List) statements.get(0).getParameters().get("rows")).size());
 
         // expect the delete to be recognised if the RE is saved
 //        expectOnSave(link, "MATCH ($0)-[_0:HAS_TOPIC]->($1) WHERE id($0)=0 AND id($1)=1 DELETE _0");
@@ -784,7 +763,6 @@ public class CypherCompilerTest {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
         }
-
     }
 
     /**
@@ -820,8 +798,8 @@ public class CypherCompilerTest {
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
-            assertEquals((long)-System.identityHashCode(adam), ((Map)rows.get(0)).get("startNodeId"));
-            assertEquals((long)-System.identityHashCode(vince), ((Map)rows.get(0)).get("endNodeId"));
+            assertEquals((long) -System.identityHashCode(adam), ((Map) rows.get(0)).get("startNodeId"));
+            assertEquals((long) -System.identityHashCode(vince), ((Map) rows.get(0)).get("endNodeId"));
         }
     }
 
@@ -854,21 +832,21 @@ public class CypherCompilerTest {
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
-            assertEquals((long)-System.identityHashCode(vince), ((Map)rows.get(0)).get("startNodeId"));
-            assertEquals((long)-System.identityHashCode(adam), ((Map)rows.get(0)).get("endNodeId"));
+            assertEquals((long) -System.identityHashCode(vince), ((Map) rows.get(0)).get("startNodeId"));
+            assertEquals((long) -System.identityHashCode(adam), ((Map) rows.get(0)).get("endNodeId"));
         }
     }
 
     private Compiler mapAndCompile(Object object) {
         CompileContext context = this.mapper.map(object);
-        Compiler compiler =  context.getCompiler();
+        Compiler compiler = context.getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());
         return compiler;
     }
 
     private List<String> cypherStatements(List<Statement> statements) {
         List<String> cypher = new ArrayList<>(statements.size());
-        for(Statement statement : statements) {
+        for (Statement statement : statements) {
             cypher.add(statement.getStatement());
         }
         return cypher;

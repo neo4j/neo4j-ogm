@@ -12,11 +12,10 @@
  */
 package org.neo4j.ogm.metadata;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Vince Bickers
@@ -43,7 +42,6 @@ public class DomainInfoTest {
             System.out.println(implementingClass.name());
         }
         assertEquals(4, classInfo.directImplementingClasses().size());
-
     }
 
     @Test
@@ -52,7 +50,6 @@ public class DomainInfoTest {
         ClassInfo classInfo = domainInfo.getClassSimpleName("Membership");
         assertNotNull(classInfo);
         assertEquals(1, classInfo.directInterfaces().size());
-
     }
 
     @Test
@@ -61,8 +58,5 @@ public class DomainInfoTest {
         ClassInfo classInfo = domainInfo.getClassSimpleName("SilverMembership");
         assertNotNull(classInfo);
         assertEquals(1, classInfo.interfacesInfo().list().size());
-
     }
-
-
 }

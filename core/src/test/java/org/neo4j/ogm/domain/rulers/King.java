@@ -22,5 +22,4 @@ public class King extends Monarch {
     public String sex() {
         return "Male";
     }
-
 }

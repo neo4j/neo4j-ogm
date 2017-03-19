@@ -25,17 +25,17 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class GraphModelResponse extends BoltResponse<GraphModel> {
 
-	private final ResultAdapter<Map<String, Object>, GraphModel> adapter = new BoltGraphModelAdapter();
+    private final ResultAdapter<Map<String, Object>, GraphModel> adapter = new BoltGraphModelAdapter();
 
-	public GraphModelResponse(StatementResult result, TransactionManager transactionManager) {
-		super(result, transactionManager);
-	}
+    public GraphModelResponse(StatementResult result, TransactionManager transactionManager) {
+        super(result, transactionManager);
+    }
 
-	@Override
-	public GraphModel fetchNext() {
-		if (result.hasNext()) {
-			return adapter.adapt(result.next().asMap());
-		}
-		return null;
-	}
+    @Override
+    public GraphModel fetchNext() {
+        if (result.hasNext()) {
+            return adapter.adapt(result.next().asMap());
+        }
+        return null;
+    }
 }

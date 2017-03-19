@@ -13,17 +13,17 @@
 
 package org.neo4j.ogm.typeconversion;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
-import org.neo4j.ogm.domain.convertible.enums.*;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.neo4j.ogm.domain.convertible.enums.*;
+import org.neo4j.ogm.metadata.ClassInfo;
+import org.neo4j.ogm.metadata.FieldInfo;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
@@ -73,7 +73,6 @@ public class EnumConversionTest {
 
         assertTrue(fieldInfo.hasPropertyConverter());
         Assert.assertEquals("MALE", fieldInfo.getPropertyConverter().toGraphProperty(bob.getGender()));
-
     }
 
     @Test
@@ -109,9 +108,7 @@ public class EnumConversionTest {
         String[] converted = (String[]) fieldInfo.getPropertyConverter().toGraphProperty(bob.getInProgressEducation());
         assertTrue("MASTERS".equals(converted[0]) || "MASTERS".equals(converted[1]));
         assertTrue("PHD".equals(converted[0]) || "PHD".equals(converted[1]));
-
     }
-
 
 
     /**

@@ -13,21 +13,19 @@
 
 package org.neo4j.ogm.persistence.examples.election;
 
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.domain.election.Candidate;
-import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
+import org.neo4j.ogm.domain.election.Candidate;
+import org.neo4j.ogm.domain.election.Voter;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 /**
  * These tests assert that we can create loop edges in the graph, to support use cases
@@ -74,7 +72,6 @@ public class ElectionTest extends MultiDriverTestClass {
         assertNotNull(voter.getId());
         assertNotNull(voter.candidateVotedFor.getId());
         assertEquals(voter.getId(), voter.candidateVotedFor.getId());
-
     }
 
     @Test
@@ -94,7 +91,6 @@ public class ElectionTest extends MultiDriverTestClass {
         assertNotNull(voter.getId());
         assertNotNull(voter.candidateVotedFor.getId());
         assertEquals(voter.getId(), voter.candidateVotedFor.getId());
-
     }
 
 
@@ -123,7 +119,6 @@ public class ElectionTest extends MultiDriverTestClass {
 
         assertTrue(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)));
 
-
         v.candidateVotedFor = a;
 
         session.save(v);
@@ -139,8 +134,5 @@ public class ElectionTest extends MultiDriverTestClass {
         assertFalse(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)));
 
         session.clear();
-
-
     }
-
 }

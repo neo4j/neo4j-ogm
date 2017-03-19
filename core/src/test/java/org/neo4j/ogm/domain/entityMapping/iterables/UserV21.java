@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.List;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Two iterables, same relationship type and direction, incoming. Fields annotated.
@@ -29,6 +29,4 @@ public class UserV21 {
 
     @Relationship(type = "KNOWS", direction = "INCOMING")
     public List<UserV21> user;
-
-
 }

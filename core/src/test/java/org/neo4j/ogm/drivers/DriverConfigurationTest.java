@@ -15,12 +15,11 @@ package org.neo4j.ogm.drivers;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
-import org.neo4j.ogm.config.Configuration;
 
 /**
  * @author vince

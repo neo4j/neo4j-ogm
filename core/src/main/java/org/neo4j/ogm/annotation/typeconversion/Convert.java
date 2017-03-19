@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.annotation.typeconversion;
 
-import org.neo4j.ogm.typeconversion.AttributeConverter;
-
 import java.lang.annotation.*;
+
+import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 
 /**
@@ -48,8 +48,11 @@ public @interface Convert {
      */
     Class<?> graphPropertyType() default Unset.class;
 
-    /** Placeholder to allow the annotation to be applied without specifying an explicit converter implementation. */
-    abstract class Unset implements AttributeConverter<Object, Object> {}
+    /**
+     * Placeholder to allow the annotation to be applied without specifying an explicit converter implementation.
+     */
+    abstract class Unset implements AttributeConverter<Object, Object> {
 
+    }
 }
 

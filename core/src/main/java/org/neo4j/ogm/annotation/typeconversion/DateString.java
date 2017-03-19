@@ -25,9 +25,8 @@ public @interface DateString {
 
     String FORMAT = "value";
 
-    String ISO_8601 ="yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     String value() default ISO_8601;
-
 }
 

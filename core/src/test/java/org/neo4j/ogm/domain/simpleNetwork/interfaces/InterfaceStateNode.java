@@ -20,5 +20,4 @@ public interface InterfaceStateNode<R extends InterfaceTimeRelation> extends Int
     R getIdentityRelation();
 
     void setIdentityRelation(R value);
-
 }

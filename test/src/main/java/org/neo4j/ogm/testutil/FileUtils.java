@@ -22,15 +22,14 @@ import java.nio.file.Path;
  */
 public class FileUtils {
 
-	public static File createTemporaryGraphStore() {
-		try {
-			Path path = Files.createTempDirectory("graph.db");
-			File f = path.toFile();
-			f.deleteOnExit();
-			return f;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
+    public static File createTemporaryGraphStore() {
+        try {
+            Path path = Files.createTempDirectory("graph.db");
+            File f = path.toFile();
+            f.deleteOnExit();
+            return f;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

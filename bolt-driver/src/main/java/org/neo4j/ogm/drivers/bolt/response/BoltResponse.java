@@ -30,52 +30,52 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BoltResponse<T> implements Response {
 
-	protected final StatementResult result;
-	private final TransactionManager transactionManager;
+    protected final StatementResult result;
+    private final TransactionManager transactionManager;
 
 
-	private final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
 
 
-	public BoltResponse(StatementResult result, TransactionManager transactionManager) {
-		this.result = result;
-		this.transactionManager = transactionManager;
-	}
+    public BoltResponse(StatementResult result, TransactionManager transactionManager) {
+        this.result = result;
+        this.transactionManager = transactionManager;
+    }
 
-	@Override
-	public T next() {
-		try {
-			return fetchNext();
-		} catch (ClientException ce) {
-			BoltTransaction tx = (BoltTransaction) transactionManager.getCurrentTransaction();
-			if (tx != null) {
-				tx.rollback();
-			}
-			LOGGER.debug("Error executing Cypher: {}, {}", ce.neo4jErrorCode(), ce.getMessage());
-			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
-		}
-	}
+    @Override
+    public T next() {
+        try {
+            return fetchNext();
+        } catch (ClientException ce) {
+            BoltTransaction tx = (BoltTransaction) transactionManager.getCurrentTransaction();
+            if (tx != null) {
+                tx.rollback();
+            }
+            LOGGER.debug("Error executing Cypher: {}, {}", ce.neo4jErrorCode(), ce.getMessage());
+            throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
+        }
+    }
 
-	public abstract T fetchNext();
+    public abstract T fetchNext();
 
-	@Override
-	public void close() {
-		// if there is no current transaction available, the response is already closed.
-		if (transactionManager.getCurrentTransaction() != null) {
-			// release the response resource
-			result.consume();
-		}
-	}
+    @Override
+    public void close() {
+        // if there is no current transaction available, the response is already closed.
+        if (transactionManager.getCurrentTransaction() != null) {
+            // release the response resource
+            result.consume();
+        }
+    }
 
-	@Override
-	public String[] columns() {
-		if (result.hasNext()) {
-			Record record = result.peek();
-			if (record != null) {
-				Set<String> columns = result.peek().asMap().keySet();
-				return columns.toArray(new String[columns.size()]);
-			}
-		}
-		return new String[0];
-	}
+    @Override
+    public String[] columns() {
+        if (result.hasNext()) {
+            Record record = result.peek();
+            if (record != null) {
+                Set<String> columns = result.peek().asMap().keySet();
+                return columns.toArray(new String[columns.size()]);
+            }
+        }
+        return new String[0];
+    }
 }

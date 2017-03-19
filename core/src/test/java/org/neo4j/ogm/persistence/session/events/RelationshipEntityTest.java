@@ -13,15 +13,14 @@
 
 package org.neo4j.ogm.persistence.session.events;
 
-import org.junit.Test;
-import org.neo4j.ogm.domain.cineasts.annotated.Knows;
-import org.neo4j.ogm.session.event.Event;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.neo4j.ogm.domain.cineasts.annotated.Knows;
+import org.neo4j.ogm.session.event.Event;
 
 /**
  * @author vince
@@ -48,8 +47,6 @@ public class RelationshipEntityTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(knowsJL, Event.TYPE.POST_SAVE));
 
         assertEquals(2, eventListener.count());
-
-
     }
 
     @Test
@@ -67,7 +64,6 @@ public class RelationshipEntityTest extends EventTestBaseClass {
         assertTrue(eventListener.captured(lee, Event.TYPE.POST_SAVE));
 
         assertEquals(6, eventListener.count());
-
     }
 
     @Test
@@ -91,5 +87,4 @@ public class RelationshipEntityTest extends EventTestBaseClass {
 
         assertEquals(6, eventListener.count());
     }
-
 }

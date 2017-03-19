@@ -18,5 +18,4 @@ public class BaseNode {
     public BaseNode(String title) {
         this.title = title;
     }
-
 }

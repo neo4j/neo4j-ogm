@@ -20,5 +20,4 @@ public abstract class Entity {
 
     Long id;
     String name;
-
 }

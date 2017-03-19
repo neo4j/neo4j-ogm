@@ -13,13 +13,12 @@
 
 package org.neo4j.ogm.typeconversion;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
-import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.domain.convertible.bytes.Photo;
 import org.neo4j.ogm.metadata.ClassInfo;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.neo4j.ogm.metadata.MetaData;
 
 /**
  * @author Vince Bickers
@@ -35,7 +34,6 @@ public class ByteArrayConversionTest {
         assertTrue(photoInfo.propertyField("image").hasPropertyConverter());
         assertTrue(photoInfo.propertyField("image").hasPropertyConverter());
         assertTrue(photoInfo.propertyField("image").hasPropertyConverter());
-
     }
 
     @Test
@@ -63,8 +61,5 @@ public class ByteArrayConversionTest {
         assertEquals(2, image[1]);
         assertEquals(3, image[2]);
         assertEquals(4, image[3]);
-
     }
-
-
 }

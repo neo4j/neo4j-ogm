@@ -43,7 +43,6 @@ public abstract class RowModelAdapter implements ResultAdapter<Map<String, Objec
             throw new ResultProcessingException("Result columns should not be null");
         }
 
-
         // there is no guarantee that the objects in the data are ordered the same way as required by the columns
         // so we use the columns information to extract them in the correct order for post-processing.
         Iterator<String> iterator = columns.iterator();
@@ -61,14 +60,14 @@ public abstract class RowModelAdapter implements ResultAdapter<Map<String, Objec
             }
             variables.add(key);
 
-            if (value!=null && value.getClass().isArray()) {
+            if (value != null && value.getClass().isArray()) {
                 values.add(AdapterUtils.convertToIterable(value));
             }
 
             values.add(value);
         }
 
-        return new DefaultRowModel(values.toArray(new Object[] {}), variables.toArray(new String[] {}));
+        return new DefaultRowModel(values.toArray(new Object[]{}), variables.toArray(new String[]{}));
     }
 
     public void setColumns(List<String> columns) {
@@ -80,5 +79,4 @@ public abstract class RowModelAdapter implements ResultAdapter<Map<String, Objec
     public abstract boolean isNode(Object value);
 
     public abstract boolean isRelationship(Object value);
-
 }

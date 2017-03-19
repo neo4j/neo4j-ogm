@@ -12,9 +12,7 @@
  */
 package org.neo4j.ogm.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +29,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  *
  * @author Mihai Raulea
  * @author Luanne Misquitta
- *
  * @see issue #145
  */
 public class EnumsScannedTest extends MultiDriverTestClass {
@@ -52,7 +49,7 @@ public class EnumsScannedTest extends MultiDriverTestClass {
 
     @After
     public void tearDown() {
-       session.purgeDatabase();
+        session.purgeDatabase();
     }
 
     @Test

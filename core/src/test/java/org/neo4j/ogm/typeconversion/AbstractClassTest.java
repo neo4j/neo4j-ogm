@@ -1,20 +1,18 @@
 package org.neo4j.ogm.typeconversion;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.transaction.Transaction;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Mihai Raulea on 4/24/2016.
@@ -24,6 +22,7 @@ public class AbstractClassTest {
 
     @NodeEntity(label = "BaseType")
     public abstract class BaseEntity {
+
         @GraphId
         private Long graphId;
         @Relationship(type = "RELATED_TO", direction = "OUTGOING")
@@ -59,10 +58,12 @@ public class AbstractClassTest {
 
     @NodeEntity(label = "Type1")
     public class Type1 extends BaseEntity {
+
     }
 
     @NodeEntity(label = "Type2")
     public class Type2 extends BaseEntity {
+
     }
 
     private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.typeconversion");
@@ -79,19 +80,18 @@ public class AbstractClassTest {
         node1.addIncoming(node2);
         node2.addIncoming(node1);
 
-            Session session = sessionFactory.openSession();
-            Transaction transaction = session.beginTransaction();
-            session.save(node1);
-            transaction.commit();
-            transaction.close();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        session.save(node1);
+        transaction.commit();
+        transaction.close();
 
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
-            BaseEntity entity = session.load(BaseEntity.class, node1.getGraphId());
-            transaction.close();
-            Assert.assertFalse(entity.getIncoming().isEmpty());
-            Assert.assertFalse(entity.getOutgoing().isEmpty());
+        session = sessionFactory.openSession();
+        transaction = session.beginTransaction();
+        BaseEntity entity = session.load(BaseEntity.class, node1.getGraphId());
+        transaction.close();
+        Assert.assertFalse(entity.getIncoming().isEmpty());
+        Assert.assertFalse(entity.getOutgoing().isEmpty());
     }
-
 }
 

@@ -21,4 +21,5 @@ import org.neo4j.ogm.domain.hierarchy.domain.plain.PlainAbstractParent;
  */
 @NodeEntity(label = "Child")
 public class AnnotatedNamedChildWithPlainAbstractParent extends PlainAbstractParent {
+
 }

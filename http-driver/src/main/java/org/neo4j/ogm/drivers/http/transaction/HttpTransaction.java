@@ -51,11 +51,9 @@ public class HttpTransaction extends AbstractTransaction {
                 request.setHeader(new BasicHeader("X-WRITE", driver.readOnly() ? "0" : "1"));
                 driver.executeHttpRequest(request);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn(e.getLocalizedMessage());
-        }
-        finally {
+        } finally {
             super.rollback(); // must always be done to keep extension depth correct
         }
     }
@@ -66,15 +64,13 @@ public class HttpTransaction extends AbstractTransaction {
         try {
             if (transactionManager.canCommit()) {
                 HttpPost request = new HttpPost(url + "/commit");
-                request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
+                request.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
                 request.setHeader(new BasicHeader("X-WRITE", driver.readOnly() ? "0" : "1"));
                 driver.executeHttpRequest(request);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new TransactionException(e.getLocalizedMessage());
-        }
-        finally {
+        } finally {
             super.commit(); // must always be done to keep extension depth correct
         }
     }

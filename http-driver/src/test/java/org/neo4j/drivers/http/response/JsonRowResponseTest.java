@@ -13,6 +13,14 @@
 
 package org.neo4j.drivers.http.response;
 
+import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -23,38 +31,27 @@ import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.DefaultRowModel;
 import org.neo4j.ogm.result.ResultRowModel;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Luanne Misquitta
  */
 public class JsonRowResponseTest {
 
-    private static CloseableHttpResponse response = mock( CloseableHttpResponse.class );
-    private static HttpEntity entity = mock( HttpEntity.class );
+    private static CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+    private static HttpEntity entity = mock(HttpEntity.class);
 
     @Before
-    public void setUpMocks()
-    {
-        when( response.getEntity() ).thenReturn( entity );
+    public void setUpMocks() {
+        when(response.getEntity()).thenReturn(entity);
     }
 
     @Test
-    public void shouldParseColumnsInRowResponseCorrectly() throws IOException
-    {
+    public void shouldParseColumnsInRowResponseCorrectly() throws IOException {
 
         when(entity.getContent()).thenReturn(rowResultsAndNoErrors());
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            TestCase.assertEquals( 1, rsp.columns().length );
-            TestCase.assertEquals( "collect(p)", rsp.columns()[0] );
+            TestCase.assertEquals(1, rsp.columns().length);
+            TestCase.assertEquals("collect(p)", rsp.columns()[0]);
         }
     }
 
@@ -64,9 +61,8 @@ public class JsonRowResponseTest {
         when(entity.getContent()).thenReturn(noRowResultsAndNoErrors());
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
-            TestCase.assertEquals( 1, rsp.columns().length );
-            TestCase.assertEquals( "collect(p)", rsp.columns()[0] );
-
+            TestCase.assertEquals(1, rsp.columns().length);
+            TestCase.assertEquals("collect(p)", rsp.columns()[0]);
         }
     }
 
@@ -77,11 +73,11 @@ public class JsonRowResponseTest {
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
-            TestCase.assertNotNull( rowModel );
+            TestCase.assertNotNull(rowModel);
             Object[] rows = rowModel.getValues();
-            TestCase.assertEquals( 1, rows.length );
+            TestCase.assertEquals(1, rows.length);
             List<List<Map>> data = (List<List<Map>>) rows[0];
-            TestCase.assertEquals( "My Test", data.get( 0 ).get( 0 ).get( "name" ) );
+            TestCase.assertEquals("My Test", data.get(0).get(0).get("name"));
         }
     }
 
@@ -92,13 +88,13 @@ public class JsonRowResponseTest {
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
-            TestCase.assertNotNull( rowModel );
+            TestCase.assertNotNull(rowModel);
             Object[] rows = rowModel.getValues();
-            TestCase.assertEquals( 4, rows.length );
-            TestCase.assertEquals( 388, rows[0] );
-            TestCase.assertEquals( 527, rows[1] );
-            TestCase.assertEquals( 389, rows[2] );
-            TestCase.assertEquals( 528, rows[3] );
+            TestCase.assertEquals(4, rows.length);
+            TestCase.assertEquals(388, rows[0]);
+            TestCase.assertEquals(527, rows[1]);
+            TestCase.assertEquals(389, rows[2]);
+            TestCase.assertEquals(528, rows[3]);
         }
     }
 
@@ -109,20 +105,20 @@ public class JsonRowResponseTest {
 
         try (Response<DefaultRowModel> rsp = new TestRowHttpResponse()) {
             DefaultRowModel rowModel = rsp.next();
-            TestCase.assertNotNull( rowModel );
+            TestCase.assertNotNull(rowModel);
             Object[] rows = rowModel.getValues();
-            TestCase.assertEquals( 3, rows.length );
-            Map obj1 = (Map)rows[0];
-            TestCase.assertEquals( "Betty", obj1.get( "name" ) );
-            TestCase.assertEquals( 0, ( (Map) rows[1] ).size() );
-            TestCase.assertEquals( "Peter", (String) rows[2] );
+            TestCase.assertEquals(3, rows.length);
+            Map obj1 = (Map) rows[0];
+            TestCase.assertEquals("Betty", obj1.get("name"));
+            TestCase.assertEquals(0, ((Map) rows[1]).size());
+            TestCase.assertEquals("Peter", (String) rows[2]);
         }
     }
 
 
     private InputStream rowResultsAndNoErrors() {
 
-        final String s= "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
+        final String s = "{\"results\": [{\"columns\": [\"collect(p)\"],\"data\": [{\"row\": [[[{\"name\": \"My Test\"}]]]}]}],\"errors\": []}";
 
         return new ByteArrayInputStream(s.getBytes());
     }
@@ -227,6 +223,5 @@ public class JsonRowResponseTest {
         public void close() {
             //Nothing to do, the response has been closed already
         }
-
     }
 }

@@ -13,37 +13,33 @@
 
 package org.neo4j.drivers.http.driver;
 
+import static org.junit.Assert.*;
+
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.config.Components;
-
-import static org.junit.Assert.assertNotNull;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 
 /**
  * @author vince
  */
-public class HttpDriverTest
-{
+public class HttpDriverTest {
 
     @Test
     public void shouldInitialiseWithCustomHttpClient() {
 
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        connectionManager.setMaxTotal( 1 );
-        connectionManager.setDefaultMaxPerRoute( 1 );
+        connectionManager.setMaxTotal(1);
+        connectionManager.setDefaultMaxPerRoute(1);
 
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setConnectionManager(connectionManager)
                 .build();
 
-
-        Components.setDriver(new HttpDriver( httpClient ));
+        Components.setDriver(new HttpDriver(httpClient));
 
         assertNotNull(Components.driver());
-
     }
-
 }

@@ -23,5 +23,4 @@ public class MaleHeir extends Prince {
     public int inLine() {
         return inLine;
     }
-
 }

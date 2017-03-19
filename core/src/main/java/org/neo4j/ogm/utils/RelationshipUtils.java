@@ -77,9 +77,7 @@ public class RelationshipUtils {
     /**
      * Converts a String, possibly containing the character '_' to QuasiCamelCase
      * and appends the converted String to the provided StringBuilder.
-     *
      * Example: SNAKE_CASE -> SnakeCase
-     *
      * Note that the first character of the converted String is in uppercase.
      * This is intentional and should not be changed, because other parts of
      * the code expect this format in order to operate correctly.
@@ -107,15 +105,10 @@ public class RelationshipUtils {
     /**
      * Converts a String to UPPER_SNAKE_CASE
      * and appends the converted String to the provided StringBuilder.
-     *
      * Example: snakeCase -> SNAKE_CASE
-     *
      * This method is the dual of toQuasiCamelCase, meaning
-     *
      * toQuasiCamelCase(toUpperSnakeCase("SnakeCase")) will return "SnakeCase"
-     *
      * and
-     *
      * toUpperSnakeCase(toUpperCamelCase("SNAKE_CASE")) will return "SNAKE_CASE"
      *
      * @param name the string Value to convert.

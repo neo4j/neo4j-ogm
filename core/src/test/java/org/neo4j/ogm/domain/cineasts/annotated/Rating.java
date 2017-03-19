@@ -81,7 +81,5 @@ public class Rating {
     public String toString() {
         // for ease of debugging !
         return String.format("(%s:%s)-[%s:%s]->(%s:%s)", user.getId(), user.getName(), id, "RATING: {stars:" + stars + ", comment:'" + comment + "'}", movie.getId(), movie.getTitle());
-
     }
-
 }

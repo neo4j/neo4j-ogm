@@ -25,15 +25,16 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 @NodeEntity
 public class Author {
-	@GraphId
-	public Long id;
 
-	@Relationship(type="AUTHORED_BY", direction = Relationship.INCOMING)
-	public Set<Post> posts;
+    @GraphId
+    public Long id;
 
-	@Relationship(type = "COMMENT_BY", direction = Relationship.INCOMING)
-	public Set<Comment> comments = new HashSet<>();
+    @Relationship(type = "AUTHORED_BY", direction = Relationship.INCOMING)
+    public Set<Post> posts;
 
-	public Author() {
-	}
+    @Relationship(type = "COMMENT_BY", direction = Relationship.INCOMING)
+    public Set<Comment> comments = new HashSet<>();
+
+    public Author() {
+    }
 }

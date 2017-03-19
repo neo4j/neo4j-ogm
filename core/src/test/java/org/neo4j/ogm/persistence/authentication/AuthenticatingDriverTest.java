@@ -14,19 +14,19 @@
 package org.neo4j.ogm.persistence.authentication;
 
 
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
+
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Vince Bickers
@@ -98,6 +98,4 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
             }
         }
     }
-
-
 }

@@ -22,6 +22,7 @@ import org.neo4j.ogm.annotation.StartNode;
  */
 @RelationshipEntity(type = "RELATED_TO")
 public class RichRelation {
+
     @StartNode
     public Person person;
     @EndNode

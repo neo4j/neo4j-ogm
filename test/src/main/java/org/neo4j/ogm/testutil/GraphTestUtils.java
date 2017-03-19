@@ -13,17 +13,17 @@
 
 package org.neo4j.ogm.testutil;
 
-import org.junit.Assert;
-import org.neo4j.graphdb.*;
-import org.neo4j.test.TestGraphDatabaseFactory;
-import org.parboiled.common.StringUtils;
+import static org.neo4j.graphdb.Direction.*;
+import static org.neo4j.helpers.collection.Iterables.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static org.neo4j.graphdb.Direction.OUTGOING;
-import static org.neo4j.helpers.collection.Iterables.count;
+import org.junit.Assert;
+import org.neo4j.graphdb.*;
+import org.neo4j.test.TestGraphDatabaseFactory;
+import org.parboiled.common.StringUtils;
 
 /**
  * Utility methods used to facilitate testing against a real Neo4j database.
@@ -160,7 +160,7 @@ public final class GraphTestUtils {
     }
 
     private static Map<Long, Long[]> buildSameNodesMap(GraphDatabaseService database, GraphDatabaseService otherDatabase,
-            String firstDatabaseName) {
+                                                       String firstDatabaseName) {
         Map<Long, Long[]> sameNodesMap = new HashMap<>(); //map of nodeID and IDs of nodes that match
 
         for (Node node : allNodes(otherDatabase)) {
@@ -227,7 +227,7 @@ public final class GraphTestUtils {
     }
 
     private static void assertRelationshipsMappingExistsForSingleNodeMapping(GraphDatabaseService database,
-            GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
+                                                                             GraphDatabaseService otherDatabase, Map<Long, Long> mapping, String firstDatabaseName) {
         Set<Long> usedRelationships = new HashSet<>();
 
         for (Relationship relationship : allRelationships(otherDatabase)) {
@@ -238,7 +238,7 @@ public final class GraphTestUtils {
     }
 
     private static boolean relationshipsMappingExists(GraphDatabaseService database, GraphDatabaseService otherDatabase,
-            Map<Long, Long> mapping) {
+                                                      Map<Long, Long> mapping) {
         Set<Long> usedRelationships = new HashSet<>();
         for (Relationship relationship : allRelationships(otherDatabase)) {
             if (!relationshipMappingExists(database, relationship, mapping, usedRelationships)) {
@@ -250,7 +250,7 @@ public final class GraphTestUtils {
     }
 
     private static boolean relationshipMappingExists(GraphDatabaseService database, Relationship relationship, Map<Long, Long> nodeMapping,
-            Set<Long> usedRelationships) {
+                                                     Set<Long> usedRelationships) {
         for (Relationship candidate : database.getNodeById(nodeMapping.get(relationship.getStartNode().getId())).getRelationships(OUTGOING)) {
             if (nodeMapping.get(relationship.getEndNode().getId()).equals(candidate.getEndNode().getId())) {
                 if (areSame(candidate, relationship) && !usedRelationships.contains(candidate.getId())) {
@@ -265,12 +265,10 @@ public final class GraphTestUtils {
 
     public static boolean areSame(Node node1, Node node2) {
         return haveSameLabels(node1, node2) && haveSameProperties(node1, node2);
-
     }
 
     public static boolean areSame(Relationship relationship1, Relationship relationship2) {
         return haveSameType(relationship1, relationship2) && haveSameProperties(relationship1, relationship2);
-
     }
 
     public static boolean haveSameLabels(Node node1, Node node2) {
@@ -405,5 +403,4 @@ public final class GraphTestUtils {
         }
         return String.valueOf(o);
     }
-
 }

@@ -62,6 +62,5 @@ public class KnowledgeTest extends MultiDriverTestClass {
 
             tx.rollback();
         }
-
     }
 }

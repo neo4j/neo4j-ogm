@@ -30,6 +30,7 @@ public interface Transaction extends AutoCloseable {
 
     /**
      * return the status of the current transaction
+     *
      * @return the Status value associated with the current transaction
      */
     Status status();
@@ -37,6 +38,7 @@ public interface Transaction extends AutoCloseable {
     /**
      * Obtains the read-only status of a transaction.
      * Transaction are read-write by default
+     *
      * @return true if this is a read-only transaction, false otherwise
      */
     boolean isReadOnly();
@@ -64,9 +66,9 @@ public interface Transaction extends AutoCloseable {
     enum Type {
         READ_ONLY, READ_WRITE
     }
+
     /**
      * close this transaction.
      */
     void close();
-
 }

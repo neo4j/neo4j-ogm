@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import org.neo4j.ogm.context.Mappable;
-
 import java.util.*;
+
+import org.neo4j.ogm.context.Mappable;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
@@ -88,12 +88,9 @@ public class CypherContext implements CompileContext {
     /**
      * Invoked when the mapper wishes to mark a set of outgoing relationships to a specific type like (a)-[:T]-&gt;(*) as deleted, prior
      * to possibly re-establishing them individually as it traverses the entity graph.
-     *
      * There are two reasons why a set of relationships might not be be able to be marked deleted:
-     *
      * 1) the request to mark them as deleted has already been made
      * 2) the relationship is not persisted in the graph (i.e. its a new relationship)
-     *
      * Only case 1) is considered to be a failed request, because this context is only concerned about
      * pre-existing relationships in the graph. In order to distinguish between the two cases, we
      * also maintain a list of successfully deleted relationships, so that if we try to delete an already-deleted
@@ -109,12 +106,12 @@ public class CypherContext implements CompileContext {
         boolean nothingToDelete = true;
         List<Mappable> cleared = new ArrayList<>();
         while (iterator.hasNext()) {
-           Mappable mappedRelationship = iterator.next();
-           if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(mappedRelationship.getEndNodeType())) {
-               cleared.add(mappedRelationship);
-               iterator.remove();
-               nothingToDelete = false;
-           }
+            Mappable mappedRelationship = iterator.next();
+            if (mappedRelationship.getStartNodeId() == src && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(mappedRelationship.getEndNodeType())) {
+                cleared.add(mappedRelationship);
+                iterator.remove();
+                nothingToDelete = false;
+            }
         }
         if (nothingToDelete) {
             return true; //relationships not in the graph, okay, we can return
@@ -122,28 +119,24 @@ public class CypherContext implements CompileContext {
 
         //Check to see if the relationships were previously deleted, if so, restore them
         iterator = cleared.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Mappable mappedRelationship = iterator.next();
-            if(isMappableAlreadyDeleted(mappedRelationship)) {
+            if (isMappableAlreadyDeleted(mappedRelationship)) {
                 registerRelationship(mappedRelationship);
                 iterator.remove();
-            }
-            else {
+            } else {
                 deletedRelationships.add(mappedRelationship);
             }
         }
-        return cleared.size()>0;
+        return cleared.size() > 0;
     }
 
     /**
      * Invoked when the mapper wishes to mark a set of incoming relationships to a specific type like (a)&lt;-[:T]-(*) as deleted, prior
      * to possibly re-establishing them individually as it traverses the entity graph.
-     *
      * There are two reasons why a set of relationships might not be be able to be marked deleted:
-     *
      * 1) the request to mark them as deleted has already been made
      * 2) the relationship is not persisted in the graph (i.e. its a new relationship)
-     *
      * Only case 1) is considered to be a failed request, because this context is only concerned about
      * pre-existing relationships in the graph. In order to distinguish between the two cases, we
      * also maintain a list of successfully deleted relationships, so that ff we try to delete an already-deleted
@@ -160,10 +153,10 @@ public class CypherContext implements CompileContext {
         boolean nothingToDelete = true;
         while (iterator.hasNext()) {
             Mappable mappedRelationship = iterator.next();
-            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(relationshipEntity?mappedRelationship.getEndNodeType():mappedRelationship.getStartNodeType())) {
+            if (mappedRelationship.getEndNodeId() == tgt && mappedRelationship.getRelationshipType().equals(relationshipType) && endNodeType.equals(relationshipEntity ? mappedRelationship.getEndNodeType() : mappedRelationship.getStartNodeType())) {
                 cleared.add(mappedRelationship);
                 iterator.remove();
-                nothingToDelete=false;
+                nothingToDelete = false;
             }
         }
 
@@ -173,23 +166,21 @@ public class CypherContext implements CompileContext {
 
         //Check to see if the relationships were previously deleted, if so, restore them
         iterator = cleared.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Mappable mappedRelationship = iterator.next();
-            if(isMappableAlreadyDeleted(mappedRelationship)) {
+            if (isMappableAlreadyDeleted(mappedRelationship)) {
                 registerRelationship(mappedRelationship);
                 iterator.remove();
-            }
-            else {
+            } else {
                 deletedRelationships.add(mappedRelationship);
             }
         }
-        return cleared.size()>0;
+        return cleared.size() > 0;
     }
 
 
     public void visitRelationshipEntity(Long relationshipEntity) {
         visitedRelationshipEntities.add(relationshipEntity);
-
     }
 
     public boolean visitedRelationshipEntity(Long relationshipEntity) {

@@ -23,46 +23,46 @@ import org.neo4j.ogm.annotation.Relationship;
  * @author Luanne Misquitta
  */
 @NodeEntity(label = "DataView")
-public class DataView  {
+public class DataView {
 
-	public Long id;
-	String name;
+    public Long id;
+    String name;
 
-	@Relationship(type= "OWNER", direction = Relationship.OUTGOING)
-	public Thing owner;
+    @Relationship(type = "OWNER", direction = Relationship.OUTGOING)
+    public Thing owner;
 
-	@Relationship(type= "SHARED_WITH", direction = Relationship.OUTGOING)
-	public List<Thing> sharedWith = new ArrayList<>();
+    @Relationship(type = "SHARED_WITH", direction = Relationship.OUTGOING)
+    public List<Thing> sharedWith = new ArrayList<>();
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public Thing getOwner() {
-		return owner;
-	}
+    public Thing getOwner() {
+        return owner;
+    }
 
-	public void setOwner(Thing owner) {
-		this.owner = owner;
-	}
+    public void setOwner(Thing owner) {
+        this.owner = owner;
+    }
 
-	public List<Thing> getSharedWith() {
-		return sharedWith;
-	}
+    public List<Thing> getSharedWith() {
+        return sharedWith;
+    }
 
-	public void setSharedWith(List<Thing> sharedWith) {
-		this.sharedWith = sharedWith;
-	}
+    public void setSharedWith(List<Thing> sharedWith) {
+        this.sharedWith = sharedWith;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 }

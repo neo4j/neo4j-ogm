@@ -28,30 +28,30 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public class RestModelResponse extends BoltResponse<DefaultRestModel> {
 
-	private BoltRestModelAdapter restModelAdapter;
-	private final QueryStatisticsModel statisticsModel;
-	private final Iterator<Record> resultProjection;
+    private BoltRestModelAdapter restModelAdapter;
+    private final QueryStatisticsModel statisticsModel;
+    private final Iterator<Record> resultProjection;
 
-	public RestModelResponse(StatementResult result, TransactionManager transactionManager) {
-		super(result, transactionManager);
-		this.restModelAdapter = new BoltRestModelAdapter();
-		resultProjection = result.list().iterator();
-		statisticsModel = new StatisticsModelAdapter().adapt(result);
-	}
+    public RestModelResponse(StatementResult result, TransactionManager transactionManager) {
+        super(result, transactionManager);
+        this.restModelAdapter = new BoltRestModelAdapter();
+        resultProjection = result.list().iterator();
+        statisticsModel = new StatisticsModelAdapter().adapt(result);
+    }
 
-	@Override
-	public DefaultRestModel fetchNext() {
-		DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
-		defaultRestModel.setStats(statisticsModel);
-		return defaultRestModel;
-	}
+    @Override
+    public DefaultRestModel fetchNext() {
+        DefaultRestModel defaultRestModel = new DefaultRestModel(buildModel());
+        defaultRestModel.setStats(statisticsModel);
+        return defaultRestModel;
+    }
 
-	private Map<String, Object> buildModel() {
-		Map<String, Object> row = new LinkedHashMap<>();
-		if (resultProjection.hasNext()) {
-			row = restModelAdapter.adapt(resultProjection.next().asMap());
-		}
+    private Map<String, Object> buildModel() {
+        Map<String, Object> row = new LinkedHashMap<>();
+        if (resultProjection.hasNext()) {
+            row = restModelAdapter.adapt(resultProjection.next().asMap());
+        }
 
-		return row;
-	}
+        return row;
+    }
 }

@@ -13,9 +13,9 @@
 
 package org.neo4j.ogm.domain.entityMapping.iterables;
 
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.Set;
+
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Annotated incoming iterable field with annotated getters and setters. Relationship type same as property name
@@ -34,5 +34,4 @@ public class UserV8 extends Entity {
     public void setKnows(Set<UserV8> knows) {
         this.knows = knows;
     }
-
 }

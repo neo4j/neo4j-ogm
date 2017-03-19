@@ -19,6 +19,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
  * @author Luanne Misquitta
  */
 @NodeEntity(label = "Type2")
-public class Type2 extends BaseEntity{
+public class Type2 extends BaseEntity {
 
 }

@@ -21,6 +21,7 @@ import org.neo4j.ogm.annotation.Relationship;
  * @author Luanne Misquitta
  */
 public class UserV21 {
+
     @Relationship(type = "KNOWS")
     UserV21 user;
 

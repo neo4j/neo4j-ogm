@@ -13,15 +13,15 @@
 
 package org.neo4j.ogm.response.model;
 
-import org.neo4j.ogm.model.Edge;
-import org.neo4j.ogm.model.Property;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.neo4j.ogm.model.Edge;
+import org.neo4j.ogm.model.Property;
+
 /**
- *  @author Michal Bachman
+ * @author Michal Bachman
  */
 public class RelationshipModel implements Edge {
 
@@ -96,7 +96,6 @@ public class RelationshipModel implements Edge {
         RelationshipModel that = (RelationshipModel) o;
 
         return id.equals(that.id);
-
     }
 
     @Override

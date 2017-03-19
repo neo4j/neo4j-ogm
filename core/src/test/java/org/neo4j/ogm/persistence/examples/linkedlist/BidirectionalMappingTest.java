@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.persistence.examples.linkedlist;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.linkedlist.Item;
@@ -20,11 +24,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Vince Bickers
@@ -38,10 +37,8 @@ import static org.junit.Assert.assertNull;
  * <pre>
  * <code>
  * class Item {
- *
  *      @{literal @}Relationship(type='NEXT', direction=Relationship.INCOMING)
  *      Item previous;
- *
  *      @{literal @}Relationship(type='NEXT', direction=Relationship.OUTGOING)
  *      Item next;
  * }
@@ -83,7 +80,6 @@ public class BidirectionalMappingTest extends MultiDriverTestClass {
         assertNull(first.previous);
         assertEquals(first.getId(), first.next.previous.getId());
         assertEquals(second.getId(), first.next.next.previous.getId());
-
     }
 
     @Test
@@ -98,9 +94,7 @@ public class BidirectionalMappingTest extends MultiDriverTestClass {
             session.save(item);
 
             session.deleteAll(Item.class);
-
         }
     }
-
 }
 

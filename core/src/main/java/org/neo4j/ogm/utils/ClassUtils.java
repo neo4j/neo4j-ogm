@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.utils;
 
-import javax.lang.model.type.PrimitiveType;
 import java.util.HashMap;
 import java.util.Map;
 

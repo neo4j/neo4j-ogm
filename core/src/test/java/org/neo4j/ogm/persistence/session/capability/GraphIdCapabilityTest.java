@@ -13,6 +13,10 @@
 
 package org.neo4j.ogm.persistence.session.capability;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,11 +25,6 @@ import org.neo4j.ogm.domain.music.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Luanne Misquitta
@@ -94,7 +93,6 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
 
         Recording revolverRecording = new Recording(revolver, new Studio(), 1966);
         assertNull(session.resolveGraphIdFor(revolverRecording));
-
     }
 
     /**
@@ -126,5 +124,4 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
         assertNull(session.resolveGraphIdFor(true));
         assertNull(session.resolveGraphIdFor(1));
     }
-
 }

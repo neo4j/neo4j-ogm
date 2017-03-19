@@ -15,6 +15,7 @@ package org.neo4j.ogm.config;
 
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -32,7 +33,7 @@ import org.neo4j.ogm.drivers.http.driver.HttpDriver;
  */
 public class DriverServiceTest {
 
-    public static final String TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toString();
+    public static final URI TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toUri();
     private Configuration driverConfiguration = new Configuration();
 
     @BeforeClass
@@ -66,9 +67,7 @@ public class DriverServiceTest {
     public void shouldLoadEmbeddedDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 
-        String uri = "file://" + TMP_NEO4J_DB;
-
-        driverConfiguration.setURI(uri);
+        driverConfiguration.setURI(TMP_NEO4J_DB.toString());
 
         Driver driver = Components.loadDriver(driverConfiguration);
         assertNotNull(driver);

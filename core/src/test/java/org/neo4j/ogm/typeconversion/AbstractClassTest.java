@@ -15,7 +15,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
- * Created by Mihai Raulea on 4/24/2016.
+ * Created by Mihai Raulea on 4/24/2017.
  */
 @Ignore
 public class AbstractClassTest {

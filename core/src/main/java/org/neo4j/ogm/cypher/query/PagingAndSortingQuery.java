@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -39,7 +39,7 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
         // these transformations are entirely dependent on the form of our base queries and
         // binding the sorting properties to the default query variables is a terrible hack. All this
         // needs refactoring ASAP.
-        // Update Feb 2016: It really does need refactoring ASAP!!! //TODO
+        // Update Feb 2017: It really does need refactoring ASAP!!! //TODO
         if (sorting.length() > 0 || pagination.length() > 0) {
 
             if (withIndex > -1) {

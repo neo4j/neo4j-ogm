@@ -169,7 +169,7 @@ public class EntityGraphMapper implements EntityMapper {
                 clearRelatedObjects(mappedRelationship.getEndNodeId());
 
                 // finally remove the relationship from the mapping context
-                mappingContext.removeRelationship(mappedRelationship);
+                mappedRelationshipIterator.remove();
             }
         }
     }

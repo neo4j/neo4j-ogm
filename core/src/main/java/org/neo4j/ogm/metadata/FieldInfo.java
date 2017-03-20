@@ -71,6 +71,7 @@ public class FieldInfo {
      * The associated composite attribute converter for this field, if applicable, otherwise null.
      */
     private CompositeAttributeConverter<?> compositeConverter;
+    private String descriptorClass;
 
 
     /**
@@ -274,10 +275,14 @@ public class FieldInfo {
      * @return collection class name
      */
     public String getCollectionClassname() {
+        if (descriptorClass != null) {
+            return descriptorClass;
+        }
         String descriptorClass = descriptor.replace("/", ".");
         if (descriptorClass.startsWith("L")) {
             descriptorClass = descriptorClass.substring(1, descriptorClass.length() - 1); //remove the leading L and trailing ;
         }
+        this.descriptorClass = descriptorClass;
         return descriptorClass;
     }
 

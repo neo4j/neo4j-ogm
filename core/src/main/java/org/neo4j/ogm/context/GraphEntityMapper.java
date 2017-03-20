@@ -544,7 +544,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         } else {
             if (classInfos.size() == 0) {
                 // not necessarily a problem, we mey be fetching edges we don't want to hydrate
-                logger.debug("Unable to find a matching @RelationshipEntity for {}", edge.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Unable to find a matching @RelationshipEntity for {}", edge.toString());
+                }
             } else {
                 // almost definitely a user bug
                 logger.error("Found more than one matching @RelationshipEntity for {} but cannot tell which one to use", edge.toString());

@@ -24,7 +24,6 @@ public class Company {
 
     @GraphId
     Long id;
-    private String name;
 
     @Relationship(type = "OWNER", direction = "INCOMING")
     private Set<Person> owners;
@@ -36,7 +35,6 @@ public class Company {
     }
 
     public Company(String name) {
-        this.name = name;
     }
 
     public Set<Person> getOwners() {

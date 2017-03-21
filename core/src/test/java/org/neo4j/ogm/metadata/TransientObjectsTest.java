@@ -14,7 +14,8 @@
 package org.neo4j.ogm.metadata;
 
 
-import static junit.framework.Assert.*;
+
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -88,10 +89,6 @@ public class TransientObjectsTest {
 
         public void setTransientObject(String value) {
             transientObject = value;
-        }
-
-        public void setTransientSingleClass(TransientSingleClass transientSingleClass) {
-
         }
 
         public TransientSingleClass getTransientSingleClass() {

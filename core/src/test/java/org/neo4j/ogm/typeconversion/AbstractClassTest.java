@@ -68,11 +68,6 @@ public class AbstractClassTest {
 
     private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.typeconversion");
 
-    @Before
-    public void init() {
-
-    }
-
     @Test
     public void saveMultipleRelationships() throws Exception {
         Type1 node1 = new Type1();

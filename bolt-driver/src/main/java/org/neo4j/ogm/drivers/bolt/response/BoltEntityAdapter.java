@@ -26,17 +26,17 @@ import org.neo4j.driver.v1.types.Relationship;
  *
  * @author Luanne Misquitta
  */
-public class BoltEntityAdapter {
+class BoltEntityAdapter {
 
-    public boolean isPath(Object value) {
+    boolean isPath(Object value) {
         return value instanceof Path;
     }
 
-    public boolean isNode(Object value) {
+    boolean isNode(Object value) {
         return value instanceof Node;
     }
 
-    public boolean isRelationship(Object value) {
+    boolean isRelationship(Object value) {
         return value instanceof Relationship;
     }
 
@@ -73,7 +73,7 @@ public class BoltEntityAdapter {
         return ((Entity) container).asMap();
     }
 
-    public List<Object> nodesInPath(Object pathValue) {
+    List<Object> nodesInPath(Object pathValue) {
         Path path = (Path) pathValue;
         List<Object> nodes = new ArrayList<>(path.length());
         for (Node node : path.nodes()) {
@@ -82,7 +82,7 @@ public class BoltEntityAdapter {
         return nodes;
     }
 
-    public List<Object> relsInPath(Object pathValue) {
+    List<Object> relsInPath(Object pathValue) {
         Path path = (Path) pathValue;
         List<Object> rels = new ArrayList<>(path.length());
         for (Relationship rel : path.relationships()) {

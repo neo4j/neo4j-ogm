@@ -434,7 +434,7 @@ public class POJO<S, T extends Comparable, U extends Serializable> {
     }
 
     public <X extends Long> Iterable<X> getMap() {
-        return null;
+        return (Iterable<X>) map;
     }
 
     public void setMap(Iterable<? extends Long> map) {

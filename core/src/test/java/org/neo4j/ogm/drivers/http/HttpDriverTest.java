@@ -43,7 +43,4 @@ public class HttpDriverTest extends AbstractDriverTestSuite {
     public void setUpTest() {
     }
 
-    @Override
-    public void tearDownTest() {
-    }
 }

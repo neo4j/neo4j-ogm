@@ -27,12 +27,11 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
     private Neo4jSession session;
 
     private Album album1, album2, album3;
-    private Artist artist1, artist2;
-    private Recording recording;
+    private Artist artist1;
     private ReleaseFormat releaseFormat;
-    private Studio studio;
 
-    private Actor actor1, actor2, actor3, actor4;
+    private Actor actor1;
+    private Actor actor2;
     private Knows knows, knows2;
 
 
@@ -43,7 +42,7 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         artist1 = new Artist();
         artist1.setName("MainArtist");
 
-        artist2 = new Artist();
+        Artist artist2 = new Artist();
         artist2.setName("GuestArtist");
 
         album1 = new Album();
@@ -60,10 +59,10 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         artist1.addAlbum(album2);
         artist1.addAlbum(album3);
 
-        studio = new Studio();
+        Studio studio = new Studio();
         studio.setName("Studio");
 
-        recording = new Recording();
+        Recording recording = new Recording();
         recording.setAlbum(album1);
         recording.setAlbum(album2);
         recording.setAlbum(album3);
@@ -80,8 +79,8 @@ public class SessionAndMappingContextTest extends MultiDriverTestClass {
         actor1.knows.add(knows);
         session.save(actor1);
 
-        actor3 = new Actor("Actor3");
-        actor4 = new Actor("Actor4");
+        Actor actor3 = new Actor("Actor3");
+        Actor actor4 = new Actor("Actor4");
         knows2 = new Knows();
         knows2.setFirstActor(actor3);
         knows2.setSecondActor(actor4);

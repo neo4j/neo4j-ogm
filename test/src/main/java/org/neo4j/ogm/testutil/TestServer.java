@@ -66,7 +66,7 @@ public class TestServer {
 
             if (enableBolt) {
                 controls = TestServerBuilders.newInProcessBuilder()
-                        .withConfig("dbms.connector.0.enabled", String.valueOf(enableBolt))
+                        .withConfig("dbms.connector.0.enabled", "true")
                         .withConfig("dbms.connector.0.address", "localhost:" + String.valueOf(port))
                         .newServer();
             } else {

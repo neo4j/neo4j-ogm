@@ -34,7 +34,6 @@ import org.neo4j.ogm.metadata.FieldInfo;
  */
 public class AnnotatedFieldWithNoSetterAndNonSetterTest {
 
-    private EntityAccessManager entityAccessStrategy = new EntityAccessManager();
     private DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.metadata.reflect");
 
 
@@ -46,7 +45,7 @@ public class AnnotatedFieldWithNoSetterAndNonSetterTest {
         Set<RelEntity> parameter = new HashSet();
         parameter.addAll(Arrays.asList(relEntity));
 
-        FieldInfo objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
+        FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldInfo);
         End end = new End();
@@ -94,22 +93,19 @@ public class AnnotatedFieldWithNoSetterAndNonSetterTest {
         }
     }
 
-    public static class End {
+    static class End {
 
         Long id;
         String name;
         @Relationship(type = "REL_ENTITY_TYPE", direction = "INCOMING")
         Set<RelEntity> relEntities = new HashSet<>();
 
-        public End() {
+        End() {
         }
 
-        public Set<RelEntity> getRelEntities() {
+        Set<RelEntity> getRelEntities() {
             return relEntities;
         }
 
-        public void addRelEntity(RelEntity relEntity) {
-
-        }
     }
 }

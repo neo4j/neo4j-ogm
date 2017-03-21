@@ -48,7 +48,7 @@
         <mockito>2.2.29</mockito>
         <!-- default for build, if no profiles invoked -->
         <neo4j>3.1.2</neo4j>
-        <bolt>1.1.0</bolt>
+        <bolt>1.1.2</bolt>
         <ogm.properties>ogm-bolt.properties</ogm.properties>
     </properties>
 

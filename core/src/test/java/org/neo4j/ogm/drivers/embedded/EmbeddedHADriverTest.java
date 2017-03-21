@@ -27,8 +27,6 @@ import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
  */
 public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
-    private GraphDatabaseService graphDatabaseService;
-
     @BeforeClass
     public static void configure() throws Exception {
         Components.configure("embedded.ha.driver.properties");
@@ -42,11 +40,8 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
     @Override
     public void setUpTest() {
-        graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
+        GraphDatabaseService graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
         Assert.assertTrue(graphDatabaseService instanceof HighlyAvailableGraphDatabase);
     }
 
-    @Override
-    public void tearDownTest() {
-    }
 }

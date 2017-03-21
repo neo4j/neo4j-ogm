@@ -27,8 +27,6 @@ public class Person {
     @GraphId
     Long id;
 
-    private String name;
-
     @Relationship(type = "EMPLOYEE", direction = "OUTGOING")
     private Company employer;
 
@@ -42,7 +40,6 @@ public class Person {
     }
 
     public Person(String name) {
-        this.name = name;
     }
 
     public Long getId() {

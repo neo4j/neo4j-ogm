@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class CaseInsensitiveLikePropertyValueTransformer implements PropertyValueTransformer {
 
     // NB: wildcard character * is absent
-    private static final Pattern CHARS_TO_ESCAPE = Pattern.compile("([{}\\(\\)\\[\\]^$?.+\\\\|!])");
+    private static final Pattern CHARS_TO_ESCAPE = Pattern.compile("([{}()\\[\\]^$?.+\\\\|!])");
 
     @Override
     public Object transformPropertyValue(Object propertyValue) {

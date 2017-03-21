@@ -204,19 +204,17 @@ public class ClassInfo {
 
     public String neo4jName() {
         if (neo4jName == null) {
-            if (neo4jName == null) {
-                AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.class);
-                if (annotationInfo != null) {
-                    neo4jName = annotationInfo.get(NodeEntity.LABEL, simpleName());
-                    return neo4jName;
-                }
-                annotationInfo = annotationsInfo.get(RelationshipEntity.class);
-                if (annotationInfo != null) {
-                    neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
-                    return neo4jName;
-                }
-                neo4jName = simpleName();
+            AnnotationInfo annotationInfo = annotationsInfo.get(NodeEntity.class);
+            if (annotationInfo != null) {
+                neo4jName = annotationInfo.get(NodeEntity.LABEL, simpleName());
+                return neo4jName;
             }
+            annotationInfo = annotationsInfo.get(RelationshipEntity.class);
+            if (annotationInfo != null) {
+                neo4jName = annotationInfo.get(RelationshipEntity.TYPE, simpleName().toUpperCase());
+                return neo4jName;
+            }
+            neo4jName = simpleName();
         }
         return neo4jName;
     }

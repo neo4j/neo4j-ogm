@@ -26,11 +26,4 @@ public class User {
 
     Set<Rating> ratings;
     Set<User> friends;
-
-    Rating rate(Movie movie, int stars, String comment) {
-        return null;
-    }
-
-    void befriend(User user) {
-    }
 }

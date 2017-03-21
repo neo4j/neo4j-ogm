@@ -144,7 +144,7 @@ public class EducationTest {
         test(hash, students);
     }
 
-    private Map<String, Teacher> loadTeachers() throws Exception {
+    private Map<String, Teacher> loadTeachers() {
 
         Map<String, Teacher> teachers = new HashMap<>();
 
@@ -158,7 +158,7 @@ public class EducationTest {
         return teachers;
     }
 
-    private void hydrateCourses(Collection<Teacher> teachers) throws Exception {
+    private void hydrateCourses(Collection<Teacher> teachers)  {
 
         session.setDriver(new TeacherRequest());
         session.setDriver(new CoursesRequest());

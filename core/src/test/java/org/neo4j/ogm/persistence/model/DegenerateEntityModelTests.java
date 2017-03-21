@@ -43,7 +43,6 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
     private Folder f;
     private Document a;
-    private Document b;
 
     private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.filesystem");
 
@@ -65,7 +64,7 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
         a = session.load(Document.class, (Long) resultSet.get("aid"));
 
-        b = session.load(Document.class, (Long) resultSet.get("bid"));
+        Document b = session.load(Document.class, (Long) resultSet.get("bid"));
 
         f = session.load(Folder.class, (Long) resultSet.get("fid"));
 

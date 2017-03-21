@@ -47,13 +47,6 @@ public class User {
 
     String[] nicknames;
 
-    Rating rate(Movie movie, int stars, String comment) {
-        return null;
-    }
-
-    void befriend(User user) {
-    }
-
     public Long getId() {
         return id;
     }

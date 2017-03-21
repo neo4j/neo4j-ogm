@@ -34,7 +34,6 @@ import org.neo4j.ogm.metadata.FieldInfo;
  */
 public class AnnotatedFieldAndNonAnnotatedSetterTest {
 
-    private EntityAccessManager entityAccessStrategy = new EntityAccessManager();
     private DomainInfo domainInfo = DomainInfo.create("org.neo4j.ogm.metadata.reflect");
 
 
@@ -47,7 +46,7 @@ public class AnnotatedFieldAndNonAnnotatedSetterTest {
         Set<RelEntity> parameter = new HashSet();
         parameter.addAll(Arrays.asList(relEntity));
 
-        FieldInfo objectAccess = this.entityAccessStrategy.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
+        FieldInfo objectAccess = EntityAccessManager.getRelationalWriter(classInfo, "REL_ENTITY_TYPE", Relationship.INCOMING, relEntity);
 
         assertNotNull("The resultant object accessor shouldn't be null", objectAccess);
         assertTrue("The access mechanism should be via the field", objectAccess instanceof FieldInfo);

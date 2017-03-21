@@ -130,9 +130,7 @@ public class Movie {
 
         if (title == null || movie.getTitle() == null) return false;
 
-        if (!title.equals(movie.title)) return false;
-
-        return true;
+        return title.equals(movie.title);
     }
 
     @Override

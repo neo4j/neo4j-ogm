@@ -83,7 +83,7 @@ public class DriverServiceTest {
         driver.close();
     }
 
-    static void deleteDirectory(File dir) throws IOException {
+    static void deleteDirectory(File dir)  {
         if (dir.isDirectory()) {
             for (File file : dir.listFiles()) {
                 deleteDirectory(file);

@@ -38,12 +38,6 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
 
     private Session session;
 
-    private Long idJim;
-    private Long idMary;
-    private Long idBill;
-    private Long idMatrix;
-    private Long idDieHard;
-
     @Before
     public void init() throws IOException {
         session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.entityMapping").openSession();
@@ -169,11 +163,11 @@ public class MultipleRelationshipsTest extends MultiDriverTestClass {
         session.save(jim);
         session.save(mary);
 
-        idDieHard = dieHard.id;
-        idMatrix = matrix.id;
-        idJim = jim.id;
-        idBill = bill.id;
-        idMary = mary.id;
+        Long idDieHard = dieHard.id;
+        Long idMatrix = matrix.id;
+        Long idJim = jim.id;
+        Long idBill = bill.id;
+        Long idMary = mary.id;
 
         session.clear();
 

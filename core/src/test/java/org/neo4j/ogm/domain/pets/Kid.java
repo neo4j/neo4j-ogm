@@ -24,7 +24,6 @@ import org.neo4j.ogm.annotation.Relationship;
 public class Kid {
 
     private Long id;
-    private String name;
 
     @Relationship(type = "HAS_PET")
     private Set<Mammal> pets = new HashSet<>();
@@ -33,7 +32,6 @@ public class Kid {
     }
 
     public Kid(String name) {
-        this.name = name;
     }
 
     public void hasPet(Mammal mammal) {

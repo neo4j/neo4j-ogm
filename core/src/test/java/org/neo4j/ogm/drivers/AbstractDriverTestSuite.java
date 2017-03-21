@@ -51,8 +51,6 @@ public abstract class AbstractDriverTestSuite {
 
     public abstract void setUpTest();
 
-    public abstract void tearDownTest();
-
     protected static void deleteExistingEmbeddedDatabase() {
         try {
             FileUtils.forceDelete(new File(new URI(Components.getConfiguration().getURI())));
@@ -68,11 +66,6 @@ public abstract class AbstractDriverTestSuite {
         setUpTest();
         session = sessionFactory.openSession();
         session.purgeDatabase();
-    }
-
-    @After
-    public void cleanUp() {
-        tearDownTest();
     }
 
     // save test

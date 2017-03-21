@@ -286,8 +286,9 @@ public class Filter {
     }
 
     /**
-     * @param nodeIdentifier
-     * @param addWhereClause
+     * @param nodeIdentifier The node identifier
+     * @param addWhereClause The add where clause.
+     *
      * @return The filter state as a CYPHER fragment.
      */
     public String toCypher(String nodeIdentifier, boolean addWhereClause) {

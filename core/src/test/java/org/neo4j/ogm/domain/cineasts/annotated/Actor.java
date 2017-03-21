@@ -110,9 +110,7 @@ public class Actor {
 
         if (name == null || ((Actor) o).getName() == null) return false;
 
-        if (!name.equals(actor.name)) return false;
-
-        return true;
+        return name.equals(actor.name);
     }
 
     @Override

@@ -63,7 +63,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
         // user code deliberately sets the nodes to be equal
         assertEquals(start, end);
-        Set<Node> nodes = new HashSet();
+        Set<Node> nodes = new HashSet<>();
         nodes.add(start);
         nodes.add(end);
 
@@ -143,9 +143,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
             if (this == o) return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
-
-            return true; // all Node objects are the same, from perspective of client code
+            return !(o == null || getClass() != o.getClass());
         }
 
         @Override
@@ -170,9 +168,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
             if (this == o) return true;
 
-            if (o == null || getClass() != o.getClass()) return false;
-
-            return true; // all Edge objects are the same, from perspective of client code
+            return !(o == null || getClass() != o.getClass());
         }
 
         @Override

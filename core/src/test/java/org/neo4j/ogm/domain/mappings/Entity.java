@@ -38,9 +38,7 @@ public abstract class Entity {
 
         Entity entity = (Entity) o;
 
-        if (!nodeId.equals(entity.nodeId)) return false;
-
-        return true;
+        return nodeId.equals(entity.nodeId);
     }
 
     @Override

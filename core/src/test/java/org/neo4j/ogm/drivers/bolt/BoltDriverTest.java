@@ -44,8 +44,4 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
     public void setUpTest() {
 
     }
-
-    @Override
-    public void tearDownTest() {
-    }
 }

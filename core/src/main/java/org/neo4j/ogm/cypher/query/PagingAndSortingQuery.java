@@ -26,7 +26,7 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
     private Pagination paging;
     private SortOrder sortOrder = new SortOrder();
 
-    protected PagingAndSortingQuery(String cypher, Map<String, ?> parameters) {
+    PagingAndSortingQuery(String cypher, Map<String, ?> parameters) {
         super(cypher, parameters);
     }
 
@@ -94,11 +94,11 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
         return this;
     }
 
-    public Pagination page() {
+    private Pagination page() {
         return paging;
     }
 
-    public SortOrder sortOrder() {
+    private SortOrder sortOrder() {
         return sortOrder;
     }
 }

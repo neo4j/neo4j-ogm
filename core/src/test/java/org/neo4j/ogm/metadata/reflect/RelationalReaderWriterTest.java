@@ -30,12 +30,10 @@ public class RelationalReaderWriterTest {
 
     final String KNOWS = "KNOWS";
     final String LIKES = "LIKES";
-    private EntityAccessManager entityAccessStrategy;
     private DomainInfo domainInfo;
 
     @Before
     public void setup() {
-        entityAccessStrategy = new EntityAccessManager();
         domainInfo = DomainInfo.create("org.neo4j.ogm.domain.entityMapping");
     }
 
@@ -50,14 +48,11 @@ public class RelationalReaderWriterTest {
         UserV1 instance = new UserV1();
         UserV1 relatedObject = new UserV1();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWN_BY, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWN_BY, Relationship.OUTGOING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWN_BY, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWN_BY, Relationship.OUTGOING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWN_BY, Relationship.INCOMING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWN_BY, Relationship.INCOMING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWN_BY, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWN_BY, Relationship.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnownBy());
@@ -75,14 +70,11 @@ public class RelationalReaderWriterTest {
         UserV2 instance = new UserV2();
         UserV2 relatedObject = new UserV2();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -99,14 +91,11 @@ public class RelationalReaderWriterTest {
         UserV3 instance = new UserV3();
         UserV3 relatedObject = new UserV3();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -123,14 +112,11 @@ public class RelationalReaderWriterTest {
         UserV4 instance = new UserV4();
         UserV4 relatedObject = new UserV4();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -147,14 +133,11 @@ public class RelationalReaderWriterTest {
         UserV5 instance = new UserV5();
         UserV5 relatedObject = new UserV5();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getFriend());
@@ -171,17 +154,11 @@ public class RelationalReaderWriterTest {
         UserV6 instance = new UserV6();
         UserV6 relatedObject = new UserV6();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
-
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnowsPerson());
@@ -198,14 +175,11 @@ public class RelationalReaderWriterTest {
         UserV7 instance = new UserV7();
         UserV7 relatedObject = new UserV7();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -222,14 +196,11 @@ public class RelationalReaderWriterTest {
         UserV8 instance = new UserV8();
         UserV8 relatedObject = new UserV8();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -246,21 +217,15 @@ public class RelationalReaderWriterTest {
         UserV9 relatedObjectOut = new UserV9();
         UserV9 relatedObjectIn = new UserV9();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
@@ -277,21 +242,15 @@ public class RelationalReaderWriterTest {
         UserV10 relatedObjectOut = new UserV10();
         UserV10 relatedObjectIn = new UserV10();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getLikes());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getLikedBy());
@@ -308,21 +267,15 @@ public class RelationalReaderWriterTest {
         UserV11 relatedObjectOut = new UserV11();
         UserV11 relatedObjectIn = new UserV11();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
@@ -339,21 +292,15 @@ public class RelationalReaderWriterTest {
         UserV12 relatedObjectOut = new UserV12();
         UserV12 relatedObjectIn = new UserV12();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getFriend());
         assertEquals(relatedObjectOut, relationalReader.read(instance));
 
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, LIKES, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, LIKES, Relationship.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getFriendOf());
@@ -370,14 +317,11 @@ public class RelationalReaderWriterTest {
         UserV13 instance = new UserV13();
         UserV13 relatedObject = new UserV13();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -394,14 +338,11 @@ public class RelationalReaderWriterTest {
         UserV14 instance = new UserV14();
         UserV14 relatedObject = new UserV14();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
@@ -418,11 +359,8 @@ public class RelationalReaderWriterTest {
         UserV15 relatedObjectOut = new UserV15();
         UserV15 relatedObjectIn = new UserV15();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObjectOut);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
@@ -430,11 +368,8 @@ public class RelationalReaderWriterTest {
 
         instance = new UserV15();
 
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObjectIn);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
@@ -451,11 +386,8 @@ public class RelationalReaderWriterTest {
         UserV16 relatedObjectOut = new UserV16();
         UserV16 relatedObjectIn = new UserV16();
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObjectOut);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObjectOut);
 
         relationalWriter.write(instance, relatedObjectOut);
         assertEquals(relatedObjectOut, instance.getKnows());
@@ -463,11 +395,8 @@ public class RelationalReaderWriterTest {
 
         instance = new UserV16();
 
-        relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObjectIn);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObjectIn);
 
         relationalWriter.write(instance, relatedObjectIn);
         assertEquals(relatedObjectIn, instance.getKnows());
@@ -483,14 +412,11 @@ public class RelationalReaderWriterTest {
         UserV17 instance = new UserV17();
         UserV17 relatedObject = new UserV17();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.knows);
@@ -507,14 +433,11 @@ public class RelationalReaderWriterTest {
         UserV18 instance = new UserV18();
         UserV18 relatedObject = new UserV18();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -531,14 +454,11 @@ public class RelationalReaderWriterTest {
         UserV19 instance = new UserV19();
         UserV19 relatedObject = new UserV19();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
 
-        FieldInfo relationalReader = entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
-
-        assertTrue(relationalReader instanceof FieldInfo);
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalReader = EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getKnows());
@@ -556,21 +476,17 @@ public class RelationalReaderWriterTest {
         UserV20 relatedObject = new UserV20();
         PlainUser otherRelatedObject = new PlainUser();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.OUTGOING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject));
 
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
-
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getUser());
 
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject));
 
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject);
-
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.getPlainUser());
@@ -587,21 +503,17 @@ public class RelationalReaderWriterTest {
         UserV21 relatedObject = new UserV21();
         PlainUser otherRelatedObject = new PlainUser();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getUser());
 
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject));
 
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
-
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.getPlainUser());
@@ -619,21 +531,17 @@ public class RelationalReaderWriterTest {
         UserV22 relatedObject = new UserV22();
         PlainUser otherRelatedObject = new PlainUser();
 
-        assertNull(entityAccessStrategy.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
+        assertNull(EntityAccessManager.getRelationalReader(classInfo, KNOWS, Relationship.INCOMING));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, relatedObject));
 
-        FieldInfo relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
-
-        assertTrue(relationalWriter instanceof FieldInfo);
+        FieldInfo relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, relatedObject);
 
         relationalWriter.write(instance, relatedObject);
         assertEquals(relatedObject, instance.getUser());
 
-        assertNull(entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject));
+        assertNull(EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.INCOMING, otherRelatedObject));
 
-        relationalWriter = entityAccessStrategy.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
-
-        assertTrue(relationalWriter instanceof FieldInfo);
+        relationalWriter = EntityAccessManager.getRelationalWriter(classInfo, KNOWS, Relationship.OUTGOING, otherRelatedObject);
 
         relationalWriter.write(instance, otherRelatedObject);
         assertEquals(otherRelatedObject, instance.getPlainUser());

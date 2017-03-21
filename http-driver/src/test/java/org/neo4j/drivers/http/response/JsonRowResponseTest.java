@@ -205,7 +205,7 @@ public class JsonRowResponseTest {
 
     static class TestRowHttpResponse extends AbstractHttpResponse<ResultRowModel> implements Response<DefaultRowModel> {
 
-        public TestRowHttpResponse() {
+        TestRowHttpResponse() {
             super(response, ResultRowModel.class);
         }
 

@@ -63,13 +63,6 @@ public class User {
 
     String[] nicknames;
 
-    Rating rate(Movie movie, int stars, String comment) {
-        return null;
-    }
-
-    void befriend(User user) {
-    }
-
     public User() {
     }
 
@@ -166,11 +159,7 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
 
         User user = (User) o;
-        if (name == null || user.getName() == null) return false;
-
-        if (!name.equals(user.name)) return false;
-
-        return true;
+        return !(name == null || user.getName() == null) && name.equals(user.name);
     }
 
     @Override

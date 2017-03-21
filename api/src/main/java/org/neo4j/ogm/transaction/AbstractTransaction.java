@@ -39,7 +39,7 @@ public abstract class AbstractTransaction implements Transaction {
      * rollback of an extension will mark the entire transaction to be rolled back, and an attempt to commit such
      * a transaction will fail.
      */
-    protected final AtomicLong extendsCount = new AtomicLong();
+    private final AtomicLong extendsCount = new AtomicLong();
 
 
     /* Objects which are newly persisted into the graph should be registered on the transaction.
@@ -51,7 +51,7 @@ public abstract class AbstractTransaction implements Transaction {
     private Transaction.Status status = Transaction.Status.OPEN;
     protected Transaction.Type type = Type.READ_WRITE;
 
-    public AbstractTransaction(TransactionManager transactionManager) {
+    protected AbstractTransaction(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
 

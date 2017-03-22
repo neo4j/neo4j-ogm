@@ -22,6 +22,7 @@ import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -39,7 +40,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
     @Before
     public void beforeMethod() {
-        assumeTrue(Components.driver() instanceof HttpDriver);
+        assumeTrue(DriverManager.getDriver() instanceof HttpDriver);
     }
 
     @Test

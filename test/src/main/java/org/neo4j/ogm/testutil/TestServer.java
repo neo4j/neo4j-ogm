@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.testutil;
 
+import static org.neo4j.ogm.config.Components.configure;
+
 import java.io.FileWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -27,6 +29,7 @@ import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
 
@@ -56,9 +59,7 @@ public class TestServer {
 
         startServer();
 
-        System.out.println("******************************************************************************");
         System.out.println("* Starting new in memory test server on: " + url());
-        System.out.println("******************************************************************************");
     }
 
     private void startServer() {
@@ -114,7 +115,8 @@ public class TestServer {
     private void initialise(ServerControls controls) throws Exception {
         setDatabase(controls);
         configuration.setURI(url());
-        driver().configure(configuration); // we must reconfigure the driver if the URL has changed
+        DriverManager.register(configuration.getDriverClassName());
+        DriverManager.getDriver().configure(configuration); // we must reconfigure the driver if the URL has changed
     }
 
     private void setDatabase(ServerControls controls) throws Exception {
@@ -131,19 +133,13 @@ public class TestServer {
         }
     }
 
-    public Driver driver() {
-        return Components.driver();
-    }
-
     /**
      * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
      */
     public synchronized void shutdown() {
 
         if (database != null && database.isAvailable(100)) {
-            System.out.println("******************************************************************************");
             System.out.println("* Stopping in memory test server on: " + url());
-            System.out.println("******************************************************************************");
             database.shutdown();
             database = null;
         }

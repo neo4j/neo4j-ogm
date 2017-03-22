@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers;
 
 import org.junit.Test;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.exception.ConnectionException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -28,6 +29,8 @@ public class DriverExceptionTest {
     @Test(expected = ConnectionException.class)
     public void shouldThrowExceptionWhenHttpDriverCannotConnect() {
         Components.configure("ogm-http-invalid.properties");
+        DriverManager.register(Components.getConfiguration().getDriverClassName());
+        DriverManager.getDriver().configure(Components.getConfiguration());
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -36,6 +39,8 @@ public class DriverExceptionTest {
     @Test(expected = ConnectionException.class)
     public void shouldThrowExceptionWhenEmbeddedDriverCannotConnect() {
         Components.configure("ogm-embedded-invalid.properties");
+        DriverManager.register(Components.getConfiguration().getDriverClassName());
+        DriverManager.getDriver().configure(Components.getConfiguration());
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -45,6 +50,8 @@ public class DriverExceptionTest {
     @Test(expected = ConnectionException.class)
     public void shouldThrowExceptionWhenBoltDriverCannotConnect() {
         Components.configure("ogm-bolt-invalid.properties");
+        DriverManager.register(Components.getConfiguration().getDriverClassName());
+        DriverManager.getDriver().configure(Components.getConfiguration());
         SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();

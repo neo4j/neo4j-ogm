@@ -23,6 +23,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
@@ -62,7 +63,7 @@ public class MultiDriverTestClass {
             graphStore = createTemporaryGraphStore();
             impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
             logger.info("Creating new impermanent database {}", impermanentDb);
-            Components.setDriver(new EmbeddedDriver(impermanentDb));
+            DriverManager.register(new EmbeddedDriver(impermanentDb));
         }
     }
 

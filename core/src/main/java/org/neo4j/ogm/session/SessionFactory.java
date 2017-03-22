@@ -21,6 +21,7 @@ import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
 
@@ -50,7 +51,7 @@ public class SessionFactory {
 
     private SessionFactory(Configuration configuration, MetaData metaData) {
         this.metaData = metaData;
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, Components.driver(), configuration);
+        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
         autoIndexManager.build();
         this.eventListeners = new CopyOnWriteArrayList<>();
     }
@@ -106,7 +107,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
-        return new Neo4jSession(metaData, Components.driver(), eventListeners);
+        return new Neo4jSession(metaData, DriverManager.getDriver(), eventListeners);
     }
 
     /**

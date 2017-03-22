@@ -19,8 +19,8 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * The AbstractConfigurableDriver is used by all drivers to configure themselves.
- * The configure method takes a generic {@link Configuration} object, which is used to configure the
+ * The AbstractConfigurableDriver is used by all drivers to register themselves.
+ * The register method takes a generic {@link Configuration} object, which is used to register the
  * driver appropriately. This object contains of one or more key-value
  * pairs. Every driver configuration must contain a mandatory key "URI", whose corresponding value is
  * a text representation of the driver uri, for example:

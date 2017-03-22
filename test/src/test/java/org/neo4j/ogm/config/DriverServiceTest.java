@@ -26,6 +26,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.*;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 
 /**
@@ -58,9 +59,11 @@ public class DriverServiceTest {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         driverConfiguration.setURI("http://neo4j:password@localhost:7474");
 
-        Driver driver = Components.loadDriver(driverConfiguration);
+        DriverManager.register(driverConfiguration.getDriverClassName());
+        Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
         driver.close();
+        DriverManager.degregister(driver);
     }
 
     @Test
@@ -69,18 +72,23 @@ public class DriverServiceTest {
 
         driverConfiguration.setURI(TMP_NEO4J_DB.toString());
 
-        Driver driver = Components.loadDriver(driverConfiguration);
+        DriverManager.register(driverConfiguration.getDriverClassName());
+        Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
         driver.close();
+        DriverManager.degregister(driver);
+
     }
 
     @Test
     public void loadLoadBoltDriver() {
         driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
         driverConfiguration.setURI("bolt://neo4j:password@localhost");
-        Driver driver = Components.loadDriver(driverConfiguration);
+        DriverManager.register(driverConfiguration.getDriverClassName());
+        Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
         driver.close();
+        DriverManager.degregister(driver);
     }
 
     static void deleteDirectory(File dir)  {
@@ -117,7 +125,9 @@ public class DriverServiceTest {
         Configuration configuration = new Configuration();
         configuration.setURI("https://neo4j:password@localhost:7473");
 
-        try (HttpDriver driver = (HttpDriver) Components.loadDriver(configuration)) {
+        DriverManager.register(driverConfiguration.getDriverClassName());
+        try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
+            driver.configure(driverConfiguration);
             driver.executeHttpRequest(request);
             Assert.fail("Should have thrown security exception");
         } catch (Exception e) {
@@ -127,7 +137,9 @@ public class DriverServiceTest {
         // now set the config to ignore SSL handshaking and try again;
         configuration.setTrustStrategy("ACCEPT_UNSIGNED");
 
-        try (HttpDriver driver = (HttpDriver) Components.loadDriver(configuration)) {
+        DriverManager.register(driverConfiguration.getDriverClassName());
+        try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
+            driver.configure(driverConfiguration);
             driver.executeHttpRequest(request);
         } catch (Exception e) {
             e.printStackTrace();

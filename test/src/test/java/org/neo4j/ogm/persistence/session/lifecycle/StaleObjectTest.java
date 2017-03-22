@@ -30,7 +30,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * stale object detection.
  * <p/>
  * The actual test cases are the same as the ones in DegenerateEntityModelTests
- * which are known to correctly configure the underlying database.
+ * which are known to correctly register the underlying database.
  * <p/>
  * Because the OGM uses an object cache (to detect dirty objects, and/or deleted
  * relationships), we must ensure that changes to the database by a save() are always

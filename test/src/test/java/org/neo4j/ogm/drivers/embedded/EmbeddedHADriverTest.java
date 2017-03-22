@@ -13,35 +13,68 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 /**
  * @author vince
  */
 public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
+    private static GraphDatabaseService impermanentDb;
+    private static File graphStore;
+
     @BeforeClass
     public static void configure() throws Exception {
         Components.configure("embedded.ha.driver.properties");
-        deleteExistingEmbeddedDatabase();
+        graphStore = createTemporaryGraphStore();
+        impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
+        DriverManager.register(new EmbeddedDriver(impermanentDb));
     }
+
 
     @AfterClass
     public static void reset() {
-        Components.destroy();
+        if (impermanentDb != null) {
+            if (impermanentDb.isAvailable(1000)) {
+                impermanentDb.shutdown();
+            }
+            impermanentDb = null;
+            graphStore = null;
+        }
     }
 
     @Override
     public void setUpTest() {
-        GraphDatabaseService graphDatabaseService = ((EmbeddedDriver) Components.driver()).getGraphDatabaseService();
-        Assert.assertTrue(graphDatabaseService instanceof HighlyAvailableGraphDatabase);
+
     }
 
+
+    public static File createTemporaryGraphStore() {
+        try {
+            Path path = Files.createTempDirectory("graph.db");
+            File f = path.toFile();
+            f.deleteOnExit();
+            return f;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
@@ -49,7 +50,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         createLoginConstraint();
 
         baseConfiguration.setAutoIndex("validate");
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), baseConfiguration);
         assertEquals(AutoIndexMode.VALIDATE.getName(), baseConfiguration.getAutoIndex());
         assertEquals(1, indexManager.getIndexes().size());
         indexManager.build();
@@ -60,7 +61,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     @Test(expected = MissingIndexException.class)
     public void testIndexesAreFailValidation() {
         baseConfiguration.setAutoIndex("validate");
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), baseConfiguration);
         assertEquals(AutoIndexMode.VALIDATE.getName(), baseConfiguration.getAutoIndex());
         indexManager.build();
     }
@@ -77,7 +78,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         File file = new File("./test.cql");
 
         try {
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+            AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), baseConfiguration);
             assertEquals(AutoIndexMode.DUMP.getName(), baseConfiguration.getAutoIndex());
             assertEquals(1, indexManager.getIndexes().size());
             indexManager.build();
@@ -101,7 +102,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
         baseConfiguration.setAutoIndex("assert");
 
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, Components.driver(), baseConfiguration);
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), baseConfiguration);
         assertEquals(AutoIndexMode.ASSERT.getName(), baseConfiguration.getAutoIndex());
         assertEquals(1, indexManager.getIndexes().size());
         indexManager.build();

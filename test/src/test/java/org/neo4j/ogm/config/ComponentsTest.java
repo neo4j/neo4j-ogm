@@ -21,6 +21,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 
 /**
@@ -30,13 +31,13 @@ public class ComponentsTest {
 
     @Test
     public void shouldGetDriver() {
-        assertNotNull(Components.driver());
+        assertNotNull(DriverManager.getDriver());
     }
 
     @Test
     public void shouldCustomiseHttpDriverClient() {
 
-        if (Components.driver() instanceof HttpDriver) {
+        if (DriverManager.getDriver() instanceof HttpDriver) {
 
             PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
             connectionManager.setMaxTotal(1);
@@ -48,9 +49,9 @@ public class ComponentsTest {
 
             Driver driver = new HttpDriver(httpClient);
 
-            Components.setDriver(driver);
+            DriverManager.register(driver);
 
-            Assert.assertEquals(driver, Components.driver());
+            Assert.assertEquals(driver, DriverManager.getDriver());
         }
     }
 }

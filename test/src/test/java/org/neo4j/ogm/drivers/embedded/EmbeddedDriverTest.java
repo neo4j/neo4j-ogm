@@ -14,19 +14,12 @@
 package org.neo4j.ogm.drivers.embedded;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.impl.factory.GraphDatabaseFacade;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -42,7 +35,6 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() throws Exception {
-        Components.configure("embedded.driver.properties");
         graphStore = createTemporaryGraphStore();
         impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
         DriverManager.register(new EmbeddedDriver(impermanentDb));
@@ -76,5 +68,4 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
             throw new RuntimeException(e);
         }
     }
-
 }

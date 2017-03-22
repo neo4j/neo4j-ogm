@@ -15,7 +15,8 @@ package org.neo4j.ogm.drivers.bolt;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.neo4j.ogm.config.Components;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.testutil.TestServer;
 
@@ -30,14 +31,13 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() {
-        Components.configure("ogm-bolt.properties");
-        testServer = new TestServer.Builder(Components.getConfiguration()).enableBolt(true).build();
+        Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-bolt.properties"));
+        testServer = new TestServer.Builder(configuration).enableBolt(true).build();
     }
 
     @AfterClass
     public static void reset() {
         testServer.shutdown();
-        Components.destroy();
     }
 
     @Override

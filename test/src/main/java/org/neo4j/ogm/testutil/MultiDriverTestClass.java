@@ -21,7 +21,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;

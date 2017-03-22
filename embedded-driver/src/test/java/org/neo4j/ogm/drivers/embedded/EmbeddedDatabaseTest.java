@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 
@@ -39,7 +38,6 @@ public class EmbeddedDatabaseTest {
     @BeforeClass
     public static void setUp() {
         configuration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
-        Components.configure(configuration);
     }
 
     @Test

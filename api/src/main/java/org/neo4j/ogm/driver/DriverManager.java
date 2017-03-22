@@ -1,7 +1,5 @@
 package org.neo4j.ogm.driver;
 
-import org.neo4j.ogm.config.Components;
-
 /**
  * Created by markangrish on 22/03/2017.
  */

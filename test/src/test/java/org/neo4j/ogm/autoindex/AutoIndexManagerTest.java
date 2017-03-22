@@ -9,7 +9,6 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Test;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;

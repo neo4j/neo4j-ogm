@@ -17,7 +17,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.exception.TransactionException;
 import org.neo4j.ogm.session.Session;

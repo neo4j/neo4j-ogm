@@ -14,20 +14,14 @@
 package org.neo4j.ogm.drivers.embedded;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
-import org.neo4j.ogm.config.Components;
-import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -43,7 +37,7 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() throws Exception {
-        Components.configure("embedded.ha.driver.properties");
+        Configuration configuration = new Configuration(new ClasspathConfigurationSource("embedded.ha.driver.properties"));
         graphStore = createTemporaryGraphStore();
         impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
         DriverManager.register(new EmbeddedDriver(impermanentDb));
@@ -67,7 +61,7 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
     }
 
 
-    public static File createTemporaryGraphStore() {
+    private static File createTemporaryGraphStore() {
         try {
             Path path = Files.createTempDirectory("graph.db");
             File f = path.toFile();

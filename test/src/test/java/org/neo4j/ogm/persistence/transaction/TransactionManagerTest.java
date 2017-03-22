@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.session.Session;

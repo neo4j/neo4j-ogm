@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.neo4j.ogm.autoindex.AutoIndexManager;
-import org.neo4j.ogm.config.ClasspathConfigurationSource;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.metadata.MetaData;
@@ -34,18 +32,6 @@ import org.neo4j.ogm.session.event.EventListener;
  */
 public class SessionFactory {
 
-    private static String configFileName() {
-        String configFileName = System.getenv("ogm.properties");
-
-        if (configFileName == null) {
-            configFileName = System.getProperty("ogm.properties");
-            if (configFileName == null) {
-                configFileName = "ogm.properties";
-            }
-        }
-        return configFileName;
-    }
-
     private final MetaData metaData;
     private final List<EventListener> eventListeners;
 
@@ -58,7 +44,8 @@ public class SessionFactory {
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
-     * object packages.
+     * object packages and starts up the Neo4j database in embedded mode.  If the embedded driver is not available this method
+     * will throw a <code>Exception</code>.
      * <p>
      * The package names passed to this constructor should not contain wildcards or trailing full stops, for example,
      * "org.springframework.data.neo4j.example.domain" would be fine.  The default behaviour is for sub-packages to be scanned
@@ -69,7 +56,7 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
-        this(new Configuration(new ClasspathConfigurationSource(configFileName())), new MetaData(packages));
+        this(new Configuration(), new MetaData(packages));
     }
 
     /**
@@ -86,9 +73,11 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
-        this(configuration, new MetaData(packages));
+        this.metaData = new MetaData(packages);
+        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
+        autoIndexManager.build();
+        this.eventListeners = new CopyOnWriteArrayList<>();
     }
-
 
     /**
      * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.

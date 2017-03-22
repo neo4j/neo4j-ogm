@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.testutil;
 
-import static org.neo4j.ogm.config.Components.configure;
-
 import java.io.FileWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -26,9 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
-import org.neo4j.ogm.config.Components;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;

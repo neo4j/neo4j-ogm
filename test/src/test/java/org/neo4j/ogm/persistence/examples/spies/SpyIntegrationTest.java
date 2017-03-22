@@ -34,7 +34,7 @@ public class SpyIntegrationTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.spies").openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.spies").openSession();
     }
 
     /**

@@ -41,7 +41,7 @@ public class EndToEndTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.bike");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.bike");
     }
 
     @Before

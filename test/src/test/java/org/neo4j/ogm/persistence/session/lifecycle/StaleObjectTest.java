@@ -58,7 +58,7 @@ public class StaleObjectTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.filesystem");
+        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem");
         session = sessionFactory.openSession();
 
         a = new Document();

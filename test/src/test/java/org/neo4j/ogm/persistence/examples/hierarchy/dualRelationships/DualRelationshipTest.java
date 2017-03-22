@@ -44,7 +44,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.hierarchy.dualRelation").openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.hierarchy.dualRelation").openSession();
     }
 
     @After

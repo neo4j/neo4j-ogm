@@ -31,7 +31,7 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() {
-        Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-bolt.properties"));
+        Configuration.Builder configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"));
         testServer = new TestServer.Builder(configuration).enableBolt(true).build();
     }
 

@@ -36,89 +36,91 @@ import org.slf4j.LoggerFactory;
  */
 public class MultiDriverTestClass {
 
-    private static final Logger logger = LoggerFactory.getLogger(MultiDriverTestClass.class);
-    private static TestServer testServer;
-    private static GraphDatabaseService impermanentDb;
-    private static File graphStore;
-    protected static Configuration baseConfiguration;
-    private static EmbeddedDriver embeddedDriver;
+	private static final Logger logger = LoggerFactory.getLogger(MultiDriverTestClass.class);
+	private static TestServer testServer;
+	private static GraphDatabaseService impermanentDb;
+	private static File graphStore;
+	protected static Configuration.Builder baseConfiguration;
+	private static EmbeddedDriver embeddedDriver;
 
-    @BeforeClass
-    public static synchronized void setupMultiDriverTestEnvironment() {
+	@BeforeClass
+	public static synchronized void setupMultiDriverTestEnvironment() {
 
-        baseConfiguration = new Configuration(new ClasspathConfigurationSource(configFileName()));
+		baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
 
-        if (baseConfiguration.getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
-            testServer = new TestServer.Builder(baseConfiguration)
-                    .enableAuthentication(true)
-                    .enableBolt(false)
-                    .transactionTimeoutSeconds(30)
-                    .build();
-        } else if (baseConfiguration.getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
-            testServer = new TestServer.Builder(baseConfiguration)
-                    .enableBolt(true)
-                    .transactionTimeoutSeconds(30)
-                    .build();
-        } else {
-            graphStore = createTemporaryGraphStore();
-            impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
-            logger.info("Creating new impermanent database {}", impermanentDb);
-            embeddedDriver = new EmbeddedDriver(impermanentDb);
-            DriverManager.register(embeddedDriver);
-        }
-    }
+		// hack for now
+
+		if (baseConfiguration.build().getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
+			testServer = new TestServer.Builder(baseConfiguration)
+					.enableAuthentication(true)
+					.enableBolt(false)
+					.transactionTimeoutSeconds(30)
+					.build();
+		} else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
+			testServer = new TestServer.Builder(baseConfiguration)
+					.enableBolt(true)
+					.transactionTimeoutSeconds(30)
+					.build();
+		} else {
+			graphStore = createTemporaryGraphStore();
+			impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
+			logger.info("Creating new impermanent database {}", impermanentDb);
+			embeddedDriver = new EmbeddedDriver(impermanentDb);
+			DriverManager.register(embeddedDriver);
+		}
+	}
 
 
-    @AfterClass
-    public static synchronized void tearDownMultiDriverTestEnvironment() {
-        close();
-    }
+	@AfterClass
+	public static synchronized void tearDownMultiDriverTestEnvironment() {
+		close();
+	}
 
-    private static void close() {
+	private static void close() {
 
-        if (testServer != null) {
-            if (testServer.isRunning(1000)) {
-                testServer.shutdown();
-            }
-            testServer = null;
-        }
-        if (impermanentDb != null) {
-            if (impermanentDb.isAvailable(1000)) {
-                impermanentDb.shutdown();
-            }
-            impermanentDb = null;
-            graphStore = null;
-            DriverManager.degregister(embeddedDriver);
-        }
-    }
+		if (testServer != null) {
+			if (testServer.isRunning(1000)) {
+				testServer.shutdown();
+			}
+			testServer = null;
+		}
+		if (impermanentDb != null) {
+			if (impermanentDb.isAvailable(1000)) {
+				impermanentDb.shutdown();
+			}
+			impermanentDb = null;
+			graphStore = null;
+			DriverManager.degregister(embeddedDriver);
+		}
+	}
 
-    public static synchronized GraphDatabaseService getGraphDatabaseService() {
-        if (testServer != null) {
-            return testServer.getGraphDatabaseService();
-        }
-        return impermanentDb;
-    }
+	public static synchronized GraphDatabaseService getGraphDatabaseService() {
+		if (testServer != null) {
+			return testServer.getGraphDatabaseService();
+		}
+		return impermanentDb;
+	}
 
-    private static String configFileName() {
-        String configFileName = System.getenv("ogm.properties");
+	private static String configFileName() {
+		String configFileName = System.getenv("ogm.properties");
 
-        if (configFileName == null) {
-            configFileName = System.getProperty("ogm.properties");
-            if (configFileName == null) {
-                configFileName = "ogm.properties";
-            }
-        }
-        return configFileName;
-    }
+		if (configFileName == null) {
+			configFileName = System.getProperty("ogm.properties");
+			if (configFileName == null) {
+				configFileName = "ogm.properties";
+			}
+		}
+		return configFileName;
+	}
 
-    public static File createTemporaryGraphStore() {
-        try {
-            Path path = Files.createTempDirectory("graph.db");
-            File f = path.toFile();
-            f.deleteOnExit();
-            return f;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public static File createTemporaryGraphStore() {
+		try {
+			Path path = Files.createTempDirectory("graph.db");
+			File f = path.toFile();
+			f.deleteOnExit();
+			return f;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

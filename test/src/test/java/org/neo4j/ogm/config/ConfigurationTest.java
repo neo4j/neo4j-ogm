@@ -22,75 +22,78 @@ import org.junit.Test;
  */
 public class ConfigurationTest {
 
-    @Test
-    public void shouldConfigureProgrammatically() {
+	@Test
+	public void shouldConfigureProgrammatically() {
 
-        Configuration configuration = new Configuration();
+		Configuration.Builder builder = new Configuration.Builder();
 
-        configuration.setAutoIndex("assert");
-        configuration.setDumpDir("dir");
-        configuration.setDumpFilename("filename");
-        configuration.setCredentials("fred", "flintstone");
-        configuration.setURI("http://localhost:8080");
-        configuration.setConnectionPoolSize(200);
-        configuration.setEncryptionLevel("REQUIRED");
-        configuration.setTrustStrategy("TRUST_SIGNED_CERTIFICATES");
-        configuration.setTrustCertFile("/tmp/cert");
+		builder.autoIndex("assert");
+		builder.generatedIndexesOutputDir("dir");
+		builder.generatedIndexesOutputFilename("filename");
+		builder.username("fred");
+		builder.password("flintstone");
+		builder.uri("http://localhost:8080");
+		builder.connectionPoolSize(200);
+		builder.encryptionLevel("REQUIRED");
+		builder.trustStrategy("TRUST_SIGNED_CERTIFICATES");
+		builder.trustCertFile("/tmp/cert");
 
-        assertEquals("assert", configuration.getAutoIndex());
-        assertEquals("dir", configuration.getDumpDir());
-        assertEquals("filename", configuration.getDumpFilename());
-        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
-        assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
-        assertEquals("http://localhost:8080", configuration.getURI());
-        assertEquals(Integer.valueOf(200), configuration.getConnectionPoolSize());
-        assertEquals("REQUIRED", configuration.getEncryptionLevel());
-        assertEquals("TRUST_SIGNED_CERTIFICATES", configuration.getTrustStrategy());
-        assertEquals("/tmp/cert", configuration.getTrustCertFile());
-    }
+		Configuration configuration = builder.build();
 
-    @Test
-    public void shouldConfigureCredentialsFromURI() {
-        Configuration configuration = new Configuration();
-        configuration.setURI("http://fred:flintstone@localhost:8080");
-        assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
-    }
+		assertEquals(AutoIndexMode.ASSERT, configuration.getAutoIndex());
+		assertEquals("dir", configuration.getDumpDir());
+		assertEquals("filename", configuration.getDumpFilename());
+		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
+		assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
+		assertEquals("http://localhost:8080", configuration.getURI());
+		assertEquals(200, configuration.getConnectionPoolSize());
+		assertEquals("REQUIRED", configuration.getEncryptionLevel());
+		assertEquals("TRUST_SIGNED_CERTIFICATES", configuration.getTrustStrategy());
+		assertEquals("/tmp/cert", configuration.getTrustCertFile());
+	}
 
-    @Test
-    public void shouldConfigureFromSimplePropertiesFile() {
-        Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-simple.properties"));
+	@Test
+	public void shouldConfigureCredentialsFromURI() {
+		Configuration configuration = new Configuration.Builder().build();
+		configuration.setURI("http://fred:flintstone@localhost:8080");
+		assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
+	}
 
-        assertEquals("none", configuration.getAutoIndex());
-        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
-        assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
-        assertEquals("http://localhost:7474", configuration.getURI());
-    }
+	@Test
+	public void shouldConfigureFromSimplePropertiesFile() {
+		Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-simple.properties")).build();
 
-    @Test
-    public void shouldConfigureFromNameSpacePropertiesFile() {
+		assertEquals(AutoIndexMode.NONE, configuration.getAutoIndex());
+		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
+		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
+		assertEquals("http://localhost:7474", configuration.getURI());
+	}
 
-        Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-namespace.properties"));
+	@Test
+	public void shouldConfigureFromNameSpacePropertiesFile() {
 
-        assertEquals("dump", configuration.getAutoIndex());
-        assertEquals("hello", configuration.getDumpDir());
-        assertEquals("generated-indexes2.cql", configuration.getDumpFilename());
-        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
-        assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
-        assertEquals("http://localhost:7474", configuration.getURI());
-        assertEquals(Integer.valueOf(100), configuration.getConnectionPoolSize());
-        assertEquals("NONE", configuration.getEncryptionLevel());
-        assertEquals("TRUST_ON_FIRST_USE", configuration.getTrustStrategy());
-        assertEquals("/tmp/cert", configuration.getTrustCertFile());
-    }
+		Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-namespace.properties")).build();
 
-    @Test
-    public void shouldConfigureFromSpringBootPropertiesFile() {
+		assertEquals(AutoIndexMode.DUMP, configuration.getAutoIndex());
+		assertEquals("hello", configuration.getDumpDir());
+		assertEquals("generated-indexes2.cql", configuration.getDumpFilename());
+		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
+		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
+		assertEquals("http://localhost:7474", configuration.getURI());
+		assertEquals(100, configuration.getConnectionPoolSize());
+		assertEquals("NONE", configuration.getEncryptionLevel());
+		assertEquals("TRUST_ON_FIRST_USE", configuration.getTrustStrategy());
+		assertEquals("/tmp/cert", configuration.getTrustCertFile());
+	}
 
-        Configuration configuration = new Configuration(new ClasspathConfigurationSource("application.properties"));
+	@Test
+	public void shouldConfigureFromSpringBootPropertiesFile() {
 
-        assertEquals("none", configuration.getAutoIndex());
-        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
-        assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
-        assertEquals("http://localhost:7474", configuration.getURI());
-    }
+		Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("application.properties")).build();
+
+		assertEquals(AutoIndexMode.NONE, configuration.getAutoIndex());
+		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
+		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
+		assertEquals("http://localhost:7474", configuration.getURI());
+	}
 }

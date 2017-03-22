@@ -35,7 +35,7 @@ import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 public class DriverServiceTest {
 
     public static final URI TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toUri();
-    private Configuration driverConfiguration = new Configuration();
+    private Configuration driverConfiguration = new Configuration.Builder().build();
 
     @BeforeClass
     public static void createEmbeddedStore() throws IOException {
@@ -118,8 +118,8 @@ public class DriverServiceTest {
                 "}", "UTF-8"));
 
         // note that the default driver class is set from the URI if a driver class has not yet been configured
-        Configuration configuration = new Configuration();
-        configuration.setURI("https://neo4j:password@localhost:7473");
+        // now set the config to ignore SSL handshaking and try again;
+        Configuration configuration = new Configuration.Builder().uri("https://neo4j:password@localhost:7473").trustStrategy("ACCEPT_UNSIGNED").build();
 
         DriverManager.register(driverConfiguration.getDriverClassName());
         try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
@@ -130,8 +130,6 @@ public class DriverServiceTest {
             // expected
         }
 
-        // now set the config to ignore SSL handshaking and try again;
-        configuration.setTrustStrategy("ACCEPT_UNSIGNED");
 
         DriverManager.register(driverConfiguration.getDriverClassName());
         try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {

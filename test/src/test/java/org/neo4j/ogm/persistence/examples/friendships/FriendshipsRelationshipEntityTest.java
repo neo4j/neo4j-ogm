@@ -40,7 +40,7 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() throws IOException {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.friendships");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.friendships");
     }
 
     @Before

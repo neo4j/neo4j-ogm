@@ -1,7 +1,11 @@
 package org.neo4j.ogm.driver;
 
 /**
- * Created by markangrish on 22/03/2017.
+ * Controls the loading and unloading of Drivers in the OGM.
+ *
+ * NOTE: Most of this functionality has been moved from the old Components class. It can probably be cleaned up.
+ *
+ * @author Mark Angrish
  */
 public class DriverManager {
 

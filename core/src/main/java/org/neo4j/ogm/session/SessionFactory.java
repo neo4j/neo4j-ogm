@@ -56,7 +56,7 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
-        this(new Configuration(), new MetaData(packages));
+        this(new Configuration.Builder().build(), new MetaData(packages));
     }
 
     /**

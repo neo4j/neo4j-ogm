@@ -30,7 +30,7 @@ public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTest
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.persistence.model", "org.neo4j.ogm.persistence.examples.stage");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.model", "org.neo4j.ogm.persistence.examples.stage");
     }
 
     @Before

@@ -43,7 +43,7 @@ public class RelationshipMappingTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetup() throws IOException {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election");
     }
 
 

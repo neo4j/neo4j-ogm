@@ -124,33 +124,31 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return nativeTransaction;
     }
 
-    private BoltConfig getBoltConfiguration(Configuration driverConfiguration) {
+    private BoltConfig getBoltConfiguration(Configuration configuration) {
         BoltConfig boltConfig = new BoltConfig();
 
-        if (driverConfiguration.getEncryptionLevel() != null) {
+        if (configuration.getEncryptionLevel() != null) {
             try {
-                boltConfig.encryptionLevel = Config.EncryptionLevel.valueOf(driverConfiguration.getEncryptionLevel().toUpperCase());
+                boltConfig.encryptionLevel = Config.EncryptionLevel.valueOf(configuration.getEncryptionLevel().toUpperCase());
             } catch (IllegalArgumentException iae) {
-                LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}", driverConfiguration.getEncryptionLevel());
+                LOGGER.debug("Invalid configuration for the Bolt Driver Encryption Level: {}", configuration.getEncryptionLevel());
                 throw iae;
             }
         }
 
-        if (driverConfiguration.getConnectionPoolSize() != null) {
-            boltConfig.sessionPoolSize = driverConfiguration.getConnectionPoolSize();
-        }
+        boltConfig.sessionPoolSize = configuration.getConnectionPoolSize();
 
-        if (driverConfiguration.getTrustStrategy() != null) {
+        if (configuration.getTrustStrategy() != null) {
             try {
-                boltConfig.trustStrategy = Config.TrustStrategy.Strategy.valueOf(driverConfiguration.getTrustStrategy());
+                boltConfig.trustStrategy = Config.TrustStrategy.Strategy.valueOf(configuration.getTrustStrategy());
             } catch (IllegalArgumentException iae) {
-                LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}", driverConfiguration.getTrustStrategy());
+                LOGGER.debug("Invalid configuration for the Bolt Driver Trust Strategy: {}", configuration.getTrustStrategy());
                 throw iae;
             }
         }
 
-        if (driverConfiguration.getTrustCertFile() != null) {
-            boltConfig.trustCertFile = driverConfiguration.getTrustCertFile();
+        if (configuration.getTrustCertFile() != null) {
+            boltConfig.trustCertFile = configuration.getTrustCertFile();
         }
 
         return boltConfig;

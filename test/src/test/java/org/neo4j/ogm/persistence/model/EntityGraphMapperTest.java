@@ -75,7 +75,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     @Before
     public void setUpMapper() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.policy",
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.policy",
                 "org.neo4j.ogm.domain.election", "org.neo4j.ogm.domain.forum",
                 "org.neo4j.ogm.domain.education");
         mappingContext.clear();
@@ -371,7 +371,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     @Test
     public void shouldGenerateCypherToPersistArraysOfPrimitives() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         Individual individual = new Individual();
         individual.setName("Jeff");
@@ -391,7 +391,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     @Test
     public void shouldGenerateCypherToPersistByteArray() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         Individual individual = new Individual();
         individual.setAge(41);
@@ -409,7 +409,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     @Test
     public void shouldGenerateCypherToPersistCollectionOfBoxedPrimitivesToArrayOfPrimitives() {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         Individual individual = new Individual();
         individual.setName("Gary");

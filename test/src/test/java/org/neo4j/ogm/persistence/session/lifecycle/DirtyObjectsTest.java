@@ -34,7 +34,7 @@ public class DirtyObjectsTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.filesystem");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem");
         session = (Neo4jSession) sessionFactory.openSession();
     }
 

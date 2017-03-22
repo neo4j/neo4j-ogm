@@ -46,7 +46,7 @@ public class LoadCapabilityTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
 
-        sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
         session.purgeDatabase();
 

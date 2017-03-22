@@ -37,7 +37,7 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() throws Exception {
-        Configuration configuration = new Configuration(new ClasspathConfigurationSource("embedded.ha.driver.properties"));
+        Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
         graphStore = createTemporaryGraphStore();
         impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
         DriverManager.register(new EmbeddedDriver(impermanentDb));

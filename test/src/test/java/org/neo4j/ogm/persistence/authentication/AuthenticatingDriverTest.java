@@ -21,6 +21,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
@@ -45,8 +46,8 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testUnauthorizedDriver() {
 
-        baseConfiguration.setCredentials("", "");
-        session = new SessionFactory(baseConfiguration, "dummy").openSession();
+        baseConfiguration.build().setCredentials("", "");
+        session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");
@@ -66,7 +67,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testAuthorizedDriver() {
 
-        session = new SessionFactory(baseConfiguration, "dummy").openSession();
+        session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
 
         try (Transaction ignored = session.beginTransaction()) {
             assertNotNull(ignored);
@@ -81,8 +82,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
     @Test
     public void testInvalidCredentials() {
 
-        baseConfiguration.setCredentials("neo4j", "invalid_password");
-        session = new SessionFactory(baseConfiguration, "dummy").openSession();
+        session = new SessionFactory(baseConfiguration.username("neo4j").password("invalid_password").build(), "dummy").openSession();
 
         try (Transaction tx = session.beginTransaction()) {
             fail("Driver should not have authenticated");

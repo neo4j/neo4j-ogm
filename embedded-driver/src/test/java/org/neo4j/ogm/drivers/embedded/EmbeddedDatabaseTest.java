@@ -33,7 +33,7 @@ import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
  */
 public class EmbeddedDatabaseTest {
 
-    private static Configuration configuration = new Configuration();
+    private static Configuration configuration = new Configuration.Builder().build();
 
     @BeforeClass
     public static void setUp() {

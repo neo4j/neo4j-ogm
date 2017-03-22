@@ -27,7 +27,7 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class DriverExceptionTest {
 
-    // TODO: All drivers should consistently throw the same exception on connection failure.
+    // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenHttpDriverCannotConnect() {
         Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-http-invalid.properties"));
@@ -36,7 +36,7 @@ public class DriverExceptionTest {
         session.purgeDatabase();
     }
 
-    // TODO: All drivers should consistently throw the same exception on connection failure.
+    // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
     @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenEmbeddedDriverCannotConnect() {
         Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-embedded-invalid.properties"));
@@ -45,8 +45,8 @@ public class DriverExceptionTest {
         session.purgeDatabase();
     }
 
-
-    @Test(expected = ConnectionException.class)
+    // TODO: All drivers should consistently throw the same exception on configuration or connection failure.
+    @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenBoltDriverCannotConnect() {
         Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-bolt-invalid.properties"));
         SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");

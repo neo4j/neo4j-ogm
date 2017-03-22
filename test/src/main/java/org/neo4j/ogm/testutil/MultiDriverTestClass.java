@@ -41,6 +41,7 @@ public class MultiDriverTestClass {
     private static GraphDatabaseService impermanentDb;
     private static File graphStore;
     protected static Configuration baseConfiguration;
+    private static EmbeddedDriver embeddedDriver;
 
     @BeforeClass
     public static synchronized void setupMultiDriverTestEnvironment() {
@@ -62,9 +63,11 @@ public class MultiDriverTestClass {
             graphStore = createTemporaryGraphStore();
             impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
             logger.info("Creating new impermanent database {}", impermanentDb);
-            DriverManager.register(new EmbeddedDriver(impermanentDb));
+            embeddedDriver = new EmbeddedDriver(impermanentDb);
+            DriverManager.register(embeddedDriver);
         }
     }
+
 
     @AfterClass
     public static synchronized void tearDownMultiDriverTestEnvironment() {
@@ -85,6 +88,7 @@ public class MultiDriverTestClass {
             }
             impermanentDb = null;
             graphStore = null;
+            DriverManager.degregister(embeddedDriver);
         }
     }
 

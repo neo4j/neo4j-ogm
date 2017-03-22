@@ -41,7 +41,8 @@ public class EducationIntegrationTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.education").openSession();
+        final SessionFactory sessionFactory = new SessionFactory(baseConfiguration, "org.neo4j.ogm.domain.education");
+        session = sessionFactory.openSession();
     }
 
     @Test

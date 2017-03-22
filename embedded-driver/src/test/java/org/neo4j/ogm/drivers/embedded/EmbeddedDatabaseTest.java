@@ -37,7 +37,6 @@ public class EmbeddedDatabaseTest {
 
     @BeforeClass
     public static void setUp() {
-        configuration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
     }
 
     @Test

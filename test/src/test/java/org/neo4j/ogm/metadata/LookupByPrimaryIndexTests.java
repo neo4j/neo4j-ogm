@@ -37,7 +37,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesPrimaryIndexWhenPresentOnSuperclass() {
 
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
+        SessionFactory sessionFactory = new SessionFactory(baseConfiguration,"org.neo4j.ogm.domain.cineasts.annotated");
         final Session session = sessionFactory.openSession();
 
         ExtendedUser user1 = new ExtendedUser("login2", "Name 2", "password");

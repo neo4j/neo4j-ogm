@@ -45,15 +45,24 @@ public class Configuration {
     public Configuration(ConfigurationSource configurationSource) {
         properties = configurationSource.properties();
         try {
-            java.net.URI url = new URI(properties.getProperty(URI));
-            String userInfo = url.getUserInfo();
-            if (userInfo != null) {
-                String[] userPass = userInfo.split(":");
-                setCredentials(userPass[0], userPass[1]);
-                properties.setProperty(URI, url.toString().replace(url.getUserInfo() + "@", ""));
+            final String uriProperty = properties.getProperty(URI);
+
+            if (uriProperty != null) {
+                java.net.URI uri = new URI(uriProperty);
+                String userInfo = uri.getUserInfo();
+                if (userInfo != null) {
+                    String[] userPass = userInfo.split(":");
+                    setCredentials(userPass[0], userPass[1]);
+                    setURI(uri.toString().replace(uri.getUserInfo() + "@", ""));
+                } else {
+                    setURI(uri.toString());
+                }
+            }
+            else {
+                determineDefaultDriverName("file");
             }
         } catch (Exception e) {
-            // do nothing here. user not obliged to supply a URL, or to pass in credentials
+            throw new RuntimeException("Could not load configuration from " + configurationSource.toString());
         }
     }
 
@@ -105,8 +114,6 @@ public class Configuration {
         return credentials;
     }
 
-    // SETTERS - TODO: Move to builder.
-
     public Configuration setAutoIndex(String value) {
         properties.put(AUTO_INDEX, value);
         return this;
@@ -119,11 +126,6 @@ public class Configuration {
 
     public Configuration setDumpFilename(String dumpFilename) {
         properties.put(GENERATED_INDEXES_OUTPUT_FILENAME, dumpFilename);
-        return this;
-    }
-
-    public Configuration setDriverClassName(String driverClassName) {
-        properties.put(DRIVER, driverClassName);
         return this;
     }
 
@@ -141,7 +143,7 @@ public class Configuration {
                 setCredentials(userPass[0], userPass[1]);
             }
             if (getDriverClassName() == null) {
-                determineDefaultDriverName(url);
+                determineDefaultDriverName(url.getScheme());
             }
         } catch (Exception e) {
             // do nothing here. user not obliged to supply a URL, or to pass in credentials
@@ -174,17 +176,17 @@ public class Configuration {
         credentials = new UsernamePasswordCredentials(username, password);
     }
 
-    private void determineDefaultDriverName(URI uri) {
-        switch (uri.getScheme()) {
+    private void determineDefaultDriverName(String scheme) {
+        switch (scheme) {
             case "http":
             case "https":
-                setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
+                properties.put(DRIVER, "org.neo4j.ogm.drivers.http.driver.HttpDriver");
                 break;
             case "bolt":
-                setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
+                properties.put(DRIVER, "org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
                 break;
             default:
-                setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+                properties.put(DRIVER, "org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
                 break;
         }
     }

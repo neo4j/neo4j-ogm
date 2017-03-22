@@ -56,7 +56,6 @@ public class DriverServiceTest {
     @Test
     public void shouldLoadHttpDriver() {
 
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver");
         driverConfiguration.setURI("http://neo4j:password@localhost:7474");
 
         DriverManager.register(driverConfiguration.getDriverClassName());
@@ -68,8 +67,6 @@ public class DriverServiceTest {
 
     @Test
     public void shouldLoadEmbeddedDriver() {
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
-
         driverConfiguration.setURI(TMP_NEO4J_DB.toString());
 
         DriverManager.register(driverConfiguration.getDriverClassName());
@@ -82,7 +79,6 @@ public class DriverServiceTest {
 
     @Test
     public void loadLoadBoltDriver() {
-        driverConfiguration.setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver");
         driverConfiguration.setURI("bolt://neo4j:password@localhost");
         DriverManager.register(driverConfiguration.getDriverClassName());
         Driver driver = DriverManager.getDriver();

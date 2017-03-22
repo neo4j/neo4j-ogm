@@ -74,6 +74,8 @@ public class SessionFactory {
      */
     public SessionFactory(Configuration configuration, String... packages) {
         this.metaData = new MetaData(packages);
+        DriverManager.register(configuration.getDriverClassName());
+        DriverManager.getDriver().configure(configuration);
         AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
         autoIndexManager.build();
         this.eventListeners = new CopyOnWriteArrayList<>();

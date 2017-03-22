@@ -27,22 +27,20 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class DriverExceptionTest {
 
-    @Test(expected = ConnectionException.class)
+    // TODO: All drivers should consistently throw the same exception on connection failure.
+    @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenHttpDriverCannotConnect() {
         Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-http-invalid.properties"));
-        DriverManager.register(configuration.getDriverClassName());
-        DriverManager.getDriver().configure(configuration);
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+        SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 
-    @Test(expected = ConnectionException.class)
+    // TODO: All drivers should consistently throw the same exception on connection failure.
+    @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenEmbeddedDriverCannotConnect() {
         Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-embedded-invalid.properties"));
-        DriverManager.register(configuration.getDriverClassName());
-        DriverManager.getDriver().configure(configuration);
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+        SessionFactory sessionFactory = new SessionFactory(configuration,"org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
     }
@@ -51,9 +49,7 @@ public class DriverExceptionTest {
     @Test(expected = ConnectionException.class)
     public void shouldThrowExceptionWhenBoltDriverCannotConnect() {
         Configuration configuration = new Configuration(new ClasspathConfigurationSource("ogm-bolt-invalid.properties"));
-        DriverManager.register(configuration.getDriverClassName());
-        DriverManager.getDriver().configure(configuration);
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+        SessionFactory sessionFactory = new SessionFactory(configuration, "org.neo4j.ogm.domain.social");
         Session session = sessionFactory.openSession();
         session.purgeDatabase();
     }

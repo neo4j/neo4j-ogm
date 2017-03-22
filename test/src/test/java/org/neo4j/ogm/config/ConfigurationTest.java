@@ -30,7 +30,6 @@ public class ConfigurationTest {
         configuration.setAutoIndex("assert");
         configuration.setDumpDir("dir");
         configuration.setDumpFilename("filename");
-        configuration.setDriverClassName("driver");
         configuration.setCredentials("fred", "flintstone");
         configuration.setURI("http://localhost:8080");
         configuration.setConnectionPoolSize(200);
@@ -41,7 +40,7 @@ public class ConfigurationTest {
         assertEquals("assert", configuration.getAutoIndex());
         assertEquals("dir", configuration.getDumpDir());
         assertEquals("filename", configuration.getDumpFilename());
-        assertEquals("driver", configuration.getDriverClassName());
+        assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
         assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
         assertEquals("http://localhost:8080", configuration.getURI());
         assertEquals(Integer.valueOf(200), configuration.getConnectionPoolSize());

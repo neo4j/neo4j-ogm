@@ -44,11 +44,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
     public BoltDriver() {
     }
 
-    public BoltDriver(Configuration configuration) {
-
-        configure(configuration);
-    }
-
     @Override
     public void configure(Configuration config) {
 

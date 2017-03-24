@@ -30,8 +30,7 @@ public class ConfigurationTest {
 		builder.autoIndex("assert");
 		builder.generatedIndexesOutputDir("dir");
 		builder.generatedIndexesOutputFilename("filename");
-		builder.username("fred");
-		builder.password("flintstone");
+		builder.credentials("fred", "flintstone");
 		builder.uri("http://localhost:8080");
 		builder.connectionPoolSize(200);
 		builder.encryptionLevel("REQUIRED");
@@ -54,8 +53,7 @@ public class ConfigurationTest {
 
 	@Test
 	public void shouldConfigureCredentialsFromURI() {
-		Configuration configuration = new Configuration.Builder().build();
-		configuration.setURI("http://fred:flintstone@localhost:8080");
+		Configuration configuration = new Configuration.Builder().uri("http://fred:flintstone@localhost:8080").build();
 		assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
 	}
 

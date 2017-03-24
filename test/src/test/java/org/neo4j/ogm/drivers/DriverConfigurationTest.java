@@ -53,8 +53,7 @@ public class DriverConfigurationTest {
 	public void shouldSetUsernameAndPasswordCredentialsForBoltProtocol() {
 		String username = "neo4j";
 		String password = "password";
-		Configuration dbConfig = new Configuration.Builder().build();
-		dbConfig.setURI("bolt://" + username + ":" + password + "@localhost");
+		Configuration dbConfig = new Configuration.Builder().uri("bolt://" + username + ":" + password + "@localhost").build();
 		Credentials credentials = dbConfig.getCredentials();
 		UsernamePasswordCredentials basic = (UsernamePasswordCredentials) credentials;
 		assertNotNull(basic);

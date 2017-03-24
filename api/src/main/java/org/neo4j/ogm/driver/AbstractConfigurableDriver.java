@@ -36,33 +36,17 @@ import org.neo4j.ogm.transaction.TransactionManager;
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
-    protected Configuration configuration;
-    protected TransactionManager transactionManager;
+	protected Configuration configuration;
+	protected TransactionManager transactionManager;
 
-    @Override
-    public void configure(Configuration config) {
-        this.configuration = config;
-        setCredentials();
-    }
+	@Override
+	public void configure(Configuration config) {
+		this.configuration = config;
+	}
 
-    @Override
-    public void setTransactionManager(TransactionManager transactionManager) {
-        assert (transactionManager != null);
-        this.transactionManager = transactionManager;
-    }
-
-    private void setCredentials() {
-        if (configuration.getCredentials() == null && configuration.getURI() != null) {
-            try {
-                URI uri = new URI(configuration.getURI());
-                String authInfo = uri.getUserInfo();
-                if (authInfo != null) {
-                    String[] parts = uri.getUserInfo().split(":");
-                    configuration.setCredentials(parts[0], parts[1]);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+	@Override
+	public void setTransactionManager(TransactionManager transactionManager) {
+		assert (transactionManager != null);
+		this.transactionManager = transactionManager;
+	}
 }

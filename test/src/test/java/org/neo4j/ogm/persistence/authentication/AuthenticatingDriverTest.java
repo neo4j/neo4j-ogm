@@ -18,10 +18,11 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import org.apache.http.client.HttpResponseException;
-import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.ogm.session.Session;
@@ -36,66 +37,58 @@ import org.neo4j.ogm.transaction.Transaction;
 
 public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
-    private Session session;
+	private Session session;
 
-    @Before
-    public void beforeMethod() {
-        assumeTrue(DriverManager.getDriver() instanceof HttpDriver);
-    }
+	@Before
+	public void beforeMethod() {
+		assumeTrue(DriverManager.getDriver() instanceof HttpDriver);
+	}
 
-    @Test
-    public void testUnauthorizedDriver() {
+	@Test
+	public void testUnauthorizedDriver() {
 
-        baseConfiguration.build().setCredentials("", "");
-        session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
+		session = new SessionFactory( baseConfiguration.credentials("", "").build(), "dummy").openSession();
 
-        try (Transaction tx = session.beginTransaction()) {
-            fail("Driver should not have authenticated");
-        } catch (Exception rpe) {
-            Throwable cause = rpe.getCause();
-            if (cause instanceof HttpHostConnectException) {
-                fail("Please start Neo4j 2.2.0 or later to run these tests");
-            } else {
-                while (!(cause instanceof HttpResponseException)) {
-                    cause = cause.getCause();
-                }
-                assertTrue(cause.getMessage().startsWith("Invalid username or password"));
-            }
-        }
-    }
+		try (Transaction tx = session.beginTransaction()) {
+			tx.commit();
+			fail("Driver should not have authenticated");
+		} catch (Exception rpe) {
+			Throwable cause = rpe.getCause();
+			while (!(cause instanceof HttpResponseException)) {
+				cause = cause.getCause();
+			}
+			assertTrue(cause.getMessage().startsWith("Invalid username or password"));
+		}
+	}
 
-    @Test
-    public void testAuthorizedDriver() {
+	@Test
+	public void testAuthorizedDriver() {
 
-        session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
+		session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
 
-        try (Transaction ignored = session.beginTransaction()) {
-            assertNotNull(ignored);
-        } catch (Exception rpe) {
-            fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
-        }
-    }
+		try (Transaction ignored = session.beginTransaction()) {
+			assertNotNull(ignored);
+		} catch (Exception rpe) {
+			fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
+		}
+	}
 
-    /**
-     * @see issue #35
-     */
-    @Test
-    public void testInvalidCredentials() {
+	/**
+	 * @see issue #35
+	 */
+	@Test
+	public void testInvalidCredentials() {
 
-        session = new SessionFactory(baseConfiguration.username("neo4j").password("invalid_password").build(), "dummy").openSession();
+		session = new SessionFactory( baseConfiguration.credentials("neo4j", "invalid_password").build(), "dummy").openSession();
 
-        try (Transaction tx = session.beginTransaction()) {
-            fail("Driver should not have authenticated");
-        } catch (Exception rpe) {
-            Throwable cause = rpe.getCause();
-            if (cause instanceof HttpHostConnectException) {
-                fail("Please start Neo4j 2.2.0 or later to run these tests");
-            } else {
-                while (!(cause instanceof HttpResponseException)) {
-                    cause = cause.getCause();
-                }
-                assertEquals("Invalid username or password.", cause.getMessage());
-            }
-        }
-    }
+		try (Transaction tx = session.beginTransaction()) {
+			fail("Driver should not have authenticated");
+		} catch (Exception rpe) {
+			Throwable cause = rpe.getCause();
+			while (!(cause instanceof HttpResponseException)) {
+				cause = cause.getCause();
+			}
+			assertEquals("Invalid username or password.", cause.getMessage());
+		}
+	}
 }

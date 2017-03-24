@@ -30,8 +30,13 @@ public class HttpDriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() {
-        Configuration.Builder configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-http.properties"));
-        testServer = new TestServer.Builder(configuration).build();
+        testServer = new TestServer.Builder().build();
+    }
+
+    @Override
+    protected Configuration getConfiguration() {
+        return new Configuration.Builder(new ClasspathConfigurationSource("ogm-http.properties")).uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword()).build();
+
     }
 
     @AfterClass

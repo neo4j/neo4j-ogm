@@ -17,9 +17,12 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.ogm.config.ClasspathConfigurationSource;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.AbstractDriverTestSuite;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
@@ -30,6 +33,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  */
 public class EmbeddedDriverTest extends AbstractDriverTestSuite {
 
+    private static Configuration configuration;
     private static GraphDatabaseService impermanentDb;
     private static File graphStore;
 
@@ -49,7 +53,21 @@ public class EmbeddedDriverTest extends AbstractDriverTestSuite {
             }
             impermanentDb = null;
             graphStore = null;
+            DriverManager.degregister(DriverManager.getDriver());
         }
+    }
+
+    @After
+    public void tearDown() {
+        DriverManager.degregister(DriverManager.getDriver());
+    }
+
+    @Override
+    protected Configuration getConfiguration() {
+        if (configuration == null) {
+            configuration = new Configuration.Builder().uri(graphStore.toURI().toString()).build();
+        }
+        return configuration;
     }
 
     @Override

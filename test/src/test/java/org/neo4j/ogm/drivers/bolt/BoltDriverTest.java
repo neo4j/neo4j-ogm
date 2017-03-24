@@ -31,13 +31,17 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 
     @BeforeClass
     public static void configure() {
-        Configuration.Builder configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"));
-        testServer = new TestServer.Builder(configuration).enableBolt(true).build();
+        testServer = new TestServer.Builder().enableBolt(true).build();
     }
 
     @AfterClass
     public static void reset() {
         testServer.shutdown();
+    }
+
+    @Override
+    protected Configuration getConfiguration() {
+        return new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties")).uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword()).build();
     }
 
     @Override

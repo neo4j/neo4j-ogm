@@ -34,8 +34,7 @@ import org.neo4j.ogm.drivers.http.driver.HttpDriver;
  */
 public class DriverServiceTest {
 
-    public static final URI TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toUri();
-    private Configuration driverConfiguration = new Configuration.Builder().build();
+    private static final URI TMP_NEO4J_DB = Paths.get(System.getProperty("java.io.tmpdir"), "neo4j.db").toUri();
 
     @BeforeClass
     public static void createEmbeddedStore() throws IOException {
@@ -56,7 +55,7 @@ public class DriverServiceTest {
     @Test
     public void shouldLoadHttpDriver() {
 
-        driverConfiguration.setURI("http://neo4j:password@localhost:7474");
+        Configuration driverConfiguration = new Configuration.Builder().uri("http://neo4j:password@localhost:7474").build();
 
         DriverManager.register(driverConfiguration.getDriverClassName());
         Driver driver = DriverManager.getDriver();
@@ -67,7 +66,7 @@ public class DriverServiceTest {
 
     @Test
     public void shouldLoadEmbeddedDriver() {
-        driverConfiguration.setURI(TMP_NEO4J_DB.toString());
+        Configuration driverConfiguration = new Configuration.Builder().uri(TMP_NEO4J_DB.toString()).build();
 
         DriverManager.register(driverConfiguration.getDriverClassName());
         Driver driver = DriverManager.getDriver();
@@ -79,7 +78,7 @@ public class DriverServiceTest {
 
     @Test
     public void loadLoadBoltDriver() {
-        driverConfiguration.setURI("bolt://neo4j:password@localhost");
+        Configuration driverConfiguration = new Configuration.Builder().uri("bolt://neo4j:password@localhost").build();
         DriverManager.register(driverConfiguration.getDriverClassName());
         Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
@@ -87,7 +86,7 @@ public class DriverServiceTest {
         DriverManager.degregister(driver);
     }
 
-    static void deleteDirectory(File dir)  {
+    private static void deleteDirectory(File dir)  {
         if (dir.isDirectory()) {
             for (File file : dir.listFiles()) {
                 deleteDirectory(file);
@@ -121,9 +120,9 @@ public class DriverServiceTest {
         // now set the config to ignore SSL handshaking and try again;
         Configuration configuration = new Configuration.Builder().uri("https://neo4j:password@localhost:7473").trustStrategy("ACCEPT_UNSIGNED").build();
 
-        DriverManager.register(driverConfiguration.getDriverClassName());
+        DriverManager.register(configuration.getDriverClassName());
         try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
-            driver.configure(driverConfiguration);
+            driver.configure(configuration);
             driver.executeHttpRequest(request);
             Assert.fail("Should have thrown security exception");
         } catch (Exception e) {
@@ -131,9 +130,9 @@ public class DriverServiceTest {
         }
 
 
-        DriverManager.register(driverConfiguration.getDriverClassName());
+        DriverManager.register(configuration.getDriverClassName());
         try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
-            driver.configure(driverConfiguration);
+            driver.configure(configuration);
             driver.executeHttpRequest(request);
         } catch (Exception e) {
             e.printStackTrace();

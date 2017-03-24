@@ -39,15 +39,16 @@ public class TestServer {
 	private final Integer transactionTimeoutSeconds;
 	private final Boolean enableAuthentication;
 	private final Boolean enableBolt;
-	private final Configuration.Builder configurationBuilder;
 
 	private GraphDatabaseService database;
 	private ServerControls controls;
 
+	private String username;
+	private String password;
+	private String uri;
 
 	private TestServer(Builder builder) {
 
-		this.configurationBuilder = builder.configurationBuilder;
 		this.port = builder.port == null ? TestUtils.getAvailablePort() : builder.port;
 		this.transactionTimeoutSeconds = builder.transactionTimeoutSeconds;
 		this.enableAuthentication = builder.enableAuthentication;
@@ -99,8 +100,8 @@ public class TestServer {
 				try (Writer authStoreWriter = new FileWriter(authStore.toFile())) {
 					IOUtils.write("neo4j:SHA-256,03C9C54BF6EEF1FF3DFEB75403401AA0EBA97860CAC187D6452A1FCF4C63353A,819BDB957119F8DFFF65604C92980A91:", authStoreWriter);
 				}
-				configurationBuilder.username("neo4j");
-				configurationBuilder.password("password");
+				this.username = "neo4j";
+				this.password = "password";
 			}
 
 			return authStore.toAbsolutePath().toString();
@@ -111,10 +112,7 @@ public class TestServer {
 
 	private void initialise(ServerControls controls) throws Exception {
 		setDatabase(controls);
-		configurationBuilder.uri(url());
-		final Configuration configuration = configurationBuilder.build();
-		DriverManager.register(configuration.getDriverClassName());
-		DriverManager.getDriver().configure(configuration); // we must reconfigure the driver if the URL has changed
+		this.uri = url();
 	}
 
 	private void setDatabase(ServerControls controls) throws Exception {
@@ -184,17 +182,24 @@ public class TestServer {
 		return this.database;
 	}
 
+	public String getUri() {
+		return uri;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
 	public static class Builder {
 
 		private Integer port = null;
 		private Integer transactionTimeoutSeconds = 60;
 		private boolean enableAuthentication = false;
 		private boolean enableBolt = false;
-		private Configuration.Builder configurationBuilder;
-
-		public Builder(Configuration.Builder configurationBuilder) {
-			this.configurationBuilder = configurationBuilder;
-		}
 
 		public Builder port(int port) {
 			this.port = port;

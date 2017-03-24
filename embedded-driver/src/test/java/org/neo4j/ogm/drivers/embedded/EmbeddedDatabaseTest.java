@@ -33,122 +33,136 @@ import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
  */
 public class EmbeddedDatabaseTest {
 
-    private static Configuration configuration = new Configuration.Builder().build();
 
-    @BeforeClass
-    public static void setUp() {
-    }
+	@BeforeClass
+	public static void setUp() {
+	}
 
-    @Test
-    public void shouldCreateImpermanentInstanceWhenNoURI() {
+	@Test
+	public void shouldCreateImpermanentInstanceWhenNoURI() {
+		Configuration configuration = new Configuration.Builder().build();
 
-        try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
-            assertNull(configuration.getURI());
-            assertNotNull(driver.getGraphDatabaseService());
-        }
-    }
+		try (EmbeddedDriver driver = new EmbeddedDriver()) {
+			driver.configure(configuration);
+			assertNull(configuration.getURI());
+			assertNotNull(driver.getGraphDatabaseService());
+		}
+	}
 
-    @Test
-    public void shouldWriteAndRead() {
-        try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
+	@Test
+	public void shouldWriteAndRead() {
 
-            GraphDatabaseService databaseService = driver.getGraphDatabaseService();
+		try (EmbeddedDriver driver = new EmbeddedDriver()) {
+			driver.configure(new Configuration.Builder().build());
 
-            try (Transaction tx = databaseService.beginTx()) {
-                databaseService.execute("CREATE (n: Node {name: 'node'})");
-                Result r = databaseService.execute("MATCH (n) RETURN n");
-                assertTrue(r.hasNext());
-                tx.success();
-            }
-        }
-    }
+			GraphDatabaseService databaseService = driver.getGraphDatabaseService();
 
-    @Test
-    public void shouldBeAbleToHaveMultipleInstances() {
+			try (Transaction tx = databaseService.beginTx()) {
+				databaseService.execute("CREATE (n: Node {name: 'node'})");
+				Result r = databaseService.execute("MATCH (n) RETURN n");
+				assertTrue(r.hasNext());
+				tx.success();
+			}
+		}
+	}
 
-        try (
-                EmbeddedDriver driver1 = new EmbeddedDriver(configuration);
-                EmbeddedDriver driver2 = new EmbeddedDriver(configuration)) {
+	@Test
+	public void shouldBeAbleToHaveMultipleInstances() {
 
-            assertNotNull(driver1.getGraphDatabaseService());
-            assertNotNull(driver2.getGraphDatabaseService());
+		Configuration configuration = new Configuration.Builder().build();
 
-            // instances should be different
-            assertFalse(driver1.getGraphDatabaseService() == driver2.getGraphDatabaseService());
+		try (
+				EmbeddedDriver driver1 = new EmbeddedDriver();
+				EmbeddedDriver driver2 = new EmbeddedDriver()) {
+			driver1.configure(configuration);
+			driver2.configure(configuration);
 
-            // underlying file stores should be different
-            assertFalse(driver1.getGraphDatabaseService().toString().equals(driver2.getGraphDatabaseService().toString()));
-        }
-    }
+			assertNotNull(driver1.getGraphDatabaseService());
+			assertNotNull(driver2.getGraphDatabaseService());
 
-    @Test
-    public void impermanentInstancesShouldNotShareTheSameDatabase() {
+			// instances should be different
+			assertFalse(driver1.getGraphDatabaseService() == driver2.getGraphDatabaseService());
 
-        try (EmbeddedDriver driver1 = new EmbeddedDriver(configuration);
-             EmbeddedDriver driver2 = new EmbeddedDriver(configuration)
-        ) {
-            GraphDatabaseService db1 = driver1.getGraphDatabaseService();
-            GraphDatabaseService db2 = driver2.getGraphDatabaseService();
+			// underlying file stores should be different
+			assertFalse(driver1.getGraphDatabaseService().toString().equals(driver2.getGraphDatabaseService().toString()));
+		}
+	}
 
-            try (Transaction tx = db1.beginTx()) {
-                db1.execute("CREATE (n: Node {name: 'node'})");
-                tx.success();
-            }
+	@Test
+	public void impermanentInstancesShouldNotShareTheSameDatabase() {
 
-            try (Transaction tx1 = db1.beginTx(); Transaction tx2 = db2.beginTx()) {
+		Configuration configuration = new Configuration.Builder().build();
 
-                Result r1 = db1.execute("MATCH (n) RETURN n");
-                Result r2 = db2.execute("MATCH (n) RETURN n");
+		try (EmbeddedDriver driver1 = new EmbeddedDriver();
+			 EmbeddedDriver driver2 = new EmbeddedDriver()
+		) {
+			driver1.configure(configuration);
+			driver2.configure(configuration);
 
-                assertTrue(r1.hasNext());
-                assertFalse(r2.hasNext());
 
-                tx1.success();
-                tx2.success();
-            }
-        } catch (Exception e) {
-            fail("Should not have thrown exception");
-        }
-    }
+			GraphDatabaseService db1 = driver1.getGraphDatabaseService();
+			GraphDatabaseService db2 = driver2.getGraphDatabaseService();
 
-    /**
-     * @see Issue 169
-     */
-    @Test
-    public void shouldCreateDirectoryIfMissing() throws IOException {
-        final String EMBEDDED_DIR = "/var/tmp/ogmEmbeddedDir";
-        Path path = Paths.get(EMBEDDED_DIR);
-        if (Files.exists(path)) {
-            deleteDirectory(path);
-        }
+			try (Transaction tx = db1.beginTx()) {
+				db1.execute("CREATE (n: Node {name: 'node'})");
+				tx.success();
+			}
 
-        configuration.setURI("file://" + EMBEDDED_DIR);
-        try (EmbeddedDriver driver = new EmbeddedDriver(configuration)) {
-            assertEquals("file://" + EMBEDDED_DIR, configuration.getURI());
-            assertNotNull(driver.getGraphDatabaseService());
-            assertTrue(Files.exists(path));
-        }
-        deleteDirectory(path);
-        configuration.setURI(null);
-    }
+			try (Transaction tx1 = db1.beginTx(); Transaction tx2 = db2.beginTx()) {
 
-    private void deleteDirectory(Path path) {
-        try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
+				Result r1 = db1.execute("MATCH (n) RETURN n");
+				Result r2 = db2.execute("MATCH (n) RETURN n");
 
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+				assertTrue(r1.hasNext());
+				assertFalse(r2.hasNext());
+
+				tx1.success();
+				tx2.success();
+			}
+		} catch (Exception e) {
+			fail("Should not have thrown exception");
+		}
+	}
+
+	/**
+	 * @see Issue 169
+	 */
+	@Test
+	public void shouldCreateDirectoryIfMissing() throws IOException {
+		final String EMBEDDED_DIR = "/var/tmp/ogmEmbeddedDir";
+		Path path = Paths.get(EMBEDDED_DIR);
+		if (Files.exists(path)) {
+			deleteDirectory(path);
+		}
+
+		Configuration configuration = new Configuration.Builder().uri("file://" + EMBEDDED_DIR).build();
+
+		try (EmbeddedDriver driver = new EmbeddedDriver()) {
+			driver.configure(configuration);
+			assertEquals("file://" + EMBEDDED_DIR, configuration.getURI());
+			assertNotNull(driver.getGraphDatabaseService());
+			assertTrue(Files.exists(path));
+		}
+		deleteDirectory(path);
+	}
+
+	private void deleteDirectory(Path path) {
+		try {
+			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					Files.delete(file);
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					Files.delete(dir);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

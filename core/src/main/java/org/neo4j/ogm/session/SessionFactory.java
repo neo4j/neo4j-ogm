@@ -35,13 +35,6 @@ public class SessionFactory {
     private final MetaData metaData;
     private final List<EventListener> eventListeners;
 
-    private SessionFactory(Configuration configuration, MetaData metaData) {
-        this.metaData = metaData;
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
-        autoIndexManager.build();
-        this.eventListeners = new CopyOnWriteArrayList<>();
-    }
-
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
      * object packages and starts up the Neo4j database in embedded mode.  If the embedded driver is not available this method
@@ -56,7 +49,7 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(String... packages) {
-        this(new Configuration.Builder().build(), new MetaData(packages));
+        this(new Configuration.Builder().build(), packages);
     }
 
     /**
@@ -73,6 +66,8 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
+        DriverManager.register(configuration.getDriverClassName());
+        DriverManager.getDriver().configure(configuration);
         this.metaData = new MetaData(packages);
         AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
         autoIndexManager.build();

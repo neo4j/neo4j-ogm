@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
@@ -39,7 +40,10 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public abstract class AbstractDriverTestSuite {
 
-    private SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.social");
+    private SessionFactory sessionFactory = new SessionFactory(getConfiguration(), "org.neo4j.ogm.domain.social");
+
+    protected abstract Configuration getConfiguration();
+
     private Session session;
 
     public abstract void setUpTest();

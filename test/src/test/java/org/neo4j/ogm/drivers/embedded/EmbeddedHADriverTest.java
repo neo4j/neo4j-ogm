@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -32,12 +33,12 @@ import org.neo4j.test.TestGraphDatabaseFactory;
  */
 public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
 
+    private static Configuration configuration;
     private static GraphDatabaseService impermanentDb;
     private static File graphStore;
 
     @BeforeClass
     public static void configure() throws Exception {
-        Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).build();
         graphStore = createTemporaryGraphStore();
         impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
         DriverManager.register(new EmbeddedDriver(impermanentDb));
@@ -52,7 +53,21 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
             }
             impermanentDb = null;
             graphStore = null;
+            DriverManager.degregister(DriverManager.getDriver());
         }
+    }
+
+    @After
+    public void tearDown() {
+        DriverManager.degregister(DriverManager.getDriver());
+    }
+
+    @Override
+    protected Configuration getConfiguration() {
+        if (configuration == null) {
+            configuration = new Configuration.Builder(new ClasspathConfigurationSource("embedded.ha.driver.properties")).uri(graphStore.toURI().toString()).build();
+        }
+        return configuration;
     }
 
     @Override

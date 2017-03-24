@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -48,19 +49,19 @@ public class MultiDriverTestClass {
 
 		baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
 
-		// hack for now
-
 		if (baseConfiguration.build().getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
-			testServer = new TestServer.Builder(baseConfiguration)
+			testServer = new TestServer.Builder()
 					.enableAuthentication(true)
 					.enableBolt(false)
 					.transactionTimeoutSeconds(30)
 					.build();
+			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		} else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
-			testServer = new TestServer.Builder(baseConfiguration)
+			testServer = new TestServer.Builder()
 					.enableBolt(true)
 					.transactionTimeoutSeconds(30)
 					.build();
+			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		} else {
 			graphStore = createTemporaryGraphStore();
 			impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
@@ -93,6 +94,14 @@ public class MultiDriverTestClass {
 			DriverManager.degregister(embeddedDriver);
 		}
 	}
+
+	@After
+	public void tearDown() {
+		if (embeddedDriver != null) {
+			DriverManager.degregister(embeddedDriver);
+		}
+	}
+
 
 	public static synchronized GraphDatabaseService getGraphDatabaseService() {
 		if (testServer != null) {

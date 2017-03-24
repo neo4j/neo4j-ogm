@@ -66,9 +66,10 @@ public class Configuration {
 			if (userInfo != null) {
 				String[] userPass = userInfo.split(":");
 				credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
-				setURI(uri.toString().replace(uri.getUserInfo() + "@", ""));
-			} else {
-				setURI(uri.toString());
+				this.uri = uri.toString().replace(uri.getUserInfo() + "@", "");
+			}
+			if (getDriverClassName() == null) {
+				determineDefaultDriverName(uri.getScheme());
 			}
 		} else {
 			determineDefaultDriverName("file");
@@ -76,6 +77,9 @@ public class Configuration {
 		assert this.driverName != null;
 
 		if (builder.username != null && builder.password != null) {
+			if (this.credentials != null) {
+				LOGGER.warn("Overriding credentials supplied in URI with supplied username and password.");
+			}
 			credentials = new UsernamePasswordCredentials(builder.username, builder.password);
 		}
 
@@ -125,30 +129,6 @@ public class Configuration {
 		return credentials;
 	}
 
-
-	public Configuration setURI(String uri) {
-		if (uri == null) {
-			this.uri = null;
-			return this;
-		}
-		this.uri = uri;
-		try { // if this URI is a genuine resource, see if it has an embedded user-info and set credentials accordingly
-			java.net.URI url = new URI(uri);
-			String userInfo = url.getUserInfo();
-			if (userInfo != null) {
-				String[] userPass = userInfo.split(":");
-				credentials = new UsernamePasswordCredentials(userPass[0], userPass[1]);
-			}
-			if (getDriverClassName() == null) {
-				determineDefaultDriverName(url.getScheme());
-			}
-		} catch (Exception e) {
-			// do nothing here. user not obliged to supply a URL, or to pass in credentials
-		}
-		return this;
-	}
-
-
 	private void determineDefaultDriverName(String scheme) {
 		switch (scheme) {
 			case "http":
@@ -164,14 +144,8 @@ public class Configuration {
 		}
 	}
 
-	@Deprecated
-	public void setCredentials(String username, String password) {
-		credentials = new UsernamePasswordCredentials(username, password);
-	}
-
 	public static class Builder {
 
-		private static final String DRIVER = "driver";
 		private static final String URI = "URI";
 		private static final String CONNECTION_POOL_SIZE = "connection.pool.size";
 		private static final String ENCRYPTION_LEVEL = "encryption.level";
@@ -282,12 +256,8 @@ public class Configuration {
 			return new Configuration(this);
 		}
 
-		public Builder username(String username) {
+		public Builder credentials(String username, String password) {
 			this.username = username;
-			return this;
-		}
-
-		public Builder password(String password) {
 			this.password = password;
 			return this;
 		}

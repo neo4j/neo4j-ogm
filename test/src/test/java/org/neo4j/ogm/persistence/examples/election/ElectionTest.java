@@ -111,7 +111,6 @@ public class ElectionTest extends MultiDriverTestClass {
         assertTrue(context.containsRelationship(new MappedRelationship(v.getId(), "CANDIDATE_VOTED_FOR", b.getId(), Voter.class, Candidate.class)));
         session.clear();
 
-        System.out.println("reloading objects");
         a = session.load(Candidate.class, a.getId());
         v = session.load(Voter.class, v.getId());
 
@@ -123,7 +122,6 @@ public class ElectionTest extends MultiDriverTestClass {
 
         session.save(v);
 
-        System.out.println("reloading objects");
         session.clear();
         session.load(Candidate.class, b.getId());
         session.load(Voter.class, v.getId());

@@ -24,16 +24,17 @@ import org.apache.commons.io.IOUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
-import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.server.AbstractNeoServer;
 import org.neo4j.server.database.Database;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
  */
-@SuppressWarnings("deprecation")
 public class TestServer {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TestServer.class);
 
 	private final Integer port;
 	private final Integer transactionTimeoutSeconds;
@@ -56,7 +57,7 @@ public class TestServer {
 
 		startServer();
 
-		System.out.println("* Starting new in memory test server on: " + url());
+		LOGGER.info("Starting {} server on: {}", enableBolt ? "BOLT": "HTTP", port);
 	}
 
 	private void startServer() {
@@ -132,10 +133,10 @@ public class TestServer {
 	/**
 	 * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
 	 */
-	public synchronized void shutdown() {
+	public void shutdown() {
 
 		if (database != null && database.isAvailable(100)) {
-			System.out.println("* Stopping in memory test server on: " + url());
+			LOGGER.info("Stopping {} server on: {}", enableBolt ? "BOLT": "HTTP", port);
 			database.shutdown();
 			database = null;
 		}
@@ -145,11 +146,10 @@ public class TestServer {
 	/**
 	 * Waits for a period of time and checks the database availability afterwards
 	 *
-	 * @param timeout milliseconds to wait
 	 * @return true if the database is available, false otherwise
 	 */
-	public boolean isRunning(long timeout) {
-		return database.isAvailable(timeout);
+	boolean isRunning() {
+		return database.isAvailable((long) 1000);
 	}
 
 	/**
@@ -157,7 +157,7 @@ public class TestServer {
 	 *
 	 * @return The URL of the Neo4j test server
 	 */
-	public String url() {
+	private String url() {
 
 		Method method;
 		try {

@@ -39,7 +39,6 @@ public class BikeTest {
 
         long now = -System.currentTimeMillis();
         Collection<Bike> bikes = session.loadAll(Bike.class);
-        System.out.println("deserialised in " + (now + System.currentTimeMillis()) + " milliseconds");
 
         assertFalse(bikes.isEmpty());
         Bike bike = bikes.iterator().next();

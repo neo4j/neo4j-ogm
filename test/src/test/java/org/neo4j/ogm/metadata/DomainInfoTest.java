@@ -37,10 +37,6 @@ public class DomainInfoTest {
         ClassInfo classInfo = domainInfo.getClassSimpleName("IMembership");
 
         assertNotNull(classInfo);
-
-        for (ClassInfo implementingClass : classInfo.directImplementingClasses()) {
-            System.out.println(implementingClass.name());
-        }
         assertEquals(4, classInfo.directImplementingClasses().size());
     }
 

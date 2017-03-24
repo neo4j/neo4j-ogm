@@ -43,6 +43,5 @@ public class PagingAndSortingQueryTest {
         assertEquals("MATCH (n:`User`) WHERE n.`name` = { `name_0` } " +
                 "MATCH (n)-[r0:`RATED`]-(m0) WHERE r0.`stars` = { `ratings_stars_1` } " +
                 "WITH n,r0 SKIP 0 LIMIT 4 MATCH p=(n)-[*0..1]-(m) RETURN p, ID(n)", stmt);
-        System.out.println(stmt);
     }
 }

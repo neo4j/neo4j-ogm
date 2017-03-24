@@ -25,11 +25,8 @@ import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
-import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.test.TestGraphDatabaseFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,16 +34,13 @@ import org.slf4j.LoggerFactory;
  */
 public class MultiDriverTestClass {
 
-	private static final Logger logger = LoggerFactory.getLogger(MultiDriverTestClass.class);
 	private static TestServer testServer;
 	private static GraphDatabaseService impermanentDb;
 	private static File graphStore;
-	protected static Configuration.Builder baseConfiguration;
+	protected static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
 
 	@BeforeClass
-	public static synchronized void setupMultiDriverTestEnvironment() {
-
-		baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
+	public static void setupMultiDriverTestEnvironment() {
 
 		if (baseConfiguration.build().getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
 			testServer = new TestServer.Builder()
@@ -64,21 +58,15 @@ public class MultiDriverTestClass {
 		} else {
 			graphStore = createTemporaryGraphStore();
 			impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
-			logger.info("Creating new impermanent database {}", impermanentDb);
-			baseConfiguration .uri(graphStore.toURI().toString()).build();
+			baseConfiguration.uri(graphStore.toURI().toString()).build();
 		}
 	}
 
 
 	@AfterClass
-	public static synchronized void tearDownMultiDriverTestEnvironment() {
-		close();
-	}
-
-	private static void close() {
-
+	public static void tearDownMultiDriverTestEnvironment() {
 		if (testServer != null) {
-			if (testServer.isRunning(1000)) {
+			if (testServer.isRunning()) {
 				testServer.shutdown();
 			}
 			testServer = null;
@@ -93,6 +81,7 @@ public class MultiDriverTestClass {
 		}
 	}
 
+
 	@After
 	public void tearDown() {
 		if (impermanentDb != null) {
@@ -101,7 +90,7 @@ public class MultiDriverTestClass {
 	}
 
 
-	public static synchronized GraphDatabaseService getGraphDatabaseService() {
+	public static GraphDatabaseService getGraphDatabaseService() {
 		if (testServer != null) {
 			return testServer.getGraphDatabaseService();
 		}
@@ -120,7 +109,7 @@ public class MultiDriverTestClass {
 		return configFileName;
 	}
 
-	public static File createTemporaryGraphStore() {
+	private static File createTemporaryGraphStore() {
 		try {
 			Path path = Files.createTempDirectory("graph.db");
 			File f = path.toFile();

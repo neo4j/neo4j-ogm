@@ -171,14 +171,12 @@ public class EducationTest {
         int n = courseNames.length;
         List<String> test = Arrays.asList(courseNames);
 
-        System.out.println(teacher.getName() + " courses: ");
         for (Course course : teacher.getCourses()) {
             System.out.println(course.getName() + ": " + course.hashCode());
             if (test.contains(course.getName())) {
                 n--;
             }
         }
-        System.out.println("---------------------");
         assertEquals(0, n);
     }
 }

@@ -14,7 +14,6 @@
 package org.neo4j.ogm.drivers.http;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
@@ -26,26 +25,25 @@ import org.neo4j.ogm.testutil.TestServer;
  */
 public class HttpDriverTest extends AbstractDriverTestSuite {
 
-    private static TestServer testServer;
+	private static TestServer testServer;
 
-    @BeforeClass
-    public static void configure() {
-        testServer = new TestServer.Builder().build();
-    }
+	private Configuration configuration;
 
-    @Override
-    protected Configuration getConfiguration() {
-        return new Configuration.Builder(new ClasspathConfigurationSource("ogm-http.properties")).uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword()).build();
+	@BeforeClass
+	public static void configure() {
+		testServer = new TestServer.Builder().build();
+	}
 
-    }
+	@Override
+	protected Configuration getConfiguration() {
+		if (configuration == null) {
+			configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-http.properties")).uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword()).build();
+		}
+		return configuration;
+	}
 
-    @AfterClass
-    public static void reset() {
-        testServer.shutdown();
-    }
-
-    @Before
-    public void setUpTest() {
-    }
-
+	@AfterClass
+	public static void reset() {
+		testServer.shutdown();
+	}
 }

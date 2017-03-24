@@ -40,17 +40,15 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public abstract class AbstractDriverTestSuite {
 
-    private SessionFactory sessionFactory = new SessionFactory(getConfiguration(), "org.neo4j.ogm.domain.social");
+    private SessionFactory sessionFactory;
 
     protected abstract Configuration getConfiguration();
 
     private Session session;
 
-    public abstract void setUpTest();
-
     @Before
     public void init() {
-        setUpTest();
+        sessionFactory = new SessionFactory(getConfiguration(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }

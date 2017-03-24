@@ -19,6 +19,7 @@ import java.nio.file.Path;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
@@ -31,36 +32,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 /**
  * @author vince
  */
-public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
-
-    private static Configuration configuration;
-    private static GraphDatabaseService impermanentDb;
-    private static File graphStore;
-
-    @BeforeClass
-    public static void configure() throws Exception {
-        graphStore = createTemporaryGraphStore();
-        impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
-        DriverManager.register(new EmbeddedDriver(impermanentDb));
-    }
-
-
-    @AfterClass
-    public static void reset() {
-        if (impermanentDb != null) {
-            if (impermanentDb.isAvailable(1000)) {
-                impermanentDb.shutdown();
-            }
-            impermanentDb = null;
-            graphStore = null;
-            DriverManager.degregister(DriverManager.getDriver());
-        }
-    }
-
-    @After
-    public void tearDown() {
-        DriverManager.degregister(DriverManager.getDriver());
-    }
+public class EmbeddedHADriverTest extends EmbeddedDriverTest {
 
     @Override
     protected Configuration getConfiguration() {
@@ -70,20 +42,4 @@ public class EmbeddedHADriverTest extends AbstractDriverTestSuite {
         return configuration;
     }
 
-    @Override
-    public void setUpTest() {
-
-    }
-
-
-    private static File createTemporaryGraphStore() {
-        try {
-            Path path = Files.createTempDirectory("graph.db");
-            File f = path.toFile();
-            f.deleteOnExit();
-            return f;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

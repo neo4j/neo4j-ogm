@@ -29,6 +29,8 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 
     private static TestServer testServer;
 
+    private Configuration configuration;
+
     @BeforeClass
     public static void configure() {
         testServer = new TestServer.Builder().enableBolt(true).build();
@@ -41,11 +43,10 @@ public class BoltDriverTest extends AbstractDriverTestSuite {
 
     @Override
     protected Configuration getConfiguration() {
-        return new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties")).uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword()).build();
+        if (configuration == null) {
+            configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties")).uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword()).build();
+        }
+        return configuration;
     }
 
-    @Override
-    public void setUpTest() {
-
-    }
 }

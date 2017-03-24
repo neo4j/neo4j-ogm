@@ -61,7 +61,7 @@ public class DriverServiceTest {
         Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
         driver.close();
-        DriverManager.degregister(driver);
+        DriverManager.deregister(driver);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class DriverServiceTest {
         Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
         driver.close();
-        DriverManager.degregister(driver);
+        DriverManager.deregister(driver);
 
     }
 
@@ -83,7 +83,7 @@ public class DriverServiceTest {
         Driver driver = DriverManager.getDriver();
         assertNotNull(driver);
         driver.close();
-        DriverManager.degregister(driver);
+        DriverManager.deregister(driver);
     }
 
     private static void deleteDirectory(File dir)  {

@@ -32,6 +32,8 @@ import org.parboiled.common.StringUtils;
  */
 public final class GraphTestUtils {
 
+    private static GraphDatabaseService otherDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+
     private GraphTestUtils() {
         // this class cannot be instantiated
     }
@@ -44,8 +46,7 @@ public final class GraphTestUtils {
      * @param sameGraphCypher The Cypher create statement, which communicates the desired state of the database
      * @throws AssertionError if the cypher doesn't produce a graph that matches the state of the given database
      */
-    public static void assertSameGraph(GraphDatabaseService graphDatabase, String sameGraphCypher) {
-        GraphDatabaseService otherDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+    public static synchronized void assertSameGraph(GraphDatabaseService graphDatabase, String sameGraphCypher) {
 
         otherDatabase.execute(sameGraphCypher);
 
@@ -59,7 +60,7 @@ public final class GraphTestUtils {
                 tx.failure();
             }
         } finally {
-            otherDatabase.shutdown();
+            otherDatabase.execute("MATCH (n) OPTIONAL MATCH (n) DETACH DELETE n");
         }
     }
 

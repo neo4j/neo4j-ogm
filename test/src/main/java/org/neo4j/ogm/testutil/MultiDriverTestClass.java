@@ -46,13 +46,13 @@ public class MultiDriverTestClass {
 			testServer = new TestServer.Builder()
 					.enableAuthentication(true)
 					.enableBolt(false)
-					.transactionTimeoutSeconds(30)
+					.transactionTimeoutSeconds(5)
 					.build();
 			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		} else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
 			testServer = new TestServer.Builder()
 					.enableBolt(true)
-					.transactionTimeoutSeconds(30)
+					.transactionTimeoutSeconds(5)
 					.build();
 			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		} else {

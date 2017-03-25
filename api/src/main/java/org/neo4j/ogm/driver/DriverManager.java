@@ -11,7 +11,7 @@ public class DriverManager {
 	private static Driver driver;
 
 	public static void register(String driverClassName) {
-		if (driver != null) {
+		if (driver != null && !driver.getClass().getCanonicalName().equals(driverClassName)) {
 			driver.close();
 			driver = null;
 		}

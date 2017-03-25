@@ -38,7 +38,7 @@ public class CanonicalTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.canonical");
+        sessionFactory = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.canonical");
     }
 
     @Before

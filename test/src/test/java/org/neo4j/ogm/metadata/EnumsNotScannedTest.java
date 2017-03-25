@@ -41,7 +41,7 @@ public class EnumsNotScannedTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.food.entities.notScanned");
+        sessionFactory = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.food.entities.notScanned");
     }
 
     @Before

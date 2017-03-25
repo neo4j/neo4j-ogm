@@ -518,6 +518,8 @@ public class Neo4jSession implements Session {
         return metaData;
     }
 
+    @Deprecated
+    // TODO: Replace calls to this with a mockito test instead.
     // inject a custom driver
     public void setDriver(Driver driver) {
         this.driver = driver;

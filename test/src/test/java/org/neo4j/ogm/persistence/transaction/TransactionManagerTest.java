@@ -15,13 +15,15 @@ package org.neo4j.ogm.persistence.transaction;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
@@ -37,14 +39,25 @@ import org.neo4j.ogm.transaction.Transaction;
  * @author Michal Bachman
  * @author Vince Bickers
  */
-@RunWith(MockitoJUnitRunner.class)
 public class TransactionManagerTest extends MultiDriverTestClass {
+
+    private Session session;
+
+    @Before
+    public void init() throws IOException {
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social").openSession();
+    }
+
+    @After
+    public void destroy() {
+        session.purgeDatabase();
+    }
+
 
     @Test
     public void shouldBeAbleToCreateManagedTransaction() {
-        Session session = Mockito.mock(Session.class);
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, DriverManager.getDriver());
-        Mockito.when(session.getLastBookmark()).thenReturn(null);
+        assertNull(session.getLastBookmark());
         try (Transaction tx = transactionManager.openTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
         }
@@ -68,9 +81,9 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
     @Test
     public void shouldRollbackManagedTransaction() {
-        Session session = Mockito.mock(Session.class);
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(session, DriverManager.getDriver());
-        Mockito.when(session.getLastBookmark()).thenReturn(null);
+        assertNull(session.getLastBookmark());
+
         try (Transaction tx = transactionManager.openTransaction()) {
             assertEquals(Transaction.Status.OPEN, tx.status());
             tx.rollback();

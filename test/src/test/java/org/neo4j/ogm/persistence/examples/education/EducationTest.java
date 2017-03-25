@@ -21,16 +21,17 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.Student;
 import org.neo4j.ogm.domain.education.Teacher;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Neo4jSession;
-import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author Vince Bickers
  */
 public class EducationTest {
 
-    private static final SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.education");
-    private static final Neo4jSession session = (Neo4jSession) sessionFactory.openSession();
+    private static MetaData metadata = new MetaData("org.neo4j.ogm.domain.education");
+    private static Neo4jSession session = new Neo4jSession(metadata, new TeacherRequest());
+
 
     @Test
     public void testTeachers() throws Exception {
@@ -61,13 +62,29 @@ public class EducationTest {
             for (Course course : teacher.getCourses()) {
                 if (!courses.contains(course)) {
                     List<Student> students = course.getStudents();
-                    if (course.getName().equals("Maths")) checkMaths(students);
-                    else if (course.getName().equals("Physics")) checkPhysics(students);
-                    else if (course.getName().equals("Philosophy and Ethics")) checkPhilosophyAndEthics(students);
-                    else if (course.getName().equals("PE")) checkPE(students);
-                    else if (course.getName().equals("History")) checkHistory(students);
-                    else if (course.getName().equals("Geography")) checkGeography(students);
-                    else checkEnglish(students);
+                    switch (course.getName()) {
+                        case "Maths":
+                            checkMaths(students);
+                            break;
+                        case "Physics":
+                            checkPhysics(students);
+                            break;
+                        case "Philosophy and Ethics":
+                            checkPhilosophyAndEthics(students);
+                            break;
+                        case "PE":
+                            checkPE(students);
+                            break;
+                        case "History":
+                            checkHistory(students);
+                            break;
+                        case "Geography":
+                            checkGeography(students);
+                            break;
+                        default:
+                            checkEnglish(students);
+                            break;
+                    }
                     courses.add(course);
                 }
             }
@@ -162,7 +179,6 @@ public class EducationTest {
 
         session.setDriver(new TeacherRequest());
         session.setDriver(new CoursesRequest());
-
         session.loadAll(Course.class);
     }
 
@@ -172,7 +188,6 @@ public class EducationTest {
         List<String> test = Arrays.asList(courseNames);
 
         for (Course course : teacher.getCourses()) {
-            System.out.println(course.getName() + ": " + course.hashCode());
             if (test.contains(course.getName())) {
                 n--;
             }

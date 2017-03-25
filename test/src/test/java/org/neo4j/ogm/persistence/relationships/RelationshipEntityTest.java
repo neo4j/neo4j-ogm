@@ -46,7 +46,7 @@ public class RelationshipEntityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.persistence.relationships");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.relationships");
     }
 
     @Before

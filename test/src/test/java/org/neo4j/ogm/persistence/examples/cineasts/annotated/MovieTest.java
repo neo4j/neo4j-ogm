@@ -20,6 +20,7 @@ import java.util.UUID;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.Movie;
 import org.neo4j.ogm.domain.cineasts.annotated.Rating;
+import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -32,11 +33,8 @@ public class MovieTest {
     @Test
     public void testDeserialiseMovie() {
 
-        MoviesRequest movieRequest = new MoviesRequest();
-
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
-        session.setDriver(movieRequest);
+        MetaData metadata = new MetaData("org.neo4j.ogm.domain.cineasts.annotated");
+        Neo4jSession session = new Neo4jSession(metadata, new MoviesRequest());
 
         Movie movie = session.load(Movie.class, UUID.fromString("38ebe777-bc85-4810-8217-096f29a361f1"), 1);
 

@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.drivers.http.driver;
+package org.neo4j.ogm.drivers.http.driver;
 
 import static org.junit.Assert.*;
 

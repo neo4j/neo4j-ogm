@@ -20,6 +20,8 @@ import java.util.Collection;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Wheel;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.persistence.examples.education.TeacherRequest;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -28,16 +30,12 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class BikeTest {
 
+    private static MetaData metadata = new MetaData("org.neo4j.ogm.domain.bike");
+    private static Neo4jSession session = new Neo4jSession(metadata, new BikeRequest());
+
     @Test
     public void testDeserialiseBikeModel() throws Exception {
 
-        BikeRequest bikeRequest = new BikeRequest();
-
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
-        session.setDriver(bikeRequest);
-
-        long now = -System.currentTimeMillis();
         Collection<Bike> bikes = session.loadAll(Bike.class);
 
         assertFalse(bikes.isEmpty());
@@ -70,12 +68,6 @@ public class BikeTest {
 
     @Test
     public void testReloadExistingDomain() {
-
-        BikeRequest bikeRequest = new BikeRequest();
-
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.bike");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
-        session.setDriver(bikeRequest);
 
         Collection<Bike> bikes = session.loadAll(Bike.class);
         Collection<Bike> theSameBikes = session.loadAll(Bike.class);

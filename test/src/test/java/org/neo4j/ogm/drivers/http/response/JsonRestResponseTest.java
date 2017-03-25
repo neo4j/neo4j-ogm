@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.drivers.http.response;
+package org.neo4j.ogm.drivers.http.response;
 
 import static org.mockito.Mockito.*;
 

@@ -50,7 +50,7 @@ public class CineastsIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Before

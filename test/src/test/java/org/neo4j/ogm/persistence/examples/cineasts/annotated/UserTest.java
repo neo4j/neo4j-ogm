@@ -17,6 +17,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
+import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.persistence.examples.education.TeacherRequest;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.SessionFactory;
 
@@ -27,14 +29,12 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class UserTest {
 
+
     @Test
     public void testDeserialiseUserWithArrayOfEnums() {
 
-        UsersRequest userRequest = new UsersRequest();
-
-        SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
-        Neo4jSession session = ((Neo4jSession) sessionFactory.openSession());
-        session.setDriver(userRequest);
+        MetaData metadata = new MetaData("org.neo4j.ogm.domain.cineasts.annotated");
+        Neo4jSession session = new Neo4jSession(metadata, new UsersRequest());
 
         User user = session.load(User.class, "luanne", 1);
 

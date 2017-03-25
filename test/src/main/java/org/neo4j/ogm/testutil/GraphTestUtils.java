@@ -29,6 +29,7 @@ import org.parboiled.common.StringUtils;
  * Utility methods used to facilitate testing against a real Neo4j database.
  *
  * @author Michal Bachman
+ * @author Mark Angrish
  */
 public final class GraphTestUtils {
 

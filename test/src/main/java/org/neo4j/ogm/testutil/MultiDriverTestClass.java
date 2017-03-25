@@ -30,7 +30,8 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 
 
 /**
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class MultiDriverTestClass {
 

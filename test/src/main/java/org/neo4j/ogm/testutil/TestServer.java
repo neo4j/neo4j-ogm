@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Vince Bickers
+ * @author Mark Angrish
  */
 public class TestServer {
 

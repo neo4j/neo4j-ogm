@@ -32,7 +32,8 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * or, alternatively using the "credentials" key
  * setConfig("credentials", new UsernamePasswordCredentials("bilbo", "hobbit")
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 

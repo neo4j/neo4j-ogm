@@ -315,7 +315,7 @@ public class DomainInfo {
                     Class<?> entityAttributeType = ClassUtils.getType(typeDescriptor);
                     String graphTypeDescriptor = fieldInfo.getAnnotations().get(Convert.class).get(Convert.GRAPH_TYPE, null);
                     if (graphTypeDescriptor == null) {
-                        throw new MappingException("Found annotation to convert a " + entityAttributeType.getName()
+                        throw new MappingException("Found annotation to convert a " + (entityAttributeType != null ? entityAttributeType.getName() : " null object ")
                                 + " on " + classInfo.name() + '.' + fieldInfo.getName()
                                 + " but no target graph property type or specific AttributeConverter have been specified.");
                     }

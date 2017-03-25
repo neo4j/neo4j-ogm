@@ -16,8 +16,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>neo4j-ogm</artifactId>
         <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-ogm</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -32,41 +32,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-http-driver</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-embedded-driver</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-bolt-driver</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ogm-test</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
         </dependency>
 
         <dependency>
@@ -78,34 +45,5 @@
             <groupId>io.github.lukehutch</groupId>
             <artifactId>fast-classpath-scanner</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>local-test</groupId>
-            <artifactId>concert</artifactId>
-            <version>0.0.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>local-test</groupId>
-            <artifactId>event</artifactId>
-            <version>0.0.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>local-test</groupId>
-            <artifactId>radio</artifactId>
-            <version>0.0.1</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>local-test-repo</id>
-            <url>file://${basedir}/src/test/lib</url>
-        </repository>
-    </repositories>
 </project>

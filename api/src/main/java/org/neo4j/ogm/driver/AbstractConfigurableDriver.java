@@ -19,8 +19,8 @@ import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.transaction.TransactionManager;
 
 /**
- * The AbstractConfigurableDriver is used by all drivers to configure themselves.
- * The configure method takes a generic {@link Configuration} object, which is used to configure the
+ * The AbstractConfigurableDriver is used by all drivers to register themselves.
+ * The register method takes a generic {@link Configuration} object, which is used to register the
  * driver appropriately. This object contains of one or more key-value
  * pairs. Every driver configuration must contain a mandatory key "URI", whose corresponding value is
  * a text representation of the driver uri, for example:
@@ -32,37 +32,22 @@ import org.neo4j.ogm.transaction.TransactionManager;
  * or, alternatively using the "credentials" key
  * setConfig("credentials", new UsernamePasswordCredentials("bilbo", "hobbit")
  *
- * @author vince
+ * @author Vince Bickers
+ * @author Mark Angrish
  */
 public abstract class AbstractConfigurableDriver implements Driver {
 
-    protected Configuration configuration;
-    protected TransactionManager transactionManager;
+	protected Configuration configuration;
+	protected TransactionManager transactionManager;
 
-    @Override
-    public void configure(Configuration config) {
-        this.configuration = config;
-        setCredentials();
-    }
+	@Override
+	public void configure(Configuration config) {
+		this.configuration = config;
+	}
 
-    @Override
-    public void setTransactionManager(TransactionManager transactionManager) {
-        assert (transactionManager != null);
-        this.transactionManager = transactionManager;
-    }
-
-    private void setCredentials() {
-        if (configuration.getCredentials() == null && configuration.getURI() != null) {
-            try {
-                URI uri = new URI(configuration.getURI());
-                String authInfo = uri.getUserInfo();
-                if (authInfo != null) {
-                    String[] parts = uri.getUserInfo().split(":");
-                    configuration.setCredentials(parts[0], parts[1]);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+	@Override
+	public void setTransactionManager(TransactionManager transactionManager) {
+		assert (transactionManager != null);
+		this.transactionManager = transactionManager;
+	}
 }

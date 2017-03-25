@@ -59,7 +59,7 @@ public class Utils {
      */
     public static Object coerceTypes(Class clazz, Object value) {
         if (clazz.isPrimitive() && value == null) {
-            return defaultForPrimitive(clazz, value);
+            return defaultForPrimitive(clazz, null);
         }
         if (value != null) {
             String className = clazz.getName();

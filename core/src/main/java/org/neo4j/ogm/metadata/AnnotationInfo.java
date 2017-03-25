@@ -55,7 +55,7 @@ public class AnnotationInfo {
 
         final Method[] declaredElements = annotation.annotationType().getDeclaredMethods();
         for (Method element : declaredElements) {
-            Object value = null;
+            Object value;
             try {
                 value = element.invoke(annotation);
             } catch (IllegalAccessException | InvocationTargetException e) {

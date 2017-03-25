@@ -67,7 +67,7 @@ public class MappingContext {
         Object result = null;
 
         if (id instanceof Long) {
-            result = nodeEntityRegister.get((Long) id);
+            result = nodeEntityRegister.get(id);
         }
 
         if (result == null) {

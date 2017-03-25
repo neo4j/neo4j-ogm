@@ -32,8 +32,6 @@ public class MappedRelationship implements Mappable {
     private Class startNodeType;
     private Class endNodeType;
 
-    private boolean active = true;
-
     public MappedRelationship(long startNodeId, String relationshipType, long endNodeId, Class startNodeType, Class endNodeType) {
         this.startNodeId = startNodeId;
         this.relationshipType = relationshipType;
@@ -77,7 +75,6 @@ public class MappedRelationship implements Mappable {
      * delete it when the transaction commits.
      */
     public void activate() {
-        active = true;
     }
 
     public Class getEndNodeType() {
@@ -95,10 +92,10 @@ public class MappedRelationship implements Mappable {
 
         MappedRelationship that = (MappedRelationship) o;
 
-        if (startNodeId != that.startNodeId) return false;
-        if (endNodeId != that.endNodeId) return false;
-        if (!relationshipType.equals(that.relationshipType)) return false;
-        return !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
+        return startNodeId == that.startNodeId
+                && endNodeId == that.endNodeId
+                && relationshipType.equals(that.relationshipType)
+                && !(relationshipId != null ? !relationshipId.equals(that.relationshipId) : that.relationshipId != null);
     }
 
     @Override

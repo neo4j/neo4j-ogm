@@ -25,7 +25,7 @@ public class SortOrder {
         ASC, DESC
     }
 
-    private List<SortClause> sortClauses = new ArrayList();
+    private List<SortClause> sortClauses = new ArrayList<>();
 
     public SortOrder add(Direction direction, String... properties) {
         sortClauses.add(new SortClause(direction, properties));

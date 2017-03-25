@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BoltResponse<T> implements Response {
 
-    protected final StatementResult result;
+    final StatementResult result;
     private final TransactionManager transactionManager;
 
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltResponse.class);
 
 
-    public BoltResponse(StatementResult result, TransactionManager transactionManager) {
+    BoltResponse(StatementResult result, TransactionManager transactionManager) {
         this.result = result;
         this.transactionManager = transactionManager;
     }
@@ -56,7 +56,7 @@ public abstract class BoltResponse<T> implements Response {
         }
     }
 
-    public abstract T fetchNext();
+    protected abstract T fetchNext();
 
     @Override
     public void close() {

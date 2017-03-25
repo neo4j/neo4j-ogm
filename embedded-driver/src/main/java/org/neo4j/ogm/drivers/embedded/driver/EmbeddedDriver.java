@@ -50,15 +50,6 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     /**
-     * Configure a new embedded driver according to the supplied driver configuration
-     *
-     * @param configuration the {@link Configuration} to use
-     */
-    public EmbeddedDriver(Configuration configuration) {
-        configure(configuration);
-    }
-
-    /**
      * This constructor allows the user to pass in an existing
      * Graph database service, e.g. if user code is running as an extension inside
      * an existing Neo4j server

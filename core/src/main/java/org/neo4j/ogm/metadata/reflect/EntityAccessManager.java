@@ -96,6 +96,7 @@ public class EntityAccessManager {
         }
 
         // hydrated is unusable at this point so we can just set the other collection if it's compatible
+        assert newValues != null;
         if (parameterType.isAssignableFrom(newValues.getClass())) {
             return newValues;
         }

@@ -3,7 +3,9 @@ package org.neo4j.ogm.annotation;
 import java.lang.annotation.*;
 
 /**
- * Created by markangrish on 23/02/2017.
+ * Informs the OGM that the method annotated with this should be run one the object is loaded from the database.
+ *
+ * @author Mark Angrish
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

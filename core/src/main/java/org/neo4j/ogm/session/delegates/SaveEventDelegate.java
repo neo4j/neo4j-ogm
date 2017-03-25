@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author vince
  */
-public final class SaveEventDelegate {
+final class SaveEventDelegate {
 
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
@@ -42,16 +42,16 @@ public final class SaveEventDelegate {
     private Set<MappedRelationship> deletedRelationships = new HashSet<>();
 
 
-    public SaveEventDelegate(Neo4jSession session) {
+    SaveEventDelegate(Neo4jSession session) {
         this.session = session;
-        this.preSaved = new HashSet();
-        this.visited = new HashSet();
+        this.preSaved = new HashSet<>();
+        this.visited = new HashSet<>();
 
         this.registeredRelationships.clear();
         this.registeredRelationships.addAll(session.context().getRelationships());
     }
 
-    public void preSave(Object object) {
+    void preSave(Object object) {
 
         if (Collection.class.isAssignableFrom(object.getClass())) {
             for (Object element : (Collection) object) {
@@ -66,7 +66,7 @@ public final class SaveEventDelegate {
         }
     }
 
-    public void postSave() {
+    void postSave() {
         for (Object object : this.preSaved) {
             fire(Event.TYPE.POST_SAVE, object);
         }
@@ -137,7 +137,7 @@ public final class SaveEventDelegate {
 
     private Set<Object> unreachable() {
 
-        Set<Object> unreachable = new HashSet();
+        Set<Object> unreachable = new HashSet<>();
 
         for (MappedRelationship mappedRelationship : deletedRelationships) {
             unreachable.add(session.context().getNodeEntity(mappedRelationship.getStartNodeId()));
@@ -264,7 +264,7 @@ public final class SaveEventDelegate {
     // We'll figure that out later.
     private List<Object> children(Object parent) {
 
-        List<Object> children = new ArrayList();
+        List<Object> children = new ArrayList<>();
 
         ClassInfo parentClassInfo = this.session.metaData().classInfo(parent);
 
@@ -289,13 +289,13 @@ public final class SaveEventDelegate {
         return children;
     }
 
-    private void addChildren(Collection children, Collection references) {
+    private void addChildren(Collection<Object> children, Collection references) {
         for (Object reference : references) {
             addChild(children, reference);
         }
     }
 
-    private void addChild(Collection children, Object reference) {
+    private void addChild(Collection<Object> children, Object reference) {
         children.add(reference);
     }
 

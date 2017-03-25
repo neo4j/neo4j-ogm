@@ -49,8 +49,8 @@ public class EmbeddedGraphRowModelAdapter extends GraphRowModelAdapter {
             throw new ResultProcessingException("Column data cannot be null!");
         }
 
-        Set<Long> nodeIdentities = new HashSet();
-        Set<Long> edgeIdentities = new HashSet();
+        Set<Long> nodeIdentities = new HashSet<>();
+        Set<Long> edgeIdentities = new HashSet<>();
 
         GraphModel graphModel = new DefaultGraphModel();
         List<String> variables = new ArrayList<>();

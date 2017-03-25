@@ -30,8 +30,7 @@ public class MethodInfo {
     /**
      * Constructs a new {@link MethodInfo} based on the given arguments.
      *
-     * @param name The name of the method
-     * notation
+     * @param method The method.
      * @param annotations The {@link ObjectAnnotations} applied to the field
      */
     MethodInfo(Method method, ObjectAnnotations annotations) {

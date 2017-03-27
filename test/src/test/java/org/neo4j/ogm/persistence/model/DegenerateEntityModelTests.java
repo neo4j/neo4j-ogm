@@ -26,6 +26,7 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * These tests are to establish the behaviour of degenerate entity models
@@ -50,27 +51,30 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
     public void init() throws IOException {
         session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem").openSession();
         session.purgeDatabase();
-        Result executionResult = getGraphDatabaseService().execute(
-                "CREATE (f:Folder { name: 'f' } )" +
-                        "CREATE (a:Document { name: 'a' } ) " +
-                        "CREATE (b:Document { name: 'b' } ) " +
-                        "CREATE (f)-[:CONTAINS]->(a) " +
-                        "CREATE (f)-[:CONTAINS]->(b) " +
-                        "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
 
-        Map<String, Object> resultSet = executionResult.next();
+        try(Transaction transaction = session.beginTransaction();) {
+            Result executionResult = getGraphDatabaseService().execute(
+                    "CREATE (f:Folder { name: 'f' } )" +
+                            "CREATE (a:Document { name: 'a' } ) " +
+                            "CREATE (b:Document { name: 'b' } ) " +
+                            "CREATE (f)-[:CONTAINS]->(a) " +
+                            "CREATE (f)-[:CONTAINS]->(b) " +
+                            "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
 
-        a = session.load(Document.class, (Long) resultSet.get("aid"));
+            Map<String, Object> resultSet = executionResult.next();
 
-        Document b = session.load(Document.class, (Long) resultSet.get("bid"));
+            a = session.load(Document.class, (Long) resultSet.get("aid"));
 
-        f = session.load(Folder.class, (Long) resultSet.get("fid"));
+            Document b = session.load(Document.class, (Long) resultSet.get("bid"));
 
-        f.getDocuments().add(a);
-        f.getDocuments().add(b);
+            f = session.load(Folder.class, (Long) resultSet.get("fid"));
 
-        a.setFolder(f);
-        b.setFolder(f);
+            f.getDocuments().add(a);
+            f.getDocuments().add(b);
+
+            a.setFolder(f);
+            b.setFolder(f);
+        }
     }
 
 

@@ -44,13 +44,11 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
     private Folder f;
     private Document a;
 
-    private static final SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem");
-
     private Session session;
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem").openSession();
         session.purgeDatabase();
         Result executionResult = getGraphDatabaseService().execute(
                 "CREATE (f:Folder { name: 'f' } )" +

@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -82,12 +83,12 @@ public class MultiDriverTestClass {
 	}
 
 
-//	@After
-//	public final void tearDown() {
-//		if (impermanentDb != null) {
-//			DriverManager.deregister(DriverManager.getDriver());
-//		}
-//	}
+	@After
+	public final void tearDown() {
+		if (impermanentDb != null) {
+			DriverManager.deregister(DriverManager.getDriver());
+		}
+	}
 
 
 	public static GraphDatabaseService getGraphDatabaseService() {

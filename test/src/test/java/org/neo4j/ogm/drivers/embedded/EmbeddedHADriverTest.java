@@ -13,10 +13,19 @@
 
 package org.neo4j.ogm.drivers.embedded;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
 /**
  * @author vince
  */
 public class EmbeddedHADriverTest /*extends EmbeddedDriverTest*/ {
+
+	@Test
+	public void fixme() {
+		assertTrue(true);
+	}
 
 //    @Override
 //    protected Configuration getConfiguration() {

@@ -48,7 +48,7 @@ public class DualRelationshipTest extends MultiDriverTestClass {
     }
 
     @After
-    public void tearDown() {
+    public void cleanup() {
         session.purgeDatabase();
     }
 

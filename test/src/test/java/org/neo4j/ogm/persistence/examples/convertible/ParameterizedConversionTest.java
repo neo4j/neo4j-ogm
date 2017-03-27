@@ -41,7 +41,7 @@ public class ParameterizedConversionTest extends MultiDriverTestClass {
     }
 
     @After
-    public void tearDown() {
+    public void cleanup() {
         session.purgeDatabase();
     }
 

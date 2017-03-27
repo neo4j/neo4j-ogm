@@ -51,7 +51,7 @@ public class IdentityTest extends MultiDriverTestClass {
     }
 
     @After
-    public void tearDown() {
+    public void cleanup() {
         session.purgeDatabase();
     }
 

@@ -50,7 +50,7 @@ public class EnumsNotScannedTest extends MultiDriverTestClass {
     }
 
     @After
-    public void tearDown() {
+    public void cleanup() {
         session.purgeDatabase();
     }
 

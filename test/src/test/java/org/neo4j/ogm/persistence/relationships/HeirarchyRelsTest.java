@@ -42,7 +42,7 @@ public class HeirarchyRelsTest extends MultiDriverTestClass {
     }
 
     @After
-    public void tearDown() {
+    public void cleanup() {
         session.purgeDatabase();
         session.clear();
     }

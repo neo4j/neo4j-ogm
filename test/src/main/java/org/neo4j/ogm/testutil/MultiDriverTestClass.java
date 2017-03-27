@@ -84,7 +84,7 @@ public class MultiDriverTestClass {
 
 
 	@After
-	public void tearDown() {
+	public final void tearDown() {
 		if (impermanentDb != null) {
 			DriverManager.deregister(DriverManager.getDriver());
 		}

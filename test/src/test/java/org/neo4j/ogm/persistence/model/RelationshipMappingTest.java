@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.domain.election.Candidate;
@@ -36,11 +37,19 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class RelationshipMappingTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetup() throws IOException {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election");
+    }
+
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.policy", "org.neo4j.ogm.domain.election").openSession();
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 

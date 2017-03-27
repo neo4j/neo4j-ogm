@@ -38,7 +38,7 @@ public class MultiDriverTestClass {
 	private static TestServer testServer;
 	private static GraphDatabaseService impermanentDb;
 	private static File graphStore;
-	protected static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
+	private static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource("ogm.properties"));
 
 	@BeforeClass
 	public static void setupMultiDriverTestEnvironment() {
@@ -64,6 +64,10 @@ public class MultiDriverTestClass {
 	}
 
 
+	public static Configuration.Builder getBaseConfiguration() {
+		return Configuration.Builder.copy(baseConfiguration);
+	}
+
 	@AfterClass
 	public static void tearDownMultiDriverTestEnvironment() {
 		if (testServer != null) {
@@ -84,7 +88,7 @@ public class MultiDriverTestClass {
 
 
 	@After
-	public final void tearDown() {
+	public void tearDown() {
 		if (impermanentDb != null) {
 			DriverManager.deregister(DriverManager.getDriver());
 		}

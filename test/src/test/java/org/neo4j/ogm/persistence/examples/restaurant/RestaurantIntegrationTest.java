@@ -18,10 +18,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.ogm.cypher.BooleanOperator;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -37,11 +34,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 public class RestaurantIntegrationTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.restaurant");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.restaurant").openSession();
+        session = sessionFactory.openSession();
     }
 
     @After

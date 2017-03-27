@@ -40,7 +40,7 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public abstract class AbstractDriverTestSuite {
 
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
 
     protected abstract Configuration getConfiguration();
 

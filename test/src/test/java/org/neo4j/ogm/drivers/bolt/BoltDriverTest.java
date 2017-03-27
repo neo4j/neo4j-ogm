@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers.bolt;
 
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;

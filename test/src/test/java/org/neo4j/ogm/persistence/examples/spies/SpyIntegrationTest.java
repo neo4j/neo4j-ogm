@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.spies.Spy;
 import org.neo4j.ogm.domain.spies.Target;
@@ -30,11 +31,17 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class SpyIntegrationTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.spies");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.spies").openSession();
+        session = sessionFactory.openSession();
     }
 
     /**

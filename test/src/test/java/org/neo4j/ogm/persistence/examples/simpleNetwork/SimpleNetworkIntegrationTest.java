@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.ogm.domain.simpleNetwork.classes.IdentityNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.StateNode;
 import org.neo4j.ogm.domain.simpleNetwork.classes.TimeRelation;
@@ -33,16 +30,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class SimpleNetworkIntegrationTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.simpleNetwork");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.simpleNetwork").openSession();
-    }
-
-    @After
-    public void teardown() {
-        session.purgeDatabase();
+        session = sessionFactory.openSession();
     }
 
     /**

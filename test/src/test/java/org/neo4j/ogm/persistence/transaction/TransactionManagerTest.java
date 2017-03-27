@@ -45,7 +45,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social").openSession();
+        session = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.social").openSession();
     }
 
     @After

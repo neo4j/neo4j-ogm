@@ -38,11 +38,21 @@ public class AATest extends RelationshipTrait {
     private A a1, a2, a3, a4;
     private A loadedA1, loadedA2, loadedA3, loadedA4;
 
+    @BeforeClass
+    public static void oneTimeSetup() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.persistence.relationships.direct.aa");
+    }
+
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.relationships.direct.aa").openSession();
+        session = sessionFactory.openSession();
         session.purgeDatabase();
         setUpEntityModel();
+    }
+
+    @After
+    public void cleanup() {
+        session.purgeDatabase();
     }
 
     private void setUpEntityModel() {

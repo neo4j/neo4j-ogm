@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.linkedlist.Item;
 import org.neo4j.ogm.session.Session;
@@ -47,11 +48,18 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class BidirectionalMappingTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.linkedlist");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.linkedlist").openSession();
+        session = sessionFactory.openSession();
     }
 
     /**

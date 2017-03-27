@@ -20,6 +20,7 @@ import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -39,11 +40,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class MusicIntegrationTest extends MultiDriverTestClass {
 
-    private static Session session;
+    private static SessionFactory sessionFactory;
+
+    private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.music");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.music").openSession();
+        session = sessionFactory.openSession();
     }
 
     @After

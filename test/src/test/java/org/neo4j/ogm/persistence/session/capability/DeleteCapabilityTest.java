@@ -14,6 +14,7 @@
 package org.neo4j.ogm.persistence.session.capability;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.music.Album;
 import org.neo4j.ogm.domain.music.Recording;
@@ -26,11 +27,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class DeleteCapabilityTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.music");
+    }
 
     @Before
     public void init() {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.music").openSession();
+        session = sessionFactory.openSession();
     }
 
     @Test

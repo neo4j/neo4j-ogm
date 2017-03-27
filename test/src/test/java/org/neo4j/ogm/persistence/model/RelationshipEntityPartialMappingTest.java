@@ -16,6 +16,7 @@ package org.neo4j.ogm.persistence.model;
 import java.io.IOException;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.minimum.Actor;
 import org.neo4j.ogm.domain.cineasts.minimum.Movie;
@@ -33,11 +34,19 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class RelationshipEntityPartialMappingTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetup() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.cineasts.minimum");
+    }
+
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.cineasts.minimum").openSession();
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 

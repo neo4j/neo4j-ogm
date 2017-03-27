@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -42,11 +42,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
-    private Session session;
+    private static Session session;
 
-    @Before
-    public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.convertible").openSession();
+    @BeforeClass
+    public static void init() throws IOException {
+        session = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.convertible").openSession();
     }
 
     @After

@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.pets.Dog;
 import org.neo4j.ogm.domain.pets.DomesticDog;
@@ -35,11 +36,18 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 public class PetIntegrationTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.pets");
+    }
 
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.pets").openSession();
+        session = sessionFactory.openSession();
     }
 
     @After

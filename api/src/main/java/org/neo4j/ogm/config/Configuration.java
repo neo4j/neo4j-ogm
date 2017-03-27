@@ -146,6 +146,20 @@ public class Configuration {
 
 	public static class Builder {
 
+		public static Builder copy(Builder builder) {
+			return new Builder()
+					.uri(builder.uri)
+					.connectionPoolSize(builder.connectionPoolSize)
+					.encryptionLevel(builder.encryptionLevel)
+					.trustStrategy(builder.trustStrategy)
+					.trustCertFile(builder.trustCertFile)
+					.autoIndex(builder.autoIndex)
+					.generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
+					.generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
+					.neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
+					.credentials(builder.username, builder.password);
+		}
+
 		private static final String URI = "URI";
 		private static final String CONNECTION_POOL_SIZE = "connection.pool.size";
 		private static final String ENCRYPTION_LEVEL = "encryption.level";

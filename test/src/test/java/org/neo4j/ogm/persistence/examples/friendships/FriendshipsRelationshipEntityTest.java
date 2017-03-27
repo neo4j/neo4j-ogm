@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.friendships.Friendship;
 import org.neo4j.ogm.domain.friendships.Person;
@@ -37,9 +38,14 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
     private static SessionFactory sessionFactory;
     private Session session;
 
+    @BeforeClass
+    public static void oneTimeSetUp() throws IOException {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.friendships");
+    }
+
     @Before
     public void init() throws IOException {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.friendships").openSession();
+        session = sessionFactory.openSession();
         session.purgeDatabase();
     }
 

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.neo4j.ogm.domain.cineasts.annotated.Actor;
 import org.neo4j.ogm.domain.cineasts.annotated.Knows;
 import org.neo4j.ogm.domain.filesystem.Document;
@@ -37,6 +38,9 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public abstract class EventTestBaseClass extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+    static TestEventListener eventListener;
+
     protected Session session;
     protected Document a;
     protected Document b;
@@ -45,18 +49,23 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
     protected Document e;
     protected Folder folder;
 
-    protected Actor jim, bruce, lee, stan;
-    protected Knows knowsJB;
-    protected Knows knowsLS;
-    protected Knows knowsJL;
+    Actor jim, bruce, lee, stan;
+    Knows knowsJB;
+    private Knows knowsLS;
+    Knows knowsJL;
 
-    protected TestEventListener eventListener = new TestEventListener();
+
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
+        eventListener  = new TestEventListener();
+        sessionFactory.register(eventListener);
+    }
 
     @Before
     public void init() throws IOException {
 
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
-        sessionFactory.register(eventListener);
 
         session = sessionFactory.openSession();
         session.purgeDatabase();
@@ -123,7 +132,7 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
         eventListener.clear();
     }
 
-    class TestEventListener implements EventListener {
+    static class TestEventListener implements EventListener {
 
         public List<Event> eventsCaptured;
 

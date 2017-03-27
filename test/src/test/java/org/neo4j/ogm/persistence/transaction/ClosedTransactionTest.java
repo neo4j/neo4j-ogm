@@ -15,6 +15,7 @@ package org.neo4j.ogm.persistence.transaction;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.exception.TransactionException;
@@ -34,15 +35,22 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class ClosedTransactionTest extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
     private Session session;
     private DefaultTransactionManager transactionManager;
 
     private Transaction tx;
 
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.tree");
+    }
+
     @Before
     public void init() {
-        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.tree").openSession();
         transactionManager = new DefaultTransactionManager(session, DriverManager.getDriver());
+        session = sessionFactory.openSession();
     }
 
     @Before

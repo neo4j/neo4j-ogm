@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.Result;
 import org.neo4j.ogm.domain.social.Individual;
@@ -17,12 +18,18 @@ import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 public class ArraysMappingTest extends MultiDriverTestClass {
+	private static SessionFactory sessionFactory;
 
 	private Session session;
 
+	@BeforeClass
+	public static void oneTimeSetUp() {
+		sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.social");
+	}
+
 	@Before
 	public void setUpMapper() {
-		session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social").openSession();
+		session = sessionFactory.openSession();
 		session.purgeDatabase();
 	}
 

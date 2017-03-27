@@ -2,6 +2,9 @@ package org.neo4j.ogm.metadata;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.valid.Invoice;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
@@ -18,11 +21,21 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
+    private static SessionFactory sessionFactory;
+    private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.cineasts.annotated");
+    }
+
+    @Before
+    public void setUp() {
+        session = sessionFactory.openSession();
+    }
+
     @Test
     public void loadUsesPrimaryIndexWhenPresent() {
-
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.cineasts.annotated");
-        final Session session = sessionFactory.openSession();
 
         User user1 = new User("login1", "Name 1", "password");
         session.save(user1);
@@ -37,9 +50,6 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesPrimaryIndexWhenPresentOnSuperclass() {
 
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.cineasts.annotated");
-        final Session session = sessionFactory.openSession();
-
         ExtendedUser user1 = new ExtendedUser("login2", "Name 2", "password");
         session.save(user1);
 
@@ -53,11 +63,10 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesGraphIdWhenPrimaryIndexNotPresent() {
 
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.cineasts.partial");
-        final Session session = sessionFactory.openSession();
-
+        SessionFactory sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.cineasts.partial");
+        Session session1 = sessionFactory.openSession();
         Actor actor = new Actor("David Hasslehoff");
-        session.save(actor);
+        session1.save(actor);
 
         final Long id = actor.getId();
 
@@ -71,7 +80,6 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test(expected = Neo4jException.class)
     public void exceptionRaisedWhenLookupIsDoneWithGraphIdAndThereIsAPrimaryIndexPresent() {
 
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.cineasts.annotated");
         final Session session = sessionFactory.openSession();
 
         User user1 = new User("login1", "Name 1", "password");
@@ -88,11 +96,11 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesPrimaryIndexWhenPresentEvenIfTypeIsLong() {
 
-        SessionFactory sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.autoindex.valid");
-        final Session session = sessionFactory.openSession();
+        SessionFactory sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.autoindex.valid");
+        Session session1 = sessionFactory.openSession();
 
         Invoice invoice = new Invoice(223L, "Company", 100000L);
-        session.save(invoice);
+        session1.save(invoice);
 
         final Session session2 = sessionFactory.openSession();
 

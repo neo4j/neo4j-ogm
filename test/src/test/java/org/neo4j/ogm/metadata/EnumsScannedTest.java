@@ -14,6 +14,8 @@ package org.neo4j.ogm.metadata;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -37,18 +39,9 @@ public class EnumsScannedTest extends MultiDriverTestClass {
 
     private Session session;
 
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.food.entities.scanned");
-    }
-
     @Before
-    public void init() {
-        session = sessionFactory.openSession();
-    }
-
-    @After
-    public void cleanup() {
+    public void init() throws IOException {
+        session = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.food.entities.scanned").openSession();
         session.purgeDatabase();
     }
 

@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.domain.companies.Company;
 import org.neo4j.ogm.domain.companies.Device;
@@ -36,10 +36,10 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class CompaniesIntegrationTest extends MultiDriverTestClass {
 
-    private static Session session;
+    private Session session;
 
-    @BeforeClass
-    public static void init() throws IOException {
+    @Before
+    public void init() throws IOException {
         session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.companies").openSession();
     }
 

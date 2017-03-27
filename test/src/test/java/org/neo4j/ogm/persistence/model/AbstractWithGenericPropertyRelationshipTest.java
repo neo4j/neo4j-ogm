@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.persistence.examples.stage.edges.LastDrama;
 import org.neo4j.ogm.persistence.examples.stage.edges.PlayedInDrama;
@@ -24,18 +27,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
-
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.model", "org.neo4j.ogm.persistence.examples.stage");
-    }
 
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.model", "org.neo4j.ogm.persistence.examples.stage").openSession();
         session.purgeDatabase();
     }
 

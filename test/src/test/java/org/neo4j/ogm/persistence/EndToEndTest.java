@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.bike.Bike;
 import org.neo4j.ogm.domain.bike.Frame;
@@ -35,18 +34,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class EndToEndTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
-
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.bike");
-    }
 
     @Before
     public void init() {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.bike").openSession();
         session.purgeDatabase();
     }
 

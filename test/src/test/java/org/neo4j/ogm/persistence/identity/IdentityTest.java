@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.session.Session;
@@ -36,18 +35,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class IdentityTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
-
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.identity");
-    }
 
     @Before
     public void init() {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.identity").openSession();
     }
 
     @After

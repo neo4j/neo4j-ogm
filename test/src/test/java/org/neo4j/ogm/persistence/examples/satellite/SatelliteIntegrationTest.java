@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
@@ -39,15 +39,16 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
-    private static Session session;
+    private Session session;
 
-    @BeforeClass
-    public static void init() throws IOException {
+    @Before
+    public void init() throws IOException {
         session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.satellites").openSession();
+        session.purgeDatabase();
         importSatellites();
     }
 
-    private static void importSatellites() {
+    private void importSatellites() {
         session.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Utils.map());
     }
 

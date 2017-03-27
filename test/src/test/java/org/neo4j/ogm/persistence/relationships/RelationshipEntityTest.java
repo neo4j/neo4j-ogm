@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
@@ -36,22 +35,15 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class RelationshipEntityTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
     private Session session;
 
     private U u;
     private M m;
     private R r1;
 
-
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.relationships");
-    }
-
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.relationships").openSession();
 
         u = new U("Luanne");
         m = new M("Taken");

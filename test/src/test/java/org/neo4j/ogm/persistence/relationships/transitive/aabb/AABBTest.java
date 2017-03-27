@@ -18,7 +18,10 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.persistence.relationships.direct.RelationshipTrait;
 import org.neo4j.ogm.session.Session;
@@ -30,20 +33,14 @@ import org.neo4j.ogm.session.SessionFactory;
  */
 public class AABBTest extends RelationshipTrait {
 
-    private static SessionFactory sessionFactory;
     private Session session;
     private A a1, a2, a3;
     private B b1, b2, b3;
     private R r1, r2, r3, r4, r5, r6;
 
-    @BeforeClass
-    public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.relationships.transitive.aabb");
-    }
-
     @Before
     public void init() throws IOException {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.persistence.relationships.transitive.aabb").openSession();
         setUpEntityModel();
     }
 

@@ -17,7 +17,6 @@ import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.context.MappedRelationship;
 import org.neo4j.ogm.context.MappingContext;
@@ -38,18 +37,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class ElectionTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
-
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.election");
-    }
 
     @Before
     public void init() {
-        session = sessionFactory.openSession();
+        session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.election").openSession();
     }
 
     @After

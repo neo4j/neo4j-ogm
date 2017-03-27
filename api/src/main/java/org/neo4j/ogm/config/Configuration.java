@@ -82,7 +82,6 @@ public class Configuration {
 			}
 			credentials = new UsernamePasswordCredentials(builder.username, builder.password);
 		}
-
 	}
 
 	public AutoIndexMode getAutoIndex() {
@@ -142,6 +141,48 @@ public class Configuration {
 				this.driverName = "org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver";
 				break;
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Configuration that = (Configuration) o;
+
+		if (connectionPoolSize != that.connectionPoolSize) return false;
+		if (!uri.equals(that.uri)) return false;
+		if (encryptionLevel != null ? !encryptionLevel.equals(that.encryptionLevel) : that.encryptionLevel != null)
+			return false;
+		if (trustStrategy != null ? !trustStrategy.equals(that.trustStrategy) : that.trustStrategy != null)
+			return false;
+		if (trustCertFile != null ? !trustCertFile.equals(that.trustCertFile) : that.trustCertFile != null)
+			return false;
+		if (autoIndex != that.autoIndex) return false;
+		if (generatedIndexesOutputDir != null ? !generatedIndexesOutputDir.equals(that.generatedIndexesOutputDir) : that.generatedIndexesOutputDir != null)
+			return false;
+		if (generatedIndexesOutputFilename != null ? !generatedIndexesOutputFilename.equals(that.generatedIndexesOutputFilename) : that.generatedIndexesOutputFilename != null)
+			return false;
+		if (neo4jHaPropertiesFile != null ? !neo4jHaPropertiesFile.equals(that.neo4jHaPropertiesFile) : that.neo4jHaPropertiesFile != null)
+			return false;
+		if (!driverName.equals(that.driverName)) return false;
+		return credentials != null ? credentials.equals(that.credentials) : that.credentials == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = uri.hashCode();
+		result = 31 * result + connectionPoolSize;
+		result = 31 * result + (encryptionLevel != null ? encryptionLevel.hashCode() : 0);
+		result = 31 * result + (trustStrategy != null ? trustStrategy.hashCode() : 0);
+		result = 31 * result + (trustCertFile != null ? trustCertFile.hashCode() : 0);
+		result = 31 * result + (autoIndex != null ? autoIndex.hashCode() : 0);
+		result = 31 * result + (generatedIndexesOutputDir != null ? generatedIndexesOutputDir.hashCode() : 0);
+		result = 31 * result + (generatedIndexesOutputFilename != null ? generatedIndexesOutputFilename.hashCode() : 0);
+		result = 31 * result + (neo4jHaPropertiesFile != null ? neo4jHaPropertiesFile.hashCode() : 0);
+		result = 31 * result + driverName.hashCode();
+		result = 31 * result + (credentials != null ? credentials.hashCode() : 0);
+		return result;
 	}
 
 	public static class Builder {

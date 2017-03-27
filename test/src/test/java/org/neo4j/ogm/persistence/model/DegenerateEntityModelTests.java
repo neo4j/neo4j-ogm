@@ -26,7 +26,6 @@ import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-import org.neo4j.ogm.transaction.Transaction;
 
 /**
  * These tests are to establish the behaviour of degenerate entity models
@@ -52,29 +51,27 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
         session = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.filesystem").openSession();
         session.purgeDatabase();
 
-        try(Transaction transaction = session.beginTransaction();) {
-            Result executionResult = getGraphDatabaseService().execute(
-                    "CREATE (f:Folder { name: 'f' } )" +
-                            "CREATE (a:Document { name: 'a' } ) " +
-                            "CREATE (b:Document { name: 'b' } ) " +
-                            "CREATE (f)-[:CONTAINS]->(a) " +
-                            "CREATE (f)-[:CONTAINS]->(b) " +
-                            "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
+        Result executionResult = getGraphDatabaseService().execute(
+                "CREATE (f:Folder { name: 'f' } )" +
+                        "CREATE (a:Document { name: 'a' } ) " +
+                        "CREATE (b:Document { name: 'b' } ) " +
+                        "CREATE (f)-[:CONTAINS]->(a) " +
+                        "CREATE (f)-[:CONTAINS]->(b) " +
+                        "RETURN id(f) AS fid, id(a) AS aid, id(b) AS bid");
 
-            Map<String, Object> resultSet = executionResult.next();
+        Map<String, Object> resultSet = executionResult.next();
 
-            a = session.load(Document.class, (Long) resultSet.get("aid"));
+        a = session.load(Document.class, (Long) resultSet.get("aid"));
 
-            Document b = session.load(Document.class, (Long) resultSet.get("bid"));
+        Document b = session.load(Document.class, (Long) resultSet.get("bid"));
 
-            f = session.load(Folder.class, (Long) resultSet.get("fid"));
+        f = session.load(Folder.class, (Long) resultSet.get("fid"));
 
-            f.getDocuments().add(a);
-            f.getDocuments().add(b);
+        f.getDocuments().add(a);
+        f.getDocuments().add(b);
 
-            a.setFolder(f);
-            b.setFolder(f);
-        }
+        a.setFolder(f);
+        b.setFolder(f);
     }
 
 

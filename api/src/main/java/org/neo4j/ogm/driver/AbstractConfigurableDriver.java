@@ -13,8 +13,6 @@
 
 package org.neo4j.ogm.driver;
 
-import java.net.URI;
-
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.transaction.TransactionManager;
 
@@ -49,5 +47,10 @@ public abstract class AbstractConfigurableDriver implements Driver {
 	public void setTransactionManager(TransactionManager transactionManager) {
 		assert (transactionManager != null);
 		this.transactionManager = transactionManager;
+	}
+
+	@Override
+	public Configuration getConfiguration() {
+		return configuration;
 	}
 }

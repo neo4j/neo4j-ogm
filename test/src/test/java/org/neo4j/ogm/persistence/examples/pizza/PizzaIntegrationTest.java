@@ -33,12 +33,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class PizzaIntegrationTest extends MultiDriverTestClass {
 
-    private SessionFactory sessionFactory;
+    private SessionFactory sessionFactory  = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.pizza");
     private Session session;
 
     @Before
     public void init() throws IOException {
-        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.pizza");
         session = sessionFactory.openSession();
     }
 

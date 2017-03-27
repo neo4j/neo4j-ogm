@@ -36,6 +36,7 @@ public class CanonicalTest extends MultiDriverTestClass {
     @Before
     public void init() {
         session = new SessionFactory(baseConfiguration.build(),"org.neo4j.ogm.domain.canonical").openSession();
+        session.purgeDatabase();
     }
 
     /**

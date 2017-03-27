@@ -22,7 +22,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.domain.social.User;
@@ -32,23 +31,23 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.Utils;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 import org.neo4j.ogm.transaction.Transaction;
 
 /**
+ * This test class is converted from the AbstractDriverTestSuite to use the test harness in use by toher tests
+ *
  * @author vince
  *         Do not rename this class to end with *Test, or certain test packages might try to execute it.
  */
-public abstract class AbstractDriverTestSuite {
+public class BasicDriverTest extends MultiDriverTestClass {
 
     private SessionFactory sessionFactory;
-
-    protected abstract Configuration getConfiguration();
-
     private Session session;
 
     @Before
     public void init() {
-        sessionFactory = new SessionFactory(getConfiguration(), "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(baseConfiguration.build(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }

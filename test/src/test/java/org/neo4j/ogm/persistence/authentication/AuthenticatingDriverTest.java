@@ -39,37 +39,37 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
 	private Session session;
 
-	@Before
-	public void beforeMethod() {
-		assumeTrue(DriverManager.getDriver() instanceof HttpDriver);
-	}
-
 	@Test
 	public void testUnauthorizedDriver() {
 
-		session = new SessionFactory( baseConfiguration.credentials("", "").build(), "dummy").openSession();
+		if (DriverManager.getDriver() instanceof HttpDriver) {
+			session = new SessionFactory( baseConfiguration.credentials("", "").build(), "dummy").openSession();
 
-		try (Transaction tx = session.beginTransaction()) {
-			tx.commit();
-			fail("Driver should not have authenticated");
-		} catch (Exception rpe) {
-			Throwable cause = rpe.getCause();
-			while (!(cause instanceof HttpResponseException)) {
-				cause = cause.getCause();
+			try (Transaction tx = session.beginTransaction()) {
+				tx.commit();
+				fail("Driver should not have authenticated");
+			} catch (Exception rpe) {
+				Throwable cause = rpe.getCause();
+				while (!(cause instanceof HttpResponseException)) {
+					cause = cause.getCause();
+				}
+				assertTrue(cause.getMessage().startsWith("Invalid username or password"));
 			}
-			assertTrue(cause.getMessage().startsWith("Invalid username or password"));
 		}
 	}
 
 	@Test
 	public void testAuthorizedDriver() {
 
-		session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
+		if (DriverManager.getDriver() instanceof HttpDriver) {
 
-		try (Transaction ignored = session.beginTransaction()) {
-			assertNotNull(ignored);
-		} catch (Exception rpe) {
-			fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
+			session = new SessionFactory(baseConfiguration.build(), "dummy").openSession();
+
+			try (Transaction ignored = session.beginTransaction()) {
+				assertNotNull(ignored);
+			} catch (Exception rpe) {
+				fail("'" + rpe.getLocalizedMessage() + "' was not expected here");
+			}
 		}
 	}
 
@@ -79,16 +79,19 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 	@Test
 	public void testInvalidCredentials() {
 
-		session = new SessionFactory( baseConfiguration.credentials("neo4j", "invalid_password").build(), "dummy").openSession();
+		if (DriverManager.getDriver() instanceof HttpDriver) {
 
-		try (Transaction tx = session.beginTransaction()) {
-			fail("Driver should not have authenticated");
-		} catch (Exception rpe) {
-			Throwable cause = rpe.getCause();
-			while (!(cause instanceof HttpResponseException)) {
-				cause = cause.getCause();
+			session = new SessionFactory(baseConfiguration.credentials("neo4j", "invalid_password").build(), "dummy").openSession();
+
+			try (Transaction tx = session.beginTransaction()) {
+				fail("Driver should not have authenticated");
+			} catch (Exception rpe) {
+				Throwable cause = rpe.getCause();
+				while (!(cause instanceof HttpResponseException)) {
+					cause = cause.getCause();
+				}
+				assertEquals("Invalid username or password.", cause.getMessage());
 			}
-			assertEquals("Invalid username or password.", cause.getMessage());
 		}
 	}
 }

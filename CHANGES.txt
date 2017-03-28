@@ -1,8 +1,18 @@
-3.0.0-SNAPSHOT
+3.0.0-M01
 --------------
 o Primary index annotations are picked up on the whole class class hierarchy, not only on leaf class. Fixes #332.
 o Support Neo4j 3.1.2
 o Fixes issue where the X-Write header is wrong on read-only transactions first request. Fixes #323.
+o Improve test infrastructure. Test servers are now reused when possible.
+o Exclude slf4j-nop from transitive dependencies.
+o Introduce new annotations @Id and @Generated for better identity handling.
+o Performance improvements when loading large number of relationships. #327.
+o Use fast-classpath-scanner to read mapping metadata. #327.
+o Look for primary indexes on class hierarchy and not only on leaf class. Fixes #332.
+o Removed username/password from logging. Fixes #330.
+o Improved the way configuration.
+o Filters are now immutable.
+
 
 2.1.2
 --------------

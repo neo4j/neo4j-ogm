@@ -16,6 +16,7 @@ package org.neo4j.ogm.config;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.neo4j.ogm.session.Neo4jException;
 
 /**
  * @author vince
@@ -65,6 +66,12 @@ public class ConfigurationTest {
 		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
 		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
 		assertEquals("http://localhost:7474", configuration.getURI());
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void uriWithNoScheme() {
+		Configuration configuration = new Configuration.Builder().uri("target/noe4j/my.db").build();
+		fail("Should have thrown a runtime exception about a missing URI Scheme");
 	}
 
 	@Test

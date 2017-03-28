@@ -129,6 +129,11 @@ public class Configuration {
 	}
 
 	private void determineDefaultDriverName(String scheme) {
+
+		if (scheme == null) {
+			throw new RuntimeException("A URI Scheme must be one of http/https, bolt or file.");
+		}
+
 		switch (scheme) {
 			case "http":
 			case "https":

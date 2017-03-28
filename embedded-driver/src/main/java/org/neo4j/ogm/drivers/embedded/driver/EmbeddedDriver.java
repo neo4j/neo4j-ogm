@@ -49,23 +49,8 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     public EmbeddedDriver() {
     }
 
-    /**
-     * This constructor allows the user to pass in an existing
-     * Graph database service, e.g. if user code is running as an extension inside
-     * an existing Neo4j server
-     *
-     * @param graphDatabaseService the embedded database instance
-     */
-    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
-        close();
-        this.graphDatabaseService = graphDatabaseService;
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
-    }
-
     @Override
     public synchronized void configure(Configuration config) {
-
-        close();  // force any existing graph database to shutdown
 
         super.configure(config);
 

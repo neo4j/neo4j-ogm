@@ -49,12 +49,12 @@ public class TestServer {
 	private String password;
 	private String uri;
 
-	private TestServer(Builder builder) {
+	TestServer(boolean enableAuthentication, boolean enableBolt, int transactionTimeoutSeconds) {
 
-		this.port = builder.port == null ? TestUtils.getAvailablePort() : builder.port;
-		this.transactionTimeoutSeconds = builder.transactionTimeoutSeconds;
-		this.enableAuthentication = builder.enableAuthentication;
-		this.enableBolt = builder.enableBolt;
+		this.port = TestUtils.getAvailablePort();
+		this.transactionTimeoutSeconds = transactionTimeoutSeconds;
+		this.enableAuthentication = enableAuthentication;
+		this.enableBolt = enableBolt;
 
 		startServer();
 
@@ -134,7 +134,7 @@ public class TestServer {
 	/**
 	 * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
 	 */
-	public void shutdown() {
+	private void shutdown() {
 
 		if (database != null && database.isAvailable(100)) {
 			LOGGER.info("Stopping {} server on: {}", enableBolt ? "BOLT": "HTTP", port);
@@ -193,37 +193,5 @@ public class TestServer {
 
 	public String getUsername() {
 		return username;
-	}
-
-	public static class Builder {
-
-		private Integer port = null;
-		private Integer transactionTimeoutSeconds = 60;
-		private boolean enableAuthentication = false;
-		private boolean enableBolt = false;
-
-		public Builder port(int port) {
-			this.port = port;
-			return this;
-		}
-
-		public Builder transactionTimeoutSeconds(int transactionTimeoutSeconds) {
-			this.transactionTimeoutSeconds = transactionTimeoutSeconds;
-			return this;
-		}
-
-		public Builder enableAuthentication(boolean enableAuthentication) {
-			this.enableAuthentication = enableAuthentication;
-			return this;
-		}
-
-		public Builder enableBolt(boolean enableBolt) {
-			this.enableBolt = enableBolt;
-			return this;
-		}
-
-		public TestServer build() {
-			return new TestServer(this);
-		}
 	}
 }

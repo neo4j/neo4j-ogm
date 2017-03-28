@@ -25,7 +25,6 @@ import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
-import org.neo4j.test.TestGraphDatabaseFactory;
 
 
 /**
@@ -35,18 +34,12 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 public class MultiDriverTestClass {
 
 	private static TestServer testServer;
-	private static GraphDatabaseService impermanentDb;
 	private static File graphStore;
-	private static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
+	private static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource("ogm.properties"));
 
 	static {
-		testServer = new TestServer.Builder()
-				.enableAuthentication(true)
-				.enableBolt(true)
-				.transactionTimeoutSeconds(5)
-				.build();
+		testServer = new TestServer(true, true, 5);
 		graphStore = createTemporaryGraphStore();
-		impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
 	}
 
 	@BeforeClass
@@ -72,18 +65,6 @@ public class MultiDriverTestClass {
 		}
 		// else (bolt, http), return just a test server (not really used except for indices ?)
 		return testServer.getGraphDatabaseService();
-	}
-
-	private static String configFileName() {
-		String configFileName = System.getenv("ogm.properties");
-
-		if (configFileName == null) {
-			configFileName = System.getProperty("ogm.properties");
-			if (configFileName == null) {
-				configFileName = "ogm.properties";
-			}
-		}
-		return configFileName;
 	}
 
 	private static File createTemporaryGraphStore() {

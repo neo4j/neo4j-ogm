@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.cypher.ComparisonOperator;
@@ -42,12 +43,16 @@ import org.neo4j.ogm.transaction.Transaction;
  */
 public class BasicDriverTest extends MultiDriverTestClass {
 
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
     private Session session;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.social");
+    }
 
     @Before
     public void init() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.social");
         session = sessionFactory.openSession();
         session.purgeDatabase();
     }

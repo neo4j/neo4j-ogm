@@ -66,6 +66,8 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
+        // TODO: This if check is only required because of testing of the embedded driver.
+        // TODO: Our tests shouldn't switch driver type halfway through.
         if (DriverManager.getDriver() == null || DriverManager.getDriver().getConfiguration() ==null
                 || !DriverManager.getDriver().getConfiguration().equals(configuration)) {
             // configuration has changed : switch the driver

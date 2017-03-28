@@ -42,6 +42,7 @@ public class DualTargetEntityRelationshipTest extends MultiDriverTestClass {
     @Before
     public void init() throws IOException {
         session = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.mappings").openSession();
+		session.purgeDatabase();
     }
 
     /**

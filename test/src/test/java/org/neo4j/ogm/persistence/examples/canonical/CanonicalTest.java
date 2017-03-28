@@ -44,6 +44,7 @@ public class CanonicalTest extends MultiDriverTestClass {
     @Before
     public void init() {
         session = sessionFactory.openSession();
+		session.purgeDatabase();
     }
 
     /**

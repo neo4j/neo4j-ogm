@@ -66,8 +66,12 @@ public class SessionFactory {
      * @param packages The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
-        DriverManager.register(configuration.getDriverClassName());
-        DriverManager.getDriver().configure(configuration);
+        if (DriverManager.getDriver() == null || DriverManager.getDriver().getConfiguration() ==null
+                || !DriverManager.getDriver().getConfiguration().equals(configuration)) {
+            // configuration has changed : switch the driver
+            DriverManager.register(configuration.getDriverClassName());
+            DriverManager.getDriver().configure(configuration);
+        }
         this.metaData = new MetaData(packages);
         AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
         autoIndexManager.build();

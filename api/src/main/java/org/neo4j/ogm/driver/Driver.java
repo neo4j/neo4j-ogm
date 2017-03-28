@@ -33,4 +33,6 @@ public interface Driver extends AutoCloseable {
     Request request();
 
     void setTransactionManager(TransactionManager tx);
+
+    Configuration getConfiguration();
 }

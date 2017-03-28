@@ -60,6 +60,7 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
     public void init() throws IOException {
         session = sessionFactory.openSession();
         session.purgeDatabase();
+
         Result executionResult = getGraphDatabaseService().execute(
                 "CREATE (f:Folder { name: 'f' } )" +
                         "CREATE (a:Document { name: 'a' } ) " +

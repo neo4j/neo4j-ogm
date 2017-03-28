@@ -17,14 +17,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
+import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
@@ -38,68 +37,41 @@ public class MultiDriverTestClass {
 	private static TestServer testServer;
 	private static GraphDatabaseService impermanentDb;
 	private static File graphStore;
-	private static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource("ogm.properties"));
+	private static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName()));
+
+	static {
+		testServer = new TestServer.Builder()
+				.enableAuthentication(true)
+				.enableBolt(true)
+				.transactionTimeoutSeconds(5)
+				.build();
+		graphStore = createTemporaryGraphStore();
+		impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
+	}
 
 	@BeforeClass
 	public static void setupMultiDriverTestEnvironment() {
 
 		if (baseConfiguration.build().getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
-			testServer = new TestServer.Builder()
-					.enableAuthentication(true)
-					.enableBolt(false)
-					.transactionTimeoutSeconds(5)
-					.build();
 			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		} else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
-			testServer = new TestServer.Builder()
-					.enableBolt(true)
-					.transactionTimeoutSeconds(5)
-					.build();
 			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		} else {
-			graphStore = createTemporaryGraphStore();
-			impermanentDb = new TestGraphDatabaseFactory().newImpermanentDatabase(graphStore);
 			baseConfiguration.uri(graphStore.toURI().toString()).build();
 		}
 	}
-
 
 	public static Configuration.Builder getBaseConfiguration() {
 		return Configuration.Builder.copy(baseConfiguration);
 	}
 
-	@AfterClass
-	public static void tearDownMultiDriverTestEnvironment() {
-		if (testServer != null) {
-			if (testServer.isRunning()) {
-				testServer.shutdown();
-			}
-			testServer = null;
-		}
-		if (impermanentDb != null) {
-			if (impermanentDb.isAvailable(1000)) {
-				impermanentDb.shutdown();
-			}
-			impermanentDb = null;
-			graphStore = null;
-			DriverManager.deregister(DriverManager.getDriver());
-		}
-	}
-
-
-	@After
-	public void tearDown() {
-		if (impermanentDb != null) {
-			DriverManager.deregister(DriverManager.getDriver());
-		}
-	}
-
-
 	public static GraphDatabaseService getGraphDatabaseService() {
-		if (testServer != null) {
-			return testServer.getGraphDatabaseService();
+		// if using an embedded config, return the db from the driver
+		if (baseConfiguration.build().getURI().startsWith("file")) {
+			return ((EmbeddedDriver) DriverManager.getDriver()).getGraphDatabaseService();
 		}
-		return impermanentDb;
+		// else (bolt, http), return just a test server (not really used except for indices ?)
+		return testServer.getGraphDatabaseService();
 	}
 
 	private static String configFileName() {

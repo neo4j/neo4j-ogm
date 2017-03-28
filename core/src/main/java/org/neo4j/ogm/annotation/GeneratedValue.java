@@ -14,6 +14,12 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = ElementType.FIELD)
-public @interface Generated {
+public @interface GeneratedValue {
 
+	/**
+	 * (Optional) The primary key generation strategy
+	 * that the persistence provider must use to
+	 * generate the annotated entity id.
+	 */
+	GenerationType strategy() default GenerationType.NEO4J_INTERNAL_ID;
 }

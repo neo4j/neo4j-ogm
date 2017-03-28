@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Represents the primary unique constraint used to reference an EntityNode.
  *
+ * @since 3.0
  * @author Mark Angrish
  */
 @Retention(RetentionPolicy.RUNTIME)

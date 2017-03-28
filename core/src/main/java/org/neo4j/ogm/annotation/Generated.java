@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
  * Used to generate an ID. Must be used with the <code>@Id</code> annotation.
  *
  * Currently the two supported strategies are UUID and Internal Neo4j Id.
+ *
+ * @since 3.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = ElementType.FIELD)

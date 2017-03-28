@@ -5,13 +5,13 @@ o Support Neo4j 3.1.2
 o Fixes issue where the X-Write header is wrong on read-only transactions first request. Fixes #323.
 o Improve test infrastructure. Test servers are now reused when possible.
 o Exclude slf4j-nop from transitive dependencies.
-o Introduce new annotations @Id and @Generated for better identity handling.
+o Improve identity handling and allow custom id generation (introduce new annotations @Id and @Generated). #344.
 o Performance improvements when loading large number of relationships. #327.
 o Use fast-classpath-scanner to read mapping metadata. #327.
 o Look for primary indexes on class hierarchy and not only on leaf class. Fixes #332.
 o Removed username/password from logging. Fixes #330.
-o Improved the way configuration.
-o Filters are now immutable.
+o Improve the way configuration works. #346.
+o Filters are now immutable. #345.
 
 
 2.1.2

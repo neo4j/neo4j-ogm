@@ -99,4 +99,12 @@ public abstract class ConvertibleTypes {
     public static AttributeConverter<?, ?> getByteArrayWrapperBase64Converter() {
         return new ByteArrayWrapperBase64Converter();
     }
+
+    public static AttributeConverter<?, ?> getInstantConverter() {
+        return new InstantStringConverter();
+    }
+
+    public static AttributeConverter<?, ?> getLocalDateConverter() {
+        return new LocalDateStringConverter();
+    }
 }

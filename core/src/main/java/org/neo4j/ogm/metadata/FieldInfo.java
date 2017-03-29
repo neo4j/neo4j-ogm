@@ -96,7 +96,7 @@ public class FieldInfo {
         this.typeParameterDescriptor = typeParameterDescriptor;
         this.annotations = annotations;
         if (!this.annotations.isEmpty()) {
-            Object converter = getAnnotations().getConverter();
+            Object converter = getAnnotations().getConverter(this.fieldType);
             if (converter instanceof AttributeConverter) {
                 setPropertyConverter((AttributeConverter<?, ?>) converter);
             } else if (converter instanceof CompositeAttributeConverter) {

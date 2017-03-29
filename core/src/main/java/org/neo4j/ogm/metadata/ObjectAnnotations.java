@@ -13,14 +13,12 @@
 
 package org.neo4j.ogm.metadata;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.typeconversion.*;
-import org.neo4j.ogm.typeconversion.DateLongConverter;
-import org.neo4j.ogm.typeconversion.DateStringConverter;
-import org.neo4j.ogm.typeconversion.EnumStringConverter;
-import org.neo4j.ogm.typeconversion.NumberStringConverter;
+import org.neo4j.ogm.typeconversion.*;
 
 /**
  * @author Vince Bickers
@@ -45,7 +43,7 @@ public class ObjectAnnotations {
         return annotations.isEmpty();
     }
 
-    Object getConverter() {
+    Object getConverter(Class<?> fieldType) {
 
         // try to get a custom type converter
         AnnotationInfo customType = get(Convert.class);
@@ -66,6 +64,9 @@ public class ObjectAnnotations {
         // try to find a pre-registered type annotation. this is very clumsy, but at least it is done only once
         AnnotationInfo dateLongConverterInfo = get(DateLong.class);
         if (dateLongConverterInfo != null) {
+            if (fieldType.equals(Instant.class)) {
+                return new InstantLongConverter();
+            }
             return new DateLongConverter();
         }
 

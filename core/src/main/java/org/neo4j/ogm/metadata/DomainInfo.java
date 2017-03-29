@@ -40,6 +40,8 @@ public class DomainInfo {
     private static final String BIG_INTEGER_SIGNATURE = "java.math.BigInteger";
     private static final String BYTE_ARRAY_SIGNATURE = "byte[]";
     private static final String BYTE_ARRAY_WRAPPER_SIGNATURE = "java.lang.Byte[]";
+    private static final String INSTANT_SIGNATURE = "java.time.Instant";
+    private static final String LOCAL_DATE_SIGNATURE = "java.time.LocalDate";
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
@@ -305,6 +307,10 @@ public class DomainInfo {
                 setBigIntegerFieldConverter(fieldInfo);
             } else if (typeDescriptor.contains(BIG_DECIMAL_SIGNATURE)) {
                 setBigDecimalConverter(fieldInfo);
+            } else if (typeDescriptor.contains(INSTANT_SIGNATURE)) {
+                setInstantConverter(fieldInfo);
+            } else if (typeDescriptor.contains(LOCAL_DATE_SIGNATURE)) {
+                setLocalDateConverter(fieldInfo);
             } else if (typeDescriptor.contains(BYTE_ARRAY_SIGNATURE)) {
                 fieldInfo.setPropertyConverter(ConvertibleTypes.getByteArrayBase64Converter());
             } else if (typeDescriptor.contains(BYTE_ARRAY_WRAPPER_SIGNATURE)) {
@@ -386,6 +392,14 @@ public class DomainInfo {
         } else {
             fieldInfo.setPropertyConverter(ConvertibleTypes.getDateConverter());
         }
+    }
+
+    private void setInstantConverter(FieldInfo fieldInfo) {
+        fieldInfo.setPropertyConverter(ConvertibleTypes.getInstantConverter());
+    }
+
+    private void setLocalDateConverter(FieldInfo fieldInfo) {
+        fieldInfo.setPropertyConverter(ConvertibleTypes.getLocalDateConverter());
     }
 
     // leaky for spring

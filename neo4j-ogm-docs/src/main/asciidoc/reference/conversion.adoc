@@ -9,6 +9,8 @@ The object-graph mapping framework provides support for default and bespoke type
 Neo4j OGM will automatically perform the following type conversions:
 
 * `java.util.Date` to a String in the ISO 8601 format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+* `java.time.Instant` to a String in the ISO 8601 with timezone format: "yyyy-MM-dd'T'HH:mm:ss.SSSXXXZ"
+* `java.time.LocalDate` to a String in the ISO 8601 with format: "yyyy-MM-dd"
 * Any object that extends `java.lang.Number` to a String property
 * binary data (as byte[] or Byte[]) to base-64 String as Cypher does not support byte arrays
 * `java.lang.Enum` types using the enum's `name()` method and `Enum.valueOf()`
@@ -31,7 +33,7 @@ public class MyEntity {
 }
 ----
 
-Alternatively, if you want to store Dates as long values, use the `@DateLong` annotation:
+Alternatively, if you want to store `java.util.Date` or `java.time.Instant` as long values, use the `@DateLong` annotation:
 
 .Example of date stored as a long value
 [source, java]
@@ -42,9 +44,12 @@ public class MyEntity {
     private Date entityDate;
 }
 ----
+`java.time.Instant` dates are stored in the database using UTC.
 
 Collections of primitive or convertible values are also automatically mapped by converting them to arrays of their type or strings respectively.
 
+[NOTE]
+Collections are not supported for `java.time.Instant` and `java.time.LocalDate`
 
 [[reference:type-conversion:custom]]
 == Custom Type Conversion

@@ -1,3 +1,8 @@
+3.0.0-SNAPSHOT
+--------------
+o Add native support for java.time.Instant and java.time.Instant. Fixes #348
+
+
 3.0.0-M01
 --------------
 o Primary index annotations are picked up on the whole class class hierarchy, not only on leaf class. Fixes #332.

@@ -11,20 +11,27 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.annotation.typeconversion;
+package org.neo4j.ogm.domain.convertible.date;
 
-import java.lang.annotation.*;
+import java.time.Instant;
+
+import org.neo4j.ogm.typeconversion.AttributeConverter;
+import org.neo4j.ogm.typeconversion.DateStringConverter;
 
 /**
- * Indicates OGM to store dates as long in the database.
- * Applicable to `java.util.Date` and `java.time.Instant`
- *
  * @author Vince Bickers
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-@Inherited
-public @interface DateLong {
+public class InstantStringConverter implements AttributeConverter<Instant, String> {
 
+    private final DateStringConverter converter = new DateStringConverter("yyyyMMddhhmmss");
+
+    @Override
+    public String toGraphProperty(Instant value) {
+        return null;
+    }
+
+    @Override
+    public Instant toEntityAttribute(String value) {
+        return null;
+    }
 }
-

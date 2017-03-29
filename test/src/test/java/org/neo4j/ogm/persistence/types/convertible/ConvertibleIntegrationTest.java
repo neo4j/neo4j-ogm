@@ -20,6 +20,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.junit.After;
@@ -28,11 +32,13 @@ import org.junit.Test;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.convertible.date.Java8DatesMemo;
 import org.neo4j.ogm.domain.convertible.date.Memo;
 import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.convertible.enums.Gender;
 import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -144,10 +150,31 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertEquals(date100000.get(Calendar.YEAR), loadedCal.get(Calendar.YEAR));
     }
 
+    @Test
+    public void shouldSaveAndRetrieveJava8Dates() {
 
-    /**
-     * @see DATAGRAPH-550
-     */
+        Instant instant = Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2007-12-03T10:15:30.001+01:00"));
+
+        Java8DatesMemo java8DatesMemo = new Java8DatesMemo(instant);
+        session.save(java8DatesMemo);
+        session.clear();
+
+        Result result = session.query("MATCH (m:Java8DatesMemo) return m.recorded, m.closed, m.approved", Collections.emptyMap());
+        Map<String, Object> record = result.queryResults().iterator().next();
+        assertEquals("2007-12-03T09:15:30.001Z", record.get("m.recorded"));
+        assertEquals(1196673330001L, record.get("m.closed"));
+        assertEquals("2007-12-03", record.get("m.approved"));
+
+        Java8DatesMemo memo = session.loadAll(Java8DatesMemo.class).iterator().next();
+        assertEquals(instant, memo.getRecorded());
+        assertEquals(instant, memo.getClosed());
+        assertEquals(LocalDateTime.ofInstant(instant, ZoneOffset.UTC).toLocalDate(), memo.getApproved());
+    }
+
+
+        /**
+		 * @see DATAGRAPH-550
+		 */
     @Test
     public void shouldSaveAndRetrieveNumbers() {
 

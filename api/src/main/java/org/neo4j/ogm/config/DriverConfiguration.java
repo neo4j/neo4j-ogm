@@ -62,6 +62,7 @@ public class DriverConfiguration {
             if (userInfo != null) {
                 String[] userPass = userInfo.split(":");
                 setCredentials(userPass[0], userPass[1]);
+                configuration.set(URI[0], removePasswordFromUri(uri));
             }
             if (configuration.driverConfiguration().getDriverClassName() == null) {
                 determineDefaultDriverName(url);
@@ -70,6 +71,10 @@ public class DriverConfiguration {
             // do nothing here. user not obliged to supply a URL, or to pass in credentials
         }
         return this;
+    }
+
+    private String removePasswordFromUri(String uri) {
+        return uri.replaceFirst("[^/^:]+:[^:^@^/]+@", "");
     }
 
     public DriverConfiguration setCredentials(Credentials credentials) {

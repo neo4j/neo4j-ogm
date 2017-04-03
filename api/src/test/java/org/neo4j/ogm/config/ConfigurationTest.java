@@ -13,7 +13,7 @@
 
 package org.neo4j.ogm.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.neo4j.ogm.autoindex.AutoIndexMode;
@@ -68,7 +68,7 @@ public class ConfigurationTest {
         assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
-        assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
+        assertEquals("http://localhost:7474", configuration.driverConfiguration().getURI());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class ConfigurationTest {
         assertEquals("generated-indexes2.cql", configuration.autoIndexConfiguration().getDumpFilename());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
-        assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
+        assertEquals("http://localhost:7474", configuration.driverConfiguration().getURI());
         assertEquals(Integer.valueOf(100), configuration.driverConfiguration().getConnectionPoolSize());
         assertEquals("NONE", configuration.driverConfiguration().getEncryptionLevel());
         assertEquals("TRUST_ON_FIRST_USE", configuration.driverConfiguration().getTrustStrategy());
@@ -99,7 +99,7 @@ public class ConfigurationTest {
         assertEquals(AutoIndexMode.NONE, configuration.autoIndexConfiguration().getAutoIndex());
         assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.driverConfiguration().getDriverClassName());
         assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.driverConfiguration().getCredentials().credentials().toString());
-        assertEquals("http://neo4j:password@localhost:7474", configuration.driverConfiguration().getURI());
+        assertEquals("http://localhost:7474", configuration.driverConfiguration().getURI());
 
     }
 

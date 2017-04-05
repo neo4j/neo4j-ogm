@@ -1,5 +1,6 @@
 2.1.3
 --------------
+o Session.loadAll(Class<T> type, Collection<ID> ids) doesn't treat ids as primaryKeys but as nodeIDs. #349
 o Do not thow NPE when entity field is not a managed type. #347
 
 

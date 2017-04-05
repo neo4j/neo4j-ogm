@@ -1,6 +1,22 @@
+/*
+ * Copyright (c) 2002-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
+ */
+
 package org.neo4j.ogm.index;
 
 import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
@@ -32,6 +48,24 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final User retrievedUser1 = session2.load(User.class, "login1");
         assertNotNull(retrievedUser1);
         assertEquals(user1.getLogin(), retrievedUser1.getLogin());
+    }
+
+    @Test
+    public void loadAllUsesPrimaryIndexWhenPresent() {
+
+		SessionFactory sessionFactory = new SessionFactory("org.neo4j.ogm.domain.cineasts.annotated");
+		final Session session = sessionFactory.openSession();
+
+		User user1 = new User("login1", "Name 1", "password");
+        session.save(user1);
+        User user2 = new User("login2", "Name 2", "password");
+        session.save(user2);
+
+        final Session session2 = sessionFactory.openSession();
+
+        final Collection<User> users = session2.loadAll(User.class, Arrays.asList("login1", "login2"));
+        assertNotNull(users);
+        assertEquals(2, users.size());
     }
 
     @Test

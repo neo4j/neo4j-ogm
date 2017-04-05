@@ -858,6 +858,11 @@ public class EntityGraphMapper implements EntityMapper {
         boolean mapBothWays = false;
 
         ClassInfo tgtInfo = metaData.classInfo(tgtObject);
+        if(tgtInfo == null) {
+            LOGGER.warn("Unable to process {} on {}. Checck the mapping.", relationshipType, srcObject.getClass());
+            // #347. attribute is not a rel ? maybe would be better to change FieldInfo.persistableAsProperty ?
+            return false;
+        }
         for (FieldInfo tgtRelReader : tgtInfo.relationshipFields()) {
             String tgtRelationshipDirection = tgtRelReader.relationshipDirection();
             if ((tgtRelationshipDirection.equals(Relationship.OUTGOING) || tgtRelationshipDirection.equals(Relationship.INCOMING)) //The relationship direction must be explicitly incoming or outgoing

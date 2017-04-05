@@ -157,6 +157,8 @@ public class FieldInfo {
         return annotations;
     }
 
+    // should be improved, as unmanaged types (like ZonedDateTime) are not detected as property but as relationship
+    // see #347
     public boolean persistableAsProperty() {
 
         return PRIMITIVES.contains(descriptor)

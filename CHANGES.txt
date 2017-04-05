@@ -1,7 +1,7 @@
 3.0.0-SNAPSHOT
 --------------
 o Add native support for java.time.Instant and java.time.Instant. Fixes #348
-
+o Do not thow NPE when entity field is not a managed type. #347
 
 3.0.0-M01
 --------------

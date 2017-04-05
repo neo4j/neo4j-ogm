@@ -44,7 +44,11 @@ public class LoadOneDelegate {
 
     public <T, ID extends Serializable> T load(Class<T> type, ID id, int depth) {
 
-        final FieldInfo primaryIndexField = session.metaData().classInfo(type.getName()).primaryIndexField();
+        ClassInfo classInfo = session.metaData().classInfo(type.getName());
+        if (classInfo == null) {
+            throw new IllegalArgumentException(type + " is not a managed entity.");
+        }
+        final FieldInfo primaryIndexField = classInfo.primaryIndexField();
         if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
             throw new Neo4jException("Supplied id does not match primary index type on supplied class.");
         }

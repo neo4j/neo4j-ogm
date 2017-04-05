@@ -83,7 +83,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
-            return InfiniteDepthReadStrategy.findAllByLabel(label, ids);
+            return InfiniteDepthReadStrategy.findAllByLabel(label, ids, primaryIndex);
         }
         if (max > 0) {
             String qry;
@@ -94,7 +94,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             }
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
-            return DepthZeroReadStrategy.findAllByLabel(label, ids);
+            return DepthZeroReadStrategy.findAllByLabel(label, ids, primaryIndex);
         }
     }
 
@@ -155,8 +155,14 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) IN { ids } RETURN n", Utils.map("ids", ids));
         }
 
-        public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids) {
-            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } RETURN n", label), Utils.map("ids", ids));
+        public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids, String primaryIndex) {
+            String queryString;
+            if (primaryIndex != null) {
+                queryString = String.format("MATCH (n:`%s`) WHERE n." + primaryIndex + " IN { ids } RETURN n", label);
+            } else {
+                queryString = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } RETURN n", label);
+            }
+            return new DefaultGraphModelRequest(queryString, Utils.map("ids", ids));
         }
 
 
@@ -184,8 +190,14 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             return new DefaultGraphModelRequest("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", Utils.map("ids", ids));
         }
 
-        public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids) {
-            return new DefaultGraphModelRequest(String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label), Utils.map("ids", ids));
+        public static <ID extends Serializable> DefaultGraphModelRequest findAllByLabel(String label, Collection<ID> ids, String primaryIndex) {
+            String queryString;
+            if (primaryIndex != null) {
+                queryString = String.format("MATCH (n:`%s`) WHERE n." + primaryIndex + " IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label);
+            } else {
+                queryString = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", label);
+            }
+            return new DefaultGraphModelRequest(queryString, Utils.map("ids", ids));
         }
 
         public static  DefaultGraphModelRequest findByLabel(String label) {

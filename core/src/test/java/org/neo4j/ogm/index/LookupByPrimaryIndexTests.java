@@ -61,10 +61,16 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         User user2 = new User("login2", "Name 2", "password");
         session.save(user2);
 
-        final Session session2 = sessionFactory.openSession();
+        session.clear();
+        Collection<User> users = session.loadAll(User.class, Arrays.asList("login1", "login2"));
+        assertEquals(2, users.size());
 
-        final Collection<User> users = session2.loadAll(User.class, Arrays.asList("login1", "login2"));
-        assertNotNull(users);
+        session.clear();
+        users = session.loadAll(User.class, Arrays.asList("login1", "login2"), 0);
+        assertEquals(2, users.size());
+
+        session.clear();
+        users = session.loadAll(User.class, Arrays.asList("login1", "login2"), -1);
         assertEquals(2, users.size());
     }
 

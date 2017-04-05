@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2002-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * This product is licensed to you under the Apache License, Version 2.0 (the "License").
+ * You may not use this product except in compliance with the License.
+ *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
+ */
+
 package org.neo4j.ogm.metadata;
 
 import static org.junit.Assert.*;
@@ -7,7 +20,6 @@ import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.autoindex.valid.Invoice;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
@@ -51,7 +63,6 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     }
 
     @Test
-    @Ignore("Bug to fix - issue #349") // FIXME https://github.com/neo4j/neo4j-ogm/issues/349
     public void loadAllUsesPrimaryIndexWhenPresent() {
 
         User user1 = new User("login1", "Name 1", "password");

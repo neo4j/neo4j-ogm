@@ -8,7 +8,7 @@
  * This product may include a number of subcomponents with
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
- *  conditions of the subcomponent's license, as noted in the LICENSE file.
+ * conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
 package org.neo4j.ogm.session.request.strategy.impl;
@@ -29,6 +29,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Vince Bickers
  * @author Luanne Misquitta
  * @author Mark Angrish
+ * @author Nicolas Mervaillie
  */
 public class NodeQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
@@ -85,7 +86,12 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             return InfiniteDepthReadStrategy.findAllByLabel(label, ids);
         }
         if (max > 0) {
-            String qry = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+            String qry;
+            if (primaryIndex != null) {
+                qry = String.format("MATCH (n:`%s`) WHERE n." + primaryIndex + " IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+            } else {
+                qry = String.format("MATCH (n:`%s`) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", label, min, max);
+            }
             return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             return DepthZeroReadStrategy.findAllByLabel(label, ids);

@@ -12,6 +12,11 @@
  */
 package org.neo4j.ogm.persistence.model;
 
+import static org.junit.Assert.*;
+import static org.neo4j.ogm.testutil.GraphTestUtils.*;
+
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,6 +27,7 @@ import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.context.EntityGraphMapper;
 import org.neo4j.ogm.context.EntityMapper;
 import org.neo4j.ogm.context.MappingContext;
+import org.neo4j.ogm.domain.blog.Post;
 import org.neo4j.ogm.domain.education.Course;
 import org.neo4j.ogm.domain.education.School;
 import org.neo4j.ogm.domain.education.Student;
@@ -32,6 +38,7 @@ import org.neo4j.ogm.domain.forum.Topic;
 import org.neo4j.ogm.domain.policy.Person;
 import org.neo4j.ogm.domain.policy.Policy;
 import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.domain.types.EntityWithUnmanagedFieldType;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.Session;
@@ -39,11 +46,6 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.session.request.RowStatementFactory;
 import org.neo4j.ogm.testutil.GraphTestUtils;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.neo4j.ogm.testutil.GraphTestUtils.assertSameGraph;
 
 /**
  * @author Adam George
@@ -78,7 +80,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     public void setUpMapper() {
         sessionFactory = new SessionFactory("org.neo4j.ogm.domain.policy",
                 "org.neo4j.ogm.domain.election", "org.neo4j.ogm.domain.forum",
-                "org.neo4j.ogm.domain.education");
+                "org.neo4j.ogm.domain.education", "org.neo4j.ogm.domain.types");
         mappingContext.clear();
         this.mapper = new EntityGraphMapper(mappingMetadata, mappingContext);
         session = sessionFactory.openSession();
@@ -749,6 +751,24 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowMeaningfulErrorMessageWhenLoadingUnscannedEntity() throws Exception {
+
+        session.load(Post.class, 1L);
+    }
+
+    // see issue #347
+    @Test
+    public void shouldNotThrowNpeOnUnknownEntityFieldType() throws Exception {
+
+        EntityWithUnmanagedFieldType entity = new EntityWithUnmanagedFieldType();
+        StringBuilder now = new StringBuilder();
+        entity.setBuilder(now);
+        session.save(entity);
+        session.clear();
+        EntityWithUnmanagedFieldType loaded = session.load(EntityWithUnmanagedFieldType.class, entity.getId());
+        assertNotNull(loaded);
+    }
 
     private void executeStatementsAndAssertSameGraph(Statements cypher, String sameGraphCypher) {
 

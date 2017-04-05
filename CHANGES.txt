@@ -1,3 +1,8 @@
+2.1.3
+--------------
+o Do not thow NPE when entity field is not a managed type. #347
+
+
 2.1.2
 --------------
 o Fixes issue where the X-Write header is wrong on read-only transactions first request. Fixes #323.

@@ -2,6 +2,9 @@ package org.neo4j.ogm.metadata;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -45,6 +48,22 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
         final User retrievedUser1 = session2.load(User.class, "login1");
         assertNotNull(retrievedUser1);
         assertEquals(user1.getLogin(), retrievedUser1.getLogin());
+    }
+
+    @Test
+    @Ignore("Bug to fix - issue #349") // FIXME https://github.com/neo4j/neo4j-ogm/issues/349
+    public void loadAllUsesPrimaryIndexWhenPresent() {
+
+        User user1 = new User("login1", "Name 1", "password");
+        session.save(user1);
+        User user2 = new User("login2", "Name 2", "password");
+        session.save(user2);
+
+        final Session session2 = sessionFactory.openSession();
+
+        final Collection<User> users = session2.loadAll(User.class, Arrays.asList("login1", "login2"));
+        assertNotNull(users);
+        assertEquals(2, users.size());
     }
 
     @Test

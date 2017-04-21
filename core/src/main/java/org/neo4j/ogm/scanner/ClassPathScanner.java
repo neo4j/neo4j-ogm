@@ -88,7 +88,7 @@ public class ClassPathScanner {
 
         String name = entry.getName();
 
-        LOGGER.debug("Scanning class entry: {}", name);
+        LOGGER.trace("Scanning class entry: {}", name);
 
         for (String pathToScan : classPaths) {
             if (name.contains(pathToScan)) {

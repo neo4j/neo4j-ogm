@@ -127,7 +127,7 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         Student sheila = new Student();
         sheila.setId(existingNodeId);
         sheila.setName("Sheila Smythe");
-        mappingContext.addNodeEntity(sheila, sheila.getId());
+        mappingContext.addNodeEntity(sheila);
 
         Compiler compiler = this.mapper.map(sheila).getCompiler();
         compiler.useStatementFactory(new RowStatementFactory());

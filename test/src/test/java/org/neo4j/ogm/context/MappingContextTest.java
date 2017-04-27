@@ -46,8 +46,8 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        mappingContext.addNodeEntity(jim, jim.getId());
-        mappingContext.addNodeEntity(policy, policy.getId());
+        mappingContext.addNodeEntity(jim);
+        mappingContext.addNodeEntity(policy);
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
 
         assertThat(mappingContext.getNodeEntity(jim.getId())).isEqualTo(jim);
@@ -64,8 +64,8 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        mappingContext.addNodeEntity(jim, jim.getId());
-        mappingContext.addNodeEntity(policy, policy.getId());
+        mappingContext.addNodeEntity(jim);
+        mappingContext.addNodeEntity(policy);
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
         mappingContext.removeEntity(jim);
 
@@ -89,9 +89,9 @@ public class MappingContextTest {
         Policy policy = new Policy("healthcare");
         policy.setId(2L);
 
-        mappingContext.addNodeEntity(jim, jim.getId());
-        mappingContext.addNodeEntity(another, another.getId());
-        mappingContext.addNodeEntity(policy, policy.getId());
+        mappingContext.addNodeEntity(jim);
+        mappingContext.addNodeEntity(another);
+        mappingContext.addNodeEntity(policy);
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", policy.getId(), Person.class, Policy.class));
         mappingContext.removeEntity(jim);
 
@@ -115,10 +115,10 @@ public class MappingContextTest {
         Person rik = new Person("rik");
         rik.setId(4L);
 
-        mappingContext.addNodeEntity(jim, jim.getId());
-        mappingContext.addNodeEntity(rik, rik.getId());
-        mappingContext.addNodeEntity(healthcare, healthcare.getId());
-        mappingContext.addNodeEntity(immigration, immigration.getId());
+        mappingContext.addNodeEntity(jim);
+        mappingContext.addNodeEntity(rik);
+        mappingContext.addNodeEntity(healthcare);
+        mappingContext.addNodeEntity(immigration);
 
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", healthcare.getId(), Person.class, Policy.class));
         mappingContext.addRelationship(new MappedRelationship(jim.getId(), "INFLUENCES", immigration.getId(), Person.class, Policy.class));
@@ -149,10 +149,10 @@ public class MappingContextTest {
         Person rik = new Person("rik");
         rik.setId(4L);
 
-        mappingContext.addNodeEntity(jim, jim.getId());
-        mappingContext.addNodeEntity(rik, rik.getId());
-        mappingContext.addNodeEntity(healthcare, healthcare.getId());
-        mappingContext.addNodeEntity(immigration, immigration.getId());
+        mappingContext.addNodeEntity(jim);
+        mappingContext.addNodeEntity(rik);
+        mappingContext.addNodeEntity(healthcare);
+        mappingContext.addNodeEntity(immigration);
 
         rik.setName("newRik");
 

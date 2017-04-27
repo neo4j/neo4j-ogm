@@ -31,6 +31,7 @@ import org.neo4j.ogm.request.GraphModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Vince Bickers
@@ -136,7 +137,7 @@ public class LoadByIdsDelegate {
                 return true;
             }
         }
-        Object id = classInfo.identityField().readProperty(mapped);
+        Object id = EntityUtils.getEntityId(session.metaData(), mapped);
         return ids.contains(id);
     }
 }

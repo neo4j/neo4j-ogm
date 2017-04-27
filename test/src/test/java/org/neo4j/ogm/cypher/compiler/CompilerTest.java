@@ -137,7 +137,7 @@ public class CompilerTest {
         Long sid = 0L;
         sheila.setId(sid);
 
-        mappingContext.addNodeEntity(sheila, sid);
+        mappingContext.addNodeEntity(sheila);
 
         // now update the object's properties locally
         sheila.setName("Sheila Smythe-Jones");
@@ -158,7 +158,7 @@ public class CompilerTest {
         Student sheila = new Student();
         sheila.setId(existingNodeId);
         sheila.setName("Sheila Smythe");
-        mappingContext.addNodeEntity(sheila, existingNodeId);
+        mappingContext.addNodeEntity(sheila);
 
         Compiler compiler = mapAndCompile(sheila);
         compiler.useStatementFactory(new RowStatementFactory());
@@ -212,8 +212,8 @@ public class CompilerTest {
         assertThat(waller.getTeachers().size() == 1).isTrue();
 
         // set the mapping context accordingly
-        mappingContext.addNodeEntity(mary, maryId);
-        mappingContext.addNodeEntity(waller, wallerId);
+        mappingContext.addNodeEntity(mary);
+        mappingContext.addNodeEntity(waller);
 
         mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
         mappingContext.addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
@@ -256,8 +256,8 @@ public class CompilerTest {
         assertThat(waller.getTeachers()).hasSize(1);
 
         // set the mapping context accordingly
-        mappingContext.addNodeEntity(mary, maryId);
-        mappingContext.addNodeEntity(waller, wallerId);
+        mappingContext.addNodeEntity(mary);
+        mappingContext.addNodeEntity(waller);
         mappingContext.addRelationship(new MappedRelationship(maryId, "SCHOOL", wallerId, Teacher.class, School.class));
         mappingContext.addRelationship(new MappedRelationship(wallerId, "TEACHERS", maryId, School.class, Teacher.class));
 
@@ -414,10 +414,10 @@ public class CompilerTest {
         mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", yid, Course.class, Student.class));
         mappingContext.addRelationship(new MappedRelationship(mid, "STUDENTS", zid, Course.class, Student.class));
 
-        mappingContext.addNodeEntity(xavier, xid);
-        mappingContext.addNodeEntity(yvonne, yid);
-        mappingContext.addNodeEntity(zack, zid);
-        mappingContext.addNodeEntity(music, mid);
+        mappingContext.addNodeEntity(xavier);
+        mappingContext.addNodeEntity(yvonne);
+        mappingContext.addNodeEntity(zack);
+        mappingContext.addNodeEntity(music);
 
         // now, update the domain model, setting yvonne as the only music student (i.e remove zack and xavier)
         music.setStudents(Arrays.asList(yvonne));
@@ -458,10 +458,10 @@ public class CompilerTest {
         Student shivani = new Student("Shivani");
         shivani.setId(shivaniId);
 
-        mappingContext.addNodeEntity(msThompson, teacherId);
-        mappingContext.addNodeEntity(businessStudies, businessStudiesCourseId);
-        mappingContext.addNodeEntity(designTech, designTechnologyCourseId);
-        mappingContext.addNodeEntity(shivani, shivaniId);
+        mappingContext.addNodeEntity(msThompson);
+        mappingContext.addNodeEntity(businessStudies);
+        mappingContext.addNodeEntity(designTech);
+        mappingContext.addNodeEntity(shivani);
 
         mappingContext.addRelationship(new MappedRelationship(teacherId, "COURSES", businessStudiesCourseId, Teacher.class, Course.class));
         mappingContext.addRelationship(new MappedRelationship(teacherId, "COURSES", designTechnologyCourseId, Teacher.class, Course.class));
@@ -532,9 +532,9 @@ public class CompilerTest {
         assertThat(mrWhite.getSchool()).isEqualTo(hillsRoad);
         assertThat(missJones.getSchool()).isEqualTo(hillsRoad);
 
-        mappingContext.addNodeEntity(hillsRoad, schoolId);
-        mappingContext.addNodeEntity(mrWhite, whiteId);
-        mappingContext.addNodeEntity(missJones, jonesId);
+        mappingContext.addNodeEntity(hillsRoad);
+        mappingContext.addNodeEntity(mrWhite);
+        mappingContext.addNodeEntity(missJones);
 
         mappingContext.addRelationship(new MappedRelationship(schoolId, "TEACHERS", whiteId, School.class, Teacher.class));
         mappingContext.addRelationship(new MappedRelationship(schoolId, "TEACHERS", jonesId, School.class, Teacher.class));
@@ -711,8 +711,8 @@ public class CompilerTest {
 
         forum.setTopicsInForum(Arrays.asList(link));
 
-        mappingContext.addNodeEntity(forum, forumId);
-        mappingContext.addNodeEntity(topic, topicId);
+        mappingContext.addNodeEntity(forum);
+        mappingContext.addNodeEntity(topic);
         mappingContext.addRelationshipEntity(link, relationshipId);
         MappedRelationship mappedRelationship = new MappedRelationship(forumId, "HAS_TOPIC", topicId, relationshipId, Forum.class, ForumTopicLink.class);
         mappingContext.addRelationship(mappedRelationship);
@@ -755,8 +755,8 @@ public class CompilerTest {
 
         forum.setTopicsInForum(Arrays.asList(link));
 
-        mappingContext.addNodeEntity(forum, forumId);
-        mappingContext.addNodeEntity(topic, topicId);
+        mappingContext.addNodeEntity(forum);
+        mappingContext.addNodeEntity(topic);
         mappingContext.addRelationshipEntity(link, linkId);
 
         // the mapping context remembers the relationship between the forum and the topic in the graph

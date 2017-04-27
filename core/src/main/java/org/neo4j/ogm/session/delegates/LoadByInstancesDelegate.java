@@ -12,16 +12,14 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.SortOrder;
-import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Vince Bickers
@@ -42,11 +40,9 @@ public class LoadByInstancesDelegate {
 
         Set<Long> ids = new LinkedHashSet<>();
         Class type = objects.iterator().next().getClass();
-        ClassInfo classInfo = session.metaData().classInfo(type.getName());
-        Field identityField = classInfo.getField(classInfo.identityField());
 
         for (Object o : objects) {
-            ids.add((Long) FieldInfo.read(identityField, o));
+            ids.add(EntityUtils.getEntityId(session.metaData(), o));
         }
         return session.loadAll(type, ids, sortOrder, pagination, depth);
     }

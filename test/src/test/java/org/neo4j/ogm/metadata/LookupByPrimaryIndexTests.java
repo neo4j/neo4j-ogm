@@ -8,11 +8,12 @@
  * This product may include a number of subcomponents with
  * separate copyright notices and license terms. Your use of the source
  * code for these subcomponents is subject to the terms and
- * conditions of the subcomponent's license, as noted in the LICENSE file.
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
 package org.neo4j.ogm.metadata;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
 import org.neo4j.ogm.domain.autoindex.valid.Invoice;
 import org.neo4j.ogm.domain.cineasts.annotated.ExtendedUser;
 import org.neo4j.ogm.domain.cineasts.annotated.User;
@@ -40,12 +42,70 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated", "org.neo4j.ogm.domain.annotations.ids");
     }
 
     @Before
     public void setUp() {
         session = sessionFactory.openSession();
+    }
+
+    @Test
+    public void loadUsesIdWhenPresent() {
+
+        ValidAnnotations.Basic entity = new ValidAnnotations.Basic();
+        entity.identifier = "id1";
+        session.save(entity);
+
+        final Session session2 = sessionFactory.openSession();
+
+        final ValidAnnotations.Basic retrievedEntity = session2.load(ValidAnnotations.Basic.class, "id1");
+        assertThat(retrievedEntity).isNotNull();
+        assertThat(retrievedEntity.identifier).isEqualTo(entity.identifier);
+    }
+
+    @Test
+    public void loadUsesIdWhenPresentOnParent() {
+
+        ValidAnnotations.BasicChild entity = new ValidAnnotations.BasicChild();
+        entity.identifier = "id1";
+        session.save(entity);
+
+        final Session session2 = sessionFactory.openSession();
+
+        final ValidAnnotations.Basic retrievedEntity = session2.load(ValidAnnotations.Basic.class, "id1");
+        assertThat(retrievedEntity).isNotNull();
+        assertThat(retrievedEntity.identifier).isEqualTo(entity.identifier);
+    }
+
+    @Test
+    public void saveWithStringUuidGeneration() {
+
+        ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
+        session.save(entity);
+
+        assertThat(entity.identifier).isNotNull();
+
+        final Session session2 = sessionFactory.openSession();
+
+        final ValidAnnotations.IdAndGenerationType retrievedEntity = session2.load(ValidAnnotations.IdAndGenerationType.class, entity.identifier);
+        assertThat(retrievedEntity).isNotNull();
+        assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
+    }
+
+    @Test
+    public void saveWithUuidGeneration() {
+
+        ValidAnnotations.UuidIdAndGenerationType entity = new ValidAnnotations.UuidIdAndGenerationType();
+        session.save(entity);
+
+        assertThat(entity.identifier).isNotNull();
+
+        final Session session2 = sessionFactory.openSession();
+
+        final ValidAnnotations.UuidIdAndGenerationType retrievedEntity = session2.load(ValidAnnotations.UuidIdAndGenerationType.class, entity.identifier);
+        assertThat(retrievedEntity).isNotNull();
+        assertThat(retrievedEntity.identifier).isNotNull().isEqualTo(entity.identifier);
     }
 
     @Test

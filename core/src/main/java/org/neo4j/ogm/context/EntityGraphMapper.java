@@ -17,7 +17,9 @@ package org.neo4j.ogm.context;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 
+import org.neo4j.ogm.annotation.GenerationType;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
@@ -199,7 +201,8 @@ public class EntityGraphMapper implements EntityMapper {
 
         CompileContext context = compiler.context();
         // if this object is transient it won't have a classinfo, and isn't persistable
-        if (metaData.classInfo(entity) == null) {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        if (classInfo == null) {
             return null;
         }
 
@@ -207,6 +210,10 @@ public class EntityGraphMapper implements EntityMapper {
         if (context.visited(identity)) {
             LOGGER.debug("already visited: {}", entity);
             return context.visitedNode(identity);
+        }
+
+        if (GenerationType.UUID.equals(classInfo.idGenerationStrategy())) {
+            generateIdIfNecessary(entity, classInfo);
         }
 
         NodeBuilder nodeBuilder = getNodeBuilder(compiler, entity);
@@ -221,6 +228,13 @@ public class EntityGraphMapper implements EntityMapper {
         return nodeBuilder;
     }
 
+    private void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
+        FieldInfo primaryIndexField = classInfo.primaryIndexField();
+        Object existingUuid = primaryIndexField.read(entity);
+        if (existingUuid == null) {
+			primaryIndexField.write(entity, UUID.randomUUID().toString());
+		}
+    }
 
     /**
      * Creates a new node or updates an existing one in the graph, if it has changed.

@@ -50,7 +50,7 @@ public class LoadOneDelegate {
         }
         final FieldInfo primaryIndexField = classInfo.primaryIndexField();
         if (primaryIndexField != null && !primaryIndexField.isTypeOf(id.getClass())) {
-            throw new Neo4jException("Supplied id does not match primary index type on supplied class.");
+            throw new Neo4jException("Supplied id does not match primary index type on supplied class " + type.getName());
         }
 
         QueryStatements queryStatements = session.queryStatementsFor(type);

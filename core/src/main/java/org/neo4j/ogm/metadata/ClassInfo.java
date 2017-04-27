@@ -18,10 +18,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,7 @@ public class ClassInfo {
     private volatile MethodInfo postLoadMethod;
     private boolean primaryIndexFieldChecked = false;
     private Class<?> cls;
+    private GenerationType idGenerationStrategy;
 
     /**
      * This class was referenced as a superclass of the given subclass.
@@ -786,23 +788,51 @@ public class ClassInfo {
 
     public FieldInfo primaryIndexField() {
         if (!primaryIndexFieldChecked && primaryIndexField == null) {
-            final String indexAnnotation = Index.class.getName();
 
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(indexAnnotation);
-                if (annotationInfo != null && annotationInfo.get("primary") != null && annotationInfo.get("primary").equals("true")) {
+            Supplier<Stream<FieldInfo>> idAnnotations = () -> Stream.of(fieldsInfo().fields().toArray(new FieldInfo[]{}))
+                    .filter(info -> {
+                        AnnotationInfo indexAnnoration = info.getAnnotations().get(Index.class);
+                        return info.getAnnotations().get(Id.class) != null
+                                || (indexAnnoration != null && indexAnnoration.get("primary") != null
+                                && indexAnnoration.get("primary").equals("true"));
+                    });
+            if (idAnnotations.get().count() > 1) {
+                throw new IllegalArgumentException("Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class " + name() + " or its parents");
+            }
 
-                    if (primaryIndexField == null) {
-                        primaryIndexField = fieldInfo;
-                    } else {
-                        throw new Neo4jException("Each class may only define one primary index.");
-                    }
+            primaryIndexField = idAnnotations.get().findFirst().orElse(null);
+            if (primaryIndexField != null) {
+                AnnotationInfo generatedValueAnnotation = primaryIndexField.getAnnotations().get(GeneratedValue.class);
+                if (generatedValueAnnotation != null) {
+                    String strategyName = generatedValueAnnotation.get("strategy", GenerationType.NEO4J_INTERNAL_ID.name());
+                    idGenerationStrategy = GenerationType.valueOf(strategyName);
                 }
             }
+            validateIdGenerationConfig();
             primaryIndexFieldChecked = true;
         }
 
         return primaryIndexField;
+    }
+
+    private void validateIdGenerationConfig() {
+        fieldsInfo().fields().forEach(info -> {
+			if (info.hasAnnotation(GeneratedValue.class) && ! info.hasAnnotation(Id.class)) {
+				throw new IllegalArgumentException("The type of @Generated field in class " + className + " must be also annotated with @Id.");
+			}
+		});
+        if (GenerationType.UUID.equals(idGenerationStrategy)
+				&& !primaryIndexField.isTypeOf(UUID.class)
+				&& !primaryIndexField.isTypeOf(String.class)) {
+			throw new IllegalArgumentException("The type of " + primaryIndexField.getName() + " in class " + className + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
+		}
+    }
+
+    public GenerationType idGenerationStrategy() {
+        if (!primaryIndexFieldChecked) {
+            primaryIndexField(); // force init
+        }
+        return idGenerationStrategy;
     }
 
     public MethodInfo postLoadMethodOrNull() {

@@ -180,7 +180,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                         setIdentity(entity, node.getId());
                         setProperties(node.getPropertyList(), entity);
                         setLabels(node, entity);
-                        mappingContext.addNodeEntity(entity, node.getId());
+                        mappingContext.addNodeEntity(entity);
                     }
                     nodeIds.add(node.getId());
                 } catch (BaseClassNotFoundException e) {
@@ -204,9 +204,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
     }
 
     private void setIdentity(Object instance, Long id) {
-        ClassInfo classInfo = metadata.classInfo(instance);
-        FieldInfo fieldInfo = classInfo.identityField();
-        FieldInfo.write(classInfo.getField(fieldInfo), instance, id);
+        EntityUtils.setEntityId(metadata, instance, id);
     }
 
     private void setProperties(List<Property<String, Object>> propertyList, Object instance) {

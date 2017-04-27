@@ -35,7 +35,7 @@ final class SaveEventDelegate {
     private static final Logger logger = LoggerFactory.getLogger(SaveEventDelegate.class);
 
     private Neo4jSession session;
-    private Set<Long> visited;
+    private Set<Object> visited;
     private Set<Object> preSaved;
     private Set<MappedRelationship> registeredRelationships = new HashSet<>();
     private Set<MappedRelationship> addedRelationships = new HashSet<>();

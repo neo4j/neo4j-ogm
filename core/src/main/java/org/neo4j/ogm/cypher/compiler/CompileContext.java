@@ -30,9 +30,9 @@ public interface CompileContext {
 
     boolean removeRegisteredRelationship(Mappable mappable);
 
-    boolean visited(Long identity);
+    boolean visited(Object entity);
 
-    NodeBuilder visitedNode(Long identity);
+    NodeBuilder visitedNode(Object entity);
 
     void register(Object entity);
 
@@ -44,7 +44,7 @@ public interface CompileContext {
 
     Collection<Object> registry();
 
-    void visit(Long identity, NodeBuilder nodeBuilder);
+    void visit(Object entity, NodeBuilder nodeBuilder);
 
     boolean visitedRelationshipEntity(Long relationshipIdentity);
 

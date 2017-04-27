@@ -39,7 +39,7 @@ public class IdentityMapTest {
         Teacher mrsJones = new Teacher();
 
         mrsJones.setId(115L); // the id field must not be part of the memoised property list
-        mappingContext.addNodeEntity(mrsJones, mrsJones.getId());
+        mappingContext.addNodeEntity(mrsJones);
         assertThat(mappingContext.isDirty(mrsJones)).isFalse();
     }
 
@@ -48,7 +48,7 @@ public class IdentityMapTest {
         Teacher teacher = new Teacher("Miss White");
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
-        mappingContext.addNodeEntity(teacher, teacher.getId());
+        mappingContext.addNodeEntity(teacher);
 
         teacher.setName("Mrs Jones"); // the teacher's name property has changed.
         assertThat(mappingContext.isDirty(teacher)).isTrue();
@@ -59,7 +59,7 @@ public class IdentityMapTest {
         Teacher teacher = new Teacher("Miss White");
 
         teacher.setId(115L); // the id field must not be part of the memoised property list
-        mappingContext.addNodeEntity(teacher, teacher.getId());
+        mappingContext.addNodeEntity(teacher);
 
         teacher.setSchool(new School("Roedean")); // a related object does not affect the property list.
 

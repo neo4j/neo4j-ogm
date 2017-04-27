@@ -12,14 +12,12 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.CypherQuery;
 import org.neo4j.ogm.cypher.query.DefaultRowModelRequest;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.RowModelRequest;
@@ -97,7 +95,7 @@ public class DeleteDelegate {
 
             if (classInfo != null) {
 
-                Long identity = EntityUtils.identity(object, session.metaData());
+                Long identity = EntityUtils.getEntityId(session.metaData(), object);
                 if (identity >= 0) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
                     if (session.eventsEnabled()) {

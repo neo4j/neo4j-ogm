@@ -333,8 +333,8 @@ public class DirectRelationshipsTest {
         folder.setId(0L);
         document.setId(1L);
 
-        mappingContext.addNodeEntity(folder, folder.getId());
-        mappingContext.addNodeEntity(document, document.getId());
+        mappingContext.addNodeEntity(folder);
+        mappingContext.addNodeEntity(document);
         mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", document.getId(), Folder.class, Document.class));
 
         document.setFolder(null);
@@ -376,9 +376,9 @@ public class DirectRelationshipsTest {
         doc1.setId(1L);
         doc2.setId(2L);
 
-        mappingContext.addNodeEntity(folder, folder.getId());
-        mappingContext.addNodeEntity(doc1, doc1.getId());
-        mappingContext.addNodeEntity(doc2, doc2.getId());
+        mappingContext.addNodeEntity(folder);
+        mappingContext.addNodeEntity(doc1);
+        mappingContext.addNodeEntity(doc2);
         mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
         mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc2.getId(), Folder.class, Document.class));
 
@@ -431,8 +431,8 @@ public class DirectRelationshipsTest {
         folder.setId(0L);
         doc1.setId(1L);
 
-        mappingContext.addNodeEntity(folder, folder.getId());
-        mappingContext.addNodeEntity(doc1, doc1.getId());
+        mappingContext.addNodeEntity(folder);
+        mappingContext.addNodeEntity(doc1);
         mappingContext.addRelationship(new MappedRelationship(folder.getId(), "CONTAINS", doc1.getId(), Folder.class, Document.class));
         mappingContext.addRelationship(new MappedRelationship(folder.getId(), "ARCHIVED", doc1.getId(), Folder.class, Document.class));
 

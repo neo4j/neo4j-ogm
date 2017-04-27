@@ -13,7 +13,6 @@
 
 package org.neo4j.ogm.session.request;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.neo4j.ogm.context.TransientRelationship;
 import org.neo4j.ogm.cypher.compiler.CompileContext;
 import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.metadata.ClassInfo;
-import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.model.RowModel;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.response.Response;
@@ -34,6 +32,7 @@ import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
+import org.neo4j.ogm.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,8 +163,7 @@ public class RequestExecutor {
             if (!(obj instanceof TransientRelationship)) {
                 ClassInfo classInfo = session.metaData().classInfo(obj);
                 if (!classInfo.isRelationshipEntity()) {
-                    FieldInfo idReader = classInfo.identityField();
-                    Long id = (Long) idReader.readProperty(obj);
+                    Long id = EntityUtils.getEntityId(session.metaData(), obj);
                     if (id >= 0) {
                         LOGGER.debug("updating existing node id: {}, {}", id, obj);
                         registerEntity(session.context(), classInfo, id, obj);
@@ -325,14 +323,13 @@ public class RequestExecutor {
      * @param persisted entity created as part of the request
      * @param session the {@link Session}
      */
-    private static void initialiseNewEntity(Long identity, Object persisted, Neo4jSession session) {
+    private void initialiseNewEntity(Long identity, Object persisted, Neo4jSession session) {
         MappingContext mappingContext = session.context();
         Transaction tx = session.getTransaction();
         if (persisted != null) {  // it will be null if the variable represents a simple relationship.
             // set the id field of the newly created domain object
+            EntityUtils.setEntityId(session.metaData(), persisted, identity);
             ClassInfo classInfo = session.metaData().classInfo(persisted);
-            Field identityField = classInfo.getField(classInfo.identityField());
-            FieldInfo.write(identityField, persisted, identity);
 
             if (tx != null) {
                 ((AbstractTransaction) tx).registerNew(persisted);
@@ -342,10 +339,10 @@ public class RequestExecutor {
         }
     }
 
-    private static void registerEntity(MappingContext mappingContext, ClassInfo classInfo, Long identity, Object entity) {
+    private void registerEntity(MappingContext mappingContext, ClassInfo classInfo, Long identity, Object entity) {
         // ensure the newly created domain object is added into the mapping context
         if (classInfo.annotationsInfo().get(RelationshipEntity.class) == null) {
-            mappingContext.replaceNodeEntity(entity, identity);      // force the node entity object to be overwritten
+            mappingContext.replaceNodeEntity(entity);      // force the node entity object to be overwritten
         } else {
             mappingContext.replaceRelationshipEntity(entity, identity); // force the relationship entity to be overwritten
         }

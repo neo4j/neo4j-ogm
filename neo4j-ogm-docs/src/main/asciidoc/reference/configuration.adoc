@@ -45,10 +45,10 @@ URI=http://user:password@localhost:7474
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration()
-        .driverConfiguration()
+Configuration configuration = new Configuration();
+        configuration.driverConfiguration()
         .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-        .setURI("http://user:password@localhost:7474")
+        .setURI("http://user:password@localhost:7474");
 ----
 |======================
 

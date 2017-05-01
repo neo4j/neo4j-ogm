@@ -482,6 +482,9 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                 Object source = mappingContext.getNodeEntity(edge.getStartNode());
                 Object target = mappingContext.getNodeEntity(edge.getEndNode());
                 FieldInfo writer = getRelationalWriter(metadata.classInfo(source), edge.getType(), OUTGOING, target);
+                if (writer == null) {
+                    writer = getRelationalWriter(metadata.classInfo(target), edge.getType(), INCOMING, source);
+                }
                 // ensures its tracked in the domain
                 if (writer != null) {
                     MappedRelationship mappedRelationship = new MappedRelationship(edge.getStartNode(), edge.getType(), edge.getEndNode(), edge.getId(), source.getClass(), ClassUtils.getType(writer.typeParameterDescriptor()));

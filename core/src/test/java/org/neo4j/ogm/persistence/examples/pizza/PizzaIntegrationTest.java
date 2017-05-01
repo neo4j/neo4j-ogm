@@ -479,7 +479,6 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
 
 
     @Test
-    @Ignore("Relationship is not deleted to the deep dish pizza.")
     public void shouldDeleteChangedIncomingRelationshipWithClearSessionAndLoad() throws Exception {
 
         Pizza pizza = new Pizza();

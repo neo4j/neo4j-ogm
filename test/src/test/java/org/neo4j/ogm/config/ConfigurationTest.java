@@ -59,6 +59,15 @@ public class ConfigurationTest {
 	}
 
 	@Test
+	public void shouldConfigureCredentialsFromURIWithUTF8Charactes() {
+		Configuration configuration = new Configuration.Builder()
+				.uri("http://franti\u0161ek:Pass123@localhost:8080")
+				.build();
+
+		assertEquals("ZnJhbnRpxaFlazpQYXNzMTIz", configuration.getCredentials().credentials().toString());
+	}
+
+	@Test
 	public void shouldConfigureFromSimplePropertiesFile() {
 		Configuration configuration = new Configuration.Builder(new ClasspathConfigurationSource("ogm-simple.properties")).build();
 

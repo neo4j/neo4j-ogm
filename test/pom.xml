@@ -150,6 +150,7 @@
                             <argLine>-Dfile.encoding=ISO-8859-1</argLine>
                             <includes>
                                 <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest</include>
+                                <include>org.neo4j.ogm.config.ConfigurationTest</include>
                             </includes>
                         </configuration>
                     </execution>

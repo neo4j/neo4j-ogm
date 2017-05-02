@@ -15,6 +15,8 @@ package org.neo4j.ogm.authentication;
 
 import org.apache.commons.codec.binary.Base64;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * @author Vince Bickers
  */
@@ -25,7 +27,14 @@ public class UsernamePasswordCredentials implements Credentials<String> {
     private final String password;
 
     public UsernamePasswordCredentials(String userName, String password) {
-        this.credentials = Base64.encodeBase64String(userName.concat(":").concat(password).getBytes());
+        if (userName == null || password == null) {
+            throw new IllegalArgumentException("username or password cannot be null");
+        }
+        try {
+            this.credentials = Base64.encodeBase64String(userName.concat(":").concat(password).getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 encoding support required", e);
+        }
         this.username = userName;
         this.password = password;
     }

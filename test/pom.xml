@@ -126,9 +126,34 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
                 <configuration>
                     <runOrder>alphabetical</runOrder>
                 </configuration>
+
+                <executions>
+                    <execution>
+                        <id>test-different-encoding</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                            Using argLine because file.encoding can't be specified by a system property when using
+                            Surefire plugin.
+
+                            Any Oracle JVM should support this encoding.
+                            https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
+                            Note that this can't be simulated in code by using System.setProperty, because
+                            java.nio.charset.Charset reads "file.encoding" property only once at startup
+                            -->
+                            <argLine>-Dfile.encoding=ISO-8859-1</argLine>
+                            <includes>
+                                <include>org.neo4j.ogm.persistence.examples.cineasts.annotated.CineastsIntegrationTest</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

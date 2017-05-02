@@ -139,7 +139,7 @@ public class BoltRequest implements Request {
             String params = mapper.writeValueAsString(request.getParameters());
             TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
             };
-            HashMap<String, Object> parameterMap = mapper.readValue(params.getBytes(), typeRef);
+            HashMap<String, Object> parameterMap = mapper.readValue(params, typeRef);
 
             LOGGER.info("Request: {} with params {}", request.getStatement(), parameterMap);
 

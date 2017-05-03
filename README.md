@@ -10,7 +10,7 @@ If you use Spring to build your applications be sure to check out [Spring Data N
 ***The latest OGM version is:*** `2.1.2`.
 ***The latest OGM development version is:*** `2.1.3-SNAPSHOT` and `3.0.0-SNAPSHOT`.
 
-##Quick start
+## Quick start
 
 ### Dependencies for Neo4j OGM
 

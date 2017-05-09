@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.drivers.bolt.driver;
 
+import java.io.File;
+import java.net.URI;
+
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
@@ -25,9 +28,6 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URI;
 
 /**
  * @author vince
@@ -150,6 +150,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			boltConfig.trustCertFile = driverConfiguration.getTrustCertFile();
 		}
 
+		if (driverConfiguration.getConnectionLivenessCheckTimeout() != null) {
+			boltConfig.connectionLivenessCheckTimeout = driverConfiguration.getConnectionLivenessCheckTimeout();
+		}
+
 		return boltConfig;
 	}
 
@@ -159,6 +163,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			Config.ConfigBuilder configBuilder = Config.build();
 			configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
 			configBuilder.withEncryptionLevel(boltConfig.encryptionLevel);
+			if (boltConfig.connectionLivenessCheckTimeout != null) {
+				// deprecated in driver 1.1 +, replaced by ConnectionLivenessCheckTimeout
+				configBuilder.withSessionLivenessCheckTimeout(boltConfig.connectionLivenessCheckTimeout);
+			}
 			if (boltConfig.trustStrategy != null) {
 				if (boltConfig.trustCertFile == null) {
 					throw new IllegalArgumentException("Missing configuration value for trust.certificate.file");
@@ -184,5 +192,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		int sessionPoolSize = DEFAULT_SESSION_POOL_SIZE;
 		Config.TrustStrategy.Strategy trustStrategy;
 		String trustCertFile;
+		Integer connectionLivenessCheckTimeout;
 	}
 }

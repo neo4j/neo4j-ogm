@@ -93,6 +93,11 @@ public class DriverConfiguration {
         return this;
     }
 
+    public DriverConfiguration setConnectionLivenessCheckTimeout(Integer timeoutInMs) {
+        configuration.set(CONNECTION_LIVELINESS_CHECK_TIMEOUT[0], timeoutInMs.toString());
+        return this;
+    }
+
     public DriverConfiguration setEncryptionLevel(String encryptionLevel) {
         configuration.set(ENCRYPTION_LEVEL[0], encryptionLevel);
         return this;

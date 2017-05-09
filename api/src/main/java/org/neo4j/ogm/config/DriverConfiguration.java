@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -34,6 +34,7 @@ public class DriverConfiguration {
     public static final String[] PASSWORD = {"neo4j.ogm.password", "spring.data.neo4j.password", "password"};
 
     public static final String[] CONNECTION_POOL_SIZE   = {"connection.pool.size"};
+    public static final String[] CONNECTION_LIVELINESS_CHECK_TIMEOUT   = {"connection.liveliness.check.timeout"};
     public static final String[] ENCRYPTION_LEVEL       = {"encryption.level"};
     public static final String[] TRUST_STRATEGY         = {"trust.strategy"};
     public static final String[] TRUST_CERT_FILE        = {"trust.certificate.file"};
@@ -145,6 +146,13 @@ public class DriverConfiguration {
             return Integer.valueOf((String)configuration.get(CONNECTION_POOL_SIZE));
         }
         return CONNECTION_POOL_SIZE_DEFAULT;
+    }
+
+    public Integer getConnectionLivenessCheckTimeout() {
+        if (configuration.get(CONNECTION_LIVELINESS_CHECK_TIMEOUT) != null) {
+            return Integer.valueOf((String)configuration.get(CONNECTION_LIVELINESS_CHECK_TIMEOUT));
+        }
+        return null;
     }
 
     public String getEncryptionLevel() {

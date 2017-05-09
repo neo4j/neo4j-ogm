@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers.bolt.driver;
 
 import java.io.File;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
@@ -158,6 +159,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			boltConfig.trustCertFile = driverConfiguration.getTrustCertFile();
 		}
 
+		if (driverConfiguration.getConnectionLivenessCheckTimeout() != null) {
+			boltConfig.connectionLivenessCheckTimeout = driverConfiguration.getConnectionLivenessCheckTimeout();
+		}
+
 		return boltConfig;
 	}
 
@@ -167,6 +172,9 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			Config.ConfigBuilder configBuilder = Config.build();
 			configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
 			configBuilder.withEncryptionLevel(boltConfig.encryptionLevel);
+			if (boltConfig.connectionLivenessCheckTimeout != null) {
+				configBuilder.withConnectionLivenessCheckTimeout(boltConfig.connectionLivenessCheckTimeout, TimeUnit.MILLISECONDS);
+			}
 			if (boltConfig.trustStrategy != null) {
 				if (boltConfig.trustCertFile == null) {
 					throw new IllegalArgumentException("Missing configuration value for trust.certificate.file");
@@ -192,5 +200,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		int sessionPoolSize = DEFAULT_SESSION_POOL_SIZE;
 		Config.TrustStrategy.Strategy trustStrategy;
 		String trustCertFile;
+		Integer connectionLivenessCheckTimeout;
 	}
 }

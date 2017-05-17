@@ -46,9 +46,9 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
-        configuration.driverConfiguration()
-        .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
-        .setURI("http://user:password@localhost:7474");
+configuration.driverConfiguration()
+    .setDriverClassName("org.neo4j.ogm.drivers.http.driver.HttpDriver")
+    .setURI("http://user:password@localhost:7474");
 ----
 |======================
 
@@ -78,10 +78,10 @@ a|
 [source, java]
 ----
 Configuration configuration = new Configuration();
-        configuration.driverConfiguration()
-        .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-        .setURI("bolt://neo4j:password@localhost")
-        .setConnectionPoolSize(150)
+configuration.driverConfiguration()
+    .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+    .setURI("bolt://neo4j:password@localhost")
+    .setConnectionPoolSize(150)
 ----
 |======================
 
@@ -114,10 +114,10 @@ URI=file:///var/tmp/neo4j.db
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
-             .setURI("file:///var/tmp/neo4j.db");
+Configuration configuration = new Configuration();
+configuration.driverConfiguration()
+     .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver")
+     .setURI("file:///var/tmp/neo4j.db");
 ----
 |======================
 
@@ -138,9 +138,9 @@ driver=org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
+Configuration configuration = new Configuration();
+configuration.driverConfiguration()
+     .setDriverClassName("org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver");
 ----
 |======================
 
@@ -181,20 +181,20 @@ a|
 [source, java]
 ----
 // embedded
-Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setURI("bolt://user:password@localhost");
+Configuration configuration = new Configuration();
+configuration.driverConfiguration()
+     .setURI("bolt://user:password@localhost");
 
 // separately as plain text
-Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setCredentials("user", "password);
+Configuration configuration = new Configuration();
+configuration.driverConfiguration()
+     .setCredentials("user", "password);
 
 // using a Credentials object
 Credentials credentials = new UsernameAndPasswordCredentials("user", "password");
-Configuration configuration = new Configuration()
-             .driverConfiguration()
-             .setCredentials(credentials);
+Configuration configuration = new Configuration();
+configuration.driverConfiguration()
+     .setCredentials(credentials);
 ----
 |======================
 

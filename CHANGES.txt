@@ -2,6 +2,7 @@
 --------------
 o Session.loadAll(Class<T> type, Collection<ID> ids) doesn't treat ids as primaryKeys but as nodeIDs. #349
 o Do not thow NPE when entity field is not a managed type. #347
+o Fix MappingException when querying object with List<Enum> using Embedded. #359
 
 
 2.1.2

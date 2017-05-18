@@ -16,15 +16,20 @@ package org.neo4j.ogm.metadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.Labels;
 import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
+import org.neo4j.ogm.typeconversion.MapCompositeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.RelationshipUtils;
 
@@ -105,6 +110,21 @@ public class FieldInfo {
                 throw new IllegalStateException(String.format(
                         "The converter for field %s is neither an instance of AttributeConverter or CompositeAttributeConverter",
                         this.name));
+            } else {
+                AnnotationInfo properties = getAnnotations().get(Properties.class);
+                if (properties != null) {
+                    if (fieldType.equals(Map.class)) {
+                        Type fieldGenericType = field.getGenericType();
+                        MapCompositeConverter mapCompositeConverter = new MapCompositeConverter(
+                                properties.get("prefix", field.getName()),
+                                properties.get("delimiter"),
+                                Boolean.valueOf(properties.get("allowCast")),
+                                (ParameterizedType) fieldGenericType);
+                        setCompositeConverter(mapCompositeConverter);
+                    } else {
+                        throw new MappingException("@Properties annotation is allowed only on fields of type java.util.Map");
+                    }
+                }
             }
         }
     }

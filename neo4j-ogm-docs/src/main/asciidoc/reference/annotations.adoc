@@ -88,6 +88,56 @@ In this case, a graph similar to the following would be persisted.
 While this will map successfully to the database, it's important to understand that the names of the properties and relationship types are tightly coupled to the class's member names.
 Renaming any of these fields will cause parts of the graph to map incorrectly, hence the recommendation to use annotations.
 
+[[reference:annotating-entities:node-entity:dynamic-properties]]
+=== @Properties: dynamically mapping properties to graph
+
+
+A `@Properties` annotation  tells OGM to map values of a Map field in a node or relationship entity to properties of
+a node or a relationship in the graph.
+
+The property names are derived from field name or `prefix()`, `delimiter` and keys in the Map.
+For example Map field with name `address` containing following entries:
+
+[source]
+----
+"street" => "Downing Street"
+"number" => 10
+----
+
+will map to following node/relationship properties
+
+[source]
+----
+address.street=Downing Street
+address.number=10
+----
+
+Supported types for keys in the Map are String and Enum.
+
+The values in the Map can be of any Java type equivalent to Cypher types. If full type information is provided other
+Java types are also supported.
+
+If {@link #allowCast()} is set to true then types that can be cast to corresponding Cypher types are allowed as well.
+Note that the original type cannot be deduced and the value will be deserialized to corresponding type - e.g.
+when Integer instance is put to {@code Map<String, Object>} it will be deserialized as Long.
+
+[source, java]
+----
+@NodeEntity
+public class Student {
+
+    @Properties
+    private Map<String, Integer> properties = new HashMap<>();
+
+    @Properties
+    private Map<String, Object> properties = new HashMap<>();
+
+}
+----
+
+
+
+
 [[reference:annotating-entities:node-entity:runtime-managed-labels]]
 === Runtime managed labels
 

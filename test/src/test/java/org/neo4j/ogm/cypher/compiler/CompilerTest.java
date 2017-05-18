@@ -584,7 +584,7 @@ public class CompilerTest {
         statements = compiler.createRelationshipsStatements();
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.timestamp}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.`timestamp`}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
@@ -607,7 +607,7 @@ public class CompilerTest {
         statements = compiler.createRelationshipsStatements();
         createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
-        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.timestamp}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
+        assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`HAS_TOPIC`{ `timestamp`: row.props.`timestamp`}]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());

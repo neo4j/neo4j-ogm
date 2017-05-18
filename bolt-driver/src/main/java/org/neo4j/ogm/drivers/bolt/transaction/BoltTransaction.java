@@ -50,10 +50,10 @@ public class BoltTransaction extends AbstractTransaction {
 				if (nativeTransaction.isOpen()) {
 					nativeTransaction.failure();
 					nativeTransaction.close();
-					nativeSession.close();
 				} else {
 					LOGGER.warn("Transaction is already closed");
 				}
+				nativeSession.close();
 			}
 		} catch (Exception e) {
 			if (nativeSession.isOpen()) {

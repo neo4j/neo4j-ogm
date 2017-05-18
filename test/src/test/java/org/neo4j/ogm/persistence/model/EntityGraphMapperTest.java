@@ -417,12 +417,12 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
         Individual individual = new Individual();
         individual.setName("Gary");
         individual.setAge(36);
-        individual.setBankBalance(99.99f);
+        individual.setBankBalance(99.25f);
         individual.setFavouriteRadioStations(new Vector<>(Arrays.asList(97.4, 105.4, 98.2)));
 
         session.save(individual);
         assertSameGraph(getGraphDatabaseService(),
-                "CREATE (:Individual {name:'Gary', age:36, bankBalance:99.99, code:0, favouriteRadioStations:[97.4, 105.4, 98.2]})");
+                "CREATE (:Individual {name:'Gary', age:36, bankBalance:99.25, code:0, favouriteRadioStations:[97.4, 105.4, 98.2]})");
     }
 
     @Test

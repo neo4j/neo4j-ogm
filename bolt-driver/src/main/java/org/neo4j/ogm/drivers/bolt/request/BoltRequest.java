@@ -17,6 +17,7 @@ package org.neo4j.ogm.drivers.bolt.request;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +53,9 @@ public class BoltRequest implements Request {
     private static final ObjectMapper mapper = ObjectMapperFactory.objectMapper();
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltRequest.class);
+
+    private TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
+    };
 
 
     public BoltRequest(TransactionManager transactionManager) {
@@ -136,11 +140,8 @@ public class BoltRequest implements Request {
     private StatementResult executeRequest(Statement request) {
         BoltTransaction tx;
         try {
-            String params = mapper.writeValueAsString(request.getParameters());
-            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
-            };
-            HashMap<String, Object> parameterMap = mapper.readValue(params, typeRef);
 
+            Map<String, Object> parameterMap = mapper.convertValue(request.getParameters(), MAP_TYPE_REF);
             LOGGER.info("Request: {} with params {}", request.getStatement(), parameterMap);
 
             if (transactionManager.getCurrentTransaction() == null) {

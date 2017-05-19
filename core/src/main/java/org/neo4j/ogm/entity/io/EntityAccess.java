@@ -1,27 +1,20 @@
 /*
- * Copyright (c)  [2011-2015] "Neo Technology" / "Graph Aware Ltd."
+ * Copyright (c) 2002-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
  * You may not use this product except in compliance with the License.
  *
- * This product may include a number of subcomponents with separate copyright notices and license terms. Your use of the source code for these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
- *
- *
+ * This product may include a number of subcomponents with
+ * separate copyright notices and license terms. Your use of the source
+ * code for these subcomponents is subject to the terms and
+ *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
 package org.neo4j.ogm.entity.io;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 
 import org.neo4j.ogm.session.Utils;
 
@@ -183,7 +176,7 @@ public abstract class EntityAccess implements PropertyWriter, RelationalWriter {
             return characters;
         }
 
-        if (value.getClass().isArray() && elementType == String.class) {
+        if (value.getClass().isArray() && (elementType == String.class || elementType.isEnum())) {
             String[] strings = (String[]) value;
             return Arrays.asList(strings);
         }

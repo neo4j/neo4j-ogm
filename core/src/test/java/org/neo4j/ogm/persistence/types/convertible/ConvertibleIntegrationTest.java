@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -13,6 +13,15 @@
 package org.neo4j.ogm.persistence.types.convertible;
 
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,18 +32,10 @@ import org.neo4j.ogm.domain.convertible.enums.Education;
 import org.neo4j.ogm.domain.convertible.enums.Gender;
 import org.neo4j.ogm.domain.convertible.enums.Person;
 import org.neo4j.ogm.domain.convertible.numbers.Account;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Luanne Misquitta
@@ -70,6 +71,30 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         session.save(person);
 
         Person luanne = session.loadAll(Person.class, new Filter("name", "luanne")).iterator().next();
+        assertEquals(Gender.FEMALE, luanne.getGender());
+        assertTrue(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL));
+        assertTrue(luanne.getCompletedEducation().contains(Education.BACHELORS));
+        assertEquals(2, luanne.getInProgressEducation().length);
+        assertTrue(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS));
+        assertTrue(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD));
+    }
+
+    @Test
+    public void shouldSaveAndRetrieveEnumsAsResult() {
+        List<Education> completed = new ArrayList<>();
+        completed.add(Education.HIGHSCHOOL);
+        completed.add(Education.BACHELORS);
+
+        Person person = new Person();
+        person.setName("luanne");
+        person.setInProgressEducation(new Education[]{Education.MASTERS, Education.PHD});
+        person.setCompletedEducation(completed);
+        person.setGender(Gender.FEMALE);
+        session.save(person);
+        session.clear();
+
+        Result res = session.query("MATCH (p:Person{name:'luanne'}) return p", Collections.EMPTY_MAP);
+        Person luanne = (Person) res.queryResults().iterator().next().get("p");
         assertEquals(Gender.FEMALE, luanne.getGender());
         assertTrue(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL));
         assertTrue(luanne.getCompletedEducation().contains(Education.BACHELORS));

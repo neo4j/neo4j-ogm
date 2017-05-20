@@ -54,7 +54,7 @@ public class LoadOneDelegate {
         }
 
         QueryStatements queryStatements = session.queryStatementsFor(type);
-        PagingAndSortingQuery qry = queryStatements.findOne(id, depth);
+        PagingAndSortingQuery qry = queryStatements.findOneByType(session.entityType(type.getName()), id, depth);
 
         try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
             new GraphEntityMapper(session.metaData(), session.context()).map(type, response);

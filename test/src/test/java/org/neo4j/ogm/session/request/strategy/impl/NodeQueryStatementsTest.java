@@ -42,6 +42,10 @@ public class NodeQueryStatementsTest {
         assertEquals("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", queryStatements.findOne(0L, 2).getStatement());
     }
 
+    public void testFindOneByType() throws Exception {
+        assertEquals("MATCH (n:`Orbit`) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", queryStatements.findOneByType("Orbit", 0L, 3).getStatement());
+    }
+
     @Test
     public void testFindAllCollection() throws Exception {
         assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());

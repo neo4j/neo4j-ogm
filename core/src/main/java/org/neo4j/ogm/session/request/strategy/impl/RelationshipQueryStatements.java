@@ -32,6 +32,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 public class RelationshipQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
     private static final String MATCH_WITH_ID = "MATCH ()-[r0]-() WHERE ID(r0)={id} ";
+    private static final String MATCH_WITH_TYPE_AND_ID = "MATCH ()-[r0:`%s`]-() WHERE ID(r0)={id} ";
     private static final String MATCH_WITH_IDS = "MATCH ()-[r0]-() WHERE ID(r0) IN {ids} ";
     private static final String MATCH_WITH_TYPE_AND_IDS = "MATCH ()-[r0:`%s`]-() WHERE ID(r0) IN {ids} ";
     private static final String MATCH_PATHS_WITH_REL_ID = " WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
@@ -61,7 +62,18 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
 
     @Override
     public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
-        return null;
+        if (label == null || label.equals("")) {
+            return findOne(id, depth);
+        }
+
+        int max = max(depth);
+        int min = min(max);
+        if (max > 0) {
+            String qry = String.format(MATCH_WITH_TYPE_AND_ID + MATCH_PATHS, label, min, max, min, max);
+            return new DefaultGraphModelRequest(qry, Utils.map("id", id));
+        } else {
+            throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
+        }
     }
 
     @Override

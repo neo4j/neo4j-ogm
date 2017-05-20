@@ -49,8 +49,13 @@ public class NodeQueryStatementsTest {
 		assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
 	}
 
+	@Test
 	public void testFindOneByType() throws Exception {
-		assertEquals("MATCH (n:`Orbit`) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", queryStatements.findOneByType("Orbit", 0L, 3).getStatement());
+		assertEquals("MATCH (n:`Orbit`) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..2]-(m) RETURN p", queryStatements.findOneByType("Orbit", 0L, 2).getStatement());
+
+		// Also assert that an empty label is the same as using the typeless variant
+		assertEquals(queryStatements.findOneByType("", 0L, 2).getStatement(), queryStatements.findOne(0L, 2).getStatement());
+		assertEquals(queryStatements.findOneByType(null, 0L, 2).getStatement(), queryStatements.findOne(0L, 2).getStatement());
 	}
 
 	@Test

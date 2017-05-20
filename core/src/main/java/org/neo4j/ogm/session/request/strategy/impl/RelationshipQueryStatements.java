@@ -60,6 +60,11 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
     }
 
     @Override
+    public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
+        return null;
+    }
+
+    @Override
     public PagingAndSortingQuery findAll(Collection<ID> ids, int depth) {
         int max = max(depth);
         int min = min(max);

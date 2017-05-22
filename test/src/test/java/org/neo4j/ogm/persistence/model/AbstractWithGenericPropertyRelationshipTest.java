@@ -24,8 +24,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 public class AbstractWithGenericPropertyRelationshipTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     @BeforeClass

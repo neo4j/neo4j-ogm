@@ -61,7 +61,6 @@ public class EntityGraphMapperTest extends MultiDriverTestClass {
     private static MappingContext mappingContext;
 
 
-    private static SessionFactory sessionFactory;
     private Session session;
 
 

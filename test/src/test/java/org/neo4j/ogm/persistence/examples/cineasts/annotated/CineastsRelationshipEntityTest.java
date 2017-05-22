@@ -39,8 +39,6 @@ import org.neo4j.ogm.testutil.TestUtils;
  */
 public class CineastsRelationshipEntityTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     @BeforeClass

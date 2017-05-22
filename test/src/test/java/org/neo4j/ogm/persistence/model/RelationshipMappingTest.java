@@ -37,8 +37,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class RelationshipMappingTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     @BeforeClass

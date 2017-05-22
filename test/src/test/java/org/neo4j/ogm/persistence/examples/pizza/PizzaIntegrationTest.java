@@ -33,8 +33,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class PizzaIntegrationTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     @BeforeClass

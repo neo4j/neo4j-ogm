@@ -41,7 +41,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
 	@Before
 	public void beforeMethod() {
-		assumeTrue(DriverManager.getDriver() instanceof HttpDriver);
+		assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(HttpDriver.class.getName()));
 	}
 
 	@Test

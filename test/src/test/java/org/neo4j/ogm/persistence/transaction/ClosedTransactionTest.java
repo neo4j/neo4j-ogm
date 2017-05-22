@@ -49,7 +49,7 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
 
     @Before
     public void init() {
-        transactionManager = new DefaultTransactionManager(session, DriverManager.getDriver());
+        transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
         session = sessionFactory.openSession();
     }
 

@@ -50,15 +50,13 @@ public class BoltTransaction extends AbstractTransaction {
 				if (nativeTransaction.isOpen()) {
 					nativeTransaction.failure();
 					nativeTransaction.close();
-					nativeSession.close();
 				} else {
 					LOGGER.warn("Transaction is already closed");
 				}
-			}
-		} catch (Exception e) {
-			if (nativeSession.isOpen()) {
 				nativeSession.close();
 			}
+		} catch (Exception e) {
+			closeNativeSessionIfPossible();
 			throw new TransactionException(e.getLocalizedMessage());
 		} finally {
 			super.rollback();
@@ -80,17 +78,13 @@ public class BoltTransaction extends AbstractTransaction {
 				}
 			}
 		} catch (ClientException ce) {
-			if (nativeSession.isOpen()) {
-				nativeSession.close();
+			closeNativeSessionIfPossible();
+			if (ce.code().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
+				throw new ConnectionException("Security Error: " + ce.code() + ", " + ce.getMessage(), ce);
 			}
-			if (ce.neo4jErrorCode().startsWith(NEO_CLIENT_ERROR_SECURITY)) {
-				throw new ConnectionException("Security Error: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
-			}
-			throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
+			throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
 		} catch (Exception e) {
-			if (nativeSession.isOpen()) {
-				nativeSession.close();
-			}
+			closeNativeSessionIfPossible();
 			throw new TransactionException(e.getLocalizedMessage());
 		} finally {
 			super.commit();
@@ -102,5 +96,11 @@ public class BoltTransaction extends AbstractTransaction {
 
 	public Transaction nativeBoltTransaction() {
 		return nativeTransaction;
+	}
+
+	private void closeNativeSessionIfPossible() {
+		if (nativeSession.isOpen()) {
+			nativeSession.close();
+		}
 	}
 }

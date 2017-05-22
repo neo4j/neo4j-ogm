@@ -41,7 +41,7 @@ public class GraphIdCapabilityTest extends MultiDriverTestClass {
 
     @Before
     public void init() throws IOException {
-        SessionFactory sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.music");
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
         session = sessionFactory.openSession();
         session.purgeDatabase();
         //Create some data

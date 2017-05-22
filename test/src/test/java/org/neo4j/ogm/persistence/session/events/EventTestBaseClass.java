@@ -58,7 +58,7 @@ public abstract class EventTestBaseClass extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem", "org.neo4j.ogm.domain.cineasts.annotated");
         eventListener  = new TestEventListener();
         sessionFactory.register(eventListener);
     }

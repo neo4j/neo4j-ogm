@@ -41,7 +41,7 @@ public class PropertiesTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() throws IOException {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), User.class.getName());
+        sessionFactory = new SessionFactory(driver, User.class.getName());
     }
 
     @Before

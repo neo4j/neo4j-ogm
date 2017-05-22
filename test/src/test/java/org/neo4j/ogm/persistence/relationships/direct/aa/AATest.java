@@ -40,7 +40,7 @@ public class AATest extends RelationshipTrait {
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.persistence.relationships.direct.aa");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships.direct.aa");
     }
 
     @Before

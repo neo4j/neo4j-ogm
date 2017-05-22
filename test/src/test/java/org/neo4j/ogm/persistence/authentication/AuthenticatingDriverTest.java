@@ -41,7 +41,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 
 	@Before
 	public void beforeMethod() {
-		assumeTrue(DriverManager.getDriver() instanceof HttpDriver);
+		assumeTrue(getBaseConfiguration().build().getDriverClassName().equals(HttpDriver.class.getName()));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class AuthenticatingDriverTest extends MultiDriverTestClass {
 	@Test
 	public void testAuthorizedDriver() {
 
-		session = new SessionFactory(getBaseConfiguration().build(), "dummy").openSession();
+		session = new SessionFactory(driver, "dummy").openSession();
 
 		try (Transaction ignored = session.beginTransaction()) {
 			assertNotNull(ignored);

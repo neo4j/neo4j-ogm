@@ -76,15 +76,6 @@ public class DriverServiceTest {
 
     }
 
-    @Test
-    public void loadLoadBoltDriver() {
-        Configuration driverConfiguration = new Configuration.Builder().uri("bolt://neo4j:password@localhost").build();
-        DriverManager.register(driverConfiguration.getDriverClassName());
-        Driver driver = DriverManager.getDriver();
-        assertNotNull(driver);
-        driver.close();
-        DriverManager.deregister(driver);
-    }
 
     private static void deleteDirectory(File dir)  {
         if (dir.isDirectory()) {

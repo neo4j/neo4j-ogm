@@ -45,7 +45,7 @@ public class SocialIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.social");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.social");
     }
 
     @Before

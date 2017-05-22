@@ -51,13 +51,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.hierarchy.domain");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.domain");
     }
 
     @Before
@@ -732,7 +730,7 @@ public class ClassHierarchiesIntegrationTest extends MultiDriverTestClass {
     public void shouldFailWithConflictingHierarchies() {
         getGraphDatabaseService().execute("CREATE (:Female:Person {name:'Daniela'})");
 
-        SessionFactory sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.hierarchy.conflicting");
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.hierarchy.conflicting");
         session = sessionFactory.openSession();
 
         assertEquals(0, session.loadAll(Female.class).size());

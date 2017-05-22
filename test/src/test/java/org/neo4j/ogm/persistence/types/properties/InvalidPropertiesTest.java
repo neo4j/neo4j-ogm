@@ -45,7 +45,7 @@ public class InvalidPropertiesTest extends MultiDriverTestClass {
 
     @Test(expected = MappingException.class)
     public void shouldThrowInvalidMappingException() throws Exception {
-        session = new SessionFactory(getBaseConfiguration().build(),
+        session = new SessionFactory(driver,
                 UserWithInvalidPropertiesType.class.getName())
                 .openSession();
     }

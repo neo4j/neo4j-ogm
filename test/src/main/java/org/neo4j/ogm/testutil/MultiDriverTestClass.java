@@ -21,10 +21,12 @@ import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.ogm.config.ClasspathConfigurationSource;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.DriverManager;
+import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.exception.ConfigurationException;
+import org.neo4j.ogm.session.SessionFactory;
 
 
 /**
@@ -36,6 +38,8 @@ public class MultiDriverTestClass {
 	private static TestServer testServer;
 	private static File graphStore;
 	private static Configuration.Builder baseConfiguration;
+	protected static SessionFactory sessionFactory;
+	protected static Driver driver;
 
 	static {
 
@@ -65,6 +69,21 @@ public class MultiDriverTestClass {
         } else {
             baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		}
+
+		if (driver == null) {
+			Configuration configuration = getBaseConfiguration().build();
+			driver = newDriverInstance(configuration.getDriverClassName());
+			driver.configure(configuration);
+		}
+	}
+
+	private static Driver newDriverInstance(String driverClassName) {
+		try {
+			final Class<?> driverClass = Class.forName(driverClassName);
+			return (Driver) driverClass.newInstance();
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+			throw new ConfigurationException("Could not load driver class " + driverClassName, e);
+		}
 	}
 
 	public static Configuration.Builder getBaseConfiguration() {
@@ -74,7 +93,11 @@ public class MultiDriverTestClass {
 	public static GraphDatabaseService getGraphDatabaseService() {
 		// if using an embedded config, return the db from the driver
 		if (baseConfiguration.build().getURI().startsWith("file")) {
-			return ((EmbeddedDriver) DriverManager.getDriver()).getGraphDatabaseService();
+			if (driver != null) {
+				return ((EmbeddedDriver) driver).getGraphDatabaseService();
+			} else if (sessionFactory != null) {
+				return ((EmbeddedDriver) sessionFactory.getDriver()).getGraphDatabaseService();
+			}
 		}
 		// else (bolt, http), return just a test server (not really used except for indices ?)
 		return testServer.getGraphDatabaseService();

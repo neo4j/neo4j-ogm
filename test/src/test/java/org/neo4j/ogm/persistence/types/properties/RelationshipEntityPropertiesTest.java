@@ -43,7 +43,7 @@ public class RelationshipEntityPropertiesTest extends MultiDriverTestClass {
     public static void init() throws IOException {
         // Listing concrete classes because package also contains invalid mapping (for testing)
         String[] classes = new String[]{User.class.getName(), Visit.class.getName(), Place.class.getName()};
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), classes);
+        sessionFactory = new SessionFactory(driver, classes);
     }
 
     @Before

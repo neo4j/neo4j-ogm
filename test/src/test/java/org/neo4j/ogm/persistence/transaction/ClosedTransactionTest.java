@@ -44,12 +44,12 @@ public class ClosedTransactionTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.tree");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.tree");
     }
 
     @Before
     public void init() {
-        transactionManager = new DefaultTransactionManager(session, DriverManager.getDriver());
+        transactionManager = new DefaultTransactionManager(session, sessionFactory.getDriver());
         session = sessionFactory.openSession();
     }
 

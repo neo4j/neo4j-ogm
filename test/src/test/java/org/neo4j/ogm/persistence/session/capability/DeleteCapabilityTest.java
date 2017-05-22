@@ -33,7 +33,7 @@ public class DeleteCapabilityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.music");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.music");
     }
 
     @Before

@@ -46,7 +46,7 @@ public class SatelliteIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.satellites");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.satellites");
         Session initialSession = sessionFactory.openSession();
         initialSession.query(TestUtils.readCQLFile("org/neo4j/ogm/cql/satellites.cql").toString(), Utils.map());
     }

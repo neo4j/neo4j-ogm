@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016 "Neo Technology,"
+ * Copyright (c) 2002-2017 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -53,7 +53,7 @@ public class BoltTransaction extends AbstractTransaction {
 				} else {
 					LOGGER.warn("Transaction is already closed");
 				}
-				nativeSession.close();
+				closeNativeSessionIfPossible();
 			}
 		} catch (Exception e) {
 			closeNativeSessionIfPossible();

@@ -18,7 +18,6 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import org.junit.*;
-import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.exception.TransactionManagerException;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -70,7 +69,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailCommitFreeTransactionInManagedContext() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
-        try (Transaction tx = DriverManager.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
+        try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
             transactionManager.commit(tx);
         }
     }
@@ -79,7 +78,7 @@ public class TransactionManagerTest extends MultiDriverTestClass {
     @Ignore("What's the rationale of this test ? Actually leaves tx in an inconsistent state")
     public void shouldFailRollbackFreeTransactionInManagedContext() {
         DefaultTransactionManager transactionManager = new DefaultTransactionManager(null, sessionFactory.getDriver());
-        try (Transaction tx = DriverManager.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
+        try (Transaction tx = sessionFactory.getDriver().newTransaction(Transaction.Type.READ_WRITE, null)) {
             transactionManager.rollback(tx);
         }
     }

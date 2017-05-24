@@ -26,8 +26,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.junit.*;
 import org.neo4j.ogm.driver.Driver;
-import org.neo4j.ogm.driver.DriverManager;
 import org.neo4j.ogm.drivers.http.driver.HttpDriver;
+import org.neo4j.ogm.session.SessionFactory;
 
 /**
  * @author vince
@@ -57,25 +57,22 @@ public class DriverServiceTest {
 
         Configuration driverConfiguration = new Configuration.Builder().uri("http://neo4j:password@localhost:7474").build();
 
-        DriverManager.register(driverConfiguration.getDriverClassName());
-        Driver driver = DriverManager.getDriver();
+        SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
+        Driver driver = sf.getDriver();
         assertNotNull(driver);
-        driver.close();
-        DriverManager.deregister(driver);
+        sf.close();
     }
 
     @Test
     public void shouldLoadEmbeddedDriver() {
         Configuration driverConfiguration = new Configuration.Builder().uri(TMP_NEO4J_DB.toString()).build();
 
-        DriverManager.register(driverConfiguration.getDriverClassName());
-        Driver driver = DriverManager.getDriver();
+        SessionFactory sf = new SessionFactory(driverConfiguration, "org.neo4j.ogm.domain.social.User");
+        Driver driver = sf.getDriver();
         assertNotNull(driver);
         driver.close();
-        DriverManager.deregister(driver);
-
+        sf.close();
     }
-
 
     private static void deleteDirectory(File dir)  {
         if (dir.isDirectory()) {
@@ -111,23 +108,25 @@ public class DriverServiceTest {
         // now set the config to ignore SSL handshaking and try again;
         Configuration configuration = new Configuration.Builder().uri("https://neo4j:password@localhost:7473").trustStrategy("ACCEPT_UNSIGNED").build();
 
-        DriverManager.register(configuration.getDriverClassName());
-        try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
+        SessionFactory sf = new SessionFactory(configuration, "org.neo4j.ogm.domain.social.User");
+        try (HttpDriver driver = (HttpDriver) sf.getDriver()) {
             driver.configure(configuration);
             driver.executeHttpRequest(request);
             Assert.fail("Should have thrown security exception");
         } catch (Exception e) {
             // expected
         }
+        sf.close();
 
 
-        DriverManager.register(configuration.getDriverClassName());
-        try (HttpDriver driver = (HttpDriver) DriverManager.getDriver()) {
+        sf = new SessionFactory(configuration, "org.neo4j.ogm.domain.social.User");
+        try (HttpDriver driver = (HttpDriver) sf.getDriver()) {
             driver.configure(configuration);
             driver.executeHttpRequest(request);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail("Should NOT have thrown security exception");
         }
+        sf.close();
     }
 }

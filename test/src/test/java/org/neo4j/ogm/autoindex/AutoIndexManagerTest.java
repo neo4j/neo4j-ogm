@@ -13,7 +13,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.DriverManager;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.ConfigurationException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 

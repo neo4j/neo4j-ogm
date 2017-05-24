@@ -161,6 +161,19 @@ A version that uses the Embedded driver is [also available](https://github.com/n
 
 To use the latest development version, just clone this repository and run `mvn clean install`
 
+## YourKit profiler
+
+We would like to thank YourKit for providing us a license for their product, which helps us to make OGM better.
+
+<a href="https://www.yourkit.com/java/profiler/">
+<img src="https://www.yourkit.com/images/yklogo.png">
+</a>
+
+YourKit supports open source projects with its full-featured Java Profiler.
+YourKit, LLC is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>
+and <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
+innovative and intelligent tools for profiling Java and .NET applications.
+
 ## License
 
 Neo4j-OGM and it's modules are licensed under the Apache License v 2.0.

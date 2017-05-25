@@ -26,6 +26,7 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.drivers.embedded.driver.EmbeddedDriver;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 /**
  * @author vince
@@ -64,6 +65,25 @@ public class EmbeddedDatabaseTest {
 				tx.success();
 			}
 		}
+	}
+
+	@Test
+	public void shouldWriteAndReadFromProvidedDatabase() throws Exception {
+
+		GraphDatabaseService impermanentDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+
+		try (EmbeddedDriver driver = new EmbeddedDriver(impermanentDatabase)) {
+
+			GraphDatabaseService databaseService = driver.getGraphDatabaseService();
+
+			try (Transaction tx = databaseService.beginTx()) {
+				databaseService.execute("CREATE (n: Node {name: 'node'})");
+				Result r = databaseService.execute("MATCH (n) RETURN n");
+				assertTrue(r.hasNext());
+				tx.success();
+			}
+		}
+
 	}
 
 	@Test

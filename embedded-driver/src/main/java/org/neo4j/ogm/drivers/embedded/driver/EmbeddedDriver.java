@@ -37,16 +37,28 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author vince
  */
 public class EmbeddedDriver extends AbstractConfigurableDriver {
 
-    private GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedDriver.class);
+    private static final int TIMEOUT = 60_000;
+
+    private GraphDatabaseService graphDatabaseService;
 
     // required for service loader mechanism
     public EmbeddedDriver() {
+    }
+
+    public EmbeddedDriver(GraphDatabaseService graphDatabaseService) {
+        this.graphDatabaseService = requireNonNull(graphDatabaseService);
+        boolean available = this.graphDatabaseService.isAvailable(TIMEOUT);
+        if (!available) {
+            throw new IllegalArgumentException("Provided GraphDatabaseService is not in usable state");
+        }
     }
 
     @Override

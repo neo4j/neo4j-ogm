@@ -18,6 +18,7 @@ import java.net.URI;
 
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
 import org.neo4j.ogm.authentication.UsernamePasswordCredentials;
 import org.neo4j.ogm.config.DriverConfiguration;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
@@ -63,7 +64,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
 			AuthToken authToken = AuthTokens.basic(credentials.getUsername(), credentials.getPassword());
 			boltDriver = GraphDatabase.driver(config.getURI(), authToken, driverConfig);
 		} else {
-			boltDriver = GraphDatabase.driver(config.getURI(), driverConfig);
+			try {
+				boltDriver = GraphDatabase.driver(config.getURI(), driverConfig);
+			} catch (ServiceUnavailableException e) {
+				throw new ConnectionException("Could not create driver instance.", e);
+			}
 			LOGGER.debug("Bolt Driver credentials not supplied");
 		}
 	}

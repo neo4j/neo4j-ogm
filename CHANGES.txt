@@ -3,7 +3,7 @@
 o Session.loadAll(Class<T> type, Collection<ID> ids) doesn't treat ids as primaryKeys but as nodeIDs. #349
 o Add native support for java.time.Instant and java.time.Instant. Fixes #348
 o Do not throw NPE when entity field is not a managed type. #347
-
+o Handle default platform encoding other than UTF-8. #244
 
 3.0.0-M01
 --------------

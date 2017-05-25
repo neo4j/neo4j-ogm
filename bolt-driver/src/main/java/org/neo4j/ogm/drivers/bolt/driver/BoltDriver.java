@@ -30,6 +30,8 @@ import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -43,6 +45,15 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     // required for service loader mechanism
     public BoltDriver() {
+    }
+
+    /**
+     * Create OGM BoltDriver with provided java neo4j driver
+     *
+     * @param boltDriver instance of java neo4j driver
+     */
+    public BoltDriver(Driver boltDriver) {
+        this.boltDriver = requireNonNull(boltDriver);
     }
 
     @Override

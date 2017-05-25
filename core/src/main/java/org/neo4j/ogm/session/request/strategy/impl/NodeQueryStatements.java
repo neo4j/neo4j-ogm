@@ -45,6 +45,16 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     @Override
     public PagingAndSortingQuery findOne(ID id, int depth) {
+       return findOneByType("", id, depth);
+    }
+
+    @Override
+    public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
+        String match = "n";
+        if (label != null && !label.equals("")) {
+            match = String.format("%s:`%s`", match, label);
+        }
+
         int max = max(depth);
         int min = min(max);
         if (depth < 0) {
@@ -53,9 +63,9 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         if (max > 0) {
             String qry;
             if (primaryIndex != null) {
-                qry = String.format("MATCH (n) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+                qry = String.format("MATCH (%s) WHERE n." + primaryIndex + " = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", match, min, max);
             } else {
-                qry = String.format("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
+                qry = String.format("MATCH (%s) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", match, min, max);
             }
             return new DefaultGraphModelRequest(qry, Utils.map("id", id));
         } else {

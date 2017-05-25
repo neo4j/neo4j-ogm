@@ -45,6 +45,22 @@ public class RelationshipQueryStatementsTest {
     }
 
     @Test
+    public void testFindOneByType() throws Exception {
+        assertEquals("MATCH ()-[r0:`ORBITS`]-() WHERE ID(r0)={id}  " +
+                        "WITH STARTNODE(r0) AS n, ENDNODE(r0) AS m MATCH p1 = (n)-[*0..2]-() " +
+                        "WITH COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..2]-() " +
+                        "WITH startPaths, COLLECT(DISTINCT p2) AS endPaths " +
+                        "WITH startPaths + endPaths AS paths UNWIND paths AS p RETURN DISTINCT p",
+                query.findOneByType("ORBITS", 0L, 2).getStatement());
+
+        // Also assert that an empty type is the same as the untyped findOne(..)
+        assertEquals(query.findOneByType("", 0L, 2).getStatement(),
+                query.findOne(0L, 2).getStatement());
+        assertEquals(query.findOneByType(null, 0L, 2).getStatement(),
+                query.findOne(0L, 2).getStatement());
+    }
+
+    @Test
     public void testFindAllCollection() throws Exception {
         assertEquals("MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  " +
                         "WITH r0,startnode(r0) AS n, endnode(r0) AS m " +

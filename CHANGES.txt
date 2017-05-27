@@ -12,6 +12,7 @@ o Allow use of CompositeConverter on fields in @RelationshipEntity classes
 o New feature: @Properties - dynamically map node properties
 o Relationships with same endNode load correctly. #361
 o Provide way to inject dependencies to drivers directly through constructors
+o Create OgmPluginInitializer for easy use of OGM in unmanaged extension
 
 3.0.0-M01
 --------------

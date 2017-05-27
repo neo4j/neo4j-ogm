@@ -65,8 +65,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     @Override
     public Transaction newTransaction(Transaction.Type type, String bookmark) {
-        Session session = newSession(type); //A bolt session can have at most one transaction running at a time
-        return new BoltTransaction(transactionManager, nativeTransaction(session, bookmark), session, type);
+        Session session = newSession(type, bookmark); //A bolt session can have at most one transaction running at a time
+        return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);
     }
 
     @Override
@@ -86,19 +86,20 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return new BoltRequest(transactionManager);
     }
 
-    private Session newSession(Transaction.Type type) {
+    private Session newSession(Transaction.Type type, String bookmark) {
         Session boltSession;
         try {
-            boltSession = boltDriver.session(type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE);
+            AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
+            boltSession = boltDriver.session(accessMode, bookmark);
         } catch (ClientException ce) {
-            throw new ConnectionException("Error connecting to graph database using Bolt: " + ce.neo4jErrorCode() + ", " + ce.getMessage(), ce);
+            throw new ConnectionException("Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
         } catch (Exception e) {
             throw new ConnectionException("Error connecting to graph database using Bolt", e);
         }
         return boltSession;
     }
 
-    private org.neo4j.driver.v1.Transaction nativeTransaction(Session session, String bookmark) {
+    private org.neo4j.driver.v1.Transaction nativeTransaction(Session session) {
 
         org.neo4j.driver.v1.Transaction nativeTransaction;
 
@@ -107,13 +108,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
             LOGGER.debug("Using current transaction: {}", tx);
             nativeTransaction = ((BoltTransaction) tx).nativeBoltTransaction();
         } else {
-            if (bookmark != null) {
-                LOGGER.debug("No current transaction, starting a new one with bookmark [{}]", bookmark);
-                nativeTransaction = session.beginTransaction(bookmark);
-            } else {
-                LOGGER.debug("No current transaction, starting a new one");
-                nativeTransaction = session.beginTransaction();
-            }
+            LOGGER.debug("No current transaction, starting a new one");
+            nativeTransaction = session.beginTransaction();
         }
         LOGGER.debug("Native transaction: {}", nativeTransaction);
         return nativeTransaction;
@@ -154,7 +150,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
             BoltConfig boltConfig = getBoltConfiguration(driverConfig);
             Config.ConfigBuilder configBuilder = Config.build();
             configBuilder.withMaxSessions(boltConfig.sessionPoolSize);
-            configBuilder.withEncryptionLevel(boltConfig.encryptionLevel);
+            if (boltConfig.encryptionLevel.equals(Config.EncryptionLevel.REQUIRED)) {
+                configBuilder.withEncryption();
+            } else {
+                configBuilder.withoutEncryption();
+            }
             if (boltConfig.trustStrategy != null) {
                 if (boltConfig.trustCertFile == null) {
                     throw new IllegalArgumentException("Missing configuration value for trust.certificate.file");

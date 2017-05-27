@@ -6,9 +6,11 @@
 
 Consult the version table to determine which version of the OGM to use with a particular version of Neo4j and related technologies.
 
+=== Compatibility
+
 [frame="topbot",options="header"]
 |======================
-|Neo4j-OGM Version   |Neo4j Version       | Bolt Version^#^ | Spring Data Neo4j Version | Spring Boot Version
+|Neo4j OGM Version   |Neo4j Version       | Bolt Version^#^ | Spring Data Neo4j Version | Spring Boot Version
 |3.0.0+              |3.0.x, 3.1.x        | 1.1.0+          | 5.0.0+                    | 2.0.0+
 |2.1.0+              |2.3.x, 3.0.x, 3.1.x | 1.1.0+          | 4.2.0+                    | 1.5.0+
 |2.0.2+              |2.3.x, 3.0.x        | 1.0.0+          | 4.1.2 - 4.1.6+            | 1.4.x
@@ -19,6 +21,23 @@ Consult the version table to determine which version of the OGM to use with a pa
 ^*^ __These versions are no longer actively developed or supported.__ +
 
 ^#^ __Not applicable to Embedded and HTTP drivers__
+
+=== Transitive dependencies
+
+The following table list transitive dependencies between specific versions of projects related to OGM.
+When reporting issues or asking for help on StackOverflow or neo4j-users slack channel always
+verify versions used (e.g through `mvn dependency:tree`) and report them as well.
+
+[frame="topbot",options="header"]
+|======================
+|Spring Boot Version | Spring Data Neo4j Version | Neo4j OGM Version | Bolt Version
+|1.5.3               | 4.2.3                     | 2.1.2             | 1.1.0
+|1.4.6               | 4.1.7                     | 2.0.5             | 1.0.6
+|======================
+
+[NOTE]
+These versions can be overridden manually in `pom.xml` or `build.gradle` files.
+
 
 [[reference:getting-started:dependency-management]]
 == Dependency Management

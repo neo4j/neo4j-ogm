@@ -214,6 +214,16 @@ In cases where the relationship mappings could be ambiguous, the recommendation 
 
 Examples of ambiguous relationship mappings are multiple relationship types that resolve to the same types of entities, in a given direction, but whose domain objects are not navigable in both directions.
 
+=== Ordering
+
+Neo4j doesn't have any ordering on relationships, so the relationships are fetched without any specific ordering.
+If you want to impose order on collections of relationships you have several options:
+
+- use a -SortedSet- and implement `Comparable`
+- sort relationships in @PostLoad method
+
+You can sort either by a property of a related node or by relationship property.
+To sort by relationship property you need to use relationship entity. See <<reference:annotating-entities:relationship-entity>>.
 
 [[reference:annotating-entities:relationship-entity]]
 == @RelationshipEntity: Rich relationships

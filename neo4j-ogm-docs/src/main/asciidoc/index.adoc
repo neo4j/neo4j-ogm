@@ -1,5 +1,6 @@
 = Neo4j OGM - Object Graph Mapping Library for Neo4j
 :toc:
+:toclevels: 3
 :toc-placement!:
 :revnumber: {version}
 :revdate: {localdate}

@@ -86,6 +86,20 @@ public class SessionFactory {
     }
 
     /**
+     * Create a session factory with given driver
+     *
+     * Use this constructor when you need to provide fully customized driver.
+     *
+     * @param driver
+     * @param packages
+     */
+    public SessionFactory(Driver driver, String packages) {
+        this.metaData = new MetaData(packages);
+        this.driver = driver;
+        this.eventListeners = new CopyOnWriteArrayList<>();
+    }
+
+    /**
      * Retrieves the meta-data that was built up when this {@link SessionFactory} was constructed.
      *
      * @return The underlying {@link MetaData}

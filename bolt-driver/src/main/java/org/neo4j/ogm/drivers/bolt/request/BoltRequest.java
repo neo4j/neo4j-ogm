@@ -160,7 +160,7 @@ public class BoltRequest implements Request {
             if (tx != null) {
                 tx.rollback();
             }
-            throw new CypherException("Error executing Cypher", ce, ce.neo4jErrorCode(), ce.getMessage());
+            throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         } catch (Exception e) {
             tx = (BoltTransaction) transactionManager.getCurrentTransaction();
             if (tx != null) {

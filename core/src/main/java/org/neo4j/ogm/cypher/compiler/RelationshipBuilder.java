@@ -15,6 +15,8 @@ package org.neo4j.ogm.cypher.compiler;
 
 import org.neo4j.ogm.model.Edge;
 
+import java.util.Map;
+
 /**
  * Builds a relationship to be persisted in the database
  *
@@ -27,6 +29,8 @@ public interface RelationshipBuilder {
     void setReference(Long reference);
 
     void addProperty(String key, Object value);
+
+    void addProperties(Map<String, ?> properties);
 
     String type();
 

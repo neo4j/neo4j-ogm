@@ -623,7 +623,11 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         for (FieldInfo propertyReader : relEntityClassInfo.propertyFields()) {
-            relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
+            if (propertyReader.isComposite()) {
+                relationshipBuilder.addProperties(propertyReader.readComposite(relationshipEntity));
+            } else {
+                relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
+            }
         }
     }
 

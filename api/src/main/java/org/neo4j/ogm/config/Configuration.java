@@ -156,7 +156,7 @@ public class Configuration {
 		Configuration that = (Configuration) o;
 
 		if (connectionPoolSize != that.connectionPoolSize) return false;
-		if (!uri.equals(that.uri)) return false;
+		if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
 		if (encryptionLevel != null ? !encryptionLevel.equals(that.encryptionLevel) : that.encryptionLevel != null)
 			return false;
 		if (trustStrategy != null ? !trustStrategy.equals(that.trustStrategy) : that.trustStrategy != null)
@@ -176,7 +176,7 @@ public class Configuration {
 
 	@Override
 	public int hashCode() {
-		int result = uri.hashCode();
+		int result = uri != null ? uri.hashCode() : 0;
 		result = 31 * result + connectionPoolSize;
 		result = 31 * result + (encryptionLevel != null ? encryptionLevel.hashCode() : 0);
 		result = 31 * result + (trustStrategy != null ? trustStrategy.hashCode() : 0);

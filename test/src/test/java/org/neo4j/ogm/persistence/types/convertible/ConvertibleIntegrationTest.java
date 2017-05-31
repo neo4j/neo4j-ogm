@@ -85,6 +85,30 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertTrue(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD));
     }
 
+    @Test
+    public void shouldSaveAndRetrieveEnumsAsResult() {
+        List<Education> completed = new ArrayList<>();
+        completed.add(Education.HIGHSCHOOL);
+        completed.add(Education.BACHELORS);
+
+        Person person = new Person();
+        person.setName("luanne");
+        person.setInProgressEducation(new Education[]{Education.MASTERS, Education.PHD});
+        person.setCompletedEducation(completed);
+        person.setGender(Gender.FEMALE);
+        session.save(person);
+        session.clear();
+
+        Result res = session.query("MATCH (p:Person{name:'luanne'}) return p", Collections.EMPTY_MAP);
+        Person luanne = (Person) res.queryResults().iterator().next().get("p");
+        assertEquals(Gender.FEMALE, luanne.getGender());
+        assertTrue(luanne.getCompletedEducation().contains(Education.HIGHSCHOOL));
+        assertTrue(luanne.getCompletedEducation().contains(Education.BACHELORS));
+        assertEquals(2, luanne.getInProgressEducation().length);
+        assertTrue(luanne.getInProgressEducation()[0].equals(Education.MASTERS) || luanne.getInProgressEducation()[1].equals(Education.MASTERS));
+        assertTrue(luanne.getInProgressEducation()[0].equals(Education.PHD) || luanne.getInProgressEducation()[1].equals(Education.PHD));
+    }
+
     /**
      * @see DATAGRAPH-550
      */

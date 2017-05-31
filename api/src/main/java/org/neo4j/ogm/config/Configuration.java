@@ -42,14 +42,16 @@ public class Configuration {
 	private String neo4jHaPropertiesFile;
 	private String driverName;
 	private Credentials credentials;
+    private Integer connectionLivenessCheckTimeout;
 
 
-	Configuration(Builder builder) {
+    Configuration(Builder builder) {
 		this.uri = builder.uri;
 		this.connectionPoolSize = builder.connectionPoolSize != null ? builder.connectionPoolSize : 50;
 		this.encryptionLevel = builder.encryptionLevel;
 		this.trustStrategy = builder.trustStrategy;
 		this.trustCertFile = builder.trustCertFile;
+		this.connectionLivenessCheckTimeout = builder.connectionLivenessCheckTimeout;
 		this.autoIndex = builder.autoIndex != null ? AutoIndexMode.fromString(builder.autoIndex) : AutoIndexMode.NONE;
 		this.generatedIndexesOutputDir = builder.generatedIndexesOutputDir != null ? builder.generatedIndexesOutputDir : ".";
 		this.generatedIndexesOutputFilename = builder.generatedIndexesOutputFilename != null ? builder.generatedIndexesOutputFilename : "generated_indexes.cql";
@@ -120,7 +122,11 @@ public class Configuration {
 		return trustCertFile;
 	}
 
-	public String getNeo4jHaPropertiesFile() {
+    public Integer getConnectionLivenessCheckTimeout() {
+        return connectionLivenessCheckTimeout;
+    }
+
+    public String getNeo4jHaPropertiesFile() {
 		return neo4jHaPropertiesFile;
 	}
 
@@ -199,6 +205,7 @@ public class Configuration {
 					.encryptionLevel(builder.encryptionLevel)
 					.trustStrategy(builder.trustStrategy)
 					.trustCertFile(builder.trustCertFile)
+					.connectionLivenessCheckTimeout(builder.connectionLivenessCheckTimeout)
 					.autoIndex(builder.autoIndex)
 					.generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
 					.generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
@@ -211,6 +218,7 @@ public class Configuration {
 		private static final String ENCRYPTION_LEVEL = "encryption.level";
 		private static final String TRUST_STRATEGY = "trust.strategy";
 		private static final String TRUST_CERT_FILE = "trust.certificate.file";
+		private static final String CONNECTION_LIVENESS_CHECK_TIMEOUT = "connection.liveness.check.timeout";
 		private static final String AUTO_INDEX = "indexes.auto";
 		private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
 		private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
@@ -221,6 +229,7 @@ public class Configuration {
 		private String encryptionLevel;
 		private String trustStrategy;
 		private String trustCertFile;
+        private Integer connectionLivenessCheckTimeout;
 		private String autoIndex;
 		private String generatedIndexesOutputDir;
 		private String generatedIndexesOutputFilename;
@@ -248,6 +257,9 @@ public class Configuration {
 						break;
 					case TRUST_CERT_FILE:
 						this.trustCertFile = (String) entry.getValue();
+						break;
+					case CONNECTION_LIVENESS_CHECK_TIMEOUT:
+						this.connectionLivenessCheckTimeout = Integer.valueOf((String) entry.getValue());
 						break;
 					case AUTO_INDEX:
 						this.autoIndex = (String) entry.getValue();
@@ -289,6 +301,11 @@ public class Configuration {
 
 		public Builder trustCertFile(String trustCertFile) {
 			this.trustCertFile = trustCertFile;
+			return this;
+		}
+
+		public Builder connectionLivenessCheckTimeout(Integer connectionLivenessCheckTimeout) {
+			this.connectionLivenessCheckTimeout = connectionLivenessCheckTimeout;
 			return this;
 		}
 

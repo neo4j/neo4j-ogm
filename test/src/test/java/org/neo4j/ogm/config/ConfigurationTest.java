@@ -25,6 +25,13 @@ public class ConfigurationTest {
 	@Test
 	public void shouldConfigureProgrammatically() {
 
+        Configuration config = new Configuration.Builder()
+            .encryptionLevel("REQUIRED")
+            .trustStrategy("TRUST_SIGNED_CERTIFICATES")
+            .trustCertFile("/tmp/cert")
+            .connectionLivenessCheckTimeout(1000)
+            .build();
+
 		Configuration.Builder builder = new Configuration.Builder();
 
 		builder.autoIndex("assert");
@@ -36,6 +43,7 @@ public class ConfigurationTest {
 		builder.encryptionLevel("REQUIRED");
 		builder.trustStrategy("TRUST_SIGNED_CERTIFICATES");
 		builder.trustCertFile("/tmp/cert");
+		builder.connectionLivenessCheckTimeout(1000);
 
 		Configuration configuration = builder.build();
 
@@ -49,6 +57,7 @@ public class ConfigurationTest {
 		assertEquals("REQUIRED", configuration.getEncryptionLevel());
 		assertEquals("TRUST_SIGNED_CERTIFICATES", configuration.getTrustStrategy());
 		assertEquals("/tmp/cert", configuration.getTrustCertFile());
+		assertEquals(1000, configuration.getConnectionLivenessCheckTimeout().intValue());
 	}
 
 	@Test

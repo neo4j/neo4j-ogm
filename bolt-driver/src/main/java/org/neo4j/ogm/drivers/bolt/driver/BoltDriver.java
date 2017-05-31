@@ -15,6 +15,7 @@ package org.neo4j.ogm.drivers.bolt.driver;
 
 import java.io.File;
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
@@ -142,6 +143,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
             boltConfig.trustCertFile = configuration.getTrustCertFile();
         }
 
+        if (configuration.getConnectionLivenessCheckTimeout() != null) {
+            boltConfig.connectionLivenessCheckTimeout = configuration.getConnectionLivenessCheckTimeout();
+        }
+
         return boltConfig;
     }
 
@@ -166,6 +171,9 @@ public class BoltDriver extends AbstractConfigurableDriver {
                     configBuilder.withTrustStrategy(Config.TrustStrategy.trustSignedBy(new File(new URI(boltConfig.trustCertFile))));
                 }
             }
+            if (boltConfig.connectionLivenessCheckTimeout != null) {
+                configBuilder.withConnectionLivenessCheckTimeout(boltConfig.connectionLivenessCheckTimeout, TimeUnit.MILLISECONDS);
+            }
 
             return configBuilder.toConfig();
         } catch (Exception e) {
@@ -180,5 +188,6 @@ public class BoltDriver extends AbstractConfigurableDriver {
         int sessionPoolSize = DEFAULT_SESSION_POOL_SIZE;
         Config.TrustStrategy.Strategy trustStrategy;
         String trustCertFile;
+        Integer connectionLivenessCheckTimeout;
     }
 }

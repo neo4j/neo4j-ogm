@@ -226,17 +226,21 @@ trust.strategy=TRUST_ON_FIRST_USE
 
 #Trust certificate file, required if trust.strategy is specified
 trust.certificate.file=/tmp/cert
+
+# interval, in milliseconds, to check for stale db connections (test-on-borrow)
+connection.liveness.check.timeout=1000
 ----
 
 a|
 [source, java]
 ----
-Configuration configuration = new Configuration();
-        configuration
-        ...
-        .setEncryptionLevel("REQUIRED")
-        .setTrustStrategy("TRUST_ON_FIRST_USE")
-        .setTrustCertFile("/tmp/cert");
+Configuration config = new Configuration.Builder()
+    ...
+    .encryptionLevel("REQUIRED")
+    .trustStrategy("TRUST_ON_FIRST_USE")
+    .trustCertFile("/tmp/cert")
+    .connectionLivenessCheckTimeout(1000)
+    .build();
 ----
 |======================
 

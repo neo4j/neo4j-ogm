@@ -16,7 +16,6 @@ package org.neo4j.ogm.config;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.neo4j.ogm.session.Neo4jException;
 
 /**
  * @author vince
@@ -56,6 +55,7 @@ public class ConfigurationTest {
 	public void shouldConfigureCredentialsFromURI() {
 		Configuration configuration = new Configuration.Builder().uri("http://fred:flintstone@localhost:8080").build();
 		assertEquals("ZnJlZDpmbGludHN0b25l", configuration.getCredentials().credentials().toString());
+        assertEquals("http://localhost:8080", configuration.getURI());
 	}
 
 	@Test

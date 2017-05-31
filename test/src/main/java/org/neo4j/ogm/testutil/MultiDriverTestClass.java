@@ -38,8 +38,6 @@ public class MultiDriverTestClass {
 	private static Configuration.Builder baseConfiguration;
 
 	static {
-        testServer = new TestServer(true, true, 5);
-        graphStore = createTemporaryGraphStore();
 
         String configFileName = System.getenv("ogm.properties");
         if (configFileName == null) {
@@ -48,18 +46,24 @@ public class MultiDriverTestClass {
         if (configFileName == null) {
             configFileName = "ogm.properties";
         }
-        baseConfiguration= new Configuration.Builder(new ClasspathConfigurationSource(configFileName));
+        baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource(configFileName));
+
+        if (baseConfiguration.build().getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
+            testServer = new TestServer(true, false, 5);
+        } else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
+            testServer = new TestServer(true, true, 5);
+        } else {
+            graphStore = createTemporaryGraphStore();
+        }
     }
 
 	@BeforeClass
 	public static void setupMultiDriverTestEnvironment() {
 
-		if (baseConfiguration.build().getDriverClassName().equals(HttpDriver.class.getCanonicalName())) {
-			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
-		} else if (baseConfiguration.build().getDriverClassName().equals(BoltDriver.class.getCanonicalName())) {
-			baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
-		} else {
-			baseConfiguration.uri(graphStore.toURI().toString()).build();
+		if (baseConfiguration.build().getDriverClassName().equals(EmbeddedDriver.class.getCanonicalName())) {
+            baseConfiguration.uri(graphStore.toURI().toString()).build();
+        } else {
+            baseConfiguration.uri(testServer.getUri()).credentials(testServer.getUsername(), testServer.getPassword());
 		}
 	}
 

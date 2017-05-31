@@ -35,12 +35,21 @@ public class MultiDriverTestClass {
 
 	private static TestServer testServer;
 	private static File graphStore;
-	private static Configuration.Builder baseConfiguration = new Configuration.Builder(new ClasspathConfigurationSource("ogm.properties"));
+	private static Configuration.Builder baseConfiguration;
 
 	static {
-		testServer = new TestServer(true, true, 5);
-		graphStore = createTemporaryGraphStore();
-	}
+        testServer = new TestServer(true, true, 5);
+        graphStore = createTemporaryGraphStore();
+
+        String configFileName = System.getenv("ogm.properties");
+        if (configFileName == null) {
+            configFileName = System.getProperty("ogm.properties");
+        }
+        if (configFileName == null) {
+            configFileName = "ogm.properties";
+        }
+        baseConfiguration= new Configuration.Builder(new ClasspathConfigurationSource(configFileName));
+    }
 
 	@BeforeClass
 	public static void setupMultiDriverTestEnvironment() {

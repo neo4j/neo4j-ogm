@@ -190,7 +190,7 @@ public class EntityAccessManager {
             return characters;
         }
 
-        if (value.getClass().isArray() && elementType == String.class || elementType.isEnum()) {
+        if (value.getClass().isArray() && (elementType == String.class || elementType.isEnum())) {
             String[] strings = (String[]) value;
             return Arrays.asList(strings);
         }

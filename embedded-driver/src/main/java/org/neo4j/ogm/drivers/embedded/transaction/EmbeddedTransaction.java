@@ -63,7 +63,7 @@ public class EmbeddedTransaction extends AbstractTransaction {
                 }
             }
         } catch (Exception e) {
-            throw new TransactionException(e.getLocalizedMessage());
+            throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
             super.rollback();
         }
@@ -82,7 +82,7 @@ public class EmbeddedTransaction extends AbstractTransaction {
                 }
             }
         } catch (Exception e) {
-            throw new TransactionException(e.getLocalizedMessage());
+            throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
             super.commit();
         }

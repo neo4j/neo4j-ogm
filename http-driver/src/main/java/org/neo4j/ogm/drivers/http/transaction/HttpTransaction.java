@@ -69,7 +69,7 @@ public class HttpTransaction extends AbstractTransaction {
                 driver.executeHttpRequest(request);
             }
         } catch (Exception e) {
-            throw new TransactionException(e.getLocalizedMessage());
+            throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
             super.commit(); // must always be done to keep extension depth correct
         }

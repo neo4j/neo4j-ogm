@@ -118,7 +118,7 @@ public class AutoIndexManager {
             writer = new FileWriter(file);
             writer.write(sb.toString());
         } catch (IOException e) {
-            throw new RuntimeException("Could not write file to " + file.getAbsolutePath());
+            throw new RuntimeException("Could not write file to " + file.getAbsolutePath(), e);
         } finally {
             if (writer != null) try {
                 writer.close();

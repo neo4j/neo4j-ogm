@@ -57,7 +57,7 @@ public class BoltTransaction extends AbstractTransaction {
             }
         } catch (Exception e) {
             closeNativeSessionIfPossible();
-            throw new TransactionException(e.getLocalizedMessage());
+            throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
             super.rollback();
         }
@@ -85,7 +85,7 @@ public class BoltTransaction extends AbstractTransaction {
             throw new CypherException("Error executing Cypher", ce, ce.code(), ce.getMessage());
         } catch (Exception e) {
             closeNativeSessionIfPossible();
-            throw new TransactionException(e.getLocalizedMessage());
+            throw new TransactionException(e.getLocalizedMessage(), e);
         } finally {
             super.commit();
             if (canCommit) {

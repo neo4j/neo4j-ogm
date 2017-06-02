@@ -62,7 +62,7 @@ public class Configuration {
 			try {
 				uri = new URI(this.uri);
 			} catch (URISyntaxException e) {
-				throw new RuntimeException("Could not configure supplied URI in Configuration");
+				throw new RuntimeException("Could not configure supplied URI in Configuration", e);
 			}
 			String userInfo = uri.getUserInfo();
 			if (userInfo != null) {

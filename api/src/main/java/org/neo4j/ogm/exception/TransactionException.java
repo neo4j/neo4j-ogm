@@ -21,4 +21,8 @@ public class TransactionException extends RuntimeException {
     public TransactionException(String msg) {
         super(msg);
     }
+
+    public TransactionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

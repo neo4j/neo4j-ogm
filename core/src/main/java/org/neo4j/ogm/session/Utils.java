@@ -171,7 +171,7 @@ public class Utils {
                         try {
                             return (char) Integer.parseInt(stringValue);
                         } catch (NumberFormatException nfe) {
-                            throw new IllegalArgumentException(stringValue + " cannot be cast to char");
+                            throw new IllegalArgumentException(stringValue + " cannot be cast to char", nfe);
                         }
                     }
                 }

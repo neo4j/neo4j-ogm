@@ -147,7 +147,7 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
                     logger.warn("Deleting temporary file store: " + fileStoreUri);
                     FileUtils.deleteDirectory(f);
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri);
+                    throw new RuntimeException("Failed to delete temporary files in " + fileStoreUri, e);
                 }
             }));
 

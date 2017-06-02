@@ -7,6 +7,7 @@ o Handle default platform encoding other than UTF-8. #244
 o Support for Neoj4 Bolt Driver 1.3.1
 o Fix MappingException when querying object with List<Enum> using Embedded. #359
 o Expose connection liveness driver parameter. #358
+o Support Neo4j 3.2.1
 
 3.0.0-M01
 --------------

@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.companies;
+package org.neo4j.ogm.domain.companies.annotated;
 
 import java.util.HashSet;
 import java.util.Set;

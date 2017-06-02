@@ -10,7 +10,7 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.domain.companies;
+package org.neo4j.ogm.domain.companies.annotated;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.NodeEntity;

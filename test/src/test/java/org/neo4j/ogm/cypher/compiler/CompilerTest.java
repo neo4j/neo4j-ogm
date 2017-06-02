@@ -669,7 +669,7 @@ public class CompilerTest {
         assertEquals(0, statements.size());
         statements = compiler.updateRelationshipStatements();
         assertEquals(1, statements.size());
-        assertEquals("START r=rel({relIds}) FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) RETURN ID(r) as ref, ID(r) as id, {type} as type", statements.get(0).getStatement());
+        assertEquals("MATCH ()-[r]-() WHERE ID(r) IN {relIds} FOREACH (row in filter(row in {rows} where row.relId = id(r)) | SET r += row.props) RETURN ID(r) as ref, ID(r) as id, {type} as type", statements.get(0).getStatement());
         List rows = (List) statements.get(0).getParameters().get("rows");
         assertEquals(1, rows.size());
     }

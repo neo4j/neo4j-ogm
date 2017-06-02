@@ -43,7 +43,7 @@ public class DeletedRelationshipEntityStatementBuilder implements CypherStatemen
 
         if (deletedEdges != null && deletedEdges.size() > 0) {
 
-            queryBuilder.append("START r=rel({relIds}) DELETE r");
+            queryBuilder.append("MATCH ()-[r]-() WHERE ID(r) IN {relIds} DELETE r");
 
             List<Long> relIds = new ArrayList<>(deletedEdges.size());
             List<Map> rows = new ArrayList<>();

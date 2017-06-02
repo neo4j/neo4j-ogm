@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2017 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -11,7 +11,7 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.companies;
+package org.neo4j.ogm.domain.companies.annotated;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +27,8 @@ public class Person {
     @GraphId
     Long id;
 
+    private String name;
+
     @Relationship(type = "EMPLOYEE", direction = "OUTGOING")
     private Company employer;
 
@@ -40,6 +42,7 @@ public class Person {
     }
 
     public Person(String name) {
+        this.name = name;
     }
 
     public Long getId() {
@@ -84,4 +87,5 @@ public class Person {
     public Set<Device> getDevices() {
         return devices;
     }
+
 }

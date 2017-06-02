@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2017 "Neo Technology,"
+ * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * This product is licensed to you under the Apache License, Version 2.0 (the "License").
@@ -10,30 +10,32 @@
  * code for these subcomponents is subject to the terms and
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
-package org.neo4j.ogm.domain.companies;
+
+package org.neo4j.ogm.domain.companies.partial;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.domain.companies.annotated.Company;
+import org.neo4j.ogm.domain.companies.annotated.Device;
 
 /**
- * @author Luanne Misquitta
+ * @author Frantisek Hartman
  */
-@NodeEntity
-public class Device {
+public class Person {
 
     @GraphId
-    private Long id;
+    Long id;
 
-    @Relationship(type = "DEVICE", direction = Relationship.UNDIRECTED)
-    private Person person;
+    private String name;
 
-    public Person getPerson() {
-        return person;
+    public Person() {
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public Person(String name) {
+        this.name = name;
     }
 
     public Long getId() {
@@ -42,5 +44,13 @@ public class Device {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

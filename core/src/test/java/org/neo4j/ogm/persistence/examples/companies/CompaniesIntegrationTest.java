@@ -25,9 +25,9 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.neo4j.ogm.domain.companies.Company;
-import org.neo4j.ogm.domain.companies.Device;
-import org.neo4j.ogm.domain.companies.Person;
+import org.neo4j.ogm.domain.companies.annotated.Company;
+import org.neo4j.ogm.domain.companies.annotated.Device;
+import org.neo4j.ogm.domain.companies.annotated.Person;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -42,7 +42,7 @@ public class CompaniesIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory("org.neo4j.ogm.domain.companies").openSession();
+        session = new SessionFactory("org.neo4j.ogm.domain.companies.annotated").openSession();
     }
 
     @After

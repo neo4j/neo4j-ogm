@@ -16,6 +16,7 @@ package org.neo4j.ogm.persistence.examples.social;
 import static org.junit.Assert.*;
 import static org.neo4j.ogm.testutil.GraphTestUtils.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.neo4j.ogm.domain.social.*;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.session.event.EventListenerAdapter;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 /**
@@ -270,5 +272,29 @@ public class SocialRelationshipsIntegrationTest extends MultiDriverTestClass {
         userA.unfriend(userB);
         session.save(userA);
         assertSameGraph(getGraphDatabaseService(), "CREATE (a:User {name:'A'}) CREATE (b:User {name:'B'})");
+    }
+
+    /**
+     * @see <a href="https://github.com/neo4j/neo4j-ogm/issues/305">issue 305</a>
+     */
+    @Test
+    public void shouldBePossibleToDeleteRelationshipToPurgedNodeWithEventListener() throws Exception {
+        session.register(new EventListenerAdapter());
+
+        Person a1 = new Person("a1");
+        Person a2 = new Person("a2");
+        Person b = new Person("b");
+
+        a1.setPeopleILike(Arrays.asList(b));
+        a2.setPeopleILike(Arrays.asList(b));
+
+        session.save(a1);
+        session.save(a2);
+
+        a1.setPeopleILike(Collections.<Person>emptyList());
+        session.save(a1);
+
+        a2.setPeopleILike(Collections.<Person>emptyList());
+        session.save(a2);
     }
 }

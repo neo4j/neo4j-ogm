@@ -1,3 +1,6 @@
+3.0.0-SNAPSHOT
+o Check if node is in MappingContext before firing events, fixes #305
+
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver
 o Support Neo4j version 3.3.0-alpha3 in 3.3 profile

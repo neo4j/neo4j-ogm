@@ -7,6 +7,7 @@ o Improve performance for saving large number of new relationships in one save r
 o Update Neo4j to version 3.0.10 in 3.0 profile
 o Update Neo4j to version 3.1.6 in 3.1 profile
 o Change graph id handling for new entities, fix #381
+o Check if node is in MappingContext before firing events, fixes #305
 
 2.1.3
 --------------

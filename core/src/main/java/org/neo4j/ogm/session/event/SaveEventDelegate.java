@@ -66,6 +66,21 @@ public final class SaveEventDelegate {
         else {
             preSaveCheck(object);
         }
+
+        // now fire events for any objects whose relationships have been deleted from reachable ones
+        // and which therefore have been possibly rendered unreachable from the object graph traversal
+        for(Object other : unreachable()) {
+            if (visit(other) && !preSaveFired(other)) { // only if not yet visited and not yet fired
+                firePreSave(other);
+            }
+        }
+
+        // fire events for existing nodes that are not dirty, but which have had an edge added:
+        for (Object other: touched()) {
+            if (!preSaveFired(other)) { // only if not yet already fired
+                firePreSave(other);
+            }
+        }
     }
 
     public void postSave() {
@@ -86,21 +101,6 @@ public final class SaveEventDelegate {
             }
         } else {
             logger.debug("already visited: {}", object);
-        }
-
-        // now fire events for any objects whose relationships have been deleted from reachable ones
-        // and which therefore have been possibly rendered unreachable from the object graph traversal
-        for(Object other : unreachable()) {
-            if (visit(other) && !preSaveFired(other)) { // only if not yet visited and not yet fired
-                firePreSave(other);
-            }
-        }
-
-        // fire events for existing nodes that are not dirty, but which have had an edge added:
-        for (Object other: touched()) {
-            if (!preSaveFired(other)) { // only if not yet already fired
-                firePreSave(other);
-            }
         }
 
     }
@@ -140,14 +140,27 @@ public final class SaveEventDelegate {
 
     private Set<Object> unreachable() {
 
-        Set<Object> unreachable = new HashSet();
+        Set<Object> unreachable = new HashSet<>();
 
         for (MappedRelationship mappedRelationship : deletedRelationships) {
-            unreachable.add(session.context().getNodeEntity(mappedRelationship.getStartNodeId()));
-            unreachable.add(session.context().getNodeEntity(mappedRelationship.getEndNodeId()));
+
+            logger.debug("unreachable start {} end {}", mappedRelationship.getStartNodeId(), mappedRelationship.getEndNodeId());
+
+            addUnreachable(unreachable, mappedRelationship.getStartNodeId());
+            addUnreachable(unreachable, mappedRelationship.getEndNodeId());
         }
 
         return unreachable;
+    }
+
+    private void addUnreachable(Set<Object> unreachable, long nodeId) {
+        Object entity = session.context().getNodeEntity(nodeId);
+        if (entity != null) {
+            unreachable.add(entity);
+        } else {
+            logger.warn("Relationship to/from entity id={} deleted, but entity is not " +
+                        "in context - no events will be fired.", nodeId);
+        }
     }
 
     // registers this object as visited and returns true if it was not previously visited, false otherwise

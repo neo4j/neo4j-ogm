@@ -10,6 +10,7 @@ o Expose connection liveness driver parameter. #358
 o Support Neo4j 3.2.1
 o Allow use of CompositeConverter on fields in @RelationshipEntity classes
 o New feature: @Properties - dynamically map node properties
+o Relationships with same endNode load correctly. #361
 
 3.0.0-M01
 --------------

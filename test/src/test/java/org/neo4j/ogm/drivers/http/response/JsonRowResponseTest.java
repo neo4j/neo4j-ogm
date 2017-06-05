@@ -91,10 +91,10 @@ public class JsonRowResponseTest {
             TestCase.assertNotNull(rowModel);
             Object[] rows = rowModel.getValues();
             TestCase.assertEquals(4, rows.length);
-            TestCase.assertEquals(388, rows[0]);
-            TestCase.assertEquals(527, rows[1]);
-            TestCase.assertEquals(389, rows[2]);
-            TestCase.assertEquals(528, rows[3]);
+            TestCase.assertEquals(388L, rows[0]);
+            TestCase.assertEquals(527L, rows[1]);
+            TestCase.assertEquals(389L, rows[2]);
+            TestCase.assertEquals(528L, rows[3]);
         }
     }
 

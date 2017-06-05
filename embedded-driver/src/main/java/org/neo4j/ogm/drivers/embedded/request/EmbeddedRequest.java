@@ -16,6 +16,7 @@ package org.neo4j.ogm.drivers.embedded.request;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +53,9 @@ public class EmbeddedRequest implements Request {
     private final GraphDatabaseService graphDatabaseService;
     private final Logger logger = LoggerFactory.getLogger(EmbeddedRequest.class);
     private final TransactionManager transactionManager;
+
+    private final TypeReference<HashMap<String, Object>> MAP_TYPE_REF = new TypeReference<HashMap<String, Object>>() {
+    };
 
     public EmbeddedRequest(GraphDatabaseService graphDatabaseService, TransactionManager transactionManager) {
         this.graphDatabaseService = graphDatabaseService;
@@ -144,11 +148,8 @@ public class EmbeddedRequest implements Request {
 
         try {
             String cypher = statement.getStatement();
-            String params = mapper.writeValueAsString(statement.getParameters());
-            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
-            };
-            HashMap<String, Object> parameterMap = mapper.readValue(params, typeRef);
 
+            Map<String, Object> parameterMap = mapper.convertValue(statement.getParameters(), MAP_TYPE_REF);
             logger.info("Request: {} with params {}", cypher, parameterMap);
 
             // If we don't have a current transactional context for this operation

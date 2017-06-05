@@ -14,6 +14,7 @@
 package org.neo4j.ogm.config;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -24,7 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ObjectMapperFactory {
 
     private static final JsonFactory jsonFactory = new JsonFactory();
-    private static final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+    private static final ObjectMapper mapper = new ObjectMapper(jsonFactory)
+            .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
 
     private ObjectMapperFactory() {
 

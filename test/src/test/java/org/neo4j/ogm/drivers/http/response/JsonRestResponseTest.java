@@ -80,9 +80,9 @@ public class JsonRestResponseTest {
             Map<String, Object> rows = restModel.getRow();
             Assert.assertEquals(3, rows.entrySet().size());
 
-            Assert.assertEquals(1, rows.get("count"));
+            Assert.assertEquals(1L, rows.get("count"));
             NodeModel data = (NodeModel) rows.get("director");
-            Assert.assertEquals(1931, data.property("born"));
+            Assert.assertEquals(1931L, data.property("born"));
             data = (NodeModel) rows.get("movie");
             Assert.assertEquals("The Birdcage", data.property("title"));
             Assert.assertEquals(395L, data.getId().longValue());
@@ -90,11 +90,11 @@ public class JsonRestResponseTest {
             restModel = rsp.next();
             rows = restModel.getRow();
             Assert.assertEquals(3, rows.entrySet().size());
-            Assert.assertEquals(1, rows.get("count"));
+            Assert.assertEquals(1L, rows.get("count"));
             data = (NodeModel) rows.get("director");
-            Assert.assertEquals(1931, data.property("born"));
+            Assert.assertEquals(1931L, data.property("born"));
             data = (NodeModel) rows.get("movie");
-            Assert.assertEquals(2007, data.property("released"));
+            Assert.assertEquals(2007L, data.property("released"));
         }
     }
 

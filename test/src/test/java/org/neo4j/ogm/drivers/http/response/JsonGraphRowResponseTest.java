@@ -65,7 +65,7 @@ public class JsonGraphRowResponseTest {
             TestCase.assertEquals(2, rows.length);
             Map row1 = (Map) ((List) rows[0]).get(0);
             TestCase.assertEquals("GraphAware", row1.get("name"));
-            TestCase.assertEquals(26, rows[1]);
+            TestCase.assertEquals(26L, rows[1]);
         }
     }
 

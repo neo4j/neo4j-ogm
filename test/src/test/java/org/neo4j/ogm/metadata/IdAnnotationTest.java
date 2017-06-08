@@ -18,84 +18,62 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.annotation.GenerationType;
-import org.neo4j.ogm.domain.annotations.ids.InvalidAnnotations;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
+import org.neo4j.ogm.id.UuidStrategy;
 
 public class IdAnnotationTest {
 
-	private MetaData metaData;
+    private MetaData metaData;
 
-	@Before
-	public void setUp() throws Exception {
-		metaData = new MetaData("org.neo4j.ogm.domain.annotations.ids");
-	}
+    @Before
+    public void setUp() throws Exception {
+        metaData = new MetaData("org.neo4j.ogm.domain.annotations.ids");
+    }
 
-	@Test
-	@Ignore("to be implemented")
-	public void shouldSupportClassWithoutId() throws Exception {
+    @Test
+    @Ignore("Classes without graph id field not implemented yet")
+    public void shouldSupportClassWithoutId() throws Exception {
 
-		ValidAnnotations.WithoutId entity = new ValidAnnotations.WithoutId();
+        ValidAnnotations.WithoutId entity = new ValidAnnotations.WithoutId();
 
-		ClassInfo classInfo = metaData.classInfo(entity);
-		assertThat(classInfo.primaryIndexField()).isNull();
-	}
+        ClassInfo classInfo = metaData.classInfo(entity);
+        assertThat(classInfo.primaryIndexField()).isNull();
+    }
 
-	@Test
-	public void shouldFindBasicId() throws Exception {
+    @Test
+    public void shouldFindInternalIdentifier() throws Exception {
+        ValidAnnotations.InternalIdWithAnnotation entity = new ValidAnnotations.InternalIdWithAnnotation();
+        ClassInfo classInfo = metaData.classInfo(entity);
+        // primary index field should be null, @Id is internal
+        assertThat(classInfo.primaryIndexField()).isNull();
+    }
 
-		ValidAnnotations.Basic entity = new ValidAnnotations.Basic();
+    @Test
+    public void shouldFindBasicId() throws Exception {
 
-		ClassInfo classInfo = metaData.classInfo(entity);
-		assertThat(classInfo.primaryIndexField().getName()).isNotNull().isEqualTo("identifier");
-	}
+        ValidAnnotations.Basic entity = new ValidAnnotations.Basic();
 
-	@Test
-	public void shouldFindBasicChild() throws Exception {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        assertThat(classInfo.primaryIndexField().getName()).isNotNull().isEqualTo("identifier");
+    }
 
-		ValidAnnotations.BasicChild entity = new ValidAnnotations.BasicChild();
+    @Test
+    public void shouldFindBasicChild() throws Exception {
 
-		ClassInfo classInfo = metaData.classInfo(entity);
-		assertThat(classInfo.primaryIndexField().getName()).isNotNull().isEqualTo("identifier");
-	}
+        ValidAnnotations.BasicChild entity = new ValidAnnotations.BasicChild();
 
-	@Test
-	public void shouldFindIdAndGenerationType() throws Exception {
+        ClassInfo classInfo = metaData.classInfo(entity);
+        assertThat(classInfo.primaryIndexField().getName()).isNotNull().isEqualTo("identifier");
+    }
 
-		ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
+    @Test
+    public void shouldFindIdAndGenerationType() throws Exception {
 
-		ClassInfo classInfo = metaData.classInfo(entity);
-		assertThat(classInfo.primaryIndexField()).isNotNull();
-		assertThat(classInfo.idGenerationStrategy()).isNotNull().isEqualTo(GenerationType.UUID);
-	}
+        ValidAnnotations.IdAndGenerationType entity = new ValidAnnotations.IdAndGenerationType();
 
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldRejectTwoIdsOnSameClass() throws Exception {
-
-		metaData.classInfo(new InvalidAnnotations.TwoIdsOnSameClass()).primaryIndexField();
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldRejectBothIdAndPrimaryIndexOnDifferentProperty() throws Exception {
-
-		metaData.classInfo(new InvalidAnnotations.BothIdAndPrimaryIndexOnDifferentProperty()).primaryIndexField();
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldRejectChildHasPrimaryIndexExtendsAndParentHasId() throws Exception {
-
-		metaData.classInfo(new InvalidAnnotations.ChildHasPrimaryIndexExtendsAndParentHasId()).primaryIndexField();
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldRejectUuidGenerationStrategyWithIdTypeNotUuid() throws Exception {
-
-		metaData.classInfo(new InvalidAnnotations.UuidGenerationStrategyWithIdTypeNotUuid()).primaryIndexField();
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldRejectGeneratedValueWithoutID() throws Exception {
-
-		metaData.classInfo(new InvalidAnnotations.GeneratedValueWithoutID()).primaryIndexField();
-	}
+        ClassInfo classInfo = metaData.classInfo(entity);
+        assertThat(classInfo.primaryIndexField()).isNotNull();
+        assertThat(classInfo.idStrategy()).isNotNull()
+                .isInstanceOf(UuidStrategy.class);
+    }
 }

@@ -18,32 +18,61 @@ import java.util.UUID;
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.id.UuidStrategy;
+import org.neo4j.ogm.metadata.IdGenerationTest;
+import org.neo4j.ogm.metadata.IdGenerationTest.CustomIdStrategy;
 import org.neo4j.ogm.typeconversion.UuidStringConverter;
 
 public class ValidAnnotations {
 
-	public static class WithoutId {
-		public String identifier;
-	}
+    public static class WithoutId {
+        //@Id not implemented yet
+        public String identifier;
+    }
 
-	public static class Basic {
-		public Long id;
-		@Id public String identifier;
-	}
+    public static class InternalId {
+        public Long id;
+    }
 
-	public static class IdAndGenerationType {
-		public Long id;
-		@Id @GeneratedValue(strategy = org.neo4j.ogm.annotation.GenerationType.UUID)
-		public String identifier;
-	}
+    public static class InternalIdWithAnnotation {
+        @Id @GeneratedValue public Long identifier;
+    }
 
-	public static class UuidIdAndGenerationType {
-		public Long id;
-		@Id @GeneratedValue(strategy = org.neo4j.ogm.annotation.GenerationType.UUID)
-		@Convert(UuidStringConverter.class)
-		public UUID identifier;
-	}
+    public static class Basic {
+        public Long id;
+        @Id public String identifier;
+    }
 
-	public static class BasicChild extends Basic {
-	}
+
+    public static class IdAndGenerationType {
+        public Long id;
+        @Id @GeneratedValue(strategy = UuidStrategy.class)
+        public String identifier;
+    }
+
+    public static class UuidIdAndGenerationType {
+        public Long id;
+        @Id @GeneratedValue(strategy = UuidStrategy.class)
+        @Convert(UuidStringConverter.class)
+        public UUID identifier;
+    }
+
+    public static class BasicChild extends Basic {
+    }
+
+    public static class WithCustomIdStrategy {
+
+        public Long id;
+
+        @Id @GeneratedValue(strategy = CustomIdStrategy.class)
+        public String idetifier;
+    }
+
+    public static class WithCustomInstanceIdStrategy {
+
+        public Long id;
+
+        @Id @GeneratedValue(strategy = IdGenerationTest.CustomInstanceIdStrategy.class)
+        public String idetifier;
+    }
 }

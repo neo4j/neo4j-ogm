@@ -13,6 +13,9 @@
 
 package org.neo4j.ogm.annotation;
 
+import org.neo4j.ogm.id.IdStrategy;
+import org.neo4j.ogm.id.InternalIdStrategy;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,5 +37,5 @@ public @interface GeneratedValue {
 	 * that the persistence provider must use to
 	 * generate the annotated entity id.
 	 */
-	GenerationType strategy() default GenerationType.NEO4J_INTERNAL_ID;
+	Class<? extends IdStrategy> strategy() default InternalIdStrategy.class;
 }

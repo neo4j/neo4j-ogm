@@ -18,11 +18,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.MetadataException;
+import org.neo4j.ogm.id.IdStrategy;
+import org.neo4j.ogm.id.InternalIdStrategy;
+import org.neo4j.ogm.id.UuidStrategy;
+import org.neo4j.ogm.session.Neo4jException;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +82,8 @@ public class ClassInfo {
     private volatile MethodInfo postLoadMethod;
     private boolean primaryIndexFieldChecked = false;
     private Class<?> cls;
-    private GenerationType idGenerationStrategy;
+    private Class<? extends IdStrategy> idStrategyClass;
+    private IdStrategy idStrategy;
 
     /**
      * This class was referenced as a superclass of the given subclass.
@@ -282,7 +288,7 @@ public class ClassInfo {
     private FieldInfo identityFieldOrNull() {
         try {
             return identityField();
-        } catch (MappingException me) {
+        } catch (MetadataException me) {
             return null;
         }
     }
@@ -299,14 +305,14 @@ public class ClassInfo {
             return identityField;
         }
         if (identityField == null) {
-            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(GraphId.class);
-                if (annotationInfo != null) {
-                    if (fieldInfo.getTypeDescriptor().equals("java.lang.Long")) {
-                        identityField = fieldInfo;
-                        return fieldInfo;
-                    }
-                }
+            Collection<FieldInfo> identityFields = getFieldInfos(this::isInternalIdentity);
+            if (identityFields.size() == 1) {
+                identityField = identityFields.iterator().next();
+                return identityField;
+            }
+            if (identityFields.size() > 1) {
+                throw new MetadataException("Expected exactly one internal identity field (@GraphId or @Id with " +
+                        "InternalIdStrategy), found " + identityFields.size() + " " + identityFields);
             }
             FieldInfo fieldInfo = fieldsInfo().get("id");
             if (fieldInfo != null) {
@@ -315,10 +321,26 @@ public class ClassInfo {
                     return fieldInfo;
                 }
             }
-            throw new MappingException("No identity field found for class: " + this.className);
+            throw new MetadataException("No internal identity field found for class: " + this.className);
         } else {
             return identityField;
         }
+    }
+
+    // Identity field
+    private boolean isInternalIdentity(FieldInfo fieldInfo) {
+        return fieldInfo.getAnnotations().has(GraphId.class) ||
+                (fieldInfo.getAnnotations().has(Id.class) &&
+                        fieldInfo.getAnnotations().has(GeneratedValue.class) &&
+                        ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation())
+                                .strategy().equals(InternalIdStrategy.class)
+                );
+    }
+
+    Collection<FieldInfo> getFieldInfos(Predicate<FieldInfo> predicate) {
+        return fieldsInfo().fields().stream()
+                .filter(predicate)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -760,10 +782,9 @@ public class ClassInfo {
             throw new RuntimeException("Could not reflectively read declared fields", e);
         }
 
-        final String indexAnnotation = Index.class.getName();
-
         for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-            if (isDeclaredField(declaredFields, fieldInfo.getName()) && fieldInfo.hasAnnotation(indexAnnotation)) {
+            if (isDeclaredField(declaredFields, fieldInfo.getName()) &&
+                    (fieldInfo.hasAnnotation(Index.class) || fieldInfo.hasAnnotation(Id.class))) {
 
                 String propertyValue = fieldInfo.property();
                 if (fieldInfo.hasAnnotation(Property.class.getName())) {
@@ -789,23 +810,16 @@ public class ClassInfo {
     public FieldInfo primaryIndexField() {
         if (!primaryIndexFieldChecked && primaryIndexField == null) {
 
-            Supplier<Stream<FieldInfo>> idAnnotations = () -> Stream.of(fieldsInfo().fields().toArray(new FieldInfo[]{}))
-                    .filter(info -> {
-                        AnnotationInfo indexAnnoration = info.getAnnotations().get(Index.class);
-                        return info.getAnnotations().get(Id.class) != null
-                                || (indexAnnoration != null && indexAnnoration.get("primary") != null
-                                && indexAnnoration.get("primary").equals("true"));
-                    });
-            if (idAnnotations.get().count() > 1) {
-                throw new IllegalArgumentException("Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class " + name() + " or its parents");
-            }
-
-            primaryIndexField = idAnnotations.get().findFirst().orElse(null);
-            if (primaryIndexField != null) {
+            Collection<FieldInfo> primaryIndexFields = getFieldInfos(this::isPrimaryIndexField);
+            if (primaryIndexFields.size() > 1) {
+                throw new MetadataException("Only one @Id / @Index(primary=true, unique=true) annotation is allowed in a class hierarchy. Please check annotations in the class " + name() + " or its parents");
+            } else if (primaryIndexFields.size() == 1) {
+                primaryIndexField = primaryIndexFields.iterator().next();
                 AnnotationInfo generatedValueAnnotation = primaryIndexField.getAnnotations().get(GeneratedValue.class);
                 if (generatedValueAnnotation != null) {
-                    String strategyName = generatedValueAnnotation.get("strategy", GenerationType.NEO4J_INTERNAL_ID.name());
-                    idGenerationStrategy = GenerationType.valueOf(strategyName);
+                    GeneratedValue value = (GeneratedValue) generatedValueAnnotation.getAnnotation();
+                    idStrategyClass = value.strategy();
+                    instantiateIdStrategy();
                 }
             }
             validateIdGenerationConfig();
@@ -815,24 +829,58 @@ public class ClassInfo {
         return primaryIndexField;
     }
 
-    private void validateIdGenerationConfig() {
-        fieldsInfo().fields().forEach(info -> {
-			if (info.hasAnnotation(GeneratedValue.class) && ! info.hasAnnotation(Id.class)) {
-				throw new IllegalArgumentException("The type of @Generated field in class " + className + " must be also annotated with @Id.");
-			}
-		});
-        if (GenerationType.UUID.equals(idGenerationStrategy)
-				&& !primaryIndexField.isTypeOf(UUID.class)
-				&& !primaryIndexField.isTypeOf(String.class)) {
-			throw new IllegalArgumentException("The type of " + primaryIndexField.getName() + " in class " + className + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
-		}
+    private boolean isPrimaryIndexField(FieldInfo fieldInfo) {
+        // primary index field is either
+        // field with @Id or @Id @GeneratedValue(strategy=..) where strategy != InternalIdStrategy
+        return (fieldInfo.getAnnotations().has(Id.class) &&
+                !(fieldInfo.getAnnotations().has(GeneratedValue.class) &&
+                        ((GeneratedValue) fieldInfo.getAnnotations().get(GeneratedValue.class).getAnnotation()).strategy().equals(InternalIdStrategy.class)
+
+                )) ||
+                // or @Index(primary=true) - backward compatibility
+                fieldInfo.getAnnotations().has(Index.class) &&
+                        ((Index) fieldInfo.getAnnotations().get(Index.class).getAnnotation()).primary();
     }
 
-    public GenerationType idGenerationStrategy() {
+    private void instantiateIdStrategy() {
+        try {
+            idStrategy = idStrategyClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            LOGGER.debug("Could not instantiate {}. Expecting this to be registered manually.", idStrategyClass);
+        }
+    }
+
+    private void validateIdGenerationConfig() {
+        fieldsInfo().fields().forEach(info -> {
+            if (info.hasAnnotation(GeneratedValue.class) && !info.hasAnnotation(Id.class)) {
+                throw new MetadataException("The type of @Generated field in class " + className + " must be also annotated with @Id.");
+            }
+        });
+        if (UuidStrategy.class.equals(idStrategyClass)
+                && !primaryIndexField.isTypeOf(UUID.class)
+                && !primaryIndexField.isTypeOf(String.class)) {
+            throw new MetadataException("The type of " + primaryIndexField.getName() + " in class " + className + " must be of type java.lang.UUID or java.lang.String because it has an UUID generation strategy.");
+        }
+    }
+
+    public IdStrategy idStrategy() {
         if (!primaryIndexFieldChecked) {
             primaryIndexField(); // force init
         }
-        return idGenerationStrategy;
+        return idStrategy;
+    }
+
+    public Class<? extends IdStrategy> idStrategyClass() {
+        return idStrategyClass;
+    }
+
+    public void registerIdGenerationStrategy(IdStrategy strategy) {
+        if (strategy.getClass().equals(idStrategyClass)) {
+            idStrategy = strategy;
+        } else {
+            throw new IllegalArgumentException("Strategy " + strategy +
+                    " is not an instance of " + idStrategyClass);
+        }
     }
 
     public MethodInfo postLoadMethodOrNull() {

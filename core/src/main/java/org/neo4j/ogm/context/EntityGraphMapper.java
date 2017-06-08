@@ -19,12 +19,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
 
-import org.neo4j.ogm.annotation.GenerationType;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.cypher.compiler.*;
 import org.neo4j.ogm.cypher.compiler.Compiler;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.id.IdStrategy;
+import org.neo4j.ogm.id.InternalIdStrategy;
+import org.neo4j.ogm.id.UuidStrategy;
 import org.neo4j.ogm.metadata.AnnotationInfo;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -212,7 +214,7 @@ public class EntityGraphMapper implements EntityMapper {
             return context.visitedNode(identity);
         }
 
-        if (GenerationType.UUID.equals(classInfo.idGenerationStrategy())) {
+        if (classInfo.idStrategyClass() != null && !InternalIdStrategy.class.equals(classInfo.idStrategyClass())) {
             generateIdIfNecessary(entity, classInfo);
         }
 
@@ -229,11 +231,21 @@ public class EntityGraphMapper implements EntityMapper {
     }
 
     private void generateIdIfNecessary(Object entity, ClassInfo classInfo) {
+        if (classInfo.idStrategy() == null) {
+            throw new MappingException("Id strategy " + classInfo.idStrategyClass() + " could not be instantiated " +
+                    "and wasn't registered. Either provide no argument constructor or register instance " +
+                    "with SessionFactory");
+        }
         FieldInfo primaryIndexField = classInfo.primaryIndexField();
         Object existingUuid = primaryIndexField.read(entity);
         if (existingUuid == null) {
-			primaryIndexField.write(entity, UUID.randomUUID().toString());
-		}
+            IdStrategy strategy = classInfo.idStrategy();
+            Object id = strategy.generateId(entity);
+            if (strategy instanceof UuidStrategy && primaryIndexField.isTypeOf(String.class)) {
+                id = id.toString();
+            }
+            primaryIndexField.writeDirect(entity, id);
+        }
     }
 
     /**
@@ -262,12 +274,6 @@ public class EntityGraphMapper implements EntityMapper {
             LOGGER.debug("{}, has not changed", entity);
         }
 
-//        if (mappingContext.isDirty(entity)) {
-//            context.register(entity);
-//            nodeBuilder.add(entity, metaData.classInfo(entity));
-//        } else {
-//            context.deregister(nodeBuilder);
-//        }
     }
 
     /**

@@ -17,11 +17,7 @@ package org.neo4j.ogm.metadata;
 import java.lang.reflect.*;
 import java.util.Map;
 
-import org.neo4j.ogm.annotation.Index;
-import org.neo4j.ogm.annotation.Labels;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Properties;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.session.Utils;
 import org.neo4j.ogm.typeconversion.AttributeConverter;
@@ -349,6 +345,10 @@ public class FieldInfo {
      * @return <code>true</code> is this field is a constraint rather than just a plain index.
      */
     public boolean isConstraint() {
+        AnnotationInfo idAnnotation = this.getAnnotations().get(Id.class.getName());
+        if (idAnnotation != null) {
+            return true;
+        }
         AnnotationInfo indexAnnotation = this.getAnnotations().get(Index.class.getName());
         return indexAnnotation != null && indexAnnotation.get("unique", "false").equals("true");
     }
@@ -388,6 +388,16 @@ public class FieldInfo {
             }
             write(field, instance, value);
         }
+    }
+
+    /**
+     * Write the value of the field directly to the instance, bypassing the converters
+     *
+     * @param instance class instance
+     * @param value field value to be written
+     */
+    public void writeDirect(Object instance, Object value) {
+        write(field, instance, value);
     }
 
     public Class<?> type() {

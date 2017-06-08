@@ -15,6 +15,7 @@ package org.neo4j.ogm.session.delegates;
 
 
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.exception.MetadataException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
 
@@ -39,7 +40,7 @@ public class GraphIdDelegate {
                         return (long) id;
                     }
                 }
-            } catch (MappingException me) {
+            } catch (MetadataException me) {
                 //Possibly no identity field on the entity. One example is an Enum- it won't have an identity field.
                 return null;
             }

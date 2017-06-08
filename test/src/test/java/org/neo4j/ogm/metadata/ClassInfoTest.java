@@ -42,7 +42,13 @@ public class ClassInfoTest {
 
     @Before
     public void setUp() {
-        metaData = new MetaData("org.neo4j.ogm.domain.forum", "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.metadata", "org.neo4j.ogm.domain.canonical", "org.neo4j.ogm.domain.hierarchy.domain", "org.neo4j.ogm.domain.cineasts.partial");
+        metaData = new MetaData("org.neo4j.ogm.domain.forum",
+                "org.neo4j.ogm.domain.pizza",
+                "org.neo4j.ogm.metadata",
+                "org.neo4j.ogm.domain.canonical",
+                "org.neo4j.ogm.domain.hierarchy.domain",
+                "org.neo4j.ogm.domain.cineasts.partial",
+                "org.neo4j.ogm.domain.annotations.ids");
     }
 
     /**
@@ -54,6 +60,8 @@ public class ClassInfoTest {
         assertEquals("id", classInfo.identityField().getName());
         classInfo = metaData.classInfo("Bronze");
         assertEquals("id", classInfo.identityField().getName());
+        classInfo = metaData.classInfo("ValidAnnotations$InternalIdWithAnnotation");
+        assertEquals("identifier", classInfo.identityField().getName());
     }
 
     /**
@@ -101,6 +109,21 @@ public class ClassInfoTest {
         FieldInfo userNameField = fieldInfos.iterator().next();
 
         assertTrue(userNameField.isConstraint());
+    }
+
+    @Test
+    public void testIndexFieldInfoForIdAnnotation() throws Exception {
+        ClassInfo classInfo = metaData.classInfo("ValidAnnotations$Basic");
+
+        assertTrue(classInfo.containsIndexes());
+
+        Collection<FieldInfo> fieldInfos = classInfo.getIndexFields();
+
+        assertEquals(1, fieldInfos.size());
+
+        FieldInfo fieldInfo = fieldInfos.iterator().next();
+        assertEquals("identifier", fieldInfo.getName());
+        assertTrue(fieldInfo.isConstraint());
     }
 
     /**

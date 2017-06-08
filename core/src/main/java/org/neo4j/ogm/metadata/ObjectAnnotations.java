@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.typeconversion.*;
 import org.neo4j.ogm.typeconversion.*;
 
@@ -99,5 +100,9 @@ public class ObjectAnnotations {
         }
 
         return null;
+    }
+
+    public boolean has(Class<?> clazz) {
+        return annotations.containsKey(clazz.getName());
     }
 }

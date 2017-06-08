@@ -181,6 +181,9 @@ public class DomainInfo {
         LOGGER.debug("Registering converters and deregistering transient fields and methods....");
         postProcessFields(transientClassesRemoved);
 
+        for (ClassInfo classInfo : classNameToClassInfo.values()) {
+            classInfo.primaryIndexField();
+        }
         LOGGER.info("Post-processing complete");
     }
 

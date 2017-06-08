@@ -45,12 +45,14 @@ public class AnnotationInfo {
     }
 
     private String annotationName;
+    private Annotation annotation;
 
     private Map<String, String> elements;
 
     public AnnotationInfo(Annotation annotation) {
 
         this.annotationName = annotation.annotationType().getName();
+        this.annotation = annotation;
         this.elements = new HashMap<>();
 
         final Method[] declaredElements = annotation.annotationType().getDeclaredMethods();
@@ -67,6 +69,10 @@ public class AnnotationInfo {
 
     public String getName() {
         return annotationName;
+    }
+
+    public Annotation getAnnotation() {
+        return annotation;
     }
 
     public String get(String key, String defaultValue) {

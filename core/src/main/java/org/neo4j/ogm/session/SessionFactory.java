@@ -18,11 +18,15 @@ import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ConfigurationException;
+import org.neo4j.ogm.id.IdStrategy;
+import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -176,5 +180,23 @@ public class SessionFactory {
      */
     public void close() {
         driver.close();
+    }
+
+    /**
+     * Register an instance of {@link IdStrategy}
+     * <p>
+     * This instance will be used for generation of ids annotated with
+     * <p>
+     * {@code @Id @GeneratedValue(strategy=SomeClass.class)}
+     *
+     * @param strategy
+     */
+    public void register(IdStrategy strategy) {
+        requireNonNull(strategy);
+        for (ClassInfo classInfo : metaData.persistentEntities()) {
+            if (strategy.getClass().equals(classInfo.idStrategyClass())) {
+                classInfo.registerIdGenerationStrategy(strategy);
+            }
+        }
     }
 }

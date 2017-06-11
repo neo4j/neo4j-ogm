@@ -168,6 +168,21 @@ public interface Session {
     Transaction beginTransaction(Transaction.Type type);
 
     /**
+     * Begin a new transaction, passing in the required type and bookmarks
+     * <p>
+     * If an existing transaction already exists, users must
+     * decide whether to commit or rollback. Only one transaction can be bound to a thread
+     * at any time, so active transactions that have not been closed but are no longer bound
+     * to the thread must be handled by client code.
+     *
+     * @param type the {@link Transaction.Type} required for this transaction
+     * @param bookmarks bookmarks that are passed to driver
+     *
+     * @return a new active Transaction
+     */
+    Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks);
+
+    /**
      * Applies the given {@link GraphCallback} in the scope of this {@link Session}, giving fine-grained control over
      * behaviour.
      *

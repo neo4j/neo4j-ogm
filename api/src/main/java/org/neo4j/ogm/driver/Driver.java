@@ -26,7 +26,16 @@ public interface Driver extends AutoCloseable {
 
     void configure(Configuration config);
 
-    Transaction newTransaction(Transaction.Type type, String bookmark);
+    /**
+     * Begins new transaction
+     *
+     * @param type type of the transaction, see {@link Transaction.Type}
+     * @param bookmarks bookmarks to pass to the driver when transaction is started, NOTE: currently supported only
+     * by bolt driver
+     *
+     * @return new transaction
+     */
+    Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     void close();
 

@@ -48,6 +48,8 @@ import org.neo4j.ogm.utils.RelationshipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.emptySet;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -459,7 +461,12 @@ public class Neo4jSession implements Session {
 
     @Override
     public Transaction beginTransaction(Transaction.Type type) {
-        return txManager.openTransaction(type);
+        return txManager.openTransaction(type, emptySet());
+    }
+
+    @Override
+    public Transaction beginTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        return txManager.openTransaction(type, bookmarks);
     }
 
     @Override

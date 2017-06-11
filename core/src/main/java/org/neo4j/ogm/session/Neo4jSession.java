@@ -69,7 +69,6 @@ public class Neo4jSession implements Session {
     private final SaveDelegate saveDelegate = new SaveDelegate(this);
     private final DeleteDelegate deleteDelegate = new DeleteDelegate(this);
     private final ExecuteQueriesDelegate executeQueriesDelegate = new ExecuteQueriesDelegate(this);
-    private final TransactionsDelegate transactionsDelegate = new TransactionsDelegate(this);
     private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
     private Driver driver;
@@ -455,23 +454,23 @@ public class Neo4jSession implements Session {
     */
     @Override
     public Transaction beginTransaction() {
-        return transactionsDelegate.beginTransaction();
+        return txManager.openTransaction();
     }
 
     @Override
     public Transaction beginTransaction(Transaction.Type type) {
-        return transactionsDelegate.beginTransaction(type);
+        return txManager.openTransaction(type);
     }
 
     @Override
     @Deprecated
     public <T> T doInTransaction(GraphCallback<T> graphCallback) {
-        return transactionsDelegate.doInTransaction(graphCallback);
+        return graphCallback.apply(requestHandler(), getTransaction(), metaData);
     }
 
     @Override
     public Transaction getTransaction() {
-        return transactionsDelegate.getTransaction();
+        return txManager.getCurrentTransaction();
     }
 
     /*

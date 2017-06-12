@@ -1,4 +1,4 @@
-3.0.0-SNAPSHOT
+3.0.0-M02
 --------------
 o Session.loadAll(Class<T> type, Collection<ID> ids) doesn't treat ids as primaryKeys but as nodeIDs. #349
 o Add native support for java.time.Instant and java.time.Instant. Fixes #348
@@ -12,9 +12,10 @@ o Allow use of CompositeConverter on fields in @RelationshipEntity classes
 o New feature: @Properties - dynamically map node properties
 o Relationships with same endNode load correctly. #361
 o Provide way to inject dependencies to drivers directly through constructors
-o Create OgmPluginInitializer for easy use of OGM in unmanaged extension
+o New feature: OgmPluginInitializer for easy use of OGM in unmanaged extension
 o Add new API to provide multiple bookmarks at transaction begin
-o Add @Id generation through strategy specified by @GenerationValue
+o New feature: @Id generation through strategy specified by @GenerationValue
+o Removed DriverManager class
 
 3.0.0-M01
 --------------

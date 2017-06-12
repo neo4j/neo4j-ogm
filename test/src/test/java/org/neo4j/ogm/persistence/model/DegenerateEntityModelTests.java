@@ -42,8 +42,6 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     private Folder f;
@@ -52,7 +50,7 @@ public class DegenerateEntityModelTests extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.filesystem");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.filesystem");
     }
 
 

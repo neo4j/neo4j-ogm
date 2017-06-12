@@ -37,12 +37,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class CompaniesIntegrationTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void init() throws IOException {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.companies.annotated");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.companies.annotated");
     }
 
     @Before

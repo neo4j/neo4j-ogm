@@ -19,7 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.DriverManager;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.ConfigurationException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
 
@@ -33,6 +34,7 @@ import org.neo4j.ogm.session.event.EventListener;
 public class SessionFactory {
 
     private final MetaData metaData;
+    private final Driver driver;
     private final List<EventListener> eventListeners;
 
     /**
@@ -63,20 +65,37 @@ public class SessionFactory {
      * Indexes will also be checked or built if configured.
      *
      * @param configuration The baseConfiguration to use
-     * @param packages The packages to scan for domain objects
+     * @param packages      The packages to scan for domain objects
      */
     public SessionFactory(Configuration configuration, String... packages) {
-        // TODO: This if check is only required because of testing of the embedded driver.
-        // TODO: Our tests shouldn't switch driver type halfway through.
-        if (DriverManager.getDriver() == null || DriverManager.getDriver().getConfiguration() ==null
-                || !DriverManager.getDriver().getConfiguration().equals(configuration)) {
-            // configuration has changed : switch the driver
-            DriverManager.register(configuration.getDriverClassName());
-            DriverManager.getDriver().configure(configuration);
-        }
         this.metaData = new MetaData(packages);
-        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, DriverManager.getDriver(), configuration);
+        this.driver = newDriverInstance(configuration.getDriverClassName());
+        this.driver.configure(configuration);
+        AutoIndexManager autoIndexManager = new AutoIndexManager(this.metaData, driver, configuration);
         autoIndexManager.build();
+        this.eventListeners = new CopyOnWriteArrayList<>();
+    }
+
+    private Driver newDriverInstance(String driverClassName) {
+        try {
+            final Class<?> driverClass = Class.forName(driverClassName);
+            return (Driver) driverClass.newInstance();
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new ConfigurationException("Could not load driver class " + driverClassName, e);
+        }
+    }
+
+    /**
+     * Create a session factory with given driver
+     *
+     * Use this constructor when you need to provide fully customized driver.
+     *
+     * @param driver
+     * @param packages
+     */
+    public SessionFactory(Driver driver, String... packages) {
+        this.metaData = new MetaData(packages);
+        this.driver = driver;
         this.eventListeners = new CopyOnWriteArrayList<>();
     }
 
@@ -97,7 +116,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
-        return new Neo4jSession(metaData, DriverManager.getDriver(), eventListeners);
+        return new Neo4jSession(metaData, driver, eventListeners);
     }
 
     /**
@@ -118,6 +137,21 @@ public class SessionFactory {
         eventListeners.remove(eventListener);
     }
 
+    /**
+     * Returns driver used by this SessionFactory
+     *
+     * @return driver
+     */
+    public Driver getDriver() {
+        return driver;
+    }
+
+    /**
+     * Closes this session factory
+     * <p>
+     * Also closes any underlying resources, like driver etc.
+     */
     public void close() {
+        driver.close();
     }
 }

@@ -13,7 +13,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.config.AutoIndexMode;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.driver.DriverManager;
+import org.neo4j.ogm.driver.Driver;
+import org.neo4j.ogm.exception.ConfigurationException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
@@ -29,13 +30,6 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     private static final String CREATE_LOGIN_CONSTRAINT_CYPHER = "CREATE CONSTRAINT ON ( login:Login ) ASSERT login.userName IS UNIQUE";
     private static final String DROP_LOGIN_CONSTRAINT_CYPHER = "DROP CONSTRAINT ON (login:Login) ASSERT login.userName IS UNIQUE";
 
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        Configuration configuration = getBaseConfiguration().build();
-        DriverManager.register(configuration.getDriverClassName());
-        DriverManager.getDriver().configure(configuration);
-    }
-
     @Test
     public void shouldPreserveConfiguration() {
         assertEquals(AutoIndexMode.VALIDATE, getBaseConfiguration().autoIndex("validate").build().getAutoIndex());
@@ -47,7 +41,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         createLoginConstraint();
 
         final Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), configuration);
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
         assertEquals(AutoIndexMode.VALIDATE, configuration.getAutoIndex());
         assertEquals(1, indexManager.getIndexes().size());
         indexManager.build();
@@ -58,7 +52,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
     @Test(expected = MissingIndexException.class)
     public void testIndexesAreFailValidation() {
         final Configuration configuration = getBaseConfiguration().autoIndex("validate").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), configuration);
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
         assertEquals(AutoIndexMode.VALIDATE, configuration.getAutoIndex());
         indexManager.build();
     }
@@ -71,7 +65,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
 
         try {
             final Configuration configuration = getBaseConfiguration().autoIndex("dump").generatedIndexesOutputDir(".").generatedIndexesOutputFilename("test.cql").build();
-            AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), configuration);
+            AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
             assertEquals(AutoIndexMode.DUMP, configuration.getAutoIndex());
             assertEquals(1, indexManager.getIndexes().size());
             indexManager.build();
@@ -94,7 +88,7 @@ public class AutoIndexManagerTest extends MultiDriverTestClass {
         createLoginConstraint();
 
         final Configuration configuration = getBaseConfiguration().autoIndex("assert").build();
-        AutoIndexManager indexManager = new AutoIndexManager(metaData, DriverManager.getDriver(), configuration);
+        AutoIndexManager indexManager = new AutoIndexManager(metaData, driver, configuration);
         assertEquals(AutoIndexMode.ASSERT, configuration.getAutoIndex());
         assertEquals(1, indexManager.getIndexes().size());
         indexManager.build();

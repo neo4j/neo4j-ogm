@@ -38,7 +38,7 @@ public class AABBTest extends RelationshipTrait {
 
     @BeforeClass
     public static void oneTimeSetup() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.persistence.relationships.direct.aabb");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships.direct.aabb");
     }
 
     @Before

@@ -40,7 +40,7 @@ public class EnumMapPropertiesTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory(getBaseConfiguration().build(),
+        session = new SessionFactory(driver,
                 UserWithEnumMap.class.getName())
                 .openSession();
     }

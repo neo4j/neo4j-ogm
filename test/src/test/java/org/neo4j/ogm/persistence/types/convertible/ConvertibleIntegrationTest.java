@@ -52,7 +52,7 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void init() throws IOException {
-        session = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.convertible").openSession();
+        session = new SessionFactory(driver, "org.neo4j.ogm.domain.convertible").openSession();
     }
 
     @After

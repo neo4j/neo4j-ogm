@@ -42,7 +42,7 @@ public class IdentityTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.persistence.identity");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.identity");
     }
 
     @Before

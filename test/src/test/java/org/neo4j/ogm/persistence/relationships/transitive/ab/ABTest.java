@@ -43,7 +43,7 @@ public class ABTest extends MultiDriverTestClass {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.persistence.relationships.transitive.ab");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.persistence.relationships.transitive.ab");
     }
 
     @Before

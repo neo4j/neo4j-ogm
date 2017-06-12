@@ -36,12 +36,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.cineasts.annotated");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.annotated");
     }
 
     @Before
@@ -99,7 +98,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesGraphIdWhenPrimaryIndexNotPresent() {
 
-        SessionFactory sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.cineasts.partial");
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.cineasts.partial");
         Session session1 = sessionFactory.openSession();
         Actor actor = new Actor("David Hasslehoff");
         session1.save(actor);
@@ -132,7 +131,7 @@ public class LookupByPrimaryIndexTests extends MultiDriverTestClass {
     @Test
     public void loadUsesPrimaryIndexWhenPresentEvenIfTypeIsLong() {
 
-        SessionFactory sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.autoindex.valid");
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.autoindex.valid");
         Session session1 = sessionFactory.openSession();
 
         Invoice invoice = new Invoice(223L, "Company", 100000L);

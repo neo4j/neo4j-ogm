@@ -33,13 +33,11 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  */
 public class PizzaIntegrationTest extends MultiDriverTestClass {
 
-    private static SessionFactory sessionFactory;
-
     private Session session;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        sessionFactory = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.pizza");
+        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.pizza");
 
     }
 
@@ -344,7 +342,7 @@ public class PizzaIntegrationTest extends MultiDriverTestClass {
     @Test
     public void shouldRaiseExceptionWhenAmbiguousClassLabelApplied() {
 
-        Session session = new SessionFactory(getBaseConfiguration().build(), "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music").openSession();
+        Session session = new SessionFactory(driver, "org.neo4j.ogm.domain.pizza", "org.neo4j.ogm.domain.music").openSession();
 
         Pizza pizza = new Pizza();
         pizza.setName("Mushroom & Pepperoni");

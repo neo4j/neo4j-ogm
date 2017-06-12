@@ -15,15 +15,18 @@ package org.neo4j.ogm.drivers.embedded.extension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.configuration.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilders;
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.server.plugins.Injectable;
 import org.neo4j.test.server.HTTP;
 
 import javax.ws.rs.GET;
@@ -35,7 +38,9 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,21 +50,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OgmPluginInitializerTest {
 
     private static final String TEST_PATH = "/testOgmExtension/";
-    private static final String PLUGIN_LIFECYCLE = "target/test-classes/META-INF/services/org.neo4j.server.plugins.PluginLifecycle";
-
-    // Create and delete the plugin lifecycle file so it doesn't get loaded with other tests
 
     @Before
     public void setUp() throws Exception {
-        new File("target/test-classes/META-INF/services/").mkdirs();
-        FileWriter out = new FileWriter(PLUGIN_LIFECYCLE);
-        out.write(TestOgmPluginLifecycle.class.getName());
-        out.close();
+        TestOgmPluginLifecycle.shouldInitialize = true;
     }
 
     @After
     public void after() throws Exception {
-        new File(PLUGIN_LIFECYCLE).delete();
+        TestOgmPluginLifecycle.shouldInitialize = false;
     }
 
     @Test
@@ -117,10 +116,21 @@ public class OgmPluginInitializerTest {
     }
 
     public static class TestOgmPluginLifecycle extends OgmPluginInitializer {
+
+        public static boolean shouldInitialize = false;
+
         public TestOgmPluginLifecycle() {
             super(User.class.getName());
         }
 
+        @Override
+        public Collection<Injectable<?>> start(GraphDatabaseService graphDatabaseService, Configuration config) {
+            if (shouldInitialize) {
+                return super.start(graphDatabaseService, config);
+            } else {
+                return Collections.emptySet();
+            }
+        }
     }
 
 }

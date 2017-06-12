@@ -83,8 +83,8 @@ public final class HttpDriver extends AbstractConfigurableDriver {
 
     @Override
     public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
-        if (bookmarks != null && !bookmarks.iterator().hasNext()) {
-            LOGGER.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
+        if (bookmarks != null && bookmarks.iterator().hasNext()) {
+            LOGGER.warn("Passing bookmarks {} to HttpDriver. This is not currently supported.", bookmarks);
         }
         return new HttpTransaction(transactionManager, this, newTransactionUrl(type), type);
     }

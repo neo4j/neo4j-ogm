@@ -31,9 +31,12 @@ public interface TransactionManager {
      * Opens a new transaction of the specified type against a database instance.
      * Instantiation of the transaction is left to the driver
      *
+     * @param type type of the transaction
+     * @param bookmarks bookmarks to be passed to driver
+     *
      * @return a new @{link Transaction}
      */
-    Transaction openTransaction(Transaction.Type type);
+    Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks);
 
     /**
      * Rolls back the specified transaction.

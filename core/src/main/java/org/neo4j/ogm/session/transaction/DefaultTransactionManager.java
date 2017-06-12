@@ -21,6 +21,10 @@ import org.neo4j.ogm.transaction.AbstractTransaction;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.transaction.TransactionManager;
 
+import java.util.Collections;
+
+import static java.util.Collections.emptySet;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -49,9 +53,9 @@ public class DefaultTransactionManager implements TransactionManager {
     public Transaction openTransaction() {
         AbstractTransaction tx = ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get());
         if (tx == null) {
-            return openTransaction(Transaction.Type.READ_WRITE);
+            return openTransaction(Transaction.Type.READ_WRITE, emptySet());
         } else {
-            return openTransaction(tx.type());
+            return openTransaction(tx.type(), emptySet());
         }
     }
 
@@ -61,9 +65,9 @@ public class DefaultTransactionManager implements TransactionManager {
      *
      * @return a new {@link Transaction}
      */
-    public Transaction openTransaction(Transaction.Type type) {
+    public Transaction openTransaction(Transaction.Type type, Iterable<String> bookmarks) {
         if (TRANSACTION_THREAD_LOCAL.get() == null) {
-            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, session != null ? session.getLastBookmark() : null));
+            TRANSACTION_THREAD_LOCAL.set(driver.newTransaction(type, bookmarks));
         } else {
             ((AbstractTransaction) TRANSACTION_THREAD_LOCAL.get()).extend(type);
         }

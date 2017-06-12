@@ -76,8 +76,8 @@ public class BoltDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, String bookmark) {
-        Session session = newSession(type, bookmark); //A bolt session can have at most one transaction running at a time
+    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        Session session = newSession(type, bookmarks); //A bolt session can have at most one transaction running at a time
         return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);
     }
 
@@ -98,11 +98,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
         return new BoltRequest(transactionManager);
     }
 
-    private Session newSession(Transaction.Type type, String bookmark) {
+    private Session newSession(Transaction.Type type, Iterable<String> bookmarks) {
         Session boltSession;
         try {
             AccessMode accessMode = type.equals(Transaction.Type.READ_ONLY) ? AccessMode.READ : AccessMode.WRITE;
-            boltSession = boltDriver.session(accessMode, bookmark);
+            boltSession = boltDriver.session(accessMode, bookmarks);
         } catch (ClientException ce) {
             throw new ConnectionException("Error connecting to graph database using Bolt: " + ce.code() + ", " + ce.getMessage(), ce);
         } catch (Exception e) {

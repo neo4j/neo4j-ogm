@@ -43,21 +43,13 @@ public interface Transaction extends AutoCloseable {
      */
     boolean isReadOnly();
 
-//    /**
-//     * Register a new object on the transaction. A new object is
-//     * one that was not previously stored in the graph.
-//     *
-//     * @param persisted a reference to the newly created object
-//     */
-//    void registerNew( Object persisted );
-//
-//    /**
-//     * Returns the list of all objects that have been created in the
-//     * graph during the lifetime of this transaction.
-//     *
-//     * @return a list of newly persisted objects.
-//     */
-//    Iterable<? extends Object> registeredNew();
+    /**
+     * Returns type of the transaction - READ_ONLY / READ_WRITE
+     * The value corresponds to type returned by {@link #isReadOnly()}
+     *
+     * @return type of the transaction
+     */
+    Type type();
 
     enum Status {
         OPEN, PENDING, ROLLEDBACK, COMMITTED, CLOSED, ROLLBACK_PENDING, COMMIT_PENDING

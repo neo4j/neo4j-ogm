@@ -119,6 +119,7 @@ public abstract class AbstractTransaction implements Transaction {
         return type == Type.READ_ONLY;
     }
 
+    @Override
     public Type type() {
         return type;
     }

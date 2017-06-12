@@ -104,7 +104,10 @@ public class EmbeddedDriver extends AbstractConfigurableDriver {
     }
 
     @Override
-    public Transaction newTransaction(Transaction.Type type, String bookmark) {
+    public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        if (bookmarks != null && !bookmarks.iterator().hasNext()) {
+            logger.warn("Passing bookmarks {} to EmbeddedDriver. This is not currently supported.", bookmarks);
+        }
         return new EmbeddedTransaction(transactionManager, nativeTransaction(), type);
     }
 

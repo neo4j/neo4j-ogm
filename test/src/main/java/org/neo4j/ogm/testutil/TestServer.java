@@ -49,19 +49,22 @@ public class TestServer {
 	private String password;
 	private String uri;
 
-	TestServer(boolean enableAuthentication, boolean enableBolt, int transactionTimeoutSeconds) {
+	public TestServer(boolean enableAuthentication, boolean enableBolt, int transactionTimeoutSeconds) {
+		this(enableAuthentication, enableBolt, transactionTimeoutSeconds, TestUtils.getAvailablePort());
+	}
 
-		this.port = TestUtils.getAvailablePort();
+	public TestServer(boolean enableAuthentication, boolean enableBolt, int transactionTimeoutSeconds, int port) {
+
+		this.port = port;
 		this.transactionTimeoutSeconds = transactionTimeoutSeconds;
 		this.enableAuthentication = enableAuthentication;
 		this.enableBolt = enableBolt;
 
 		startServer();
-
 		LOGGER.info("Starting {} server on: {}", enableBolt ? "BOLT": "HTTP", port);
 	}
 
-	private void startServer() {
+	public void startServer() {
 		try {
 
 			if (enableBolt) {
@@ -136,7 +139,7 @@ public class TestServer {
 	/**
 	 * Stops the underlying server bootstrapper and, in turn, the Neo4j server.
 	 */
-	private void shutdown() {
+	public void shutdown() {
 
 		if (database != null && database.isAvailable(100)) {
 			LOGGER.info("Stopping {} server on: {}", enableBolt ? "BOLT": "HTTP", port);
@@ -187,6 +190,10 @@ public class TestServer {
 
 	public String getUri() {
 		return uri;
+	}
+
+	public Integer getPort() {
+		return port;
 	}
 
 	public String getPassword() {

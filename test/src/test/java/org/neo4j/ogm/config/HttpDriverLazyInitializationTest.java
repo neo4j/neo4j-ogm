@@ -11,17 +11,17 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.drivers.http.request;
+package org.neo4j.ogm.config;
 
-import org.apache.http.client.methods.HttpRequestBase;
-import org.neo4j.ogm.exception.ConnectionException;
+import org.junit.Before;
 
 /**
- * @author vince
+ * @author Frantisek Hartman
  */
-public class HttpRequestException extends ConnectionException {
+public class HttpDriverLazyInitializationTest extends DriverLazyInitializationTest {
 
-    public HttpRequestException(HttpRequestBase request, Exception hre) {
-        super(request.getURI().toString() + ": " + hre.getLocalizedMessage(), hre);
+    @Before
+    public void setUp() throws Exception {
+        configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-http.properties"));
     }
 }

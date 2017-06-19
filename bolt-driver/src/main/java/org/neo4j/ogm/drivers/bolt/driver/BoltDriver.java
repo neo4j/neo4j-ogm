@@ -13,13 +13,11 @@
 
 package org.neo4j.ogm.drivers.bolt.driver;
 
-import java.io.File;
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.driver.v1.exceptions.ServiceUnavailableException;
 import org.neo4j.ogm.config.Configuration;
+import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.config.UsernamePasswordCredentials;
 import org.neo4j.ogm.driver.AbstractConfigurableDriver;
 import org.neo4j.ogm.drivers.bolt.request.BoltRequest;
@@ -29,6 +27,10 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,7 +43,11 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BoltDriver.class);
 
-    private Driver boltDriver;
+    private volatile Driver boltDriver;
+
+    private Credentials credentials;
+    private Config driverConfig;
+    private Configuration configuration;
 
     // required for service loader mechanism
     public BoltDriver() {
@@ -63,22 +69,47 @@ public class BoltDriver extends AbstractConfigurableDriver {
 
         super.configure(config);
 
-        Config driverConfig = buildDriverConfig(config);
+        this.configuration = config;
+        driverConfig = buildDriverConfig(config);
+        credentials = config.getCredentials();
 
-        if (config.getCredentials() != null) {
-            UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) config.getCredentials();
-            AuthToken authToken = AuthTokens.basic(credentials.getUsername(), credentials.getPassword());
-            boltDriver = GraphDatabase.driver(config.getURI(), authToken, driverConfig);
-        } else {
-            boltDriver = GraphDatabase.driver(config.getURI(), driverConfig);
-            LOGGER.debug("Bolt Driver credentials not supplied");
+        if (config.getVerifyConnection()) {
+            checkDriverInitialized();
         }
     }
 
     @Override
     public Transaction newTransaction(Transaction.Type type, Iterable<String> bookmarks) {
+        checkDriverInitialized();
         Session session = newSession(type, bookmarks); //A bolt session can have at most one transaction running at a time
         return new BoltTransaction(transactionManager, nativeTransaction(session), session, type);
+    }
+
+    private void checkDriverInitialized() {
+        Driver driver = boltDriver;
+        if (driver == null) {
+            synchronized (this) {
+                driver = boltDriver;
+                if (driver == null) {
+                    initializeDriver();
+                }
+            }
+        }
+    }
+
+    private void initializeDriver() {
+        try {
+            if (credentials != null) {
+                UsernamePasswordCredentials userCredentials = (UsernamePasswordCredentials) this.credentials;
+                AuthToken authToken = AuthTokens.basic(userCredentials.getUsername(), userCredentials.getPassword());
+                boltDriver = GraphDatabase.driver(configuration.getURI(), authToken, driverConfig);
+            } else {
+                boltDriver = GraphDatabase.driver(configuration.getURI(), driverConfig);
+                LOGGER.debug("Bolt Driver credentials not supplied");
+            }
+        } catch (ServiceUnavailableException e) {
+            throw new ConnectionException("Could not create driver instance", e);
+        }
     }
 
     @Override

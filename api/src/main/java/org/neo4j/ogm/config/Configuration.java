@@ -13,12 +13,12 @@
 
 package org.neo4j.ogm.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A generic configuration class that can be set up programmatically
@@ -43,6 +43,7 @@ public class Configuration {
 	private String driverName;
 	private Credentials credentials;
     private Integer connectionLivenessCheckTimeout;
+    private Boolean verifyConnection;
 
 
     Configuration(Builder builder) {
@@ -52,7 +53,8 @@ public class Configuration {
 		this.trustStrategy = builder.trustStrategy;
 		this.trustCertFile = builder.trustCertFile;
 		this.connectionLivenessCheckTimeout = builder.connectionLivenessCheckTimeout;
-		this.autoIndex = builder.autoIndex != null ? AutoIndexMode.fromString(builder.autoIndex) : AutoIndexMode.NONE;
+        this.verifyConnection = builder.verifyConnection != null ? builder.verifyConnection : false;
+        this.autoIndex = builder.autoIndex != null ? AutoIndexMode.fromString(builder.autoIndex) : AutoIndexMode.NONE;
 		this.generatedIndexesOutputDir = builder.generatedIndexesOutputDir != null ? builder.generatedIndexesOutputDir : ".";
 		this.generatedIndexesOutputFilename = builder.generatedIndexesOutputFilename != null ? builder.generatedIndexesOutputFilename : "generated_indexes.cql";
 		this.neo4jHaPropertiesFile = builder.neo4jHaPropertiesFile;
@@ -126,8 +128,12 @@ public class Configuration {
         return connectionLivenessCheckTimeout;
     }
 
+    public Boolean getVerifyConnection() {
+        return verifyConnection;
+    }
+
     public String getNeo4jHaPropertiesFile() {
-		return neo4jHaPropertiesFile;
+        return neo4jHaPropertiesFile;
 	}
 
 	public Credentials getCredentials() {
@@ -206,7 +212,8 @@ public class Configuration {
 					.trustStrategy(builder.trustStrategy)
 					.trustCertFile(builder.trustCertFile)
 					.connectionLivenessCheckTimeout(builder.connectionLivenessCheckTimeout)
-					.autoIndex(builder.autoIndex)
+                    .verifyConnection(builder.verifyConnection)
+                    .autoIndex(builder.autoIndex)
 					.generatedIndexesOutputDir(builder.generatedIndexesOutputDir)
 					.generatedIndexesOutputFilename(builder.generatedIndexesOutputFilename)
 					.neo4jHaPropertiesFile(builder.neo4jHaPropertiesFile)
@@ -219,7 +226,8 @@ public class Configuration {
 		private static final String TRUST_STRATEGY = "trust.strategy";
 		private static final String TRUST_CERT_FILE = "trust.certificate.file";
 		private static final String CONNECTION_LIVENESS_CHECK_TIMEOUT = "connection.liveness.check.timeout";
-		private static final String AUTO_INDEX = "indexes.auto";
+        private static final String VERIFY_CONNECTION = "verify.connection";
+        private static final String AUTO_INDEX = "indexes.auto";
 		private static final String GENERATED_INDEXES_OUTPUT_DIR = "indexes.auto.dump.dir";
 		private static final String GENERATED_INDEXES_OUTPUT_FILENAME = "indexes.auto.dump.filename";
 		private static final String NEO4J_HA_PROPERTIES_FILE = "neo4j.ha.properties.file";
@@ -230,7 +238,8 @@ public class Configuration {
 		private String trustStrategy;
 		private String trustCertFile;
         private Integer connectionLivenessCheckTimeout;
-		private String autoIndex;
+        private Boolean verifyConnection;
+        private String autoIndex;
 		private String generatedIndexesOutputDir;
 		private String generatedIndexesOutputFilename;
 		private String neo4jHaPropertiesFile;
@@ -261,7 +270,10 @@ public class Configuration {
 					case CONNECTION_LIVENESS_CHECK_TIMEOUT:
 						this.connectionLivenessCheckTimeout = Integer.valueOf((String) entry.getValue());
 						break;
-					case AUTO_INDEX:
+                    case VERIFY_CONNECTION:
+                        this.verifyConnection = Boolean.valueOf((String) entry.getValue());
+                        break;
+                    case AUTO_INDEX:
 						this.autoIndex = (String) entry.getValue();
 						break;
 					case GENERATED_INDEXES_OUTPUT_DIR:
@@ -308,6 +320,24 @@ public class Configuration {
 			this.connectionLivenessCheckTimeout = connectionLivenessCheckTimeout;
 			return this;
 		}
+
+        /**
+         * Whether OGM should verify connection to the database at creation of the Driver
+         * <p>
+         * Useful for "fail-fast" type of configuration where the database is expected to be running during application
+         * start up and the connection to the database is expected to be very stable.
+         * <p>
+         * If the connection can't be verified {@link org.neo4j.ogm.exception.ConnectionException} will be thrown during
+         * creation of SessionFactory.
+         * <p>
+         * If set to false the driver will be created when first Session is requested from SessionFactory
+         *
+         * @param verifyConnection if the connection to the database should be verified, default is false
+         */
+        public Builder verifyConnection(Boolean verifyConnection) {
+            this.verifyConnection = verifyConnection;
+            return this;
+        }
 
 		public Builder autoIndex(String autoIndex) {
 			this.autoIndex = autoIndex;

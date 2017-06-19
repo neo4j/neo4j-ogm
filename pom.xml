@@ -314,6 +314,20 @@
         </profile>
 
         <profile>
+            <id>3.2</id>
+            <properties>
+                <neo4j>3.2.1</neo4j>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>3.3</id>
+            <properties>
+                <neo4j>3.3.0-alpha02</neo4j>
+            </properties>
+        </profile>
+
+        <profile>
             <id>embedded</id>
             <properties>
                 <ogm.properties>ogm-embedded.properties</ogm.properties>

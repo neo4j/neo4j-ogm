@@ -13,6 +13,7 @@
 
 package org.neo4j.ogm.config;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.ogm.domain.simple.User;
 import org.neo4j.ogm.exception.ConnectionException;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  *
  * @author Frantisek Hartman
  */
+@Ignore // ignored because of the test runner on team city, child classes should run normally
 public abstract class DriverLazyInitializationTest {
 
 

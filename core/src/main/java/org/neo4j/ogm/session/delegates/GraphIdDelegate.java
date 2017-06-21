@@ -19,6 +19,7 @@ import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Capability;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Luanne Misquitta
@@ -37,9 +38,9 @@ public class GraphIdDelegate implements Capability.GraphId {
 			ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
 			try {
 				if (classInfo != null) {
-					Object id = EntityAccessManager.getIdentityPropertyReader(classInfo).readProperty(possibleEntity);
-					if (id != null) {
-						return (long) id;
+					Long id = EntityUtils.identity(possibleEntity, session.metaData());
+					if (id >= 0) {
+						return id;
 					}
 				}
 			} catch (MappingException me) {

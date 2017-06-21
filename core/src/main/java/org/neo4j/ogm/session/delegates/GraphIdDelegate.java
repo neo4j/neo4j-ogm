@@ -14,10 +14,10 @@
 package org.neo4j.ogm.session.delegates;
 
 
-import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.exception.MetadataException;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.session.Neo4jSession;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Luanne Misquitta
@@ -35,8 +35,8 @@ public class GraphIdDelegate {
             ClassInfo classInfo = session.metaData().classInfo(possibleEntity);
             try {
                 if (classInfo != null) {
-                    Object id = classInfo.identityField().readProperty(possibleEntity);
-                    if (id != null) {
+					Long id = EntityUtils.identity(possibleEntity, session.metaData());
+                    if (id >= 0) {
                         return (long) id;
                     }
                 }

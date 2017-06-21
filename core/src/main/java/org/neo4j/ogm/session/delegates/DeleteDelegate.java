@@ -31,6 +31,7 @@ import org.neo4j.ogm.session.event.PersistenceEvent;
 import org.neo4j.ogm.session.request.strategy.DeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeDeleteStatements;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipDeleteStatements;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Vince Bickers
@@ -96,9 +97,8 @@ public class DeleteDelegate {
 
             if (classInfo != null) {
 
-                Field identityField = classInfo.getField(classInfo.identityField());
-                Long identity = (Long) FieldInfo.read(identityField, object);
-                if (identity != null) {
+                Long identity = EntityUtils.identity(object, session.metaData());
+                if (identity >= 0) {
                     Statement request = getDeleteStatementsBasedOnType(object.getClass()).delete(identity);
                     if (session.eventsEnabled()) {
                         if (!notified.contains(object)) {

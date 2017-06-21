@@ -293,12 +293,12 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         CompileContext context = compiler.context();
-        Object id = classInfo.identityField().readProperty(entity);
+        Long id = (Long) classInfo.identityField().readProperty(entity);
         Collection<String> labels = EntityUtils.labels(entity, metaData);
 
         NodeBuilder nodeBuilder;
         final String primaryIndex = classInfo.primaryIndexField() != null ? classInfo.primaryIndexField().property() : null;
-        if (id == null) {
+        if (id < 0) {
             Long entityIdRef = EntityUtils.identity(entity, metaData);
             nodeBuilder = compiler.newNode(entityIdRef).addLabels(labels).setPrimaryIndex(primaryIndex);
             context.registerNewObject(entityIdRef, entity);
@@ -351,7 +351,7 @@ public class EntityGraphMapper implements EntityMapper {
             CompileContext context = compiler.context();
             Long srcIdentity = (Long) srcInfo.identityField().readProperty(entity);
 
-            if (srcIdentity != null) {
+            if (srcIdentity >= 0) {
                 boolean cleared = clearContextRelationships(context, srcIdentity, endNodeType, directedRelationship);
                 if (!cleared) {
                     LOGGER.debug("this relationship is already being managed: {}-{}-{}-()", entity, relationshipType, relationshipDirection);
@@ -489,11 +489,11 @@ public class EntityGraphMapper implements EntityMapper {
         RelationshipBuilder relationshipBuilder;
 
         if (isRelationshipEntity(entity)) {
-            Long relId = (Long) metaData.classInfo(entity).identityField().readProperty(entity);
+            Long relId = (Long) EntityUtils.identity(entity, metaData);
 
             boolean relationshipEndsChanged = haveRelationEndsChanged(entity, relId);
 
-            if (relId == null || relationshipEndsChanged) { //if the RE itself is new, or it exists but has one of it's end nodes changed
+            if (relId < 0 || relationshipEndsChanged) { //if the RE itself is new, or it exists but has one of it's end nodes changed
                 relationshipBuilder = cypherBuilder.newRelationship(directedRelationship.type());
                 if (relationshipEndsChanged) {
                     Field identityField = metaData.classInfo(entity).getField(metaData.classInfo(entity).identityField());
@@ -568,11 +568,9 @@ public class EntityGraphMapper implements EntityMapper {
         Object startEntity = getStartEntity(relEntityClassInfo, relationshipEntity);
         Object targetEntity = getTargetEntity(relEntityClassInfo, relationshipEntity);
 
-        ClassInfo targetInfo = metaData.classInfo(targetEntity);
-        ClassInfo startInfo = metaData.classInfo(startEntity);
+        Long tgtIdentity = EntityUtils.identity(targetEntity, metaData);
+        Long srcIdentity = EntityUtils.identity(startEntity, metaData);
 
-        Long tgtIdentity = (Long) targetInfo.identityField().readProperty(targetEntity);
-        Long srcIdentity = (Long) startInfo.identityField().readProperty(startEntity);
 
         // create or update the relationship mapping register between the start and end nodes. Note, this
         // merely reflects how we're navigating the object graph at this point, it doesn't reflect the direction
@@ -587,7 +585,7 @@ public class EntityGraphMapper implements EntityMapper {
         // TODO : move this to a common function
         if (mappingContext.isDirty(relationshipEntity)) {
             context.register(relationshipEntity);
-            if (tgtIdentity != null && srcIdentity != null) {
+            if (tgtIdentity >= 0 && srcIdentity >= 0) {
                 MappedRelationship mappedRelationship = createMappedRelationship(relationshipBuilder, relNodes);
                 if (context.removeRegisteredRelationship(mappedRelationship)) {
                     LOGGER.debug("RE successfully marked for re-writing");
@@ -638,7 +636,8 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         // if the RE is new, register it in the context so that we can set its ID correctly when it is created,
-        if (relEntityClassInfo.identityField().readProperty(relationshipEntity) == null) {
+        Long id = (Long) relEntityClassInfo.identityField().readProperty(relationshipEntity);
+        if (id < 0) {
             context.registerNewObject(reIdentity, relationshipEntity);
         }
 

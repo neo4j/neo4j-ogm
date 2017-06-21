@@ -88,10 +88,11 @@ public class LifecycleTest extends EventTestBaseClass {
         @Override
         public void onPreSave(Event event) {
             FileSystemEntity entity = (FileSystemEntity) event.getObject();
-            if (entity.getId() == null) {
+            if (entity.getUuid() == null) {
                 entity.setUuid(UUID.randomUUID().toString());
             }
         }
+
 
         @Override
         public void onPostSave(Event event) {

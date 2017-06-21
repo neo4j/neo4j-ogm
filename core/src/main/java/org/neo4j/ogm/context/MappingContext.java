@@ -19,6 +19,7 @@ import java.util.*;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
 import org.neo4j.ogm.metadata.MetaData;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * The MappingContext maintains a map of all the objects created during the hydration
@@ -211,7 +212,7 @@ public class MappingContext {
             }
         } else {
             FieldInfo identityReader = classInfo.identityField();
-            removeType(type, identityReader);
+            removeClass(type);
         }
     }
 
@@ -247,13 +248,11 @@ public class MappingContext {
      */
     void removeEntity(Object entity) {
         Class<?> type = entity.getClass();
-        ClassInfo classInfo = metaData.classInfo(type.getName());
-        FieldInfo identityReader = classInfo.identityField();
-        Long id = (Long) identityReader.readProperty(entity);
+        Long id = EntityUtils.identity(entity, metaData);
 
-        purge(entity, identityReader, type);
+        purge(entity, type);
 
-        if (id != null) {
+        if (id >= 0) {
             typeRegister.remove(metaData, type, id);
         }
     }
@@ -281,11 +280,9 @@ public class MappingContext {
 
         Class<?> type = entity.getClass();
         ClassInfo classInfo = metaData.classInfo(type.getName());
-        FieldInfo identityReader = classInfo.identityField();
+        Long id = EntityUtils.identity(entity, metaData);
 
-        Long id = (Long) identityReader.readProperty(entity);
-
-        if (id != null) {
+        if (id >= 0) {
             if (!metaData.isRelationshipEntity(type.getName())) {
                 if (nodeEntityRegister.containsKey(id)) {
                     // todo: this will be very slow for many objects
@@ -329,19 +326,19 @@ public class MappingContext {
         }
     }
 
-    private void removeType(Class<?> type, FieldInfo identityReader) {
+    private void removeClass(Class<?> type) {
 
         for (Object entity : getEntities(type)) {
-            purge(entity, identityReader, type);
+            purge(entity, type);
         }
         typeRegister.delete(type);
     }
 
 
-    private void purge(Object entity, FieldInfo fieldInfo, Class type) {
-        Long id = (Long) fieldInfo.readProperty(entity);
+    private void purge(Object entity, Class type) {
+        Long id = EntityUtils.identity(entity, metaData);
         Set<Object> relEntitiesToPurge = new HashSet<>();
-        if (id != null) {
+        if (id >= 0) {
             // remove a NodeEntity
             if (!metaData.isRelationshipEntity(type.getName())) {
                 if (nodeEntityRegister.containsKey(id)) {
@@ -381,7 +378,7 @@ public class MappingContext {
             for (Object relEntity : relEntitiesToPurge) {
                 ClassInfo relClassInfo = metaData.classInfo(relEntity);
                 FieldInfo relIdentityReader = relClassInfo.identityField();
-                purge(relEntity, relIdentityReader, relClassInfo.getUnderlyingClass());
+                purge(relEntity, relClassInfo.getUnderlyingClass());
             }
         }
     }

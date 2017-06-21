@@ -17,7 +17,8 @@ import java.util.Collection;
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
-import org.neo4j.ogm.metadata.MetaData;
+
+import java.lang.reflect.Field;import org.neo4j.ogm.metadata.MetaData;import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The utility methods here will all throw a <code>NullPointerException</code> if invoked with <code>null</code>.
@@ -26,11 +27,20 @@ import org.neo4j.ogm.metadata.MetaData;
  */
 public class EntityUtils {
 
+    private static AtomicLong idSequence = new AtomicLong(0);
+
     public static Long identity(Object entity, MetaData metaData) {
 
         ClassInfo classInfo = metaData.classInfo(entity);
-        Object id = classInfo.identityField().readProperty(entity);
-        return (id == null ? -System.identityHashCode(entity) : (Long) id);
+        FieldInfo identityField = classInfo.identityField();
+        Object id = identityField.readProperty(entity);
+        if (id == null) {
+            Long generated = idSequence.decrementAndGet();
+            identityField.write(entity, generated);
+            return generated;
+        } else {
+            return (Long) id;
+        }
     }
 
     /**

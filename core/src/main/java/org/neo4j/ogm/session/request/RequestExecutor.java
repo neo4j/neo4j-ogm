@@ -185,7 +185,7 @@ public class RequestExecutor {
                 if (!classInfo.isRelationshipEntity()) {
                     FieldInfo idReader = classInfo.identityField();
                     Long id = (Long) idReader.readProperty(obj);
-                    if (id != null) {
+                    if (id >= 0) {
                         LOGGER.debug("updating existing node id: {}, {}", id, obj);
                         registerEntity(session.context(), classInfo, id, obj);
                     }

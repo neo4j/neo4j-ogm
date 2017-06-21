@@ -1,5 +1,6 @@
 2.1.4-SNAPSHOT
 --------------
+o Allow use of CompositeConverter on fields in @RelationshipEntity classes
 
 
 2.1.3

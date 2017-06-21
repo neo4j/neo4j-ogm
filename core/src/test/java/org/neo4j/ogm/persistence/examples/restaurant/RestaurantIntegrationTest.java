@@ -23,6 +23,8 @@ import org.neo4j.ogm.cypher.Filters;
 import org.neo4j.ogm.cypher.function.DistanceComparison;
 import org.neo4j.ogm.cypher.function.DistanceFromPoint;
 import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.domain.restaurant.Branch;
+import org.neo4j.ogm.domain.restaurant.Franchise;
 import org.neo4j.ogm.domain.restaurant.Location;
 import org.neo4j.ogm.domain.restaurant.Restaurant;
 import org.neo4j.ogm.service.Components;
@@ -60,6 +62,21 @@ public class RestaurantIntegrationTest extends MultiDriverTestClass {
         GraphTestUtils.assertSameGraph(getGraphDatabaseService(),
                 "CREATE (n:`Restaurant` {name: 'San Francisco International Airport (SFO)', latitude: 37.61649, longitude: -122.38681, zip: 94128, score: 0.0, halal: false})");
     }
+
+    @Test
+    public void shouldSaveBranchWitlCompositeLocationConverter() throws Exception {
+        Franchise franchise = new Franchise();
+        Restaurant restaurant = new Restaurant();
+        Branch branch = new Branch(new Location(37.61649, -122.38681), franchise, restaurant);
+
+        session.save(branch);
+        session.clear();
+
+        Branch loaded = session.load(Branch.class, branch.getId());
+        assertEquals(37.61649, loaded.getLocation().getLatitude(), 0.00001);
+        assertEquals(-122.38681, loaded.getLocation().getLongitude(), 0.00001);
+    }
+
 
     @Test
     public void shouldQueryByDistance() {

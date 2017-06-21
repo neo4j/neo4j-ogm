@@ -18,6 +18,8 @@ import org.neo4j.ogm.model.Edge;
 import org.neo4j.ogm.response.model.PropertyModel;
 import org.neo4j.ogm.response.model.RelationshipModel;
 
+import java.util.Map;
+
 /**
  * @author Luanne Misquitta
  */
@@ -58,6 +60,12 @@ public class DefaultRelationshipBuilder implements RelationshipBuilder {
 		relationship.getPropertyList().add(new PropertyModel<>(key, value));
 	}
 
+    @Override
+    public void addProperties(Map<String, ?> properties) {
+        for (String key : properties.keySet()) {
+            addProperty(key, properties.get(key));
+        }
+    }
 
 	@Override
 	public void relate(Long startNodeId, Long endNodeId) {

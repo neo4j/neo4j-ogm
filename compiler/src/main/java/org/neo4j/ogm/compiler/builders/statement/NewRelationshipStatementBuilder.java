@@ -60,7 +60,7 @@ public class NewRelationshipStatementBuilder implements CypherStatementBuilder {
                 queryBuilder.append("{ ");
                 Set<String> sortedProperties = new TreeSet<>();
                 for (Property property : firstEdge.getPropertyList()) {
-                    sortedProperties.add("`" + property.getKey() + "`: row.props." + property.getKey());
+                    sortedProperties.add("`" + property.getKey() + "`: row.props.`" + property.getKey() + "`");
                 }
 
                 for (String propertyString : sortedProperties) {

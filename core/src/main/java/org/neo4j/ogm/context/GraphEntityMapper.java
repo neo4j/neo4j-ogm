@@ -34,6 +34,7 @@ import org.neo4j.ogm.model.Node;
 import org.neo4j.ogm.model.Property;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.response.model.PropertyModel;
+import org.neo4j.ogm.typeconversion.CompositeAttributeConverter;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.neo4j.ogm.utils.EntityUtils;
 import org.neo4j.ogm.utils.PropertyUtils;
@@ -148,7 +149,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
                     if (entity == null) {
                         entity = entityFactory.newObject(node);
                         setIdentity(entity, node.getId());
-                        setProperties(node, entity);
+                        setProperties(node.getPropertyList(), entity);
                         setLabels(node, entity);
                         mappingContext.addNodeEntity(entity, node.getId());
                     }
@@ -166,28 +167,21 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         FieldWriter.write(classInfo.getField(fieldInfo), instance, id);
     }
 
-    private void setProperties(Node nodeModel, Object instance) {
-        List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
+    private void setProperties(List<Property<String, Object>> propertyList, Object instance) {
         ClassInfo classInfo = metadata.classInfo(instance);
 
         Collection<FieldInfo> compositeFields = classInfo.fieldsInfo().compositeFields();
         if (compositeFields.size() > 0) {
             Map<String, ?> propertyMap = PropertyUtils.toMap(propertyList);
             for (FieldInfo field : compositeFields) {
-                Object value = field.getCompositeConverter().toEntityAttribute(propertyMap);
+                CompositeAttributeConverter<?> converter = field.getCompositeConverter();
+                Object value = converter.toEntityAttribute(propertyMap);
                 PropertyWriter writer = EntityAccessManager.getPropertyWriter(classInfo, field.getName());
                 writer.write(instance, value);
             }
         }
 
         for (Property<?, ?> property : propertyList) {
-            writeProperty(classInfo, instance, property);
-        }
-    }
-
-    private void setProperties(Edge relationshipModel, Object instance) {
-        ClassInfo classInfo = metadata.classInfo(instance);
-        for (Property<?, ?> property : relationshipModel.getPropertyList()) {
             writeProperty(classInfo, instance, property);
         }
     }
@@ -310,7 +304,7 @@ public class GraphEntityMapper implements ResponseMapper<GraphModel> {
         setIdentity(relationshipEntity, edge.getId());
 
         // REs also have properties
-        setProperties(edge, relationshipEntity);
+        setProperties(edge.getPropertyList(), relationshipEntity);
 
         // register it in the mapping context
         mappingContext.addRelationshipEntity(relationshipEntity, edge.getId());

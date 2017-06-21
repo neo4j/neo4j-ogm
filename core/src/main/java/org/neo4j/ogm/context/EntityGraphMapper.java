@@ -635,7 +635,11 @@ public class EntityGraphMapper implements EntityMapper {
         }
 
         for (PropertyReader propertyReader : EntityAccessManager.getPropertyReaders(relEntityClassInfo)) {
-            relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
+            if (propertyReader.isComposite()) {
+                relationshipBuilder.addProperties(propertyReader.readComposite(relationshipEntity));
+            } else {
+                relationshipBuilder.addProperty(propertyReader.propertyName(), propertyReader.readProperty(relationshipEntity));
+            }
         }
     }
 

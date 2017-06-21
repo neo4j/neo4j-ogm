@@ -50,6 +50,7 @@ import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.domain.social.Mortal;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.session.request.RowStatementFactory;
+import org.neo4j.ogm.utils.EntityUtils;
 
 /**
  * @author Vince Bickers
@@ -820,8 +821,8 @@ public class CypherCompilerTest {
         for (Statement statement : statements) {
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
-            assertEquals((long)-System.identityHashCode(adam), ((Map)rows.get(0)).get("startNodeId"));
-            assertEquals((long)-System.identityHashCode(vince), ((Map)rows.get(0)).get("endNodeId"));
+            assertEquals(EntityUtils.identity(adam, mappingMetadata), ((Map)rows.get(0)).get("startNodeId"));
+            assertEquals(EntityUtils.identity(vince, mappingMetadata), ((Map)rows.get(0)).get("endNodeId"));
         }
     }
 
@@ -851,11 +852,13 @@ public class CypherCompilerTest {
         List<String> createRelStatements = cypherStatements(statements);
         assertEquals(1, createRelStatements.size());
         assertTrue(createRelStatements.contains("UNWIND {rows} as row MATCH (startNode) WHERE ID(startNode) = row.startNodeId MATCH (endNode) WHERE ID(endNode) = row.endNodeId MERGE (startNode)-[rel:`KNOWN_BY`]->(endNode) RETURN row.relRef as ref, ID(rel) as id, row.type as type"));
-        for (Statement statement : statements) {
+
+        for (int i = 0; i < statements.size(); i++) {
+            Statement statement = statements.get(i);
             List rows = (List) statement.getParameters().get("rows");
             assertEquals(1, rows.size());
-            assertEquals((long)-System.identityHashCode(vince), ((Map)rows.get(0)).get("startNodeId"));
-            assertEquals((long)-System.identityHashCode(adam), ((Map)rows.get(0)).get("endNodeId"));
+            assertEquals(EntityUtils.identity(vince, mappingMetadata), ((Map) rows.get(0)).get("startNodeId"));
+            assertEquals(EntityUtils.identity(adam, mappingMetadata), ((Map) rows.get(0)).get("endNodeId"));
         }
     }
 

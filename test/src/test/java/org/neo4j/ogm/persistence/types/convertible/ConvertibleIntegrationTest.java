@@ -13,6 +13,8 @@
 package org.neo4j.ogm.persistence.types.convertible;
 
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -20,9 +22,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -195,8 +195,112 @@ public class ConvertibleIntegrationTest extends MultiDriverTestClass {
         assertEquals(LocalDateTime.ofInstant(instant, ZoneOffset.UTC).toLocalDate(), memo.getApproved());
     }
 
+    @Test
+    public void shouldSaveListOfLocalDate() throws Exception {
 
-        /**
+        Java8DatesMemo memo = new Java8DatesMemo();
+
+        LocalDate now = LocalDate.of(2017, 7, 23);
+        LocalDate tomorrow = now.plusDays(1);
+        List<LocalDate> dateList = newArrayList(now, tomorrow);
+        memo.setDateList(dateList);
+
+        session.save(memo);
+        session.clear();
+
+        Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateList", Collections.emptyMap());
+        Map<String, Object> record = result.queryResults().iterator().next();
+        String[] dateArray = (String[]) record.get("m.dateList");
+        assertArrayEquals(new String[] {"2017-07-23", "2017-07-24"}, dateArray);
+
+        Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
+        assertEquals(dateList, loaded.getDateList());
+    }
+
+    @Test
+    public void shouldSaveLocalDateTime() throws Exception {
+
+        Java8DatesMemo memo = new Java8DatesMemo();
+
+        LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
+        memo.setDateTime(dateTime);
+
+        session.save(memo);
+        session.clear();
+
+        Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateTime", Collections.emptyMap());
+        Map<String, Object> record = result.queryResults().iterator().next();
+        assertEquals("2017-07-23T01:02:03", record.get("m.dateTime"));
+
+        Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
+        assertEquals(dateTime, loaded.getDateTime());
+    }
+
+    @Test
+    public void shouldSaveListOfLocalDateTime() throws Exception {
+
+        Java8DatesMemo memo = new Java8DatesMemo();
+
+        LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
+        LocalDateTime dateTime1 = dateTime.plusDays(1);
+        List<LocalDateTime> dateTimeList = newArrayList(dateTime, dateTime1);
+        memo.setDateTimeList(dateTimeList);
+
+        session.save(memo);
+        session.clear();
+
+        Result result = session.query("MATCH (m:Java8DatesMemo) return m.dateTimeList", Collections.emptyMap());
+        Map<String, Object> record = result.queryResults().iterator().next();
+        String[] dateArray = (String[]) record.get("m.dateTimeList");
+        assertArrayEquals(new String[] {"2017-07-23T01:02:03", "2017-07-24T01:02:03"}, dateArray);
+
+        Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
+        assertEquals(dateTimeList, loaded.getDateTimeList());
+    }
+
+    @Test
+    public void shouldSaveOffsetDateTime() throws Exception {
+
+        Java8DatesMemo memo = new Java8DatesMemo();
+
+        LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(dateTime, ZoneOffset.ofHours(1));
+        memo.setOffsetDateTime(offsetDateTime);
+
+        session.save(memo);
+        session.clear();
+
+        Result result = session.query("MATCH (m:Java8DatesMemo) return m.offsetDateTime", Collections.emptyMap());
+        Map<String, Object> record = result.queryResults().iterator().next();
+        assertEquals("2017-07-23T01:02:03+01:00", record.get("m.offsetDateTime"));
+
+        Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
+        assertEquals(offsetDateTime, loaded.getOffsetDateTime());
+    }
+
+    @Test
+    public void shouldSaveOffsetDateTimeList() throws Exception {
+        Java8DatesMemo memo = new Java8DatesMemo();
+
+        LocalDateTime dateTime = LocalDateTime.of(2017, 7, 23, 1, 2, 3);
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(dateTime, ZoneOffset.ofHours(1));
+        OffsetDateTime offsetDateTime1 = OffsetDateTime.of(dateTime.plusDays(1), ZoneOffset.ofHours(1));
+        ArrayList<OffsetDateTime> offsetDateTimeList = newArrayList(offsetDateTime, offsetDateTime1);
+        memo.setOffsetDateTimeList(offsetDateTimeList);
+
+        session.save(memo);
+        session.clear();
+
+        Result result = session.query("MATCH (m:Java8DatesMemo) return m.offsetDateTimeList", Collections.emptyMap());
+        Map<String, Object> record = result.queryResults().iterator().next();
+        String[] dateArray = (String[]) record.get("m.offsetDateTimeList");
+        assertArrayEquals(new String[] {"2017-07-23T01:02:03+01:00", "2017-07-24T01:02:03+01:00"}, dateArray);
+
+        Java8DatesMemo loaded = session.load(Java8DatesMemo.class, memo.getId());
+        assertEquals(offsetDateTimeList, loaded.getOffsetDateTimeList());
+    }
+
+    /**
 		 * @see DATAGRAPH-550
 		 */
     @Test

@@ -107,4 +107,22 @@ public abstract class ConvertibleTypes {
     public static AttributeConverter<?, ?> getLocalDateConverter() {
         return new LocalDateStringConverter();
     }
+
+    public static AttributeConverter<?, ?> getLocalDateTimeConverter() {
+        return new LocalDateTimeStringConverter();
+    }
+
+    public static AttributeConverter<?, ?> getOffsetDateTimeConverter() {
+        return new OffsettDateTimeStringConverter();
+    }
+
+    public static AttributeConverter<?, ?> getConverterBasedCollectionConverter(AttributeConverter<?, ?> converter,
+                                                                                String collectionType) {
+        try {
+            Class collectionClazz = Class.forName(collectionType, false, Thread.currentThread().getContextClassLoader());
+            return new ConverterBasedCollectionConverter<>(collectionClazz, converter);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

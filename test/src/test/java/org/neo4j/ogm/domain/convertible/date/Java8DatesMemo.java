@@ -14,10 +14,8 @@
 package org.neo4j.ogm.domain.convertible.date;
 
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
+import java.util.List;
 
 import org.neo4j.ogm.annotation.typeconversion.DateLong;
 
@@ -35,6 +33,16 @@ public class Java8DatesMemo {
     private Instant closed;
 
     private LocalDate approved;
+
+    private List<LocalDate> dateList;
+
+    private LocalDateTime dateTime;
+
+    private List<LocalDateTime> dateTimeList;
+
+    private OffsetDateTime offsetDateTime;
+
+    private List<OffsetDateTime> offsetDateTimeList;
 
     public Java8DatesMemo() {
     }
@@ -83,5 +91,46 @@ public class Java8DatesMemo {
 
     public void setClosed(Instant closed) {
         this.closed = closed;
+    }
+
+
+    public List<LocalDate> getDateList() {
+        return dateList;
+    }
+
+    public void setDateList(List<LocalDate> dateList) {
+        this.dateList = dateList;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public List<LocalDateTime> getDateTimeList() {
+        return dateTimeList;
+    }
+
+    public void setDateTimeList(List<LocalDateTime> dateTimeList) {
+        this.dateTimeList = dateTimeList;
+    }
+
+    public OffsetDateTime getOffsetDateTime() {
+        return offsetDateTime;
+    }
+
+    public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+        this.offsetDateTime = offsetDateTime;
+    }
+
+    public List<OffsetDateTime> getOffsetDateTimeList() {
+        return offsetDateTimeList;
+    }
+
+    public void setOffsetDateTimeList(List<OffsetDateTime> offsetDateTimeList) {
+        this.offsetDateTimeList = offsetDateTimeList;
     }
 }

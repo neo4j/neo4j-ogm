@@ -14,18 +14,15 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.util.*;
-
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.typeconversion.ConversionCallback;
-import org.neo4j.ogm.typeconversion.ConversionCallbackRegistry;
-import org.neo4j.ogm.typeconversion.ConvertibleTypes;
-import org.neo4j.ogm.typeconversion.ProxyAttributeConverter;
+import org.neo4j.ogm.typeconversion.*;
 import org.neo4j.ogm.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * @author Vince Bickers
@@ -42,6 +39,8 @@ public class DomainInfo {
     private static final String BYTE_ARRAY_WRAPPER_SIGNATURE = "java.lang.Byte[]";
     private static final String INSTANT_SIGNATURE = "java.time.Instant";
     private static final String LOCAL_DATE_SIGNATURE = "java.time.LocalDate";
+    private static final String LOCAL_DATE_TIME_SIGNATURE = "java.time.LocalDateTime";
+    private static final String OFFSET_DATE_TIME_SIGNATURE = "java.time.OffsetDateTime";
 
     private final Map<String, ClassInfo> classNameToClassInfo = new HashMap<>();
     private final Map<String, ArrayList<ClassInfo>> annotationNameToClassInfo = new HashMap<>();
@@ -309,6 +308,12 @@ public class DomainInfo {
                 setBigDecimalConverter(fieldInfo);
             } else if (typeDescriptor.contains(INSTANT_SIGNATURE)) {
                 setInstantConverter(fieldInfo);
+            } else if (typeDescriptor.contains(OFFSET_DATE_TIME_SIGNATURE)) {
+                setOffsetDateTimeConverter(fieldInfo);
+            } else if (typeDescriptor.contains(LOCAL_DATE_TIME_SIGNATURE)) {
+                // order for LOCAL_DATE_TIME and LOCAL_DATE is important here - LOCAL_DATE is a substring so we try to
+                // match LOCAL_DATE_TIME first
+                setLocalDateTimeConverter(fieldInfo);
             } else if (typeDescriptor.contains(LOCAL_DATE_SIGNATURE)) {
                 setLocalDateConverter(fieldInfo);
             } else if (typeDescriptor.contains(BYTE_ARRAY_SIGNATURE)) {
@@ -399,8 +404,41 @@ public class DomainInfo {
     }
 
     private void setLocalDateConverter(FieldInfo fieldInfo) {
-        fieldInfo.setPropertyConverter(ConvertibleTypes.getLocalDateConverter());
+        AttributeConverter<?, ?> localDateConverter = ConvertibleTypes.getLocalDateConverter();
+        if (fieldInfo.isIterable()) {
+            fieldInfo.setPropertyConverter(
+                    ConvertibleTypes.getConverterBasedCollectionConverter(localDateConverter,
+                            fieldInfo.getCollectionClassname())
+            );
+        } else {
+            fieldInfo.setPropertyConverter(localDateConverter);
+        }
     }
+
+    private void setLocalDateTimeConverter(FieldInfo fieldInfo) {
+        AttributeConverter<?, ?> localDateTimeConverter = ConvertibleTypes.getLocalDateTimeConverter();
+        if (fieldInfo.isIterable()) {
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getConverterBasedCollectionConverter(
+                    localDateTimeConverter,
+                    fieldInfo.getCollectionClassname())
+            );
+        } else {
+            fieldInfo.setPropertyConverter(localDateTimeConverter);
+        }
+    }
+
+    private void setOffsetDateTimeConverter(FieldInfo fieldInfo) {
+        AttributeConverter<?, ?> offsetDateTimeConverter = ConvertibleTypes.getOffsetDateTimeConverter();
+        if (fieldInfo.isIterable()) {
+            fieldInfo.setPropertyConverter(ConvertibleTypes.getConverterBasedCollectionConverter(
+                    offsetDateTimeConverter,
+                    fieldInfo.getCollectionClassname()
+            ));
+        } else {
+            fieldInfo.setPropertyConverter(offsetDateTimeConverter);
+        }
+    }
+
 
     // leaky for spring
     public Map<String, ClassInfo> getClassInfoMap() {

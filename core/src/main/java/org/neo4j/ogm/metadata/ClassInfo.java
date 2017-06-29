@@ -696,7 +696,7 @@ public class ClassInfo {
      *
      * @return the underlying class or null if it cannot be determined
      */
-    public Class getUnderlyingClass() {
+    public Class<?> getUnderlyingClass() {
         return cls;
     }
 

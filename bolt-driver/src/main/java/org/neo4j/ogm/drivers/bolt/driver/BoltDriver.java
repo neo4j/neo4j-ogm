@@ -51,6 +51,10 @@ public class BoltDriver extends AbstractConfigurableDriver {
 		configure(driverConfiguration);
 	}
 
+	public BoltDriver(Driver boltDriver) {
+		this.boltDriver = boltDriver;
+	}
+
 	@Override
 	public void configure(DriverConfiguration config) {
 

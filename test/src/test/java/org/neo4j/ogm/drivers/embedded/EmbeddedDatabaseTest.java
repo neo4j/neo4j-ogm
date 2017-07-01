@@ -14,6 +14,7 @@
 package org.neo4j.ogm.drivers.embedded;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -37,6 +38,7 @@ public class EmbeddedDatabaseTest {
 
 	@BeforeClass
 	public static void setUp() {
+		assumeTrue("ogm-embedded.properties".equals(System.getProperty("ogm.properties")));
 	}
 
 	@Test

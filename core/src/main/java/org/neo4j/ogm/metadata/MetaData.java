@@ -175,7 +175,10 @@ public class MetaData {
                 }
             }
             if (resolved.size() > 1) {
-                throw new AmbiguousBaseClassException(Arrays.toString(taxa));
+                // Sort so we always get the same order
+                String[] sorted = Arrays.copyOf(taxa, taxa.length);
+                Arrays.sort(sorted);
+                throw new AmbiguousBaseClassException(Arrays.toString(sorted));
             }
             if (resolved.iterator().hasNext()) {
                 return resolved.iterator().next();

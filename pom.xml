@@ -323,7 +323,7 @@
         <profile>
             <id>3.3</id>
             <properties>
-                <neo4j>3.3.0-alpha02</neo4j>
+                <neo4j>3.3.0-alpha03</neo4j>
             </properties>
         </profile>
 

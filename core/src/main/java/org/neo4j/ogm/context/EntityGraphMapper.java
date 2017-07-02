@@ -25,6 +25,7 @@ import org.neo4j.ogm.compiler.CompileContext;
 import org.neo4j.ogm.compiler.Compiler;
 import org.neo4j.ogm.compiler.NodeBuilder;
 import org.neo4j.ogm.compiler.RelationshipBuilder;
+import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.entity.io.EntityAccessManager;
 import org.neo4j.ogm.entity.io.FieldWriter;
 import org.neo4j.ogm.entity.io.PropertyReader;
@@ -797,7 +798,8 @@ public class EntityGraphMapper implements EntityMapper {
             logger.debug("new relationship is already registered");
             if (relationshipBuilder.isBidirectional()) {
                 relationshipBuilder.relate(src, tgt);
-                context.register(new TransientRelationship(src, relationshipBuilder.reference(), relationshipBuilder.type(), tgt, tgtClass, srcClass)); // we log the new relationship in the opposite direction as part of the transaction context.
+                context.registerTransientRelationship(new SrcTargetKey(src, tgt),
+                        new TransientRelationship(src, relationshipBuilder.reference(), relationshipBuilder.type(), tgt, tgtClass, srcClass)); // we log the new relationship in the opposite direction as part of the transaction context.
             }
             return;
         }
@@ -829,7 +831,7 @@ public class EntityGraphMapper implements EntityMapper {
      * @return true of a transient relationship already exists, false otherwise
      */
     private boolean hasTransientRelationship(CompileContext ctx, Long src, RelationshipBuilder relationshipBuilder, Long tgt) {
-        for (Object object : ctx.registry()) {
+        for (Object object : ctx.getTransientRelationships(new SrcTargetKey(src, tgt))) {
             if (object instanceof TransientRelationship) {
                 if (((TransientRelationship) object).equalsIgnoreDirection(src, relationshipBuilder, tgt)) {
                     return true;
@@ -854,7 +856,8 @@ public class EntityGraphMapper implements EntityMapper {
         logger.debug("context-new: ({})-[{}:{}]->({})", src, relBuilder.reference(), relBuilder.type(), tgt);
 
         if (relBuilder.isNew()) {  //We only want to create or log new relationships
-            ctx.register(new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
+            ctx.registerTransientRelationship(new SrcTargetKey(src, tgt),
+                                              new TransientRelationship(src, relBuilder.reference(), relBuilder.type(), tgt, srcClass, tgtClass)); // we log the new relationship as part of the transaction context.
         }
     }
 

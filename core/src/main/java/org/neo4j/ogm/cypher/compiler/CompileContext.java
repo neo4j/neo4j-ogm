@@ -15,6 +15,7 @@ package org.neo4j.ogm.cypher.compiler;
 
 import java.util.Collection;
 
+import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.context.Mappable;
 
 /**
@@ -34,6 +35,8 @@ public interface CompileContext {
     NodeBuilder visitedNode(Long identity);
 
     void register(Object entity);
+
+    void registerTransientRelationship(SrcTargetKey key, Object object);
 
     void registerNewObject(Long reference, Object relationshipEntity);
 
@@ -58,4 +61,10 @@ public interface CompileContext {
     void registerNewId(Long reference, Long id);
 
     void deregister(NodeBuilder nodeBuilder);
+
+    Collection<Mappable> getDeletedRelationships();
+
+    Object getVisitedObject(Long reference);
+
+    Collection<Object> getTransientRelationships(SrcTargetKey key);
 }

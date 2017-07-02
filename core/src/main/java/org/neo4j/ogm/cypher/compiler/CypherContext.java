@@ -13,9 +13,19 @@
 
 package org.neo4j.ogm.cypher.compiler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.neo4j.ogm.compiler.SrcTargetKey;
 import org.neo4j.ogm.context.Mappable;
+
+import static java.util.Collections.emptySet;
 
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
@@ -35,6 +45,7 @@ public class CypherContext implements CompileContext {
     private final Map<Long, Long> newNodeIds = new HashMap<>();
 
     private final Collection<Object> log = new HashSet<>();
+    private final Map<SrcTargetKey, Collection<Object>> transientRelsIndex = new HashMap<>();
 
     private final Compiler compiler;
 
@@ -78,6 +89,15 @@ public class CypherContext implements CompileContext {
     public void register(Object object) {
         if (!log.contains(object)) {
             log.add(object);
+        }
+    }
+
+    @Override
+    public void registerTransientRelationship(SrcTargetKey key, Object object) {
+        if (!log.contains(object)) {
+            log.add(object);
+            Collection<Object> collection = transientRelsIndex.computeIfAbsent(key, k -> new HashSet<>());
+            collection.add(object);
         }
     }
 
@@ -206,6 +226,26 @@ public class CypherContext implements CompileContext {
     @Override
     public void deregister(NodeBuilder nodeBuilder) {
         compiler.unmap(nodeBuilder);
+    }
+
+    @Override
+    public Collection<Mappable> getDeletedRelationships() {
+        return deletedRelationships;
+    }
+
+    @Override
+    public Object getVisitedObject(Long reference) {
+        return visitedObjects.get(reference);
+    }
+
+    @Override
+    public Collection<Object> getTransientRelationships(SrcTargetKey srcTargetKey) {
+        Collection<Object> objects = transientRelsIndex.get(srcTargetKey);
+        if (objects != null) {
+            return objects;
+        } else {
+            return emptySet();
+        }
     }
 
     private boolean isMappableAlreadyDeleted(Mappable mappedRelationship) {

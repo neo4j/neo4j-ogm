@@ -72,7 +72,7 @@ public class FieldInfo {
      */
     private CompositeAttributeConverter<?> compositeConverter;
     private String descriptorClass;
-
+    private Class descriptorClazz;
 
     /**
      * Constructs a new {@link FieldInfo} based on the given arguments.
@@ -223,9 +223,11 @@ public class FieldInfo {
     }
 
     public boolean isIterable() {
-        String descriptorClass = getCollectionClassname();
         try {
-            Class descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);
+            if (descriptorClazz == null) {
+                String descriptorClass = getCollectionClassname();
+                descriptorClazz = MetaDataClassLoader.loadClass(descriptorClass);
+            }
             if (Iterable.class.isAssignableFrom(descriptorClazz)) {
                 return true;
             }

@@ -17,6 +17,8 @@ import org.neo4j.ogm.context.Mappable;
 
 import java.util.*;
 
+import static java.util.Collections.emptySet;
+
 /**
  * Maintains contextual information throughout the process of compiling Cypher statements to persist a graph of objects.
  *
@@ -35,6 +37,7 @@ public class CypherContext implements CompileContext {
     private final Map<Long, Long> newNodeIds = new HashMap<>();
 
     private final Collection<Object> log = new HashSet<>();
+    private final Map<SrcTargetKey, Collection<Object>> transientRelsIndex = new HashMap<>();
 
     private final Compiler compiler;
 
@@ -78,6 +81,19 @@ public class CypherContext implements CompileContext {
     public void register(Object object) {
         if (!log.contains(object)) {
             log.add(object);
+        }
+    }
+
+    @Override
+    public void registerTransientRelationship(SrcTargetKey key, Object object) {
+        if (!log.contains(object)) {
+            log.add(object);
+            Collection<Object> collection = transientRelsIndex.get(key);
+            if (collection == null) {
+                collection = new HashSet<>();
+                transientRelsIndex.put(key, collection);
+            }
+            collection.add(object);
         }
     }
 
@@ -225,6 +241,16 @@ public class CypherContext implements CompileContext {
     @Override
     public Object getVisitedObject(Long reference) {
         return visitedObjects.get(reference);
+    }
+
+    @Override
+    public Collection<Object> getTransientRelationships(SrcTargetKey srcTargetKey) {
+        Collection<Object> objects = transientRelsIndex.get(srcTargetKey);
+        if (objects != null) {
+            return objects;
+        } else {
+            return emptySet();
+        }
     }
 
     private boolean isMappableAlreadyDeleted(Mappable mappedRelationship) {

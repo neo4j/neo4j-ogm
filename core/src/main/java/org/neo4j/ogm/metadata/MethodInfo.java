@@ -84,6 +84,11 @@ public class MethodInfo {
     private final String typeParameterDescriptor;
 
     /**
+     * Cached method to avoid repeated lookups
+     */
+    private Method method;
+
+    /**
      * The associated attribute converter for this field, if applicable, otherwise null.
      */
     private AttributeConverter<?, ?> propertyConverter;
@@ -393,12 +398,18 @@ public class MethodInfo {
      * @return a Method, if it exists on the corresponding class.
      */
     public Method getMethod(String className) {
+        if (method != null) {
+            return method;
+        }
+
         try {
             if (isSetter()) {
-                return MetaDataClassLoader.loadClass(className).getMethod(name, ClassUtils.getType(descriptor));
+                method = MetaDataClassLoader.loadClass(className).getMethod(name, ClassUtils.getType(descriptor));
+                return method;
             }
             if (isGetter()) {
-                return MetaDataClassLoader.loadClass(className).getMethod(name);
+                method = MetaDataClassLoader.loadClass(className).getMethod(name);
+                return method;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

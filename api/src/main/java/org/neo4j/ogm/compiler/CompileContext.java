@@ -34,6 +34,8 @@ public interface CompileContext {
 
     void register(Object entity);
 
+    void registerTransientRelationship(SrcTargetKey key, Object object);
+
     void registerNewObject(Long reference, Object relationshipEntity);
 
     void visitRelationshipEntity(Long relationshipIdentity);
@@ -62,4 +64,5 @@ public interface CompileContext {
 
     Object getVisitedObject(Long reference);
 
+    Collection<Object> getTransientRelationships(SrcTargetKey key);
 }

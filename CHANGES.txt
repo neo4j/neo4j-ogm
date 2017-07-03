@@ -1,7 +1,9 @@
 2.1.4-SNAPSHOT
 --------------
 o Allow use of CompositeConverter on fields in @RelationshipEntity classes
-
+o Allow passing custom driver instance to BoltDriver for custom driver configuration
+o Improve lookup of relationship fields of same type, fixes #361
+o Improve performance for saving large number of new relationships in one save request
 
 2.1.3
 --------------

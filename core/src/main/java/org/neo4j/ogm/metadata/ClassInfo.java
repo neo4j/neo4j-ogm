@@ -87,6 +87,8 @@ public class ClassInfo {
     private volatile boolean labelFieldMapped = false;
     private boolean primaryIndexFieldChecked = false;
 
+    private Class underlyingClass;
+
     // todo move this to a factory class
     public ClassInfo(InputStream inputStream) throws IOException {
 
@@ -1189,8 +1191,13 @@ public class ClassInfo {
      * @return the underlying class or null if it cannot be determined
      */
     public Class getUnderlyingClass() {
+        if (underlyingClass != null) {
+            return underlyingClass;
+        }
+
         try {
-            return MetaDataClassLoader.loadClass(className);//Class.forName(className);
+            underlyingClass = MetaDataClassLoader.loadClass(className);
+            return underlyingClass;
         } catch (ClassNotFoundException e) {
             LOGGER.error("Could not get underlying class for {}", className);
         }

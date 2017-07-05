@@ -32,19 +32,6 @@ public class RelationshipEntityQueryPagingTest {
     private final QueryStatements query = new RelationshipQueryStatements();
 
     @Test
-    public void testFindAllCollection() throws Exception {
-        assertEquals("MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  WITH r0,startnode(r0) AS n, endnode(r0) AS m SKIP 30 LIMIT 10 " +
-                "MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
-                "MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths " +
-                "UNWIND paths AS p RETURN DISTINCT p, rId", query.findAll(Arrays.asList(1L, 2L, 3L), 1).setPagination(new Pagination(3, 10)).getStatement());
-    }
-
-    @Test
-    public void testFindAll() throws Exception {
-        assertEquals("MATCH p=()-->() WITH p SKIP 2 LIMIT 2 RETURN p", query.findAll().setPagination(new Pagination(1, 2)).getStatement());
-    }
-
-    @Test
     public void testFindByLabel() throws Exception {
         assertEquals("MATCH ()-[r0:`ORBITS`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m SKIP 10 LIMIT 10 MATCH p1 = (n)-[*0..3]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..3]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", query.findByType("ORBITS", 3).setPagination(new Pagination(1, 10)).getStatement());
     }

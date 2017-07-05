@@ -22,21 +22,6 @@ import org.neo4j.ogm.cypher.query.CypherQuery;
 public interface AggregateStatements {
 
     /**
-     * construct a query to count all nodes
-     *
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery countNodes();
-
-    /**
-     * construct queries to count all nodes with the specified label
-     *
-     * @param label the label attached to the object
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery countNodes(String label);
-
-    /**
      * construct queries to count all nodes with the specified label
      *
      * @param labels the labels attached to the object
@@ -53,21 +38,6 @@ public interface AggregateStatements {
      */
 
     CypherQuery countNodes(String label, Iterable<Filter> filters);
-
-    /**
-     * construct a query to count all relationships
-     *
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery countEdges();
-
-    /**
-     * construct queries to count all nodes with the specified label
-     *
-     * @param type the relationship type
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery countEdges(String type);
 
     /**
      * construct queries to count all relationships with the specified type that match the specified filters

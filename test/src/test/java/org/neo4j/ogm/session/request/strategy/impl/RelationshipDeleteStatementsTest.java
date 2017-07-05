@@ -48,40 +48,14 @@ public class RelationshipDeleteStatementsTest {
     }
 
     @Test
-    public void testDeleteAllAndCount() throws Exception {
-        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0 RETURN COUNT(r0)", statements.deleteAllAndCount().getStatement());
-    }
-
-    @Test
-    public void testDeleteAllAndList() throws Exception {
-        assertEquals("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0 RETURN ID(r0)", statements.deleteAllAndList().getStatement());
-    }
-
-    @Test
     public void testDeleteWithType() throws Exception {
         assertEquals("MATCH (n)-[r0:`TRAFFIC_WARDEN`]-() DELETE r0", statements.delete("TRAFFIC_WARDEN").getStatement());
-    }
-
-    @Test
-    public void testDeleteWithTypeAndCount() throws Exception {
-        assertEquals("MATCH (n)-[r0:`TRAFFIC_WARDEN`]-() DELETE r0 RETURN COUNT(r0)", statements.deleteAndCount("TRAFFIC_WARDEN").getStatement());
-    }
-
-    @Test
-    public void testDeleteWithTypeAndList() throws Exception {
-        assertEquals("MATCH (n)-[r0:`TRAFFIC_WARDEN`]-() DELETE r0 RETURN ID(r0)", statements.deleteAndList("TRAFFIC_WARDEN").getStatement());
     }
 
     @Test
     public void testDeleteWithTypeAndFilters() throws Exception {
         CypherQuery query = statements.delete("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
         assertEquals("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  DELETE r0", query.getStatement());
-    }
-
-    @Test
-    public void testDeleteWithTypeAndFiltersAndCount() throws Exception {
-        CypherQuery query = statements.deleteAndCount("INFLUENCE", new Filters().add(new Filter("score", ComparisonOperator.EQUALS, -12.2)));
-        assertEquals("MATCH (n)-[r0:`INFLUENCE`]->(m) WHERE r0.`score` = { `score_0` }  DELETE r0 RETURN COUNT(r0)", query.getStatement());
     }
 
     @Test

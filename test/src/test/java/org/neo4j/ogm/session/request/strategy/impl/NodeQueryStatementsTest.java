@@ -52,16 +52,6 @@ public class NodeQueryStatementsTest {
     }
 
     @Test
-    public void testFindAllCollection() throws Exception {
-        assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
-    }
-
-    @Test
-    public void testFindAll() throws Exception {
-        assertEquals("MATCH p=()-->() RETURN p", queryStatements.findAll().getStatement());
-    }
-
-    @Test
     public void testFindByLabel() throws Exception {
         String statement = queryStatements.findByType("Orbit", 3).getStatement();
         assertEquals("MATCH (n:`Orbit`) WITH n MATCH p=(n)-[*0..3]-(m) RETURN p", statement);
@@ -131,11 +121,6 @@ public class NodeQueryStatementsTest {
     }
 
     @Test
-    public void testFindAllCollectionZeroDepth() throws Exception {
-        assertEquals("MATCH (n) WHERE ID(n) IN { ids } RETURN n", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), 0).getStatement());
-    }
-
-    @Test
     public void testFindByLabelZeroDepth() throws Exception {
         assertEquals("MATCH (n:`Orbit`) RETURN n", queryStatements.findByType("Orbit", 0).getStatement());
     }
@@ -175,16 +160,6 @@ public class NodeQueryStatementsTest {
     public void testFindOneNegativeDepth() throws Exception {
         assertEquals("MATCH (n) WHERE ID(n) = { id } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findOne(0L, -1).getStatement());
     }
-
-    /**
-     * @throws Exception
-     * @see DATAGRAPH-595
-     */
-    @Test
-    public void testFindAllCollectionNegativeDepth() throws Exception {
-        assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..]-(m) RETURN p", queryStatements.findAll(Arrays.asList(1L, 2L, 3L), -1).getStatement());
-    }
-
 
     /**
      * @throws Exception

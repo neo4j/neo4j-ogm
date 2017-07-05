@@ -41,20 +41,6 @@ public interface DeleteStatements {
     CypherQuery deleteAll();
 
     /**
-     * construct a query to delete all objects and return a count of deleted objects
-     *
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery deleteAllAndCount();
-
-    /**
-     * construct a query to delete all objects and return a list of deleted object ids
-     *
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery deleteAllAndList();
-
-    /**
      * construct a query to delete all objects with the specified ids
      *
      * @param ids the ids of the objects to find
@@ -71,22 +57,6 @@ public interface DeleteStatements {
     CypherQuery delete(String type);
 
     /**
-     * construct queries to delete all objects with the specified label or relationship type and return a count of deleted objects
-     *
-     * @param type the label attached to the object, or the relationship type
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery deleteAndCount(String type);
-
-    /**
-     * construct queries to delete all objects with the specified label or relationship type and return a list of deleted object ids
-     *
-     * @param type the label attached to the object, or the relationship type
-     * @return a {@link CypherQuery}
-     */
-    CypherQuery deleteAndList(String type);
-
-    /**
      * construct queries to delete all objects with the specified label that match the specified filters
      *
      * @param type the label value or relationship type to filter on
@@ -95,16 +65,6 @@ public interface DeleteStatements {
      */
 
     CypherQuery delete(String type, Iterable<Filter> filters);
-
-    /**
-     * construct queries to delete all objects with the specified label that match the specified filters and return a count of deleted objects
-     *
-     * @param type the label value or relationship type to filter on
-     * @param filters parameters to filter on
-     * @return a {@link CypherQuery}
-     */
-
-    CypherQuery deleteAndCount(String type, Iterable<Filter> filters);
 
     /**
      * construct queries to delete all objects with the specified label that match the specified filters and return a list of deleted object ids

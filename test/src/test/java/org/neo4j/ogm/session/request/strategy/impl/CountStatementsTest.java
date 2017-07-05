@@ -13,6 +13,8 @@
 
 package org.neo4j.ogm.session.request.strategy.impl;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singleton;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -33,18 +35,13 @@ public class CountStatementsTest {
     private AggregateStatements statements = new CountStatements();
 
     @Test
-    public void testCountNodes() throws Exception {
-        assertEquals("MATCH (n) RETURN COUNT(n)", statements.countNodes().getStatement());
-    }
-
-    @Test
     public void testCountNodesWithLabel() throws Exception {
-        assertEquals("MATCH (n:`Person`) RETURN COUNT(n)", statements.countNodes("Person").getStatement());
+        assertEquals("MATCH (n:`Person`) RETURN COUNT(n)", statements.countNodes(singleton("Person")).getStatement());
     }
 
     @Test
     public void testCountNodesWithMultipleLabels() throws Exception {
-        assertEquals("MATCH (n:`Person`:`Candidate`) RETURN COUNT(n)", statements.countNodes(Arrays.asList(new String[]{"Person", "Candidate"})).getStatement());
+        assertEquals("MATCH (n:`Person`:`Candidate`) RETURN COUNT(n)", statements.countNodes(newArrayList("Person", "Candidate")).getStatement());
     }
 
     @Test
@@ -52,16 +49,6 @@ public class CountStatementsTest {
         CypherQuery query = statements.countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
         assertEquals("MATCH (n:`Person`) WHERE n.`name` = { `name_0` }  RETURN COUNT(n)", query.getStatement());
         assertEquals("{name_0=Jim}", query.getParameters().toString());
-    }
-
-    @Test
-    public void testCountEdges() throws Exception {
-        assertEquals("MATCH (n)-[r0]->() RETURN COUNT(r0)", statements.countEdges().getStatement());
-    }
-
-    @Test
-    public void testCountEdgesWithType() throws Exception {
-        assertEquals("MATCH (n)-[r0:`IN_CONSTITUENCY`]->() RETURN COUNT(r0)", statements.countEdges("IN_CONSTITUENCY").getStatement());
     }
 
     @Test

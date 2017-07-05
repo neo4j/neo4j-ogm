@@ -74,21 +74,6 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
     }
 
     @Override
-    public PagingAndSortingQuery findAll(Collection<ID> ids, int depth) {
-        int max = max(depth);
-        int min = min(max);
-        if (depth < 0) {
-            return InfiniteDepthReadStrategy.findAll(ids);
-        }
-        if (max > 0) {
-            String qry = String.format("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*%d..%d]-(m) RETURN p", min, max);
-            return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
-        } else {
-            return DepthZeroReadStrategy.findAll(ids);
-        }
-    }
-
-    @Override
     public PagingAndSortingQuery findAllByType(String label, Collection<ID> ids, int depth) {
         int max = max(depth);
         int min = min(max);
@@ -106,11 +91,6 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
         } else {
             return DepthZeroReadStrategy.findAllByLabel(label, ids, primaryIndex);
         }
-    }
-
-    @Override
-    public PagingAndSortingQuery findAll() {
-        return new DefaultGraphModelRequest("MATCH p=()-->() RETURN p", Utils.map());
     }
 
     @Override

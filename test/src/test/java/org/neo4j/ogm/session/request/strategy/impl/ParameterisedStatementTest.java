@@ -51,14 +51,6 @@ public class ParameterisedStatementTest {
     }
 
     @Test
-    public void testFindAllWithIds() throws Exception {
-        List<Long> ids = Arrays.asList(new Long[]{123L, 234L, 345L});
-        statement = nodeQueryStatements.findAll(ids, 1);
-        assertEquals("MATCH (n) WHERE ID(n) IN { ids } WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
-        assertEquals("{\"ids\":[123,234,345]}", mapper.writeValueAsString(statement.getParameters()));
-    }
-
-    @Test
     public void testFindByLabel() throws Exception {
         statement = nodeQueryStatements.findByType("NODE", 1);
         assertEquals("MATCH (n:`NODE`) WITH n MATCH p=(n)-[*0..1]-(m) RETURN p", statement.getStatement());
@@ -72,13 +64,6 @@ public class ParameterisedStatementTest {
     public void testFindByTypeWithIllegalCharacter() throws Exception {
         statement = new RelationshipQueryStatements().findByType("HAS-ALBUM", 1);
         assertEquals("MATCH ()-[r0:`HAS-ALBUM`]-()  WITH r0,startnode(r0) AS n, endnode(r0) AS m MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId", statement.getStatement());
-        assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
-    }
-
-    @Test
-    public void findAll() throws Exception {
-        statement = nodeQueryStatements.findAll();
-        assertEquals("MATCH p=()-->() RETURN p", statement.getStatement());
         assertEquals("{}", mapper.writeValueAsString(statement.getParameters()));
     }
 

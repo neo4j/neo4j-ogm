@@ -63,7 +63,7 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
     @Override
     public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
         if (label == null || label.equals("")) {
-            return findOne(id, depth);
+            throw new IllegalArgumentException("no label provided");
         }
 
         int max = max(depth);
@@ -71,18 +71,6 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         if (max > 0) {
             String qry = String.format(MATCH_WITH_TYPE_AND_ID + MATCH_PATHS, label, min, max, min, max);
             return new DefaultGraphModelRequest(qry, Utils.map("id", id));
-        } else {
-            throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
-        }
-    }
-
-    @Override
-    public PagingAndSortingQuery findAll(Collection<ID> ids, int depth) {
-        int max = max(depth);
-        int min = min(max);
-        if (max > 0) {
-            String qry = String.format(MATCH_WITH_IDS + MATCH_PATHS_WITH_REL_ID, min, max, min, max);
-            return new DefaultGraphModelRequest(qry, Utils.map("ids", ids));
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
@@ -98,11 +86,6 @@ public class RelationshipQueryStatements<ID extends Serializable> implements Que
         } else {
             throw new InvalidDepthException("Cannot load a relationship entity with depth 0 i.e. no start or end node");
         }
-    }
-
-    @Override
-    public PagingAndSortingQuery findAll() {
-        return new DefaultGraphModelRequest("MATCH p=()-->() RETURN p", Utils.map());
     }
 
     @Override

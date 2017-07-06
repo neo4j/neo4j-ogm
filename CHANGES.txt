@@ -5,6 +5,7 @@ o Allow passing custom driver instance to BoltDriver for custom driver configura
 o Improve lookup of relationship fields of same type, fixes #361
 o Improve performance for saving large number of new relationships in one save request
 o Update Neo4j to version 3.0.10 in 3.0 profile
+o Update Neo4j to version 3.1.5 in 3.1 profile
 
 2.1.3
 --------------

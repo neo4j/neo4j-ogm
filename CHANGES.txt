@@ -1,5 +1,6 @@
 3.0.0-SNAPSHOT
 o Add verifyConnection configuration property for bolt and http driver
+o Update Neo4j to version 3.1.5 in 3.1 profile
 
 3.0.0-M02
 --------------

@@ -48,7 +48,7 @@ public class CountStatementsTest {
     @Test
     public void testCountNodesWithLabelAndFilters() throws Exception {
         CypherQuery query = statements.countNodes("Person", new Filters().add(new Filter("name", ComparisonOperator.EQUALS, "Jim")));
-        assertThat(query.getStatement()).isEqualTo("MATCH (n:`Person`) WHERE n.`name` = { `name_0` }  RETURN COUNT(n)");
+        assertThat(query.getStatement()).isEqualTo("MATCH (n:`Person`) WHERE n.`name` = { `name_0` } WITH n RETURN COUNT(n)");
         assertThat(query.getParameters().toString()).isEqualTo("{name_0=Jim}");
     }
 

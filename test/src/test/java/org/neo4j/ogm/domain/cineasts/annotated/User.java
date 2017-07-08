@@ -15,6 +15,7 @@ package org.neo4j.ogm.domain.cineasts.annotated;
 
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -174,5 +175,23 @@ public class User {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    /**
+     * Add given users as friends, also adds the opposite direction
+     */
+    public void addFriends(User ... newFriends) {
+        if (friends == null) {
+            friends = new HashSet<>();
+        }
+
+        for (User newFriend : newFriends) {
+            friends.add(newFriend);
+
+            if (newFriend.friends == null) {
+                newFriend.friends = new HashSet<>();
+            }
+            newFriend.friends.add(this);
+        }
     }
 }

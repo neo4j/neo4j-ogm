@@ -20,7 +20,7 @@ import org.neo4j.ogm.request.RowModelRequest;
 /**
  * @author Vince Bickers
  */
-public class DefaultRowModelRequest extends PagingAndSortingQuery implements RowModelRequest {
+public class DefaultRowModelRequest extends CypherQuery implements RowModelRequest {
 
     private final static String[] resultDataContents = new String[]{"row"};
 

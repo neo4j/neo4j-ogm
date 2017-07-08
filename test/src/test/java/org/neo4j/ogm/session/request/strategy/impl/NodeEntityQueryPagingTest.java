@@ -65,7 +65,7 @@ public class NodeEntityQueryPagingTest {
     @Test
     public void testFindByPropertyInfiniteDepth() {
         assertThat(queryStatements.findByType("Raptor", filters, -1).setPagination(paging).getStatement())
-                .isEqualTo("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
+                .isEqualTo("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n SKIP 4 LIMIT 2 MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)");
     }
 
     @Test

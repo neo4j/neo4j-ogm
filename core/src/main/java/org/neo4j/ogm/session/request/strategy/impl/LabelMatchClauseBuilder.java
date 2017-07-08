@@ -11,25 +11,22 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.cypher.query;
+package org.neo4j.ogm.session.request.strategy.impl;
 
-import java.util.Map;
-
-import org.neo4j.ogm.request.GraphModelRequest;
+import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
 /**
- * @author Vince Bickers
+ * @author Frantisek Hartman
  */
-public class DefaultGraphModelRequest extends CypherQuery implements GraphModelRequest {
+public class LabelMatchClauseBuilder implements MatchClauseBuilder {
 
-    private final static String[] resultDataContents = new String[]{"graph"};
-
-    public DefaultGraphModelRequest(String cypher, Map<String, ?> parameters) {
-        super(cypher, parameters);
+    @Override
+    public String build(String label) {
+        return "MATCH (n:`" + label + "`) WITH n";
     }
 
-    // used by object mapper
-    public String[] getResultDataContents() {
-        return resultDataContents;
+    @Override
+    public String build(String label, String property) {
+        throw new UnsupportedOperationException("MATCH by Label not supported with property parameter");
     }
 }

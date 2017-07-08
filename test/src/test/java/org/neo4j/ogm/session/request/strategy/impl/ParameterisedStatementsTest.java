@@ -21,6 +21,9 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.neo4j.ogm.config.ObjectMapperFactory;
+import org.neo4j.ogm.cypher.query.CypherQuery;
+import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
+import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.request.Statement;
 import org.neo4j.ogm.request.Statements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
@@ -36,7 +39,8 @@ public class ParameterisedStatementsTest {
     public void testStatement() throws Exception {
 
         List<Statement> statements = new ArrayList<>();
-        statements.add(new NodeQueryStatements().findOne(123L, 1));
+        PagingAndSortingQuery query = new NodeQueryStatements().findOne(123L, 1);
+        statements.add(new DefaultGraphModelRequest(query.getStatement(), query.getParameters()));
 
         String cypher = mapper.writeValueAsString(new Statements(statements));
 

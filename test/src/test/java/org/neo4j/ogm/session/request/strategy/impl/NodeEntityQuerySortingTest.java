@@ -76,7 +76,7 @@ public class NodeEntityQuerySortingTest {
     public void testFindByPropertyDepthInfinite() {
         sortOrder.add(SortOrder.Direction.DESC, "name");
         filters.add(new Filter("name", ComparisonOperator.EQUALS, "velociraptor"));
-        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` }  WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", filters, -1).setSortOrder(sortOrder).getStatement());
+        check("MATCH (n:`Raptor`) WHERE n.`name` = { `name_0` } WITH n ORDER BY n.name DESC MATCH p=(n)-[*0..]-(m) RETURN p, ID(n)", query.findByType("Raptor", filters, -1).setSortOrder(sortOrder).getStatement());
     }
 
     @Test

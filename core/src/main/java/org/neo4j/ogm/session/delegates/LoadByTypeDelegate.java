@@ -12,23 +12,19 @@
  */
 package org.neo4j.ogm.session.delegates;
 
-import java.util.Collection;
-
 import org.neo4j.ogm.context.GraphEntityMapper;
 import org.neo4j.ogm.context.GraphRowListModelMapper;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
-import org.neo4j.ogm.cypher.query.DefaultGraphRowListModelRequest;
-import org.neo4j.ogm.cypher.query.Pagination;
-import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
-import org.neo4j.ogm.cypher.query.SortOrder;
+import org.neo4j.ogm.cypher.query.*;
 import org.neo4j.ogm.model.GraphModel;
 import org.neo4j.ogm.model.GraphRowListModel;
 import org.neo4j.ogm.request.GraphModelRequest;
-import org.neo4j.ogm.request.GraphRowListModelRequest;
 import org.neo4j.ogm.response.Response;
 import org.neo4j.ogm.session.Neo4jSession;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
+
+import java.util.Collection;
 
 /**
  * @author Vince Bickers
@@ -50,44 +46,29 @@ public class LoadByTypeDelegate {
 
         session.resolvePropertyAnnotations(type, sortOrder);
 
-        // all this business about selecting which type of model/response to handle is horribly hacky
-        // it should be possible for the response handler to select based on the model implementation
-        // and we should have a single method loadAll(...). Filters should not be a special case
-        // though they are at the moment because of the problems with "graph" response format.
+        PagingAndSortingQuery query;
         if (filters.isEmpty()) {
+            query = queryStatements.findByType(entityType, depth);
+        } else {
+            session.resolvePropertyAnnotations(type, filters);
+            query = queryStatements.findByType(entityType, filters, depth);
+        }
 
-            PagingAndSortingQuery qry = queryStatements.findByType(entityType, depth)
-                    .setSortOrder(sortOrder)
-                    .setPagination(pagination);
+        query.setSortOrder(sortOrder)
+                .setPagination(pagination);
 
-            if (depth == 0 || (pagination == null && sortOrder.toString().length() == 0)) { //if there is no sorting or paging or the depth=0, we don't want the row response back as well
-                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
-                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-                }
-            } else {
-                DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(qry.getStatement(), qry.getParameters());
-                try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
-                    return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context()).map(type, response);
-                }
+        if (query.needsRowResult()) {
+            DefaultGraphRowListModelRequest graphRowListModelRequest = new DefaultGraphRowListModelRequest(query.getStatement(), query.getParameters());
+            try (Response<GraphRowListModel> response = session.requestHandler().execute(graphRowListModelRequest)) {
+                return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context()).map(type, response);
             }
         } else {
-
-            session.resolvePropertyAnnotations(type, filters);
-
-            PagingAndSortingQuery query = queryStatements.findByType(entityType, filters, depth)
-                    .setSortOrder(sortOrder)
-                    .setPagination(pagination);
-
-            if (depth != 0) {
-                try (Response<GraphRowListModel> response = session.requestHandler().execute((GraphRowListModelRequest) query)) {
-                    return (Collection<T>) new GraphRowListModelMapper(session.metaData(), session.context()).map(type, response);
-                }
-            } else {
-                try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) query)) {
-                    return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
-                }
+            GraphModelRequest request = new DefaultGraphModelRequest(query.getStatement(), query.getParameters());
+            try (Response<GraphModel> response = session.requestHandler().execute(request)) {
+                return (Collection<T>) new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
             }
         }
+
     }
 
 

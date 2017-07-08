@@ -11,25 +11,14 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.cypher.query;
-
-import java.util.Map;
-
-import org.neo4j.ogm.request.GraphModelRequest;
+package org.neo4j.ogm.session.request.strategy;
 
 /**
- * @author Vince Bickers
+ * @author Frantisek Hartman
  */
-public class DefaultGraphModelRequest extends CypherQuery implements GraphModelRequest {
+public interface MatchClauseBuilder {
 
-    private final static String[] resultDataContents = new String[]{"graph"};
+    String build(String label);
 
-    public DefaultGraphModelRequest(String cypher, Map<String, ?> parameters) {
-        super(cypher, parameters);
-    }
-
-    // used by object mapper
-    public String[] getResultDataContents() {
-        return resultDataContents;
-    }
+    String build(String label, String property);
 }

@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.metadata.ClassInfo;
 import org.neo4j.ogm.metadata.FieldInfo;
@@ -53,10 +54,11 @@ public class LoadOneDelegate {
             throw new Neo4jException("Supplied id does not match primary index type on supplied class " + type.getName());
         }
 
-        QueryStatements queryStatements = session.queryStatementsFor(type);
+        QueryStatements<ID> queryStatements = session.queryStatementsFor(type);
         PagingAndSortingQuery qry = queryStatements.findOneByType(session.entityType(type.getName()), id, depth);
 
-        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+        GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
+        try (Response<GraphModel> response = session.requestHandler().execute(request)) {
             new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
             return lookup(type, id);
         }

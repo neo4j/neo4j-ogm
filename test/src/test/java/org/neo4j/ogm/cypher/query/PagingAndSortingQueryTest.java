@@ -36,7 +36,7 @@ public class PagingAndSortingQueryTest {
         params.put("name_0", "Jasper");
         params.put("ratings_stars_1", 1000);
 
-        PagingAndSortingQuery query = new DefaultGraphModelRequest(cypher, params);
+        PagingAndSortingQuery query = new PagingAndSortingQuery(cypher, params);
         query.setPagination(new Pagination(0, 4));
 
         String stmt = query.getStatement();

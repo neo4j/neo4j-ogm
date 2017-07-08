@@ -13,10 +13,6 @@
 
 package org.neo4j.ogm.session;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.Filters;
@@ -27,6 +23,10 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
 import org.neo4j.ogm.transaction.Transaction;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * A {@link Session} serves as the main point of integration for the Neo4j OGM.  All the publicly-available capabilities of the
@@ -330,4 +330,18 @@ public interface Session {
      * @param bookmark The last used bookmark String that this session should start from.
      */
     void withBookmark(String bookmark);
+
+    /**
+     * Returns current load strategy
+     *
+     * @return load strategy
+     */
+    LoadStrategy getLoadStrategy();
+
+    /**
+     * Sets the LoadStrategy
+     * <p>
+     * Will be used for all subsequent queries.
+     */
+    void setLoadStrategy(LoadStrategy loadStrategy);
 }

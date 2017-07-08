@@ -14,15 +14,15 @@
 package org.neo4j.ogm.session;
 
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.neo4j.ogm.autoindex.AutoIndexManager;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.exception.ConfigurationException;
 import org.neo4j.ogm.metadata.MetaData;
 import org.neo4j.ogm.session.event.EventListener;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Used to create {@link Session} instances for interacting with Neo4j.
@@ -36,6 +36,8 @@ public class SessionFactory {
     private final MetaData metaData;
     private final Driver driver;
     private final List<EventListener> eventListeners;
+
+    private LoadStrategy loadStrategy = LoadStrategy.SCHEMA_LOAD_STRATEGY;
 
     /**
      * Constructs a new {@link SessionFactory} by initialising the object-graph mapping meta-data from the given list of domain
@@ -116,7 +118,7 @@ public class SessionFactory {
      * @return A new {@link Session}
      */
     public Session openSession() {
-        return new Neo4jSession(metaData, driver, eventListeners);
+        return new Neo4jSession(metaData, driver, eventListeners, loadStrategy);
     }
 
     /**
@@ -135,6 +137,27 @@ public class SessionFactory {
      */
     public void deregister(EventListener eventListener) {
         eventListeners.remove(eventListener);
+    }
+
+    /**
+     * Returns current load strategy
+     *
+     * @return load strategy
+     */
+    public LoadStrategy getLoadStrategy() {
+        return loadStrategy;
+    }
+
+    /**
+     * Sets the LoadStrategy
+     * <p>
+     * Will be used for all queries on subsequently created sessions. This also can be set on individual Session
+     * instances.
+     *
+     * @param loadStrategy load strategy
+     */
+    public void setLoadStrategy(LoadStrategy loadStrategy) {
+        this.loadStrategy = loadStrategy;
     }
 
     /**

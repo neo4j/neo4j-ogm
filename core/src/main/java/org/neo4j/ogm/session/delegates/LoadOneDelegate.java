@@ -54,7 +54,7 @@ public class LoadOneDelegate {
             throw new Neo4jException("Supplied id does not match primary index type on supplied class " + type.getName());
         }
 
-        QueryStatements<ID> queryStatements = session.queryStatementsFor(type);
+        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
         PagingAndSortingQuery qry = queryStatements.findOneByType(session.entityType(type.getName()), id, depth);
 
         GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());

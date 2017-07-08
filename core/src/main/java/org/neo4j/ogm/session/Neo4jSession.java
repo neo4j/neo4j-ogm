@@ -39,9 +39,12 @@ import org.neo4j.ogm.request.Request;
 import org.neo4j.ogm.session.delegates.*;
 import org.neo4j.ogm.session.event.Event;
 import org.neo4j.ogm.session.event.EventListener;
+import org.neo4j.ogm.session.request.strategy.LoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import org.neo4j.ogm.session.request.strategy.impl.NodeQueryStatements;
+import org.neo4j.ogm.session.request.strategy.impl.PathLoadClauseBuilder;
 import org.neo4j.ogm.session.request.strategy.impl.RelationshipQueryStatements;
+import org.neo4j.ogm.session.request.strategy.impl.SchemaLoadClauseBuilder;
 import org.neo4j.ogm.session.transaction.DefaultTransactionManager;
 import org.neo4j.ogm.transaction.Transaction;
 import org.neo4j.ogm.utils.RelationshipUtils;
@@ -73,6 +76,8 @@ public class Neo4jSession implements Session {
     private final ExecuteQueriesDelegate executeQueriesDelegate = new ExecuteQueriesDelegate(this);
     private final GraphIdDelegate graphIdDelegate = new GraphIdDelegate(this);
 
+    private LoadStrategy loadStrategy;
+
     private Driver driver;
     private String bookmark;
 
@@ -85,11 +90,14 @@ public class Neo4jSession implements Session {
 
         this.mappingContext = new MappingContext(metaData);
         this.txManager = new DefaultTransactionManager(this, driver);
+        this.loadStrategy = LoadStrategy.PATH_LOAD_STRATEGY;
     }
 
-    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners) {
+    public Neo4jSession(MetaData metaData, Driver driver, List<EventListener> eventListeners, LoadStrategy loadStrategy) {
         this(metaData, driver);
         registeredEventListeners.addAll(eventListeners);
+
+        this.loadStrategy = loadStrategy;
     }
 
     @Override
@@ -503,12 +511,12 @@ public class Neo4jSession implements Session {
     //
     // These helper methods for the delegates are deliberately NOT defined on the Session interface
     //
-    public <T, ID extends Serializable> QueryStatements<ID> queryStatementsFor(Class<T> type) {
+    public <T, ID extends Serializable> QueryStatements<ID> queryStatementsFor(Class<T> type, int depth) {
         if (metaData.isRelationshipEntity(type.getName())) {
             return new RelationshipQueryStatements<>();
         } else {
             final FieldInfo fieldInfo = metaData.classInfo(type.getName()).primaryIndexField();
-            return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.property() : null);
+            return new NodeQueryStatements<>(fieldInfo != null ? fieldInfo.property() : null, loadClauseBuilder(depth));
         }
     }
 
@@ -628,5 +636,32 @@ public class Neo4jSession implements Session {
     @Override
     public void withBookmark(String bookmark) {
         this.bookmark = bookmark;
+    }
+
+    @Override
+    public LoadStrategy getLoadStrategy() {
+        return loadStrategy;
+    }
+
+    @Override
+    public void setLoadStrategy(LoadStrategy loadStrategy) {
+        this.loadStrategy = loadStrategy;
+    }
+
+    private LoadClauseBuilder loadClauseBuilder(int depth) {
+        if (depth < 0) {
+            return new PathLoadClauseBuilder();
+        }
+
+        switch (loadStrategy) {
+            case PATH_LOAD_STRATEGY:
+                return new PathLoadClauseBuilder();
+
+            case SCHEMA_LOAD_STRATEGY:
+                return new SchemaLoadClauseBuilder(metaData.getSchema());
+
+            default:
+                throw new IllegalStateException("Unknown loadStrategy " + loadStrategy);
+        }
     }
 }

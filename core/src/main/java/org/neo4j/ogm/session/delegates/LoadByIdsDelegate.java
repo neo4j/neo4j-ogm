@@ -46,7 +46,7 @@ public class LoadByIdsDelegate {
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
         String entityType = session.entityType(type.getName());
-        QueryStatements<ID> queryStatements = session.queryStatementsFor(type);
+        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
 
         PagingAndSortingQuery qry = queryStatements.findAllByType(entityType, ids, depth)
                 .setSortOrder(sortOrder)

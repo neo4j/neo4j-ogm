@@ -42,7 +42,7 @@ public class LoadByTypeDelegate {
 
         //session.ensureTransaction();
         String entityType = session.entityType(type.getName());
-        QueryStatements queryStatements = session.queryStatementsFor(type);
+        QueryStatements queryStatements = session.queryStatementsFor(type, depth);
 
         session.resolvePropertyAnnotations(type, sortOrder);
 

@@ -25,6 +25,8 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
 import java.io.Serializable;
 import java.util.Collection;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
@@ -39,14 +41,16 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
     private MatchClauseBuilder idCollectionMatchClauseBuilder = new IdCollectionMatchClauseBuilder();
     private MatchClauseBuilder labelMatchClauseBuilder = new LabelMatchClauseBuilder();
 
-    private LoadClauseBuilder loadClauseBuilder = new PathLoadClauseBuilder();
+    private LoadClauseBuilder loadClauseBuilder;
 
+    // todo remove this constructor?
     public NodeQueryStatements() {
-        // do nothing...
+        loadClauseBuilder = new PathLoadClauseBuilder();
     }
 
-    public NodeQueryStatements(String primaryIndex) {
+    public NodeQueryStatements(String primaryIndex, LoadClauseBuilder loadClauseBuilder) {
         this.primaryIndex = primaryIndex;
+        this.loadClauseBuilder = requireNonNull(loadClauseBuilder);
     }
 
     @Override

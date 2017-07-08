@@ -95,6 +95,11 @@ public abstract class GraphRowModelAdapter implements ResultAdapter<Map<String, 
             graphModelAdapter.buildNode(element, graphModel, nodeIdentities);
         } else if (graphModelAdapter.isRelationship(element)) {
             graphModelAdapter.buildRelationship(element, graphModel, edgeIdentities);
+        } else if (Collection.class.isAssignableFrom(element.getClass())) {
+            Collection collection = (Collection) element;
+            for (Object value : collection) {
+                adapt(value, graphModel, values, nodeIdentities, edgeIdentities);
+            }
         } else {
             values.add(element);
         }

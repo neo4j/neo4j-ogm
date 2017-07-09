@@ -22,7 +22,7 @@ import org.neo4j.ogm.request.GraphRowListModelRequest;
  *
  * @author Luanne Misquitta
  */
-public class DefaultGraphRowListModelRequest extends PagingAndSortingQuery implements GraphRowListModelRequest {
+public class DefaultGraphRowListModelRequest extends CypherQuery implements GraphRowListModelRequest {
 
     private final static String[] resultDataContents = new String[]{"graph", "row"};
 

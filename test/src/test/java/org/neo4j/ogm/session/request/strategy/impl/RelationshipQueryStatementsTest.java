@@ -54,25 +54,10 @@ public class RelationshipQueryStatementsTest {
                 query.findOneByType("ORBITS", 0L, 2).getStatement());
 
         // Also assert that an empty type is the same as the untyped findOne(..)
-        assertEquals(query.findOneByType("", 0L, 2).getStatement(),
+        /*assertEquals(query.findOneByType("", 0L, 2).getStatement(),
                 query.findOne(0L, 2).getStatement());
         assertEquals(query.findOneByType(null, 0L, 2).getStatement(),
-                query.findOne(0L, 2).getStatement());
-    }
-
-    @Test
-    public void testFindAllCollection() throws Exception {
-        assertEquals("MATCH ()-[r0]-() WHERE ID(r0) IN {ids}  " +
-                        "WITH r0,startnode(r0) AS n, endnode(r0) AS m " +
-                        "MATCH p1 = (n)-[*0..1]-() WITH r0, COLLECT(DISTINCT p1) AS startPaths, m " +
-                        "MATCH p2 = (m)-[*0..1]-() WITH r0, startPaths, COLLECT(DISTINCT p2) AS endPaths " +
-                        "WITH ID(r0) AS rId,startPaths + endPaths  AS paths UNWIND paths AS p RETURN DISTINCT p, rId",
-                query.findAll(Arrays.asList(1L, 2L, 3L), 1).getStatement());
-    }
-
-    @Test
-    public void testFindAll() throws Exception {
-        assertEquals("MATCH p=()-->() RETURN p", query.findAll().getStatement());
+                query.findOne(0L, 2).getStatement());*/
     }
 
     @Test
@@ -116,11 +101,6 @@ public class RelationshipQueryStatementsTest {
     }
 
     @Test(expected = InvalidDepthException.class)
-    public void testFindAllCollectionZeroDepth() throws Exception {
-        query.findAll(Arrays.asList(1L, 2L, 3L), 0).getStatement();
-    }
-
-    @Test(expected = InvalidDepthException.class)
     public void testFindByLabelZeroDepth() throws Exception {
         query.findByType("ORBITS", 0).getStatement();
     }
@@ -133,11 +113,6 @@ public class RelationshipQueryStatementsTest {
     @Test(expected = InvalidDepthException.class)
     public void testFindOneInfiniteDepth() throws Exception {
         query.findOne(0L, -1).getStatement();
-    }
-
-    @Test(expected = InvalidDepthException.class)
-    public void testFindAllCollectionInfiniteDepth() throws Exception {
-        query.findAll(Arrays.asList(1L, 2L, 3L), -1).getStatement();
     }
 
     @Test(expected = InvalidDepthException.class)

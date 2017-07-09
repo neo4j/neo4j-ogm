@@ -14,10 +14,7 @@
 package org.neo4j.ogm.metadata;
 
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Map;
 
 import org.neo4j.ogm.annotation.Index;
@@ -463,5 +460,9 @@ public class FieldInfo {
 
     public String typeDescriptor() {
         return getTypeDescriptor();
+    }
+
+    public Field getField() {
+        return field;
     }
 }

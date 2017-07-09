@@ -19,6 +19,8 @@ import java.util.*;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.exception.AmbiguousBaseClassException;
+import org.neo4j.ogm.metadata.schema.DomainInfoSchemaBuilder;
+import org.neo4j.ogm.metadata.schema.Schema;
 import org.neo4j.ogm.typeconversion.ConversionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +35,16 @@ public class MetaData {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetaData.class);
 
     private final DomainInfo domainInfo;
+    private final Schema schema;
     private Map<String, ClassInfo> classInfos = new HashMap<>();
 
     public MetaData(String... packages) {
         domainInfo = DomainInfo.create(packages);
+        schema = new DomainInfoSchemaBuilder(domainInfo).build();
+    }
+
+    public Schema getSchema() {
+        return schema;
     }
 
     /**

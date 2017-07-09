@@ -29,7 +29,6 @@ import org.neo4j.ogm.request.Statement;
 public class CypherQuery implements Statement {
 
     protected String statement;
-    protected int withIndex;
     protected Map<String, Object> parameters = new HashMap<>();
 
     /**
@@ -41,7 +40,6 @@ public class CypherQuery implements Statement {
     public CypherQuery(String cypher, Map<String, ?> parameters) {
         this.statement = cypher;
         this.parameters.putAll(parameters);
-        parseStatement();
     }
 
     public String getStatement() {
@@ -62,10 +60,4 @@ public class CypherQuery implements Statement {
         return false;
     }
 
-    private void parseStatement() {
-        this.withIndex = statement.indexOf("WITH n");
-        if (this.withIndex == -1) {
-            this.withIndex = statement.indexOf("WITH r");
-        }
-    }
 }

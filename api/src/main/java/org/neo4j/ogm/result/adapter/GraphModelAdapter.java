@@ -44,31 +44,26 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
         GraphModel graphModel = new DefaultGraphModel();
 
         for (Map.Entry<String, Object> mapEntry : data.entrySet()) {
-
             final Object value = mapEntry.getValue();
-            if (isPath(value)) {
-                buildPath(value, graphModel, nodeIdentities, edgeIdentities);
-            } else if (isNode(value)) {
-                buildNode(value, graphModel, nodeIdentities);
-            } else if (isRelationship(value)) {
-                buildRelationship(value, graphModel, edgeIdentities);
-            } else if (value instanceof Iterable) {
-                Iterable collection = (Iterable) value;
-                for (Object element : collection) {
-                    if (isPath(element)) {
-                        buildPath(element, graphModel, nodeIdentities, edgeIdentities);
-                    } else if (isNode(element)) {
-                        buildNode(element, graphModel, nodeIdentities);
-                    } else if (isRelationship(element)) {
-                        buildRelationship(element, graphModel, edgeIdentities);
-                    } else {
-                        throw new RuntimeException("Not handled:" + value.getClass());
-                    }
-                }
-            }
+            adaptInternal(nodeIdentities, edgeIdentities, graphModel, value);
         }
 
         return graphModel;
+    }
+
+    private void adaptInternal(Set<Long> nodeIdentities, Set<Long> edgeIdentities, GraphModel graphModel, Object value) {
+        if (isPath(value)) {
+            buildPath(value, graphModel, nodeIdentities, edgeIdentities);
+        } else if (isNode(value)) {
+            buildNode(value, graphModel, nodeIdentities);
+        } else if (isRelationship(value)) {
+            buildRelationship(value, graphModel, edgeIdentities);
+        } else if (value instanceof Iterable) {
+            Iterable collection = (Iterable) value;
+            for (Object element : collection) {
+                adaptInternal(nodeIdentities, edgeIdentities, graphModel, element);
+            }
+        }
     }
 
     public void buildPath(Object path, GraphModel graphModel, Set nodeIdentities, Set edgeIdentities) {

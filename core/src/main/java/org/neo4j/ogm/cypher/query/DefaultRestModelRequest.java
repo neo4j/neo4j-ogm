@@ -20,7 +20,7 @@ import org.neo4j.ogm.request.RestModelRequest;
 /**
  * @author Luanne Misquitta
  */
-public class DefaultRestModelRequest extends PagingAndSortingQuery implements RestModelRequest {
+public class DefaultRestModelRequest extends CypherQuery implements RestModelRequest {
 
     private final static String[] resultDataContents = new String[]{"rest"};
 

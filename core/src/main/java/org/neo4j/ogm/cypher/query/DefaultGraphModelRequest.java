@@ -20,7 +20,7 @@ import org.neo4j.ogm.request.GraphModelRequest;
 /**
  * @author Vince Bickers
  */
-public class DefaultGraphModelRequest extends PagingAndSortingQuery implements GraphModelRequest {
+public class DefaultGraphModelRequest extends CypherQuery implements GraphModelRequest {
 
     private final static String[] resultDataContents = new String[]{"graph"};
 

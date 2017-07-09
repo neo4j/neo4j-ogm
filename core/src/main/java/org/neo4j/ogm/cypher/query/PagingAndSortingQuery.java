@@ -12,6 +12,8 @@
  */
 package org.neo4j.ogm.cypher.query;
 
+import org.neo4j.ogm.session.request.NodeQueryBuilder;
+
 import java.util.Map;
 
 /**
@@ -21,19 +23,69 @@ import java.util.Map;
  *
  * @author Vince Bickers
  */
-public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorting {
+public class PagingAndSortingQuery implements PagingAndSorting {
 
     private Pagination paging;
     private SortOrder sortOrder = new SortOrder();
 
-    PagingAndSortingQuery(String cypher, Map<String, ?> parameters) {
-        super(cypher, parameters);
+    private String statement;
+    private String matchClause;
+    private String returnClause;
+
+    private final Map<String, Object> parameters;
+    protected int withIndex;
+
+    private boolean returnsPath = false;
+    private boolean hasPredicate;
+
+    public PagingAndSortingQuery(String statement, Map<String, Object> parameters) {
+        this.statement = statement;
+        this.parameters = parameters;
+        this.withIndex = this.statement.indexOf("WITH n");
+        if (this.withIndex == -1) {
+            this.withIndex = this.statement.indexOf("WITH r");
+        }
+        hasPredicate = statement.contains("WHERE");
+        returnsPath = statement.matches(".*RETURN.*p.*");
     }
 
+    public PagingAndSortingQuery(String matchClause, String returnClause, Map<String, Object> parameters,
+                                 boolean returnsPath,
+                                 boolean hasPredicate) {
+        this.matchClause = matchClause;
+        this.returnClause = returnClause;
+        this.parameters = parameters;
+        this.returnsPath = returnsPath;
+        this.hasPredicate = hasPredicate;
+    }
+
+
     public String getStatement() {
+        String sorting = sortOrder().toString();
+        if (statement == null) {
+
+            StringBuilder sb = new StringBuilder();
+
+            String returnClause = this.returnClause;
+            sb.append(matchClause);
+            if (!sorting.isEmpty()) {
+                sb.append(sorting.replace("$", "n"));
+            }
+            if (paging != null) {
+                sb.append(paging.toString());
+            }
+            sb.append(returnClause);
+            if (needsRowResult()) {
+                sb.append(", ID(n)");
+            }
+            return sb.toString();
+
+        }
+
+
+        // only used for relationship entity queries now, remove when relationship entity queries moved to new query building
 
         String stmt = statement.trim();
-        String sorting = sortOrder().toString();
         String pagination = paging == null ? "" : page().toString();
 
         // these transformations are entirely dependent on the form of our base queries and
@@ -82,6 +134,10 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
         return stmt;
     }
 
+    public boolean needsRowResult() {
+        return ((sortOrder.toString().length() > 0) || (paging != null) || hasPredicate) && returnsPath;
+    }
+
     @Override
     public PagingAndSortingQuery setPagination(Pagination paging) {
         this.paging = paging;
@@ -94,11 +150,19 @@ public class PagingAndSortingQuery extends CypherQuery implements PagingAndSorti
         return this;
     }
 
+    public void setReturnsPath(boolean returnsPath) {
+        this.returnsPath = returnsPath;
+    }
+
     private Pagination page() {
         return paging;
     }
 
     private SortOrder sortOrder() {
         return sortOrder;
+    }
+
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
 }

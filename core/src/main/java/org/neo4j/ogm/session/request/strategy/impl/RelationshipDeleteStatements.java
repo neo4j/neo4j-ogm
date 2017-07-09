@@ -42,41 +42,14 @@ public class RelationshipDeleteStatements implements DeleteStatements {
         return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0", Utils.map());
     }
 
-    @Override
-    public CypherQuery deleteAllAndCount() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0 RETURN COUNT(r0)", Utils.map());
-    }
-
-    @Override
-    public CypherQuery deleteAllAndList() {
-        return new DefaultRowModelRequest("MATCH (n) OPTIONAL MATCH (n)-[r0]-() DELETE r0 RETURN ID(r0)", Utils.map());
-    }
-
     public CypherQuery delete(String type) {
         return new DefaultRowModelRequest(String.format("MATCH (n)-[r0:`%s`]-() DELETE r0", type), Utils.map());
-    }
-
-    @Override
-    public CypherQuery deleteAndCount(String type) {
-        return new DefaultRowModelRequest(String.format("MATCH (n)-[r0:`%s`]-() DELETE r0 RETURN COUNT(r0)", type), Utils.map());
-    }
-
-    @Override
-    public CypherQuery deleteAndList(String type) {
-        return new DefaultRowModelRequest(String.format("MATCH (n)-[r0:`%s`]-() DELETE r0 RETURN ID(r0)", type), Utils.map());
     }
 
     @Override
     public CypherQuery delete(String type, Iterable<Filter> filters) {
         FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
         query.setReturnClause(" DELETE r0");
-        return new DefaultRowModelRequest(query.statement(), query.parameters());
-    }
-
-    @Override
-    public CypherQuery deleteAndCount(String type, Iterable<Filter> filters) {
-        FilteredQuery query = FilteredQueryBuilder.buildRelationshipQuery(type, filters);
-        query.setReturnClause(" DELETE r0 RETURN COUNT(r0)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
     }
 

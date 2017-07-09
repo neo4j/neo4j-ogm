@@ -34,16 +34,6 @@ import org.neo4j.ogm.session.request.strategy.AggregateStatements;
 public class CountStatements implements AggregateStatements {
 
     @Override
-    public CypherQuery countNodes() {
-        return new DefaultRowModelRequest("MATCH (n) RETURN COUNT(n)", Utils.map());
-    }
-
-    @Override
-    public CypherQuery countNodes(String label) {
-        return countNodes(Collections.singletonList(label));
-    }
-
-    @Override
     public CypherQuery countNodes(Iterable<String> labels) {
         StringBuilder cypherLabels = new StringBuilder();
         for (String label : labels) {
@@ -58,16 +48,6 @@ public class CountStatements implements AggregateStatements {
         FilteredQuery query = FilteredQueryBuilder.buildNodeQuery(label, filters);
         query.setReturnClause(" RETURN COUNT(n)");
         return new DefaultRowModelRequest(query.statement(), query.parameters());
-    }
-
-    @Override
-    public CypherQuery countEdges() {
-        return new DefaultRowModelRequest("MATCH (n)-[r0]->() RETURN COUNT(r0)", Utils.map());
-    }
-
-    @Override
-    public CypherQuery countEdges(String type) {
-        return new DefaultRowModelRequest(String.format("MATCH (n)-[r0:`%s`]->() RETURN COUNT(r0)", type), Utils.map());
     }
 
     @Override

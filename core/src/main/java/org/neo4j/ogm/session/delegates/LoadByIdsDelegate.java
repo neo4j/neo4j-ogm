@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.context.GraphEntityMapper;
+import org.neo4j.ogm.cypher.query.DefaultGraphModelRequest;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.cypher.query.PagingAndSortingQuery;
 import org.neo4j.ogm.cypher.query.SortOrder;
@@ -45,13 +46,14 @@ public class LoadByIdsDelegate {
     public <T, ID extends Serializable> Collection<T> loadAll(Class<T> type, Collection<ID> ids, SortOrder sortOrder, Pagination pagination, int depth) {
 
         String entityType = session.entityType(type.getName());
-        QueryStatements queryStatements = session.queryStatementsFor(type);
+        QueryStatements<ID> queryStatements = session.queryStatementsFor(type, depth);
 
         PagingAndSortingQuery qry = queryStatements.findAllByType(entityType, ids, depth)
                 .setSortOrder(sortOrder)
                 .setPagination(pagination);
 
-        try (Response<GraphModel> response = session.requestHandler().execute((GraphModelRequest) qry)) {
+        GraphModelRequest request = new DefaultGraphModelRequest(qry.getStatement(), qry.getParameters());
+        try (Response<GraphModel> response = session.requestHandler().execute(request)) {
             Iterable<T> mapped = new GraphEntityMapper(session.metaData(), session.context()).map(type, response);
             Set<T> results = new LinkedHashSet<>();
             for (T entity : mapped) {

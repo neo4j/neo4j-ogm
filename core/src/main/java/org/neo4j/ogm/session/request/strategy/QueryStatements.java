@@ -47,22 +47,6 @@ public interface QueryStatements<ID extends Serializable> {
     PagingAndSortingQuery findOneByType(String label, ID id, int depth);
 
     /**
-     * construct a query to fetch all objects
-     *
-     * @return a {@link PagingAndSortingQuery}
-     */
-    PagingAndSortingQuery findAll();
-
-    /**
-     * construct a query to fetch all objects with the specified ids
-     *
-     * @param ids the ids of the objects to find
-     * @param depth the depth to traverse for any related objects
-     * @return a {@link PagingAndSortingQuery}
-     */
-    PagingAndSortingQuery findAll(Collection<ID> ids, int depth);
-
-    /**
      * construct a query to fetch all objects with the specified ids
      *
      * @param type the label attached to the object, or the relationship type

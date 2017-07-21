@@ -11,3 +11,5 @@ logs
 .classpath
 .project
 .settings
+build/
+.gradle/

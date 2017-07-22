@@ -9,6 +9,7 @@ import org.asciidoctor.SafeMode
 buildscript {
     ext {
         asciidoctorjVersion = '1.5.4.1'
+        asciidoctorjPdfVersion = '1.5.0-alpha.11'
         asciidoctorGroovyDslVersion = '1.0.0.Alpha2'
     }
     repositories {
@@ -16,6 +17,7 @@ buildscript {
     }
     dependencies {
         classpath "org.asciidoctor:asciidoctorj:$asciidoctorjVersion"
+        classpath "org.asciidoctor:asciidoctorj-pdf:$asciidoctorjPdfVersion"
         classpath "org.asciidoctor:asciidoctorj-groovy-dsl:$asciidoctorGroovyDslVersion"
         classpath 'net.sf.docbook:docbook-xsl:1.79.1:ns-resources@zip'
         classpath fileTree(dir: "${rootProject.projectDir}/lib", include: '*.jar')

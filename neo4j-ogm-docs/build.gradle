@@ -19,7 +19,7 @@ buildscript {
         classpath "org.asciidoctor:asciidoctorj-groovy-dsl:$asciidoctorGroovyDslVersion"
         classpath 'net.sf.docbook:docbook-xsl:1.79.1:ns-resources@zip'
         classpath fileTree(dir: "${rootProject.projectDir}/lib", include: '*.jar')
-        classpath files("docbook/catalog/")
+        classpath files("src/main/resources/docbook/catalog/")
     }
 }
 
@@ -37,6 +37,7 @@ if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.0-SNAPSHOT" 
 if (!project.hasProperty("kerberosAddonVersion")) { ext.kerberosAddonVersion = "1.0" }
 ext {
     traceDocbook = traceDocbook
+    resourcesDir = "${projectDir}/src/main/resources"
 
     ogmDocVersion = ogmVersion.tokenize('.')[0..1].join(".")
     if (ogmVersion.contains("-")) {ogmDocVersion += "-preview"}
@@ -117,7 +118,7 @@ task toDocbook {
     def sourceFile = new File("${sourceDir}/index.adoc")
     def imagesDir = '../images'
     def docbookOutputDir = "${buildDir}/docbook/${ogmDocVersion}"
-    def templateDir = "${projectDir}/templates/docbook"
+    def templateDir = "${resourcesDir}/templates/docbook"
     inputs.dir sourceDir
     outputs.dir docbookOutputDir
     doLast {
@@ -148,7 +149,7 @@ task toDocbookCopyResources(type: Copy) {
         include 'images/**'
     }
     from (toDocbook.sourceDir) {
-        include "/images/**"
+        include "images/**"
     }
     into "${buildDir}/docbook/${ogmDocVersion}"
 }
@@ -252,9 +253,13 @@ task copyHtmlResources(type: Copy) {
     inputs.dir "${projectDir}/css"
     inputs.dir "${projectDir}/javascript"
     inputs.dir "${projectDir}/images"
-    inputs.dir "${rootProject.projectDir}/src/main/resources/css"
-    inputs.dir "${rootProject.projectDir}/src/main/resources/javascript"
-    from ("${projectDir}") {
+    inputs.dir "${resourcesDir}/css"
+    inputs.dir "${resourcesDir}/javascript"
+    doFirst{println "$resourcesDir/images"}
+    from ("${toDocbook.sourceDir}") {
+        include 'images/**'
+    }
+    from ("${resourcesDir}") {
         include 'images/**'
         include 'javascript/**'
         include 'css/**'

@@ -321,4 +321,11 @@ task pdf {
 }
 pdf.onlyIf { !project.hasProperty('noPdf') }
 
+task dist(type: Copy, dependsOn: [packageHtml, pdf]) {
+    from(buildDir) {
+        include 'pdf/**'
+    }
+    into "$buildDir/distributions"
+}
+
 // vim: set fdm=expr:

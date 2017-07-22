@@ -69,6 +69,15 @@ ext {
             'imagesdir'                        : './images',
             'attribute-missing'                : 'warn',
     ] + docsCrossReferenceBaseUris
+    pdfAsciidoctorAttributes = [
+            'source-highlighter': 'rouge',
+            'pdf-style'         : 'neo',
+            'pdf-fontsdir'      : "$projectDir/common/fonts".toString(),
+            'doctype'           : 'book',
+            'toc'               : '',
+            'showlinks'         : '',
+            'nonhtmloutput'     : '',
+    ]
 
     docId = 'ogm-manual'
     olinkdb = "${buildDir}/olinkdb/olinkdb.xml"
@@ -273,5 +282,34 @@ task packageHtml(type: Tar, dependsOn: html) {
     }
     destinationDir file("$rootProject.buildDir/distributions")
 }
+
+task pdf {
+    description 'Build Object-Graph Mapping (OGM) Manual PDF.'
+    def modelName = 'ogm-manual'
+    def sourceDir = "${projectDir}/src/main/asciidoc"
+    def sourceFile = new File("${sourceDir}/index.adoc")
+    def pdfOutputDir = "${buildDir}/pdf"
+    def pdfStylesDir = "${projectDir}/common/pdf-theme"
+    inputs.dir sourceDir
+    inputs.dir pdfStylesDir
+    outputs.dir pdfOutputDir
+    doLast {
+        def attrs = project.ext.commonAsciidoctorAttributes + project.ext.pdfAsciidoctorAttributes +
+                [
+                        'manual-title'  : "Neo4j OGM - An Object Graph Mapping Library for Neo4j: ${ogmDocVersion}",
+                        'version'       : "${ogmDocVersion}",
+                        'pdf-stylesdir' : pdfStylesDir.toString(),
+                        'imagesdir'     : '../images',
+                ]
+        def opts = OptionsBuilder.options()
+                .backend('pdf')
+                .safe(SafeMode.UNSAFE)
+                .toFile(new File("$pdfOutputDir/neo4j-ogm-manual-${ogmDocVersion}.pdf"))
+                .mkDirs(true)
+                .attributes(attrs)
+        getAsciidoctor().convertFile(sourceFile, opts.get())
+    }
+}
+pdf.onlyIf { !project.hasProperty('noPdf') }
 
 // vim: set fdm=expr:

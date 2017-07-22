@@ -113,7 +113,7 @@ def getAsciidoctor() {
 
 task toDocbook {
     description 'Build Neo4j Object-Graph Mapping (OGM) Manual Docbook output.'
-    def sourceDir = "${projectDir}/src/main/asciidoc"
+    ext.sourceDir = "${projectDir}/src/main/asciidoc"
     def sourceFile = new File("${sourceDir}/index.adoc")
     def imagesDir = '../images'
     def docbookOutputDir = "${buildDir}/docbook/${ogmDocVersion}"
@@ -146,6 +146,9 @@ task toDocbook {
 task toDocbookCopyResources(type: Copy) {
     from(projectDir) {
         include 'images/**'
+    }
+    from (toDocbook.sourceDir) {
+        include "/images/**"
     }
     into "${buildDir}/docbook/${ogmDocVersion}"
 }
@@ -300,7 +303,7 @@ task pdf {
                         'manual-title'  : "Neo4j OGM - An Object Graph Mapping Library for Neo4j: ${ogmDocVersion}",
                         'version'       : "${ogmDocVersion}",
                         'pdf-stylesdir' : pdfStylesDir.toString(),
-                        'imagesdir'     : '../images',
+                        'imagesdir'     : "${sourceDir}/images".toString(),
                 ]
         def opts = OptionsBuilder.options()
                 .backend('pdf')

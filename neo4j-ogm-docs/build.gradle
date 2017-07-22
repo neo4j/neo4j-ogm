@@ -32,7 +32,7 @@ plugins {
 
 def traceDocbook = hasProperty('traceDocbook') ? true : false
 
-if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "2.1.x" }
+if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "3.0.0-M02" }
 if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.0-SNAPSHOT" }
 if (!project.hasProperty("kerberosAddonVersion")) { ext.kerberosAddonVersion = "1.0" }
 ext {
@@ -255,7 +255,6 @@ task copyHtmlResources(type: Copy) {
     inputs.dir "${projectDir}/images"
     inputs.dir "${resourcesDir}/css"
     inputs.dir "${resourcesDir}/javascript"
-    doFirst{println "$resourcesDir/images"}
     from ("${toDocbook.sourceDir}") {
         include 'images/**'
     }

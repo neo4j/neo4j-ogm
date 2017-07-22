@@ -1,0 +1,19 @@
+- case @type
+- when :ref
+  anchor id=@target xreflabel=@text /
+- when :xref
+  - if (path = @attributes['path'])
+    /* link xl:href=@target xl:role='http://docbook.org/roles/xlink/role/olink' =@text */
+    /* link xl:href=@target.gsub(/\.xml/,'') xl:role='http://docbook.org/roles/xlink/role/olink' =@text */
+    olink targetdoc=path.gsub(/\.xml$/, '') targetptr=@attributes['fragment'] =@text
+  - else
+    - linkend = @attributes['fragment'] || node.target
+    - if (text = @text)
+      link linkend=linkend =@text
+    - else
+      xref linkend=linkend /
+- when :link
+  link xl:href=@target =@text
+- when :bibref
+  anchor id=@target xreflabel="[#@target]"
+  | [#@target]

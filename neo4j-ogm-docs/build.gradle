@@ -1,0 +1,217 @@
+import org.asciidoctor.Asciidoctor
+import org.asciidoctor.OptionsBuilder
+import org.asciidoctor.SafeMode
+
+//
+// Object-Graph Mapping (OGM) Manual
+//
+
+buildscript {
+    ext {
+        asciidoctorjVersion = '1.5.4.1'
+        asciidoctorGroovyDslVersion = '1.0.0.Alpha2'
+    }
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.asciidoctor:asciidoctorj:$asciidoctorjVersion"
+        classpath "org.asciidoctor:asciidoctorj-groovy-dsl:$asciidoctorGroovyDslVersion"
+        classpath 'net.sf.docbook:docbook-xsl:1.79.1:ns-resources@zip'
+        classpath fileTree(dir: "${rootProject.projectDir}/lib", include: '*.jar')
+        classpath files("docbook/catalog/")
+    }
+}
+
+plugins {
+    id "org.neo4j.doc.build.vale" version "1.0-alpha01" apply false
+    id 'org.neo4j.doc.build.saxon' version '1.0-alpha01' apply false
+    id 'org.neo4j.doc.build.docbook' version '1.0-alpha01' apply false
+}
+
+def traceDocbook = hasProperty('traceDocbook') ? true : false
+
+ext {
+    traceDocbook = traceDocbook
+}
+
+def getAsciidoctor() {
+    project.ext.adoc = Asciidoctor.Factory.create()
+    project.ext.adoc
+}
+
+task toDocbook(dependsOn: prepareOgmManualSources) {
+    description 'Build Neo4j Object-Graph Mapping (OGM) Manual Docbook output.'
+    def sourceDir = "${projectDir}/src/main/asciidoc"
+    def sourceFile = new File("${sourceDir}/index.adoc")
+    def imagesDir = '../images'
+    def docbookOutputDir = "${buildDir}/docbook/${ogmDocVersion}"
+    def templateDir = "${projectDir}/templates/docbook"
+    inputs.dir sourceDir
+    outputs.dir docbookOutputDir
+    doLast {
+        def attrs = project.ext.commonAsciidoctorAttributes + [
+            'importdir'           : ogmManualImportDir,
+            'version'             : ogmDocVersion,
+            'docinfo1'            : '',
+        ]
+        attrs['imagesdir'] = imagesDir
+        attrs['stylesheet'] = 'github.css'
+        attrs['stylesdir'] = '../css'
+        attrs['linkcss'] = ''
+        def opts = OptionsBuilder.options()
+                .backend('docbook5')
+                .safe(SafeMode.UNSAFE)
+                .toDir(new File(docbookOutputDir))
+                .templateDir(new File(templateDir))
+                .mkDirs(true)
+                .attributes(attrs)
+        def asciidoctor = getAsciidoctor()
+        asciidoctor.convertFile(sourceFile, opts.get())
+    }
+    finalizedBy {toDocbookCopyResources}
+    finalizedBy {preprocess}
+}
+
+task toDocbookCopyResources(type: Copy) {
+    from(projectDir) {
+        include 'images/**'
+    }
+    into "${buildDir}/docbook/${ogmDocVersion}"
+}
+
+preprocess {
+    description 'Fix things in the DocBook XML before further processing.'
+    dependsOn toDocbook
+    def sourceFile = "${buildDir}/docbook/${ogmDocVersion}/index.xml"
+    def toolsDir = "${rootProject.projectDir}/docbook"
+
+    doFirst {
+        def cmd = ["${projectDir}/bin/post-process.sh", sourceFile, "${projectDir}/bin/post-process.sed"]
+        runCommand(cmd)
+    }
+
+    input sourceFile
+    outFile sourceFile
+
+    parameters([
+        "book-id": "$docId"
+    ])
+}
+
+html {
+    description 'Build Neo4j Object-Graph Mapping (OGM) Manual to multi-page HTML.'
+    dependsOn toDocbook
+    doFirst { println "[+] Building Neo4j Object-Graph Mapping (OGM) Manual multi-page HTML" }
+    def docbookInputDir = "${buildDir}/docbook/${ogmDocVersion}"
+    def sourceFile = "${docbookInputDir}/index.xml"
+    def outputDir = "${buildDir}/html/${ogmDocVersion}"
+    def toolsDir = "${rootProject.projectDir}/docbook"
+    def css = [
+        '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css',
+        '//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css',
+        '//fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,600,300italic',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/codemirror.min.css',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/theme/neo.min.css',
+        'css/extra.css',
+        'css/chunked-base.css'
+    ].join(" ")
+    def scripts = [
+        '//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js',
+        '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/codemirror.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/addon/runmode/runmode.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/javascript/javascript.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/shell/shell.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/python/python.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/xml/xml.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/clike/clike.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/cypher/cypher.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/properties/properties.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.11.0/mode/groovy/groovy.min.js',
+        'javascript/colorize.js',
+        'javascript/tabs-for-chunked.js',
+        'javascript/mutate.min.js',
+        'javascript/jquery/treeview/jquery.treeview.min.js',
+        'javascript/mp-nav.js',
+        'javascript/versionswitcher.js',
+        'javascript/version.js',
+    ].join(" ")
+
+    // Task configuration
+    inputs.dir docbookInputDir
+    outputs.dir outputDir
+
+    stylesheet "classpath:xsl/custom/xhtml5/chunk.xsl"
+    input sourceFile
+
+    // Stylesheet parameters
+    parameters ([
+            "base.dir": "${outputDir}",
+            "chunk.section.depth": "0",
+            "html.ext": ".html",
+            "make.clean.html": "1",
+            "chunker.output.method": "html",
+            "chunker.output.encoding": "UTF-8",
+            "chunker.output.indent": "yes",
+            "use.id.as.dirname": "1",
+            "html.stylesheet": "${css}",
+            "html.script": "${scripts}",
+            "neo.search": "1",
+            "generate.toc": "''",
+            "header.rule": "0",
+            "neo.documentation.library.links":
+            """
+            Operations_Manual=${docsCrossReferenceBaseUris['operations-manual-base-uri']}/
+            Developer_Manual=${docsCrossReferenceBaseUris['developer-manual-base-uri']}/
+            OGM_Manual=${docsCrossReferenceBaseUris['ogm-manual-base-uri']}/
+            Java_Reference=${docsCrossReferenceBaseUris['java-reference-base-uri']}/
+            REST_Docs=${docsCrossReferenceBaseUris['rest-docs-base-uri']}/
+            """,
+            "target.database.document": "file://${olinkdb}",
+            "current.docid": "$docId"
+    ])
+    finalizedBy { copyHtmlResources }
+}
+
+task copyHtmlResources(type: Copy) {
+    description 'Copy resources for the multi-page Neo4j Object-Graph Mapping (OGM) Manual'
+    inputs.dir "${projectDir}/css"
+    inputs.dir "${projectDir}/javascript"
+    inputs.dir "${projectDir}/images"
+    inputs.dir "${rootProject.projectDir}/src/main/resources/css"
+    inputs.dir "${rootProject.projectDir}/src/main/resources/javascript"
+    from ("${projectDir}") {
+        include 'images/**'
+        include 'javascript/**'
+        include 'css/**'
+    }
+    from ("${rootProject.projectDir}/src/main/resources") {
+        include 'logo/**'
+        include 'css/jquery.treeview.css'
+        include 'css/chunked-base.css'
+        include 'javascript/colorize.js'
+        include 'javascript/tabs-for-chunked.js'
+        include 'javascript/mp-nav.js'
+        include 'javascript/mutate.min.js'
+        include 'javascript/jquery/treeview/jquery.treeview.min.js'
+        include 'javascript/versionswitcher.js'
+    }
+    into "${buildDir}/html/${ogmDocVersion}"
+}
+
+task packageHtml(type: Tar, dependsOn: html) {
+    baseName "ogm-manual"
+    version ogmDocVersion
+    extension 'tar.gz'
+    compression Compression.GZIP
+    from {
+        "${buildDir}/html/${ogmDocVersion}"
+    }
+    into {
+        "${baseName}/${ogmDocVersion}"
+    }
+    destinationDir file("$rootProject.buildDir/distributions")
+}
+
+// vim: set fdm=expr:

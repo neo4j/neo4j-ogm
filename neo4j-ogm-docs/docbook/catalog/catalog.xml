@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+  <rewriteURI
+    uriStartString="http://docbook.sourceforge.net/release/xsl/current/"
+    rewritePrefix="classpath:docbook/"
+  />
+
+  <rewriteSystem
+    systemIdStartString="http://www.w3.org/TR/xhtml1/DTD/"
+    rewritePrefix="../dtd/xhtml1/DTD/"
+  />
+
+  <rewriteSystem
+    systemIdStartString="http://www.w3.org/TR/xhtml11/DTD/"
+    rewritePrefix="../dtd/xhtml11/DTD/"
+  />
+
+  <!-- <rewriteSystem -->
+  <!--   systemIdStartString="jj://SKITCORVE/" -->
+  <!--   rewritePrefix="../dtd/xhtml1/DTD/" -->
+  <!-- /> -->
+
+</catalog>
+<!-- vim: set sw=2 ts=2: -->

@@ -24,15 +24,76 @@ buildscript {
 }
 
 plugins {
-    id "org.neo4j.doc.build.vale" version "1.0-alpha01" apply false
-    id 'org.neo4j.doc.build.saxon' version '1.0-alpha01' apply false
-    id 'org.neo4j.doc.build.docbook' version '1.0-alpha01' apply false
+    id 'org.neo4j.doc.build.vale' version '1.0-alpha01'
+    id 'org.neo4j.doc.build.saxon' version '1.0-alpha01'
+    id 'org.neo4j.doc.build.docbook' version '1.0-alpha01'
 }
 
 def traceDocbook = hasProperty('traceDocbook') ? true : false
 
+if (!project.hasProperty("ogmVersion")) { ext.ogmVersion = "2.1.x" }
+if (!project.hasProperty("neo4jVersion")) { ext.neo4jVersion = "3.3.0-SNAPSHOT" }
+if (!project.hasProperty("kerberosAddonVersion")) { ext.kerberosAddonVersion = "1.0" }
 ext {
     traceDocbook = traceDocbook
+
+    ogmDocVersion = ogmVersion.tokenize('.')[0..1].join(".")
+    if (ogmVersion.contains("-")) {ogmDocVersion += "-preview"}
+
+    neo4jVersionParts = neo4jVersion.split('-')
+    neo4jDocVersion = neo4jVersionParts[0][0..2]
+    if (1 < neo4jVersionParts.size()) {
+        neo4jDocVersion += "-preview"
+    }
+
+    copyrightYear = '2017'
+    docsBaseUri = "https://neo4j.com/docs"
+    docsCrossReferenceBaseUris = [
+            'operations-manual-base-uri' : "${docsBaseUri}/operations-manual/${neo4jDocVersion}",
+            'developer-manual-base-uri'  : "${docsBaseUri}/developer-manual/${neo4jDocVersion}",
+            'java-reference-base-uri'    : "${docsBaseUri}/java-reference/${neo4jDocVersion}",
+            'rest-docs-base-uri'         : "${docsBaseUri}/rest-docs/${neo4jDocVersion}",
+            'ogm-manual-base-uri'        : "${docsBaseUri}/ogm-manual/${ogmDocVersion}",
+            'kerberos-add-on-base-uri'   : "${docsBaseUri}/add-on/kerberos/${kerberosAddonVersion}"
+    ]
+    commonAsciidoctorAttributes = [
+            'copyright-year'                   : copyrightYear,
+            'copyright'                        : "${copyrightYear} Neo4j, Inc.",
+            'common-license-page-uri'          : "${docsBaseUri}/license/",
+            'neo4j-version'                    : neo4jDocVersion,
+            'neo4j-version-exact'              : neo4jVersion,
+            'kerberos-addon-version'           : kerberosAddonVersion,
+            'neo4j-git-version'                : neo4jDocVersion,
+            'doctype'                          : 'book',
+            'icons'                            : 'font',
+            'imagesdir'                        : './images',
+            'attribute-missing'                : 'warn',
+    ] + docsCrossReferenceBaseUris
+
+    docId = 'ogm-manual'
+    olinkdb = "${buildDir}/olinkdb/olinkdb.xml"
+
+    runCommand = { strList ->
+        assert ( strList instanceof String ||
+            ( strList instanceof List && strList.each{ it instanceof String } ) \
+    )
+        def proc = strList.execute()
+        // proc.in.eachLine { line -> println line }
+        proc.out.close()
+        proc.waitFor()
+        // print "[INFO] ( "
+        // if(strList instanceof List) {
+        //     strList.each { print "${it} " }
+        // } else {
+        //     print strList
+        // }
+        // println " )"
+        if (proc.exitValue()) {
+            println "gave the following error: "
+            println "[ERROR] ${proc.getErrorStream()}"
+        }
+        assert !proc.exitValue()
+    }
 }
 
 def getAsciidoctor() {
@@ -40,7 +101,7 @@ def getAsciidoctor() {
     project.ext.adoc
 }
 
-task toDocbook(dependsOn: prepareOgmManualSources) {
+task toDocbook {
     description 'Build Neo4j Object-Graph Mapping (OGM) Manual Docbook output.'
     def sourceDir = "${projectDir}/src/main/asciidoc"
     def sourceFile = new File("${sourceDir}/index.adoc")
@@ -51,7 +112,6 @@ task toDocbook(dependsOn: prepareOgmManualSources) {
     outputs.dir docbookOutputDir
     doLast {
         def attrs = project.ext.commonAsciidoctorAttributes + [
-            'importdir'           : ogmManualImportDir,
             'version'             : ogmDocVersion,
             'docinfo1'            : '',
         ]

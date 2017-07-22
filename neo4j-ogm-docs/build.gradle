@@ -304,6 +304,7 @@ task pdf {
                         'version'       : "${ogmDocVersion}",
                         'pdf-stylesdir' : pdfStylesDir.toString(),
                         'imagesdir'     : "${sourceDir}/images".toString(),
+                        'license-dir'   : "${projectDir}/common/asciidoc",
                 ]
         def opts = OptionsBuilder.options()
                 .backend('pdf')

@@ -49,5 +49,5 @@ include::appendix/faq.adoc[leveloffset=+1]
 
 
 ifdef::backend-pdf[]
-include::license.adoc[leveloffset=1]
+include::{license-dir}/license.adoc[leveloffset=1]
 endif::[]

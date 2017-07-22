@@ -13,3 +13,4 @@ logs
 .settings
 build/
 .gradle/
+devenv.local

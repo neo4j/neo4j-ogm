@@ -246,7 +246,7 @@ task copyHtmlResources(type: Copy) {
         include 'javascript/**'
         include 'css/**'
     }
-    from ("${rootProject.projectDir}/src/main/resources") {
+    from ("${projectDir}/common") {
         include 'logo/**'
         include 'css/jquery.treeview.css'
         include 'css/chunked-base.css'

@@ -26,7 +26,7 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  * @author vince
  * @author Luanne Misquitta
  */
-public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Object>, GraphModel> {
+public abstract class GraphModelAdapter extends BaseAdapter implements ResultAdapter<Map<String, Object>, GraphModel> {
 
     /**
      * Parses a row from the result object and transforms it into a GraphModel
@@ -112,20 +112,6 @@ public abstract class GraphModelAdapter implements ResultAdapter<Map<String, Obj
             graphModel.getRelationships().add(edgeModel);
         }
     }
-
-    private Map<String, Object> convertArrayPropertiesToIterable(Map<String, Object> properties) {
-        Map<String, Object> props = new HashMap<>();
-        for (String k : properties.keySet()) {
-            Object v = properties.get(k);
-            if (v.getClass().isArray()) {
-                props.put(k, AdapterUtils.convertToIterable(v));
-            } else {
-                props.put(k, v);
-            }
-        }
-        return props;
-    }
-
 
     public abstract boolean isPath(Object value);
 

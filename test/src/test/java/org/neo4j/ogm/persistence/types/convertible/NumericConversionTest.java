@@ -13,21 +13,25 @@
 
 package org.neo4j.ogm.persistence.types.convertible;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.neo4j.ogm.domain.social.Immortal;
+import org.neo4j.ogm.domain.social.Individual;
+import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.model.Result;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.testutil.MultiDriverTestClass;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.neo4j.ogm.domain.social.Individual;
-import org.neo4j.ogm.exception.MappingException;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
-import org.neo4j.ogm.testutil.MultiDriverTestClass;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luanne Misquitta
@@ -179,5 +183,19 @@ public class NumericConversionTest extends MultiDriverTestClass {
         for (Number number : individual.getLongCollection()) {
             assertTrue(number instanceof Long);
         }
+    }
+
+    @Test
+    public void shouldMapInitializedLongList() throws Exception {
+
+        Immortal immortal = new Immortal("John", "Doe");
+        session.save(immortal);
+
+        session.clear();
+
+        Result result = session.query("MATCH (m:Immortal) WHERE ID(m) = {id} RETURN m",
+                                      Collections.singletonMap("id", immortal.getId()));
+
+        assertThat(result).isNotNull();
     }
 }

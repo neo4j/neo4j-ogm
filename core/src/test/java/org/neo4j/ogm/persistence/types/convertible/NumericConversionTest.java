@@ -14,6 +14,7 @@
 package org.neo4j.ogm.persistence.types.convertible;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -24,8 +25,10 @@ import java.util.Vector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.ogm.domain.social.Immortal;
 import org.neo4j.ogm.domain.social.Individual;
 import org.neo4j.ogm.exception.MappingException;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -182,4 +185,16 @@ public class NumericConversionTest extends MultiDriverTestClass {
         }
     }
 
+    @Test
+    public void shouldMapInitializedLongList() throws Exception {
+
+        Immortal immortal = new Immortal("John", "Doe");
+        session.save(immortal);
+
+        session.clear();
+
+        Result result = session.query("MATCH (m:Immortal) WHERE ID(m) = " + immortal.getId() + " RETURN m",
+                                      Collections.<String, Object>emptyMap());
+        assertNotNull(result);
+    }
 }

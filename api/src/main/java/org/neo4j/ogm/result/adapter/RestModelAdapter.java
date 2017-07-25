@@ -26,7 +26,7 @@ import org.neo4j.ogm.response.model.RelationshipModel;
  * Adapt embedded response to a NodeModels, RelationshipModels, and objects
  * @author Luanne Misquitta
  */
-public abstract class RestModelAdapter implements ResultAdapter<Map<String,Object>, Map<String,Object>> {
+public abstract class RestModelAdapter extends BaseAdapter implements ResultAdapter<Map<String,Object>, Map<String,Object>> {
 
 	@Override
 	public Map<String,Object> adapt(Map<String, Object> result) {
@@ -64,7 +64,7 @@ public abstract class RestModelAdapter implements ResultAdapter<Map<String,Objec
 		nodeModel.setId(nodeId(node));
 		List<String> labels = labels(node);
 		nodeModel.setLabels(labels.toArray(new String[labels.size()]));
-		nodeModel.setProperties(properties(node));
+		nodeModel.setProperties(convertArrayPropertiesToIterable(properties(node)));
 		return nodeModel;
 	}
 

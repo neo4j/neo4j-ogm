@@ -35,7 +35,9 @@ public abstract class ClassUtils {
      * @return reified class for the parameter or null
      */
     public static Class<?> getType(String descriptor) {
-        if (descriptorTypeMappings.containsKey(descriptor)) {
+        Class<?> clazz = descriptorTypeMappings.get(descriptor);
+        // check for class loader here - it can change with tools like spring-devtools
+        if (clazz != null && clazz.getClassLoader() == Thread.currentThread().getContextClassLoader()) {
             return descriptorTypeMappings.get(descriptor);
         }
         Class<?> type;

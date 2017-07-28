@@ -69,15 +69,15 @@ public class TestServer {
 
 			if (enableBolt) {
 				controls = TestServerBuilders.newInProcessBuilder()
-						.withConfig("dbms.connector.0.type", "BOLT")
-						.withConfig("dbms.connector.0.enabled", "true")
-						.withConfig("dbms.connector.0.listen_address", "localhost:" + String.valueOf(port))
+						.withConfig("dbms.connector.bolt.type", "BOLT")
+						.withConfig("dbms.connector.bolt.enabled", "true")
+						.withConfig("dbms.connector.bolt.listen_address", "localhost:" + String.valueOf(port))
 						.newServer();
 			} else {
 				controls = TestServerBuilders.newInProcessBuilder()
-						.withConfig("dbms.connector.1.type", "HTTP")
-						.withConfig("dbms.connector.1.enabled", "true")
-						.withConfig("dbms.connector.1.listen_address", "localhost:" + String.valueOf(port))
+						.withConfig("dbms.connector.http.type", "HTTP")
+						.withConfig("dbms.connector.http.enabled", "true")
+						.withConfig("dbms.connector.http.listen_address", "localhost:" + String.valueOf(port))
 						.withConfig("dbms.security.auth_enabled", String.valueOf(enableAuthentication))
 						.withConfig("org.neo4j.server.webserver.port", String.valueOf(port))
 						.withConfig("org.neo4j.server.transaction.timeout", String.valueOf(transactionTimeoutSeconds))

@@ -14,8 +14,7 @@
 package org.neo4j.ogm.config;
 
 import org.junit.Before;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import org.neo4j.ogm.testutil.TestUtils;
 
 /**
  * @author Frantisek Hartman
@@ -24,6 +23,7 @@ public class BoltDriverLazyInitializationTest extends DriverLazyInitializationTe
 
     @Before
     public void setUp() throws Exception {
-        configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"));
+        configBuilder = new Configuration.Builder(new ClasspathConfigurationSource("ogm-bolt.properties"))
+                .uri("bolt://localhost:" + TestUtils.getAvailablePort());
     }
 }

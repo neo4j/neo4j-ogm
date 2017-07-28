@@ -391,7 +391,9 @@ public class ClassInfo {
                 FieldInfo identityField = identityFieldOrNull();
                 fieldInfos = new HashSet<>();
                 for (FieldInfo fieldInfo : fieldsInfo().fields()) {
-                    if (fieldInfo != identityField && !fieldInfo.isLabelField()) {
+                    if (fieldInfo != identityField && !fieldInfo.isLabelField()
+                            && !fieldInfo.hasAnnotation(StartNode.class)
+                            && !fieldInfo.hasAnnotation(EndNode.class)) {
                         AnnotationInfo annotationInfo = fieldInfo.getAnnotations().get(Property.class);
                         if (annotationInfo == null) {
                             if (fieldInfo.persistableAsProperty()) {
@@ -921,7 +923,7 @@ public class ClassInfo {
      */
     public FieldInfo getEndNodeReader() {
         if (isRelationshipEntity()) {
-            for (FieldInfo fieldInfo : relationshipFields()) {
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 if (fieldInfo.getAnnotations().get(EndNode.class) != null) {
                     return fieldInfo;
                 }
@@ -940,7 +942,7 @@ public class ClassInfo {
     public FieldInfo getStartNodeReader() {
         if (isRelationshipEntity()) {
 
-            for (FieldInfo fieldInfo : relationshipFields()) {
+            for (FieldInfo fieldInfo : fieldsInfo().fields()) {
                 if (fieldInfo.getAnnotations().get(StartNode.class) != null) {
                     return fieldInfo;
                 }

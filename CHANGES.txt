@@ -1,5 +1,6 @@
 3.0.0-SNAPSHOT
 o Check if node is in MappingContext before firing events, fixes #305
+o Don't consider Object fields with @StartNode and @EndNode as property, fixes #66
 
 3.0.0-RC1
 o Add verifyConnection configuration property for bolt and http driver

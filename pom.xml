@@ -417,7 +417,7 @@
         <profile>
             <id>3.1</id>
             <properties>
-                <neo4j>3.1.5</neo4j>
+                <neo4j>3.1.6</neo4j>
             </properties>
             <build>
                 <plugins>

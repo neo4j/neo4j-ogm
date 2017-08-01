@@ -13,9 +13,13 @@
 
 package org.neo4j.ogm.config;
 
-import static org.junit.Assert.*;
-
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+
+import java.io.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author vince
@@ -84,6 +88,45 @@ public class ConfigurationTest {
 		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
 		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
 		assertEquals("http://localhost:7474", configuration.getURI());
+	}
+
+	@Test
+	public void shouldConfigureFromFilesystemPropertiesFilePath() throws Exception {
+		File file = new File(getConfigFileAsRelativePath());
+		FileConfigurationSource source = new FileConfigurationSource(file.getAbsolutePath());
+		Configuration configuration = new Configuration.Builder(source).build();
+
+		assertEquals(AutoIndexMode.NONE, configuration.getAutoIndex());
+		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
+		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
+		assertEquals("http://localhost:7474", configuration.getURI());
+	}
+
+	@Test
+	public void shouldConfigureFromFilesystemPropertiesFileURI() throws Exception {
+		File file = new File(getConfigFileAsRelativePath());
+		FileConfigurationSource source = new FileConfigurationSource(file.toURI().toString());
+		Configuration configuration = new Configuration.Builder(source).build();
+
+		assertEquals(AutoIndexMode.NONE, configuration.getAutoIndex());
+		assertEquals("org.neo4j.ogm.drivers.http.driver.HttpDriver", configuration.getDriverClassName());
+		assertEquals("bmVvNGo6cGFzc3dvcmQ=", configuration.getCredentials().credentials().toString());
+		assertEquals("http://localhost:7474", configuration.getURI());
+	}
+
+	private String getConfigFileAsRelativePath() {
+		try {
+			// Copy ogm-simple to temp file - the file is only inside jar on TeamCity, we need regular file
+
+			File tempFile = File.createTempFile("ogm-simple", ".properties");
+			try (InputStream in = ConfigurationTest.class.getResourceAsStream("/ogm-simple.properties");
+					OutputStream out = new FileOutputStream(tempFile)) {
+				IOUtils.copy(in, out);
+			}
+			return tempFile.getPath();
+		} catch (IOException e) {
+			throw new RuntimeException("Could not create temp ogm-simple.properties", e);
+		}
 	}
 
 	@Test(expected = RuntimeException.class)

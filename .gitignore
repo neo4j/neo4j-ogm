@@ -11,3 +11,6 @@ logs
 .classpath
 .project
 .settings
+build/
+.gradle/
+devenv.local

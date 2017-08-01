@@ -1,16 +1,37 @@
-= Neo4j OGM - Object Graph Mapping Library for Neo4j
-:toc:
-:toclevels: 3
-:toc-placement!:
-:revnumber: {version}
-:revdate: {localdate}
+= Neo4j OGM - An Object Graph Mapping Library for Neo4j v{version}
 
-(C) 2010-2017 Neo Technology
 
-NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee
-for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
+ifdef::backend-html5[(C) {copyright}]
+ifndef::backend-pdf[]
 
-toc::[]
+License: link:{common-license-page-uri}[Creative Commons 3.0]
+endif::[]
+ifdef::backend-pdf[]
+(C) {copyright}
+
+License: <<license, Creative Commons 3.0>>
+endif::[]
+
+[abstract]
+--
+This is the Neo4j object-graph mapping (OGM) manual, authored by the Neo4j team.
+--
+
+The three parts of the manual are:
+
+* <<introduction>> -- Introducing graph database concepts, Neo4j and object-graph mapping.
+* <<tutorial>> -- Follow along as you get started using Neo4j OGM.
+* <<reference>> -- Reference documentation for Neo4j OGM.
+
+// _Who should read this?_
+
+// This manual is written for the developer of a Neo4j client application.
+
+
+// NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee
+// for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
+
+// toc::[]
 
 include::introduction/index.adoc[leveloffset=+1]
 
@@ -18,3 +39,15 @@ include::tutorial/index.adoc[leveloffset=+1]
 
 include::reference/index.adoc[leveloffset=+1]
 
+:numbered!:
+
+[[design-considerations]]
+include::appendix/design-considerations.adoc[leveloffset=+1]
+
+[[faq]]
+include::appendix/faq.adoc[leveloffset=+1]
+
+
+ifdef::backend-pdf[]
+include::{license-dir}/license.adoc[leveloffset=1]
+endif::[]

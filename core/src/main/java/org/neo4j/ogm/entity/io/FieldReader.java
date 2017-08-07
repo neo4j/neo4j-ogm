@@ -83,10 +83,10 @@ public class FieldReader implements RelationalReader, PropertyReader {
         if (annotations != null) {
             AnnotationInfo relationshipAnnotation = annotations.get(Relationship.CLASS);
             if (relationshipAnnotation != null) {
-                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.UNDIRECTED);
+                return relationshipAnnotation.get(Relationship.DIRECTION, Relationship.OUTGOING);
             }
         }
-        return Relationship.UNDIRECTED;
+        return Relationship.OUTGOING;
     }
 
     @Override

@@ -8,6 +8,7 @@ o Update Neo4j to version 3.0.10 in 3.0 profile
 o Update Neo4j to version 3.1.6 in 3.1 profile
 o Change graph id handling for new entities, fix #381
 o Check if node is in MappingContext before firing events, fixes #305
+o Fix mapping of @Relationship with default direction
 
 2.1.3
 --------------

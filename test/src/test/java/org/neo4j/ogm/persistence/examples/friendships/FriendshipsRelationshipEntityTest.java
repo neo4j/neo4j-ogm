@@ -83,7 +83,7 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
                 assertEquals("Mike", person.getFriends().get(0).getFriend().getName());
             } else if (person.getName().equals("Mike")) {
                 expected--;
-                assertEquals(0, person.getFriends().size());
+                assertEquals("Dave", person.getFriends().get(0).getPerson().getName());
             }
         }
         assertEquals(0, expected);
@@ -173,7 +173,8 @@ public class FriendshipsRelationshipEntityTest extends MultiDriverTestClass {
 
         session.clear();
 
-        dave = session.load(Person.class, dave.getId());
-        assertEquals(2, dave.getFriends().get(0).getSharedHobbies().size());
+        mike = session.load(Person.class, mike.getId());
+        assertEquals(2, mike.getFriends().get(0).getSharedHobbies().size());
+
     }
 }

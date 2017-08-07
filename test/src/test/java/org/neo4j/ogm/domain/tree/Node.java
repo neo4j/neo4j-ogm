@@ -11,48 +11,48 @@
  *  conditions of the subcomponent's license, as noted in the LICENSE file.
  */
 
-package org.neo4j.ogm.domain.friendships;
+package org.neo4j.ogm.domain.tree;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
- * @author Vince Bickers
+ * @author Frantisek Hartman
  */
-public class Person {
+public class Node {
 
-    private Long id;
-    private String name;
+    Long id;
+    String name;
 
-    @Relationship(type = "FRIEND_OF", direction = Relationship.UNDIRECTED)
-    private List<Friendship> friends;
+    // defaults to OUTGOING, but not specified on the annotation
+    @Relationship(type = "CHILD")
+    Set<Node> nodes;
 
-    public Person() {
-        this.friends = new ArrayList<>();
+    public Node() {
     }
 
-    public Person(String name) {
-        this();
+    public Node(String name) {
         this.name = name;
     }
 
-    public List<Friendship> getFriends() {
-        return friends;
-    }
-
-    public String getName() {
-        return name;
+    public void add(Node node) {
+        if (nodes == null) {
+            nodes = new HashSet<>();
+        }
+        nodes.add(node);
     }
 
     public Long getId() {
         return id;
     }
 
-    public Friendship addFriend(Person newFriend) {
-        Friendship friendship = new Friendship(this, newFriend, 5);
-        this.friends.add(friendship);
-        return friendship;
+    public String getName() {
+        return name;
+    }
+
+    public Set<Node> getNodes() {
+        return nodes;
     }
 }

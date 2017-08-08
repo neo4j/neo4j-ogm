@@ -387,7 +387,7 @@
         <profile>
             <id>3.0</id>
             <properties>
-                <neo4j>3.0.10</neo4j>
+                <neo4j>3.0.11</neo4j>
             </properties>
             <build>
                 <plugins>
